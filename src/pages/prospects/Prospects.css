@@ -1,0 +1,340 @@
+.text-center-1 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.w-96 {
+  width: 96%;
+}
+
+.ml-10 {
+  margin-left: 8px;
+}
+
+.gap-10 {
+  gap: 10px;
+}
+
+ul.searchlist {
+  box-shadow: 0px 1px 3px 0px;
+  z-index: 100;
+  position: absolute;
+  background: #fff;
+  border-radius: 4px;
+}
+
+.searchlist li {
+  padding: 2px;
+  cursor: pointer;
+}
+
+.fieldset-group {
+  border: 1px solid #cccccc;
+  border-radius: 4px;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  padding: 0 10px;
+  position: relative;
+}
+
+select#customerName-field {
+  border-color: #bfbfbf !important;
+  border-radius: 4px 0 0 4px;
+  padding: 9px 18px;
+}
+
+.phone-input-number-div input.input-text {
+  border-bottom: 1px solid #cccccc;
+  border-top: 1px solid #cccccc;
+  border-right: 1px solid #cccccc;
+  border-left: 0;
+  border-radius: 0 4px 4px 0;
+}
+
+.fieldset-group-label {
+  top: -15px;
+  position: relative;
+  background-color: #fff;
+  margin-bottom: 0;
+  padding: 0 5px;
+  margin-left: 15px;
+  font-size: 115%;
+}
+
+.color {
+  color: #5b626b;
+}
+
+.margin-20 {
+  margin: 20px;
+}
+
+input.input-text:read-only {
+  background: #eeeeee4d;
+}
+
+.align-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+.phone-input-div.createCompanyInfo.css-b62m3t-container {
+  width: 35% !important;
+}
+.fieldset-group-label-1 {
+  top: -15px;
+  /* position: relative; */
+  background-color: #fff;
+  margin-bottom: 0;
+  padding: 0 5px;
+  margin-left: 63%;
+  font-size: 115%;
+}
+
+.font-11 {
+  font-size: 11px;
+}
+
+.margin-right {
+  margin-right: 5px;
+}
+
+.font-13 {
+  font-size: 13px;
+}
+
+/* View-Prospcts */
+
+.card-1 {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  word-wrap: break-word;
+  background-color: #fff;
+  border-radius: 0.25rem;
+  border: 1px solid #cccccc;
+}
+
+.officer-padding {
+  padding: 25px;
+}
+
+.w-11 {
+  width: 11%;
+}
+
+.w-30 {
+  width: 30%;
+}
+
+.delete-margin {
+  margin-bottom: 0 !important;
+}
+
+.height {
+  height: 40px;
+}
+
+.delete-right {
+  margin-bottom: 0px;
+  display: flex;
+  align-items: center;
+  justify-content: right;
+}
+
+.btn-primary {
+  color: #fff;
+  background-color: #02a499;
+  border-color: #02a499;
+}
+
+/* .btn:hover {
+    color: #aaa;
+    background-color: #02a499;
+    border: none;
+} */
+
+.w-99 {
+  width: 99%;
+  border-radius: 4px;
+  font-size: 1.2rem;
+  border: none;
+  color: #fff;
+  font-weight: 500;
+  padding: 5px;
+}
+
+.bg-color {
+  background-color: #02a499;
+}
+
+
+
+.form-control-2 {
+  width: 100%;
+  padding: 0.375rem 0.75rem;
+  border: var(--bs-border-width) solid var(--bs-border-color);
+}
+
+.css-5ryogn-MuiButtonBase-root-MuiSwitch-switchBase.Mui-checked
+  + .MuiSwitch-track {
+  background-color: #626ed4 !important;
+}
+
+.align-right {
+  display: flex;
+  align-items: center;
+  justify-content: end;
+  gap: 5px;
+}
+
+.flex-direction-1 {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: baseline !important;
+  margin-top: 10px !important;
+}
+
+.proapect-font {
+  font-size: 12px;
+  padding: 6px !important;
+  vertical-align: baseline !important;
+}
+
+.prospect-edit {
+  font-size: 12px;
+}
+
+.prospect-table td {
+  padding: 6px;
+}
+
+/* .prospect-form .search-box {
+    margin-top: 20px;
+} */
+
+/* .prospect-bg {
+    background-color: #fff;
+} */
+
+.prospect-container {
+  background-color: #fff;
+}
+
+.page-info-strip .row {
+  align-items: center;
+}
+
+.pro-back-button {
+  font-size: 13px;
+  font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+}
+
+.cus-card {
+  top: 75px;
+}
+
+.card-body.view-prospect {
+  background-color: #fff;
+}
+
+.view-prospect label {
+  color: #5b626b;
+  font-size: 14px;
+  font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+}
+
+.view-prospect input {
+  color: #5b626b;
+  font-size: 14px;
+  font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+}
+
+.new-prospect-form {
+  padding: 0px;
+}
+
+.prospect label {
+  color: #5b626b;
+  font-size: 0.875rem;
+}
+
+h5 {
+  font-size: 1.3125rem;
+}
+
+.fieldset-group label {
+  color: #5b626b;
+  font-size: 0.875rem;
+}
+
+.prospect-address-title {
+  color: #5b626b;
+  font-size: 1.3125rem !important;
+}
+
+@media (min-width: 320px) and (max-width: 767px) {
+  .page-info-header .container-fluid {
+    justify-content: space-between;
+  }
+
+  .prospect-form .form-control {
+    width: 60%;
+  }
+
+  .text-right {
+    text-align: left;
+  }
+
+  .ml-10 {
+    margin-left: 0px;
+  }
+
+  prospect-form {
+    padding: 0px;
+  }
+
+  .new-prospect-form {
+    padding: 0px;
+    margin-left: 26px;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  .text-right {
+    text-align: right ;
+  }
+
+  prospect-form {
+    padding: 0px;
+  }
+}
+
+@media only screen and (max-width: 1040px) {
+  [data-layout="horizontal"] .page-content {
+    padding-top: 45px;
+  }
+
+  .text-right {
+    text-align: left;
+  }
+
+  .new-prospect-form {
+    /* padding: 0px; */
+  }
+}
+
+@media (min-width: 768px) {
+  .new-section-box .services .table-responsive {
+    margin-top: 180px;
+  }
+}
+
+
+.Height_View_scroll{
+
+  max-height: 46vh;
+overflow: overlay;
+}

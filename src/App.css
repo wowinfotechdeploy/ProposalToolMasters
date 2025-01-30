@@ -1,0 +1,17 @@
+a {
+  color: #626ed4;
+  text-decoration: none;
+  background-color: transparent;
+}
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  word-wrap: break-word;
+  background-color: #fff;
+  background-clip: border-box;
+  border: 0 solid #dee2e6;
+  border-radius: 0.25rem;
+  /* height: 595px; */
+}

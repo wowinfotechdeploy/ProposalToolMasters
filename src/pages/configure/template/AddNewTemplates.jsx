@@ -1,0 +1,2007 @@
+/* global $ */
+import React, { useContext, useEffect, useRef, useState } from "react";
+import "./template.css";
+import { Row, Col, Card, Alert } from "reactstrap";
+import Select from "react-select";
+import { AuthContextProvider } from "../../../AuthContext/AuthContext";
+
+import { useNavigate } from "react-router-dom";
+import IndividualVariable from "../../../components/Variables/IndividualVariables";
+import SoleTraderVariable from "../../../components/Variables/SoleTraderVariable";
+import PartnershipVariable from "../../../components/Variables/PartnershipVariables";
+import LlpAndCompanyVariable from "../../../components/Variables/LlpAndCompanyVariables";
+import Heading from "../../../components/TemplateDesign/Heading";
+import TextBlock from "../../../components/TemplateDesign/Text_Block";
+import First_Page from "../../../components/TemplateDesign/First_Page";
+import { useLocation } from "react-router-dom";
+import FullPage from "../../../components/TemplateDesign/Full_Page_Heading";
+import { GetProfessionTypeLookupList } from "../../../redux/Services/Master/ProfessionTypeApi";
+import { GetBusinessTypeLookupList, GetProspectTypeVariationLookupList } from "../../../redux/Services/Master/BusinessTypeLookupListApi";
+import { GetTemplateTypeList } from "../../../redux/Services/Master/TemplateTypeLookupListApi";
+import { GetTemplateElementTypeLookUpList } from "../../../redux/Services/Master/TemplateElementType";
+import {
+  CLIENT_TYPES,
+  Template_Type,
+  USER_ROLE_TYPE,
+} from "../../../Middleware/enums";
+import AcceptSuperAdminChangesConfirmation from "../../../components/AcceptSuperAdminChangesConfirmation";
+import {
+  GetTemplateModel,
+  AddUpdateTemplate,
+  GetTemplatePdfList,
+  GetTemplateLookupPDFList,
+} from "../../../redux/Services/Config/TemplateApi";
+import { useDispatch, useSelector } from "react-redux";
+
+import SuccessModal from "../../../components/SuccessModal";
+import { ERROR_MESSAGES } from "../../../components/GlobalMessage";
+import Utils from "../../../Middleware/Utils";
+import CopyToClipboard from "../../../components/CopyToClipboard/CopyToClipboard";
+import BackButtonSvg from "../../../components/BackButtonSvg";
+import { NotifySuperAdminPredefinedChangesToAdmin } from "../../../redux/Services/Setting/NotificationApi";
+import { DeclineSuperAdminChanges } from "../../../redux/Services/Config/ServiceCategoryApi";
+import ErrorModel from "../../../components/ErrorModel";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import SAPredefinedChangesNotifyMessageModel from "../../../components/SAPredefinedChangesNotifyMessageModel";
+
+function Add_New_Templates(props) {
+  //Declare State:
+  const moduleName = "Template";
+  const {
+    setTopbar,
+    prospectName,
+    setLoader,
+    proposalName,
+    EngagementName,
+    getCrudButtonTextName,
+    getCrudPopUpTitleName,
+    scrollUpDownByElementID,
+    scrollUptoCurrentPosition,
+    HtmlToPlainText,
+    hasActionAccess
+  } = useContext(AuthContextProvider);
+  const navigate = useNavigate();
+  const TemplateDivContainerRef = useRef(null);
+  const common = useSelector((state) => state.Storage); //Getting Logged Users Details From Persist Storage of redux hooks
+  const location = useLocation();
+  const [templateElementList, setTemplateElementList] = useState([]);
+
+  const [TemplatePdfLookupListList, setTemplatePdfLookupListList] = useState(
+    []
+  );
+  const [modelRequestData, setModelRequestData] = useState({
+    Action: null,
+    message: "",
+    ServiceName: [],
+    name: null,
+  });
+  const [openErrorModal, setOpenErrorModal] = React.useState(false);
+  const [professionTypeLookupList, setProfessionTypeLookupList] = useState([]);
+  const [BusinessTypeLookupList, setBusinessTypeLookupList] = useState([]);
+  const [ProspectTypeVariation, setProspectTypeVariationLookupList] = useState([]);
+  const [TemplateTypeLookupList, setTemplateTypeLookupList] = useState([]);
+
+  const [templatePdfList, setTemplatePdfList] = useState([]);
+  const [TemplateElementTypeLookupList, setTemplateElementTypeLookupList] =
+    useState([]);
+  const [selectedPdf, setSelectedPdf] = useState(null);
+  const [selectedPdfDetails, setSelectedPdfDetails] = useState([]);
+
+  const [modelAction, setModelAction] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [FirstPageHeading, setFirstPageHeading] = useState(1);
+  const [requireTempErrorMessage, setRequireTempErrorMessage] = useState(false);
+  const [requireErrorMessage, setRequireErrorMessage] = useState(false);
+  const [requireElementTypeErrorMessage, setRequireElementTypeErrorMessage] =
+    useState({
+      templateElementTypeIDRequire: false,
+      headings: false,
+      shortDesc: false,
+      htmlContent: false,
+      RequireSignataryBlock: false,
+      RequireFirstPageBlock: false,
+    });
+
+  const [
+    requireElementLengthErrorMessage,
+    setRequireElementLengthErrorMessage,
+  ] = useState(false);
+  const [TemplateObj, setTemplateObj] = useState({
+    templateKeyID: null,
+    organisationID: null,
+    originalBusinessTypeID: null,
+    createdByID: null,
+    isDefault: false,
+    templateName: undefined,
+    templateTypeID: null,
+    clientBusinessTypeID: null,
+    orgBusinessTypeID: common.businessTypeID,
+    isPredefined: null,
+    professionTypeList: [],
+  });
+  const [dismissModal, setDismissModal] = useState(null);
+  const [isCheck, setIsCheck] = useState(false);
+  const [openSuccessModal, setOpenSuccessModal] = React.useState(false);
+  const [Status, setStatus] = React.useState(false);
+  // A]  useEffect : Will call when Add/Update button click from list page
+  useEffect(() => {
+    setModelAction((location?.state?.Action === undefined || location?.state?.Action === null) ? "Add" : "Update"); //Do not change this naming convention
+    GetProfessionTypeLookupListData();
+    GetBusinessTypeLookupListData();
+    GetProspectTypeVariationLookupListData()
+    GetTemplateTypeLookupListData();
+
+    GetTemplateElementTypeLookUpListData();
+    setTopbar("none");
+    if (location.state?.templateKeyID !== null) {
+      GetTemplateModalData(location.state?.templateKeyID, location.state?.Type);
+      setModelRequestData({
+        ...modelRequestData,
+        Action: "update"
+      })
+    }
+  }, [location.state]);
+  useEffect(() => {
+    if (modelAction === "Update") {
+      GetTemplateLookupPdfListData()
+    }
+  }, [modelAction])
+  const SetInitialModelData = () => {
+    setTemplateObj({
+      templateKeyID: null,
+      organisationID: null,
+      createdByID: null,
+      templateName: undefined,
+      templateTypeID: null,
+      clientBusinessTypeID: null,
+      orgBusinessTypeID: null,
+      isPredefined: null,
+      professionTypeList: [],
+    });
+
+    setErrorMessage("");
+  };
+
+  // D] Calling All Api's like Lookup List and other Here :
+  // 1) Profession Type Lookup List Api
+  const GetProfessionTypeLookupListData = async () => {
+    try {
+      const data = await GetProfessionTypeLookupList();
+      if (data?.data?.statusCode === 200) {
+        if (data?.data?.responseData?.data) {
+          const ProfessionTypeLookupListData = data?.data?.responseData?.data;
+          setProfessionTypeLookupList(ProfessionTypeLookupListData);
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const ProfessionalTypeLookeupListOptions = professionTypeLookupList.map(
+    (ptype) => ({
+      value: ptype.professionTypeId,
+      label: ptype.professionTypeName,
+    })
+  );
+  const professionTypeValue = TemplateObj?.professionTypeList?.map((item) => ({
+    value: item.professionTypeId,
+    label: item.professionTypeName,
+  }));
+  // Handle Compare And Set Pdf 
+  const handleCompareAndSetPdf = () => {
+    templateElementList.forEach((element) => {
+      if (element.templateElementTypeID === 9) {
+        const foundPdf = TemplatePdfLookupListList.find(
+          (pdf) => pdf.templatePDFKeyID === element.headings
+        );
+        if (foundPdf) {
+          setSelectedPdf({
+            value: foundPdf.templatePDFKeyID,
+            label: foundPdf.templatePDFTitle,
+          });
+        }
+      }
+    });
+  };
+
+  useEffect(() => {
+    const Admin_Config_Template_CanAdd = hasActionAccess(21, 81);
+    const SuperAdmin_Config_Template_CanAdd = hasActionAccess(16, 61);
+    if ((location?.state?.Action === undefined || location?.state?.Action === null) && !(Admin_Config_Template_CanAdd || SuperAdmin_Config_Template_CanAdd)) {
+      navigate(-1)
+    }
+    handleCompareAndSetPdf(); // Call the function to set the initial selected PDF
+  }, []);
+
+  // Call the function whenever templateElementList or TemplatePdfLookupListList changes
+  useEffect(() => {
+    handleCompareAndSetPdf();
+  }, [templateElementList, TemplatePdfLookupListList]);
+
+  //2) BusinessType Lookup List Api
+  const GetBusinessTypeLookupListData = async () => {
+    try {
+      const data = await GetBusinessTypeLookupList();
+      if (data?.data?.statusCode === 200) {
+        if (data?.data?.responseData?.data) {
+          let BusinessTypeListData = data?.data?.responseData?.data;
+
+          BusinessTypeListData = BusinessTypeListData.map((BusinessType) => ({
+            value: BusinessType.businessTypeID,
+            label: BusinessType.businessTypeName,
+          }));
+          setBusinessTypeLookupList(BusinessTypeListData);
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  // Get Prospect Type variation Lookup list data 
+  const GetProspectTypeVariationLookupListData = async () => {
+    try {
+      const data = await GetProspectTypeVariationLookupList(common.organisationKeyID, common.userKeyID);
+      if (data?.data?.statusCode === 200) {
+        if (data?.data?.responseData?.data) {
+          let BusinessTypeListData = data?.data?.responseData?.data;
+
+          BusinessTypeListData = BusinessTypeListData.map((BusinessType) => ({
+            originalBusinessTypeID: BusinessType.originalBusinessTypeID,
+            value: BusinessType.businessTypeID,
+            label: BusinessType.businessTypeName,
+          }));
+          setProspectTypeVariationLookupList(BusinessTypeListData);
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  //3) TemplateType Lookup List Api
+  const GetTemplateTypeLookupListData = () => {
+    let templateTypeListsData = [
+      { templateTypeID: 1, templateTypeName: `${proposalName}` },
+      { templateTypeID: 2, templateTypeName: `${EngagementName}` },
+    ];
+
+    const transformedData = templateTypeListsData.map((templateType) => ({
+      value: templateType.templateTypeID,
+      label: templateType.templateTypeName,
+    }));
+
+    setTemplateTypeLookupList(transformedData);
+  };
+  // const GetTemplateTypeLookupListData = async () => {
+  //   try {
+  //     const data = await GetTemplateTypeList(1);
+
+  //     if (data?.data?.statusCode === 200 && data?.data?.responseData?.data) {
+  //       let templateTypeListData = data.data.responseData.data;
+
+  //       let templateTypeListsData = templateTypeListData.map(item => {
+  //         if (item.templateTypeName === "Quote") {
+  //           return { ...item, templateTypeName: `${proposalName}` };
+  //         } else if (item.templateTypeName === "Contract") {
+  //           return { ...item, templateTypeName: `${EngagementName}` };
+  //         } else {
+  //           return item;
+  //         }
+  //       });
+
+  //       // Uncomment the line below to log or inspect the transformed data
+  //       alert(JSON.stringify(templateTypeListsData));
+
+  //       const transformedData = templateTypeListsData.map(templateType => ({
+  //         value: templateType.templateTypeID,
+  //         label: templateType.templateTypeName
+  //       }));
+
+  //       setTemplateTypeLookupList(transformedData);
+  //     }
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+  // };
+  //3) TemplateElementType Lookup List Api
+  const GetTemplateElementTypeLookUpListData = async () => {
+    try {
+      const data = await GetTemplateElementTypeLookUpList();
+      if (data?.data?.statusCode === 200) {
+        if (data?.data?.responseData?.data) {
+          const TemplateElementTypeListData = data?.data?.responseData?.data;
+          setTemplateElementTypeLookupList(TemplateElementTypeListData);
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const TemplateElementLookeupListOptions = TemplateElementTypeLookupList.map(
+    (templateElementType) => {
+      if (TemplateObj.templateTypeID === 1) {
+        // If templateTypeID is 2, you can conditionally hide elements here
+        if (templateElementType.templateElementTypeID === 7) {
+          // Exclude Signature Block (Only for Contract) element
+          return null;
+        }
+      }
+      let label = templateElementType.templateElementTypeName;
+      // Replace "Contract" with "EL" in the label
+      if (label.includes("Contract")) {
+        label = label.replace("Contract", EngagementName);
+      }
+      if (label.includes("Quote")) {
+        label = label.replace("Quote", proposalName);
+      }
+      return {
+        value: templateElementType.templateElementTypeID,
+        label: label,
+      };
+    }
+  ).filter(Boolean);
+
+
+  // E] Event Handling Functions will call here.
+  // 1) On Change Select Profession Type
+  const OnChangeSelectProfessionType = (ptype) => {
+    const updatedPfList = ptype.map((option) => ({
+      professionTypeId: option.value,
+      professionTypeName: option.label,
+    }));
+    setTemplateObj({
+      ...TemplateObj,
+      professionTypeList: updatedPfList,
+    });
+  };
+
+  // F] Calling CRUD Api here
+  // 1) Get Model Data Api
+  const GetTemplateModalData = async (id, GetSAChanges) => {
+    if (!id) {
+      return;
+    }
+    try {
+      setLoader(true)
+      const data = await GetTemplateModel(id, GetSAChanges);
+      if (data?.data?.statusCode === 200) {
+        if (data?.data?.responseData?.data) {
+          const ModelData = data?.data?.responseData?.data;
+          setTemplateObj({
+            ...TemplateObj,
+            templateKeyID: ModelData.templateKeyID,
+            organisationID: ModelData.organisationID,
+            createdByID: ModelData.createdByID,
+            templateName: ModelData.templateName,
+            isDefault: ModelData.isDefault,
+            templateTypeID: ModelData.templateTypeID,
+            clientBusinessTypeID: ModelData.clientBusinessTypeID,
+            orgBusinessTypeID: ModelData.orgBusinessTypeID,
+            isPredefined: ModelData.isPredefined,
+            professionTypeList: ModelData.professionTypeList,
+            originalBusinessTypeID: ModelData.originalBusinessTypeID
+          });
+          setTemplateElementList(
+            ...templateElementList,
+            ModelData.templateElementList
+          );
+        }
+        setLoader(false)
+      } else {
+        setErrorMessage(data?.data?.errorMessage);
+        setLoader(false)
+      }
+    } catch (error) {
+      console.log(error);
+      setLoader(false)
+    }
+  };
+
+  // Get Template Lookup Pdf List Data 
+  const GetTemplateLookupPdfListData = async () => {
+
+    try {
+      const data = await GetTemplateLookupPDFList({
+        OrganisationKeyID: common.organisationKeyID,
+        userKeyID: common.userKeyID,
+        selectedTemplatePDFKeyIDs: selectedPdfDetails.length > 0 ? selectedPdfDetails : null
+      }
+
+      );
+      if (data) {
+        if (data?.data?.statusCode === 200) {
+          if (data?.data?.responseData?.data) {
+            const totalCount = data.data.totalCount;
+            const TemplatePDFListData = data.data.responseData.data;
+            const options = TemplatePDFListData.map((item) => ({
+              templatePDFKeyID: item.templatePDFKeyID,
+              templatePDFTitle: item.templatePDFTitle,
+            }));
+
+            setTemplatePdfLookupListList(options);
+          }
+        } else {
+          setErrorMessage(data?.data?.errorMessage);
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  // 2) Add Update Button Click Function
+  const TemplateAddUpdateBtnClicked = (Accept) => {
+
+    if (Accept === "Accept") {
+      $("#" + "ConfirmSAChangesModel").modal("show");
+
+      setStatus(true)
+      return
+    }
+    // Check Validations will be done here
+    if (
+      (common.professionTypeLists?.length > 1 ||
+        common.organisationKeyID === null) &&
+      professionTypeValue?.length === 0
+    ) {
+      scrollUpDownByElementID("ProfessionTypeDiv");
+      setRequireErrorMessage(true);
+      return false; // Return false or handle your error logic here if needed.
+    } else if (
+      TemplateObj.templateName === undefined ||
+      TemplateObj.templateName === "" ||
+      TemplateObj.templateTypeID === undefined ||
+      TemplateObj.templateTypeID === "" ||
+      TemplateObj.templateTypeID === null ||
+      TemplateObj.clientBusinessTypeID === null ||
+      TemplateObj.clientBusinessTypeID === "" ||
+      (common.organisationKeyID === null &&
+        (TemplateObj.orgBusinessTypeID === "" ||
+          TemplateObj.orgBusinessTypeID === null ||
+          TemplateObj.orgBusinessTypeID === undefined))
+    ) {
+      if (
+        common.organisationKeyID === null &&
+        (TemplateObj.orgBusinessTypeID === "" ||
+          TemplateObj.orgBusinessTypeID === null ||
+          TemplateObj.orgBusinessTypeID === undefined)
+      ) {
+        scrollUpDownByElementID("OrganisationBusinessDiv");
+      } else if (
+        TemplateObj.clientBusinessTypeID === null ||
+        TemplateObj.clientBusinessTypeID === ""
+      ) {
+        scrollUpDownByElementID("ProspectBusinessDiv");
+      } else if (
+        TemplateObj.templateTypeID === undefined ||
+        TemplateObj.templateTypeID === "" ||
+        TemplateObj.templateTypeID === null
+      ) {
+        scrollUpDownByElementID("TemplateTypeDiv");
+      } else if (
+        TemplateObj.templateName === undefined ||
+        TemplateObj.templateName === ""
+      ) {
+        scrollUpDownByElementID("TemplateNameDiv");
+      }
+      setRequireErrorMessage(true);
+      return false; // Return false or handle your error logic here if needed.
+    } else if (TemplateObj.templateTypeID) {
+      if (templateElementList?.length === 0) {
+        scrollUpDownByElementID("AddElementDiv");
+        setRequireElementLengthErrorMessage(true);
+        return false;
+      } else {
+        let hasError = false;
+        const elementTypeId = templateElementList.filter(
+          (element, index) => element.templateElementTypeID === null
+        );
+        const elementHeadingTypeId = templateElementList.filter((item) => {
+          return item.templateElementTypeID === 1;
+        });
+        const elementFullPageHeadingTypeId = templateElementList.filter(
+          (item) => {
+            return item.templateElementTypeID === 5;
+          }
+        );
+        const elementHtmlContentTypeId = templateElementList.filter((item) => {
+          return item.templateElementTypeID === 2;
+        });
+        const elementHtmlContentWithFirstPageTypeId =
+          templateElementList.filter((item) => {
+            return item.templateElementTypeID === 10;
+          });
+        const elementPdfTypeId = templateElementList.filter((item) => {
+          return item.templateElementTypeID === 9;
+        });
+
+        if (elementTypeId.length > 0) {
+          // Iterating over the filtered elements
+          elementTypeId.forEach((element, index) => {
+            if (
+              element.templateElementTypeID === null ||
+              element.templateElementTypeID === ""
+            ) {
+              // If true, setting an error message in the state
+              scrollUpDownByElementID(
+                `ElementDiv_${element.templateElementTypeID}`
+              );
+              setRequireElementTypeErrorMessage({
+                ...requireElementTypeErrorMessage,
+                templateElementTypeIDRequire: true,
+              });
+              hasError = true;
+            }
+          });
+        }
+
+        // Checking if there are elements that passed the filter
+        if (elementHeadingTypeId.length > 0) {
+          // Iterating over the filtered elements
+          elementHeadingTypeId.forEach((element, index) => {
+            if (element.headings === null || element.headings === "") {
+              // If true, setting an error message in the state
+              scrollUpDownByElementID(`HeadingDiv_${element.headings}`);
+              setRequireElementTypeErrorMessage({
+                ...requireElementTypeErrorMessage,
+                headings: true,
+              });
+              hasError = true;
+            }
+          });
+        }
+        if (elementFullPageHeadingTypeId.length > 0) {
+          // Iterating over the filtered elements
+          elementFullPageHeadingTypeId.forEach((element, index) => {
+            if (
+              element.headings === null ||
+              element.headings === "" ||
+              element.shortDesc === null ||
+              element.shortDesc === ""
+            ) {
+              // If true, setting an error message in the state
+              if (element.headings === null || element.headings === "") {
+                scrollUpDownByElementID(
+                  `FullPageHeadingDiv_${element.headings}`
+                );
+              } else {
+                scrollUpDownByElementID(
+                  `FullPageShortDescriptionDiv_${element.shortDesc}`
+                );
+              }
+              setRequireElementTypeErrorMessage({
+                ...requireElementTypeErrorMessage,
+                headings: true,
+                shortDesc: true,
+              });
+              hasError = true;
+            }
+          });
+        }
+
+        if (elementHtmlContentTypeId.length > 0) {
+          // Iterating over the filtered elements
+          elementHtmlContentTypeId.forEach((element, index) => {
+            // if (
+            //   element.htmlContent === null ||
+            //   element.htmlContent === "" ||
+            //   element.htmlContent === undefined ||
+            //   element.htmlContent === "<p></p>\n" ||
+            //   element.htmlContent === "<p></p>" ||
+            //   element.htmlContent === "<p><br></p>"
+            // ) {
+            //   scrollUpDownByElementID(`EditorDiv_${element.htmlContent}`);
+            //   setRequireElementTypeErrorMessage({
+            //     ...requireElementTypeErrorMessage,
+            //     htmlContent: true,
+            //   });
+            //   hasError = true;
+            // }
+
+            if (element?.htmlContent) {
+              // Remove HTML tags and style attributes using HtmlToPlainText function
+              const cleanContent = HtmlToPlainText(element?.htmlContent);
+              // Check if any text is present after removing tags and styles
+              const textPresent = cleanContent.trim().length > 0;
+
+              if (!textPresent) {
+                setRequireElementTypeErrorMessage({
+                  ...requireElementTypeErrorMessage,
+                  htmlContent: true,
+                });
+
+                const updatedTemplateElementList = [...templateElementList];
+                updatedTemplateElementList[index] = {
+                  ...updatedTemplateElementList[index],
+                  htmlContent: null,
+                };
+
+                setTemplateElementList(updatedTemplateElementList);
+                hasError = true;
+                scrollUpDownByElementID(`EditorDiv_${element.htmlContent}`);
+                return false  // This should probably be set through state to trigger re-renders
+              }
+            } else {
+              scrollUpDownByElementID(`EditorDiv_${element.htmlContent}`);
+              setRequireElementTypeErrorMessage({
+                ...requireElementTypeErrorMessage,
+                htmlContent: true,
+              });
+              hasError = true;
+            }
+          });
+        }
+
+        if (elementHtmlContentWithFirstPageTypeId.length > 0) {
+          // Iterating over the filtered elements
+          elementHtmlContentWithFirstPageTypeId.forEach((element, index) => {
+            if (
+              element.htmlContent === null ||
+              element.htmlContent === "" ||
+              element.htmlContent === undefined ||
+              element.htmlContent === "<p></p>\n" ||
+              element.htmlContent === "<p></p>" ||
+              element.htmlContent === "<p><br></p>"
+            ) {
+              scrollUpDownByElementID(`EditorDiv_${element.htmlContent}`);
+              setRequireElementTypeErrorMessage({
+                ...requireElementTypeErrorMessage,
+                htmlContent: true,
+              });
+              hasError = true;
+            }
+          });
+        }
+        if (elementHtmlContentWithFirstPageTypeId.length > 0) {
+          elementHtmlContentWithFirstPageTypeId.forEach((element, index) => {
+            // Add a null check before calling HtmlToPlainText function
+            if (element?.htmlContent) {
+              // Remove HTML tags and style attributes using HtmlToPlainText function
+              const cleanContent = HtmlToPlainText(element.htmlContent);
+              // Check if any text is present after removing tags and styles
+              const textPresent = cleanContent.trim().length > 0;
+
+              if (!textPresent) {
+                setRequireElementTypeErrorMessage({
+                  ...requireElementTypeErrorMessage,
+                  htmlContent: true,
+                });
+
+                const updatedTemplateElementList = [...templateElementList];
+                updatedTemplateElementList[index] = {
+                  ...updatedTemplateElementList[index],
+                  htmlContent: null,
+                };
+
+                setTemplateElementList(updatedTemplateElementList);
+                hasError = true; // This should probably be set through state to trigger re-renders
+              }
+            }
+          });
+        }
+        if (elementPdfTypeId.length > 0) {
+          // Iterating over the filtered elements
+          elementPdfTypeId.forEach((element, index) => {
+            if (element.headings === null || element.headings === "") {
+              scrollUpDownByElementID(`HeadingDiv_${element.headings}`);
+              setRequireElementTypeErrorMessage({
+                ...requireElementTypeErrorMessage,
+                headings: true,
+              });
+              hasError = true;
+            }
+          });
+        }
+
+        if (TemplateObj.templateTypeID === 2 && elementTypeId.length === 0) {
+          const SignataryBlock = templateElementList.filter(
+            (item) => item.templateElementTypeID == 7
+          );
+
+          if (SignataryBlock.length === 0) {
+            scrollUpDownByElementID("SignatoriesBlockDiv");
+            setRequireElementTypeErrorMessage({
+              ...requireElementTypeErrorMessage,
+              RequireSignataryBlock: true,
+            });
+            hasError = true;
+          }
+        }
+
+        const FirstPageOnTop = templateElementList.filter(
+          (item) => item.templateElementTypeID == 10
+        );
+        if (FirstPageOnTop.length > 0 && elementTypeId.length === 0) {
+          const FirstPage = templateElementList.findIndex(
+            (item) => item.templateElementTypeID == 10
+          );
+
+          if (FirstPage > 0) {
+            scrollUpDownByElementID("FirstPage");
+            setRequireElementTypeErrorMessage({
+              ...requireElementTypeErrorMessage,
+              RequireFirstPageBlock: true,
+            });
+            hasError = true;
+          }
+        }
+        if (hasError) {
+          return false; // Exit the function if an error is encountered
+        }
+      }
+    } else if (
+      (common.roleTypeId === USER_ROLE_TYPE.SuperAdmin &&
+        TemplateObj.orgBusinessTypeID === null) ||
+      TemplateObj.orgBusinessTypeID === ""
+    ) {
+      setRequireErrorMessage(true);
+      return false; // Return false or handle your error logic here if needed.
+    } else {
+      setRequireErrorMessage(false); // Clear the error message if there are no errors.
+    }
+
+    const isEditorContentEmptyOrOnlyPTags = templateElementList.some(
+      (element) =>
+        element.templateElementTypeID === 2 &&
+        (!element.htmlContent || element.htmlContent.trim() === "<p></p>")
+    );
+
+    if (isEditorContentEmptyOrOnlyPTags) {
+      setRequireErrorMessage("This field is required.");
+      // setRequireErrorMessage({ERROR_MESSAGES});
+      return false; // Return false or handle your error logic here if the editor is empty or contains only <p> tags
+    } else {
+      setRequireErrorMessage(""); // Clear the error message if there are no errors.
+    }
+
+    // Preparing Object For Add Update and if any modification then it will done here
+    const ApiRequest_ParamsObj = {
+      //global level params : fixed
+
+      acceptSAChanges: Accept,
+      organisationKeyID: common.organisationKeyID,
+      organisationID: common.organisationID,
+      //form level params : fixed
+      templateTypeID: TemplateObj.templateTypeID, //will change module wise
+      templateKeyID: TemplateObj.templateKeyID,
+      userKeyID: common.userKeyID,
+      clientBusinessTypeID: TemplateObj.clientBusinessTypeID,
+      orgBusinessTypeID: TemplateObj.orgBusinessTypeID,
+      isPredefined: common.roleTypeId === USER_ROLE_TYPE.SuperAdmin ? 1 : 0,
+      isDefault: TemplateObj.isDefault,
+      //form level params : will change according to module
+      templateName: TemplateObj.templateName,
+      templateElementList: templateElementList,
+      professionTypeList:
+        common.professionTypeLists?.length > 1 ||
+          common.organisationKeyID === null
+          ? TemplateObj.professionTypeList
+          : [
+            {
+              professionTypeId: professionTypeInputValue[0]?.professionTypeId,
+              professionTypeName:
+                professionTypeInputValue[0]?.professionTypeName,
+            },
+          ],
+    };
+
+    AddUpdateTemplateData(ApiRequest_ParamsObj);
+  };
+
+  // Add or Update Service Category setRequireErrorMessage
+  const AddUpdateTemplateData = async (apiRequestParams) => {
+
+    setLoader(true);
+    try {
+      let url = "/AddUpdateTemplate"; // Default URL for Adding Data
+      if (apiRequestParams.templateKeyID !== null) {
+        url = `/AddUpdateTemplate?templateKeyID=${apiRequestParams.templateKeyID}`; // URL for Updating Data
+      }
+      const response = await AddUpdateTemplate(url, apiRequestParams);
+      if (response) {
+        setLoader(false);
+        if (response?.data?.statusCode === 200) {
+          if (apiRequestParams.templateKeyID === null) {
+            setOpenSuccessModal(true);
+            props.setIsAddUpdateActionDone(true);
+          } else {
+            setOpenSuccessModal(true);
+            props.setIsAddUpdateActionDone(true);
+          }
+        } else {
+          setErrorMessage(response?.response?.data?.errorMessage);
+        }
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  // handle function
+  const handleSubmit = () => {
+    setTopbar("block");
+    navigate("/templates");
+    SetInitialModelData();
+  };
+
+  //Add element function
+  const AddElementBtnClicked = () => {
+    const templateTypeId = templateElementList.filter(
+      (item) => item.templateElementTypeID === null
+    );
+
+    if (templateTypeId.length === 0) {
+      const elementObj = {
+        TTETMapID: null,  //Template's Template Element Type Mapping Id. 
+        templateElementTypeID: null,
+        headings: null,
+        shortDesc: null,
+        htmlContent: null,
+      };
+      setTemplateElementList([...templateElementList, elementObj]);
+    } else {
+      setRequireElementTypeErrorMessage({
+        ...requireElementTypeErrorMessage,
+        templateElementTypeIDRequire: true,
+      });
+    }
+    setTimeout(function () {
+      scrollUpDownByElementID("AddElementDiv");
+    }, 200);
+  };
+
+  const DeleteBtnClicked = (index) => {
+    // Create a copy of the templateElementList array
+    const updatedTemplateElementList = [...templateElementList];
+    // Remove the element at the specified index
+    updatedTemplateElementList.splice(index, 1);
+    // Update the state with the modified array
+    setTemplateElementList(updatedTemplateElementList); // Assuming you're using useState to manage the state
+  };
+
+  const OnTemplateChange = (index, field, value) => {
+    const UpdateTemplate = [...templateElementList];
+    let outputString;
+
+    switch (FirstPageHeading) {
+      case 1:
+        outputString = "Proposal For";
+        break;
+      case 2:
+        outputString = `Engagement Letter for`;
+        break;
+      default:
+        outputString = "Default case";
+        break;
+    }
+    const firstPageHTML = `
+    <div style="margin-top: 400px;">
+                      <p style="text-align: center;   color: #00BFFF;">
+                        <span  style="color: #00BFFF; margin-top: 15px; font-size: 50px;" class="OrgBrandColor">${outputString}</span><br>
+                       
+                      </p>
+                      <p style="page-break-after: always;"></p>
+                      </div>
+                    `;
+
+    if (value === 9) {
+      GetTemplateLookupPdfListData();
+    }
+    if (value === 10) {
+      UpdateTemplate[index].headings = null;
+      UpdateTemplate[index].shortDesc = null;
+      UpdateTemplate[index].htmlContent = firstPageHTML;
+      UpdateTemplate[index][field] = Number(value);
+    } else if (field === "templateElementTypeID" && value !== 10) {
+      UpdateTemplate[index].headings = null;
+      UpdateTemplate[index].shortDesc = null;
+      UpdateTemplate[index].htmlContent = null;
+      UpdateTemplate[index][field] = Number(value);
+    } else {
+      UpdateTemplate[index].headings = null;
+      UpdateTemplate[index].shortDesc = null;
+      UpdateTemplate[index].htmlContent = null;
+      UpdateTemplate[index][field] = Number(value);
+    }
+
+    if (value === 10) {
+      // Remove the element from its current position
+      const [shiftedElement] = UpdateTemplate.splice(index, 1);
+      // Insert the element at the beginning
+      UpdateTemplate.unshift(shiftedElement);
+    }
+
+    setTemplateElementList(UpdateTemplate);
+  };
+
+  const handleChangeTemplateType = (e) => {
+    if (TemplateObj.templateTypeID !== null) {
+      setRequireElementTypeErrorMessage({
+        templateElementTypeID: false,
+        headings: false,
+        shortDesc: false,
+        htmlContent: false,
+        RequireSignataryBlock: false,
+      });
+      setTemplateObj({
+        ...TemplateObj,
+        // keyID: null,
+        organisationID: null,
+        templateTypeID: e.value,
+        createdByID: null,
+        isDefault: false,
+        // templateName: "",
+        clientBusinessTypeID: null,
+        orgBusinessTypeID: common.businessTypeID,
+        isPredefined: null,
+      });
+      setTemplateElementList([]);
+    } else {
+      setTemplateObj({
+        ...TemplateObj,
+        templateTypeID: e.value,
+      });
+    }
+  };
+  const handleClose = async () => {
+    if (isCheck) {
+      setLoader(true)
+      const Notification = await NotifySuperAdminPredefinedChangesToAdmin({
+        userKeyID: common.userKeyID,
+        moduleKeyID: TemplateObj.templateKeyID,
+        moduleName: "Predefined-PL-EL-Template"
+      })
+      if (Notification?.data?.statusCode === 200) {
+        setLoader(false)
+        setModelAction("NotificationSend")
+        setOpenSuccessModal(true)
+        setIsCheck(false)
+      }
+    } else {
+      $("#" + props.id).modal("hide");
+      $("#" + "ConfirmSAChangesModel").modal("hide");
+      setErrorMessage(false)
+      setOpenSuccessModal(false);
+      navigate("/templates");
+    }
+
+  };
+
+  const templateTypeFilter = TemplateTypeLookupList?.filter(
+    (template) => template.value == TemplateObj.templateTypeID
+  );
+  useEffect(() => {
+    // Check if templateTypeFilter is not empty and has at least one element
+    if (templateTypeFilter && templateTypeFilter.length > 0) {
+      // Assuming you want to store the first found value in the state
+      setFirstPageHeading(templateTypeFilter[0].value);
+    } else {
+      // Handle the case when no matching template is found
+      setFirstPageHeading(null);
+    }
+  }, [templateTypeFilter]);
+  const businessTypeFilter = ProspectTypeVariation?.filter(
+    (businessType) => businessType.value == TemplateObj.clientBusinessTypeID
+  );
+  const orgBusinessTypeFilter = BusinessTypeLookupList?.filter(
+    (businessType) => businessType.value == TemplateObj.orgBusinessTypeID
+  );
+  const IsActiveFilter = Utils.IS_default.find(
+    (item) => TemplateObj.isDefault == item.value
+  );
+  const professionTypeInputValue = professionTypeLookupList.filter(
+    (item) => common.professionTypeLists[0] === item.professionTypeId
+  );
+
+  const handlePdfSelect = (selectedOption, index) => {
+    setSelectedPdf(selectedOption);
+    setSelectedPdfDetails(prevDetails => [...prevDetails, selectedOption.value]);
+
+    const updatedTemplateElementList = [...templateElementList];
+    if (
+      updatedTemplateElementList.length > 0 &&
+      index >= 0 &&
+      index < updatedTemplateElementList.length
+    ) {
+      updatedTemplateElementList[index].headings = selectedOption.value; // Assuming you want to set the headings property to the selected PDF title
+      setTemplateElementList(updatedTemplateElementList);
+    }
+
+  };
+
+  const SignataryBlock = templateElementList?.filter(
+    (item) => item.templateElementTypeID == 7
+  );
+
+  const ElementTypeValue = templateElementList
+    .map((element, index) => {
+      const matchingOption = TemplateElementLookeupListOptions.find(
+        (option) => {
+          return element.templateElementTypeID !== null && option.value === element.templateElementTypeID;
+        }
+      );
+      if (matchingOption) {
+        return {
+          index: index,
+          value: matchingOption.value,
+          label: matchingOption.label,
+        };
+      }
+      return null;
+    })
+    .filter(Boolean);
+
+  const DeclineSuperAdminChangesData = async (Decline) => {
+    if (Decline === "Decline") {
+      // $('#' + props.id).modal('hide')
+
+      setStatus(false)
+      $("#" + "ConfirmSAChangesModel").modal("show");
+      return
+    }
+    setLoader(true);
+    try {
+      const apiRequestParams = {
+        organisationKeyID: common.organisationKeyID,
+        userKeyID: common.userKeyID,
+        moduleKeyID: location.state?.templateKeyID,
+        moduleName: "Predefined-PL-EL-Template"
+        //Predefined-ServiceCategory, Predefined-GlobalConstant, Predefined-GlobalPricingDriver,
+        //Predefined-PL-EL-Template, Predefined-TnC-Template, Predefined-Email-Template,
+        //Predefined-Service, Predefined-ServicePackage
+      }
+      const response = await DeclineSuperAdminChanges(apiRequestParams);
+      if (response) {
+        setLoader(false);
+        if (response?.data?.statusCode === 200) {
+          if (apiRequestParams.Action === null) {
+            $("#" + "ConfirmSAChangesModel").modal("hide");
+            navigate("/templates")
+            props.setIsAddUpdateActionDone(true);
+          } else {
+            $("#" + "ConfirmSAChangesModel").modal("hide");
+            navigate("/templates")
+            props.setIsAddUpdateActionDone(true);
+          }
+        } else {
+          setErrorMessage(true)
+          $("#" + "ConfirmSAChangesModel").modal("hide");
+          setErrorMessage(response?.response?.data?.errorMessage);
+        }
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  const handleConfirmButton = () => {
+    $("#" + "ConfirmSAChangesModel").modal("hide");
+    if (Status) {
+      TemplateAddUpdateBtnClicked(true)
+    } else {
+      DeclineSuperAdminChangesData()
+    }
+  }
+  return (
+    <div className="container-fluid new-item-page-container">
+      <div
+        ref={TemplateDivContainerRef}
+        onClick={(e) => scrollUptoCurrentPosition(e, TemplateDivContainerRef)}
+        class="new-item-page-content"
+      >
+        <div class="row form-row">
+          <div class="col-lg-12">
+            <h3 class="modal-title">
+              <BackButtonSvg onClick={handleSubmit} />
+              {modelAction === "Add"
+                ? getCrudPopUpTitleName("Add", moduleName)
+                : getCrudPopUpTitleName("Update", moduleName)}
+            </h3>
+            <div class="separator mb-3"></div>
+            <div className="template-height scrollbar" id="style-1">
+              <div class="tab-content  force-overflow">
+                <>
+                  <div className="row mb-2" id="ProfessionTypeDiv">
+                    <SAPredefinedChangesNotifyMessageModel Params={{ moduleName: moduleName, SAChanges: location.state?.Type }} />
+                    {(common.professionTypeLists?.length > 1 ||
+                      common.organisationKeyID === null) && (
+                        <>
+                          <div className="col-lg-3 template-label text-left">
+                            <div className="mb-1">
+                              <label className="form-label">
+                                Profession Type
+                                <span className="text-danger">*</span>
+                              </label>
+                            </div>
+                          </div>
+                          <div className="col-lg-9 mb-1">
+                            <div className="input-group">
+                              {common.professionTypeLists?.length > 1 ||
+                                common.organisationKeyID === null ? (
+                                <Select
+                                  isMulti
+                                  style={{ padding: "5px" }}
+                                  className="user-role-select"
+                                  options={ProfessionalTypeLookeupListOptions}
+                                  value={professionTypeValue}
+                                  onChange={OnChangeSelectProfessionType}
+                                />
+                              ) : (
+                                ""
+                                // <input
+                                //   disabled
+                                //   style={{ padding: "5px" }}
+                                //   type="text"
+                                //   class="input-text"
+                                //   placeholder=" Profession Type"
+                                //   value={
+                                //     professionTypeInputValue[0]?.professionTypeName
+                                //   }
+                                // />
+                              )}
+                            </div>
+                            {requireErrorMessage &&
+                              (common.professionTypeLists?.length > 1 ||
+                                common.organisationKeyID === null) &&
+                              professionTypeValue?.length === 0 ? (
+                              <label className="validation">
+                                {ERROR_MESSAGES}
+                              </label>
+                            ) : (
+                              ""
+                            )}
+                          </div>
+                        </>
+                      )}
+                  </div>
+                </>
+                {common.roleTypeId === USER_ROLE_TYPE.SuperAdmin &&
+                  common.organisationKeyID === null && (
+                    <>
+                      <div className="row mb-2" id="OrganisationBusinessDiv">
+                        <div className="col-lg-3 template-label text-left">
+                          <div className="mb-1">
+                            <label className="form-label">
+                              Organisation Business Type{" "}
+                              <span className="text-danger">*</span>
+                            </label>
+                          </div>
+                        </div>
+                        <div className="col-lg-9">
+                          <div className="mb-1 input-group">
+                            <Select
+                              className="user-role-select"
+                              options={BusinessTypeLookupList.slice(1, 6)}
+                              value={orgBusinessTypeFilter}
+                              onChange={(e) =>
+                                setTemplateObj({
+                                  ...TemplateObj,
+                                  orgBusinessTypeID: e.value,
+                                })
+                              }
+                            />
+                            {requireErrorMessage &&
+                              (TemplateObj.orgBusinessTypeID === "" ||
+                                TemplateObj.orgBusinessTypeID === null) ? (
+                              <label className="validation">
+                                {ERROR_MESSAGES}
+                              </label>
+                            ) : (
+                              ""
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                <div className="row mb-2" id="ProspectBusinessDiv">
+                  <div className="col-lg-3 template-label text-left">
+                    <div className="mb-1 ">
+                      <label className="form-label">
+                        {prospectName} Business Type{" "}
+                        <span className="text-danger">*</span>
+                      </label>
+                    </div>
+                  </div>
+                  <div className="col-lg-9">
+                    <div className="mb-1  input-group">
+                      <Select
+                        className="user-role-select"
+                        options={ProspectTypeVariation}
+                        value={businessTypeFilter}
+                        onChange={(e) =>
+                          setTemplateObj({
+                            ...TemplateObj,
+                            clientBusinessTypeID: e.value,
+                            originalBusinessTypeID: e.originalBusinessTypeID
+                          })
+                        }
+                      />
+                      {requireErrorMessage &&
+                        (TemplateObj.clientBusinessTypeID === "" ||
+                          TemplateObj.clientBusinessTypeID === null) ? (
+                        <label className="validation">{ERROR_MESSAGES}</label>
+                      ) : (
+                        ""
+                      )}
+                    </div>
+                  </div>
+                </div>
+                <div className="row mb-2" id="TemplateTypeDiv">
+                  <div className="col-lg-3 template-label text-left">
+                    <div className="mb-1">
+                      <label className="form-label">
+                        Template Type
+                        <span className="text-danger">*</span>
+                      </label>
+                    </div>
+                  </div>
+                  <div className="col-lg-9">
+                    <div className="mb-1 input-group ">
+                      <Select
+                        className="user-role-select"
+                        options={TemplateTypeLookupList}
+                        value={templateTypeFilter}
+                        onChange={(e) => {
+                          handleChangeTemplateType(e);
+                        }}
+                      />
+                      {requireErrorMessage &&
+                        (TemplateObj.templateTypeID === "" ||
+                          TemplateObj.templateTypeID === null) ? (
+                        <label className="validation">{ERROR_MESSAGES}</label>
+                      ) : (
+                        ""
+                      )}
+                    </div>
+                  </div>
+                </div>
+                <div className="row mb-2" id="TemplateNameDiv">
+                  <div className="col-lg-3 template-label text-left">
+                    <div className="mb-1 ">
+                      <label className="form-label">
+                        Template Name
+                        <span className="text-danger">*</span>
+                      </label>
+                    </div>
+                  </div>
+                  <div className="col-lg-9">
+                    <div className="mb-1 ">
+                      <div className="input-group">
+                        <input
+                          type="text"
+                          className="input-text"
+                          placeholder="Enter Template Name"
+                          value={TemplateObj.templateName}
+                          onChange={(e) => {
+                            setErrorMessage("");
+                            const inputValue = e.target.value;
+                            const trimmedValue = inputValue.replace(
+                              /^\s+/g,
+                              ""
+                            );
+                            const capitalizedValue =
+                              trimmedValue.charAt(0).toUpperCase() +
+                              trimmedValue.slice(1);
+                            setTemplateObj({
+                              ...TemplateObj,
+                              templateName: capitalizedValue,
+                            });
+                          }}
+                          maxLength={100}
+                        />
+                      </div>
+                      {requireErrorMessage &&
+                        (TemplateObj.templateName === "" ||
+                          TemplateObj.templateName === undefined) ? (
+                        <label className="validation">{ERROR_MESSAGES}</label>
+                      ) : (
+                        ""
+                      )}
+                    </div>
+                  </div>
+                </div>
+                <div className="row mb-2" id="IsDefaultDiv">
+                  <div
+                    style={{ padding: "10px" }}
+                    className="col-lg-3  text-left"
+                  >
+                    <div className="mb-1">
+                      <label className="form-label">
+                        Is Default? <span className="text-danger">*</span>
+                      </label>
+                    </div>
+                  </div>
+                  <div className="col-lg-9">
+                    <div className="mb-2 input-group">
+                      <Select
+                        isDisabled={modelAction === "Update" ? true : false}
+                        className="user-role-select"
+                        options={Utils.IS_default}
+                        value={IsActiveFilter}
+                        onChange={(e) =>
+                          setTemplateObj({
+                            ...TemplateObj,
+                            isDefault: e.value,
+                          })
+                        }
+                      />
+                      {requireErrorMessage &&
+                        (TemplateObj.status === "" ||
+                          TemplateObj.status === null) ? (
+                        <label className="validation">{ERROR_MESSAGES}</label>
+                      ) : (
+                        ""
+                      )}
+                    </div>
+                    {modelAction === "Update" ? <></> :
+                      <div
+                        style={{ fontSize: "12px" }}
+                        className="text-muted helpMessage"
+                      >
+                        If you set this template as the default, any other
+                        template with the same template type will automatically be
+                        marked as non-default.
+                      </div>
+                    }
+
+                  </div>
+                </div>
+                {TemplateObj.templateTypeID !== null && (
+                  <>
+                    <h6 className="mt-2">Template Content</h6>
+                  </>
+                )}
+                <div className="row" id="VariablesDiv">
+                  <div className="col-12">
+                    <div className="overflow-hidden">
+                      {TemplateObj?.originalBusinessTypeID ===
+                        CLIENT_TYPES.Individual &&
+                        TemplateObj.templateTypeID !== null && (
+                          <>
+                            <div className="separator mb-3" />
+                            <IndividualVariable
+                              ModuleName="Template"
+                              ClintType={TemplateObj?.originalBusinessTypeID}
+                              businessTypeId={
+                                common.organisationKeyID === null
+                                  ? TemplateObj.orgBusinessTypeID
+                                  : common.businessTypeID
+                              }
+                            />
+                          </>
+                        )}
+                      {TemplateObj?.originalBusinessTypeID ==
+                        CLIENT_TYPES.Sole_Trader &&
+                        TemplateObj.templateTypeID !== null && (
+                          <>
+                            <div className="separator mb-3" />
+                            <SoleTraderVariable
+                              ModuleName="Template"
+                              ClintType={TemplateObj?.originalBusinessTypeID}
+                              businessTypeId={
+                                common.organisationKeyID === null
+                                  ? TemplateObj.orgBusinessTypeID
+                                  : common.businessTypeID
+                              }
+                            />
+                          </>
+                        )}
+                      {TemplateObj?.originalBusinessTypeID ==
+                        CLIENT_TYPES.Partnership &&
+                        TemplateObj.templateTypeID !== null && (
+                          <>
+                            <div className="separator mb-3" />
+                            <PartnershipVariable
+                              ModuleName="Template"
+                              ClintType={TemplateObj?.originalBusinessTypeID}
+                              businessTypeId={
+                                common.organisationKeyID === null
+                                  ? TemplateObj.orgBusinessTypeID
+                                  : common.businessTypeID
+                              }
+                            />
+                          </>
+                        )}{" "}
+                      {(TemplateObj?.originalBusinessTypeID == CLIENT_TYPES.LLP ||
+                        TemplateObj?.originalBusinessTypeID ==
+                        CLIENT_TYPES.Company) &&
+                        TemplateObj.templateTypeID !== null && (
+                          <>
+                            <div className="separator mb-3" />
+                            <LlpAndCompanyVariable
+                              ModuleName="Template"
+                              ClintType={TemplateObj?.originalBusinessTypeID}
+                              businessTypeId={
+                                common.organisationKeyID === null
+                                  ? TemplateObj.orgBusinessTypeID
+                                  : common.businessTypeID
+                              }
+                            />
+                          </>
+                        )}
+                    </div>
+                  </div>
+                </div>
+                {/* <div className="row" >
+                  <div className="col-12">
+                    <div className="overflow-hidden">
+                      
+                    </div>
+                  </div>
+                </div>
+                <div className="row">
+                  <div className="col-12">
+                    <div className="overflow-hidden">
+                     
+                    </div>
+                  </div>
+                </div>
+                <div className="row">
+                  <div className="col-12">
+                    <div className="overflow-hidden">
+                      
+                    </div>
+                  </div>
+                </div> */}
+              </div>
+              {templateElementList?.map((item, index) => {
+
+                let componentToRender = null;
+                switch (item.templateElementTypeID) {
+                  case 1:
+                  case "1":
+                    componentToRender = (
+                      <Heading
+                        templateElementList={templateElementList}
+                        requireElementTypeErrorMessage={
+                          requireElementTypeErrorMessage
+                        }
+                        setRequireElementTypeErrorMessage={
+                          setRequireElementTypeErrorMessage
+                        }
+                        setTemplateElementList={setTemplateElementList}
+                        index={index}
+                      />
+                    );
+                    break;
+                  case 2:
+                  case "2":
+                    componentToRender = (
+                      <TextBlock
+                        templateElementList={templateElementList}
+                        requireElementTypeErrorMessage={
+                          requireElementTypeErrorMessage
+                        }
+                        setRequireElementTypeErrorMessage={
+                          setRequireElementTypeErrorMessage
+                        }
+                        setTemplateElementList={setTemplateElementList}
+                        index={index}
+                      />
+                    );
+                    break;
+
+                  case 3:
+                  case "3":
+                    componentToRender = null;
+                    break;
+                  case 4:
+                  case "4":
+                    componentToRender = null;
+                    break;
+                  case 5:
+                  case "5":
+                    componentToRender = (
+                      <FullPage
+                        templateElementList={templateElementList}
+                        requireElementTypeErrorMessage={
+                          requireElementTypeErrorMessage
+                        }
+                        setRequireElementTypeErrorMessage={
+                          setRequireElementTypeErrorMessage
+                        }
+                        setTemplateElementList={setTemplateElementList}
+                        index={index}
+                      />
+                    );
+                    break;
+                  case 6:
+                  case "6":
+                    componentToRender = null;
+                    break;
+                  case 7:
+                  case "7":
+                    componentToRender = null;
+                    break;
+                  case 8:
+                  case "8":
+                    componentToRender = null;
+                    break;
+                  case 9:
+                  case "9":
+                    // let componentToRender = null;
+
+                    if (modelAction === "Add") {
+                      componentToRender = (
+                        <>
+                          <div className="row fieldset">
+                            <div className="col-md-2">
+                              <label className="fieldset-label required">
+                                Select PDF{" "}
+                                <span className="text-danger">*</span>
+                              </label>
+                            </div>
+                            <div className="col-md-10">
+                              <div className="input-group">
+                                <Select
+                                  className="user-role-select"
+                                  options={TemplatePdfLookupListList.map(
+                                    (item) => ({
+                                      value: item.templatePDFKeyID,
+                                      label: item.templatePDFTitle,
+                                    })
+                                  )}
+                                  getOptionLabel={(option) => option.label}
+                                  getOptionValue={(option) => option.value}
+                                  value={templateElementList.headings}
+                                  onChange={(selectedOption) =>
+                                    handlePdfSelect(selectedOption, index)
+                                  }
+                                />
+                              </div>
+                              {requireElementTypeErrorMessage.headings &&
+                                (templateElementList[index]?.headings === "" ||
+                                  templateElementList[index]?.headings === null ||
+                                  templateElementList[index]?.headings ===
+                                  undefined) ? (
+                                <label className="validation">
+                                  {ERROR_MESSAGES}
+                                </label>
+                              ) : (
+                                ""
+                              )}
+                            </div>
+                          </div>
+                        </>
+                      );
+                    }
+
+                    if (modelAction === "Update") {
+                      const selectedPdf = TemplatePdfLookupListList.find(
+                        (item) =>
+                          item.templatePDFKeyID ===
+                          templateElementList[index].headings
+                      );
+                      componentToRender = (
+                        <>
+                          <div className="row fieldset">
+                            <div className="col-md-2">
+                              <label className="fieldset-label required">
+                                Select PDF{" "}
+                                <span className="text-danger">*</span>
+                              </label>
+                            </div>
+                            <div className="col-md-10">
+                              <div className="input-group">
+                                <Select
+                                  className="user-role-select"
+                                  options={TemplatePdfLookupListList.map(
+                                    (item) => ({
+                                      value: item.templatePDFKeyID,
+                                      label: item.templatePDFTitle,
+                                    })
+                                  )}
+                                  getOptionLabel={(option) => option.label}
+                                  getOptionValue={(option) => option.value}
+                                  value={
+                                    selectedPdf
+                                      ? {
+                                        label: selectedPdf.templatePDFTitle,
+                                        value: selectedPdf.templatePDFKeyID,
+                                      }
+                                      : null
+                                  }
+                                  onChange={(selectedOption) =>
+                                    handlePdfSelect(selectedOption, index)
+                                  }
+                                />
+                              </div>
+                              {requireElementTypeErrorMessage.headings &&
+                                (templateElementList[index]?.headings === "" ||
+                                  templateElementList[index]?.headings === null ||
+                                  templateElementList[index]?.headings ===
+                                  undefined) ? (
+                                <label className="validation">
+                                  {ERROR_MESSAGES}
+                                </label>
+                              ) : (
+                                ""
+                              )}
+                            </div>
+                          </div>
+                        </>
+                      );
+                    }
+
+                    break;
+                  case 10:
+                  case "10":
+                    componentToRender = (
+                      <First_Page
+                        templateElementList={templateElementList}
+                        requireElementTypeErrorMessage={
+                          requireElementTypeErrorMessage
+                        }
+                        setRequireElementTypeErrorMessage={
+                          setRequireElementTypeErrorMessage
+                        }
+                        setTemplateElementList={setTemplateElementList}
+                        index={index}
+                        modelAction={modelAction}
+                        moduleName={moduleName}
+                      />
+                    );
+                    // let outputString;
+
+                    // switch (FirstPageHeading) {
+                    //   case 1:
+                    //     outputString = "Proposal For";
+                    //     break;
+                    //   case 2:
+                    //     outputString = `Engagement Letter for`;
+                    //     break;
+                    //   default:
+                    //     outputString = "Default case";
+                    //     break;
+                    // }
+                    // const firstPageHTML = `
+                    //   <p style="text-align: center;   color: #00BFFF;">
+                    //     <span  style="color: #00BFFF; margin-top: 15px; font-size: 50px;" class="OrgBrandColor">${outputString}</span><br>
+
+                    //   </p>
+                    //   <p style="page-break-after: always;"></p>
+                    // `;
+
+                    // const FirstPage = true;
+                    // componentToRender = (
+                    //   <>
+                    //     {modelAction === "Update" && (
+                    //       <TextBlock
+                    //         templateElementList={templateElementList}
+                    //         requireElementTypeErrorMessage={
+                    //           requireElementTypeErrorMessage
+                    //         }
+                    //         setRequireElementTypeErrorMessage={
+                    //           setRequireElementTypeErrorMessage
+                    //         }
+                    //         setTemplateElementList={setTemplateElementList}
+                    //         index={index}
+                    //         content={firstPageHTML}
+                    //         modelAction={modelAction}
+                    //         moduleName={moduleName}
+                    //       />
+                    //     )}
+                    //     {modelAction === "Add" && (
+                    //       <TextBlock
+                    //         templateElementList={templateElementList}
+                    //         requireElementTypeErrorMessage={
+                    //           requireElementTypeErrorMessage
+                    //         }
+                    //         setRequireElementTypeErrorMessage={
+                    //           setRequireElementTypeErrorMessage
+                    //         }
+                    //         setTemplateElementList={setTemplateElementList}
+                    //         index={index}
+                    //         content={firstPageHTML}
+                    //         FirstPage={FirstPage}
+                    //         modelAction={modelAction}
+                    //         moduleName={moduleName}
+                    //       />
+                    //     )}
+                    <div id="FirstPage">
+                      {requireElementTypeErrorMessage.RequireFirstPageBlock
+                        ? (
+
+                          <label className="validation">First page should be at top position</label>
+                        ) : (
+                          ""
+                        )}
+                    </div>
+                    //   </>
+                    // );
+                    break;
+
+                  default:
+                    componentToRender = null;
+                    break;
+                }
+                return (
+
+                  <div
+                    id={`ElementDiv_${templateElementList[index]?.templateElementTypeID}`}
+                    className="element-block"
+                    style={{ opacity: "1" }}
+                    draggable="true"
+                    onDragStart={(e) => {
+                      e.dataTransfer.setData("index", index);
+                    }}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                    }}
+                    onDrop={(e) => {
+
+                      e.preventDefault();
+                      const sourceIndex = e.dataTransfer.getData("index");
+                      const targetIndex = index;
+                      setRequireElementTypeErrorMessage({
+                        ...requireElementTypeErrorMessage,
+                        RequireFirstPageBlock: true,
+                      });
+                      if (templateElementList[templateElementList.length - 1]?.templateElementTypeID === null) {
+                        if (sourceIndex == templateElementList.length - 1 || targetIndex == templateElementList.length - 1) {
+                          return
+
+                        }
+                      }
+                      if (templateElementList[0].templateElementTypeID === 10) {
+                        if (targetIndex == 0 || `${templateElementList[index]?.templateElementTypeID}` === 10 || sourceIndex == 0) {
+                          return
+                        }
+                      }
+
+
+
+                      // Rearrange the templateElementList based on the drag-and-drop
+                      if (sourceIndex !== targetIndex) {
+                        const updatedList = [...templateElementList];
+                        const [draggedItem] = updatedList.splice(
+                          sourceIndex,
+                          1
+                        );
+                        updatedList.splice(targetIndex, 0, draggedItem);
+
+                        setTemplateElementList(updatedList);
+                      }
+                    }}
+                    key={index}
+                  >
+
+                    <button
+                      onClick={() => DeleteBtnClicked(index)}
+                      className="btn btn-sm btn-danger delete-element-btn"
+                    >
+                      <i className="ion ion-md-trash mr-1"></i>Delete Element
+                    </button>
+
+                    <div className="element">
+                      <div className="row fieldset">
+                        <div className="col-md-2">
+                          <label className="fieldset-label required">
+                            Element Type <span className="text-danger">*</span>
+                          </label>
+                        </div>
+                        <div className="col-md-10">
+                          <div className="input-group">
+                            <Select
+                              className="user-role-select"
+                              options={TemplateElementLookeupListOptions.filter(
+                                (item) =>
+                                  item.value !== 10 ||
+                                  templateElementList.every(
+                                    (element) =>
+                                      element.templateElementTypeID !== 10
+                                  )
+                              )}
+                              value={ElementTypeValue[index] === undefined ? null : ElementTypeValue[index]}
+                              onChange={(e) => {
+                                setRequireElementTypeErrorMessage(false);
+                                OnTemplateChange(
+                                  index,
+                                  "templateElementTypeID",
+                                  e.value
+                                );
+                              }}
+                              menuPlacement="top"
+                            />
+                          </div>
+
+                          {requireElementTypeErrorMessage.templateElementTypeIDRequire &&
+                            (templateElementList[index].templateElementTypeID ===
+                              "" ||
+                              templateElementList[index].templateElementTypeID ===
+                              null) ? (
+                            <label className="validation">
+                              {ERROR_MESSAGES}
+                            </label>
+                          ) : (
+                            ""
+                          )}
+                        </div>
+                      </div>
+                      <div>{componentToRender}</div>
+                    </div>
+                  </div>
+                );
+              })}
+              <span id="AddElementDiv"></span>
+              {/* {(TemplateObj.templateTypeID == 1 ||
+                TemplateObj.templateTypeID == 2) && (
+                  <>
+                    {" "}
+                    <hr />
+                    <div
+                      className="element-block add-element-block"
+                      id="AddElementDiv"
+                    >
+                      <a
+                        onClick={AddElementBtnClicked}
+                        className="add-element-icon"
+                        title="Add Element"
+                      >
+                        <i className="ion ion-md-add">+</i>
+                      </a>
+                    </div>
+                    {requireElementLengthErrorMessage &&
+                      templateElementList.length === 0 ? (
+                      <label className="validation">{ERROR_MESSAGES}</label>
+                    ) : (
+                      ""
+                    )}
+                  </>
+                )} */}
+              <label
+                className="validation"
+                style={{
+                  fontSize: "15px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                {common.professionTypeLists?.length <= 1 &&
+                  errorMessage?.includes(
+                    `Please don't choose this profession type`
+                  )
+                  ? errorMessage.split(".")[0]
+                  : errorMessage}
+                {SignataryBlock.length === 0 &&
+                  TemplateObj.templateTypeID === 2 &&
+                  requireElementTypeErrorMessage.RequireSignataryBlock && (
+                    <div id="SignatoriesBlockDiv">
+                      At least 1 Signatory Block is required for{" "}
+                      {EngagementName} template.
+                    </div>
+                  )}
+              </label>
+            </div>
+
+            <hr />
+            <Row className="modal-footer">
+              <p className="text-danger">Note - Selected PDF size should be less than 20MB.</p>
+              <Col
+                style={{ paddingTop: "14px" }}
+                className="hstack gap-2 justify-content-end"
+              >
+                {(TemplateObj.templateTypeID == 1 ||
+                  TemplateObj.templateTypeID == 2) && (
+                    <>
+                      {/* {" "}
+                    <hr />
+                    <div
+                      className="element-block add-element-block"
+                      id="AddElementDiv"
+                    >
+                      <a
+                        onClick={AddElementBtnClicked}
+                        className="add-element-icon"
+                        title="Add Element"
+                      >
+                        <i className="ion ion-md-add">+</i>
+                      </a>
+                    </div>
+                    {requireElementLengthErrorMessage &&
+                      templateElementList.length === 0 ? (
+                      <label className="validation">{ERROR_MESSAGES}</label>
+                    ) : (
+                      ""
+                    )} */}
+
+                      {requireElementLengthErrorMessage &&
+                        templateElementList.length === 0 ? (
+                        <label className="validation">At least one element is required.</label>
+                      ) : (
+                        ""
+                      )}
+                      <button
+                        onClick={AddElementBtnClicked}
+                        style={{ float: "right", paddingTop: "5px" }}
+                        className="btn btn-md btn-success create-item-btn"
+                      >
+                        <span>
+                          Add Element
+                        </span>
+                      </button>
+                    </>
+                  )}
+                {location.state?.Type ? (<>
+                  <button
+                    type="submit"
+                    class="btn btn-md btn-success accept-item-btn"
+                    onClick={() => {
+                      TemplateAddUpdateBtnClicked("Accept");
+                    }}
+                  >
+                    <span>
+                      Accept
+                    </span>
+                  </button>
+                  <button
+                    type="submit"
+                    class="btn btn-md btn-success declined-item-btn"
+                    // data-bs-dismiss="modal"
+                    onClick={() => DeclineSuperAdminChangesData("Decline")}
+                  >
+                    <span>
+                      Decline
+                    </span>
+                  </button>
+                </>) : (<>
+                  <button
+                    onClick={handleSubmit}
+                    style={{ float: "right", paddingTop: "5px" }}
+                    className="btn btn-md btn-light"
+                  >
+                    <span>{getCrudButtonTextName("Cancel")}</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      TemplateAddUpdateBtnClicked();
+                    }}
+                    style={{ float: "right", paddingTop: "5px" }}
+                    className="btn btn-md btn-success create-item-btn"
+                  >
+                    <span>
+                      {modelAction === "Add"
+                        ? getCrudButtonTextName("Add", moduleName)
+                        : getCrudButtonTextName("Update", moduleName)}
+                    </span>
+                  </button>
+                </>)
+                }
+              </Col>
+            </Row>
+            {/* <!-- end tab content --> */}
+          </div>
+          {/* <!-- end card body --> */}
+        </div>
+        {/* <!-- end card --> */}
+      </div>
+      <SuccessModal
+        handleClose={handleClose}
+        setIsCheck={setIsCheck}
+        isCheck={isCheck}
+        setDismissModal={setDismissModal}
+        setOpenSuccessModal={setOpenSuccessModal}
+        openSuccessModal={openSuccessModal}
+        modelAction={modelAction}
+        message={`${moduleName} ${TemplateObj.templateName}`}
+      />
+      <AcceptSuperAdminChangesConfirmation
+        openErrorModal={openErrorModal}
+        ModelId={props.id}
+        Status={Status}
+        openSuccessModal={openSuccessModal}
+        modelRequestData={location.state}
+        UpdatedChanges={handleConfirmButton}
+      />
+      <ErrorModel
+        ErrorModel={openErrorModal}
+        handleClose={handleClose}
+        ErrorMessage={errorMessage}
+      />
+    </div>
+  );
+}
+
+export default Add_New_Templates;

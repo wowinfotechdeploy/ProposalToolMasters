@@ -1,0 +1,18007 @@
+/* global $ */
+import React, { useContext, useEffect, useRef, useState } from "react";
+import "../configure/packages/Package.css";
+import "./Proposals.css";
+import Select from "react-select";
+import SuccessModal from "../../components/SuccessModal";
+import Utils from "../../Middleware/Utils";
+import Tooltip from "@mui/material/Tooltip";
+import { useLocation, useNavigate } from "react-router-dom";
+import {
+  GetCalculatedServicesPrice,
+  GetCalculatedServicesPriceByPackages,
+  GetServicesList,
+} from "../../redux/Services/Config/ServicesApi";
+import { GetQuoteTypeLookupList } from "../../redux/Services/Master/QuoteTypeLookupList";
+import { useSelector } from "react-redux";
+import {
+  Payment_Frequency,
+  ProposalHeader,
+  ServiceChargeTypeEnum,
+} from "../../Middleware/enums";
+
+import { AuthContextProvider } from "../../AuthContext/AuthContext";
+import { AdditionalInformation } from "../../components/AdditionalInformation";
+import {
+  GetAdditionalInformationList,
+  GetPackageServicesList,
+  GetServicePackageLookupList,
+  StatementOfFactModal,
+} from "../../redux/Services/Config/PackageApi";
+import ReactDOMServer from "react-dom/server";
+import {
+  GetClientLookupList,
+  GetProposalLookupList,
+} from "../../redux/Services/client/clientAPI";
+import { ERROR_MESSAGES } from "../../components/GlobalMessage";
+import { SelectServices } from "../../components/SelectServices";
+
+import {
+  GetTemplateListLookupList,
+  GetTemplateModelData,
+  TemplateAvailableData,
+} from "../../redux/Services/Config/TemplateApi";
+import { SelectedProposalCustomize } from "../../components/SelectedProposalCustomize";
+import PreviewComponentPdf from "../../components/PreviewComponentpdf";
+import { GetOrganisationInformationModel } from "../../redux/Services/Setting/Organisation";
+import {
+  AddUpdateQuote,
+  GetProposalModel,
+} from "../../redux/Services/Proposal/ProposalApi";
+import InvalidFormIcon from "../../components/InvalidFormIcon";
+import BackButtonSvg from "../../components/BackButtonSvg";
+import { GetPricingSettingModel } from "../../redux/Services/Setting/PricingSettingApi";
+import ViewPlan from "../../components/ViewPlan";
+import ErrorModel from "../../components/ErrorModel";
+import { GetPaymentGatewayModel } from "../../redux/Services/Setting/PaymentGatewayApi";
+import RecordsAvailablePopupModel from "../../components/RecordsAvailablePopupModel";
+
+const BasicInformationComponent = (props) => {
+  const navigate = useNavigate();
+  const modifiedProposalType = Utils.select_Quote_Type.map((option) =>
+    option
+    // option.value === 2 ? { ...option, isDisabled: true } : option
+  );
+
+  const moduleNameForSaveAsDraft = "BasicInformation";
+  const StatusId = 1;
+  // proposal type select
+  const selectedClientValue = props.clientLookUpOptions.filter(
+    (item) => props.ProposalObject.clientID == item.value
+  );
+  const selectedTemplateValue = props.templateLookUpOptions.filter(
+    (item) => props.ProposalObject.selectTemplateTypeId == item.value
+  );
+  const selectedProposalValue = props.proposalLookUpOptions.filter(
+    (item) => props.ProposalObject.selectedProposalTypeValue == item.value
+  );
+
+  //Client Select Function
+  const handleClientSelectChange = (selectedOption) => {
+    props.DisableTabOnChange();
+    props.setProposalObject({
+      ...props.ProposalObject,
+      clientID: selectedOption.value,
+    });
+    props.GetProposalEngLetterTemplateLookUpList(selectedOption.value);
+  };
+
+  // Template Select Function
+  const handleTemplateSelectChange = (selectedOption) => {
+    props.DisableTabOnChange();
+    props.setProposalObject({
+      ...props.ProposalObject,
+      selectTemplateTypeId: selectedOption.value,
+      templateID: selectedOption.templateID,
+    });
+  };
+
+  //Select Proposal Type
+  const handleProposalSelectChange = (selectedOption) => {
+    props.setRecurringPricingInfo({
+      ...props.RecurringPricingInfo,
+      DefaultDiscount: "",
+    });
+    props.setOneOffPricingInfo({
+      ...props.OneOffPricingInfo,
+      DefaultDiscount: "",
+    });
+    props.setTabHide(false);
+    props.DisableTabOnChange();
+    props.setIsBack(
+      selectedOption.value == props.ProposalObject.selectedProposalTypeValue
+    );
+    props.setSelectedPackages([]);
+    props.setSelectedPackagesDetails([]);
+    props.setIsValidForm({
+      ...props.isValidForm,
+
+      SelectService: false,
+      AdditionalInfo: false,
+      PricingInfo: false,
+      SelectPackages: false,
+      ReviewPackages: false,
+      ReviewService: false,
+      Preview: false,
+    });
+    props.setProposalObject({
+      ...props.ProposalObject,
+      selectedProposalTypeValue: selectedOption.value,
+    });
+  };
+  const handleAddClient = () => {
+    navigate("/create-new-client", { state: { ModuleName: "Proposal" } });
+  };
+  return (
+    <>
+      <div className="create-practice-height scrollbar">
+        <div className="tab-content">
+          <div className="tab-pane p-3 active">
+            <div className="row fieldset">
+              <div className="col-md-3 mt-4  col-sm-12 text-start text-md-end">
+                <label className="form-label">
+                  Select {props.prospectName}
+                </label>
+                <span class="text-danger">*</span>
+              </div>
+              <div className="col-md-9 col-sm-12">
+                <button
+                  style={{
+                    fontSize: "12px",
+                    float: "right",
+                    border: "none",
+                    background: "transparent",
+                    color: "#626ed4",
+                  }}
+                  className="float-sm-end"
+                  onClick={handleAddClient}
+                >
+                  + Add New {props.prospectName}
+                </button>
+
+                <div className="mb-1 input-group">
+                  <Select
+                    className="user-role-select"
+                    options={props.clientLookUpOptions}
+                    value={selectedClientValue}
+                    onChange={handleClientSelectChange}
+                  />
+                  {/* Validation error message for Client */}
+                  {props.requireMessage &&
+                    (props.ProposalObject.clientID === undefined ||
+                      props.ProposalObject.clientID === null ||
+                      props.ProposalObject.clientID === "") ? (
+                    <span className="validation">{ERROR_MESSAGES}</span>
+                  ) : (
+                    ""
+                  )}
+                </div>
+              </div>
+            </div>
+            <div className="row fieldset">
+              <div className="col-md-3 col-sm-12 text-start text-md-end">
+                <label className="form-label">Select Template</label>
+                <span class="text-danger">*</span>
+              </div>
+              <div className="col-md-9 col-sm-12">
+                <div className="mb-1 input-group">
+                  <Select
+                    className="user-role-select"
+                    options={props.templateLookUpOptions}
+                    value={selectedTemplateValue}
+                    onChange={handleTemplateSelectChange}
+                  />
+                  {/* Validation error message for Template */}
+                  {props.requireMessage &&
+                    (props.ProposalObject.selectTemplateTypeId === undefined ||
+                      props.ProposalObject.selectTemplateTypeId === null ||
+                      props.ProposalObject.selectTemplateTypeId === "") ? (
+                    <span className="validation">{ERROR_MESSAGES}</span>
+                  ) : (
+                    ""
+                  )}
+                </div>
+              </div>
+            </div>
+            <div className="row fieldset">
+              <div class="col-3 text-right">
+                <label class="form-label text-nowrap">
+                  Select {props.proposalName} Type
+                  <span class="text-danger">*</span>
+                </label>
+              </div>
+              <div className="col-md-9 col-sm-12">
+                <div className="mb-3">
+                  <div className="mb-1 input-group">
+                    <Select
+                      className="user-role-select"
+                      // options={Utils.select_Quote_Type}
+                      options={modifiedProposalType}
+                      value={props.ProposalType}
+                      onChange={handleProposalSelectChange}
+                    />
+                    {props.requireMessage &&
+                      (props.ProposalObject.selectedProposalTypeValue ===
+                        undefined ||
+                        props.ProposalObject.selectedProposalTypeValue === null ||
+                        props.ProposalObject.selectedProposalTypeValue === "") ? (
+                      <span className="validation">{ERROR_MESSAGES}</span>
+                    ) : (
+                      ""
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="separator"></div>
+      <div class="row fieldset">
+        <div class="col-lg-12 hstack  gap-2 justify-content-end text-right mt-3">
+          <button
+            class="btn btn-md btn-light"
+            onClick={() => props.handleCancelBtn()}
+          >
+            <span>Cancel</span>
+          </button>
+          <button
+            class="btn btn-md btn-success create-item-btn"
+            // onClick={() => props.HandleTabChange(2)}
+            onClick={() => props.HandleTabChange(2)}
+          >
+            <span>Next</span>
+          </button>
+          <button
+            class="btn btn-md btn-success create-item-btn  text-nowrap"
+            onClick={() =>
+              props.handleSaveAsDraft(1, moduleNameForSaveAsDraft, StatusId)
+            }
+          >
+            <span>Save As Draft</span>
+          </button>
+        </div>
+      </div>
+    </>
+  );
+};
+const ReviewServicesComponent = (props) => {
+  const moduleNameForSaveAsDraft = "ReviewPackage";
+  const StatusId = 1;
+  const isInitialMount = useRef(true);
+  const modifiedFeesType = Utils.feeInProposal.map((option) =>
+    option.value === 1 && props.disableCondition
+      ? { ...option, isDisabled: true }
+      : option
+  );
+  const [totalFees, setTotalFees] = useState(0);
+  const [totalFeesOneOff, setTotalFeesOneOff] = useState(0);
+
+  const [RecurringPackageCalculation, setRecurringPackageCalculation] =
+    useState({
+      //Net Total :
+      PackageOneNetTotal: null,
+
+      //Net Total Add On Value :
+      PackageOneNetTotalAddOnValue: 0,
+
+      //Vat Total Amount :
+      VatPercentage: null,
+      PackageOneVatTotalAmount: null,
+
+      //Discount :
+      PackageOneDiscountAmount: null,
+
+      //Discounted Total Amount :
+      PackageOneDiscountedTotalAmount: null,
+
+      //Grand Total Amount :
+      PackageOneGrandTotalAmount: null,
+    });
+
+  const [OneOffPackageCalculation, setOneOffPackageCalculation] = useState({
+    //Net Total :
+    PackageOneNetTotal: null,
+
+    //Net Total Add On Value :
+    PackageOneNetTotalAddOnValue: 0,
+
+    //Vat Total Amount :
+    VatPercentage: null,
+    PackageOneVatTotalAmount: null,
+
+    //Discount :
+    PackageOneDiscountAmount: null,
+
+    //Discounted Total Amount :
+    PackageOneDiscountedTotalAmount: null,
+
+    //Grand Total Amount :
+    PackageOneGrandTotalAmount: null,
+  });
+
+  const [
+    lastPaymentFrequencyAndDiscountedPrice,
+    setLastPaymentFrequencyAndDiscountedPrice,
+  ] = useState({
+    YearlyOriginalPrice: props.RecurringFrequencyPricingInfo.OriginalPrice,
+    ChangeableYearlyPrice:
+      props.RecurringFrequencyPricingInfo.DefaultDiscount !== null
+        ? props.RecurringFrequencyPricingInfo.DiscountedPrice
+        : props.RecurringFrequencyPricingInfo.OriginalPrice,
+    PaymentFrequencyID: props.ProposalObject.Payment_Frequency,
+    DiscountedPrice: props.RecurringFrequencyPricingInfo.OriginalPrice,
+  });
+
+  // Select Payment Frequency
+  const selectedFrequency = Utils.Payment_Frequency.find(
+    (item) => props.ProposalObject.Payment_Frequency == item.value
+  );
+
+  let url = `accept-decline-proposal`;
+  if (props.common.enableEL === 1) {
+    url = `generate-contract`;
+  }
+  const AcceptRecurringUrl = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.Recurring}&Action=Accepted&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
+  // const AcceptRecurringELOffUrl = `https://$AppUrl$/accept-decline-proposal?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.Recurring}&Action=Accepted`;
+
+  const DeclineRecurringUrl = `https://$AppUrl$/accept-decline-proposal?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.Recurring}&Action=Declined&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
+
+  const AcceptOneOffUrl = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Accepted&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
+  // const AcceptOneOffELOffUrl = `https://$AppUrl$/accept-decline-proposal?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Accepted`;
+
+  const DeclineOneOffUrl = `https://$AppUrl$/accept-decline-proposal?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Declined&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
+  const getPaymentFrequencyLabel = () => {
+    const Payment_Frequency = {
+      Yearly: 1,
+      HalfYearly: 2,
+      Quarterly: 3,
+      Monthly: 4,
+    };
+
+    const frequencyValue =
+      props.ProposalObject?.Payment_Frequency ||
+      props.ProposalObject?.Payment_Frequency;
+    switch (frequencyValue) {
+      case Payment_Frequency.Yearly:
+        return "Yearly";
+      case Payment_Frequency.HalfYearly:
+        return "Half-Yearly";
+      case Payment_Frequency.Quarterly:
+        return "Quarterly";
+      case Payment_Frequency.Monthly:
+        return "Monthly";
+      default:
+        return "Unknown";
+    }
+  };
+  const [RecurringTable, setRecurringTable] = useState(
+    <div
+      style={{
+        paddingLeft: "40px",
+        paddingRight: "40px",
+        fontFamily: "'Times New Roman', Times, serif",
+      }}
+    >
+      <p
+        style={{
+          fontFamily: "arial, sans-serif",
+          color: "#00BFFF",
+          fontSize: "20px",
+          marginTop: "15px",
+        }}
+      >
+        Recurring Fees ({getPaymentFrequencyLabel()})
+      </p>
+      <table
+        style={{
+          fontFamily: "arial, sans-serif",
+          borderCollapse: "collapse",
+          width: "100%",
+          marginTop: "-15px",
+        }}
+      >
+        <tr style={{ backgroundColor: "#00BFFF" }}>
+          <th
+            style={{
+              border: "1px solid #DDDDDD",
+              textAlign: "left",
+              padding: "8px",
+              color: "white",
+              fontSize: "18px",
+            }}
+          >
+            Services
+          </th>
+          <th
+            style={{
+              border: "1px solid #DDDDDD",
+              textAlign: "right",
+              padding: "8px",
+              color: "white",
+              fontSize: "18px",
+            }}
+          >
+            Fees (£)
+          </th>
+        </tr>
+        {props.selectedRecurringServiceList.map((serviceCat) => (
+          <React.Fragment key={serviceCat.serviceCatID}>
+            <tr style={{ backgroundColor: "#DCDCDC" }}>
+              <td
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "left",
+                  padding: "8px",
+                  fontWeight: "bold",
+                  fontSize: "18px",
+                }}
+              >
+                {serviceCat.serviceCatName}
+              </td>
+              <td
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "left",
+                  padding: "8px",
+                }}
+              ></td>
+            </tr>
+            {serviceCat.servicesList.map((service) => (
+              <tr key={service.serviceID}>
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "left",
+                    padding: "8px",
+                  }}
+                >
+                  {service.serviceName}
+                </td>
+                {props.ProposalObject.feeTypeId == 1 ? (
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                    }}
+                  >
+                    {props.formatValue(service.price)}
+                  </td>
+                ) : (
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                    }}
+                  >
+                    &#10003;
+                  </td>
+                )}
+              </tr>
+            ))}
+          </React.Fragment>
+        ))}
+
+        <tr style={{ backgroundColor: "#808080" }}>
+          <td
+            style={{
+              border: "1px solid #DDDDDD",
+              textAlign: "left",
+              padding: "8px",
+              color: "white",
+            }}
+          >
+            Net Total
+          </td>
+          <td
+            style={{
+              border: "1px solid #DDDDDD",
+              textAlign: "right",
+              padding: "8px",
+              color: "white",
+            }}
+          >
+            {
+              Number(props.RecurringPricingInfo.OriginalPrice) <
+                Number(props.RecurringPricingInfo.DiscountedPrice) ||
+                (Number(props.RecurringPricingInfo.Discount) > 0 &&
+                  !props.ProposalObject.DiscountLines)
+                ? props.formatValue(props.RecurringPricingInfo.DiscountedPrice)
+                : // Number(props.RecurringPricingInfo.DiscountedPrice)
+                //   // .toFixed(2)
+                //   .toString()
+                //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                props.formatValue(props.RecurringPricingInfo.OriginalPrice)
+              //   Number(props.RecurringPricingInfo.OriginalPrice)
+              //     // .toFixed(2)
+              //     .toString()
+              // .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+            }
+          </td>
+        </tr>
+        {Number(props.RecurringPricingInfo.Discount) > 0 &&
+          props.ProposalObject &&
+          props.ProposalObject.DiscountLines && (
+            <>
+              <tr style={{ backgroundColor: "#DCDCDC" }}>
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "left",
+                    padding: "8px",
+                    color: "black",
+                  }}
+                >
+                  Discount
+                </td>
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "right",
+                    padding: "8px",
+                    color: "black",
+                  }}
+                >
+                  {" "}
+                  (-) {props.formatValue(props.RecurringPricingInfo.Discount)}
+                </td>
+              </tr>
+              <tr style={{ backgroundColor: "#808080" }}>
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "left",
+                    padding: "8px",
+                    color: "white",
+                  }}
+                >
+                  Discounted Total
+                </td>
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "right",
+                    padding: "8px",
+                    color: "white",
+                  }}
+                >
+                  {" "}
+                  {props.formatValue(
+                    props.RecurringPricingInfo.DiscountedTotal
+                  )}
+                </td>
+              </tr>
+            </>
+          )}
+
+        {props.vatPercentage && (
+          <>
+            <tr style={{ backgroundColor: "#DCDCDC" }}>
+              <td
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "left",
+                  padding: "8px",
+                  color: "black",
+                }}
+              >
+                VAT
+              </td>
+              <td
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "right",
+                  padding: "8px",
+                  color: "black",
+                }}
+              >
+                {" "}
+                {props.formatValue(props.RecurringPricingInfo.VATPrice)}
+              </td>
+            </tr>
+            <tr style={{ backgroundColor: "#808080" }}>
+              <td
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "left",
+                  padding: "8px",
+                  color: "white",
+                }}
+              >
+                Grand Total
+              </td>
+              <td
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "right",
+                  padding: "8px",
+                  color: "white",
+                }}
+              >
+                {" "}
+                {props.formatValue(props.RecurringPricingInfo.GrandTotal)}
+              </td>
+            </tr>
+          </>
+        )}
+
+        <tr style={{ backgroundColor: "#DCDCDC" }}>
+          <td
+            style={{
+              border: "1px solid #DDDDDD",
+              textAlign: "left",
+              padding: "8px",
+              color: "black",
+            }}
+          >
+            If you are happy with this proposal please click Accept to accept
+            the proposal
+          </td>
+          <td
+            style={{
+              border: "1px solid #DDDDDD",
+              float: "right",
+              padding: "8px",
+              color: "black",
+              display: "flex",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                width: "100%",
+              }}
+            >
+              <a
+                href={AcceptRecurringUrl}
+                style={{
+                  display: "inline-block",
+                  padding: "5px 15px",
+                  marginRight: "0.5vw",
+                  backgroundColor: "green",
+                  color: "white",
+                  textDecoration: "none",
+                  border: "none",
+                  borderRadius: "100px",
+                  transition:
+                    "background-color 0.3s ease, box-shadow 0.3s ease",
+                  whiteSpace: "nowrap",
+                  flex: 1,
+                  textAlign: "center",
+                }}
+              >
+                Accept
+              </a>
+            </div>
+            {props.common.enableEL === 0 && (
+              <a
+                href={DeclineRecurringUrl}
+                style={{
+                  display: "inline-block",
+                  padding: "5px 15px",
+                  backgroundColor: "red",
+                  color: "white",
+                  textDecoration: "none",
+                  border: "none",
+                  borderRadius: "100px",
+                  transition:
+                    "background-color 0.3s ease, box-shadow 0.3s ease",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                Decline
+              </a>
+            )}
+          </td>
+        </tr>
+      </table>
+    </div>
+  );
+
+  const [oneOffTable, setOneOffTable] = useState(
+    <div
+      style={{
+        paddingLeft: "40px",
+        paddingRight: "40px",
+        fontFamily: "'Times New Roman', Times, serif",
+      }}
+    >
+      <p
+        style={{
+          fontFamily: "arial, sans-serif",
+          color: "#00BFFF",
+          fontSize: "20px",
+          marginTop: "15px",
+        }}
+      >
+        One-Off Fees
+      </p>
+      <table
+        style={{
+          fontFamily: "arial, sans-serif",
+          borderCollapse: "collapse",
+          width: "100%",
+          marginTop: "-15px",
+        }}
+      >
+        <tr style={{ backgroundColor: "#00BFFF" }}>
+          <th
+            style={{
+              border: "1px solid #DDDDDD",
+              textAlign: "left",
+              padding: "8px",
+              color: "white",
+              fontSize: "18px",
+            }}
+          >
+            Services
+          </th>
+          <th
+            style={{
+              border: "1px solid #DDDDDD",
+              textAlign: "right",
+              padding: "8px",
+              color: "white",
+              fontSize: "18px",
+            }}
+          >
+            Fees (£)
+          </th>
+        </tr>
+        {props.selectedOneOffServiceList.map((serviceCat) => (
+          <React.Fragment key={serviceCat.serviceCatID}>
+            <tr style={{ backgroundColor: "#DCDCDC" }}>
+              <td
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "left",
+                  padding: "8px",
+                  fontWeight: "bold",
+                  fontSize: "18px",
+                }}
+              >
+                {serviceCat.serviceCatName}
+              </td>
+              <td
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "left",
+                  padding: "8px",
+                }}
+              ></td>
+            </tr>
+            {serviceCat.servicesList.map((service) => (
+              <tr key={service.serviceID}>
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "left",
+                    padding: "8px",
+                  }}
+                >
+                  {service.serviceName}
+                </td>
+                {props.ProposalObject.feeTypeId == 1 ? (
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                    }}
+                  >
+                    {props.formatValue(service.price)}
+                  </td>
+                ) : (
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                    }}
+                  >
+                    &#10003;
+                  </td>
+                )}
+              </tr>
+            ))}
+          </React.Fragment>
+        ))}
+
+        <tr style={{ backgroundColor: "#808080" }}>
+          <td
+            style={{
+              border: "1px solid #DDDDDD",
+              textAlign: "left",
+              padding: "8px",
+              color: "white",
+            }}
+          >
+            Net Total
+          </td>
+          <td
+            style={{
+              border: "1px solid #DDDDDD",
+              textAlign: "right",
+              padding: "8px",
+              color: "white",
+            }}
+          >
+            {" "}
+            {
+              Number(props.OneOffPricingInfo.OriginalPrice) <
+                Number(props.OneOffPricingInfo.DiscountedPrice) ||
+                (Number(props.OneOffPricingInfo.Discount) > 0 &&
+                  !props.ProposalObject.DiscountLines)
+                ? props.formatValue(props.OneOffPricingInfo.DiscountedPrice)
+                : // Number(props.OneOffPricingInfo.DiscountedPrice)
+                //   // .toFixed(2)
+                //   .toString()
+                //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                props.formatValue(props.OneOffPricingInfo.OriginalPrice)
+              // Number(props.OneOffPricingInfo.OriginalPrice)
+              //   // .toFixed(2)
+              //   .toString()
+              //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+            }
+          </td>
+        </tr>
+        {Number(props.OneOffPricingInfo.Discount) > 0 &&
+          props.ProposalObject.DiscountLines === true && (
+            <>
+              <tr style={{ backgroundColor: "#DCDCDC" }}>
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "left",
+                    padding: "8px",
+                    color: "black",
+                  }}
+                >
+                  Discount
+                </td>
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "right",
+                    padding: "8px",
+                    color: "black",
+                  }}
+                >
+                  {" "}
+                  (-) {props.formatValue(props.OneOffPricingInfo.Discount)}
+                </td>
+              </tr>
+              <tr style={{ backgroundColor: "#808080" }}>
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "left",
+                    padding: "8px",
+                    color: "white",
+                  }}
+                >
+                  Discounted Total
+                </td>
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "right",
+                    padding: "8px",
+                    color: "white",
+                  }}
+                >
+                  {" "}
+                  {props.formatValue(props.OneOffPricingInfo.DiscountedTotal)}
+                </td>
+              </tr>
+            </>
+          )}
+        {props.vatPercentage && (
+          <>
+            <tr style={{ backgroundColor: "#DCDCDC" }}>
+              <td
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "left",
+                  padding: "8px",
+                  color: "black",
+                }}
+              >
+                VAT
+              </td>
+              <td
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "right",
+                  padding: "8px",
+                  color: "black",
+                }}
+              >
+                {" "}
+                {props.formatValue(props.OneOffPricingInfo.VATPrice)}
+              </td>
+            </tr>
+            <tr style={{ backgroundColor: "#808080" }}>
+              <td
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "left",
+                  padding: "8px",
+                  color: "white",
+                }}
+              >
+                Grand Total
+              </td>
+              <td
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "right",
+                  padding: "8px",
+                  color: "white",
+                }}
+              >
+                {" "}
+                {props.formatValue(props.OneOffPricingInfo.GrandTotal)}
+              </td>
+            </tr>
+          </>
+        )}
+        <tr style={{ backgroundColor: "#DCDCDC" }}>
+          <td
+            style={{
+              border: "1px solid #DDDDDD",
+              textAlign: "left",
+              padding: "8px",
+              color: "black",
+            }}
+          >
+            If you are happy with this proposal please click Accept to accept
+            the proposal
+          </td>
+          <td
+            style={{
+              border: "1px solid #DDDDDD",
+              float: "right",
+              padding: "8px",
+              color: "black",
+              display: "flex",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                width: "100%",
+              }}
+            >
+              <a
+                href={AcceptOneOffUrl}
+                style={{
+                  display: "inline-block",
+                  padding: "5px 15px",
+                  marginRight: "0.5vw",
+                  backgroundColor: "green",
+                  color: "white",
+                  textDecoration: "none",
+                  border: "none",
+                  borderRadius: "100px",
+                  transition:
+                    "background-color 0.3s ease, box-shadow 0.3s ease",
+                  whiteSpace: "nowrap",
+                  flex: 1,
+                  textAlign: "center",
+                }}
+              >
+                Accept
+              </a>
+            </div>
+            {props.common.enableEL === 0 && (
+              <a
+                href={DeclineOneOffUrl}
+                style={{
+                  display: "inline-block",
+                  padding: "5px 15px",
+                  backgroundColor: "red",
+                  color: "white",
+                  textDecoration: "none",
+                  border: "none",
+                  borderRadius: "100px",
+                  transition:
+                    "background-color 0.3s ease, box-shadow 0.3s ease",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                Decline
+              </a>
+            )}
+          </td>
+        </tr>
+      </table>
+    </div>
+  );
+  const updateRecurringHtmlContentForReviewService = () => {
+    setRecurringTable(
+      <div
+        style={{
+          paddingLeft: "40px",
+          paddingRight: "40px",
+          fontFamily: "'Times New Roman', Times, serif",
+        }}
+      >
+        <p
+          style={{
+            fontFamily: "arial, sans-serif",
+            color: "#00BFFF",
+            fontSize: "20px",
+            marginTop: "15px",
+          }}
+        >
+          Recurring Fees ({getPaymentFrequencyLabel()})
+        </p>
+        <table
+          style={{
+            fontFamily: "arial, sans-serif",
+            borderCollapse: "collapse",
+            width: "100%",
+            marginTop: "-15px",
+          }}
+        >
+          <tr style={{ backgroundColor: "#00BFFF" }}>
+            <th
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "left",
+                padding: "8px",
+                color: "white",
+                fontSize: "18px",
+              }}
+            >
+              Services
+            </th>
+            <th
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "right",
+                padding: "8px",
+                color: "white",
+                fontSize: "18px",
+              }}
+            >
+              Fees (£)
+            </th>
+          </tr>
+          {props.selectedRecurringServiceList.map((serviceCat) => (
+            <React.Fragment key={serviceCat.serviceCatID}>
+              <tr style={{ backgroundColor: "#DCDCDC" }}>
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "left",
+                    padding: "8px",
+                    fontWeight: "bold",
+                    fontSize: "18px",
+                  }}
+                >
+                  {serviceCat.serviceCatName}
+                </td>
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "left",
+                    padding: "8px",
+                  }}
+                ></td>
+              </tr>
+              {serviceCat.servicesList.map((service) => (
+                <tr key={service.serviceID}>
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "left",
+                      padding: "8px",
+                    }}
+                  >
+                    {service.serviceName}
+                  </td>
+                  {props.ProposalObject.feeTypeId == 1 ? (
+                    <td
+                      style={{
+                        border: "1px solid #DDDDDD",
+                        textAlign: "right",
+                        padding: "8px",
+                      }}
+                    >
+                      {props.formatValue(service.price)}
+                    </td>
+                  ) : (
+                    <td
+                      style={{
+                        border: "1px solid #DDDDDD",
+                        textAlign: "right",
+                        padding: "8px",
+                      }}
+                    >
+                      &#10003;
+                    </td>
+                  )}
+                </tr>
+              ))}
+            </React.Fragment>
+          ))}
+
+          <tr style={{ backgroundColor: "#808080" }}>
+            <td
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "left",
+                padding: "8px",
+                color: "white",
+              }}
+            >
+              Net Total
+            </td>
+            <td
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "right",
+                padding: "8px",
+                color: "white",
+              }}
+            >
+              {" "}
+              {
+                Number(props.RecurringPricingInfo.OriginalPrice) <
+                  Number(props.RecurringPricingInfo.DiscountedPrice) ||
+                  (Number(props.RecurringPricingInfo.Discount) > 0 &&
+                    !props.ProposalObject.DiscountLines)
+                  ? props.formatValue(
+                    props.RecurringPricingInfo.DiscountedPrice
+                  )
+                  : // Number(props.RecurringPricingInfo.DiscountedPrice)
+                  //   // .toFixed(2)
+                  //   .toString()
+                  //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                  props.formatValue(props.RecurringPricingInfo.OriginalPrice)
+                //   Number(props.RecurringPricingInfo.OriginalPrice)
+                //     // .toFixed(2)
+                //     .toString()
+                // .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+              }
+            </td>
+          </tr>
+          {Number(props.RecurringPricingInfo.Discount) > 0 &&
+            props.ProposalObject &&
+            props.ProposalObject.DiscountLines && (
+              <>
+                <tr style={{ backgroundColor: "#DCDCDC" }}>
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "left",
+                      padding: "8px",
+                      color: "black",
+                    }}
+                  >
+                    Discount
+                  </td>
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                      color: "black",
+                    }}
+                  >
+                    {" "}
+                    (-) {props.formatValue(props.RecurringPricingInfo.Discount)}
+                  </td>
+                </tr>
+                <tr style={{ backgroundColor: "#808080" }}>
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "left",
+                      padding: "8px",
+                      color: "white",
+                    }}
+                  >
+                    Discounted Total
+                  </td>
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                      color: "white",
+                    }}
+                  >
+                    {" "}
+                    {props.formatValue(
+                      props.RecurringPricingInfo.DiscountedTotal
+                    )}
+                  </td>
+                </tr>
+              </>
+            )}
+          {props.vatPercentage && (
+            <>
+              <tr style={{ backgroundColor: "#DCDCDC" }}>
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "left",
+                    padding: "8px",
+                    color: "black",
+                  }}
+                >
+                  VAT
+                </td>
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "right",
+                    padding: "8px",
+                    color: "black",
+                  }}
+                >
+                  {" "}
+                  {props.formatValue(props.RecurringPricingInfo.VATPrice)}
+                </td>
+              </tr>
+              <tr style={{ backgroundColor: "#808080" }}>
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "left",
+                    padding: "8px",
+                    color: "white",
+                  }}
+                >
+                  Grand Total
+                </td>
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "right",
+                    padding: "8px",
+                    color: "white",
+                  }}
+                >
+                  {" "}
+                  {props.formatValue(props.RecurringPricingInfo.GrandTotal)}
+                </td>
+              </tr>
+            </>
+          )}
+
+          <tr style={{ backgroundColor: "#DCDCDC" }}>
+            <td
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "left",
+                padding: "8px",
+                color: "black",
+              }}
+            >
+              If you are happy with this proposal please click Accept to accept
+              the proposal
+            </td>
+            <td
+              style={{
+                border: "1px solid #DDDDDD",
+                float: "right",
+                padding: "8px",
+                color: "black",
+                display: "flex",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  width: "100%",
+                }}
+              >
+                <a
+                  href={AcceptRecurringUrl}
+                  style={{
+                    display: "inline-block",
+                    padding: "5px 15px",
+                    marginRight: "0.5vw",
+                    backgroundColor: "green",
+                    color: "white",
+                    textDecoration: "none",
+                    border: "none",
+                    borderRadius: "100px",
+                    transition:
+                      "background-color 0.3s ease, box-shadow 0.3s ease",
+                    whiteSpace: "nowrap",
+                    flex: 1,
+                    textAlign: "center",
+                  }}
+                >
+                  Accept
+                </a>
+              </div>
+              {props.common.enableEL === 0 && (
+                <a
+                  href={DeclineRecurringUrl}
+                  style={{
+                    display: "inline-block",
+                    padding: "5px 15px",
+                    backgroundColor: "red",
+                    color: "white",
+                    textDecoration: "none",
+                    border: "none",
+                    borderRadius: "100px",
+                    transition:
+                      "background-color 0.3s ease, box-shadow 0.3s ease",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  Decline
+                </a>
+              )}
+            </td>
+          </tr>
+        </table>
+      </div>
+    );
+  };
+  const updateOneOffHtmlContentForReviewService = () => {
+    setOneOffTable(
+      <div
+        style={{
+          paddingLeft: "40px",
+          paddingRight: "40px",
+          fontFamily: "'Times New Roman', Times, serif",
+        }}
+      >
+        <p
+          style={{
+            fontFamily: "arial, sans-serif",
+            color: "#00BFFF",
+            fontSize: "20px",
+            marginTop: "15px",
+          }}
+        >
+          One-Off Fees
+        </p>
+        <table
+          style={{
+            fontFamily: "arial, sans-serif",
+            borderCollapse: "collapse",
+            width: "100%",
+            marginTop: "-15px",
+          }}
+        >
+          <tr style={{ backgroundColor: "#00BFFF" }}>
+            <th
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "left",
+                padding: "8px",
+                color: "white",
+                fontSize: "18px",
+              }}
+            >
+              Services
+            </th>
+            <th
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "right",
+                padding: "8px",
+                color: "white",
+                fontSize: "18px",
+              }}
+            >
+              Fees (£)
+            </th>
+          </tr>
+          {props.selectedOneOffServiceList.map((serviceCat) => (
+            <React.Fragment key={serviceCat.serviceCatID}>
+              <tr style={{ backgroundColor: "#DCDCDC" }}>
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "left",
+                    padding: "8px",
+                    fontWeight: "bold",
+                    fontSize: "18px",
+                  }}
+                >
+                  {serviceCat.serviceCatName}
+                </td>
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "left",
+                    padding: "8px",
+                  }}
+                ></td>
+              </tr>
+              {serviceCat.servicesList.map((service) => (
+                <tr key={service.serviceID}>
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "left",
+                      padding: "8px",
+                    }}
+                  >
+                    {service.serviceName}
+                  </td>
+                  {props.ProposalObject.feeTypeId == 1 ? (
+                    <td
+                      style={{
+                        border: "1px solid #DDDDDD",
+                        textAlign: "right",
+                        padding: "8px",
+                      }}
+                    >
+                      {props.formatValue(service.price)}
+                    </td>
+                  ) : (
+                    <td
+                      style={{
+                        border: "1px solid #DDDDDD",
+                        textAlign: "right",
+                        padding: "8px",
+                      }}
+                    >
+                      &#10003;
+                    </td>
+                  )}
+                </tr>
+              ))}
+            </React.Fragment>
+          ))}
+
+          <tr style={{ backgroundColor: "#808080" }}>
+            <td
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "left",
+                padding: "8px",
+                color: "white",
+              }}
+            >
+              Net Total
+            </td>
+            <td
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "right",
+                padding: "8px",
+                color: "white",
+              }}
+            >
+              {" "}
+              {
+                Number(props.OneOffPricingInfo.OriginalPrice) <
+                  Number(props.OneOffPricingInfo.DiscountedPrice) ||
+                  (Number(props.OneOffPricingInfo.Discount) > 0 &&
+                    !props.ProposalObject.DiscountLines)
+                  ? props.formatValue(props.OneOffPricingInfo.DiscountedPrice)
+                  : // Number(props.OneOffPricingInfo.DiscountedPrice)
+                  //   // .toFixed(2)
+                  //   .toString()
+                  //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                  props.formatValue(props.OneOffPricingInfo.OriginalPrice)
+                // Number(props.OneOffPricingInfo.OriginalPrice)
+                //   // .toFixed(2)
+                //   .toString()
+                //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+              }
+            </td>
+          </tr>
+          {Number(props.OneOffPricingInfo.Discount) > 0 &&
+            props.ProposalObject.DiscountLines && (
+              <>
+                <tr style={{ backgroundColor: "#DCDCDC" }}>
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "left",
+                      padding: "8px",
+                      color: "black",
+                    }}
+                  >
+                    Discount
+                  </td>
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                      color: "black",
+                    }}
+                  >
+                    {" "}
+                    (-) {props.formatValue(props.OneOffPricingInfo.Discount)}
+                  </td>
+                </tr>
+                <tr style={{ backgroundColor: "#808080" }}>
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "left",
+                      padding: "8px",
+                      color: "white",
+                    }}
+                  >
+                    Discounted Total
+                  </td>
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                      color: "white",
+                    }}
+                  >
+                    {" "}
+                    {props.formatValue(props.OneOffPricingInfo.DiscountedTotal)}
+                  </td>
+                </tr>
+              </>
+            )}
+          {props.vatPercentage && (
+            <>
+              <tr style={{ backgroundColor: "#DCDCDC" }}>
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "left",
+                    padding: "8px",
+                    color: "black",
+                  }}
+                >
+                  VAT
+                </td>
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "right",
+                    padding: "8px",
+                    color: "black",
+                  }}
+                >
+                  {" "}
+                  {props.formatValue(props.OneOffPricingInfo.VATPrice)}
+                </td>
+              </tr>
+              <tr style={{ backgroundColor: "#808080" }}>
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "left",
+                    padding: "8px",
+                    color: "white",
+                  }}
+                >
+                  Grand Total
+                </td>
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "right",
+                    padding: "8px",
+                    color: "white",
+                  }}
+                >
+                  {" "}
+                  {props.formatValue(props.OneOffPricingInfo.GrandTotal)}
+                </td>
+              </tr>
+            </>
+          )}
+
+          <tr style={{ backgroundColor: "#DCDCDC" }}>
+            <td
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "left",
+                padding: "8px",
+                color: "black",
+              }}
+            >
+              If you are happy with this proposal please click Accept to accept
+              the proposal
+            </td>
+            <td
+              style={{
+                border: "1px solid #DDDDDD",
+                float: "right",
+                padding: "8px",
+                color: "black",
+                display: "flex",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  width: "100%",
+                }}
+              >
+                <a
+                  href={AcceptOneOffUrl}
+                  style={{
+                    display: "inline-block",
+                    padding: "5px 15px",
+                    marginRight: "0.5vw",
+                    backgroundColor: "green",
+                    color: "white",
+                    textDecoration: "none",
+                    border: "none",
+                    borderRadius: "100px",
+                    transition:
+                      "background-color 0.3s ease, box-shadow 0.3s ease",
+                    whiteSpace: "nowrap",
+                    flex: 1,
+                    textAlign: "center",
+                  }}
+                >
+                  Accept
+                </a>
+              </div>
+              {props.common.enableEL === 0 && (
+                <a
+                  href={DeclineOneOffUrl}
+                  style={{
+                    display: "inline-block",
+                    padding: "5px 15px",
+                    backgroundColor: "red",
+                    color: "white",
+                    textDecoration: "none",
+                    border: "none",
+                    borderRadius: "100px",
+                    transition:
+                      "background-color 0.3s ease, box-shadow 0.3s ease",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  Decline
+                </a>
+              )}
+            </td>
+          </tr>
+        </table>
+      </div>
+    );
+  };
+
+  useEffect(() => {
+    // Call the function when component mounts
+    updateRecurringHtmlContentForReviewService();
+
+    // Call the function when component mounts
+    updateOneOffHtmlContentForReviewService();
+  }, [props]);
+  useEffect(() => {
+    const isRecurringDiscounted =
+      Number(props.RecurringPricingInfo.DiscountedPrice) >
+      Number(props.RecurringPricingInfo.OriginalPrice);
+    const isOneOffDiscounted =
+      Number(props.OneOffPricingInfo.DiscountedPrice) >
+      Number(props.OneOffPricingInfo.OriginalPrice);
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      if (isRecurringDiscounted || isOneOffDiscounted) {
+        props.setDisableCondition(true);
+      } else {
+        props.setDisableCondition(false);
+      }
+      return;
+    }
+
+    if (isRecurringDiscounted || isOneOffDiscounted) {
+      props.setDisableCondition(true);
+      props.setProposalObject({
+        ...props.ProposalObject,
+        feeTypeId: 2,
+        DiscountLines: false,
+      });
+    } else {
+      props.setDisableCondition(false);
+      props.setProposalObject({
+        ...props.ProposalObject,
+        feeTypeId: 1,
+        DiscountLines: true,
+      });
+    }
+  }, [
+    props.RecurringPricingInfo.DiscountedPrice,
+    props.RecurringPricingInfo.OriginalPrice,
+    props.OneOffPricingInfo.DiscountedPrice,
+    props.OneOffPricingInfo.OriginalPrice,
+  ]);
+  // Calculate the total fees
+  const calculateTotalFees = () => {
+    let total = 0;
+    props.selectedRecurringServiceList.forEach((service) => {
+      service.servicesList.forEach((subService) => {
+        total += subService.price;
+      });
+    });
+    return total;
+  };
+
+  // Calculate the total fees
+  const calculateTotalFeesOneOff = () => {
+    let total = 0;
+    props.selectedOneOffServiceList.forEach((service) => {
+      service.servicesList.forEach((subService) => {
+        total += subService.price;
+      });
+    });
+    return total;
+  };
+
+  useEffect(() => {
+    const total = calculateTotalFees();
+    setTotalFees(total);
+  }, [props.selectedRecurringServiceList, selectedFrequency]);
+
+  useEffect(() => {
+    const total = calculateTotalFeesOneOff();
+    setTotalFeesOneOff(total);
+  }, [props.selectedOneOffServiceList]);
+
+  const oneOffTableString = ReactDOMServer.renderToString(oneOffTable);
+  const RecurringTableString = ReactDOMServer.renderToString(RecurringTable);
+  useEffect(() => {
+    // Update proposalObject
+    props.setProposalObject((prevState) => ({
+      ...prevState, // Using prevState to ensure we're updating based on the previous state
+      recurringHtmlContent:
+        props.selectedRecurringServiceList.length > 0
+          ? RecurringTableString
+          : null,
+      oneOffHtmlContent:
+        props.selectedOneOffServiceList.length > 0 ? oneOffTableString : null,
+    }));
+  }, [oneOffTableString, RecurringTableString, props]);
+
+  const feeTypeValue = modifiedFeesType.find(
+    (item) => props.ProposalObject.feeTypeId == item.value
+  );
+
+  useEffect(() => {
+    CalculateRecurringPackageNetTotal();
+    CalculateOneOffPackageNetTotal();
+  }, [props]);
+
+  //Handle Recurring Price
+  const handleRecurringDefaultPrice = (e) => {
+    e.preventDefault();
+    props.DisableTabOnChange();
+    const inputValue = e.target.value.replace(/[^0-9.-]/g, ""); // Allow only numeric, dot, comma, and hyphen characters
+    let sanitizedInput = inputValue;
+    sanitizedInput = props.hasHyphenAfterNumber(sanitizedInput);
+    // Split the input into integer and decimal parts
+    const [integerPart, decimalPart] = sanitizedInput.split(".");
+    // Combine integer and decimal parts with appropriate precision
+    let formattedInput;
+    if (decimalPart !== undefined) {
+      if (integerPart.includes("-")) {
+        // For negative values, ensure 5 digits after the negative sign
+        formattedInput = `-${integerPart.slice(1, 13)}.${decimalPart.slice(
+          0,
+          2
+        )}`;
+      } else {
+        // For positive values, limit to 5 digits before the decimal point
+        formattedInput = `${integerPart.slice(0, 12)}.${decimalPart.slice(
+          0,
+          2
+        )}`;
+      }
+    } else {
+      // No decimal part, limit to 5 digits
+      formattedInput = integerPart.includes("-")
+        ? `-${integerPart.slice(1, 13)}`
+        : `${integerPart.slice(0, 12)}`;
+    }
+
+    const recurringServicesTotal = Number(
+      props.RecurringPricingInfo.OriginalPrice
+    );
+    const defaultPrice = Number(formattedInput);
+
+    let CalculatedYearlyPrice = 0.0;
+    if (
+      lastPaymentFrequencyAndDiscountedPrice.PaymentFrequencyID ===
+      Payment_Frequency.Yearly
+    ) {
+      CalculatedYearlyPrice = defaultPrice;
+    } else if (
+      lastPaymentFrequencyAndDiscountedPrice.PaymentFrequencyID ===
+      Payment_Frequency.HalfYearly
+    ) {
+      CalculatedYearlyPrice = defaultPrice * 2;
+    } else if (
+      lastPaymentFrequencyAndDiscountedPrice.PaymentFrequencyID ===
+      Payment_Frequency.Quarterly
+    ) {
+      CalculatedYearlyPrice = defaultPrice * 4;
+    }
+    if (
+      lastPaymentFrequencyAndDiscountedPrice.PaymentFrequencyID ===
+      Payment_Frequency.Monthly
+    ) {
+      CalculatedYearlyPrice = defaultPrice * 12;
+    }
+    setLastPaymentFrequencyAndDiscountedPrice({
+      ...lastPaymentFrequencyAndDiscountedPrice,
+      ChangeableYearlyPrice: CalculatedYearlyPrice,
+    });
+
+    let decrease = recurringServicesTotal - Number(defaultPrice);
+    // if (decrease < 0) {
+    //   return;
+    // }
+    // const percentage = ((decrease / recurringServicesTotal) * 100).toFixed(2);
+    let percentage = (decrease / recurringServicesTotal) * 100;
+    if (percentage === -Infinity || percentage === NaN) {
+      percentage = 0;
+    }
+
+    percentage = percentage.toFixed(2);
+    let percentageCopy = (decrease / recurringServicesTotal) * 100;
+    if (percentageCopy === -Infinity || percentageCopy === NaN) {
+      percentageCopy = 0;
+    }
+    const TotalDiscount =
+      Number(props.RecurringPricingInfo.OriginalPrice) - Number(decrease);
+    const VatPrice =
+      Number(formattedInput) * (Number(props.vatPercentage) / 100);
+    let FinalPrice = Number(VatPrice) + Number(TotalDiscount);
+    FinalPrice = (Math.floor(FinalPrice * 100) / 100).toFixed(2);
+
+    if (formattedInput !== "") {
+      props.setRecurringPricingInfo({
+        ...props.RecurringPricingInfo,
+        DiscountedPrice: formattedInput,
+        DefaultDiscount: percentage,
+        Discount: decrease,
+        DiscountedTotal: TotalDiscount,
+        VATPrice: VatPrice,
+        GrandTotal: FinalPrice,
+      });
+      props.setRecurringFrequencyPricingInfo({
+        ...props.RecurringFrequencyPricingInfo,
+        DiscountedPrice: formattedInput,
+        DefaultDiscount: percentageCopy,
+        Discount: decrease,
+        DiscountedTotal: TotalDiscount,
+        VATPrice: VatPrice,
+        GrandTotal: FinalPrice,
+      });
+    } else {
+      props.setRecurringPricingInfo({
+        ...props.RecurringPricingInfo,
+        DiscountedPrice: formattedInput,
+        DefaultDiscount: percentage,
+        Discount: decrease,
+        DiscountedTotal: TotalDiscount,
+        VATPrice: VatPrice,
+        GrandTotal: FinalPrice,
+      });
+      props.setRecurringFrequencyPricingInfo({
+        ...props.RecurringFrequencyPricingInfo,
+        DiscountedPrice: formattedInput,
+        DefaultDiscount: percentageCopy,
+        Discount: decrease,
+        DiscountedTotal: TotalDiscount,
+        VATPrice: VatPrice,
+        GrandTotal: FinalPrice,
+      });
+    }
+  };
+  //Handle one-Off Price
+  const handleOneOffDefaultPrice = (e) => {
+    e.preventDefault();
+    props.DisableTabOnChange();
+    const inputValue = e.target.value.replace(/[^0-9.-]/g, ""); // Allow only numeric, dot, comma, and hyphen characters
+
+    let sanitizedInput = inputValue;
+    sanitizedInput = props.hasHyphenAfterNumber(sanitizedInput);
+    // Split the input into integer and decimal parts
+    const [integerPart, decimalPart] = sanitizedInput.split(".");
+
+    // Combine integer and decimal parts with appropriate precision
+    let formattedInput;
+    if (decimalPart !== undefined) {
+      if (integerPart.includes("-")) {
+        // For negative values, ensure 5 digits after the negative sign
+        formattedInput = `-${integerPart.slice(1, 13)}.${decimalPart.slice(
+          0,
+          2
+        )}`;
+      } else {
+        // For positive values, limit to 5 digits before the decimal point
+        formattedInput = `${integerPart.slice(0, 12)}.${decimalPart.slice(
+          0,
+          2
+        )}`;
+      }
+    } else {
+      // No decimal part, limit to 5 digits
+      formattedInput = integerPart.includes("-")
+        ? `-${integerPart.slice(1, 13)}`
+        : `${integerPart.slice(0, 12)}`;
+    }
+
+    // const recurringServicesTotal = Number(
+    //   props.OneOffPricingInfo.OriginalPrice
+    // );
+    const recurringServicesTotal = parseFloat(
+      props.OneOffPricingInfo.OriginalPrice
+    );
+
+    let decrease = Number(recurringServicesTotal) - Number(formattedInput);
+
+    // const percentage = ((decrease / recurringServicesTotal) * 100).toFixed(2);
+    let percentage = (decrease / recurringServicesTotal) * 100;
+    percentage = percentage.toFixed(2);
+    if (percentage === -Infinity || percentage === NaN) {
+      percentage = 0;
+    }
+
+    // Calculate percentage discount with full precision
+    // let percentageCopy = ((decrease / recurringServicesTotal) * 100);
+
+    let percentageCopy = ((decrease / recurringServicesTotal) * 100).toFixed(
+      15
+    );
+    if (percentageCopy === -Infinity || percentageCopy === NaN) {
+      percentage = 0;
+    }
+    const TotalDiscount = recurringServicesTotal - decrease;
+    const VatPrice =
+      Number(formattedInput) * (Number(props.vatPercentage) / 100);
+    let FinalPrice = Number(VatPrice) + Number(TotalDiscount);
+    FinalPrice = (Math.floor(FinalPrice * 100) / 100).toFixed(2);
+    // if (Number(formattedInput) > Number(props.OneOffPricingInfo.OriginalPrice)) {
+    //   props.setDisableCondition(true)
+
+    //   props.setProposalObject({
+    //     ...props.ProposalObject,
+    //     feeTypeId: 2
+    //   })
+    // } else {
+    //   props.setDisableCondition(false)
+
+    //   props.setProposalObject({
+    //     ...props.ProposalObject,
+    //     feeTypeId: 1
+    //   })
+    // }
+    if (formattedInput !== "") {
+      props.setOneOffPricingInfo({
+        ...props.OneOffPricingInfo,
+        DiscountedPrice: formattedInput,
+        DefaultDiscount: percentage,
+        Discount: decrease,
+        DiscountedTotal: TotalDiscount,
+        VATPrice: VatPrice,
+        GrandTotal: FinalPrice,
+      });
+      props.setOneOffPricingInfoCopy({
+        ...props.OneOffPricingInfoCopy,
+        DiscountedPrice: formattedInput,
+        DefaultDiscount: percentageCopy,
+        Discount: decrease,
+        DiscountedTotal: TotalDiscount,
+        VATPrice: VatPrice,
+        GrandTotal: FinalPrice,
+      });
+    } else {
+      props.setOneOffPricingInfo({
+        ...props.OneOffPricingInfo,
+        DiscountedPrice: formattedInput,
+        DefaultDiscount: percentage,
+        Discount: decrease,
+        DiscountedTotal: TotalDiscount,
+        VATPrice: VatPrice,
+        GrandTotal: FinalPrice,
+      });
+      props.setOneOffPricingInfoCopy({
+        ...props.OneOffPricingInfoCopy,
+        DiscountedPrice: formattedInput,
+        DefaultDiscount: percentageCopy,
+        Discount: decrease,
+        DiscountedTotal: TotalDiscount,
+        VATPrice: VatPrice,
+        GrandTotal: FinalPrice,
+      });
+    }
+  };
+  //Handle Payment Frequency
+  const handlePaymentFrequencyChange = (e) => {
+    props.DisableTabOnChange();
+    setLastPaymentFrequencyAndDiscountedPrice({
+      ...lastPaymentFrequencyAndDiscountedPrice,
+      PaymentFrequencyID: e.value,
+    });
+    const data =
+      props.RecurringFrequencyPricingInfo.DefaultDiscount !== null
+        ? props.RecurringFrequencyPricingInfo.DiscountedPrice
+        : props.RecurringFrequencyPricingInfo.OriginalPrice;
+    let DiscountedPrice = props.RecurringFrequencyPricingInfo.DiscountedPrice;
+    let DefaultDiscount = props.RecurringFrequencyPricingInfo.DefaultDiscount;
+    let Discount = props.RecurringFrequencyPricingInfo.Discount;
+    let DiscountedTotal = props.RecurringFrequencyPricingInfo.DiscountedTotal;
+    let VATPrice = props.RecurringFrequencyPricingInfo.VATPrice;
+    let GrandTotal = props.RecurringFrequencyPricingInfo.GrandTotal;
+
+    const updatedData = JSON.parse(JSON.stringify(props.RecurringServiceCopy));
+    // Store original price
+    let OriginalPrice = props.RecurringFrequencyPricingInfo.OriginalPrice;
+
+    // Calculate price based on payment frequency
+
+    let calculatedOriginalPriceFromServices = 0;
+    if (e.value === Payment_Frequency.Yearly) {
+      props.setProposalObject((prevState) => ({
+        ...prevState,
+        Payment_Frequency: e.value,
+      }));
+
+      updatedData.forEach((category) => {
+        category.servicesList.forEach((service) => {
+          // Perform the percentage calculation for each value
+          let currentServicePrice =
+            service.originalServicePrice === undefined
+              ? (service.quotationPrice = Number(service.quotationPrice))
+              : (service.originalServicePrice = Number(
+                service.originalServicePrice
+              ));
+
+          let currentServicePriceWithToFixed =
+            Number(currentServicePrice)?.toFixed(2);
+          service.price = currentServicePriceWithToFixed;
+          calculatedOriginalPriceFromServices = Number(
+            Number(calculatedOriginalPriceFromServices) +
+            Number(currentServicePriceWithToFixed)
+          )?.toFixed(2);
+
+          // service.price === undefined
+          //   ? (service.quotationPrice = Number(service.quotationPrice))
+          //   : (service.price = Number(service.price));
+        });
+      });
+      DiscountedPrice = calculatedOriginalPriceFromServices;
+      if (props.RecurringPricingInfo.DefaultDiscount > 0) {
+        DiscountedPrice =
+          lastPaymentFrequencyAndDiscountedPrice.ChangeableYearlyPrice;
+      }
+      //lastPaymentFrequencyAndDiscountedPrice.ChangeableYearlyPrice; //DiscountedPrice / 2; // Divide yearly price by 2 for half-yearly
+      //OriginalPrice = OriginalPrice;
+      OriginalPrice = calculatedOriginalPriceFromServices;
+    } else if (e.value === Payment_Frequency.HalfYearly) {
+      props.setProposalObject((prevState) => ({
+        ...prevState,
+        Payment_Frequency: e.value,
+      }));
+      updatedData.forEach((category) => {
+        category.servicesList.forEach((service) => {
+          // Perform the percentage calculation for each value
+
+          let currentServicePrice =
+            service.originalServicePrice === undefined
+              ? (service.quotationPrice = Number(service.quotationPrice) / 2)
+              : (service.originalServicePrice =
+                Number(service.originalServicePrice) / 2);
+
+          let currentServicePriceWithToFixed =
+            Number(currentServicePrice)?.toFixed(2);
+          service.price = currentServicePriceWithToFixed;
+          calculatedOriginalPriceFromServices = Number(
+            Number(calculatedOriginalPriceFromServices) +
+            Number(currentServicePriceWithToFixed)
+          )?.toFixed(2);
+
+          // service.price === undefined
+          //   ? (service.quotationPrice = Number(service.quotationPrice) / 2)
+          //   : (service.price = Number(service.price) / 2);
+        });
+      });
+      DiscountedPrice = calculatedOriginalPriceFromServices;
+      if (props.RecurringPricingInfo.DefaultDiscount > 0) {
+        DiscountedPrice =
+          lastPaymentFrequencyAndDiscountedPrice.ChangeableYearlyPrice / 2;
+      }
+      //lastPaymentFrequencyAndDiscountedPrice.ChangeableYearlyPrice / 2; //DiscountedPrice / 2; // Divide yearly price by 2 for half-yearly
+      //OriginalPrice = OriginalPrice / 2;
+      OriginalPrice = calculatedOriginalPriceFromServices;
+    } else if (e.value === Payment_Frequency.Quarterly) {
+      props.setProposalObject((prevState) => ({
+        ...prevState,
+        Payment_Frequency: e.value,
+      }));
+      updatedData.forEach((category) => {
+        category.servicesList.forEach((service) => {
+          // Perform the percentage calculation for each value
+          let currentServicePrice =
+            service.originalServicePrice === undefined
+              ? (service.quotationPrice = Number(service.quotationPrice) / 4)
+              : (service.originalServicePrice =
+                Number(service.originalServicePrice) / 4);
+
+          let currentServicePriceWithToFixed =
+            Number(currentServicePrice)?.toFixed(2);
+          service.price = currentServicePriceWithToFixed;
+          calculatedOriginalPriceFromServices = Number(
+            Number(calculatedOriginalPriceFromServices) +
+            Number(currentServicePriceWithToFixed)
+          )?.toFixed(2);
+
+          // service.price === undefined
+          //   ? (service.quotationPrice = Number(service.quotationPrice) / 4)
+          //   : (service.price = Number(service.price) / 4);
+        });
+      });
+      DiscountedPrice = calculatedOriginalPriceFromServices;
+      if (props.RecurringPricingInfo.DefaultDiscount > 0) {
+        DiscountedPrice =
+          lastPaymentFrequencyAndDiscountedPrice.ChangeableYearlyPrice / 4;
+      }
+      //lastPaymentFrequencyAndDiscountedPrice.ChangeableYearlyPrice / 4; //DiscountedPrice / 4; // Divide yearly price by 4 for quarterly
+      //OriginalPrice = OriginalPrice / 4; //Divide month
+      OriginalPrice = calculatedOriginalPriceFromServices;
+    } else if (e.value === Payment_Frequency.Monthly) {
+      props.setProposalObject((prevState) => ({
+        ...prevState,
+        Payment_Frequency: e.value,
+      }));
+      updatedData.forEach((category) => {
+        category.servicesList.forEach((service) => {
+          // Perform the percentage calculation for each value
+          let currentServicePrice =
+            service.originalServicePrice === undefined
+              ? (service.quotationPrice = Number(service.quotationPrice) / 12)
+              : (service.originalServicePrice =
+                Number(service.originalServicePrice) / 12);
+
+          let currentServicePriceWithToFixed =
+            Number(currentServicePrice)?.toFixed(2);
+          service.price = currentServicePriceWithToFixed;
+          calculatedOriginalPriceFromServices = Number(
+            Number(calculatedOriginalPriceFromServices) +
+            Number(currentServicePriceWithToFixed)
+          )?.toFixed(2);
+
+          // service.price === undefined
+          //   ? (service.quotationPrice = Number(service.quotationPrice) / 12)
+          //   : (service.price = Number(service.price) / 12);
+        });
+      });
+      DiscountedPrice = calculatedOriginalPriceFromServices;
+      if (props.RecurringPricingInfo.DefaultDiscount > 0) {
+        DiscountedPrice =
+          lastPaymentFrequencyAndDiscountedPrice.ChangeableYearlyPrice / 12;
+      }
+      //lastPaymentFrequencyAndDiscountedPrice.ChangeableYearlyPrice / 12; //DiscountedPrice / 12; // Divide yearly price by 12 for monthly
+      //OriginalPrice = OriginalPrice / 12; //Divide month
+      OriginalPrice = calculatedOriginalPriceFromServices;
+    }
+
+    // Calculate discount and other pricing details
+    const decrease = Number(OriginalPrice) - Number(DiscountedPrice);
+    //const percentage = (Number(decrease) / Number(OriginalPrice)) * 100;
+    //DefaultDiscount = Number(percentage)?.toFixed(2);
+    Discount = Number(decrease);
+    const TotalDiscount = Number(OriginalPrice) - decrease;
+    DiscountedTotal = Number(TotalDiscount);
+    const VatPrice =
+      Number(DiscountedPrice) * (Number(props.vatPercentage) / 100);
+    const FinalPrice = Number(VatPrice) + Number(TotalDiscount);
+    VATPrice = Number(VatPrice);
+    GrandTotal = Number(FinalPrice);
+
+    props.setRecurringPricingInfo({
+      ...props.RecurringPricingInfo,
+      OriginalPrice: OriginalPrice,
+      DiscountedPrice: (Math.floor(DiscountedPrice * 100) / 100).toFixed(2),
+      // DiscountedPrice: Number(DiscountedPrice)?.toFixed(2),
+      DefaultDiscount: Number(DefaultDiscount).toFixed(2),
+      Discount: Discount,
+      DiscountedTotal: DiscountedTotal,
+      VATPrice: VATPrice,
+      GrandTotal: GrandTotal,
+    });
+    props.setSelectedRecurringServiceList(updatedData);
+  };
+  // Handle Show Discount Checkbox
+  const handleCheckboxChange = (e) => {
+    props.DisableTabOnChange();
+    const newValue = e.target.checked ? true : null; // Set to 1 if checked, null otherwise
+    props.setProposalObject((prevProposalObject) => ({
+      ...prevProposalObject,
+      DiscountLines: newValue,
+    }));
+  };
+  // Handle Recurring Discount
+  const handleRecurringChangeDiscount = (e) => {
+    e.preventDefault();
+    props.DisableTabOnChange();
+    let sanitizedInput = e.target.value
+      .replace(/[^0-9.-]/g, "") // Allow only numeric, dot, and negative sign characters
+      .slice(0, 8); // Limit to 8 characters (4 digits + 1 dot + 2 decimal + 1 negative sign)
+
+    sanitizedInput = props.hasHyphenAfterNumber(sanitizedInput);
+    // Split the input into integer and decimal parts
+    const [integerPart, decimalPart] = sanitizedInput.split(".");
+
+    // Combine integer and decimal parts with appropriate precision
+    let formattedInput;
+    if (
+      sanitizedInput === "-" ||
+      (parseFloat(sanitizedInput) >= -999.0 &&
+        parseFloat(sanitizedInput) <= 100)
+    ) {
+      if (decimalPart !== undefined) {
+        if (integerPart.includes("-")) {
+          // For negative values, ensure 4 digits after the negative sign
+          formattedInput = `-${integerPart.slice(1, 4)}.${decimalPart.slice(
+            0,
+            2
+          )}`;
+        } else {
+          // For positive values, limit to 4 digits before the decimal point
+          formattedInput = `${integerPart.slice(0, 3)}.${decimalPart.slice(
+            0,
+            2
+          )}`;
+        }
+      } else {
+        // No decimal part, limit to 4 digits
+        formattedInput = integerPart.includes("-")
+          ? `-${integerPart.slice(1, 4)}`
+          : `${integerPart.slice(0, 3)}`;
+      }
+    }
+
+    // Parse the formatted input to a number
+    let parsedValue = formattedInput == undefined ? sanitizedInput === "" ? sanitizedInput : props.RecurringPricingInfo.DefaultDiscount : formattedInput;
+    let percentage = isNaN(parsedValue) ? 0 : parsedValue;
+    // Calculate discounted price
+    const originalPrice = Number(props.RecurringPricingInfo.OriginalPrice);
+    let discountedPrice = originalPrice * (1 - percentage / 100);
+    discountedPrice = Number(discountedPrice);
+    let CalculatePriceFrequency = discountedPrice;
+    // Update discounted price based on payment frequency
+    // const paymentFrequency = lastPaymentFrequencyAndDiscountedPrice.PaymentFrequencyID;
+    // if (paymentFrequency === Payment_Frequency.HalfYearly) {
+    //   CalculatePriceFrequency = discountedPrice * 2;
+    // } else if (paymentFrequency === Payment_Frequency.Quarterly) {
+    //   CalculatePriceFrequency = discountedPrice * 4;
+    // } else if (paymentFrequency === Payment_Frequency.Monthly) {
+    //   CalculatePriceFrequency = discountedPrice * 12;
+    // }
+
+    // Calculate VAT and Final Price
+    const vatPrice = discountedPrice * (Number(props.vatPercentage) / 100);
+    let finalPrice = Number(vatPrice) + discountedPrice;
+    finalPrice = (Math.floor(finalPrice * 100) / 100).toFixed(2);
+    let CalculatedYearlyPrice = 0.0;
+    if (
+      lastPaymentFrequencyAndDiscountedPrice.PaymentFrequencyID ===
+      Payment_Frequency.Yearly
+    ) {
+      CalculatedYearlyPrice = discountedPrice;
+    } else if (
+      lastPaymentFrequencyAndDiscountedPrice.PaymentFrequencyID ===
+      Payment_Frequency.HalfYearly
+    ) {
+      CalculatedYearlyPrice = discountedPrice * 2;
+    } else if (
+      lastPaymentFrequencyAndDiscountedPrice.PaymentFrequencyID ===
+      Payment_Frequency.Quarterly
+    ) {
+      CalculatedYearlyPrice = discountedPrice * 4;
+    }
+    if (
+      lastPaymentFrequencyAndDiscountedPrice.PaymentFrequencyID ===
+      Payment_Frequency.Monthly
+    ) {
+      CalculatedYearlyPrice = discountedPrice * 12;
+    }
+
+    setLastPaymentFrequencyAndDiscountedPrice({
+      ...lastPaymentFrequencyAndDiscountedPrice,
+      ChangeableYearlyPrice:
+        percentage === 0
+          ? lastPaymentFrequencyAndDiscountedPrice.YearlyOriginalPrice
+          : CalculatedYearlyPrice,
+    });
+
+    // setLastPaymentFrequencyAndDiscountedPrice({
+    //   ...lastPaymentFrequencyAndDiscountedPrice,
+    //   ChangeableYearlyPrice: discountedPrice,
+    // });
+
+    // Update state
+    props.setRecurringPricingInfo({
+      ...props.RecurringPricingInfo,
+      DiscountedPrice: (Math.floor(discountedPrice * 100) / 100).toFixed(2),
+      // DiscountedPrice: discountedPrice?.toFixed(2),
+      DefaultDiscount: parsedValue,
+      Discount: originalPrice - discountedPrice,
+      DiscountedTotal: discountedPrice,
+      VATPrice: vatPrice,
+      GrandTotal: finalPrice,
+    });
+
+    props.setRecurringFrequencyPricingInfo({
+      ...props.RecurringFrequencyPricingInfo,
+      DiscountedPrice: discountedPrice,
+      DefaultDiscount: parsedValue,
+      Discount: originalPrice - discountedPrice,
+      DiscountedTotal: discountedPrice,
+      VATPrice: vatPrice,
+      GrandTotal: finalPrice,
+    });
+  };
+
+  // Handle one-Off Discount
+  const handleOneOffChangeDiscount = (e) => {
+    e.preventDefault();
+    props.DisableTabOnChange();
+    let sanitizedInput = e.target.value
+      .replace(/[^0-9.-]/g, "") // Allow only numeric, dot, and negative sign characters
+      .slice(0, 8); // Limit to 8 characters (4 digits + 1 dot + 2 decimal + 1 negative sign)
+    sanitizedInput = props.hasHyphenAfterNumber(sanitizedInput);
+    // Split the input into integer and decimal parts
+    const [integerPart, decimalPart] = sanitizedInput.split(".");
+
+    // Combine integer and decimal parts with appropriate precision
+    let formattedInput;
+    if (
+      sanitizedInput === "-" ||
+      (parseFloat(sanitizedInput) >= -999.0 &&
+        parseFloat(sanitizedInput) <= 100)
+    ) {
+      if (decimalPart !== undefined) {
+        if (integerPart.includes("-")) {
+          // For negative values, ensure 4 digits after the negative sign
+          formattedInput = `-${integerPart.slice(1, 4)}.${decimalPart.slice(
+            0,
+            2
+          )}`;
+        } else {
+          // For positive values, limit to 4 digits before the decimal point
+          formattedInput = `${integerPart.slice(0, 3)}.${decimalPart.slice(
+            0,
+            2
+          )}`;
+        }
+      } else {
+        // No decimal part, limit to 4 digits
+        formattedInput = integerPart.includes("-")
+          ? `-${integerPart.slice(1, 4)}`
+          : `${integerPart.slice(0, 3)}`;
+      }
+    }
+
+    // Parse the formatted input to a number
+    let parsedValue = formattedInput == undefined ? sanitizedInput === "" ? sanitizedInput : props.OneOffPricingInfo.DefaultDiscount : formattedInput;
+    let percentage = isNaN(parsedValue) ? 0 : parsedValue;
+
+    // Calculate discounted price
+    const originalPrice = Number(props.OneOffPricingInfo.OriginalPrice);
+    let discountedPrice = originalPrice * (1 - percentage / 100);
+
+    // Calculate VAT and Final Price
+    const vatPrice = discountedPrice * (Number(props.vatPercentage) / 100);
+    let finalPrice = Number(vatPrice) + discountedPrice;
+    finalPrice = (Math.floor(finalPrice * 100) / 100).toFixed(2);
+
+    // Update state
+    props.setOneOffPricingInfo({
+      ...props.OneOffPricingInfo,
+      DiscountedPrice: (Math.floor(discountedPrice * 100) / 100).toFixed(2),
+      // DiscountedPrice: discountedPrice?.toFixed(2),
+      DefaultDiscount: parsedValue,
+      Discount: originalPrice - discountedPrice,
+      DiscountedTotal: discountedPrice,
+      VATPrice: vatPrice,
+      GrandTotal: finalPrice,
+    });
+    props.setOneOffPricingInfoCopy({
+      ...props.OneOffPricingInfo,
+      DiscountedPrice: discountedPrice,
+      // DiscountedPrice: discountedPrice?.toFixed(2),
+      DefaultDiscount: parsedValue,
+      Discount: originalPrice - discountedPrice,
+      DiscountedTotal: discountedPrice,
+      VATPrice: vatPrice,
+      GrandTotal: finalPrice,
+    });
+  };
+
+  //Calculate Recurring Net Total
+  const CalculateRecurringPackageNetTotal = () => {
+    let packageOneNetTotalObj = GetNetTotalValueByRecurringPackage();
+
+    props.setRecurringPricingInfo({
+      ...props.RecurringPricingInfo,
+      Discount: packageOneNetTotalObj.discountAmount,
+      DiscountedTotal: packageOneNetTotalObj.discountedTotalAmount,
+      VATPrice: packageOneNetTotalObj.vatTotalAmount,
+      GrandTotal: packageOneNetTotalObj.grandTotalAmount,
+    });
+
+    setRecurringPackageCalculation({
+      ...RecurringPackageCalculation,
+      //Package One :
+      PackageOneNetTotal: packageOneNetTotalObj.netTotal,
+      PackageOneNetTotalAddOnValue: packageOneNetTotalObj.addOnValue,
+      VatPercentage: packageOneNetTotalObj.vatPercentage,
+      PackageOneVatTotalAmount: packageOneNetTotalObj.vatTotalAmount,
+      PackageOneDiscountAmount: packageOneNetTotalObj.discountAmount,
+      PackageOneDiscountedTotalAmount:
+        packageOneNetTotalObj.discountedTotalAmount,
+      PackageOneGrandTotalAmount: packageOneNetTotalObj.grandTotalAmount,
+    }); //return packageOneNetTotal
+  };
+  // GetNetTotal value by Recurring packages
+  const GetNetTotalValueByRecurringPackage = (packageName) => {
+    let netTotal = 0;
+    let addOnValue = 0;
+    let vatPercentage = null;
+    let vatTotalAmount = null;
+    let discountAmount = 0;
+    let discountedTotalAmount = null;
+    let grandTotalAmount = null;
+
+    //Calculate netTotal :
+    props.selectedRecurringServiceList.forEach((category) => {
+      category.servicesList.forEach((service) => {
+        // Check if the value is not null before adding
+        if (service.price !== null) {
+          netTotal += Number(service.price);
+          netTotal = Math.round(netTotal * 100) / 100;
+        }
+        // if (packageName === "packageTwo" && service.packageTwoValue !== null)
+        //   netTotal += service.packageTwoValue;
+        // if (packageName === "packageThree" && service.packageThreeValue !== null)
+        //   netTotal += service.packageThreeValue;
+      });
+    });
+
+    //props.selectedPackagesList
+    let DiscountedPriceWithoutRoundOff =
+      props.GetTwoDecimalValueWithoutRoundOff(
+        props.RecurringPricingInfo.DiscountedPrice
+      ); //
+    let netTotalWithoutRoundOff =
+      props.GetTwoDecimalValueWithoutRoundOff(netTotal);
+
+    // //Calculate : addOnValue,discountAmount
+    if (
+      !isNaN(props.RecurringFrequencyPricingInfo.DefaultDiscount) &&
+      props.RecurringFrequencyPricingInfo.DefaultDiscount !== undefined &&
+      props.RecurringFrequencyPricingInfo.DefaultDiscount !== null &&
+      props.RecurringFrequencyPricingInfo.DefaultDiscount !== ""
+    ) {
+      if (Number(props.RecurringFrequencyPricingInfo.DefaultDiscount) === 0) {
+        addOnValue = 0;
+        discountAmount = 0;
+        //discountedTotalAmount = null;//Number(netTotal);
+      } else if (props.RecurringFrequencyPricingInfo.DefaultDiscount < 0) {
+        // addOnValue =
+        //   Number(netTotal) *
+        //   (Math.abs(props.RecurringFrequencyPricingInfo.DefaultDiscount) / 100);
+
+        addOnValue = DiscountedPriceWithoutRoundOff - netTotalWithoutRoundOff;
+      } else if (props.RecurringFrequencyPricingInfo.DefaultDiscount > 0) {
+        discountAmount =
+          netTotalWithoutRoundOff - DiscountedPriceWithoutRoundOff;
+        discountAmount = Number(discountAmount)?.toFixed(2);
+        //   props.RecurringFrequencyPricingInfo.DefaultDiscount) /
+        // 100;
+
+        //discountedTotalAmount = (Number(netTotal) + Number(addOnValue)) - discountAmount
+      }
+    }
+    // else {
+    //   let packageRecurringOriginalPrice = null;
+    //   let packageRecurringDefaultPrice = null;
+    //   if (packageName === "packageOne" && props.selectedPackagesList.length > 0) {
+    //     packageRecurringOriginalPrice = props.selectedPackagesList[0]?.recurringOriginalPrice
+    //     packageRecurringDefaultPrice = props.selectedPackagesList[0]?.recurringDefaultPrice
+
+    //   }
+    //   if (packageName === "packageTwo" && props.selectedPackagesList.length > 1) {
+    //     packageRecurringOriginalPrice = props.selectedPackagesList[1]?.recurringOriginalPrice
+    //     packageRecurringDefaultPrice = props.selectedPackagesList[1]?.recurringDefaultPrice
+    //   }
+    //   if (packageName === "packageThree" && props.selectedPackagesList.length > 2) {
+    //     packageRecurringOriginalPrice = props.selectedPackagesList[2]?.recurringOriginalPrice
+    //     packageRecurringDefaultPrice = props.selectedPackagesList[2]?.recurringDefaultPrice
+
+    //   }
+
+    //   if (packageRecurringOriginalPrice !== null && packageRecurringDefaultPrice !== null) {
+    //     if (packageRecurringDefaultPrice < packageRecurringOriginalPrice) {
+    //       let packageDiscountPercentage = ((packageRecurringOriginalPrice - packageRecurringDefaultPrice) / packageRecurringOriginalPrice) * 100;
+    //       if (packageDiscountPercentage < 0) {
+    //         addOnValue = Number(netTotal) * (Math.abs(packageDiscountPercentage) / 100)
+    //       }
+    //       else if (packageDiscountPercentage > 0) {
+    //         discountAmount = ((Number(netTotal) + Number(addOnValue)) * (packageDiscountPercentage) / 100)
+
+    //         //discountedTotalAmount = (Number(netTotal) + Number(addOnValue)) - discountAmount
+    //       }
+    //     }
+    //     // else {
+    //     //   discountedTotalAmount = Number(netTotal)
+    //     // }
+    //   }
+
+    // }
+
+    //Calculate discountedTotalAmount
+    discountedTotalAmount = DiscountedPriceWithoutRoundOff;
+    //Number(netTotal) + Number(addOnValue) - discountAmount;
+
+    //Calculate : vatPercentage,vatTotalAmount
+    if (
+      !isNaN(props.vatPercentage) &&
+      props.vatPercentage !== undefined &&
+      props.vatPercentage !== null
+    ) {
+      if (props.vatPercentage > 0) {
+        vatPercentage = props.vatPercentage;
+        vatTotalAmount = (Number(discountedTotalAmount) * vatPercentage) / 100;
+        vatTotalAmount =
+          props.GetTwoDecimalValueWithoutRoundOff(vatTotalAmount);
+      }
+    }
+
+    //Calculate : grandTotalAmount
+    if (
+      !isNaN(props.vatPercentage) &&
+      props.vatPercentage !== undefined &&
+      props.vatPercentage !== null
+    ) {
+      if (props.vatPercentage > 0) {
+        grandTotalAmount = discountedTotalAmount + vatTotalAmount;
+        grandTotalAmount = Number(grandTotalAmount)?.toFixed(2);
+      }
+    }
+
+    return {
+      netTotal: netTotal,
+      addOnValue: addOnValue,
+      vatPercentage: vatPercentage,
+      vatTotalAmount: vatTotalAmount,
+      discountAmount: discountAmount,
+      discountedTotalAmount: discountedTotalAmount,
+      grandTotalAmount: grandTotalAmount,
+    };
+  };
+  // Calculate One-Off Package Net Total Price
+  const CalculateOneOffPackageNetTotal = () => {
+    let packageOneNetTotalObj = GetNetTotalValueByOneOffPackage();
+
+    props.setOneOffPricingInfo({
+      ...props.OneOffPricingInfo,
+      Discount: packageOneNetTotalObj.discountAmount,
+      DiscountedTotal: packageOneNetTotalObj.discountedTotalAmount,
+      VATPrice: packageOneNetTotalObj.vatTotalAmount,
+      GrandTotal: packageOneNetTotalObj.grandTotalAmount,
+    });
+
+    setOneOffPackageCalculation({
+      ...OneOffPackageCalculation,
+      //Package One :
+      PackageOneNetTotal: packageOneNetTotalObj.netTotal,
+      PackageOneNetTotalAddOnValue: packageOneNetTotalObj.addOnValue,
+      VatPercentage: packageOneNetTotalObj.vatPercentage,
+      PackageOneVatTotalAmount: packageOneNetTotalObj.vatTotalAmount,
+      PackageOneDiscountAmount: packageOneNetTotalObj.discountAmount,
+      PackageOneDiscountedTotalAmount:
+        packageOneNetTotalObj.discountedTotalAmount,
+      PackageOneGrandTotalAmount: packageOneNetTotalObj.grandTotalAmount,
+    }); //return packageOneNetTotal
+  };
+  // GetNetTotal value by one-Off packages
+  const GetNetTotalValueByOneOffPackage = (packageName) => {
+    let netTotal = 0;
+    let addOnValue = 0;
+    let vatPercentage = null;
+    let vatTotalAmount = null;
+    let discountAmount = 0;
+    let discountedTotalAmount = null;
+    let grandTotalAmount = null;
+    //Calculate netTotal :
+    props.selectedOneOffServiceList.forEach((category) => {
+      category.servicesList.forEach((service) => {
+        // Check if the value is not null before adding
+        if (service.price !== null) {
+          netTotal += Number(service.price);
+          netTotal = Math.round(netTotal * 100) / 100;
+        }
+        // if (packageName === "packageTwo" && service.packageTwoValue !== null)
+        //   netTotal += service.packageTwoValue;
+        // if (packageName === "packageThree" && service.packageThreeValue !== null)
+        //   netTotal += service.packageThreeValue;
+      });
+    });
+
+    //props.selectedPackagesList
+    let DiscountedPriceWithoutRoundOff =
+      props.GetTwoDecimalValueWithoutRoundOff(
+        props.OneOffPricingInfo.DiscountedPrice
+      ); //
+    let netTotalWithoutRoundOff =
+      props.GetTwoDecimalValueWithoutRoundOff(netTotal);
+
+    // //Calculate : addOnValue,discountAmount
+    if (
+      !isNaN(props.OneOffPricingInfoCopy.DefaultDiscount) &&
+      props.OneOffPricingInfoCopy.DefaultDiscount !== undefined &&
+      props.OneOffPricingInfoCopy.DefaultDiscount !== null &&
+      props.OneOffPricingInfoCopy.DefaultDiscount !== ""
+    ) {
+      if (Number(props.OneOffPricingInfoCopy.DefaultDiscount) === 0) {
+        addOnValue = 0;
+        discountAmount = 0;
+        //discountedTotalAmount = null;//Number(netTotal);
+      } else if (props.OneOffPricingInfoCopy.DefaultDiscount < 0) {
+        // addOnValue =
+        //   Number(netTotal) *
+        //   (Math.abs(props.OneOffPricingInfoCopy.DefaultDiscount) / 100);
+        addOnValue = DiscountedPriceWithoutRoundOff - netTotalWithoutRoundOff;
+      } else if (props.OneOffPricingInfoCopy.DefaultDiscount > 0) {
+        discountAmount =
+          netTotalWithoutRoundOff - DiscountedPriceWithoutRoundOff;
+        discountAmount = Number(discountAmount)?.toFixed(2);
+        // discountAmount =
+        //   ((Number(netTotal) + Number(addOnValue)) *
+        //     parseFloat(props.OneOffPricingInfoCopy.DefaultDiscount)) /
+        //   100;
+
+        //discountedTotalAmount = (Number(netTotal) + Number(addOnValue)) - discountAmount
+      }
+    }
+
+    //Calculate discountedTotalAmount
+    discountedTotalAmount = DiscountedPriceWithoutRoundOff;
+
+    //Calculate : vatPercentage,vatTotalAmount
+    if (
+      !isNaN(props.vatPercentage) &&
+      props.vatPercentage !== undefined &&
+      props.vatPercentage !== null
+    ) {
+      if (props.vatPercentage > 0) {
+        vatPercentage = props.vatPercentage;
+        vatTotalAmount = (Number(discountedTotalAmount) * vatPercentage) / 100;
+        vatTotalAmount =
+          props.GetTwoDecimalValueWithoutRoundOff(vatTotalAmount);
+      }
+    }
+
+    //Calculate : grandTotalAmount
+    if (
+      !isNaN(props.vatPercentage) &&
+      props.vatPercentage !== undefined &&
+      props.vatPercentage !== null
+    ) {
+      if (props.vatPercentage > 0) {
+        grandTotalAmount = discountedTotalAmount + vatTotalAmount;
+        grandTotalAmount = Number(grandTotalAmount)?.toFixed(2);
+      }
+    }
+    //Calculate : vatPercentage,vatTotalAmount
+    // if (!isNaN(props.vatPercentage) && props.vatPercentage !== undefined && props.vatPercentage !== null) {
+    //   if (props.vatPercentage > 0) {
+    //     vatPercentage = props.vatPercentage;
+    //     if (discountedTotalAmount !== null) {
+    //       vatTotalAmount = (Number(discountedTotalAmount) * (vatPercentage) / 100)
+    //     }
+    //     else {
+    //       vatTotalAmount = ((Number(netTotal) + Number(addOnValue)) * (vatPercentage) / 100)
+    //     }
+
+    //   }
+    // }
+
+    // //Calculate : grandTotalAmount
+    // if (!isNaN(props.vatPercentage) && props.vatPercentage !== undefined && props.vatPercentage !== null) {
+    //   if (props.vatPercentage > 0) {
+    //     if (discountedTotalAmount !== null) {
+    //       grandTotalAmount = discountedTotalAmount + vatTotalAmount;
+    //     }
+    //     else {
+    //       grandTotalAmount = ((Number(netTotal) + Number(addOnValue)) + vatTotalAmount);
+    //     }
+    //   }
+    // }
+
+    return {
+      netTotal: netTotal,
+      addOnValue: addOnValue,
+      vatPercentage: vatPercentage,
+      vatTotalAmount: vatTotalAmount,
+      discountAmount: discountAmount,
+      discountedTotalAmount: discountedTotalAmount,
+      grandTotalAmount: grandTotalAmount,
+    };
+  };
+  const handleChangeFeesType = (e) => {
+    const {
+      RecurringPricingInfo,
+      OneOffPricingInfo,
+      setProposalObject,
+      ProposalObject,
+    } = props;
+
+    const isRecurringDiscounted =
+      Number(RecurringPricingInfo.DiscountedPrice) ===
+      Number(RecurringPricingInfo.OriginalPrice);
+    const isOneOffDiscounted =
+      Number(OneOffPricingInfo.DiscountedPrice) ===
+      Number(OneOffPricingInfo.OriginalPrice);
+
+    const updatedProposalObj = {
+      ...ProposalObject,
+      feeTypeId: e.value,
+    };
+
+    if (e.value == 2 && isRecurringDiscounted && isOneOffDiscounted) {
+      updatedProposalObj.DiscountLines = false;
+    } else {
+      updatedProposalObj.DiscountLines = true;
+    }
+
+    setProposalObject(updatedProposalObj);
+  };
+  return (
+    <>
+      <div className="create-practice-height scrollbar">
+        <div className="container">
+          <div className="tab-content">
+            <div className="tab-pane p-3 active">
+              <div className="row">
+                <div className="col-12">
+                  <div className="row fieldset">
+                    <div className="col-lg-2 mb-2 col-sm-12 text-md-end">
+                      <>
+                        {props.proposalName.length > 10 ? (
+                          <Tooltip title={`Fees in the ${props.proposalName}`}>
+                            <label className="fieldset-label required">
+                              Fees in the {props.proposalName.substring(0, 10)}
+                              ...
+                              <span className="text-danger">*</span>
+                            </label>
+                          </Tooltip>
+                        ) : (
+                          <>
+                            <label className="fieldset-label required">
+                              Fees in the {props.proposalName}
+                              <span className="text-danger">*</span>
+                            </label>
+                          </>
+                        )}
+                      </>
+                    </div>
+                    <div className="col-lg-10 mb-2 col-sm-12">
+                      <div className="input-group">
+                        {/* Add your Select component here */}
+                        <Select
+                          className="phone-input-country-code selectDropDown Drop-down-width"
+                          value={feeTypeValue}
+                          onChange={(e) => {
+                            props.DisableTabOnChange();
+                            handleChangeFeesType(e);
+                          }}
+                          options={modifiedFeesType}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="col-lg-2 col-sm-12 text-md-end">
+                      <label className="fieldset-label required">
+                        Show Discount
+                      </label>
+                    </div>
+                    <div className="col-lg-10 col-sm-12">
+                      <div className="input-group">
+                        {/* Replace Select with Checkbox */}
+                        <input
+                          disabled={
+                            props.ProposalObject.feeTypeId === 1 ||
+                            (props.RecurringPricingInfo.DefaultDiscount <= 0 &&
+                              props.OneOffPricingInfo.DefaultDiscount <= 0)
+                          }
+                          type="checkbox"
+                          checked={props.ProposalObject.DiscountLines} // Check the checkbox if DiscountLines is 1
+                          onChange={handleCheckboxChange}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          {props.selectedRecurringServiceList?.length !== 0 && (
+            <div className="tab-content">
+              <div className="tab-pane p-3 active">
+                <div className="row">
+                  <div className="col-lg-12">
+                    <div className="separator mb-2"></div>
+                    <h6>Recurring Services</h6>
+                    <div className="separator mb-3"></div>
+
+                    <div className="row fieldset">
+                      <div className="col-md-2 col-sm-12  text-md-end">
+                        <label className="fieldset-label">
+                          Original Price (£)
+                        </label>
+                      </div>
+                      <div className="col-md-4 col-sm-12">
+                        <input
+                          readonly=""
+                          type="text"
+                          class="input-text"
+                          value={
+                            // props.formatValue(
+                            //   props.RecurringPricingInfo.OriginalPrice
+                            // )
+                            Number(
+                              Math.floor(
+                                props.RecurringPricingInfo.OriginalPrice * 100
+                              ) / 100
+                            )
+                              .toFixed(2)
+                              .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                          }
+                        />
+                      </div>
+                      <div className="col-md-2 col-sm-12 mt-2 text-md-end">
+                        <label className="fieldset-label required">
+                          Payment Frequency
+                        </label>
+                      </div>
+                      <div className="col-md-4 col-sm-12">
+                        <Select
+                          className="phone-input-country-code selectDropDown Drop-down-width"
+                          value={selectedFrequency}
+                          onChange={handlePaymentFrequencyChange}
+                          options={Utils.Payment_Frequency}
+                        />
+                      </div>
+                    </div>
+                    <div class="row" id="recurring_Default">
+                      <div class=" col-md-2 col-sm-12 mt-2 text-md-end">
+                        <label className="fieldset-label">Discount (%)</label>
+                      </div>
+                      <div class="col-lg-4 col-md-4 col-sm-12">
+                        <input
+                          class="input-text"
+                          type="text"
+                          placeholder="Discount (%)"
+                          value={props.RecurringPricingInfo.DefaultDiscount?.toString()?.replace(
+                            /\B(?=(\d{3})+(?!\d))/g,
+                            ","
+                          )}
+                          onChange={(e) => {
+                            handleRecurringChangeDiscount(e);
+                            // let inputValue = e.target.value;
+                            // let parsedValue = parseFloat(inputValue);
+                            // if (isNaN(parsedValue)) {
+                            //   props.setRecurringPricingInfo({
+                            //     ...props.RecurringPricingInfo,
+                            //     DefaultDiscount: inputValue,
+                            //   });
+                            //   return false;
+                            // } else {
+                            //   handleRecurringChangeDiscount(e);
+                            // }
+                          }}
+                        />
+                        {props.requireMessage &&
+                          props.RecurringPricingInfo.DefaultDiscount !== "" &&
+                          props.RecurringPricingInfo.DefaultDiscount !== "-" &&
+                          isNaN(props.RecurringPricingInfo.DefaultDiscount) && (
+                            <span className="validation">Invalid discount</span>
+                          )}
+
+                        {props.requireMessage &&
+                          props.pricingSettingObj.maxDiscountForQC !== "" &&
+                          props.pricingSettingObj.maxDiscountForQC !== null &&
+                          props.pricingSettingObj.maxDiscountForQC !==
+                          undefined &&
+                          props.RecurringPricingInfo.DefaultDiscount !== "" &&
+                          props.RecurringPricingInfo.DefaultDiscount !== null &&
+                          props.RecurringPricingInfo.DefaultDiscount !==
+                          undefined &&
+                          (Number(props.RecurringPricingInfo.DefaultDiscount) <
+                            -999.0 ||
+                            Number(props.RecurringPricingInfo.DefaultDiscount) >
+                            props.pricingSettingObj.maxDiscountForQC) && (
+                            <>
+                              <span className="validation">
+                                The discount (%) should be between -999.00% and{" "}
+                                {Number(
+                                  props.pricingSettingObj.maxDiscountForQC
+                                )
+                                  ?.toFixed(2)
+                                  ?.toString()
+                                  ?.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                                %.
+                              </span>
+                              <button
+                                style={{
+                                  fontSize: "12px",
+                                  border: "none",
+                                  background: "transparent",
+                                  color: "#626ED4",
+                                }}
+                                className="float-sm-end"
+                                data-bs-toggle="modal"
+                                data-bs-target="#pricingModel"
+                              >
+                                + Pricing Setting
+                              </button>
+                            </>
+                          )}
+
+                        {props.requireMessage &&
+                          (props.pricingSettingObj.maxDiscountForQC == "" ||
+                            props.pricingSettingObj.maxDiscountForQC == null ||
+                            props.pricingSettingObj.maxDiscountForQC ==
+                            undefined) &&
+                          props.RecurringPricingInfo.DefaultDiscount !== "" &&
+                          props.RecurringPricingInfo.DefaultDiscount !== null &&
+                          props.RecurringPricingInfo.DefaultDiscount !==
+                          undefined &&
+                          (Number(props.RecurringPricingInfo.DefaultDiscount) <
+                            -999.0 ||
+                            Number(props.RecurringPricingInfo.DefaultDiscount) >
+                            100) && (
+                            <>
+                              <span className="validation">
+                                The discount (%) should be between -999.00% and
+                                100%.
+                              </span>
+                            </>
+                          )}
+                      </div>
+                      <div
+                        // style={{ padding: "0px" }}
+                        class="col-lg-2 col-md-2  col-sm-12"
+                      >
+                        <div class="mt-2 text-md-end">
+                          <label className="fieldset-label">
+                            Discounted Price (£)
+                            <span class="text-danger">*</span>
+                          </label>
+                        </div>
+                      </div>
+                      <div class="col-lg-4 col-md-4 col-sm-12">
+                        <input
+                          class="input-text"
+                          type="text"
+                          placeholder="Discounted Price (£)"
+                          value={props.RecurringPricingInfo.DiscountedPrice?.toString().replace(
+                            /\B(?=(\d{3})+(?!\d))/g,
+                            ","
+                          )}
+                          onChange={handleRecurringDefaultPrice}
+                        />
+
+                        {props.requireMessage &&
+                          props.RecurringPricingInfo.DiscountedPrice !== "" &&
+                          props.RecurringPricingInfo.DiscountedPrice !== "-" &&
+                          isNaN(props.RecurringPricingInfo.DiscountedPrice) && (
+                            <span className="validation">
+                              Invalid discounted price
+                            </span>
+                          )}
+
+                        {props.requireMessage &&
+                          (props.RecurringPricingInfo.DiscountedPrice ===
+                            undefined ||
+                            props.RecurringPricingInfo.DiscountedPrice ===
+                            null ||
+                            props.RecurringPricingInfo.DiscountedPrice ===
+                            "") && (
+                            <span className="validation">{ERROR_MESSAGES}</span>
+                          )}
+
+                        {props.requireMessage &&
+                          props.pricingSettingObj.minMonthlyPriceForQC !== "" &&
+                          props.pricingSettingObj.minMonthlyPriceForQC !==
+                          null &&
+                          props.pricingSettingObj.minMonthlyPriceForQC !==
+                          undefined &&
+                          props.pricingSettingObj.minMonthlyPriceForQC !== 0 &&
+                          props.RecurringPricingInfo.DiscountedPrice !== "" &&
+                          props.RecurringPricingInfo.DiscountedPrice !== null &&
+                          props.RecurringPricingInfo.DiscountedPrice !==
+                          undefined &&
+                          ((props.ProposalObject.Payment_Frequency === 4 &&
+                            Number(props.RecurringPricingInfo.DiscountedPrice) <
+                            Number(
+                              props.pricingSettingObj.minMonthlyPriceForQC
+                            )) ||
+                            (props.ProposalObject.Payment_Frequency === 3 &&
+                              Number(
+                                props.RecurringPricingInfo.DiscountedPrice
+                              ) <
+                              Number(
+                                props.pricingSettingObj.minMonthlyPriceForQC
+                              ) *
+                              3) ||
+                            (props.ProposalObject.Payment_Frequency === 2 &&
+                              Number(
+                                props.RecurringPricingInfo.DiscountedPrice
+                              ) <
+                              Number(
+                                props.pricingSettingObj.minMonthlyPriceForQC
+                              ) *
+                              6) ||
+                            (props.ProposalObject.Payment_Frequency === 1 &&
+                              Number(
+                                props.RecurringPricingInfo.DiscountedPrice
+                              ) <
+                              Number(
+                                props.pricingSettingObj.minMonthlyPriceForQC
+                              ) *
+                              12)) && (
+                            <>
+                              <span className="validation">
+                                The min. monthly price can not be lower than{" "}
+                                {props.formatValue(
+                                  props.pricingSettingObj.minMonthlyPriceForQC
+                                )}
+                              </span>
+                              <button
+                                style={{
+                                  fontSize: "12px",
+                                  border: "none",
+                                  background: "transparent",
+                                  color: "#626ED4",
+                                }}
+                                className="float-sm-end"
+                                data-bs-toggle="modal"
+                                data-bs-target="#pricingModel"
+                              >
+                                + Pricing Setting
+                              </button>
+                            </>
+                          )}
+
+                        {props.requireMessage &&
+                          (props.pricingSettingObj.minMonthlyPriceForQC ===
+                            "" ||
+                            props.pricingSettingObj.minMonthlyPriceForQC ===
+                            null ||
+                            props.pricingSettingObj.minMonthlyPriceForQC ===
+                            0 ||
+                            props.pricingSettingObj.minMonthlyPriceForQC ===
+                            undefined) &&
+                          props.RecurringPricingInfo.DiscountedPrice !== "" &&
+                          props.RecurringPricingInfo.DiscountedPrice !== null &&
+                          props.RecurringPricingInfo.DiscountedPrice !==
+                          undefined &&
+                          Number(props.RecurringPricingInfo.DiscountedPrice) <=
+                          0 && (
+                            <>
+                              <span className="validation">
+                                The recurring discounted price may not be or
+                                less than {props.formatValue(0.00)}
+                              </span>
+                            </>
+                          )}
+                      </div>
+                    </div>
+                    <div className="mb-3"></div>
+
+                    <div
+                      style={{ marginTop: "0px" }}
+                      className="table-responsive"
+                    >
+                      <table className="table align-middle table-nowrap">
+                        <thead className="table-light table-header-font">
+                          <tr className="head-row">
+                            <th className="tr-table-class text-white">
+                              Services
+                            </th>
+                            <th className="tr-table-class text-white text-right">
+                              Fees (£)
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {props.selectedRecurringServiceList.map(
+                            (service, index) => {
+                              return (
+                                <>
+                                  <tr class="a-la-carte-services-review-head-row">
+                                    <th colspan="2">
+                                      {service.serviceCatName}
+                                    </th>
+                                  </tr>
+                                  {service.servicesList.map(
+                                    (subService, subIndex) => {
+                                      return (
+                                        <tr key={subIndex}>
+                                          {/* */}
+                                          <td>
+                                            <div>{subService.serviceName}</div>
+                                            <div class="package-variables"></div>
+                                          </td>
+                                          <td className="text-right">
+                                            {props.ProposalObject.feeTypeId ===
+                                              1 && (
+                                                <>
+                                                  {props.formatValue(
+                                                    subService.price
+                                                  )}
+                                                </>
+                                              )}
+                                            {props.ProposalObject.feeTypeId ===
+                                              2 && (
+                                                <span className="fa fa-check"></span>
+                                              )}
+                                          </td>
+                                        </tr>
+                                      );
+                                    }
+                                  )}
+                                </>
+                              );
+                            }
+                          )}
+
+                          <tr className="head-row">
+                            <td className="tr-table-class text-white">
+                              Net Total
+                            </td>
+                            <td className="tr-table-class text-white text-right">
+                              {" "}
+                              {
+                                Number(
+                                  props.RecurringPricingInfo.OriginalPrice
+                                ) <
+                                  Number(
+                                    props.RecurringPricingInfo.DiscountedPrice
+                                  ) ||
+                                  (Number(props.RecurringPricingInfo.Discount) >
+                                    0 &&
+                                    !props.ProposalObject.DiscountLines)
+                                  ? props.formatValue(
+                                    props.RecurringPricingInfo.DiscountedPrice
+                                  )
+                                  : // Number(props.RecurringPricingInfo.DiscountedPrice)
+                                  //     .toFixed(2)
+                                  //     .toString()
+                                  //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                  props.formatValue(
+                                    props.RecurringPricingInfo.OriginalPrice
+                                  )
+                                // Number(props.RecurringPricingInfo.OriginalPrice)
+                                //     .toFixed(2)
+                                //     .toString()
+                                //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                              }
+                            </td>
+                          </tr>
+                          {Number(props.RecurringPricingInfo.Discount) > 0 &&
+                            props.ProposalObject.DiscountLines && (
+                              <>
+                                <tr class="head-grey-row">
+                                  <td className="tr-table-class font-14 text-white">
+                                    Discount
+                                  </td>
+                                  <td className="tr-table-class font-14 text-white text-right">
+                                    (-){"  "}
+                                    {"  "}
+                                    {
+                                      props.formatValue(
+                                        props.RecurringPricingInfo.Discount
+                                      )
+                                      // Number(props.RecurringPricingInfo.Discount)
+                                      //   .toFixed(2)
+                                      //   .toString()
+                                      //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                    }
+                                  </td>
+                                </tr>
+                                <tr class="head-row">
+                                  <td className="tr-table-class font-14 text-white">
+                                    Discounted Total
+                                  </td>
+                                  <td className="tr-table-class font-14 text-white text-right">
+                                    {" "}
+                                    {
+                                      props.formatValue(
+                                        props.RecurringPricingInfo
+                                          .DiscountedTotal
+                                      )
+                                      // Number(
+                                      //   props.RecurringPricingInfo.DiscountedTotal
+                                      // )
+                                      //   .toFixed(2)
+                                      //   .toString()
+                                      //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                    }
+                                  </td>
+                                </tr>
+                              </>
+                            )}
+
+                          {props.vatPercentage && (
+                            <>
+                              <tr class="head-grey-row">
+                                <td className="tr-table-class font-14 text-white">
+                                  VAT
+                                </td>
+                                <td className="tr-table-class font-14 text-white text-right">
+                                  {" "}
+                                  {
+                                    props.formatValue(
+                                      props.RecurringPricingInfo.VATPrice
+                                    )
+                                    // Number(props.RecurringPricingInfo.VATPrice)
+                                    //   .toFixed(2)
+                                    //   .toString()
+                                    //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                  }
+                                </td>
+                              </tr>
+                              <tr className="head-row">
+                                <td className="tr-table-class font-14 text-white">
+                                  Grand Total
+                                </td>
+                                <td className="tr-table-class font-14 text-white text-right">
+                                  {" "}
+                                  {
+                                    props.formatValue(
+                                      props.RecurringPricingInfo.GrandTotal
+                                    )
+                                    // Number(props.RecurringPricingInfo.GrandTotal)
+                                    //   .toFixed(2)
+                                    //   .toString()
+                                    //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                  }
+                                </td>
+                              </tr>
+                            </>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {props.selectedOneOffServiceList?.length !== 0 && (
+            <div className="tab-content">
+              <div className="tab-pane p-3 active">
+                <div className="row">
+                  <div className="col-lg-12">
+                    <div className="separator mb-2"></div>
+                    <h6>One-Off Services</h6>
+                    <div className="separator mb-3"></div>
+
+                    <div className="row fieldset">
+                      <div className="col-md-2 col-sm-12  text-md-end">
+                        <label className="fieldset-label">
+                          Original Price (£)
+                        </label>
+                      </div>
+                      <div className="col-md-10 col-sm-12">
+                        <input
+                          readonly=""
+                          type="text"
+                          class="input-text"
+                          value={
+                            // props.formatValue(
+                            //   props.OneOffPricingInfo.OriginalPrice
+                            // )
+                            Number(
+                              Math.floor(
+                                props.OneOffPricingInfo.OriginalPrice * 100
+                              ) / 100
+                            )
+                              .toFixed(2)
+                              .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                            // props.OneOffPricingInfo.OriginalPrice.toString().replace(
+                            //   /\B(?=(\d{3})+(?!\d))/g,
+                            //   ","
+                            // )
+                          }
+                        />
+                      </div>
+                    </div>
+                    <div class="row" id="OneOff_Default">
+                      <div class="col-lg-2 mb-1 col-md-2 col-sm-12 mt-2 text-md-end">
+                        <div class="mb-1 text-md-end">
+                          <label class="form-label">Discount (%)</label>
+                        </div>
+                      </div>
+                      <div class="col-lg-4 col-md-4 col-sm-12">
+                        <input
+                          class="input-text"
+                          type="text"
+                          placeholder="Discount (%)"
+                          value={props.OneOffPricingInfo.DefaultDiscount?.toString()?.replace(
+                            /\B(?=(\d{3})+(?!\d))/g,
+                            ","
+                          )}
+                          onChange={(e) => {
+                            handleOneOffChangeDiscount(e);
+                            // let inputValue = e.target.value;
+                            // let parsedValue = parseFloat(inputValue);
+                            // if (isNaN(parsedValue)) {
+                            //   props.setOneOffPricingInfo({
+                            //     ...props.OneOffPricingInfo,
+                            //     DefaultDiscount: inputValue,
+                            //   });
+                            //   return false;
+                            // } else {
+                            //   handleOneOffChangeDiscount(e);
+                            // }
+                          }}
+                        />
+
+                        {props.requireMessage &&
+                          props.OneOffPricingInfo.DefaultDiscount !== "" &&
+                          props.OneOffPricingInfo.DefaultDiscount !== "-" &&
+                          isNaN(props.OneOffPricingInfo.DefaultDiscount) && (
+                            <span className="validation">Invalid discount</span>
+                          )}
+
+                        {props.requireMessage &&
+                          props.pricingSettingObj.maxDiscountForQC !== "" &&
+                          props.pricingSettingObj.maxDiscountForQC !== null &&
+                          props.pricingSettingObj.maxDiscountForQC !==
+                          undefined &&
+                          props.pricingSettingObj.maxDiscountForQC !== 0 &&
+                          props.OneOffPricingInfo.DefaultDiscount !== "" &&
+                          props.OneOffPricingInfo.DefaultDiscount !== null &&
+                          props.OneOffPricingInfo.DefaultDiscount !==
+                          undefined &&
+                          (Number(props.OneOffPricingInfo.DefaultDiscount) <
+                            -999.0 ||
+                            Number(props.OneOffPricingInfo.DefaultDiscount) >
+                            props.pricingSettingObj.maxDiscountForQC) && (
+                            <>
+                              <span className="validation">
+                                The discount (%) should be between -999.00% and{" "}
+                                {props.pricingSettingObj.maxDiscountForQC}
+                                %.
+                              </span>
+                              <button
+                                style={{
+                                  fontSize: "12px",
+                                  border: "none",
+                                  background: "transparent",
+                                  color: "#626ED4",
+                                }}
+                                className="float-sm-end"
+                                data-bs-toggle="modal"
+                                data-bs-target="#pricingModel"
+                              >
+                                + Pricing Setting
+                              </button>
+                            </>
+                          )}
+
+                        {props.requireMessage &&
+                          (props.pricingSettingObj.maxDiscountForQC == "" ||
+                            props.pricingSettingObj.maxDiscountForQC == null ||
+                            props.pricingSettingObj.maxDiscountForQC ==
+                            undefined) &&
+                          props.OneOffPricingInfo.DefaultDiscount !== "" &&
+                          props.OneOffPricingInfo.DefaultDiscount !== null &&
+                          props.OneOffPricingInfo.DefaultDiscount !==
+                          undefined &&
+                          (Number(props.OneOffPricingInfo.DefaultDiscount) <
+                            -999.0 ||
+                            Number(props.OneOffPricingInfo.DefaultDiscount) >
+                            100) && (
+                            <>
+                              <span className="validation">
+                                The discount (%) should be between -999.00% and
+                                100%.
+                              </span>
+                            </>
+                          )}
+                      </div>
+                      <div
+                        style={{ padding: "0px" }}
+                        class="col-lg-2 col-md-2 mt-2 col-sm-12"
+                      >
+                        <div class="mb-1  text-md-end">
+                          <label class="form-label">
+                            Discounted Price (£)
+                            <span class="text-danger">*</span>
+                          </label>
+                        </div>
+                      </div>
+                      <div class="col-lg-4 col-md-4 col-sm-12">
+                        <input
+                          class="input-text"
+                          type="text"
+                          placeholder="Discounted Price (£)"
+                          value={props.OneOffPricingInfo.DiscountedPrice?.toString()?.replace(
+                            /\B(?=(\d{3})+(?!\d))/g,
+                            ","
+                          )}
+                          onChange={handleOneOffDefaultPrice}
+                        />
+
+                        {props.requireMessage &&
+                          props.OneOffPricingInfo.DiscountedPrice !== "" &&
+                          props.OneOffPricingInfo.DiscountedPrice !== "-" &&
+                          isNaN(props.OneOffPricingInfo.DiscountedPrice) && (
+                            <span className="validation">
+                              Invalid discounted price
+                            </span>
+                          )}
+
+                        {props.requireMessage &&
+                          (props.OneOffPricingInfo.DiscountedPrice ===
+                            undefined ||
+                            props.OneOffPricingInfo.DiscountedPrice === null ||
+                            props.OneOffPricingInfo.DiscountedPrice === "") && (
+                            <span className="validation">{ERROR_MESSAGES}</span>
+                          )}
+
+                        {props.requireMessage &&
+                          props.pricingSettingObj.minOneOffPriceForQC !== "" &&
+                          props.pricingSettingObj.minOneOffPriceForQC !==
+                          null &&
+                          props.pricingSettingObj.minOneOffPriceForQC !==
+                          undefined &&
+                          props.OneOffPricingInfo.DiscountedPrice !== "" &&
+                          props.OneOffPricingInfo.DiscountedPrice !== null &&
+                          props.OneOffPricingInfo.DiscountedPrice !==
+                          undefined &&
+                          Number(props.OneOffPricingInfo.DiscountedPrice) <
+                          props.pricingSettingObj.minOneOffPriceForQC && (
+                            <>
+                              <span className="validation">
+                                The min. one-Off price can not be lower than{" "}
+                                {props.formatValue(
+                                  props.pricingSettingObj.minOneOffPriceForQC
+                                )}
+                              </span>
+
+                              <button
+                                style={{
+                                  fontSize: "12px",
+                                  border: "none",
+                                  background: "transparent",
+                                  color: "#626ED4",
+                                }}
+                                className="float-sm-end"
+                                data-bs-toggle="modal"
+                                data-bs-target="#pricingModel"
+                              >
+                                + Pricing Setting
+                              </button>
+                            </>
+                          )}
+
+                        {props.requireMessage &&
+                          (props.pricingSettingObj.minOneOffPriceForQC == "" ||
+                            props.pricingSettingObj.minOneOffPriceForQC ==
+                            null ||
+                            props.pricingSettingObj.minOneOffPriceForQC == 0 ||
+                            props.pricingSettingObj.minOneOffPriceForQC ==
+                            undefined) &&
+                          props.OneOffPricingInfo.DiscountedPrice !== "" &&
+                          props.OneOffPricingInfo.DiscountedPrice !== null &&
+                          props.OneOffPricingInfo.DiscountedPrice !==
+                          undefined &&
+                          Number(props.OneOffPricingInfo.DiscountedPrice) <=
+                          props.pricingSettingObj.minOneOffPriceForQC && (
+                            <>
+                              <span className="validation">
+                                The One Off discounted price may not be or less
+                                than {props.formatValue(0.00)}
+                              </span>
+                            </>
+                          )}
+                      </div>
+                    </div>
+                    <div className="mb-3"></div>
+                    <div
+                      style={{ marginTop: "0px" }}
+                      className="table-responsive"
+                    >
+                      <table className="table align-middle table-nowrap">
+                        <thead className="table-light table-header-font">
+                          <tr className="head-row">
+                            <th className="tr-table-class text-white">
+                              Services
+                            </th>
+                            <th className="tr-table-class text-white text-right">
+                              Fees (£)
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {props.selectedOneOffServiceList.map(
+                            (service, index) => {
+                              return (
+                                <>
+                                  <tr class="a-la-carte-services-review-head-row">
+                                    <th colspan="2">
+                                      {service.serviceCatName}
+                                    </th>
+                                  </tr>
+                                  {service.servicesList.map(
+                                    (subService, subIndex) => {
+                                      return (
+                                        <tr key={subIndex}>
+                                          {/* */}
+                                          <td>
+                                            <div>{subService.serviceName}</div>
+                                            <div class="package-variables"></div>
+                                          </td>
+                                          <td className="text-right">
+                                            {props.ProposalObject.feeTypeId ===
+                                              1 && (
+                                                <>
+                                                  {" "}
+                                                  {props.formatValue(
+                                                    subService.price
+                                                  )}
+                                                </>
+                                              )}
+                                            {props.ProposalObject.feeTypeId ===
+                                              2 && (
+                                                <span className="fa fa-check"></span>
+                                              )}
+                                          </td>
+                                        </tr>
+                                      );
+                                    }
+                                  )}
+                                </>
+                              );
+                            }
+                          )}
+                          <tr className="head-row">
+                            <td className="tr-table-class font-14 text-white">
+                              Net Total
+                            </td>
+                            <td className="tr-table-class font-14 text-white text-right">
+                              {" "}
+                              {
+                                Number(props.OneOffPricingInfo.OriginalPrice) <
+                                  Number(
+                                    props.OneOffPricingInfo.DiscountedPrice
+                                  ) ||
+                                  (Number(props.OneOffPricingInfo.Discount) > 0 &&
+                                    !props.ProposalObject.DiscountLines)
+                                  ? props.formatValue(
+                                    props.OneOffPricingInfo.DiscountedPrice
+                                  )
+                                  : // Number(props.OneOffPricingInfo.DiscountedPrice)
+                                  //     .toFixed(2)
+                                  //     .toString()
+                                  //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                  props.formatValue(
+                                    props.OneOffPricingInfo.OriginalPrice
+                                  )
+                                //  Number(props.OneOffPricingInfo.OriginalPrice)
+                                //     .toFixed(2)
+                                //     .toString()
+                                //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                              }
+                            </td>
+                          </tr>
+                          {Number(props.OneOffPricingInfo.Discount) > 0 &&
+                            props.ProposalObject.DiscountLines && (
+                              <>
+                                {" "}
+                                <tr class="head-grey-row">
+                                  <td className="tr-table-class font-14 text-white">
+                                    Discount
+                                  </td>
+                                  <td className="tr-table-class font-14 text-white text-right">
+                                    (-){"  "}
+                                    {"  "}
+                                    {props.formatValue(
+                                      props.OneOffPricingInfo.Discount
+                                    )}
+                                    {/* {props.OneOffPricingInfo.Discount.toFixed(2)
+                                  .toString()
+                                  .replace(/\B(?=(\d{3})+(?!\d))/g, ",")} */}
+                                  </td>
+                                </tr>
+                                <tr class="head-row">
+                                  <td className="tr-table-class font-14 text-white">
+                                    Discounted Total
+                                  </td>
+                                  <td className="tr-table-class font-14 text-white text-right">
+                                    {"  "}
+                                    {props.formatValue(
+                                      props.OneOffPricingInfo.DiscountedTotal
+                                    )}
+                                    {/* {Number(props.OneOffPricingInfo.DiscountedTotal)
+                                  .toFixed(2)
+                                  .toString()
+                                  .replace(/\B(?=(\d{3})+(?!\d))/g, ",")} */}
+                                  </td>
+                                </tr>
+                              </>
+                            )}
+                          {props.vatPercentage && (
+                            <>
+                              <tr class="head-grey-row">
+                                <td className="tr-table-class font-14 text-white">
+                                  VAT
+                                </td>
+                                <td className="tr-table-class font-14 text-white text-right">
+                                  {" "}
+                                  {
+                                    props.formatValue(
+                                      props.OneOffPricingInfo.VATPrice
+                                    )
+                                    // Number(props.OneOffPricingInfo.VATPrice)
+                                    //   .toFixed(2)
+                                    //   .toString()
+                                    //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                  }
+                                </td>
+                              </tr>
+                              <tr className="head-row">
+                                <td className="tr-table-class font-14 text-white">
+                                  Grand Total
+                                </td>
+                                <td className="tr-table-class font-14 text-white text-right">
+                                  {" "}
+                                  {
+                                    props.formatValue(
+                                      props.OneOffPricingInfo.GrandTotal
+                                    )
+                                    // Number(props.OneOffPricingInfo.GrandTotal)
+                                    //   .toFixed(2)
+                                    //   .toString()
+                                    //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                  }
+                                </td>
+                              </tr>
+                            </>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+          {/* {RecurringTable}
+          {oneOffTable} */}
+        </div>
+      </div>
+      <div class="separator"></div>
+      <div class="row fieldset">
+        <div class="col-lg-12 hstack gap-2 justify-content-end text-right mt-3">
+          <button
+            class="btn btn-md btn-light"
+            onClick={() => props.handleCancelBtn()}
+          >
+            <span>Cancel</span>
+          </button>
+          {props.TabHide ? (
+            <button
+              onClick={() => props.HandleBack(3)}
+              // onClick={props.handleNextButtonClick}
+              style={{ paddingTop: "5px", marginRight: "4px" }}
+              className="btn btn-md btn-success create-item-btn"
+            >
+              <span>Back</span>
+            </button>
+          ) : (
+            <button
+              onClick={() => props.HandleBack(2)}
+              // onClick={props.handleNextButtonClick}
+              style={{ paddingTop: "5px", marginRight: "4px" }}
+              className="btn btn-md btn-success create-item-btn"
+            >
+              <span>Back</span>
+            </button>
+          )}
+
+          <button
+            type="submit"
+            class="btn btn-md btn-success create-item-btn"
+            onClick={() => {
+              // props.GetTemplateModalData();
+              props.HandleTabChange(4); // Call HandleTabChange function as before
+            }}
+          >
+            <span>Next</span>
+          </button>
+          <button
+            type="submit"
+            class="btn btn-md btn-success create-item-btn text-nowrap"
+            onClick={() =>
+              props.handleSaveAsDraft(6, moduleNameForSaveAsDraft, StatusId)
+            }
+            style={{ marginLeft: "5px" }}
+          >
+            <span>Save as a Draft</span>
+          </button>
+        </div>
+      </div>
+    </>
+  );
+};
+const ReviewPackagesComponent = (props) => {
+  const moduleNameForSaveAsDraft = "ReviewPackage";
+  const modifiedFeesType = Utils.feeInProposal.map((option) =>
+    option.value === 1 && props.disableCondition
+      ? { ...option, isDisabled: true }
+      : option
+  );
+  const statusID = 1;
+  const [totalFees, setTotalFees] = useState(0);
+  const [totalFeesOneOff, setTotalFeesOneOff] = useState(0);
+
+  const [RecurringPackageCalculation, setRecurringPackageCalculation] =
+    useState({
+      //Net Total :
+      PackageOneNetTotal: null,
+      PackageTwoNetTotal: null,
+      PackageThreeNetTotal: null,
+
+      //Net Total Add On Value :
+      PackageOneNetTotalAddOnValue: 0,
+      PackageTwoNetTotalAddOnValue: 0,
+      PackageThreeNetTotalAddOnValue: 0,
+
+      //Vat Total Amount :
+      VatPercentage: null,
+      PackageOneVatTotalAmount: null,
+      PackageTwoVatTotalAmount: null,
+      PackageThreeVatTotalAmount: null,
+
+      //Discount :
+      PackageOneDiscountAmount: null,
+      PackageTwoDiscountAmount: null,
+      PackageThreeDiscountAmount: null,
+
+      //Discounted Total Amount :
+      PackageOneDiscountedTotalAmount: null,
+      PackageTwoDiscountedTotalAmount: null,
+      PackageThreeDiscountedTotalAmount: null,
+
+      //Grand Total Amount :
+      PackageOneGrandTotalAmount: null,
+      PackageTwoGrandTotalAmount: null,
+      PackageThreeGrandTotalAmount: null,
+    });
+
+  const [OneOffPackageCalculation, setOneOffPackageCalculation] = useState({
+    //Net Total :
+    PackageOneNetTotal: null,
+    PackageTwoNetTotal: null,
+    PackageThreeNetTotal: null,
+
+    //Net Total Add On Value :
+    PackageOneNetTotalAddOnValue: 0,
+    PackageTwoNetTotalAddOnValue: 0,
+    PackageThreeNetTotalAddOnValue: 0,
+
+    //Vat Total Amount :
+    VatPercentage: null,
+    PackageOneVatTotalAmount: null,
+    PackageTwoVatTotalAmount: null,
+    PackageThreeVatTotalAmount: null,
+
+    //Discount :
+    PackageOneDiscountAmount: null,
+    PackageTwoDiscountAmount: null,
+    PackageThreeDiscountAmount: null,
+
+    //Discounted Total Amount :
+    PackageOneDiscountedTotalAmount: null,
+    PackageTwoDiscountedTotalAmount: null,
+    PackageThreeDiscountedTotalAmount: null,
+
+    //Grand Total Amount :
+    PackageOneGrandTotalAmount: null,
+    PackageTwoGrandTotalAmount: null,
+    PackageThreeGrandTotalAmount: null,
+  });
+  const hasMounted = useRef(false);
+  const [totalOnePackageValue, setTotalOnePackageValue] = useState(0);
+  const [totalTwoPackageValue, setTotalTwoPackageValue] = useState(0);
+  const [totalThreePackageValue, setTotalThreePackageValue] = useState(0);
+  const [totalOnePackageValueOneOff, setTotalOnePackageValueOneOff] =
+    useState(0);
+  const [totalTwoPackageValueOneOff, setTotalTwoPackageValueOneOff] =
+    useState(0);
+  const [totalThreePackageValueOneOff, setTotalThreePackageValueOneOff] =
+    useState(0);
+  const [
+    lastPaymentFrequencyAndDiscountedPrice,
+    setLastPaymentFrequencyAndDiscountedPrice,
+  ] = useState({
+    PaymentFrequencyID: 4,
+    PackageOneNetValue: null,
+    PackageTwoNetValue: null,
+    PackageThreeNetValue: null,
+  });
+
+  const [servicePackageKeyId1, setServicePackageKeyId1] = useState("");
+  const [servicePackageKeyId2, setServicePackageKeyId2] = useState("");
+  const [servicePackageKeyId3, setServicePackageKeyId3] = useState("");
+  let url = `accept-decline-proposal`;
+  if (props.common.enableEL === 1) {
+    url = `generate-contract`;
+  }
+  useEffect(() => {
+    // Set service key IDs based on selectedPackagesList
+    if (props.selectedPackagesList.length >= 1) {
+      setServicePackageKeyId1(
+        props.selectedPackagesList[0]?.servicePackageKeyID
+      );
+    }
+    if (props.selectedPackagesList.length >= 2) {
+      setServicePackageKeyId2(
+        props.selectedPackagesList[1]?.servicePackageKeyID
+      );
+    }
+    if (props.selectedPackagesList.length >= 3) {
+      setServicePackageKeyId3(
+        props.selectedPackagesList[2]?.servicePackageKeyID
+      );
+    }
+  }, [props.selectedPackagesList]);
+  useEffect(() => {
+    let SelectedService = [
+      ...props.selectedRecurringServiceList,
+      ...props.selectedOneOffServiceList,
+    ];
+
+    const quoteAdditionalServicesInPackages = {
+      selectedServicesList: SelectedService.flatMap((category) =>
+        category.servicesList
+          .filter((service) => service.isAdditionalService) // Filter additional services
+          .map((service) => {
+            return {
+              serviceID: service.serviceID,
+              serviceCatID: category.serviceCatID,
+              serviceChargeTypeID:
+                service.serviceChargeTypeName === "One Off" ? 2 : 1,
+              servicePackageIDs: service.servicePackageIDs,
+            };
+          })
+      ),
+    };
+    props.setQuotationAdditionalServices(
+      quoteAdditionalServicesInPackages.selectedServicesList
+    );
+  }, [props.selectedRecurringServiceList, props.selectedOneOffServiceList]);
+
+  useEffect(() => {
+    CalculateRecurringPackageNetTotal();
+    CalculateOneOffPackageNetTotal();
+  }, [props]);
+
+  useEffect(() => {
+    if (hasMounted.current) {
+      const isRecurringDiscounted =
+        Number(props.RecurringPricingInfo.DefaultDiscount) < 0;
+      const isOneOffDiscounted =
+        Number(props.OneOffPricingInfo.DefaultDiscount) < 0;
+
+      if (isRecurringDiscounted || isOneOffDiscounted) {
+        props.setDisableCondition(true);
+        props.setProposalObject({
+          ...props.ProposalObject,
+          feeTypeId: 2,
+          DiscountLines: false,
+        });
+      } else {
+        props.setDisableCondition(false);
+        props.setProposalObject({
+          ...props.ProposalObject,
+          feeTypeId: 1,
+          DiscountLines: true,
+        });
+      }
+    } else {
+      hasMounted.current = true;
+    }
+  }, [
+    props.RecurringPricingInfo.DefaultDiscount,
+    props.OneOffPricingInfo.DefaultDiscount,
+  ]);
+  // const AcceptRecurringELOffUrlButton1 = `https://$AppUrl$/accept-decline-proposal?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.Recurring}&Action=Accepted&ServicePackageKeyID=${props.selectedPackagesList[0]?.servicePackageKeyID}`;
+  // const AcceptRecurringELOffUrlButton2 = `https://$AppUrl$/accept-decline-proposal?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.Recurring}&Action=Accepted&ServicePackageKeyID=${props.selectedPackagesList[1]?.servicePackageKeyID}`;
+  // const AcceptRecurringELOffUrlButton3 = `https://$AppUrl$/accept-decline-proposal?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.Recurring}&Action=Accepted&ServicePackageKeyID=${props.selectedPackagesList[2]?.servicePackageKeyID}`;
+
+  const AcceptRecurringUrlButton1 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.Recurring}&Action=Accepted&ServicePackageKeyID=${props.selectedPackagesList[0]?.servicePackageKeyID}&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
+  const AcceptRecurringUrlButton2 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.Recurring}&Action=Accepted&ServicePackageKeyID=${props.selectedPackagesList[1]?.servicePackageKeyID}&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
+  const AcceptRecurringUrlButton3 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.Recurring}&Action=Accepted&ServicePackageKeyID=${props.selectedPackagesList[2]?.servicePackageKeyID}&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
+
+  const DeclineRecurringUrl = `https://$AppUrl$/accept-decline-proposal?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.Recurring}&Action=Declined&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
+
+  // const AcceptOneOffELOffUrlButton1 = `https://$AppUrl$/accept-decline-proposal?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Accepted&ServicePackageKeyID=${props.selectedPackagesList[0]?.servicePackageKeyID}`;
+  // const AcceptOneOffELOffUrlButton2 = `https://$AppUrl$/accept-decline-proposal?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Accepted&ServicePackageKeyID=${props.selectedPackagesList[1]?.servicePackageKeyID}`;
+  // const AcceptOneOffELOffUrlButton3 = `https://$AppUrl$/accept-decline-proposal?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Accepted&ServicePackageKeyID=${props.selectedPackagesList[2]?.servicePackageKeyID}`;
+
+  const AcceptOneOffUrlButton1 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Accepted&ServicePackageKeyID=${props.selectedPackagesList[0]?.servicePackageKeyID}&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
+  const AcceptOneOffUrlButton2 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Accepted&ServicePackageKeyID=${props.selectedPackagesList[1]?.servicePackageKeyID}&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
+  const AcceptOneOffUrlButton3 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Accepted&ServicePackageKeyID=${props.selectedPackagesList[2]?.servicePackageKeyID}&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
+
+  const DeclineOneOffUrl = `https://$AppUrl$/accept-decline-proposal?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Declined&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
+  const getPaymentFrequencyLabel = () => {
+    const Payment_Frequency = {
+      Yearly: 1,
+      HalfYearly: 2,
+      Quarterly: 3,
+      Monthly: 4,
+    };
+
+    const frequencyValue =
+      props.ProposalObject?.Payment_Frequency ||
+      props.ProposalObject?.Payment_Frequency;
+    switch (frequencyValue) {
+      case Payment_Frequency.Yearly:
+        return "Yearly";
+      case Payment_Frequency.HalfYearly:
+        return "Half-Yearly";
+      case Payment_Frequency.Quarterly:
+        return "Quarterly";
+      case Payment_Frequency.Monthly:
+        return "Monthly";
+      default:
+        return "Unknown";
+    }
+  };
+  // Recurring Service-Pricing Table Formate For E-mail.
+
+  const [RecurringPackagesTable, setRecurringPackagesTable] = useState(
+    <div
+      style={{
+        paddingLeft: "40px",
+        paddingRight: "40px",
+        fontFamily: "'Times New Roman', Times, serif",
+      }}
+    >
+      <p
+        style={{
+          fontFamily: "arial, sans-serif",
+          color: "#00BFFF",
+          fontSize: "20px",
+          marginTop: "15px",
+        }}
+      >
+        Recurring Fees ({getPaymentFrequencyLabel()})
+      </p>
+      <table
+        style={{
+          fontFamily: "arial, sans-serif",
+          borderCollapse: "collapse",
+          width: "100%",
+          marginTop: "15px",
+        }}
+      >
+        <tr style={{ backgroundColor: "#00BFFF" }}>
+          <th
+            style={{
+              border: "1px solid #DDDDDD",
+              textAlign: "left",
+              padding: "8px",
+              color: "white",
+              fontSize: "18px",
+            }}
+          >
+            Services
+          </th>
+          {props?.selectedPackagesList?.map((selectedPackages) => (
+            <th
+              key={selectedPackages.servicePackageName}
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "left",
+                padding: "8px",
+                color: "white",
+                fontSize: "18px",
+              }}
+            >
+              {selectedPackages.servicePackageName}
+              {/* {
+                props?.selectedPackagesList.length === 1
+                  ? selectedPackages.servicePackageName.length > 20
+                    ? selectedPackages.servicePackageName.substring(0, 20) + "..."
+                    : selectedPackages.servicePackageName
+                  : selectedPackages.servicePackageName.length > 10
+                    ? selectedPackages.servicePackageName.substring(0, 10) + "..."
+                    : selectedPackages.servicePackageName
+              } */}
+
+            </th>
+          ))}
+        </tr>
+        {props.selectedRecurringServiceList.map((serviceCat, index) => (
+          <React.Fragment key={index}>
+            <tr style={{ backgroundColor: "#DCDCDC" }}>
+              <td
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "left",
+                  padding: "8px",
+                  fontWeight: "bold",
+                  fontSize: "18px",
+                }}
+              >
+                {serviceCat.serviceCatName}
+              </td>
+              <td
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "left",
+                  padding: "8px",
+                }}
+              ></td>
+              {props?.selectedPackagesList.length >= 2 ? (
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "left",
+                    padding: "8px",
+                  }}
+                ></td>
+              ) : null}
+              {props?.selectedPackagesList.length === 3 ? (
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "left",
+                    padding: "8px",
+                  }}
+                ></td>
+              ) : null}
+            </tr>
+            {serviceCat.servicesList.map((subService, subIndex) => (
+              <tr key={subIndex}>
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "left",
+                    padding: "8px",
+                  }}
+                >
+                  {subService.serviceName.length > 45 ? (
+                    <Tooltip title={subService.serviceName}>
+                      {subService.serviceName
+                        .substring(0, 45)
+                        .toLowerCase()
+                        .replace(/\b\w/g, (l) => l.toUpperCase()) + "..."}
+                    </Tooltip>
+                  ) : (
+                    subService.serviceName
+                  )}
+                </td>
+                {props.ProposalObject.feeTypeId == 1 ? (
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                    }}
+                  >
+                    {(
+                      subService.packageOneValue === null) &&
+                      !subService.servicePackageIDs.some(
+                        (item) =>
+                          item == props.selectedPackagesList[0]?.servicePackageID
+                      ) ? (
+                      <span>&#10007;</span>
+                    ) : !subService?.servicePackageIDs.includes(
+                      subService.packageOneID
+                    ) ? (
+                      <span>&#10007;</span>
+                    ) : (
+                      `${props.formatValue(subService.packageOneValue)}`
+                    )}
+                  </td>
+                ) : subService.packageOneValue !== null &&
+                  !subService?.servicePackageIDs.includes(
+                    subService.packageOneID
+                  ) ? (
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                    }}
+                  >
+                    &#10007;
+                  </td>
+                ) : (
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                    }}
+                  >
+                    &#10003;
+                  </td>
+                )}
+
+                {props?.selectedPackagesList.length >= 2 ? (
+                  props.ProposalObject.feeTypeId == 1 ? (
+                    <td
+                      style={{
+                        border: "1px solid #DDDDDD",
+                        textAlign: "right",
+                        padding: "8px",
+                      }}
+                    >
+                      {(subService.packageTwoValue === null) &&
+                        !subService.servicePackageIDs.some(
+                          (item) =>
+                            item ==
+                            props.selectedPackagesList[1]?.servicePackageID
+                        ) ? (
+                        <span>&#10007;</span>
+                      ) : !subService?.servicePackageIDs.includes(
+                        subService.packageTwoID
+                      ) ? (
+                        <span>&#10007;</span>
+                      ) : (
+                        ` ${props.formatValue(subService.packageTwoValue)}`
+                      )}
+                    </td>
+                  ) : subService.packageTwoValue !== null &&
+                    !subService?.servicePackageIDs.includes(
+                      subService.packageTwoID
+                    ) ? (
+                    <td
+                      style={{
+                        border: "1px solid #DDDDDD",
+                        textAlign: "right",
+                        padding: "8px",
+                      }}
+                    >
+                      &#10007;
+                    </td>
+                  ) : (
+                    <td
+                      style={{
+                        border: "1px solid #DDDDDD",
+                        textAlign: "right",
+                        padding: "8px",
+                      }}
+                    >
+                      &#10003;
+                    </td>
+                  )
+                ) : null}
+                {props?.selectedPackagesList.length === 3 ? (
+                  props.ProposalObject.feeTypeId == 1 ? (
+                    <td
+                      style={{
+                        border: "1px solid #DDDDDD",
+                        textAlign: "right",
+                        padding: "8px",
+                      }}
+                    >
+                      {(subService.packageThreeValue === null) &&
+                        !subService.servicePackageIDs.some(
+                          (item) =>
+                            item ==
+                            props.selectedPackagesList[2]?.servicePackageID
+                        ) ? (
+                        <span>&#10007;</span>
+                      ) : !subService?.servicePackageIDs.includes(
+                        subService.packageThreeID
+                      ) ? (
+                        <span>&#10007;</span>
+                      ) : (
+                        `${props.formatValue(subService.packageThreeValue)}`
+                      )}
+                    </td>
+                  ) : subService.packageThreeValue !== null &&
+                    !subService?.servicePackageIDs.includes(
+                      subService.packageThreeID
+                    ) ? (
+                    <td
+                      style={{
+                        border: "1px solid #DDDDDD",
+                        textAlign: "right",
+                        padding: "8px",
+                      }}
+                    >
+                      &#10007;
+                    </td>
+                  ) : (
+                    <td
+                      style={{
+                        border: "1px solid #DDDDDD",
+                        textAlign: "right",
+                        padding: "8px",
+                      }}
+                    >
+                      &#10003;
+                    </td>
+                  )
+                ) : null}
+              </tr>
+            ))}
+          </React.Fragment>
+        ))}
+        <tr style={{ backgroundColor: "#808080" }}>
+          <td
+            style={{
+              border: "1px solid #DDDDDD",
+              textAlign: "left",
+              padding: "8px",
+              color: "white",
+            }}
+          >
+            Net Total
+          </td>
+          <td
+            style={{
+              border: "1px solid #DDDDDD",
+              textAlign: "right",
+              padding: "8px",
+              color: "white",
+            }}
+          >
+            {" "}
+            {
+              totalOnePackageValue >
+                Number(props.RecurringPricingInfo.packageOneNetTotal) ||
+                (Number(props.RecurringPricingInfo.packageOneDisCount) > 0 &&
+                  !props.ProposalObject.DiscountLines)
+                ? // ||
+                // Number(
+                //   props.RecurringPricingInfo
+                //     .packageOneDisCountedTotal
+                // ) === 0
+                Number(props.RecurringPricingInfo.packageOneDisCount) > 0 &&
+                  !props.ProposalObject.DiscountLines
+                  ? props.formatValue(
+                    props.RecurringPricingInfo.packageOneDisCountedTotal
+                  )
+                  : props.formatValue(totalOnePackageValue)
+                : //  Number(totalOnePackageValue)
+                //     .toFixed(2)
+                //     .toString()
+                //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                props.formatValue(
+                  props.RecurringPricingInfo.packageOneNetTotal
+                )
+              // Number(
+              //     props.RecurringPricingInfo
+              //       .packageOneDisCountedTotal
+              //   )
+              //     .toFixed(2)
+              //     .toString()
+              //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+            }
+            {/* Rs.{CalculateRecurringPackageNetTotal()} */}
+          </td>
+
+          {props?.selectedPackagesList.length >= 2 && (
+            <td
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "right",
+                padding: "8px",
+                color: "white",
+              }}
+            >
+              {" "}
+              {
+                totalTwoPackageValue >
+                  Number(props.RecurringPricingInfo.packageTwoNetTotal) ||
+                  (Number(props.RecurringPricingInfo.packageTwoDisCount) > 0 &&
+                    !props.ProposalObject.DiscountLines)
+                  ? // ||
+                  // Number(
+                  //   props.RecurringPricingInfo
+                  //     .packageOneDisCountedTotal
+                  // ) === 0
+                  Number(props.RecurringPricingInfo.packageTwoDisCount) > 0 &&
+                    !props.ProposalObject.DiscountLines
+                    ? props.formatValue(
+                      props.RecurringPricingInfo.packageTwoDisCountedTotal
+                    )
+                    : props.formatValue(totalOnePackageValue)
+                  : //  Number(totalOnePackageValue)
+                  //     .toFixed(2)
+                  //     .toString()
+                  //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                  props.formatValue(
+                    props.RecurringPricingInfo.packageTwoNetTotal
+                  )
+                // Number(
+                //     props.RecurringPricingInfo
+                //       .packageOneDisCountedTotal
+                //   )
+                //     .toFixed(2)
+                //     .toString()
+                //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+              }
+            </td>
+          )}
+          {props?.selectedPackagesList.length === 3 && (
+            <td
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "right",
+                padding: "8px",
+                color: "white",
+              }}
+            >
+              {" "}
+              {
+                totalThreePackageValue >
+                  Number(props.RecurringPricingInfo.packageThreeNetTotal) ||
+                  (Number(props.RecurringPricingInfo.packageThreeDisCount) > 0 &&
+                    !props.ProposalObject.DiscountLines)
+                  ? // ||
+                  // Number(
+                  //   props.RecurringPricingInfo
+                  //     .packageOneDisCountedTotal
+                  // ) === 0
+                  Number(props.RecurringPricingInfo.packageThreeDisCount) >
+                    0 && !props.ProposalObject.DiscountLines
+                    ? props.formatValue(
+                      props.RecurringPricingInfo.packageThreeDisCountedTotal
+                    )
+                    : props.formatValue(totalOnePackageValue)
+                  : //  Number(totalOnePackageValue)
+                  //     .toFixed(2)
+                  //     .toString()
+                  //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                  props.formatValue(
+                    props.RecurringPricingInfo.packageThreeNetTotal
+                  )
+                // Number(
+                //     props.RecurringPricingInfo
+                //       .packageOneDisCountedTotal
+                //   )
+                //     .toFixed(2)
+                //     .toString()
+                //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+              }
+            </td>
+          )}
+        </tr>
+
+        {(Number(props.RecurringPricingInfo.packageThreeDisCount) > 0 ||
+          Number(props.RecurringPricingInfo.packageOneDisCount) > 0 ||
+          Number(props.RecurringPricingInfo.packageTwoDisCount) > 0) &&
+          props.ProposalObject.DiscountLines && (
+            <>
+              <tr style={{ backgroundColor: "#DCDCDC" }}>
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "left",
+                    padding: "8px",
+                    color: "black",
+                  }}
+                >
+                  Discount
+                </td>
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "right",
+                    padding: "8px",
+                    color: "black",
+                  }}
+                >
+                  (-)
+                  {props.formatValue(
+                    props.RecurringPricingInfo.packageOneDisCount
+                  )}
+                  {/* NewDiscount Rs.{RecurringPackageCalculation.PackageOneDiscountAmount} */}
+                </td>
+                {props?.selectedPackagesList.length >= 2 ? (
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                      color: "black",
+                    }}
+                  >
+                    (-)
+                    {props.formatValue(
+                      props.RecurringPricingInfo.packageTwoDisCount
+                    )}
+                    {/* NewDiscount Rs.{RecurringPackageCalculation.PackageOneDiscountAmount} */}
+                  </td>
+                ) : null}
+                {props?.selectedPackagesList.length === 3 ? (
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                      color: "black",
+                    }}
+                  >
+                    (-)
+                    {props.formatValue(
+                      props.RecurringPricingInfo.packageThreeDisCount
+                    )}
+                    {/* NewDiscount Rs.{RecurringPackageCalculation.PackageOneDiscountAmount} */}
+                  </td>
+                ) : null}
+              </tr>
+              <tr style={{ backgroundColor: "#808080", color: "white" }}>
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "left",
+                    padding: "8px",
+                    color: "white",
+                  }}
+                >
+                  Discounted Total
+                </td>
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "right",
+                    padding: "8px",
+                    color: "white",
+                  }}
+                >
+                  {" "}
+                  {props.formatValue(
+                    props.RecurringPricingInfo.packageOneDisCountedTotal
+                  )}
+                  {/* New Rs.{RecurringPackageCalculation.PackageOneDiscountedTotalAmount} */}
+                </td>
+                {props?.selectedPackagesList.length >= 2 ? (
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                      color: "white",
+                    }}
+                  >
+                    {" "}
+                    {props.formatValue(
+                      props.RecurringPricingInfo.packageTwoDisCountedTotal
+                    )}
+                  </td>
+                ) : null}
+                {props?.selectedPackagesList.length === 3 ? (
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                      color: "white",
+                    }}
+                  >
+                    {" "}
+                    {props.formatValue(
+                      props.RecurringPricingInfo.packageThreeDisCountedTotal
+                    )}
+                  </td>
+                ) : null}
+              </tr>
+            </>
+          )}
+        {props.vatPercentage && (
+          <>
+            <tr style={{ backgroundColor: "#DCDCDC" }}>
+              <td
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "left",
+                  padding: "8px",
+                  color: "Black",
+                }}
+              >
+                VAT
+              </td>
+              <td
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "right",
+                  padding: "8px",
+                  color: "Black",
+                }}
+              >
+                {" "}
+                {props.formatValue(
+                  props.RecurringPricingInfo.PackageOneVaTPrice
+                )}
+                {/* VATNew Rs{RecurringPackageCalculation.PackageOneVatTotalAmount} */}
+              </td>
+              {props?.selectedPackagesList.length >= 2 ? (
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "right",
+                    padding: "8px",
+                    color: "Black",
+                  }}
+                >
+                  {" "}
+                  {props.formatValue(
+                    props.RecurringPricingInfo.PackageTwoVaTPrice
+                  )}
+                </td>
+              ) : null}
+              {props?.selectedPackagesList.length === 3 ? (
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "right",
+                    padding: "8px",
+                    color: "Black",
+                  }}
+                >
+                  {" "}
+                  {props.formatValue(
+                    props.RecurringPricingInfo.PackageThreeVaTPrice
+                  )}
+                </td>
+              ) : null}
+            </tr>
+            <tr style={{ backgroundColor: "#808080" }}>
+              <td
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "left",
+                  padding: "8px",
+                  color: "white",
+                }}
+              >
+                Grand Total
+              </td>
+              <td
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "right",
+                  padding: "8px",
+                  color: "white",
+                }}
+              >
+                {" "}
+                {props.formatValue(
+                  props.RecurringPricingInfo.PackageOneGrandTotal
+                )}
+              </td>
+              {props?.selectedPackagesList.length >= 2 ? (
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "right",
+                    padding: "8px",
+                    color: "white",
+                  }}
+                >
+                  {" "}
+                  {props.formatValue(
+                    props.RecurringPricingInfo.PackageTwoGrandTotal
+                  )}
+                </td>
+              ) : null}
+              {props?.selectedPackagesList.length === 3 ? (
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "right",
+                    padding: "8px",
+                    color: "white",
+                  }}
+                >
+                  {" "}
+                  {props.formatValue(
+                    props.RecurringPricingInfo.PackageThreeGrandTotal
+                  )}
+                </td>
+              ) : null}
+            </tr>
+          </>
+        )}
+
+        <tr style={{ backgroundColor: "#DCDCDC" }}>
+          <td
+            style={{
+              border: "1px solid #DDDDDD",
+              textAlign: "left",
+              padding: "8px",
+            }}
+          >
+            If you are happy with this proposal please click Accept to Accept
+            the Proposal.
+          </td>
+          <td
+            style={{
+              border: "1px solid #DDDDDD",
+              textAlign: "right",
+              padding: "8px",
+              color: "black",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                width: "100%",
+              }}
+            >
+              <a
+                href={AcceptRecurringUrlButton1}
+                style={{
+                  display: "inline-block",
+                  padding: "5px 15px",
+                  backgroundColor: "green",
+                  color: "white",
+                  textDecoration: "none",
+                  border: "none",
+                  borderRadius: "100px",
+                  transition:
+                    "background-color 0.3s ease, box-shadow 0.3s ease",
+                  whiteSpace: "nowrap",
+                  flex: 1,
+                  textAlign: "center",
+                }}
+              >
+                Accept
+              </a>
+            </div>
+          </td>
+          {props?.selectedPackagesList.length >= 2 ? (
+            <td
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "right",
+                padding: "8px",
+                color: "black",
+              }}
+            >
+              {" "}
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  width: "100%",
+                }}
+              >
+                <a
+                  href={AcceptRecurringUrlButton2}
+                  style={{
+                    display: "inline-block",
+                    padding: "5px 15px",
+                    backgroundColor: "green",
+                    color: "white",
+                    textDecoration: "none",
+                    border: "none",
+                    borderRadius: "100px",
+                    transition:
+                      "background-color 0.3s ease, box-shadow 0.3s ease",
+                    whiteSpace: "nowrap",
+                    flex: 1,
+                    textAlign: "center",
+                  }}
+                >
+                  Accept
+                </a>
+              </div>
+            </td>
+          ) : null}
+          {props?.selectedPackagesList.length === 3 ? (
+            <td
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "right",
+                padding: "8px",
+                color: "black",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  width: "100%",
+                }}
+              >
+                {" "}
+                <a
+                  href={AcceptRecurringUrlButton3}
+                  style={{
+                    display: "inline-block",
+                    padding: "5px 15px",
+                    backgroundColor: "green",
+                    color: "white",
+                    textDecoration: "none",
+                    border: "none",
+                    borderRadius: "100px",
+                    transition:
+                      "background-color 0.3s ease, box-shadow 0.3s ease",
+                    whiteSpace: "nowrap",
+                    flex: 1,
+                    textAlign: "center",
+                  }}
+                >
+                  Accept
+                </a>
+              </div>
+            </td>
+          ) : null}
+        </tr>
+        {props.common.enableEL == 0 && (
+          <tr style={{ backgroundColor: "#DCDCDC" }}>
+            <td
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "left",
+                padding: "8px",
+              }}
+            >
+              If you are not happy with this proposal please click Decline to
+              Decline the Proposal.
+            </td>
+            <td
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "right",
+                padding: "8px",
+                color: "black",
+              }}
+            >
+              {" "}
+              <a
+                href={DeclineRecurringUrl}
+                style={{
+                  display: "inline-block",
+                  padding: "5px 15px",
+                  backgroundColor: "red",
+                  color: "white",
+                  textDecoration: "none",
+                  border: "none",
+                  borderRadius: "100px",
+                  transition:
+                    "background-color 0.3s ease, box-shadow 0.3s ease",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                Decline
+              </a>
+            </td>
+
+            {props?.selectedPackagesList.length >= 2 ? (
+              <td
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "right",
+                  padding: "8px",
+                  color: "white",
+                }}
+              ></td>
+            ) : null}
+            {props?.selectedPackagesList.length === 3 ? (
+              <td
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "right",
+                  padding: "8px",
+                  color: "white",
+                }}
+              ></td>
+            ) : null}
+          </tr>
+        )}
+      </table>
+    </div>
+  );
+  // one-Off Service-Pricing Table Formate For E-mail.
+  const [OneOffPackagesTable, setOneOffPackagesTable] = useState(
+    <div
+      style={{
+        paddingLeft: "40px",
+        paddingRight: "40px",
+        fontFamily: "'Times New Roman', Times, serif",
+      }}
+    >
+      <p
+        style={{
+          fontFamily: "arial, sans-serif",
+          color: "#00BFFF",
+          fontSize: "20px",
+          marginTop: "15px",
+        }}
+      >
+        One-Off Fees
+      </p>
+      <table
+        style={{
+          fontFamily: "arial, sans-serif",
+          borderCollapse: "collapse",
+          width: "100%",
+          marginTop: "15px",
+        }}
+      >
+        <tr style={{ backgroundColor: "#00BFFF" }}>
+          <th
+            style={{
+              border: "1px solid #DDDDDD",
+              textAlign: "left",
+              padding: "8px",
+              color: "white",
+              fontSize: "18px",
+            }}
+          >
+            Services
+          </th>
+          {props?.selectedPackagesList?.map((selectedPackages) => (
+            <th
+              key={selectedPackages.servicePackageName}
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "left",
+                padding: "8px",
+                color: "white",
+                fontSize: "18px",
+              }}
+            >
+              {/* {
+                props?.selectedPackagesList.length === 1
+                  ? selectedPackages.servicePackageName.length > 20
+                    ? selectedPackages.servicePackageName.substring(0, 20) + "..."
+                    : selectedPackages.servicePackageName
+                  : selectedPackages.servicePackageName.length > 10
+                    ? selectedPackages.servicePackageName.substring(0, 10) + "..."
+                    : selectedPackages.servicePackageName
+              } */}
+              {selectedPackages.servicePackageName}
+            </th>
+          ))}
+        </tr>
+        {props.selectedOneOffServiceList.map((serviceCat, index) => (
+          <React.Fragment key={index}>
+            <tr style={{ backgroundColor: "#DCDCDC" }}>
+              <td
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "left",
+                  padding: "8px",
+                  fontWeight: "bold",
+                  fontSize: "18px",
+                }}
+              >
+                {serviceCat.serviceCatName}
+              </td>
+              <td
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "left",
+                  padding: "8px",
+                }}
+              ></td>
+              {props?.selectedPackagesList.length >= 2 ? (
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "left",
+                    padding: "8px",
+                  }}
+                ></td>
+              ) : null}
+              {props?.selectedPackagesList.length === 3 ? (
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "left",
+                    padding: "8px",
+                  }}
+                ></td>
+              ) : null}
+            </tr>
+            {serviceCat.servicesList.map((subService, subIndex) => (
+              <tr key={subIndex}>
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "left",
+                    padding: "8px",
+                  }}
+                >
+                  {subService.serviceName.length > 45 ? (
+                    <Tooltip title={subService.serviceName}>
+                      {subService.serviceName
+                        .substring(0, 45)
+                        .toLowerCase()
+                        .replace(/\b\w/g, (l) => l.toUpperCase()) + "..."}
+                    </Tooltip>
+                  ) : (
+                    subService.serviceName
+                  )}
+                </td>
+                {props.ProposalObject.feeTypeId == 1 ? (
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                    }}
+                  >
+                    {(subService.packageOneValue === null) &&
+                      !subService.servicePackageIDs.some(
+                        (item) =>
+                          item == props.selectedPackagesList[0]?.servicePackageID
+                      ) ? (
+                      <span>&#10007;</span>
+                    ) : !subService?.servicePackageIDs.includes(
+                      subService.packageOneID
+                    ) ? (
+                      <span>&#10007;</span>
+                    ) : (
+                      `${props.formatValue(subService.packageOneValue)}`
+                    )}
+                  </td>
+                ) : subService.packageOneValue !== null &&
+                  !subService?.servicePackageIDs.includes(
+                    subService.packageOneID
+                  ) ? (
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                    }}
+                  >
+                    &#10007;
+                  </td>
+                ) : (
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                    }}
+                  >
+                    &#10003;
+                  </td>
+                )}
+
+                {props?.selectedPackagesList.length >= 2 ? (
+                  props.ProposalObject.feeTypeId == 1 ? (
+                    <td
+                      style={{
+                        border: "1px solid #DDDDDD",
+                        textAlign: "right",
+                        padding: "8px",
+                      }}
+                    >
+                      {(subService.packageTwoValue === null) &&
+                        !subService.servicePackageIDs.some(
+                          (item) =>
+                            item ==
+                            props.selectedPackagesList[1]?.servicePackageID
+                        ) ? (
+                        <span>&#10007;</span>
+                      ) : !subService?.servicePackageIDs.includes(
+                        subService.packageTwoID
+                      ) ? (
+                        <span>&#10007;</span>
+                      ) : (
+                        `${props.formatValue(subService.packageTwoValue)}`
+                      )}
+                    </td>
+                  ) : subService.packageTwoValue !== null &&
+                    !subService?.servicePackageIDs.includes(
+                      subService.packageTwoID
+                    ) ? (
+                    <td
+                      style={{
+                        border: "1px solid #DDDDDD",
+                        textAlign: "right",
+                        padding: "8px",
+                      }}
+                    >
+                      &#10007;
+                    </td>
+                  ) : (
+                    <td
+                      style={{
+                        border: "1px solid #DDDDDD",
+                        textAlign: "right",
+                        padding: "8px",
+                      }}
+                    >
+                      &#10003;
+                    </td>
+                  )
+                ) : null}
+                {props?.selectedPackagesList.length === 3 ? (
+                  props.ProposalObject.feeTypeId == 1 ? (
+                    <td
+                      style={{
+                        border: "1px solid #DDDDDD",
+                        textAlign: "right",
+                        padding: "8px",
+                      }}
+                    >
+                      {(subService.packageThreeValue === null) &&
+                        !subService.servicePackageIDs.some(
+                          (item) =>
+                            item ==
+                            props.selectedPackagesList[2]?.servicePackageID
+                        ) ? (
+                        <span>&#10007;</span>
+                      ) : !subService?.servicePackageIDs.includes(
+                        subService.packageThreeID
+                      ) ? (
+                        <span>&#10007;</span>
+                      ) : (
+                        `${props.formatValue(subService.packageThreeValue)}`
+                      )}
+                    </td>
+                  ) : subService.packageThreeValue !== null &&
+                    !subService?.servicePackageIDs.includes(
+                      subService.packageThreeID
+                    ) ? (
+                    <td
+                      style={{
+                        border: "1px solid #DDDDDD",
+                        textAlign: "right",
+                        padding: "8px",
+                      }}
+                    >
+                      &#10007;
+                    </td>
+                  ) : (
+                    <td
+                      style={{
+                        border: "1px solid #DDDDDD",
+                        textAlign: "right",
+                        padding: "8px",
+                      }}
+                    >
+                      &#10003;
+                    </td>
+                  )
+                ) : null}
+              </tr>
+            ))}
+          </React.Fragment>
+        ))}
+        <tr style={{ backgroundColor: "#808080" }}>
+          <td
+            style={{
+              border: "1px solid #DDDDDD",
+              textAlign: "left",
+              padding: "8px",
+              color: "white",
+            }}
+          >
+            Net Total
+          </td>
+          <td
+            style={{
+              border: "1px solid #DDDDDD",
+              textAlign: "right",
+              padding: "8px",
+              color: "white",
+            }}
+          >
+            {" "}
+            {
+              totalOnePackageValueOneOff <
+                Number(props.OneOffPricingInfo.packageOneDisCountedTotal) ||
+                (Number(props.OneOffPricingInfo.packageOneDisCount) > 0 &&
+                  !props.ProposalObject.DiscountLines)
+                ? props.formatValue(
+                  props.OneOffPricingInfo.packageOneDisCountedTotal
+                )
+                : // Number(totalOnePackageValueOneOff)
+                //     .toFixed(2)
+                //     .toString()
+                //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                props.formatValue(totalOnePackageValueOneOff)
+              // Number(
+              //     props.OneOffPricingInfo
+              //       .packageOneDisCountedTotal
+              //   )
+              //     .toFixed(2)
+              //     .toString()
+              //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+            }
+          </td>
+          {props?.selectedPackagesList.length >= 2 && (
+            <td
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "right",
+                padding: "8px",
+                color: "white",
+              }}
+            >
+              {" "}
+              {
+                totalTwoPackageValueOneOff <
+                  Number(props.OneOffPricingInfo.packageTwoDisCountedTotal) ||
+                  (Number(props.OneOffPricingInfo.packageTwoDisCount) > 0 &&
+                    !props.ProposalObject.DiscountLines)
+                  ? props.formatValue(
+                    props.OneOffPricingInfo.packageTwoDisCountedTotal
+                  )
+                  : // Number(totalOnePackageValueOneOff)
+                  //     .toFixed(2)
+                  //     .toString()
+                  //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                  props.formatValue(totalTwoPackageValueOneOff)
+                // Number(
+                //     props.OneOffPricingInfo
+                //       .packageOneDisCountedTotal
+                //   )
+                //     .toFixed(2)
+                //     .toString()
+                //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+              }
+            </td>
+          )}
+          {props?.selectedPackagesList.length === 3 && (
+            <td
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "right",
+                padding: "8px",
+                color: "white",
+              }}
+            >
+              {" "}
+              {
+                totalThreePackageValueOneOff <
+                  Number(props.OneOffPricingInfo.packageThreeDisCountedTotal) ||
+                  (Number(props.OneOffPricingInfo.packageThreeDisCount) > 0 &&
+                    !props.ProposalObject.DiscountLines)
+                  ? props.formatValue(
+                    props.OneOffPricingInfo.packageThreeDisCountedTotal
+                  )
+                  : // Number(totalOnePackageValueOneOff)
+                  //     .toFixed(2)
+                  //     .toString()
+                  //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                  props.formatValue(totalThreePackageValueOneOff)
+                // Number(
+                //     props.OneOffPricingInfo
+                //       .packageOneDisCountedTotal
+                //   )
+                //     .toFixed(2)
+                //     .toString()
+                //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+              }
+            </td>
+          )}
+        </tr>
+
+        {(Number(props.OneOffPricingInfo.packageThreeDisCount) > 0 ||
+          Number(props.OneOffPricingInfo.packageOneDisCount) > 0 ||
+          Number(props.OneOffPricingInfo.packageTwoDisCount) > 0) &&
+          props.ProposalObject.DiscountLines && (
+            <>
+              <tr style={{ backgroundColor: "#DCDCDC" }}>
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "left",
+                    padding: "8px",
+                    color: "black",
+                  }}
+                >
+                  Discount
+                </td>
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "right",
+                    padding: "8px",
+                    color: "black",
+                  }}
+                >
+                  (-)
+                  {props.formatValue(
+                    props.OneOffPricingInfo.packageOneDisCount
+                  )}
+                </td>
+                {props?.selectedPackagesList.length >= 2 ? (
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                      color: "black",
+                    }}
+                  >
+                    (-){" "}
+                    {props.formatValue(
+                      props.OneOffPricingInfo.packageTwoDisCount
+                    )}
+                  </td>
+                ) : null}
+                {props?.selectedPackagesList.length === 3 ? (
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                      color: "black",
+                    }}
+                  >
+                    (-){" "}
+                    {props.formatValue(
+                      props.OneOffPricingInfo.packageThreeDisCount
+                    )}
+                  </td>
+                ) : null}
+              </tr>
+              <tr style={{ backgroundColor: "#808080", color: "white" }}>
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "left",
+                    padding: "8px",
+                    color: "white",
+                  }}
+                >
+                  Discounted Total
+                </td>
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "right",
+                    padding: "8px",
+                    color: "white",
+                  }}
+                >
+                  {" "}
+                  {props.formatValue(
+                    props.OneOffPricingInfo.packageOneDisCountedTotal
+                  )}
+                </td>
+                {props?.selectedPackagesList.length >= 2 ? (
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                      color: "white",
+                    }}
+                  >
+                    {" "}
+                    {props.formatValue(
+                      props.OneOffPricingInfo.packageTwoDisCountedTotal
+                    )}
+                  </td>
+                ) : null}
+                {props?.selectedPackagesList.length === 3 ? (
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                      color: "white",
+                    }}
+                  >
+                    {" "}
+                    {props.formatValue(
+                      props.OneOffPricingInfo.packageThreeDisCountedTotal
+                    )}
+                  </td>
+                ) : null}
+              </tr>
+            </>
+          )}
+        {props.vatPercentage && (
+          <>
+            <tr style={{ backgroundColor: "#DCDCDC" }}>
+              <td
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "left",
+                  padding: "8px",
+                  color: "Black",
+                }}
+              >
+                VAT
+              </td>
+              <td
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "right",
+                  padding: "8px",
+                  color: "Black",
+                }}
+              >
+                {props.formatValue(props.OneOffPricingInfo.PackageOneVaTPrice)}
+              </td>
+              {props?.selectedPackagesList.length >= 2 ? (
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "right",
+                    padding: "8px",
+                    color: "Black",
+                  }}
+                >
+                  {props.formatValue(
+                    props.OneOffPricingInfo.PackageTwoVaTPrice
+                  )}
+                </td>
+              ) : null}
+              {props?.selectedPackagesList.length === 3 ? (
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "right",
+                    padding: "8px",
+                    color: "Black",
+                  }}
+                >
+                  {props.formatValue(
+                    props.OneOffPricingInfo.PackageThreeVaTPrice
+                  )}
+                </td>
+              ) : null}
+            </tr>
+
+            <tr style={{ backgroundColor: "#808080" }}>
+              <td
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "left",
+                  padding: "8px",
+                  color: "white",
+                }}
+              >
+                Grand Total
+              </td>
+              <td
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "right",
+                  padding: "8px",
+                  color: "white",
+                }}
+              >
+                {props.formatValue(
+                  props.OneOffPricingInfo.PackageOneGrandTotal
+                )}
+              </td>
+              {props?.selectedPackagesList.length >= 2 ? (
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "right",
+                    padding: "8px",
+                    color: "white",
+                  }}
+                >
+                  {props.formatValue(
+                    props.OneOffPricingInfo.PackageTwoGrandTotal
+                  )}
+                </td>
+              ) : null}
+              {props?.selectedPackagesList.length === 3 ? (
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "right",
+                    padding: "8px",
+                    color: "white",
+                  }}
+                >
+                  {props.formatValue(
+                    props.OneOffPricingInfo.PackageThreeGrandTotal
+                  )}
+                </td>
+              ) : null}
+            </tr>
+          </>
+        )}
+
+        <tr style={{ backgroundColor: "#DCDCDC" }}>
+          <td
+            style={{
+              border: "1px solid #DDDDDD",
+              textAlign: "left",
+              padding: "8px",
+            }}
+          >
+            If you are happy with this proposal please click Accept to Accept
+            the Proposal.
+          </td>
+          <td
+            style={{
+              border: "1px solid #DDDDDD",
+              textAlign: "right",
+              padding: "8px",
+              color: "black",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                width: "100%",
+              }}
+            >
+              {" "}
+              <a
+                href={AcceptOneOffUrlButton1}
+                style={{
+                  display: "inline-block",
+                  padding: "5px 15px",
+                  backgroundColor: "green",
+                  color: "white",
+                  textDecoration: "none",
+                  border: "none",
+                  borderRadius: "100px",
+                  transition:
+                    "background-color 0.3s ease, box-shadow 0.3s ease",
+                  whiteSpace: "nowrap",
+                  flex: 1,
+                  textAlign: "center",
+                }}
+              >
+                Accept
+              </a>
+            </div>
+          </td>
+          {props?.selectedPackagesList.length >= 2 ? (
+            <td
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "right",
+                padding: "8px",
+                color: "black",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  width: "100%",
+                }}
+              >
+                <a
+                  href={AcceptOneOffUrlButton2}
+                  style={{
+                    display: "inline-block",
+                    padding: "5px 15px",
+                    backgroundColor: "green",
+                    color: "white",
+                    textDecoration: "none",
+                    border: "none",
+                    borderRadius: "100px",
+                    transition:
+                      "background-color 0.3s ease, box-shadow 0.3s ease",
+                    whiteSpace: "nowrap",
+                    flex: 1,
+                    textAlign: "center",
+                  }}
+                >
+                  Accept
+                </a>
+              </div>
+            </td>
+          ) : null}
+          {props?.selectedPackagesList.length === 3 ? (
+            <td
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "right",
+                padding: "8px",
+                color: "black",
+              }}
+            >
+              {" "}
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  width: "100%",
+                }}
+              >
+                <a
+                  href={AcceptOneOffUrlButton3}
+                  style={{
+                    display: "inline-block",
+                    padding: "5px 15px",
+                    backgroundColor: "green",
+                    color: "white",
+                    textDecoration: "none",
+                    border: "none",
+                    borderRadius: "100px",
+                    transition:
+                      "background-color 0.3s ease, box-shadow 0.3s ease",
+                    whiteSpace: "nowrap",
+                    flex: 1,
+                    textAlign: "center",
+                  }}
+                >
+                  Accept
+                </a>
+              </div>
+            </td>
+          ) : null}
+        </tr>
+        {props.common.enableEL == 0 && (
+          <tr style={{ backgroundColor: "#DCDCDC" }}>
+            <td
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "left",
+                padding: "8px",
+              }}
+            >
+              If you are not happy with this proposal please click Decline to
+              Decline the Proposal.
+            </td>
+            <td
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "right",
+                padding: "8px",
+                color: "black",
+              }}
+            >
+              {" "}
+              <a
+                href={DeclineOneOffUrl}
+                style={{
+                  display: "inline-block",
+                  padding: "5px 15px",
+                  backgroundColor: "red",
+                  color: "white",
+                  textDecoration: "none",
+                  border: "none",
+                  borderRadius: "100px",
+                  transition:
+                    "background-color 0.3s ease, box-shadow 0.3s ease",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                Decline
+              </a>
+            </td>
+            {props?.selectedPackagesList.length >= 2 ? (
+              <td
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "right",
+                  padding: "8px",
+                  color: "white",
+                }}
+              ></td>
+            ) : null}
+            {props?.selectedPackagesList.length === 3 ? (
+              <td
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "right",
+                  padding: "8px",
+                  color: "white",
+                }}
+              ></td>
+            ) : null}
+          </tr>
+        )}
+      </table>
+    </div>
+  );
+
+  const selectedFrequency = Utils.Payment_Frequency.find(
+    (item) => props.ProposalObject.Payment_Frequency == item.value
+  );
+
+  const oneOffTableString = ReactDOMServer.renderToString(OneOffPackagesTable);
+  const RecurringTableString = ReactDOMServer.renderToString(
+    RecurringPackagesTable
+  );
+  useEffect(() => {
+    // Update proposalObject
+    props.setProposalObject((prevState) => ({
+      ...prevState, // Using prevState to ensure we're updating based on the previous state
+      recurringHtmlContent:
+        props.selectedRecurringServiceList.length > 0
+          ? RecurringTableString
+          : null,
+      oneOffHtmlContent:
+        props.selectedOneOffServiceList.length > 0 ? oneOffTableString : null,
+    }));
+  }, [oneOffTableString, RecurringTableString]);
+
+  useEffect(() => {
+    // Call the function when component mounts
+    computeRecurringTotalPackageValues();
+
+    // Call the function when component mounts
+    computeOneOffTotalPackageValues();
+  }, [props]);
+
+  const computeRecurringTotalPackageValues = () => {
+    let totalOne = 0;
+    let totalTwo = 0;
+    let totalThree = 0;
+
+    props.selectedRecurringServiceList?.forEach((category) => {
+      category.servicesList.forEach((service) => {
+        // Check if the packageID is included in servicePackageIDs before adding
+        if (
+          service.servicePackageIDs.includes(service.packageOneID) &&
+          service.packageOneValue !== null
+        ) {
+          // totalOne += Number(service.packageOneValue);
+          let currentServicePriceWithToFixed = Number(
+            service.originalPackageOneValue
+          )?.toFixed(2);
+          totalOne = Number(
+            Number(totalOne) + Number(currentServicePriceWithToFixed)
+          )?.toFixed(2);
+        }
+        if (
+          service.servicePackageIDs.includes(service.packageTwoID) &&
+          service.packageTwoValue !== null
+        ) {
+          // totalTwo += Number(service.packageTwoValue);
+          let currentServicePriceWithToFixed = Number(
+            service.originalPackageTwoValue
+          )?.toFixed(2);
+          totalTwo = Number(
+            Number(totalTwo) + Number(currentServicePriceWithToFixed)
+          )?.toFixed(2);
+        }
+        if (
+          service.servicePackageIDs.includes(service.packageThreeID) &&
+          service.packageThreeValue !== null
+        ) {
+          let currentServicePriceWithToFixed = Number(
+            service.originalPackageThreeValue
+          )?.toFixed(2);
+          totalThree = Number(
+            Number(totalThree) + Number(currentServicePriceWithToFixed)
+          )?.toFixed(2);
+          //totalThree += Number(service.packageThreeValue);
+        }
+      });
+    });
+    setLastPaymentFrequencyAndDiscountedPrice({
+      PaymentFrequencyID: 1,
+      PackageOneNetValue: totalOne,
+      PackageTwoNetValue: totalTwo,
+      PackageThreeNetValue: totalThree,
+    });
+
+    props.setLastPaymentFrequencyAndDiscountedPriceForPreview({
+      PaymentFrequencyID: 1,
+      PackageOneNetValue: {
+        totalOne: totalOne,
+        servicePackageID: props.selectedPackagesDetails[0]?.servicePackageID,
+      },
+      PackageTwoNetValue: {
+        totalTwo: totalTwo,
+        servicePackageID: props.selectedPackagesDetails[1]?.servicePackageID,
+      },
+      PackageThreeNetValue: {
+        totalThree: totalThree,
+        servicePackageID: props.selectedPackagesDetails[2]?.servicePackageID,
+      },
+    });
+    // Update state with the computed totals
+    setTotalOnePackageValue(totalOne);
+    setTotalTwoPackageValue(totalTwo);
+    setTotalThreePackageValue(totalThree);
+
+    updateRecurringHtmlContent();
+  };
+
+  const updateRecurringHtmlContent = () => {
+    setRecurringPackagesTable(
+      <div
+        style={{
+          paddingLeft: "40px",
+          paddingRight: "40px",
+          fontFamily: "'Times New Roman', Times, serif",
+        }}
+      >
+        <p
+          style={{
+            fontFamily: "arial, sans-serif",
+            color: "#00BFFF",
+            fontSize: "20px",
+            marginTop: "15px",
+          }}
+        >
+          Recurring Fees ({getPaymentFrequencyLabel()})
+        </p>
+        <table
+          style={{
+            fontFamily: "arial, sans-serif",
+            borderCollapse: "collapse",
+            width: "100%",
+            marginTop: "15px",
+          }}
+        >
+          <tr style={{ backgroundColor: "#00BFFF" }}>
+            <th
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "left",
+                padding: "8px",
+                color: "white",
+                fontSize: "18px",
+              }}
+            >
+              Services
+            </th>
+            {props?.selectedPackagesList?.map((selectedPackages) => (
+              <th
+                key={selectedPackages.servicePackageName}
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "left",
+                  padding: "8px",
+                  color: "white",
+                  fontSize: "18px",
+                }}
+              >
+                {/* {
+                  props?.selectedPackagesList.length === 1
+                    ? selectedPackages.servicePackageName.length > 20
+                      ? selectedPackages.servicePackageName.substring(0, 20) + "..."
+                      : selectedPackages.servicePackageName
+                    : selectedPackages.servicePackageName.length > 10
+                      ? selectedPackages.servicePackageName.substring(0, 10) + "..."
+                      : selectedPackages.servicePackageName
+                } */}
+                {selectedPackages.servicePackageName}
+              </th>
+            ))}
+          </tr>
+          {props.selectedRecurringServiceList.map((serviceCat, index) => (
+            <React.Fragment key={index}>
+              <tr style={{ backgroundColor: "#DCDCDC" }}>
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "left",
+                    padding: "8px",
+                    fontWeight: "bold",
+                    fontSize: "18px",
+                  }}
+                >
+                  {serviceCat.serviceCatName}
+                </td>
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "left",
+                    padding: "8px",
+                  }}
+                ></td>
+                {props?.selectedPackagesList.length >= 2 ? (
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "left",
+                      padding: "8px",
+                    }}
+                  ></td>
+                ) : null}
+                {props?.selectedPackagesList.length === 3 ? (
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "left",
+                      padding: "8px",
+                    }}
+                  ></td>
+                ) : null}
+              </tr>
+              {serviceCat.servicesList.map((subService, subIndex) => (
+                <tr key={subIndex}>
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "left",
+                      padding: "8px",
+                    }}
+                  >
+                    {subService.serviceName.length > 45 ? (
+                      <Tooltip title={subService.serviceName}>
+                        {subService.serviceName
+                          .substring(0, 45)
+                          .toLowerCase()
+                          .replace(/\b\w/g, (l) => l.toUpperCase()) + "..."}
+                      </Tooltip>
+                    ) : (
+                      subService.serviceName
+                    )}
+                  </td>
+                  {props.ProposalObject.feeTypeId == 1 ? (
+                    <td
+                      style={{
+                        border: "1px solid #DDDDDD",
+                        textAlign: "right",
+                        padding: "8px",
+                      }}
+                    >
+                      {(subService.packageOneValue === null) &&
+                        !subService.servicePackageIDs.some(
+                          (item) =>
+                            item ==
+                            props.selectedPackagesList[0]?.servicePackageID
+                        ) ? (
+                        <span>&#10007;</span>
+                      ) : !subService?.servicePackageIDs.includes(
+                        subService.packageOneID
+                      ) ? (
+                        <span>&#10007;</span>
+                      ) : (
+                        `${props.formatValue(subService.packageOneValue)}`
+                      )}
+                    </td>
+                  ) : subService.packageOneValue !== null &&
+                    !subService?.servicePackageIDs.includes(
+                      subService.packageOneID
+                    ) ? (
+                    <td
+                      style={{
+                        border: "1px solid #DDDDDD",
+                        textAlign: "right",
+                        padding: "8px",
+                      }}
+                    >
+                      &#10007;
+                    </td>
+                  ) : (
+                    <td
+                      style={{
+                        border: "1px solid #DDDDDD",
+                        textAlign: "right",
+                        padding: "8px",
+                      }}
+                    >
+                      &#10003;
+                    </td>
+                  )}
+
+                  {props?.selectedPackagesList.length >= 2 ? (
+                    props.ProposalObject.feeTypeId == 1 ? (
+                      <td
+                        style={{
+                          border: "1px solid #DDDDDD",
+                          textAlign: "right",
+                          padding: "8px",
+                        }}
+                      >
+                        {(subService.packageTwoValue === null) &&
+                          !subService.servicePackageIDs.some(
+                            (item) =>
+                              item ==
+                              props.selectedPackagesList[1]?.servicePackageID
+                          ) ? (
+                          <span>&#10007;</span>
+                        ) : !subService?.servicePackageIDs.includes(
+                          subService.packageTwoID
+                        ) ? (
+                          <span>&#10007;</span>
+                        ) : (
+                          `${props.formatValue(subService.packageTwoValue)}`
+                        )}
+                      </td>
+                    ) : subService.packageTwoValue !== null &&
+                      !subService?.servicePackageIDs.includes(
+                        subService.packageTwoID
+                      ) ? (
+                      <td
+                        style={{
+                          border: "1px solid #DDDDDD",
+                          textAlign: "right",
+                          padding: "8px",
+                        }}
+                      >
+                        &#10007;
+                      </td>
+                    ) : (
+                      <td
+                        style={{
+                          border: "1px solid #DDDDDD",
+                          textAlign: "right",
+                          padding: "8px",
+                        }}
+                      >
+                        &#10003;
+                      </td>
+                    )
+                  ) : null}
+                  {props?.selectedPackagesList.length === 3 ? (
+                    props.ProposalObject.feeTypeId == 1 ? (
+                      <td
+                        style={{
+                          border: "1px solid #DDDDDD",
+                          textAlign: "right",
+                          padding: "8px",
+                        }}
+                      >
+                        {(subService.packageThreeValue === null) &&
+                          !subService.servicePackageIDs.some(
+                            (item) =>
+                              item ==
+                              props.selectedPackagesList[2]?.servicePackageID
+                          ) ? (
+                          <span>&#10007;</span>
+                        ) : !subService?.servicePackageIDs.includes(
+                          subService.packageThreeID
+                        ) ? (
+                          <span>&#10007;</span>
+                        ) : (
+                          `${props.formatValue(subService.packageThreeValue)}`
+                        )}
+                      </td>
+                    ) : subService.packageThreeValue !== null &&
+                      !subService?.servicePackageIDs.includes(
+                        subService.packageThreeID
+                      ) ? (
+                      <td
+                        style={{
+                          border: "1px solid #DDDDDD",
+                          textAlign: "right",
+                          padding: "8px",
+                        }}
+                      >
+                        &#10007;
+                      </td>
+                    ) : (
+                      <td
+                        style={{
+                          border: "1px solid #DDDDDD",
+                          textAlign: "right",
+                          padding: "8px",
+                        }}
+                      >
+                        &#10003;
+                      </td>
+                    )
+                  ) : null}
+                </tr>
+              ))}
+            </React.Fragment>
+          ))}
+          <tr style={{ backgroundColor: "#808080" }}>
+            <td
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "left",
+                padding: "8px",
+                color: "white",
+              }}
+            >
+              Net Total
+            </td>
+            <td
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "right",
+                padding: "8px",
+                color: "white",
+              }}
+            >
+              {" "}
+              {
+                totalOnePackageValue >
+                  Number(props.RecurringPricingInfo.packageOneNetTotal) ||
+                  (Number(props.RecurringPricingInfo.packageOneDisCount) > 0 &&
+                    !props.ProposalObject.DiscountLines)
+                  ? // ||
+                  // Number(
+                  //   props.RecurringPricingInfo
+                  //     .packageOneDisCountedTotal
+                  // ) === 0
+                  Number(props.RecurringPricingInfo.packageOneDisCount) > 0 &&
+                    !props.ProposalObject.DiscountLines
+                    ? props.formatValue(
+                      props.RecurringPricingInfo.packageOneDisCountedTotal
+                    )
+                    : props.formatValue(totalOnePackageValue)
+                  : //  Number(totalOnePackageValue)
+                  //     .toFixed(2)
+                  //     .toString()
+                  //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                  props.formatValue(
+                    props.RecurringPricingInfo.packageOneNetTotal
+                  )
+                // Number(
+                //     props.RecurringPricingInfo
+                //       .packageOneDisCountedTotal
+                //   )
+                //     .toFixed(2)
+                //     .toString()
+                //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+              }
+              {/* Rs.{CalculateRecurringPackageNetTotal()} */}
+            </td>
+
+            {props?.selectedPackagesList.length >= 2 && (
+              <td
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "right",
+                  padding: "8px",
+                  color: "white",
+                }}
+              >
+                {" "}
+                {
+                  totalTwoPackageValue >
+                    Number(props.RecurringPricingInfo.packageTwoNetTotal) ||
+                    (Number(props.RecurringPricingInfo.packageTwoDisCount) > 0 &&
+                      !props.ProposalObject.DiscountLines)
+                    ? // ||
+                    // Number(
+                    //   props.RecurringPricingInfo
+                    //     .packageOneDisCountedTotal
+                    // ) === 0
+                    Number(props.RecurringPricingInfo.packageTwoDisCount) >
+                      0 && !props.ProposalObject.DiscountLines
+                      ? props.formatValue(
+                        props.RecurringPricingInfo.packageTwoDisCountedTotal
+                      )
+                      : props.formatValue(totalOnePackageValue)
+                    : //  Number(totalOnePackageValue)
+                    //     .toFixed(2)
+                    //     .toString()
+                    //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                    props.formatValue(
+                      props.RecurringPricingInfo.packageTwoNetTotal
+                    )
+                  // Number(
+                  //     props.RecurringPricingInfo
+                  //       .packageOneDisCountedTotal
+                  //   )
+                  //     .toFixed(2)
+                  //     .toString()
+                  //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                }
+              </td>
+            )}
+            {props?.selectedPackagesList.length === 3 && (
+              <td
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "right",
+                  padding: "8px",
+                  color: "white",
+                }}
+              >
+                {" "}
+                {
+                  totalThreePackageValue >
+                    Number(props.RecurringPricingInfo.packageThreeNetTotal) ||
+                    (Number(props.RecurringPricingInfo.packageThreeDisCount) >
+                      0 &&
+                      !props.ProposalObject.DiscountLines)
+                    ? // ||
+                    // Number(
+                    //   props.RecurringPricingInfo
+                    //     .packageOneDisCountedTotal
+                    // ) === 0
+                    Number(props.RecurringPricingInfo.packageThreeDisCount) >
+                      0 && !props.ProposalObject.DiscountLines
+                      ? props.formatValue(
+                        props.RecurringPricingInfo.packageThreeDisCountedTotal
+                      )
+                      : props.formatValue(totalOnePackageValue)
+                    : //  Number(totalOnePackageValue)
+                    //     .toFixed(2)
+                    //     .toString()
+                    //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                    props.formatValue(
+                      props.RecurringPricingInfo.packageThreeNetTotal
+                    )
+                  // Number(
+                  //     props.RecurringPricingInfo
+                  //       .packageOneDisCountedTotal
+                  //   )
+                  //     .toFixed(2)
+                  //     .toString()
+                  //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                }
+              </td>
+            )}
+          </tr>
+
+          {(Number(props.RecurringPricingInfo.packageThreeDisCount) > 0 ||
+            Number(props.RecurringPricingInfo.packageOneDisCount) > 0 ||
+            Number(props.RecurringPricingInfo.packageTwoDisCount) > 0) &&
+            props.ProposalObject.DiscountLines && (
+              <>
+                <tr style={{ backgroundColor: "#DCDCDC" }}>
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "left",
+                      padding: "8px",
+                      color: "black",
+                    }}
+                  >
+                    Discount
+                  </td>
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                      color: "black",
+                    }}
+                  >
+                    (-)
+                    {props.formatValue(
+                      props.RecurringPricingInfo.packageOneDisCount
+                    )}
+                    {/* NewDiscount Rs.{RecurringPackageCalculation.PackageOneDiscountAmount} */}
+                  </td>
+                  {props?.selectedPackagesList.length >= 2 ? (
+                    <td
+                      style={{
+                        border: "1px solid #DDDDDD",
+                        textAlign: "right",
+                        padding: "8px",
+                        color: "black",
+                      }}
+                    >
+                      (-)
+                      {props.formatValue(
+                        props.RecurringPricingInfo.packageTwoDisCount
+                      )}
+                      {/* NewDiscount Rs.{RecurringPackageCalculation.PackageOneDiscountAmount} */}
+                    </td>
+                  ) : null}
+                  {props?.selectedPackagesList.length === 3 ? (
+                    <td
+                      style={{
+                        border: "1px solid #DDDDDD",
+                        textAlign: "right",
+                        padding: "8px",
+                        color: "black",
+                      }}
+                    >
+                      (-)
+                      {props.formatValue(
+                        props.RecurringPricingInfo.packageThreeDisCount
+                      )}
+                      {/* NewDiscount Rs.{RecurringPackageCalculation.PackageOneDiscountAmount} */}
+                    </td>
+                  ) : null}
+                </tr>
+                <tr style={{ backgroundColor: "#808080", color: "white" }}>
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "left",
+                      padding: "8px",
+                      color: "white",
+                    }}
+                  >
+                    Discounted Total
+                  </td>
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                      color: "white",
+                    }}
+                  >
+                    {" "}
+                    {props.formatValue(
+                      props.RecurringPricingInfo.packageOneDisCountedTotal
+                    )}
+                    {/* New Rs.{RecurringPackageCalculation.PackageOneDiscountedTotalAmount} */}
+                  </td>
+                  {props?.selectedPackagesList.length >= 2 ? (
+                    <td
+                      style={{
+                        border: "1px solid #DDDDDD",
+                        textAlign: "right",
+                        padding: "8px",
+                        color: "white",
+                      }}
+                    >
+                      {" "}
+                      {props.formatValue(
+                        props.RecurringPricingInfo.packageTwoDisCountedTotal
+                      )}
+                    </td>
+                  ) : null}
+                  {props?.selectedPackagesList.length === 3 ? (
+                    <td
+                      style={{
+                        border: "1px solid #DDDDDD",
+                        textAlign: "right",
+                        padding: "8px",
+                        color: "white",
+                      }}
+                    >
+                      {" "}
+                      {props.formatValue(
+                        props.RecurringPricingInfo.packageThreeDisCountedTotal
+                      )}
+                    </td>
+                  ) : null}
+                </tr>
+              </>
+            )}
+          {props.vatPercentage && (
+            <>
+              <tr style={{ backgroundColor: "#DCDCDC" }}>
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "left",
+                    padding: "8px",
+                    color: "Black",
+                  }}
+                >
+                  VAT
+                </td>
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "right",
+                    padding: "8px",
+                    color: "Black",
+                  }}
+                >
+                  {" "}
+                  {props.formatValue(
+                    props.RecurringPricingInfo.PackageOneVaTPrice
+                  )}
+                  {/* VATNew Rs{RecurringPackageCalculation.PackageOneVatTotalAmount} */}
+                </td>
+                {props?.selectedPackagesList.length >= 2 ? (
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                      color: "Black",
+                    }}
+                  >
+                    {" "}
+                    {props.formatValue(
+                      props.RecurringPricingInfo.PackageTwoVaTPrice
+                    )}
+                  </td>
+                ) : null}
+                {props?.selectedPackagesList.length === 3 ? (
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                      color: "Black",
+                    }}
+                  >
+                    {" "}
+                    {props.formatValue(
+                      props.RecurringPricingInfo.PackageThreeVaTPrice
+                    )}
+                  </td>
+                ) : null}
+              </tr>
+              <tr style={{ backgroundColor: "#808080" }}>
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "left",
+                    padding: "8px",
+                    color: "white",
+                  }}
+                >
+                  Grand Total
+                </td>
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "right",
+                    padding: "8px",
+                    color: "white",
+                  }}
+                >
+                  {" "}
+                  {props.formatValue(
+                    props.RecurringPricingInfo.PackageOneGrandTotal
+                  )}
+                  {/* NewGT Rs{RecurringPackageCalculation.PackageOneGrandTotalAmount} */}
+                </td>
+                {props?.selectedPackagesList.length >= 2 ? (
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                      color: "white",
+                    }}
+                  >
+                    {" "}
+                    {props.formatValue(
+                      props.RecurringPricingInfo.PackageTwoGrandTotal
+                    )}
+                  </td>
+                ) : null}
+                {props?.selectedPackagesList.length === 3 ? (
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                      color: "white",
+                    }}
+                  >
+                    {" "}
+                    {props.formatValue(
+                      props.RecurringPricingInfo.PackageThreeGrandTotal
+                    )}
+                  </td>
+                ) : null}
+              </tr>
+            </>
+          )}
+
+          <tr style={{ backgroundColor: "#DCDCDC" }}>
+            <td
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "left",
+                padding: "8px",
+              }}
+            >
+              If you are happy with this proposal please click Accept to Accept
+              the Proposal.
+            </td>
+            <td
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "right",
+                padding: "8px",
+                color: "black",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  width: "100%",
+                }}
+              >
+                {" "}
+                <a
+                  href={AcceptRecurringUrlButton1}
+                  style={{
+                    display: "inline-block",
+                    padding: "5px 15px",
+                    backgroundColor: "green",
+                    color: "white",
+                    textDecoration: "none",
+                    border: "none",
+                    borderRadius: "100px",
+                    transition:
+                      "background-color 0.3s ease, box-shadow 0.3s ease",
+                    whiteSpace: "nowrap",
+                    flex: 1,
+                    textAlign: "center",
+                  }}
+                >
+                  Accept
+                </a>
+              </div>
+            </td>
+            {props?.selectedPackagesList.length >= 2 ? (
+              <td
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "right",
+                  padding: "8px",
+                  color: "black",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    width: "100%",
+                  }}
+                >
+                  {" "}
+                  <a
+                    href={AcceptRecurringUrlButton2}
+                    style={{
+                      display: "inline-block",
+                      padding: "5px 15px",
+                      backgroundColor: "green",
+                      color: "white",
+                      textDecoration: "none",
+                      border: "none",
+                      borderRadius: "100px",
+                      transition:
+                        "background-color 0.3s ease, box-shadow 0.3s ease",
+                      whiteSpace: "nowrap",
+                      flex: 1,
+                      textAlign: "center",
+                    }}
+                  >
+                    Accept
+                  </a>
+                </div>
+              </td>
+            ) : null}
+            {props?.selectedPackagesList.length === 3 ? (
+              <td
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "right",
+                  padding: "8px",
+                  color: "black",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    width: "100%",
+                  }}
+                >
+                  {" "}
+                  <a
+                    href={AcceptRecurringUrlButton3}
+                    style={{
+                      display: "inline-block",
+                      padding: "5px 15px",
+                      backgroundColor: "green",
+                      color: "white",
+                      textDecoration: "none",
+                      border: "none",
+                      borderRadius: "100px",
+                      transition:
+                        "background-color 0.3s ease, box-shadow 0.3s ease",
+                      whiteSpace: "nowrap",
+                      flex: 1,
+                      textAlign: "center",
+                    }}
+                  >
+                    Accept
+                  </a>
+                </div>
+              </td>
+            ) : null}
+          </tr>
+          {props.common.enableEL == 0 && (
+            <tr style={{ backgroundColor: "#DCDCDC" }}>
+              <td
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "left",
+                  padding: "8px",
+                }}
+              >
+                If you are not happy with this proposal please click Decline to
+                Decline the Proposal.
+              </td>
+              <td
+                colSpan={props?.selectedPackagesList.length >= 2 ? 3 : 1}
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "right",
+                  padding: "8px",
+                  color: "black",
+                }}
+              >
+                {" "}
+                <a
+                  href={DeclineRecurringUrl}
+                  style={{
+                    display: "block",
+                    minWidth: "86%", // Make the button take the full width of the parent td
+                    padding: "5px 15px", // Adjust the padding if needed to fit the content
+                    backgroundColor: "red",
+                    color: "white",
+                    textDecoration: "none",
+                    border: "none",
+                    borderRadius: "100px",
+                    transition:
+                      "background-color 0.3s ease, box-shadow 0.3s ease",
+                    whiteSpace: "nowrap",
+                    textAlign: "center", // Center the text within the button
+                  }}
+                >
+                  Decline
+                </a>
+              </td>
+
+              {/* {props?.selectedPackagesList.length >= 2 ? (
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "right",
+                    padding: "8px",
+                    color: "white",
+                  }}
+                ></td>
+              ) : null}
+              {props?.selectedPackagesList.length === 3 ? (
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "right",
+                    padding: "8px",
+                    color: "white",
+                  }}
+                ></td>
+              ) : null} */}
+            </tr>
+          )}
+        </table>
+      </div>
+    );
+  };
+
+  // Function to compute the sum of package values
+  const computeOneOffTotalPackageValues = () => {
+    let totalOne = 0;
+    let totalTwo = 0;
+    let totalThree = 0;
+
+    props.selectedOneOffServiceList?.forEach((category) => {
+      category.servicesList.forEach((service) => {
+        // Check if the packageID is included in servicePackageIDs before adding
+        if (
+          service.servicePackageIDs.includes(service.packageOneID) &&
+          service.packageOneValue !== null
+        ) {
+          totalOne += Number(service.packageOneValue);
+        }
+        if (
+          service.servicePackageIDs.includes(service.packageTwoID) &&
+          service.packageTwoValue !== null
+        ) {
+          totalTwo += Number(service.packageTwoValue);
+        }
+        if (
+          service.servicePackageIDs.includes(service.packageThreeID) &&
+          service.packageThreeValue !== null
+        ) {
+          totalThree += Number(service.packageThreeValue);
+        }
+      });
+    });
+    props.setLastPaymentFrequencyAndDiscountedPriceForPreviewForoneoff({
+      PaymentFrequencyID: 1,
+      PackageOneNetValue: totalOne,
+      PackageTwoNetValue: totalTwo,
+      PackageThreeNetValue: totalThree,
+    });
+    // Update state with the computed totals
+    setTotalOnePackageValueOneOff(totalOne);
+    setTotalTwoPackageValueOneOff(totalTwo);
+    setTotalThreePackageValueOneOff(totalThree);
+
+    updateOneOffHtmlContent();
+  };
+
+  const updateOneOffHtmlContent = () => {
+    setOneOffPackagesTable(
+      <div
+        style={{
+          paddingLeft: "40px",
+          paddingRight: "40px",
+          fontFamily: "'Times New Roman', Times, serif",
+        }}
+      >
+        <p
+          style={{
+            fontFamily: "arial, sans-serif",
+            color: "#00BFFF",
+            fontSize: "20px",
+            marginTop: "15px",
+          }}
+        >
+          One-Off Fees
+        </p>
+        <table
+          style={{
+            fontFamily: "arial, sans-serif",
+            borderCollapse: "collapse",
+            width: "100%",
+            marginTop: "15px",
+          }}
+        >
+          <tr style={{ backgroundColor: "#00BFFF" }}>
+            <th
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "left",
+                padding: "8px",
+                color: "white",
+                fontSize: "18px",
+              }}
+            >
+              Services
+            </th>
+            {props?.selectedPackagesList?.map((selectedPackages) => (
+              <th
+                key={selectedPackages.servicePackageName}
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "left",
+                  padding: "8px",
+                  color: "white",
+                  fontSize: "18px",
+                }}
+              >
+                {/* {
+                  props?.selectedPackagesList.length === 1
+                    ? selectedPackages.servicePackageName.length > 20
+                      ? selectedPackages.servicePackageName.substring(0, 20) + "..."
+                      : selectedPackages.servicePackageName
+                    : selectedPackages.servicePackageName.length > 10
+                      ? selectedPackages.servicePackageName.substring(0, 10) + "..."
+                      : selectedPackages.servicePackageName
+                } */}
+                {selectedPackages.servicePackageName}
+              </th>
+            ))}
+          </tr>
+          {props.selectedOneOffServiceList.map((serviceCat, index) => (
+            <React.Fragment key={index}>
+              <tr style={{ backgroundColor: "#DCDCDC" }}>
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "left",
+                    padding: "8px",
+                    fontWeight: "bold",
+                    fontSize: "18px",
+                  }}
+                >
+                  {serviceCat.serviceCatName}
+                </td>
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "left",
+                    padding: "8px",
+                  }}
+                ></td>
+                {props?.selectedPackagesList.length >= 2 ? (
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "left",
+                      padding: "8px",
+                    }}
+                  ></td>
+                ) : null}
+                {props?.selectedPackagesList.length === 3 ? (
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "left",
+                      padding: "8px",
+                    }}
+                  ></td>
+                ) : null}
+              </tr>
+              {serviceCat.servicesList.map((subService, subIndex) => (
+                <tr key={subIndex}>
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "left",
+                      padding: "8px",
+                    }}
+                  >
+                    {subService.serviceName.length > 45 ? (
+                      <Tooltip title={subService.serviceName}>
+                        {subService.serviceName
+                          .substring(0, 45)
+                          .toLowerCase()
+                          .replace(/\b\w/g, (l) => l.toUpperCase()) + "..."}
+                      </Tooltip>
+                    ) : (
+                      subService.serviceName
+                    )}
+                  </td>
+                  {props.ProposalObject.feeTypeId == 1 ? (
+                    <td
+                      style={{
+                        border: "1px solid #DDDDDD",
+                        textAlign: "right",
+                        padding: "8px",
+                      }}
+                    >
+                      {(subService.packageOneValue === null) &&
+                        !subService.servicePackageIDs.some(
+                          (item) =>
+                            item ==
+                            props.selectedPackagesList[0]?.servicePackageID
+                        ) ? (
+                        <span>&#10007;</span>
+                      ) : !subService?.servicePackageIDs.includes(
+                        subService.packageOneID
+                      ) ? (
+                        <span>&#10007;</span>
+                      ) : (
+                        `${props.formatValue(subService.packageOneValue)}`
+                      )}
+                    </td>
+                  ) : subService.packageOneValue !== null &&
+                    !subService?.servicePackageIDs.includes(
+                      subService.packageOneID
+                    ) ? (
+                    <td
+                      style={{
+                        border: "1px solid #DDDDDD",
+                        textAlign: "right",
+                        padding: "8px",
+                      }}
+                    >
+                      &#10007;
+                    </td>
+                  ) : (
+                    <td
+                      style={{
+                        border: "1px solid #DDDDDD",
+                        textAlign: "right",
+                        padding: "8px",
+                      }}
+                    >
+                      &#10003;
+                    </td>
+                  )}
+
+                  {props?.selectedPackagesList.length >= 2 ? (
+                    props.ProposalObject.feeTypeId == 1 ? (
+                      <td
+                        style={{
+                          border: "1px solid #DDDDDD",
+                          textAlign: "right",
+                          padding: "8px",
+                        }}
+                      >
+                        {(subService.packageTwoValue === null) &&
+                          !subService.servicePackageIDs.some(
+                            (item) =>
+                              item ==
+                              props.selectedPackagesList[1]?.servicePackageID
+                          ) ? (
+                          <span>&#10007;</span>
+                        ) : !subService?.servicePackageIDs.includes(
+                          subService.packageTwoID
+                        ) ? (
+                          <span>&#10007;</span>
+                        ) : (
+                          `${props.formatValue(subService.packageTwoValue)}`
+                        )}
+                      </td>
+                    ) : subService.packageTwoValue !== null &&
+                      !subService?.servicePackageIDs.includes(
+                        subService.packageTwoID
+                      ) ? (
+                      <td
+                        style={{
+                          border: "1px solid #DDDDDD",
+                          textAlign: "right",
+                          padding: "8px",
+                        }}
+                      >
+                        &#10007;
+                      </td>
+                    ) : (
+                      <td
+                        style={{
+                          border: "1px solid #DDDDDD",
+                          textAlign: "right",
+                          padding: "8px",
+                        }}
+                      >
+                        &#10003;
+                      </td>
+                    )
+                  ) : null}
+                  {props?.selectedPackagesList.length === 3 ? (
+                    props.ProposalObject.feeTypeId == 1 ? (
+                      <td
+                        style={{
+                          border: "1px solid #DDDDDD",
+                          textAlign: "right",
+                          padding: "8px",
+                        }}
+                      >
+                        {(subService.packageThreeValue === null) &&
+                          !subService.servicePackageIDs.some(
+                            (item) =>
+                              item ==
+                              props.selectedPackagesList[2]?.servicePackageID
+                          ) ? (
+                          <span>&#10007;</span>
+                        ) : !subService?.servicePackageIDs.includes(
+                          subService.packageThreeID
+                        ) ? (
+                          <span>&#10007;</span>
+                        ) : (
+                          `${props.formatValue(subService.packageThreeValue)}`
+                        )}
+                      </td>
+                    ) : subService.packageThreeValue !== null &&
+                      !subService?.servicePackageIDs.includes(
+                        subService.packageThreeID
+                      ) ? (
+                      <td
+                        style={{
+                          border: "1px solid #DDDDDD",
+                          textAlign: "right",
+                          padding: "8px",
+                        }}
+                      >
+                        &#10007;
+                      </td>
+                    ) : (
+                      <td
+                        style={{
+                          border: "1px solid #DDDDDD",
+                          textAlign: "right",
+                          padding: "8px",
+                        }}
+                      >
+                        &#10003;
+                      </td>
+                    )
+                  ) : null}
+                </tr>
+              ))}
+            </React.Fragment>
+          ))}
+          <tr style={{ backgroundColor: "#808080" }}>
+            <td
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "left",
+                padding: "8px",
+                color: "white",
+              }}
+            >
+              Net Total
+            </td>
+            <td
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "right",
+                padding: "8px",
+                color: "white",
+              }}
+            >
+              {" "}
+              {
+                totalOnePackageValueOneOff <
+                  Number(props.OneOffPricingInfo.packageOneDisCountedTotal) ||
+                  (Number(props.OneOffPricingInfo.packageOneDisCount) > 0 &&
+                    !props.ProposalObject.DiscountLines)
+                  ? props.formatValue(
+                    props.OneOffPricingInfo.packageOneDisCountedTotal
+                  )
+                  : // Number(totalOnePackageValueOneOff)
+                  //     .toFixed(2)
+                  //     .toString()
+                  //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                  props.formatValue(totalOnePackageValueOneOff)
+                // Number(
+                //     props.OneOffPricingInfo
+                //       .packageOneDisCountedTotal
+                //   )
+                //     .toFixed(2)
+                //     .toString()
+                //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+              }
+            </td>
+            {props?.selectedPackagesList.length >= 2 && (
+              <td
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "right",
+                  padding: "8px",
+                  color: "white",
+                }}
+              >
+                {" "}
+                {
+                  totalTwoPackageValueOneOff <
+                    Number(props.OneOffPricingInfo.packageTwoDisCountedTotal) ||
+                    (Number(props.OneOffPricingInfo.packageTwoDisCount) > 0 &&
+                      !props.ProposalObject.DiscountLines)
+                    ? props.formatValue(
+                      props.OneOffPricingInfo.packageTwoDisCountedTotal
+                    )
+                    : // Number(totalOnePackageValueOneOff)
+                    //     .toFixed(2)
+                    //     .toString()
+                    //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                    props.formatValue(totalTwoPackageValueOneOff)
+                  // Number(
+                  //     props.OneOffPricingInfo
+                  //       .packageOneDisCountedTotal
+                  //   )
+                  //     .toFixed(2)
+                  //     .toString()
+                  //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                }
+              </td>
+            )}
+            {props?.selectedPackagesList.length === 3 && (
+              <td
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "right",
+                  padding: "8px",
+                  color: "white",
+                }}
+              >
+                {" "}
+                {
+                  totalThreePackageValueOneOff <
+                    Number(
+                      props.OneOffPricingInfo.packageThreeDisCountedTotal
+                    ) ||
+                    (Number(props.OneOffPricingInfo.packageThreeDisCount) > 0 &&
+                      !props.ProposalObject.DiscountLines)
+                    ? props.formatValue(
+                      props.OneOffPricingInfo.packageThreeDisCountedTotal
+                    )
+                    : // Number(totalOnePackageValueOneOff)
+                    //     .toFixed(2)
+                    //     .toString()
+                    //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                    props.formatValue(totalThreePackageValueOneOff)
+                  // Number(
+                  //     props.OneOffPricingInfo
+                  //       .packageOneDisCountedTotal
+                  //   )
+                  //     .toFixed(2)
+                  //     .toString()
+                  //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                }
+              </td>
+            )}
+          </tr>
+
+          {(Number(props.OneOffPricingInfo.packageThreeDisCount) > 0 ||
+            Number(props.OneOffPricingInfo.packageOneDisCount) > 0 ||
+            Number(props.OneOffPricingInfo.packageTwoDisCount) > 0) &&
+            props.ProposalObject.DiscountLines && (
+              <>
+                <tr style={{ backgroundColor: "#DCDCDC" }}>
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "left",
+                      padding: "8px",
+                      color: "black",
+                    }}
+                  >
+                    Discount
+                  </td>
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                      color: "black",
+                    }}
+                  >
+                    (-)
+                    {props.formatValue(
+                      props.OneOffPricingInfo.packageOneDisCount
+                    )}
+                  </td>
+                  {props?.selectedPackagesList.length >= 2 ? (
+                    <td
+                      style={{
+                        border: "1px solid #DDDDDD",
+                        textAlign: "right",
+                        padding: "8px",
+                        color: "black",
+                      }}
+                    >
+                      (-){" "}
+                      {props.formatValue(
+                        props.OneOffPricingInfo.packageTwoDisCount
+                      )}
+                    </td>
+                  ) : null}
+                  {props?.selectedPackagesList.length === 3 ? (
+                    <td
+                      style={{
+                        border: "1px solid #DDDDDD",
+                        textAlign: "right",
+                        padding: "8px",
+                        color: "black",
+                      }}
+                    >
+                      (-){" "}
+                      {props.formatValue(
+                        props.OneOffPricingInfo.packageThreeDisCount
+                      )}
+                    </td>
+                  ) : null}
+                </tr>
+                <tr style={{ backgroundColor: "#808080", color: "white" }}>
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "left",
+                      padding: "8px",
+                      color: "white",
+                    }}
+                  >
+                    Discounted Total
+                  </td>
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                      color: "white",
+                    }}
+                  >
+                    {" "}
+                    {props.formatValue(
+                      props.OneOffPricingInfo.packageOneDisCountedTotal
+                    )}
+                  </td>
+                  {props?.selectedPackagesList.length >= 2 ? (
+                    <td
+                      style={{
+                        border: "1px solid #DDDDDD",
+                        textAlign: "right",
+                        padding: "8px",
+                        color: "white",
+                      }}
+                    >
+                      {" "}
+                      {props.formatValue(
+                        props.OneOffPricingInfo.packageTwoDisCountedTotal
+                      )}
+                    </td>
+                  ) : null}
+                  {props?.selectedPackagesList.length === 3 ? (
+                    <td
+                      style={{
+                        border: "1px solid #DDDDDD",
+                        textAlign: "right",
+                        padding: "8px",
+                        color: "white",
+                      }}
+                    >
+                      {" "}
+                      {props.formatValue(
+                        props.OneOffPricingInfo.packageThreeDisCountedTotal
+                      )}
+                    </td>
+                  ) : null}
+                </tr>
+              </>
+            )}
+          {props.vatPercentage && (
+            <>
+              <tr style={{ backgroundColor: "#DCDCDC" }}>
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "left",
+                    padding: "8px",
+                    color: "Black",
+                  }}
+                >
+                  VAT
+                </td>
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "right",
+                    padding: "8px",
+                    color: "Black",
+                  }}
+                >
+                  {props.formatValue(
+                    props.OneOffPricingInfo.PackageOneVaTPrice
+                  )}
+                </td>
+                {props?.selectedPackagesList.length >= 2 ? (
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                      color: "Black",
+                    }}
+                  >
+                    {props.formatValue(
+                      props.OneOffPricingInfo.PackageTwoVaTPrice
+                    )}
+                  </td>
+                ) : null}
+                {props?.selectedPackagesList.length === 3 ? (
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                      color: "Black",
+                    }}
+                  >
+                    {props.formatValue(
+                      props.OneOffPricingInfo.PackageThreeVaTPrice
+                    )}
+                  </td>
+                ) : null}
+              </tr>
+
+              <tr style={{ backgroundColor: "#808080" }}>
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "left",
+                    padding: "8px",
+                    color: "white",
+                  }}
+                >
+                  Grand Total
+                </td>
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "right",
+                    padding: "8px",
+                    color: "white",
+                  }}
+                >
+                  {props.formatValue(
+                    props.OneOffPricingInfo.PackageOneGrandTotal
+                  )}
+                </td>
+                {props?.selectedPackagesList.length >= 2 ? (
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                      color: "white",
+                    }}
+                  >
+                    {props.formatValue(
+                      props.OneOffPricingInfo.PackageTwoGrandTotal
+                    )}
+                  </td>
+                ) : null}
+                {props?.selectedPackagesList.length === 3 ? (
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                      color: "white",
+                    }}
+                  >
+                    {props.formatValue(
+                      props.OneOffPricingInfo.PackageThreeGrandTotal
+                    )}
+                  </td>
+                ) : null}
+              </tr>
+            </>
+          )}
+
+          <tr style={{ backgroundColor: "#DCDCDC" }}>
+            <td
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "left",
+                padding: "8px",
+              }}
+            >
+              If you are happy with this proposal please click Accept to Accept
+              the Proposal.
+            </td>
+            <td
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "right",
+                padding: "8px",
+                color: "black",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  width: "100%",
+                }}
+              >
+                <a
+                  href={AcceptOneOffUrlButton1}
+                  style={{
+                    display: "inline-block",
+                    padding: "5px 15px",
+                    backgroundColor: "green",
+                    color: "white",
+                    textDecoration: "none",
+                    border: "none",
+                    borderRadius: "100px",
+                    transition:
+                      "background-color 0.3s ease, box-shadow 0.3s ease",
+                    whiteSpace: "nowrap",
+                    flex: 1,
+                    textAlign: "center",
+                  }}
+                >
+                  Accept
+                </a>
+              </div>
+            </td>
+            {props?.selectedPackagesList.length >= 2 ? (
+              <td
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "right",
+                  padding: "8px",
+                  color: "black",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    width: "100%",
+                  }}
+                >
+                  <a
+                    href={AcceptOneOffUrlButton2}
+                    style={{
+                      display: "inline-block",
+                      padding: "5px 15px",
+                      backgroundColor: "green",
+                      color: "white",
+                      textDecoration: "none",
+                      border: "none",
+                      borderRadius: "100px",
+                      transition:
+                        "background-color 0.3s ease, box-shadow 0.3s ease",
+                      whiteSpace: "nowrap",
+                      flex: 1,
+                      textAlign: "center",
+                    }}
+                  >
+                    Accept
+                  </a>
+                </div>
+              </td>
+            ) : null}
+            {props?.selectedPackagesList.length === 3 ? (
+              <td
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "right",
+                  padding: "8px",
+                  color: "black",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    width: "100%",
+                  }}
+                >
+                  {" "}
+                  <a
+                    href={AcceptOneOffUrlButton3}
+                    style={{
+                      display: "inline-block",
+                      padding: "5px 15px",
+                      backgroundColor: "green",
+                      color: "white",
+                      textDecoration: "none",
+                      border: "none",
+                      borderRadius: "100px",
+                      transition:
+                        "background-color 0.3s ease, box-shadow 0.3s ease",
+                      whiteSpace: "nowrap",
+                      flex: 1,
+                      textAlign: "center",
+                    }}
+                  >
+                    Accept
+                  </a>
+                </div>
+              </td>
+            ) : null}
+          </tr>
+          {props.common.enableEL == 0 && (
+            <tr style={{ backgroundColor: "#DCDCDC" }}>
+              <td
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "left",
+                  padding: "8px",
+                }}
+              >
+                If you are not happy with this proposal please click Decline to
+                Decline the Proposal.
+              </td>
+              <td
+                colSpan={props?.selectedPackagesList.length >= 2 ? 3 : 1}
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "right",
+                  padding: "8px",
+                  color: "black",
+                }}
+              >
+                <a
+                  href={DeclineOneOffUrl}
+                  style={{
+                    display: "block",
+                    minWidth: "86%", // Make the button take the full width of the parent td
+                    padding: "5px 15px", // Adjust the padding if needed to fit the content
+                    backgroundColor: "red",
+                    color: "white",
+                    textDecoration: "none",
+                    border: "none",
+                    borderRadius: "100px",
+                    transition:
+                      "background-color 0.3s ease, box-shadow 0.3s ease",
+                    whiteSpace: "nowrap",
+                    textAlign: "center", // Center the text within the button
+                  }}
+                >
+                  Decline
+                </a>
+              </td>
+              {/* {props?.selectedPackagesList.length >= 2 ? (
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "right",
+                    padding: "8px",
+                    color: "white",
+                  }}
+                ></td>
+              ) : null}
+              {props?.selectedPackagesList.length === 3 ? (
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "right",
+                    padding: "8px",
+                    color: "white",
+                  }}
+                ></td>
+              ) : null} */}
+            </tr>
+          )}
+        </table>
+      </div>
+    );
+  };
+
+  // Calculate the total fees
+  const calculateTotalFees = () => {
+    let total = 0;
+    props.selectedRecurringServiceList.forEach((service) => {
+      service.servicesList.forEach((subService) => {
+        total += subService.price;
+      });
+    });
+    return total;
+  };
+
+  // Calculate the total fees
+  const calculateTotalFeesOneOff = () => {
+    let total = 0;
+    props.selectedOneOffServiceList.forEach((service) => {
+      service.servicesList.forEach((subService) => {
+        total += subService.price;
+      });
+    });
+    return total;
+  };
+
+  // Update the total fees whenever selectedRecurringServiceList changes
+  useEffect(() => {
+    const total = calculateTotalFees();
+    setTotalFees(total);
+  }, [props.selectedRecurringServiceList, selectedFrequency]);
+
+  useEffect(() => {
+    const total = calculateTotalFeesOneOff();
+    setTotalFeesOneOff(total);
+  }, [props.selectedOneOffServiceList]);
+
+  const feeTypeValue = modifiedFeesType.find(
+    (item) => props.ProposalObject.feeTypeId == item.value
+  );
+  //Handle payment Frequency
+
+  const handlePaymentFrequencyChange = (e) => {
+    props.DisableTabOnChange();
+    const updatedData = JSON.parse(JSON.stringify(props.RecurringServiceCopy));
+    let UpdatedServiceMappingWithPackagesList = props.ServiceMappingWithPackagesListCopy
+    // Calculate price based on payment frequency
+    if (e.value === Payment_Frequency.Yearly) {
+      props.setProposalObject((prevState) => ({
+        ...prevState,
+        Payment_Frequency: e.value,
+      }));
+      UpdatedServiceMappingWithPackagesList = UpdatedServiceMappingWithPackagesList.map((service) => {
+        // Multiply the price by 2
+        const updatedPrice = service.serviceChargeTypeID === 1 ? service.price : service.price;
+
+        // Return the updated service with the new price
+        return {
+          ...service,
+          price: updatedPrice, // Update the price here
+          priceWithAllDecimal: updatedPrice?.toString(),
+          servicePriceDetails: {
+            ...service.servicePriceDetails,
+            price: updatedPrice // Also update the price in servicePriceDetails if needed
+          }
+        };
+      });
+      updatedData.forEach((category) => {
+        category.servicesList.forEach((service) => {
+          // Perform the percentage calculation for each value
+          service.price = Number(service.price);
+          service.originalServicePrice = Number(service.originalServicePrice)
+          service.packageOneValue = Number(
+            Number(service.originalPackageOneValue)
+          ).toFixed(2);
+          service.packageTwoValue = Number(
+            Number(service.originalPackageTwoValue)
+          ).toFixed(2);
+          service.packageThreeValue = Number(
+            Number(service.originalPackageThreeValue)
+          ).toFixed(2);
+          service.originalPackageOneValue = Number(
+            service.originalPackageOneValue
+          );
+          service.originalPackageTwoValue = Number(
+            service.originalPackageTwoValue
+          );
+          service.originalPackageThreeValue = Number(
+            service.originalPackageThreeValue
+          );
+        });
+      });
+    } else if (e.value === Payment_Frequency.HalfYearly) {
+      props.setProposalObject((prevState) => ({
+        ...prevState,
+        Payment_Frequency: e.value,
+      }));
+      UpdatedServiceMappingWithPackagesList = UpdatedServiceMappingWithPackagesList.map((service) => {
+        // Multiply the price by 2
+        const updatedPrice = service.serviceChargeTypeID === 1 ? service.price / 2 : service.price;
+
+        // Return the updated service with the new price
+        return {
+          ...service,
+          price: updatedPrice, // Update the price here
+          priceWithAllDecimal: updatedPrice?.toString(),
+          servicePriceDetails: {
+            ...service.servicePriceDetails,
+            price: updatedPrice // Also update the price in servicePriceDetails if needed
+          }
+        };
+      });
+      updatedData.forEach((category) => {
+        category.servicesList.forEach((service) => {
+          // Perform the percentage calculation for each value
+          service.price = Number(service.price) / 2;
+          service.originalServicePrice = Number(service.originalServicePrice) / 2
+          service.packageOneValue = Number(
+            Number(service.originalPackageOneValue) / 2
+          ).toFixed(2);
+          service.packageTwoValue = Number(
+            Number(service.originalPackageTwoValue) / 2
+          ).toFixed(2);
+          service.packageThreeValue = Number(
+            Number(service.originalPackageThreeValue) / 2
+          ).toFixed(2);
+          service.originalPackageOneValue =
+            Number(service.originalPackageOneValue) / 2;
+          service.originalPackageTwoValue =
+            Number(service.originalPackageTwoValue) / 2;
+          service.originalPackageThreeValue =
+            Number(service.originalPackageThreeValue) / 2;
+        });
+      });
+    } else if (e.value === Payment_Frequency.Quarterly) {
+      props.setProposalObject((prevState) => ({
+        ...prevState,
+        Payment_Frequency: e.value,
+      }));
+      UpdatedServiceMappingWithPackagesList = UpdatedServiceMappingWithPackagesList.map((service) => {
+        // Multiply the price by 2
+        const updatedPrice = service.serviceChargeTypeID === 1 ? service.price / 4 : service.price;
+
+        // Return the updated service with the new price
+        return {
+          ...service,
+          price: updatedPrice, // Update the price here
+          priceWithAllDecimal: updatedPrice?.toString(),
+          servicePriceDetails: {
+            ...service.servicePriceDetails,
+            price: updatedPrice // Also update the price in servicePriceDetails if needed
+          }
+        };
+      });
+      updatedData.forEach((category) => {
+        category.servicesList.forEach((service) => {
+          // Perform the percentage calculation for each value
+          service.price = Number(service.price) / 4;
+          service.originalServicePrice = Number(service.originalServicePrice) / 4
+          service.packageOneValue = Number(
+            Number(service.originalPackageOneValue) / 4
+          ).toFixed(2);
+          service.packageTwoValue = Number(
+            Number(service.originalPackageTwoValue) / 4
+          ).toFixed(2);
+          service.packageThreeValue = Number(
+            Number(service.originalPackageThreeValue) / 4
+          ).toFixed(2);
+          service.originalPackageOneValue =
+            Number(service.originalPackageOneValue) / 4;
+          service.originalPackageTwoValue =
+            Number(service.originalPackageTwoValue) / 4;
+          service.originalPackageThreeValue =
+            Number(service.originalPackageThreeValue) / 4;
+        });
+      });
+    } else if (e.value === Payment_Frequency.Monthly) {
+      props.setProposalObject((prevState) => ({
+        ...prevState,
+        Payment_Frequency: e.value,
+      }));
+      UpdatedServiceMappingWithPackagesList = UpdatedServiceMappingWithPackagesList.map((service) => {
+        // Multiply the price by 2
+        const updatedPrice = service.serviceChargeTypeID === 1 ? service.price / 12 : service.price;
+
+        // Return the updated service with the new price
+        return {
+          ...service,
+          price: updatedPrice, // Update the price here
+          priceWithAllDecimal: updatedPrice?.toString(),
+          servicePriceDetails: {
+            ...service.servicePriceDetails,
+            price: updatedPrice // Also update the price in servicePriceDetails if needed
+          }
+        };
+      });
+      updatedData.forEach((category) => {
+        category.servicesList.forEach((service) => {
+          // Perform the percentage calculation for each value
+          service.price = Number(service.price) / 12;
+          service.originalServicePrice = Number(service.originalServicePrice) / 12
+          service.packageOneValue = Number(
+            Number(service.originalPackageOneValue) / 12
+          ).toFixed(2);
+          service.packageTwoValue = Number(
+            Number(service.originalPackageTwoValue) / 12
+          ).toFixed(2);
+          service.packageThreeValue = Number(
+            Number(service.originalPackageThreeValue) / 12
+          ).toFixed(2);
+          service.originalPackageOneValue =
+            Number(service.originalPackageOneValue) / 12;
+          service.originalPackageTwoValue =
+            Number(service.originalPackageTwoValue) / 12;
+          service.originalPackageThreeValue =
+            Number(service.originalPackageThreeValue) / 12;
+        });
+      });
+    }
+    // props.setRecurringPricingInfo({
+    //   ...props.RecurringPricingInfo,
+    //   packageOneDisCount: packageOneDisCount,
+    //   packageTwoDisCount: packageTwoDisCount,
+    //   packageThreeDisCount: packageThreeDisCount,
+    //   packageOneDisCountedTotal: packageOneDisCountedTotal,
+    //   packageTwoDisCountedTotal: packageTwoDisCountedTotal,
+    //   packageThreeDisCountedTotal: packageThreeDisCountedTotal,
+    //   PackageOneVaTPrice: PackageOneVaTPrice,
+    //   PackageTwoVaTPrice: PackageTwoVaTPrice,
+    //   PackageThreeVaTPrice: PackageThreeVaTPrice,
+    //   PackageOneGrandTotal: PackageOneGrandTotal,
+    //   PackageTwoGrandTotal: PackageTwoGrandTotal,
+    //   PackageThreeGrandTotal: PackageThreeGrandTotal,
+    // });
+    // setTotalOnePackageValue(TotalOnePackageValue);
+    // setTotalTwoPackageValue(TotalTwoPackageValue);
+    // setTotalThreePackageValue(TotalThreePackageValue);
+    props.setServiceMappingWithPackagesList(UpdatedServiceMappingWithPackagesList)
+    props.setSelectedRecurringServiceList(updatedData);
+  };
+  //calculate Recurring Package Net Total
+  const CalculateRecurringPackageNetTotal = () => {
+    let packageOneNetTotalObj =
+      GetNetTotalValueByRecurringPackage("packageOne");
+    let packageTwoNetTotalObj =
+      GetNetTotalValueByRecurringPackage("packageTwo");
+    let packageThreeNetTotalObj =
+      GetNetTotalValueByRecurringPackage("packageThree");
+
+    const NetOneTotal =
+      Number(packageOneNetTotalObj.netTotal) +
+      Number(packageOneNetTotalObj.addOnValue);
+    const NetTwoTotal =
+      Number(packageTwoNetTotalObj.netTotal) +
+      Number(packageTwoNetTotalObj.addOnValue);
+    const NetThreeTotal =
+      Number(packageThreeNetTotalObj.netTotal) +
+      Number(packageThreeNetTotalObj.addOnValue);
+
+    props.setRecurringPricingInfo({
+      ...props.RecurringPricingInfo,
+      packageOneNetTotal: NetOneTotal,
+      packageTwoNetTotal: NetTwoTotal,
+      packageThreeNetTotal: NetThreeTotal,
+      packageOneDisCount: packageOneNetTotalObj.discountAmount,
+      packageTwoDisCount: packageTwoNetTotalObj.discountAmount,
+      packageThreeDisCount: packageThreeNetTotalObj.discountAmount,
+      packageOneDisCountedTotal: packageOneNetTotalObj.discountedTotalAmount,
+      packageTwoDisCountedTotal: packageTwoNetTotalObj.discountedTotalAmount,
+      packageThreeDisCountedTotal:
+        packageThreeNetTotalObj.discountedTotalAmount,
+      PackageOneVaTPrice: packageOneNetTotalObj.vatTotalAmount,
+      PackageTwoVaTPrice: packageTwoNetTotalObj.vatTotalAmount,
+      PackageThreeVaTPrice: packageThreeNetTotalObj.vatTotalAmount,
+      PackageOneGrandTotal: packageOneNetTotalObj.grandTotalAmount,
+      PackageTwoGrandTotal: packageTwoNetTotalObj.grandTotalAmount,
+      PackageThreeGrandTotal: packageThreeNetTotalObj.grandTotalAmount,
+    });
+
+    // setTotalOnePackageValue(NetOneTotal);
+    // setTotalTwoPackageValue(NetTwoTotal);
+    // setTotalThreePackageValue(NetThreeTotal);
+
+    setRecurringPackageCalculation({
+      ...RecurringPackageCalculation,
+      //Package One :
+      PackageOneNetTotal: packageOneNetTotalObj.netTotal,
+      PackageOneNetTotalAddOnValue: packageOneNetTotalObj.addOnValue,
+      VatPercentage: packageOneNetTotalObj.vatPercentage,
+      PackageOneVatTotalAmount: packageOneNetTotalObj.vatTotalAmount,
+      PackageOneDiscountAmount: packageOneNetTotalObj.discountAmount,
+      PackageOneDiscountedTotalAmount:
+        packageOneNetTotalObj.discountedTotalAmount,
+      PackageOneGrandTotalAmount: packageOneNetTotalObj.grandTotalAmount,
+
+      //PackageTwo :
+      PackageTwoNetTotal: packageTwoNetTotalObj.netTotal,
+      PackageTwoNetTotalAddOnValue: packageTwoNetTotalObj.addOnValue,
+      VatPercentage: packageTwoNetTotalObj.vatPercentage,
+      PackageTwoVatTotalAmount: packageTwoNetTotalObj.vatTotalAmount,
+      PackageTwoDiscountAmount: packageTwoNetTotalObj.discountAmount,
+      PackageTwoDiscountedTotalAmount:
+        packageTwoNetTotalObj.discountedTotalAmount,
+      PackageTwoGrandTotalAmount: packageTwoNetTotalObj.grandTotalAmount,
+
+      //PackageThree :
+      PackageThreeNetTotal: packageThreeNetTotalObj.netTotal,
+      PackageThreeNetTotalAddOnValue: packageThreeNetTotalObj.addOnValue,
+      VatPercentage: packageThreeNetTotalObj.vatPercentage,
+      PackageThreeVatTotalAmount: packageThreeNetTotalObj.vatTotalAmount,
+      PackageThreeDiscountAmount: packageThreeNetTotalObj.discountAmount,
+      PackageThreeDiscountedTotalAmount:
+        packageThreeNetTotalObj.discountedTotalAmount,
+      PackageThreeGrandTotalAmount: packageThreeNetTotalObj.grandTotalAmount,
+    }); //return packageOneNetTotal
+  };
+  //Get NetTotal value From Recurring Package
+  const GetNetTotalValueByRecurringPackage = (packageName) => {
+    let netTotal = 0;
+    let addOnValue = 0;
+    let vatPercentage = null;
+    let vatTotalAmount = null;
+    let discountAmount = 0;
+    let discountedTotalAmount = null;
+    let grandTotalAmount = null;
+    let defaultDiscountPercentage = null;
+
+    //props.selectedPackagesList
+
+    //Calculate netTotal :
+
+    props.selectedRecurringServiceList.forEach((category) => {
+      category.servicesList.forEach((service) => {
+        // Check if the service has any package IDs
+        if (service.servicePackageIDs.length > 0) {
+          // Check if the packageOneID is in servicePackageIDs and packageOneValue is not null
+          if (
+            packageName === "packageOne" &&
+            service.servicePackageIDs.includes(service.packageOneID) &&
+            service.originalPackageOneValue !== null
+          ) {
+            //netTotal += Number(service.originalPackageOneValue);
+
+            let currentServicePriceWithToFixed = Number(
+              service.originalPackageOneValue
+            )?.toFixed(2);
+            netTotal = Number(
+              Number(netTotal) + Number(currentServicePriceWithToFixed)
+            )?.toFixed(2);
+
+            defaultDiscountPercentage =
+              props.RecurringFrequencyPricingInfo.DiscountPercentagePackageOne;
+          }
+
+          // Check if the packageTwoID is in servicePackageIDs and packageTwoValue is not null
+          if (
+            packageName === "packageTwo" &&
+            service.servicePackageIDs.includes(service.packageTwoID) &&
+            service.originalPackageTwoValue !== null
+          ) {
+            //netTotal += Number(service.originalPackageTwoValue);
+
+            let currentServicePriceWithToFixed = Number(
+              service.originalPackageTwoValue
+            )?.toFixed(2);
+            netTotal = Number(
+              Number(netTotal) + Number(currentServicePriceWithToFixed)
+            )?.toFixed(2);
+
+            defaultDiscountPercentage =
+              props.RecurringFrequencyPricingInfo.DiscountPercentagePackageTwo;
+          }
+
+          // Check if the packageThreeID is in servicePackageIDs and packageThreeValue is not null
+          if (
+            packageName === "packageThree" &&
+            service.servicePackageIDs.includes(service.packageThreeID) &&
+            service.originalPackageThreeValue !== null
+          ) {
+            //netTotal += Number(service.originalPackageThreeValue);
+
+            let currentServicePriceWithToFixed = Number(
+              service.originalPackageThreeValue
+            )?.toFixed(2);
+            netTotal = Number(
+              Number(netTotal) + Number(currentServicePriceWithToFixed)
+            )?.toFixed(2);
+
+            defaultDiscountPercentage =
+              props.RecurringFrequencyPricingInfo
+                .DiscountPercentagePackageThree;
+          }
+        }
+      });
+    });
+
+    // //Calculate : addOnValue,discountAmount
+    //defaultDiscountPercentage = props.RecurringFrequencyPricingInfo.DefaultDiscount
+    if (
+      !isNaN(defaultDiscountPercentage) &&
+      defaultDiscountPercentage !== undefined &&
+      defaultDiscountPercentage !== null &&
+      defaultDiscountPercentage !== ""
+    ) {
+      if (Number(defaultDiscountPercentage) === 0) {
+        addOnValue = 0;
+        discountAmount = 0;
+        //discountedTotalAmount = null;//Number(netTotal);
+      } else if (defaultDiscountPercentage < 0) {
+        addOnValue =
+          Number(netTotal) * (Math.abs(defaultDiscountPercentage) / 100);
+      } else if (defaultDiscountPercentage > 0) {
+        discountAmount =
+          ((Number(netTotal) + Number(addOnValue)) *
+            defaultDiscountPercentage) /
+          100;
+        discountAmount = Number(discountAmount)?.toFixed(2);
+        //discountedTotalAmount = (Number(netTotal) + Number(addOnValue)) - discountAmount
+      }
+    }
+    // else {
+    //   let packageRecurringOriginalPrice = null;
+    //   let packageRecurringDefaultPrice = null;
+    //   if (
+    //     packageName === "packageOne" &&
+    //     props.selectedPackagesList.length > 0
+    //   ) {
+    //     packageRecurringOriginalPrice =
+    //       props.selectedPackagesList[0]?.recurringOriginalPrice;
+    //     packageRecurringDefaultPrice =
+    //       props.selectedPackagesList[0]?.recurringDefaultPrice;
+    //   }
+    //   if (
+    //     packageName === "packageTwo" &&
+    //     props.selectedPackagesList.length > 1
+    //   ) {
+    //     packageRecurringOriginalPrice =
+    //       props.selectedPackagesList[1]?.recurringOriginalPrice;
+    //     packageRecurringDefaultPrice =
+    //       props.selectedPackagesList[1]?.recurringDefaultPrice;
+    //   }
+    //   if (
+    //     packageName === "packageThree" &&
+    //     props.selectedPackagesList.length > 2
+    //   ) {
+    //     packageRecurringOriginalPrice =
+    //       props.selectedPackagesList[2]?.recurringOriginalPrice;
+    //     packageRecurringDefaultPrice =
+    //       props.selectedPackagesList[2]?.recurringDefaultPrice;
+    //   }
+
+    //   if (
+    //     packageRecurringOriginalPrice !== null &&
+    //     packageRecurringDefaultPrice !== null
+    //   ) {
+    //     if (packageRecurringDefaultPrice < packageRecurringOriginalPrice) {
+    //       let packageDiscountPercentage =
+    //         Number(((packageRecurringOriginalPrice - packageRecurringDefaultPrice) /
+    //           packageRecurringOriginalPrice) *
+    //           100)?.toFixed(2)
+    //       packageDiscountPercentage = Number(packageDiscountPercentage)
+    //       if (packageDiscountPercentage < 0) {
+    //         addOnValue =
+    //           Number(netTotal) * (Math.abs(packageDiscountPercentage) / 100);
+    //       } else if (packageDiscountPercentage > 0) {
+    //         discountAmount =
+    //           ((Number(netTotal) + Number(addOnValue)) *
+    //             packageDiscountPercentage) /
+    //           100;
+    //         discountAmount = discountAmount?.toFixed(2)
+    //         //discountedTotalAmount = (Number(netTotal) + Number(addOnValue)) - discountAmount
+    //       }
+    //     }
+    //     // else {
+    //     //   discountedTotalAmount = Number(netTotal)
+    //     // }
+    //   }
+    // }
+
+    //Calculate discountedTotalAmount
+    discountedTotalAmount =
+      Number(netTotal) +
+      Number(addOnValue) -
+      (Math.floor(discountAmount * 100) / 100).toFixed(2);
+
+    //Calculate : vatPercentage,vatTotalAmount
+    if (
+      !isNaN(props.vatPercentage) &&
+      props.vatPercentage !== undefined &&
+      props.vatPercentage !== null
+    ) {
+      if (props.vatPercentage > 0) {
+        vatTotalAmount =
+          (Number(discountedTotalAmount) * props.vatPercentage) / 100;
+        vatTotalAmount =
+          props.GetTwoDecimalValueWithoutRoundOff(vatTotalAmount);
+      }
+    }
+
+    //Calculate : grandTotalAmount
+    if (
+      !isNaN(props.vatPercentage) &&
+      props.vatPercentage !== undefined &&
+      props.vatPercentage !== null
+    ) {
+      if (props.vatPercentage > 0) {
+        grandTotalAmount = discountedTotalAmount + vatTotalAmount;
+        grandTotalAmount = Number(grandTotalAmount)?.toFixed(2);
+      }
+    }
+
+    //Calculate : vatPercentage,vatTotalAmount
+    // if (!isNaN(props.vatPercentage) && props.vatPercentage !== undefined && props.vatPercentage !== null) {
+    //   if (props.vatPercentage > 0) {
+    //     vatPercentage = props.vatPercentage;
+    //     if (discountedTotalAmount !== null) {
+    //       vatTotalAmount = (Number(discountedTotalAmount) * (vatPercentage) / 100)
+    //     }
+    //     else {
+    //       vatTotalAmount = ((Number(netTotal) + Number(addOnValue)) * (vatPercentage) / 100)
+    //     }
+
+    //   }
+    // }
+
+    // //Calculate : grandTotalAmount
+    // if (!isNaN(props.vatPercentage) && props.vatPercentage !== undefined && props.vatPercentage !== null) {
+    //   if (props.vatPercentage > 0) {
+    //     if (discountedTotalAmount !== null) {
+    //       grandTotalAmount = discountedTotalAmount + vatTotalAmount;
+    //     }
+    //     else {
+    //       grandTotalAmount = ((Number(netTotal) + Number(addOnValue)) + vatTotalAmount);
+    //     }
+    //   }
+    // }
+
+    return {
+      netTotal: netTotal,
+      addOnValue: addOnValue,
+      vatPercentage: vatPercentage,
+      vatTotalAmount: vatTotalAmount,
+      discountAmount: discountAmount,
+      discountedTotalAmount: discountedTotalAmount,
+      grandTotalAmount: grandTotalAmount,
+    };
+  };
+  //calculate One-Off Packages Net Total
+  const CalculateOneOffPackageNetTotal = () => {
+    let packageOneNetTotalObj = GetNetTotalValueByOneOffPackage("packageOne");
+    let packageTwoNetTotalObj = GetNetTotalValueByOneOffPackage("packageTwo");
+    let packageThreeNetTotalObj =
+      GetNetTotalValueByOneOffPackage("packageThree");
+
+    const NetOneTotal =
+      Number(packageOneNetTotalObj.netTotal) +
+      Number(packageOneNetTotalObj.addOnValue);
+    const NetTwoTotal =
+      Number(packageTwoNetTotalObj.netTotal) +
+      Number(packageTwoNetTotalObj.addOnValue);
+    const NetThreeTotal =
+      Number(packageThreeNetTotalObj.netTotal) +
+      Number(packageThreeNetTotalObj.addOnValue);
+
+    props.setOneOffPricingInfo({
+      ...props.OneOffPricingInfo,
+      packageOneNetTotal: NetOneTotal,
+      packageTwoNetTotal: NetTwoTotal,
+      packageThreeNetTotal: NetThreeTotal,
+      packageOneDisCount: packageOneNetTotalObj.discountAmount,
+      packageTwoDisCount: packageTwoNetTotalObj.discountAmount,
+      packageThreeDisCount: packageThreeNetTotalObj.discountAmount,
+      packageOneDisCountedTotal: packageOneNetTotalObj.discountedTotalAmount,
+      packageTwoDisCountedTotal: packageTwoNetTotalObj.discountedTotalAmount,
+      packageThreeDisCountedTotal:
+        packageThreeNetTotalObj.discountedTotalAmount,
+      PackageOneVaTPrice: packageOneNetTotalObj.vatTotalAmount,
+      PackageTwoVaTPrice: packageTwoNetTotalObj.vatTotalAmount,
+      PackageThreeVaTPrice: packageThreeNetTotalObj.vatTotalAmount,
+      PackageOneGrandTotal: packageOneNetTotalObj.grandTotalAmount,
+      PackageTwoGrandTotal: packageTwoNetTotalObj.grandTotalAmount,
+      PackageThreeGrandTotal: packageThreeNetTotalObj.grandTotalAmount,
+    });
+
+    // setTotalOnePackageValue(NetOneTotal);
+    // setTotalTwoPackageValue(NetTwoTotal);
+    // setTotalThreePackageValue(NetThreeTotal);
+
+    setOneOffPackageCalculation({
+      ...OneOffPackageCalculation,
+      //Package One :
+      PackageOneNetTotal: packageOneNetTotalObj.netTotal,
+      PackageOneNetTotalAddOnValue: packageOneNetTotalObj.addOnValue,
+      VatPercentage: packageOneNetTotalObj.vatPercentage,
+      PackageOneVatTotalAmount: packageOneNetTotalObj.vatTotalAmount,
+      PackageOneDiscountAmount: packageOneNetTotalObj.discountAmount,
+      PackageOneDiscountedTotalAmount:
+        packageOneNetTotalObj.discountedTotalAmount,
+      PackageOneGrandTotalAmount: packageOneNetTotalObj.grandTotalAmount,
+
+      //PackageTwo :
+      PackageTwoNetTotal: packageTwoNetTotalObj.netTotal,
+      PackageTwoNetTotalAddOnValue: packageTwoNetTotalObj.addOnValue,
+      VatPercentage: packageTwoNetTotalObj.vatPercentage,
+      PackageTwoVatTotalAmount: packageTwoNetTotalObj.vatTotalAmount,
+      PackageTwoDiscountAmount: packageTwoNetTotalObj.discountAmount,
+      PackageTwoDiscountedTotalAmount:
+        packageTwoNetTotalObj.discountedTotalAmount,
+      PackageTwoGrandTotalAmount: packageTwoNetTotalObj.grandTotalAmount,
+
+      //PackageThree :
+      PackageThreeNetTotal: packageThreeNetTotalObj.netTotal,
+      PackageThreeNetTotalAddOnValue: packageThreeNetTotalObj.addOnValue,
+      VatPercentage: packageThreeNetTotalObj.vatPercentage,
+      PackageThreeVatTotalAmount: packageThreeNetTotalObj.vatTotalAmount,
+      PackageThreeDiscountAmount: packageThreeNetTotalObj.discountAmount,
+      PackageThreeDiscountedTotalAmount:
+        packageThreeNetTotalObj.discountedTotalAmount,
+      PackageThreeGrandTotalAmount: packageThreeNetTotalObj.grandTotalAmount,
+    }); //return packageOneNetTotal
+  };
+  //Get Net Total Value From One-Off Package
+  const GetNetTotalValueByOneOffPackage = (packageName) => {
+    let netTotal = 0;
+    let addOnValue = 0;
+    let vatPercentage = null;
+    let vatTotalAmount = null;
+    let discountAmount = 0;
+    let discountedTotalAmount = null;
+    let grandTotalAmount = null;
+    let defaultDiscountPercentage = null;
+    //props.selectedPackagesList
+
+    //Calculate netTotal :
+    // props.selectedOneOffServiceList.forEach((category) => {
+    //   category.servicesList.forEach((service) => {
+    //     // Check if the value is not null before adding
+    //     if (packageName === "packageOne" && service.packageOneValue !== null)
+    //       netTotal += Number(service.packageOneValue);
+    //     if (packageName === "packageTwo" && service.packageTwoValue !== null)
+    //       netTotal += Number(service.packageTwoValue);
+    //     if (
+    //       packageName === "packageThree" &&
+    //       service.packageThreeValue !== null
+    //     )
+    //       netTotal += Number(service.packageThreeValue);
+    //   });
+    // });
+
+    props.selectedOneOffServiceList.forEach((category) => {
+      category.servicesList.forEach((service) => {
+        // Check if the service has any package IDs
+        if (service.servicePackageIDs.length > 0) {
+          // Check if the packageOneID is in servicePackageIDs and packageOneValue is not null
+          if (
+            packageName === "packageOne" &&
+            service.servicePackageIDs.includes(service.packageOneID) &&
+            service.originalPackageOneValue !== null
+          ) {
+            //netTotal += Number(service.originalPackageOneValue);
+
+            let currentServicePriceWithToFixed = Number(
+              service.originalPackageOneValue
+            )?.toFixed(2);
+            netTotal = Number(
+              Number(netTotal) + Number(currentServicePriceWithToFixed)
+            )?.toFixed(2);
+
+            defaultDiscountPercentage =
+              props.OneOffPricingInfoCopy.DiscountPercentagePackageOne;
+          }
+
+          // Check if the packageTwoID is in servicePackageIDs and packageTwoValue is not null
+          if (
+            packageName === "packageTwo" &&
+            service.servicePackageIDs.includes(service.packageTwoID) &&
+            service.originalPackageTwoValue !== null
+          ) {
+            //netTotal += Number(service.originalPackageTwoValue);
+
+            let currentServicePriceWithToFixed = Number(
+              service.originalPackageTwoValue
+            )?.toFixed(2);
+            netTotal = Number(
+              Number(netTotal) + Number(currentServicePriceWithToFixed)
+            )?.toFixed(2);
+
+
+            defaultDiscountPercentage =
+              props.OneOffPricingInfoCopy.DiscountPercentagePackageTwo;
+          }
+
+          // Check if the packageThreeID is in servicePackageIDs and packageThreeValue is not null
+          if (
+            packageName === "packageThree" &&
+            service.servicePackageIDs.includes(service.packageThreeID) &&
+            service.originalPackageThreeValue !== null
+          ) {
+            //netTotal += Number(service.originalPackageThreeValue);
+
+            let currentServicePriceWithToFixed = Number(
+              service.originalPackageThreeValue
+            )?.toFixed(2);
+            netTotal = Number(
+              Number(netTotal) + Number(currentServicePriceWithToFixed)
+            )?.toFixed(2);
+
+            defaultDiscountPercentage =
+              props.OneOffPricingInfoCopy.DiscountPercentagePackageThree;
+          }
+        }
+      });
+    });
+    // //Calculate : addOnValue,discountAmount,discountedTotalAmount
+    if (
+      !isNaN(defaultDiscountPercentage) &&
+      defaultDiscountPercentage !== undefined &&
+      defaultDiscountPercentage !== null &&
+      defaultDiscountPercentage !== ""
+    ) {
+      if (Number(defaultDiscountPercentage) === 0) {
+        addOnValue = 0;
+        discountAmount = 0;
+        //discountedTotalAmount = Number(netTotal);
+      } else if (defaultDiscountPercentage < 0) {
+        addOnValue =
+          Number(netTotal) * (Math.abs(defaultDiscountPercentage) / 100);
+      } else if (defaultDiscountPercentage > 0) {
+        discountAmount =
+          ((Number(netTotal) + Number(addOnValue)) *
+            defaultDiscountPercentage) /
+          100;
+        discountAmount = Number(discountAmount)?.toFixed(2);
+        //discountedTotalAmount = (Number(netTotal) + Number(addOnValue)) - discountAmount
+      }
+    }
+    // else {
+    //   let packageOneOffOriginalPrice = null;
+    //   let packageOneOffDefaultPrice = null;
+    //   if (
+    //     packageName === "packageOne" &&
+    //     props.selectedPackagesList.length > 0
+    //   ) {
+    //     packageOneOffOriginalPrice =
+    //       props.selectedPackagesList[0]?.oneOffOriginalPrice;
+    //     packageOneOffDefaultPrice =
+    //       props.selectedPackagesList[0]?.oneOffDefaultPrice;
+    //   }
+    //   if (
+    //     packageName === "packageTwo" &&
+    //     props.selectedPackagesList.length > 1
+    //   ) {
+    //     packageOneOffOriginalPrice =
+    //       props.selectedPackagesList[1]?.oneOffOriginalPrice;
+    //     packageOneOffDefaultPrice =
+    //       props.selectedPackagesList[1]?.oneOffDefaultPrice;
+    //   }
+    //   if (
+    //     packageName === "packageThree" &&
+    //     props.selectedPackagesList.length > 2
+    //   ) {
+    //     packageOneOffOriginalPrice =
+    //       props.selectedPackagesList[2]?.oneOffOriginalPrice;
+    //     packageOneOffDefaultPrice =
+    //       props.selectedPackagesList[2]?.oneOffDefaultPrice;
+    //   }
+
+    //   if (
+    //     packageOneOffOriginalPrice !== null &&
+    //     packageOneOffDefaultPrice !== null
+    //   ) {
+    //     if (packageOneOffDefaultPrice < packageOneOffOriginalPrice) {
+    //       let packageDiscountPercentage =
+    //         Number(((packageOneOffOriginalPrice - packageOneOffDefaultPrice) /
+    //           packageOneOffOriginalPrice) *
+    //           100)?.toFixed(2);
+    //       packageDiscountPercentage = Number(packageDiscountPercentage)
+    //       if (packageDiscountPercentage < 0) {
+    //         addOnValue =
+    //           Number(netTotal) * (Math.abs(packageDiscountPercentage) / 100);
+    //       } else if (packageDiscountPercentage > 0) {
+    //         discountAmount =
+    //           ((Number(netTotal) + Number(addOnValue)) *
+    //             packageDiscountPercentage) /
+    //           100;
+    //         discountAmount = discountAmount?.toFixed(2)
+    //         //  discountedTotalAmount = (Number(netTotal) + Number(addOnValue)) - discountAmount
+    //       }
+    //     }
+    //     // else {
+    //     //   discountedTotalAmount = Number(netTotal)
+    //     // }
+    //   }
+    // }
+
+    //Calculate discountedTotalAmount
+    discountedTotalAmount =
+      Number(netTotal) +
+      Number(addOnValue) -
+      (Math.floor(discountAmount * 100) / 100).toFixed(2);
+
+    //Calculate : vatPercentage,vatTotalAmount
+    if (
+      !isNaN(props.vatPercentage) &&
+      props.vatPercentage !== undefined &&
+      props.vatPercentage !== null
+    ) {
+      if (props.vatPercentage > 0) {
+        vatTotalAmount =
+          (Number(discountedTotalAmount) * props.vatPercentage) / 100;
+        vatTotalAmount =
+          props.GetTwoDecimalValueWithoutRoundOff(vatTotalAmount);
+      }
+    }
+
+    //Calculate : grandTotalAmount
+    if (
+      !isNaN(props.vatPercentage) &&
+      props.vatPercentage !== undefined &&
+      props.vatPercentage !== null
+    ) {
+      if (props.vatPercentage > 0) {
+        grandTotalAmount = discountedTotalAmount + vatTotalAmount;
+        grandTotalAmount = Number(grandTotalAmount)?.toFixed(2);
+      }
+    }
+
+    return {
+      netTotal: netTotal,
+      addOnValue: addOnValue,
+      vatPercentage: vatPercentage,
+      vatTotalAmount: vatTotalAmount,
+      discountAmount: discountAmount,
+      discountedTotalAmount: discountedTotalAmount,
+      grandTotalAmount: grandTotalAmount,
+    };
+  };
+
+  const checkAllPackageDiscountPercentageValidation = (discountPercentage, CurrentValue) => {
+    // Allow only numeric, dot, and negative sign characters and limit to 8 characters
+    let sanitizedInput = discountPercentage
+      .replace(/[^0-9.-]/g, "")
+      .slice(0, 8);
+
+    // Ensure the input is properly formatted with a hyphen if necessary
+    sanitizedInput = props.hasHyphenAfterNumber(sanitizedInput);
+
+    // Split the input into integer and decimal parts
+    const [integerPart, decimalPart] = sanitizedInput.split(".");
+
+    // Combine integer and decimal parts with appropriate precision
+    let formattedInput;
+
+    // Check if the input is within the valid range
+    if (
+      sanitizedInput === "-" ||
+      (parseFloat(sanitizedInput) >= -999.0 &&
+        parseFloat(sanitizedInput) <= 100)
+    ) {
+      if (decimalPart !== undefined) {
+        if (integerPart.includes("-")) {
+          // For negative values, ensure 4 digits after the negative sign
+          formattedInput = `-${integerPart.slice(1, 4)}.${decimalPart.slice(
+            0,
+            2
+          )}`;
+        } else {
+          // For positive values, limit to 4 digits before the decimal point
+          formattedInput = `${integerPart.slice(0, 3)}.${decimalPart.slice(
+            0,
+            2
+          )}`;
+        }
+      } else {
+        // No decimal part, limit to 4 digits
+        formattedInput = integerPart.includes("-")
+          ? `-${integerPart.slice(1, 4)}`
+          : `${integerPart.slice(0, 3)}`;
+      }
+      return formattedInput === undefined ? sanitizedInput === "" ? "" : CurrentValue : formattedInput;
+    }
+    return formattedInput === undefined ? sanitizedInput === "" ? "" : CurrentValue : formattedInput;
+  };
+
+  const handleOneOffPackageOneDiscountPercentage = (e) => {
+    let InputValue = checkAllPackageDiscountPercentageValidation(
+      e.target.value, props.OneOffPricingInfoCopy.DiscountPercentagePackageOne
+    );
+    // InputValue = InputValue.replace(
+    //   /-/g,
+    //   (match, index) => (index === 0 ? match : "")
+    // )
+    let DefaultDiscount = props.GetSingleDefaultDiscountPercentageOfPackages(
+      InputValue,
+      props.OneOffPricingInfoCopy.DiscountPercentagePackageTwo,
+      props.OneOffPricingInfoCopy.DiscountPercentagePackageThree
+    );
+
+    props.setOneOffPricingInfo({
+      ...props.OneOffPricingInfo,
+      DiscountPercentagePackageOne: InputValue,
+      DefaultDiscount: DefaultDiscount,
+    });
+    props.setOneOffPricingInfoCopy({
+      ...props.OneOffPricingInfoCopy,
+      DiscountPercentagePackageOne: InputValue,
+      DefaultDiscount: DefaultDiscount,
+    });
+  };
+
+  const handleOneOffPackageTwoDiscountPercentage = (e) => {
+    let InputValue = checkAllPackageDiscountPercentageValidation(
+      e.target.value, props.OneOffPricingInfoCopy.DiscountPercentagePackageTwo
+    );
+    // InputValue = InputValue.replace(
+    //   /-/g,
+    //   (match, index) => (index === 0 ? match : "")
+    // )
+    let DefaultDiscount = props.GetSingleDefaultDiscountPercentageOfPackages(
+      props.OneOffPricingInfoCopy.DiscountPercentagePackageOne,
+      InputValue,
+      props.OneOffPricingInfoCopy.DiscountPercentagePackageThree
+    );
+
+    props.setOneOffPricingInfo({
+      ...props.OneOffPricingInfo,
+      DiscountPercentagePackageTwo: InputValue,
+      DefaultDiscount: DefaultDiscount,
+    });
+    props.setOneOffPricingInfoCopy({
+      ...props.OneOffPricingInfoCopy,
+      DiscountPercentagePackageTwo: InputValue,
+      DefaultDiscount: DefaultDiscount,
+    });
+  };
+
+  const handleOneOffPackageThreeDiscountPercentage = (e) => {
+    let InputValue = checkAllPackageDiscountPercentageValidation(
+      e.target.value, props.OneOffPricingInfoCopy.DiscountPercentagePackageThree
+    );
+    // InputValue = InputValue.replace(
+    //   /-/g,
+    //   (match, index) => (index === 0 ? match : "")
+    // )
+    let DefaultDiscount = props.GetSingleDefaultDiscountPercentageOfPackages(
+      props.OneOffPricingInfoCopy.DiscountPercentagePackageOne,
+      props.OneOffPricingInfoCopy.DiscountPercentagePackageTwo,
+      InputValue
+    );
+
+    props.setOneOffPricingInfo({
+      ...props.OneOffPricingInfo,
+      DiscountPercentagePackageThree: InputValue,
+      DefaultDiscount: DefaultDiscount,
+    });
+    props.setOneOffPricingInfoCopy({
+      ...props.OneOffPricingInfoCopy,
+      DiscountPercentagePackageThree: InputValue,
+      DefaultDiscount: DefaultDiscount,
+    });
+  };
+
+  const handlePackageOneDiscountPercentage = (e) => {
+    let InputValue = checkAllPackageDiscountPercentageValidation(
+      e.target.value, props.RecurringPricingInfo.DiscountPercentagePackageOne
+    );
+
+    // InputValue = InputValue.replace(
+    //   /-/g,
+    //   (match, index) => (index === 0 ? match : "")
+    // )
+    let DefaultDiscount = props.GetSingleDefaultDiscountPercentageOfPackages(
+      InputValue,
+      props.RecurringPricingInfo.DiscountPercentagePackageTwo,
+      props.RecurringPricingInfo.DiscountPercentagePackageThree
+    );
+
+    props.setRecurringPricingInfo({
+      ...props.RecurringPricingInfo,
+      DiscountPercentagePackageOne: InputValue,
+      DefaultDiscount: DefaultDiscount,
+    });
+    props.setRecurringFrequencyPricingInfo({
+      ...props.RecurringFrequencyPricingInfo,
+      DiscountPercentagePackageOne: InputValue,
+      DefaultDiscount: DefaultDiscount,
+    });
+  };
+
+  const handlePackageTwoDiscountPercentage = (e) => {
+    let InputValue = checkAllPackageDiscountPercentageValidation(
+      e.target.value, props.RecurringPricingInfo.DiscountPercentagePackageTwo
+    );
+    // InputValue = InputValue.replace(
+    //   /-/g,
+    //   (match, index) => (index === 0 ? match : "")
+    // )
+    let DefaultDiscount = props.GetSingleDefaultDiscountPercentageOfPackages(
+      props.RecurringPricingInfo.DiscountPercentagePackageOne,
+      InputValue,
+      props.RecurringPricingInfo.DiscountPercentagePackageThree
+    );
+
+    props.setRecurringPricingInfo({
+      ...props.RecurringPricingInfo,
+      DiscountPercentagePackageTwo: InputValue,
+      DefaultDiscount: DefaultDiscount,
+    });
+    props.setRecurringFrequencyPricingInfo({
+      ...props.RecurringFrequencyPricingInfo,
+      DiscountPercentagePackageTwo: InputValue,
+      DefaultDiscount: DefaultDiscount,
+    });
+  };
+
+  const handlePackageThreeDiscountPercentage = (e) => {
+    let InputValue = checkAllPackageDiscountPercentageValidation(
+      e.target.value, props.RecurringPricingInfo.DiscountPercentagePackageThree
+    );
+    // InputValue = InputValue.replace(
+    //   /-/g,
+    //   (match, index) => (index === 0 ? match : "")
+    // )
+
+    let DefaultDiscount = props.GetSingleDefaultDiscountPercentageOfPackages(
+      props.RecurringPricingInfo.DiscountPercentagePackageOne,
+      props.RecurringPricingInfo.DiscountPercentagePackageTwo,
+      InputValue
+    );
+
+    props.setRecurringPricingInfo({
+      ...props.RecurringPricingInfo,
+      DiscountPercentagePackageThree: InputValue,
+      DefaultDiscount: DefaultDiscount,
+    });
+    props.setRecurringFrequencyPricingInfo({
+      ...props.RecurringFrequencyPricingInfo,
+      DiscountPercentagePackageThree: InputValue,
+      DefaultDiscount: DefaultDiscount,
+    });
+  };
+
+  const packageCount = props.selectedPackagesList.length;
+  const handleCheckboxChange = (e) => {
+    props.DisableTabOnChange();
+    const newValue = e.target.checked ? true : null; // Set to 1 if checked, null otherwise
+    props.setProposalObject((prevProposalObject) => ({
+      ...prevProposalObject,
+      DiscountLines: newValue,
+    }));
+  };
+
+  const handleAddAndRemoveAdditionalServices = (
+    serviceType,
+    serviceCatID,
+    serviceID,
+    packageID,
+    isChecked
+  ) => {
+    if (serviceType === 1) {
+      props.setSelectedRecurringServiceList((prevServices) =>
+        prevServices.map((category) =>
+          category.serviceCatID === serviceCatID
+            ? {
+              ...category,
+              servicesList: category.servicesList.map((service) =>
+                service.serviceID === serviceID
+                  ? {
+                    ...service,
+                    servicePackageIDs: isChecked
+                      ? [...service.servicePackageIDs, packageID]
+                      : service.servicePackageIDs.filter(
+                        (id) => id !== packageID
+                      ),
+                  }
+                  : service
+              ),
+            }
+            : category
+        )
+      );
+    } else {
+      props.setSelectedOneOffServiceList((prevServices) =>
+        prevServices.map((category) =>
+          category.serviceCatID === serviceCatID
+            ? {
+              ...category,
+              servicesList: category.servicesList.map((service) =>
+                service.serviceID === serviceID
+                  ? {
+                    ...service,
+                    servicePackageIDs: isChecked
+                      ? [...service.servicePackageIDs, packageID]
+                      : service.servicePackageIDs.filter(
+                        (id) => id !== packageID
+                      ),
+                  }
+                  : service
+              ),
+            }
+            : category
+        )
+      );
+    }
+  };
+
+  const handleChangeFeesType = (e) => {
+    const {
+      RecurringPricingInfo,
+      OneOffPricingInfo,
+      setProposalObject,
+      ProposalObject,
+    } = props;
+
+    const isRecurringDiscounted =
+      Number(RecurringPricingInfo.DefaultDiscount) <= 0;
+    const isOneOffDiscounted = Number(OneOffPricingInfo.DefaultDiscount) <= 0;
+
+    const updatedProposalObj = {
+      ...ProposalObject,
+      feeTypeId: e.value,
+    };
+
+    if (e.value == 2 && isRecurringDiscounted && isOneOffDiscounted) {
+      updatedProposalObj.DiscountLines = false;
+    } else {
+      updatedProposalObj.DiscountLines = true;
+    }
+
+    setProposalObject(updatedProposalObj);
+  };
+  return (
+    <>
+      <div className="create-practice-height scrollbar">
+        <div className="container">
+          <div className="tab-content">
+            <div className="tab-pane p-3 active">
+              <div className="row">
+                <div className="col-12">
+                  <div className="row fieldset mb-2">
+                    <div className="col-lg-2 text-lg-right">
+                      <>
+                        {props.proposalName.length > 10 ? (
+                          <Tooltip title={`Fees in the ${props.proposalName}`}>
+                            <label className="fieldset-label required">
+                              Fees in the {props.proposalName.substring(0, 10)}
+                              ...
+                              <span className="text-danger">*</span>
+                            </label>
+                          </Tooltip>
+                        ) : (
+                          <>
+                            <label className="fieldset-label required">
+                              Fees in the {props.proposalName}
+                              <span className="text-danger">*</span>
+                            </label>
+                          </>
+                        )}
+                      </>
+                    </div>
+                    <div className="col-lg-10">
+                      <div className="input-group">
+                        {/* Add your Select component here */}
+                        <Select
+                          className="phone-input-country-code selectDropDown Drop-down-width"
+                          value={feeTypeValue}
+                          onChange={(e) => {
+                            props.DisableTabOnChange();
+                            handleChangeFeesType(e);
+                          }}
+                          options={modifiedFeesType}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="row fieldset">
+                    <div className="col-lg-2 text-lg-right">
+                      <label className="fieldset-label required">
+                        Show Discount
+                      </label>
+                    </div>
+                    <div className="col-lg-10">
+                      <div className="input-group">
+                        {/* Replace Select with Checkbox */}
+                        <input
+                          type="checkbox"
+                          disabled={
+                            props.ProposalObject.feeTypeId === 1 ||
+                            (props.RecurringPricingInfo.DefaultDiscount <= 0 &&
+                              props.OneOffPricingInfo.DefaultDiscount <= 0)
+                          }
+                          checked={props.ProposalObject.DiscountLines} // Check the checkbox if DiscountLines is 1
+                          onChange={handleCheckboxChange}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          {props.selectedRecurringServiceList?.length !== 0 && (
+            <div className="tab-content">
+              <div className="tab-pane p-3 active">
+                <div className="row">
+                  <div className="col-lg-12">
+                    <div className="separator mb-2"></div>
+                    <h6>Recurring Services</h6>
+                    <div className="separator mb-3"></div>
+
+                    <div className="row" id="recurring_Default">
+
+                      <div class="col-lg-2 mb-1 col-md-2 col-sm-12 mt-2 text-md-end">
+                        {packageCount == 1 && (
+                          <>
+                            <label className="fieldset-label">
+                              Discount (%)
+                            </label>
+                          </>
+                        )}
+                      </div>
+                      <div className="col-lg-4">
+                        {packageCount == 1 && (
+                          <>
+                            <input
+                              className="input-text"
+                              type="text" // Change type to number
+                              placeholder="Discount (%)"
+                              value={props.RecurringPricingInfo.DiscountPercentagePackageOne?.toString()?.replace(
+                                /\B(?=(\d{3})+(?!\d))/g,
+                                ","
+                              )}
+                              onChange={(e) => {
+                                handlePackageOneDiscountPercentage(e);
+                              }}
+                            />
+                            {props.getValidationMessage(
+                              props.requireMessage,
+                              props.pricingSettingObj.maxDiscountForQC,
+                              props.RecurringPricingInfo
+                                .DiscountPercentagePackageOne
+                            )}
+                          </>
+                        )}
+                      </div>
+
+                      <div className="col-lg-2 text-lg-right">
+                        <label className="fieldset-label required mt-2">
+                          Payment Frequency
+                        </label>
+                      </div>
+                      <div className="col-lg-4">
+                        <Select
+                          className="phone-input-country-code selectDropDown Drop-down-width"
+                          value={selectedFrequency}
+                          onChange={handlePaymentFrequencyChange}
+                          options={Utils.Payment_Frequency}
+                        />
+                      </div>
+                    </div>
+                    <div className="row fieldset">
+                    </div>
+                    <div className="mb-3"></div>
+
+                    <div
+                      style={{ marginTop: "0px" }}
+                      className="table-responsive"
+                    >
+                      <table
+                        class="table align-middle table-nowrap"
+                        style={{ width: "100%" }}
+                      >
+                        <thead className="table-light table-header-font">
+                          <tr className="head-row">
+                            <td className="tr-table-class font-14 text-white">
+                              Services
+                            </td>
+                            {props.selectedPackagesList.map((pkg, index) => (
+                              <td
+                                key={index}
+                                className="tr-table-class font-14 text-white text-right"
+                              >
+                                {pkg.servicePackageName.length > 10 ? (
+                                  <Tooltip title={pkg.servicePackageName}>
+                                    {pkg.servicePackageName
+                                      .substring(0, 10)
+                                      .toLowerCase()
+                                      .replace(/\b\w/g, (l) =>
+                                        l.toUpperCase()
+                                      ) + "..."}
+                                  </Tooltip>
+                                ) : pkg.servicePackageName.length > 10 ? (
+                                  <Tooltip title={pkg.servicePackageName}>
+                                    {pkg.servicePackageName.substring(0, 10) +
+                                      "..."}
+                                  </Tooltip>
+                                ) : (
+                                  pkg.servicePackageName
+                                )}
+                              </td>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {props.selectedRecurringServiceList.map(
+                            (service, index) => {
+                              return (
+                                <>
+                                  <tr className="a-la-carte-services-review-head-row">
+                                    <th colSpan={1 + packageCount}>
+                                      {service.serviceCatName}
+                                    </th>
+                                  </tr>
+                                  {service.servicesList.map(
+                                    (subService, subIndex) => (
+                                      <tr
+                                        key={subIndex}
+                                        className={` ${subService?.isAdditionalService !==
+                                          null
+                                          ? "bg-info  text-white"
+                                          : ""
+                                          }`}
+                                      >
+                                        <td>
+                                          <div>
+                                            {subService.serviceName.length >
+                                              45 ? (
+                                              <Tooltip
+                                                title={subService.serviceName}
+                                              >
+                                                {subService.serviceName
+                                                  .substring(0, 45)
+                                                  .toLowerCase()
+                                                  .replace(/\b\w/g, (l) =>
+                                                    l.toUpperCase()
+                                                  ) + "..."}
+                                              </Tooltip>
+                                            ) : (
+                                              subService.serviceName
+                                            )}
+                                          </div>
+                                          <div className="package-variables"></div>
+                                        </td>
+
+                                        <td className="text-right">
+                                          <div className="flex-end-item">
+                                            {props.ProposalObject.feeTypeId ===
+                                              1 ? (
+                                              <div>
+                                                {(subService.packageOneValue ===
+                                                  0 ||
+                                                  subService.packageOneValue ===
+                                                  null) &&
+                                                  !subService.servicePackageIDs.some(
+                                                    (item) =>
+                                                      item ==
+                                                      props
+                                                        .selectedPackagesList[0]
+                                                        .servicePackageID
+                                                  ) ? (
+                                                  <span className="fa fa-times"></span>
+                                                ) : !subService?.servicePackageIDs.includes(
+                                                  subService.packageOneID
+                                                ) ? (
+                                                  <span className="fa fa-times"></span>
+                                                ) : (
+                                                  ` ${props.formatValue(
+                                                    subService.packageOneValue
+                                                  )}`
+                                                )}
+                                              </div>
+                                            ) : Number(
+                                              subService.packageOneValue
+                                            ) !== null &&
+                                              subService?.servicePackageIDs.includes(
+                                                subService.packageOneID
+                                              ) ? (
+                                              <span className="fa fa-check"></span>
+                                            ) : (
+                                              <span className="fa fa-times"></span>
+                                            )}
+                                            {subService?.isAdditionalService !==
+                                              null ? (
+                                              <input
+                                                style={{ marginLeft: "5px" }}
+                                                disabled={
+                                                  subService?.servicePackageIDs.includes(
+                                                    subService.packageOneID
+                                                  ) &&
+                                                  subService?.servicePackageIDs
+                                                    .length === 1
+                                                }
+                                                type="checkbox"
+                                                checked={subService?.servicePackageIDs.includes(
+                                                  subService.packageOneID
+                                                )} // Assuming props.isCheck is a boolean indicating checkbox state
+                                                onChange={(e) =>
+                                                  handleAddAndRemoveAdditionalServices(
+                                                    1,
+                                                    service.serviceCatID,
+                                                    subService.serviceID,
+                                                    subService.packageOneID,
+                                                    e.target.checked
+                                                  )
+                                                }
+                                              />
+                                            ) : (
+                                              <div>&nbsp;&nbsp;</div>
+                                            )}
+                                          </div>
+                                        </td>
+                                        {packageCount >= 2 && (
+                                          <td className="text-right">
+                                            <div className="flex-end-item">
+                                              {props.ProposalObject
+                                                .feeTypeId === 1 ? (
+                                                <div className="flex-end-item">
+                                                  {(subService.packageTwoValue ===
+                                                    0 ||
+                                                    subService.packageTwoValue ===
+                                                    null) &&
+                                                    !subService.servicePackageIDs.some(
+                                                      (item) =>
+                                                        item ==
+                                                        props
+                                                          .selectedPackagesList[1]
+                                                          .servicePackageID
+                                                    ) ? (
+                                                    <span className="fa fa-times"></span>
+                                                  ) : !subService?.servicePackageIDs.includes(
+                                                    subService.packageTwoID
+                                                  ) ? (
+                                                    <span className="fa fa-times"></span>
+                                                  ) : (
+                                                    ` ${props.formatValue(
+                                                      subService.packageTwoValue
+                                                    )}`
+                                                  )}
+                                                </div>
+                                              ) : Number(
+                                                subService.packageTwoValue
+                                              ) !== null &&
+                                                subService?.servicePackageIDs.includes(
+                                                  subService.packageTwoID
+                                                ) ? (
+                                                <span className="fa fa-check"></span>
+                                              ) : (
+                                                <span className="fa fa-times"></span>
+                                              )}
+                                              {subService?.isAdditionalService !==
+                                                null ? (
+                                                <input
+                                                  style={{ marginLeft: "5px" }}
+                                                  type="checkbox"
+                                                  disabled={
+                                                    subService?.servicePackageIDs.includes(
+                                                      subService.packageTwoID
+                                                    ) &&
+                                                    subService
+                                                      ?.servicePackageIDs
+                                                      .length === 1
+                                                  }
+                                                  checked={subService?.servicePackageIDs.includes(
+                                                    subService.packageTwoID
+                                                  )} // Assuming props.isCheck is a boolean indicating checkbox state
+                                                  onChange={(e) =>
+                                                    handleAddAndRemoveAdditionalServices(
+                                                      1,
+                                                      service.serviceCatID,
+                                                      subService.serviceID,
+                                                      subService.packageTwoID,
+                                                      e.target.checked
+                                                    )
+                                                  }
+                                                />
+                                              ) : (
+                                                <div>&nbsp;&nbsp;</div>
+                                              )}
+                                            </div>
+                                          </td>
+                                        )}
+                                        {packageCount === 3 && (
+                                          <td className="text-right">
+                                            <div className="flex-end-item">
+                                              {props.ProposalObject
+                                                .feeTypeId === 1 ? (
+                                                <div className="flex-end-item">
+                                                  {(subService.packageThreeValue ===
+                                                    0 ||
+                                                    subService.packageThreeValue ===
+                                                    null) &&
+                                                    !subService.servicePackageIDs.some(
+                                                      (item) =>
+                                                        item ==
+                                                        props
+                                                          .selectedPackagesList[2]
+                                                          .servicePackageID
+                                                    ) ? (
+                                                    <span className="fa fa-times"></span>
+                                                  ) : !subService?.servicePackageIDs.includes(
+                                                    subService.packageThreeID
+                                                  ) ? (
+                                                    <span className="fa fa-times"></span>
+                                                  ) : (
+                                                    ` ${props.formatValue(
+                                                      subService.packageThreeValue
+                                                    )}`
+                                                  )}
+                                                </div>
+                                              ) : Number(
+                                                subService.packageThreeValue
+                                              ) !== null &&
+                                                subService?.servicePackageIDs.includes(
+                                                  subService.packageThreeID
+                                                ) ? (
+                                                <span className="fa fa-check"></span>
+                                              ) : (
+                                                <span className="fa fa-times"></span>
+                                              )}
+                                              {subService?.isAdditionalService !==
+                                                null ? (
+                                                <input
+                                                  style={{ marginLeft: "5px" }}
+                                                  type="checkbox"
+                                                  disabled={
+                                                    subService?.servicePackageIDs.includes(
+                                                      subService.packageThreeID
+                                                    ) &&
+                                                    subService
+                                                      ?.servicePackageIDs
+                                                      .length === 1
+                                                  }
+                                                  checked={subService?.servicePackageIDs.includes(
+                                                    subService.packageThreeID
+                                                  )} // Assuming props.isCheck is a boolean indicating checkbox state
+                                                  onChange={(e) =>
+                                                    handleAddAndRemoveAdditionalServices(
+                                                      1,
+                                                      service.serviceCatID,
+                                                      subService.serviceID,
+                                                      subService.packageThreeID,
+                                                      e.target.checked
+                                                    )
+                                                  }
+                                                />
+                                              ) : (
+                                                <div>&nbsp;&nbsp;</div>
+                                              )}
+                                            </div>
+                                          </td>
+                                        )}
+                                      </tr>
+                                    )
+                                  )}
+                                </>
+                              );
+                            }
+                          )}
+                        </tbody>
+                        {packageCount > 1 && (
+                          <>
+                            <tr id="recurring_DefaultWithPackages">
+                              <td
+                                style={{
+                                  padding: "8px",
+                                }}
+                              >
+                                Discount (%)
+                                {/* <div className="package-variables"></div> */}
+                              </td>
+
+                              <td
+                                style={{
+                                  width: "35%",
+                                  padding: "0px",
+                                  whiteSpace: "normal",
+                                }}
+                              >
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    alignItems: "flex-start",
+                                  }}
+                                >
+                                  <input
+                                    className="input-text"
+                                    type="text" // Change type to number
+                                    placeholder="Discount (%)"
+                                    value={props.RecurringPricingInfo.DiscountPercentagePackageOne?.toString()?.replace(
+                                      /\B(?=(\d{3})+(?!\d))/g,
+                                      ","
+                                    )}
+                                    onChange={(e) => {
+                                      handlePackageOneDiscountPercentage(e);
+                                    }}
+                                    style={{
+                                      width: "100%",
+                                      textAlign: "right",
+                                    }}
+                                  />
+                                  <div>
+                                    {props.getValidationMessage(
+                                      props.requireMessage,
+                                      props.pricingSettingObj.maxDiscountForQC,
+                                      props.RecurringPricingInfo
+                                        .DiscountPercentagePackageOne
+                                    )}
+                                  </div>
+                                </div>
+                              </td>
+
+                              {packageCount >= 2 && (
+                                <td
+                                  style={{
+                                    width: "35%",
+                                    padding: "0px",
+                                    whiteSpace: "normal",
+                                  }}
+                                >
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      flexDirection: "column",
+                                      alignItems: "flex-start",
+                                    }}
+                                  >
+                                    <input
+                                      className="input-text"
+                                      type="text" // Change type to number
+                                      placeholder="Discount (%)"
+                                      value={props.RecurringPricingInfo.DiscountPercentagePackageTwo?.toString()?.replace(
+                                        /\B(?=(\d{3})+(?!\d))/g,
+                                        ","
+                                      )}
+                                      onChange={(e) => {
+                                        handlePackageTwoDiscountPercentage(e);
+                                      }}
+                                      style={{
+                                        width: "100%",
+                                        textAlign: "right",
+                                      }}
+                                    />
+                                    <div>
+                                      {props.getValidationMessage(
+                                        props.requireMessage,
+                                        props.pricingSettingObj
+                                          .maxDiscountForQC,
+                                        props.RecurringPricingInfo
+                                          .DiscountPercentagePackageTwo
+                                      )}
+                                    </div>
+                                  </div>
+                                </td>
+                              )}
+
+                              {packageCount === 3 && (
+                                <td
+                                  style={{
+                                    width: "35%",
+                                    padding: "0px",
+                                    whiteSpace: "normal",
+                                  }}
+                                >
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      flexDirection: "column",
+                                      alignItems: "flex-start",
+                                    }}
+                                  >
+                                    <input
+                                      className="input-text"
+                                      type="text" // Change type to number
+                                      placeholder="Discount (%)"
+                                      value={props.RecurringPricingInfo.DiscountPercentagePackageThree?.toString()?.replace(
+                                        /\B(?=(\d{3})+(?!\d))/g,
+                                        ","
+                                      )}
+                                      onChange={(e) => {
+                                        handlePackageThreeDiscountPercentage(e);
+                                      }}
+                                      style={{
+                                        width: "100%",
+                                        textAlign: "right",
+                                      }}
+                                    />
+                                    <div>
+                                      {props.getValidationMessage(
+                                        props.requireMessage,
+                                        props.pricingSettingObj
+                                          .maxDiscountForQC,
+                                        props.RecurringPricingInfo
+                                          .DiscountPercentagePackageThree
+                                      )}
+                                    </div>
+                                  </div>
+                                </td>
+                              )}
+                            </tr>
+                          </>
+                        )}
+                        <tr className="head-row">
+                          <td className="tr-table-class font-14 text-white">
+                            Net Total
+                          </td>
+                          <td className="tr-table-class font-14 text-white text-right">
+                            {" "}
+                            {
+                              totalOnePackageValue >
+                                Number(
+                                  props.RecurringPricingInfo.packageOneNetTotal
+                                ) ||
+                                (Number(
+                                  props.RecurringPricingInfo.packageOneDisCount
+                                ) > 0 &&
+                                  !props.ProposalObject.DiscountLines)
+                                ? // ||
+                                // Number(
+                                //   props.RecurringPricingInfo
+                                //     .packageOneDisCountedTotal
+                                // ) === 0
+                                Number(
+                                  props.RecurringPricingInfo
+                                    .packageOneDisCount
+                                ) > 0 && !props.ProposalObject.DiscountLines
+                                  ? props.formatValue(
+                                    props.RecurringPricingInfo
+                                      .packageOneDisCountedTotal
+                                  )
+                                  : props.formatValue(totalOnePackageValue)
+                                : //  Number(totalOnePackageValue)
+                                //     .toFixed(2)
+                                //     .toString()
+                                //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                props.formatValue(
+                                  props.RecurringPricingInfo
+                                    .packageOneNetTotal
+                                )
+                              // Number(
+                              //     props.RecurringPricingInfo
+                              //       .packageOneDisCountedTotal
+                              //   )
+                              //     .toFixed(2)
+                              //     .toString()
+                              //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                            }
+                          </td>
+                          {packageCount >= 2 && (
+                            <td className="tr-table-class font-14 text-white text-right">
+                              {" "}
+                              {
+                                totalTwoPackageValue >
+                                  Number(
+                                    props.RecurringPricingInfo
+                                      .packageTwoNetTotal
+                                  ) ||
+                                  (Number(
+                                    props.RecurringPricingInfo.packageTwoDisCount
+                                  ) > 0 &&
+                                    !props.ProposalObject.DiscountLines)
+                                  ? // ||
+                                  // Number(
+                                  //   props.RecurringPricingInfo
+                                  //     .packageTwoDisCountedTotal
+                                  // ) === 0
+                                  Number(
+                                    props.RecurringPricingInfo
+                                      .packageTwoDisCount
+                                  ) > 0 && !props.ProposalObject.DiscountLines
+                                    ? props.formatValue(
+                                      props.RecurringPricingInfo
+                                        .packageTwoDisCountedTotal
+                                    )
+                                    : props.formatValue(totalTwoPackageValue)
+                                  : // Number(totalTwoPackageValue)
+                                  //     .toFixed(2)
+                                  //     .toString()
+                                  //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                  props.formatValue(
+                                    props.RecurringPricingInfo
+                                      .packageTwoNetTotal
+                                  )
+                                // Number(
+                                //     props.RecurringPricingInfo
+                                //       .packageTwoDisCountedTotal
+                                //   )
+                                //     .toFixed(2)
+                                //     .toString()
+                                //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                              }
+                            </td>
+                          )}{" "}
+                          {packageCount === 3 && (
+                            <td className="tr-table-class font-14 text-white text-right">
+                              {" "}
+                              {
+                                totalThreePackageValue >
+                                  Number(
+                                    props.RecurringPricingInfo
+                                      .packageThreeNetTotal
+                                  ) ||
+                                  (Number(
+                                    props.RecurringPricingInfo
+                                      .packageThreeDisCount
+                                  ) > 0 &&
+                                    !props.ProposalObject.DiscountLines)
+                                  ? // ||
+                                  // Number(
+                                  //   props.RecurringPricingInfo
+                                  //     .packageThreeNetTotal
+                                  // ) === 0
+                                  Number(
+                                    props.RecurringPricingInfo
+                                      .packageThreeDisCount
+                                  ) > 0 && !props.ProposalObject.DiscountLines
+                                    ? props.formatValue(
+                                      props.RecurringPricingInfo
+                                        .packageThreeDisCountedTotal
+                                    )
+                                    : props.formatValue(totalThreePackageValue)
+                                  : // Number(totalThreePackageValue)
+                                  //     .toFixed(2)
+                                  //     .toString()
+                                  //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                  props.formatValue(
+                                    props.RecurringPricingInfo
+                                      .packageThreeNetTotal
+                                  )
+                                // Number(
+                                //     props.RecurringPricingInfo
+                                //       .packageThreeDisCountedTotal
+                                //   )
+                                //     .toFixed(2)
+                                //     .toString()
+                                //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                              }
+                            </td>
+                          )}
+                        </tr>
+
+                        {/* </td> */}
+                        {/* </tr> */}
+                        {(Number(
+                          props.RecurringPricingInfo.packageThreeDisCount
+                        ) > 0 ||
+                          Number(
+                            props.RecurringPricingInfo.packageOneDisCount
+                          ) > 0 ||
+                          Number(
+                            props.RecurringPricingInfo.packageTwoDisCount
+                          ) > 0) &&
+                          props.ProposalObject.DiscountLines && (
+                            <>
+                              <tr className="head-grey-row">
+                                <td className="tr-table-class font-14 text-white">
+                                  Discount
+                                </td>
+                                <td className="tr-table-class font-14 text-white text-right">
+                                  (-){" "}
+                                  {props.formatValue(
+                                    props.RecurringPricingInfo
+                                      .packageOneDisCount
+                                  )}
+                                </td>
+                                {packageCount >= 2 && (
+                                  <td className="tr-table-class font-14 text-white text-right">
+                                    (-){" "}
+                                    {props.formatValue(
+                                      props.RecurringPricingInfo
+                                        .packageTwoDisCount
+                                    )}
+                                  </td>
+                                )}
+                                {packageCount === 3 && (
+                                  <td className="tr-table-class font-14 text-white text-right">
+                                    (-){" "}
+                                    {props.formatValue(
+                                      props.RecurringPricingInfo
+                                        .packageThreeDisCount
+                                    )}
+                                  </td>
+                                )}
+                              </tr>
+                              <tr className="head-row">
+                                <td className="tr-table-class font-14 text-white">
+                                  Discounted Total
+                                </td>
+                                <td className="tr-table-class font-14 text-white text-right">
+                                  {" "}
+                                  {props.formatValue(
+                                    props.RecurringPricingInfo
+                                      .packageOneDisCountedTotal
+                                  )}
+                                </td>
+
+                                {packageCount >= 2 && (
+                                  <td className="tr-table-class font-14 text-white text-right">
+                                    {" "}
+                                    {props.formatValue(
+                                      props.RecurringPricingInfo
+                                        .packageTwoDisCountedTotal
+                                    )}
+                                  </td>
+                                )}
+                                {packageCount === 3 && (
+                                  <td className="tr-table-class font-14 text-white text-right">
+                                    {" "}
+                                    {props.formatValue(
+                                      props.RecurringPricingInfo
+                                        .packageThreeDisCountedTotal
+                                    )}
+                                  </td>
+                                )}
+                              </tr>
+                            </>
+                          )}
+
+                        {props.vatPercentage && (
+                          <>
+                            <tr class="head-grey-row">
+                              <td className="tr-table-class font-14 text-white">
+                                VAT
+                              </td>
+                              <td className="tr-table-class font-14 text-white text-right">
+                                {" "}
+                                {
+                                  props.formatValue(
+                                    props.RecurringPricingInfo
+                                      .PackageOneVaTPrice
+                                  )
+                                  // Number(
+                                  //   props.RecurringPricingInfo.PackageOneVaTPrice
+                                  // )
+                                  //   .toFixed(2)
+                                  //   .toString()
+                                  //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                }
+                                {/* VATNew Rs{RecurringPackageCalculation.PackageOneVatTotalAmount} */}
+                              </td>
+                              {packageCount >= 2 && (
+                                <td className="tr-table-class font-14 text-white text-right">
+                                  {" "}
+                                  {
+                                    props.formatValue(
+                                      props.RecurringPricingInfo
+                                        .PackageTwoVaTPrice
+                                    )
+                                    // Number(
+                                    //   props.RecurringPricingInfo.PackageTwoVaTPrice
+                                    // )
+                                    //   .toFixed(2)
+                                    //   .toString()
+                                    //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                  }
+                                </td>
+                              )}
+                              {packageCount === 3 && (
+                                <td className="tr-table-class font-14 text-white text-right">
+                                  {" "}
+                                  {
+                                    props.formatValue(
+                                      props.RecurringPricingInfo
+                                        .PackageThreeVaTPrice
+                                    )
+                                    // Number(
+                                    //   props.RecurringPricingInfo
+                                    //     .PackageThreeVaTPrice
+                                    // )
+                                    //   .toFixed(2)
+                                    //   .toString()
+                                    //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                  }
+                                </td>
+                              )}
+                            </tr>
+                            <tr className="head-row">
+                              <td className="tr-table-class font-14 text-white">
+                                Grand Total
+                              </td>
+                              <td className="tr-table-class font-14 text-white text-right">
+                                {" "}
+                                {
+                                  props.formatValue(
+                                    props.RecurringPricingInfo
+                                      .PackageOneGrandTotal
+                                  )
+
+                                  // Number(
+                                  //   props.RecurringPricingInfo.PackageOneGrandTotal
+                                  // )
+                                  //   .toFixed(2)
+                                  //   .toString()
+                                  //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                }
+                                {/* NewGT Rs{RecurringPackageCalculation.PackageOneGrandTotalAmount} */}
+                              </td>
+                              {packageCount >= 2 && (
+                                <td className="tr-table-class font-14 text-white text-right">
+                                  {" "}
+                                  {
+                                    props.formatValue(
+                                      props.RecurringPricingInfo
+                                        .PackageTwoGrandTotal
+                                    )
+                                    // Number(
+                                    //   props.RecurringPricingInfo
+                                    //     .PackageTwoGrandTotal
+                                    // )
+                                    //   .toFixed(2)
+                                    //   .toString()
+                                    //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                  }
+                                </td>
+                              )}
+                              {packageCount == 3 && (
+                                <td className="tr-table-class font-14 text-white text-right">
+                                  {" "}
+                                  {
+                                    props.formatValue(
+                                      props.RecurringPricingInfo
+                                        .PackageThreeGrandTotal
+                                    )
+                                    // Number(
+                                    //   props.RecurringPricingInfo
+                                    //     .PackageThreeGrandTotal
+                                    // )
+                                    //   .toFixed(2)
+                                    //   .toString()
+                                    //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                  }
+                                </td>
+                              )}
+                            </tr>
+                          </>
+                        )}
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {props.selectedOneOffServiceList?.length !== 0 && (
+            <div className="tab-content">
+              <div className="tab-pane p-3 active">
+                <div className="row">
+                  <div className="col-lg-12">
+                    <div className="separator mb-2"></div>
+                    <h6>One-Off Services</h6>
+                    <div className="separator mb-3"></div>
+
+                    {/* <div className="row fieldset">
+                    <div className="col-lg-2 text-lg-right">
+                      <label className="fieldset-label">Original Price ()</label>
+                    </div>
+                    <div className="col-lg-4">
+                      <input
+                        readonly=""
+                        type="text"
+                        class="input-text"
+                        value={props.OneOffPricingInfo.OriginalPrice.toString().replace(
+                          /\B(?=(\d{3})+(?!\d))/g,
+                          ","
+                        )}
+                      />
+                    </div>
+                  </div> */}
+                    <div class="row" id="OneOff_Default">
+                      <div class="col-lg-2 mb-1 col-md-2 col-sm-12 mt-2 text-md-end">
+                        <div class="mb-1 text-md-end">
+                          {packageCount == 1 && (
+                            <>
+                              <label class="form-label">Discount (%)</label>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                      <div className="col-lg-4">
+                        {packageCount == 1 && (
+                          <>
+                            <input
+                              class="input-text"
+                              type="text"
+                              placeholder="Discount (%)"
+                              value={props.OneOffPricingInfo.DiscountPercentagePackageOne?.toString()?.replace(
+                                /\B(?=(\d{3})+(?!\d))/g,
+                                ","
+                              )}
+                              onChange={(e) => {
+                                handleOneOffPackageOneDiscountPercentage(e);
+                              }}
+                            />
+                            {props.getValidationMessage(
+                              props.requireMessage,
+                              props.pricingSettingObj.maxDiscountForQC,
+                              props.OneOffPricingInfo
+                                .DiscountPercentagePackageOne
+                            )}
+                          </>
+                        )}                      </div>
+                    </div>
+                    <div className="mb-3"></div>
+
+                    <div
+                      style={{ marginTop: "0px" }}
+                      className="table-responsive"
+                    >
+                      <table
+                        class="table align-middle table-nowrap"
+                        style={{ width: "100%" }}
+                      >
+                        <thead className="table-light table-header-font">
+                          <tr className="head-row">
+                            <td className="tr-table-class font-14 text-white">
+                              Services
+                            </td>
+                            {props.selectedPackagesList.map((pkg, index) => (
+                              <td
+                                key={index}
+                                className="tr-table-class font-14 text-white text-right"
+                              >
+                                {pkg.servicePackageName.length > 10 ? (
+                                  <Tooltip title={pkg.servicePackageName}>
+                                    {pkg.servicePackageName
+                                      .substring(0, 10)
+                                      .toLowerCase()
+                                      .replace(/\b\w/g, (l) =>
+                                        l.toUpperCase()
+                                      ) + "..."}
+                                  </Tooltip>
+                                ) : pkg.servicePackageName.length > 10 ? (
+                                  <Tooltip title={pkg.servicePackageName}>
+                                    {pkg.servicePackageName.substring(0, 10) +
+                                      "..."}
+                                  </Tooltip>
+                                ) : (
+                                  pkg.servicePackageName
+                                )}
+                              </td>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {props.selectedOneOffServiceList.map(
+                            (service, index) => {
+                              return (
+                                <>
+                                  <tr className="a-la-carte-services-review-head-row">
+                                    <th colSpan={1 + packageCount}>
+                                      {service.serviceCatName}
+                                    </th>
+                                  </tr>
+                                  {service.servicesList.map(
+                                    (subService, subIndex) => (
+                                      <tr
+                                        key={subIndex}
+                                        className={` ${subService?.isAdditionalService !==
+                                          null
+                                          ? "bg-info  text-white"
+                                          : ""
+                                          }`}
+                                      >
+                                        <td>
+                                          <div>
+                                            {subService.serviceName.length > 45
+                                              ? subService.serviceName
+                                                .substring(0, 45)
+                                                .toLowerCase()
+                                                .replace(/\b\w/g, (l) =>
+                                                  l.toUpperCase()
+                                                ) + "..."
+                                              : subService.serviceName}
+                                          </div>
+                                          <div className="package-variables"></div>
+                                        </td>
+
+                                        <td className="text-right">
+                                          <div className="flex-end-item">
+                                            {props.ProposalObject.feeTypeId ===
+                                              1 ? (
+                                              <div className="flex-end-item">
+                                                {(subService.packageOneValue ===
+                                                  0 ||
+                                                  subService.packageOneValue ===
+                                                  null) &&
+                                                  !subService.servicePackageIDs.some(
+                                                    (item) =>
+                                                      item ==
+                                                      props
+                                                        .selectedPackagesList[0]
+                                                        ?.servicePackageID
+                                                  ) ? (
+                                                  <span className="fa fa-times"></span>
+                                                ) : !subService?.servicePackageIDs.includes(
+                                                  subService.packageOneID
+                                                ) ? (
+                                                  <span className="fa fa-times"></span>
+                                                ) : (
+                                                  ` ${props.formatValue(
+                                                    subService.packageOneValue
+                                                  )}`
+                                                )}
+                                              </div>
+                                            ) : Number(
+                                              subService.packageOneValue
+                                            ) !== null &&
+                                              subService?.servicePackageIDs.includes(
+                                                subService.packageOneID
+                                              ) ? (
+                                              <span className="fa fa-check"></span>
+                                            ) : (
+                                              <span className="fa fa-times"></span>
+                                            )}
+                                            {subService?.isAdditionalService !==
+                                              null ? (
+                                              <input
+                                                style={{ marginLeft: "5px" }}
+                                                type="checkbox"
+                                                disabled={
+                                                  subService?.servicePackageIDs.includes(
+                                                    subService.packageOneID
+                                                  ) &&
+                                                  subService?.servicePackageIDs
+                                                    .length === 1
+                                                }
+                                                checked={subService?.servicePackageIDs.includes(
+                                                  subService.packageOneID
+                                                )} // Assuming props.isCheck is a boolean indicating checkbox state
+                                                onChange={(e) =>
+                                                  handleAddAndRemoveAdditionalServices(
+                                                    2,
+                                                    service.serviceCatID,
+                                                    subService.serviceID,
+                                                    subService.packageOneID,
+                                                    e.target.checked
+                                                  )
+                                                }
+                                              />
+                                            ) : (
+                                              <div>&nbsp;&nbsp;</div>
+                                            )}
+                                          </div>
+                                        </td>
+                                        {packageCount >= 2 && (
+                                          <td className="text-right">
+                                            <div className="flex-end-item">
+                                              {props.ProposalObject
+                                                .feeTypeId === 1 ? (
+                                                <div className="flex-end-item">
+                                                  {(subService.packageTwoValue ===
+                                                    0 ||
+                                                    subService.packageTwoValue ===
+                                                    null) &&
+                                                    !subService.servicePackageIDs.some(
+                                                      (item) =>
+                                                        item ==
+                                                        props
+                                                          .selectedPackagesList[1]
+                                                          ?.servicePackageID
+                                                    ) ? (
+                                                    <span className="fa fa-times"></span>
+                                                  ) : !subService?.servicePackageIDs.includes(
+                                                    subService.packageTwoID
+                                                  ) ? (
+                                                    <span className="fa fa-times"></span>
+                                                  ) : (
+                                                    ` ${props.formatValue(
+                                                      subService.packageTwoValue
+                                                    )}`
+                                                  )}
+                                                </div>
+                                              ) : Number(
+                                                subService.packageTwoValue
+                                              ) !== null &&
+                                                subService?.servicePackageIDs.includes(
+                                                  subService.packageTwoID
+                                                ) ? (
+                                                <span className="fa fa-check"></span>
+                                              ) : (
+                                                <span className="fa fa-times"></span>
+                                              )}
+                                              {subService?.isAdditionalService !==
+                                                null ? (
+                                                <input
+                                                  style={{ marginLeft: "5px" }}
+                                                  type="checkbox"
+                                                  disabled={
+                                                    subService?.servicePackageIDs.includes(
+                                                      subService.packageTwoID
+                                                    ) &&
+                                                    subService
+                                                      ?.servicePackageIDs
+                                                      .length === 1
+                                                  }
+                                                  checked={subService?.servicePackageIDs.includes(
+                                                    subService.packageTwoID
+                                                  )} // Assuming props.isCheck is a boolean indicating checkbox state
+                                                  onChange={(e) =>
+                                                    handleAddAndRemoveAdditionalServices(
+                                                      2,
+                                                      service.serviceCatID,
+                                                      subService.serviceID,
+                                                      subService.packageTwoID,
+                                                      e.target.checked
+                                                    )
+                                                  }
+                                                />
+                                              ) : (
+                                                <div>&nbsp;&nbsp;</div>
+                                              )}
+                                            </div>
+                                          </td>
+                                        )}
+                                        {packageCount === 3 && (
+                                          <td className="text-right">
+                                            <div className="flex-end-item">
+                                              {props.ProposalObject
+                                                .feeTypeId === 1 ? (
+                                                <div className="flex-end-item">
+                                                  {(subService.packageThreeValue ===
+                                                    0 ||
+                                                    subService.packageThreeValue ===
+                                                    null) &&
+                                                    !subService.servicePackageIDs.some(
+                                                      (item) =>
+                                                        item ==
+                                                        props
+                                                          .selectedPackagesList[2]
+                                                          ?.servicePackageID
+                                                    ) ? (
+                                                    <span className="fa fa-times"></span>
+                                                  ) : !subService?.servicePackageIDs.includes(
+                                                    subService.packageThreeID
+                                                  ) ? (
+                                                    <span className="fa fa-times"></span>
+                                                  ) : (
+                                                    ` ${props.formatValue(
+                                                      subService.packageThreeValue
+                                                    )}`
+                                                  )}
+                                                </div>
+                                              ) : Number(
+                                                subService.packageThreeValue
+                                              ) !== null &&
+                                                subService?.servicePackageIDs.includes(
+                                                  subService.packageThreeID
+                                                ) ? (
+                                                <span className="fa fa-check"></span>
+                                              ) : (
+                                                <span className="fa fa-times"></span>
+                                              )}
+                                              {subService?.isAdditionalService !==
+                                                null ? (
+                                                <input
+                                                  style={{ marginLeft: "5px" }}
+                                                  type="checkbox"
+                                                  disabled={
+                                                    subService?.servicePackageIDs.includes(
+                                                      subService.packageThreeID
+                                                    ) &&
+                                                    subService
+                                                      ?.servicePackageIDs
+                                                      .length === 1
+                                                  }
+                                                  checked={subService?.servicePackageIDs.includes(
+                                                    subService.packageThreeID
+                                                  )} // Assuming props.isCheck is a boolean indicating checkbox state
+                                                  onChange={(e) =>
+                                                    handleAddAndRemoveAdditionalServices(
+                                                      2,
+                                                      service.serviceCatID,
+                                                      subService.serviceID,
+                                                      subService.packageThreeID,
+                                                      e.target.checked
+                                                    )
+                                                  }
+                                                />
+                                              ) : (
+                                                <div>&nbsp;&nbsp;</div>
+                                              )}
+                                            </div>
+                                          </td>
+                                        )}
+                                      </tr>
+                                    )
+                                  )}
+                                </>
+                              );
+                            }
+                          )}
+                        </tbody>
+                        {packageCount > 1 && (
+                          <>
+                            <tr id="OneOff_DefaultWithPackages">
+                              <td
+                                style={{
+                                  padding: "8px",
+                                }}
+                              >
+                                Discount (%)
+                                {/* <div className="package-variables"></div> */}
+                              </td>
+                              <td
+                                style={{
+                                  width: "35%",
+                                  padding: "0px",
+                                  whiteSpace: "normal",
+                                }}
+                              >
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    alignItems: "flex-start",
+                                  }}
+                                >
+                                  <input
+                                    className="input-text"
+                                    type="text" // Change type to number
+                                    placeholder="Discount (%)"
+                                    value={props.OneOffPricingInfo.DiscountPercentagePackageOne?.toString()?.replace(
+                                      /\B(?=(\d{3})+(?!\d))/g,
+                                      ","
+                                    )}
+                                    onChange={(e) => {
+                                      handleOneOffPackageOneDiscountPercentage(
+                                        e
+                                      );
+                                    }}
+                                    style={{
+                                      width: "100%",
+                                      textAlign: "right",
+                                    }}
+                                  />
+                                  <div>
+                                    {props.getValidationMessage(
+                                      props.requireMessage,
+                                      props.pricingSettingObj.maxDiscountForQC,
+                                      props.OneOffPricingInfo
+                                        .DiscountPercentagePackageOne
+                                    )}
+                                  </div>
+                                </div>
+                              </td>
+
+                              {packageCount >= 2 && (
+                                <td
+                                  style={{
+                                    width: "35%",
+                                    padding: "0px",
+                                    whiteSpace: "normal",
+                                  }}
+                                >
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      flexDirection: "column",
+                                      alignItems: "flex-start",
+                                    }}
+                                  >
+                                    <input
+                                      className="input-text"
+                                      type="text" // Change type to number
+                                      placeholder="Discount (%)"
+                                      value={props.OneOffPricingInfo.DiscountPercentagePackageTwo?.toString()?.replace(
+                                        /\B(?=(\d{3})+(?!\d))/g,
+                                        ","
+                                      )}
+                                      onChange={(e) => {
+                                        handleOneOffPackageTwoDiscountPercentage(
+                                          e
+                                        );
+                                      }}
+                                      style={{
+                                        width: "100%",
+                                        textAlign: "right",
+                                      }}
+                                    />
+                                    <div>
+                                      {props.getValidationMessage(
+                                        props.requireMessage,
+                                        props.pricingSettingObj
+                                          .maxDiscountForQC,
+                                        props.OneOffPricingInfo
+                                          .DiscountPercentagePackageTwo
+                                      )}
+                                    </div>
+                                  </div>
+                                </td>
+                              )}
+
+                              {packageCount === 3 && (
+                                <td
+                                  style={{
+                                    width: "35%",
+                                    padding: "0px",
+                                    whiteSpace: "normal",
+                                  }}
+                                >
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      flexDirection: "column",
+                                      alignItems: "flex-start",
+                                    }}
+                                  >
+                                    <input
+                                      className="input-text"
+                                      type="text" // Change type to number
+                                      placeholder="Discount (%)"
+                                      value={props.OneOffPricingInfo.DiscountPercentagePackageThree?.toString()?.replace(
+                                        /\B(?=(\d{3})+(?!\d))/g,
+                                        ","
+                                      )}
+                                      onChange={(e) => {
+                                        handleOneOffPackageThreeDiscountPercentage(
+                                          e
+                                        );
+                                      }}
+                                      style={{
+                                        width: "100%",
+                                        textAlign: "right",
+                                      }}
+                                    />
+                                    <div>
+                                      {props.getValidationMessage(
+                                        props.requireMessage,
+                                        props.pricingSettingObj
+                                          .maxDiscountForQC,
+                                        props.OneOffPricingInfo
+                                          .DiscountPercentagePackageThree
+                                      )}
+                                    </div>
+                                  </div>
+                                </td>
+                              )}
+                            </tr>
+                          </>
+                        )}
+                        <tr className="head-row">
+                          <td className="tr-table-class font-14 text-white">
+                            Net Total
+                          </td>
+                          <td className="tr-table-class font-14 text-white text-right">
+                            {" "}
+                            {
+                              totalOnePackageValueOneOff <
+                                Number(
+                                  props.OneOffPricingInfo
+                                    .packageOneDisCountedTotal
+                                ) ||
+                                (Number(
+                                  props.OneOffPricingInfo.packageOneDisCount
+                                ) > 0 &&
+                                  !props.ProposalObject.DiscountLines)
+                                ? props.formatValue(
+                                  props.OneOffPricingInfo
+                                    .packageOneDisCountedTotal
+                                )
+                                : // Number(totalOnePackageValueOneOff)
+                                //     .toFixed(2)
+                                //     .toString()
+                                //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                props.formatValue(totalOnePackageValueOneOff)
+                              // Number(
+                              //     props.OneOffPricingInfo
+                              //       .packageOneDisCountedTotal
+                              //   )
+                              //     .toFixed(2)
+                              //     .toString()
+                              //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                            }
+                          </td>
+                          {packageCount >= 2 && (
+                            <td className="tr-table-class font-14 text-white text-right">
+                              {" "}
+                              {
+                                totalTwoPackageValueOneOff <
+                                  Number(
+                                    props.OneOffPricingInfo
+                                      .packageTwoDisCountedTotal
+                                  ) ||
+                                  (Number(
+                                    props.OneOffPricingInfo.packageTwoDisCount
+                                  ) > 0 &&
+                                    !props.ProposalObject.DiscountLines)
+                                  ? props.formatValue(
+                                    props.OneOffPricingInfo
+                                      .packageTwoDisCountedTotal
+                                  )
+                                  : // Number(totalOnePackageValueOneOff)
+                                  //     .toFixed(2)
+                                  //     .toString()
+                                  //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                  props.formatValue(
+                                    totalTwoPackageValueOneOff
+                                  )
+                                // Number(
+                                //     props.OneOffPricingInfo
+                                //       .packageOneDisCountedTotal
+                                //   )
+                                //     .toFixed(2)
+                                //     .toString()
+                                //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                              }
+                            </td>
+                          )}{" "}
+                          {packageCount === 3 && (
+                            <td className="tr-table-class font-14 text-white text-right">
+                              {" "}
+                              {
+                                totalThreePackageValueOneOff <
+                                  Number(
+                                    props.OneOffPricingInfo
+                                      .packageThreeDisCountedTotal
+                                  ) ||
+                                  (Number(
+                                    props.OneOffPricingInfo.packageThreeDisCount
+                                  ) > 0 &&
+                                    !props.ProposalObject.DiscountLines)
+                                  ? props.formatValue(
+                                    props.OneOffPricingInfo
+                                      .packageThreeDisCountedTotal
+                                  )
+                                  : // Number(totalOnePackageValueOneOff)
+                                  //     .toFixed(2)
+                                  //     .toString()
+                                  //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                  props.formatValue(
+                                    totalThreePackageValueOneOff
+                                  )
+                                // Number(
+                                //     props.OneOffPricingInfo
+                                //       .packageOneDisCountedTotal
+                                //   )
+                                //     .toFixed(2)
+                                //     .toString()
+                                //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                              }
+                            </td>
+                          )}
+                        </tr>
+
+                        {(Number(props.OneOffPricingInfo.packageThreeDisCount) >
+                          0 ||
+                          Number(props.OneOffPricingInfo.packageOneDisCount) >
+                          0 ||
+                          Number(props.OneOffPricingInfo.packageTwoDisCount) >
+                          0) &&
+                          props.ProposalObject.DiscountLines && (
+                            <>
+                              <tr className="head-grey-row">
+                                <td className="tr-table-class font-14 text-white">
+                                  Discount
+                                </td>
+                                <td className="tr-table-class font-14 text-white text-right">
+                                  (-){" "}
+                                  {props.formatValue(
+                                    props.OneOffPricingInfo.packageOneDisCount
+                                  )}
+                                </td>
+                                {packageCount >= 2 && (
+                                  <td className="tr-table-class font-14 text-white text-right">
+                                    (-){" "}
+                                    {props.formatValue(
+                                      props.OneOffPricingInfo.packageTwoDisCount
+                                    )}
+                                  </td>
+                                )}
+                                {packageCount == 3 && (
+                                  <td className="tr-table-class font-14 text-white text-right">
+                                    (-){" "}
+                                    {props.formatValue(
+                                      props.OneOffPricingInfo
+                                        .packageThreeDisCount
+                                    )}
+                                  </td>
+                                )}
+                              </tr>
+                              <tr className="head-row">
+                                <td className="tr-table-class font-14 text-white">
+                                  Discounted Total
+                                </td>
+                                <td className="tr-table-class font-14 text-white text-right">
+                                  {" "}
+                                  {props.formatValue(
+                                    props.OneOffPricingInfo
+                                      .packageOneDisCountedTotal
+                                  )}
+                                </td>
+                                {packageCount >= 2 && (
+                                  <td className="tr-table-class font-14 text-white text-right">
+                                    {" "}
+                                    {props.formatValue(
+                                      props.OneOffPricingInfo
+                                        .packageTwoDisCountedTotal
+                                    )}
+                                  </td>
+                                )}
+                                {packageCount == 3 && (
+                                  <td className="tr-table-class font-14 text-white text-right">
+                                    {" "}
+                                    {props.formatValue(
+                                      props.OneOffPricingInfo
+                                        .packageThreeDisCountedTotal
+                                    )}
+                                  </td>
+                                )}
+                              </tr>
+                            </>
+                          )}
+                        {props.vatPercentage && (
+                          <>
+                            <tr class="head-grey-row">
+                              <td className="tr-table-class font-14 text-white">
+                                VAT
+                              </td>
+                              <td className="tr-table-class font-14 text-white text-right">
+                                {" "}
+                                {
+                                  props.formatValue(
+                                    props.OneOffPricingInfo.PackageOneVaTPrice
+                                  )
+                                  // Number(
+                                  //   props.OneOffPricingInfo.PackageOneVaTPrice
+                                  // )
+                                  //   .toFixed(2)
+                                  //   .toString()
+                                  //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                }
+                              </td>
+                              {packageCount >= 2 && (
+                                <td className="tr-table-class text-white text-right">
+                                  {" "}
+                                  {
+                                    props.formatValue(
+                                      props.OneOffPricingInfo.PackageTwoVaTPrice
+                                    )
+                                    // Number(
+                                    //   props.OneOffPricingInfo.PackageTwoVaTPrice
+                                    // )
+                                    //   .toFixed(2)
+                                    //   .toString()
+                                    //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                  }
+                                </td>
+                              )}
+                              {packageCount === 3 && (
+                                <td className="tr-table-class text-white text-right">
+                                  {" "}
+                                  {
+                                    props.formatValue(
+                                      props.OneOffPricingInfo
+                                        .PackageThreeVaTPrice
+                                    )
+                                    // Number(
+                                    //   props.OneOffPricingInfo.PackageThreeVaTPrice
+                                    // )
+                                    //   .toFixed(2)
+                                    //   .toString()
+                                    //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                  }
+                                </td>
+                              )}
+                            </tr>
+                            <tr className="head-row">
+                              <td className="tr-table-class font-14 text-white">
+                                Grand Total
+                              </td>
+                              <td className="tr-table-class font-14 text-white text-right">
+                                {" "}
+                                {
+                                  props.formatValue(
+                                    props.OneOffPricingInfo.PackageOneGrandTotal
+                                  )
+                                  // Number(
+                                  //   props.OneOffPricingInfo.PackageOneGrandTotal
+                                  // )
+                                  //   .toFixed(2)
+                                  //   .toString()
+                                  //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                }
+                              </td>
+                              {packageCount >= 2 && (
+                                <td className="tr-table-class font-14 text-white text-right">
+                                  {" "}
+                                  {
+                                    props.formatValue(
+                                      props.OneOffPricingInfo
+                                        .PackageTwoGrandTotal
+                                    )
+                                    // Number(
+                                    //   props.OneOffPricingInfo.PackageTwoGrandTotal
+                                    // )
+                                    //   .toFixed(2)
+                                    //   .toString()
+                                    //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                  }
+                                </td>
+                              )}
+                              {packageCount == 3 && (
+                                <td className="tr-table-class font-14 text-white text-right">
+                                  {" "}
+                                  {
+                                    props.formatValue(
+                                      props.OneOffPricingInfo
+                                        .PackageThreeGrandTotal
+                                    )
+                                    // Number(
+                                    //   props.OneOffPricingInfo.PackageThreeGrandTotal
+                                    // )
+                                    //   .toFixed(2)
+                                    //   .toString()
+                                    //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                  }
+                                </td>
+                              )}
+                            </tr>
+                          </>
+                        )}
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+          {/* {OneOffPackagesTable}
+          {RecurringPackagesTable} */}
+        </div>
+      </div>
+      <div class="separator"></div>
+      <div class="row fieldset">
+        <div class="col-lg-12 hstack gap-2 justify-content-end text-right mt-3">
+          <button
+            class="btn btn-md btn-light"
+            onClick={() => props.handleCancelBtn()}
+          >
+            <span>Cancel</span>
+          </button>
+          {props.TabHide ? (
+            <button
+              onClick={() => props.HandleBack(3)}
+              style={{ paddingTop: "5px", marginRight: "4px" }}
+              className="btn btn-md btn-success create-item-btn"
+            >
+              <span>Back</span>
+            </button>
+          ) : (
+            <>
+              {props.ProposalObject.selectedProposalTypeValue === 2 && (
+                <button
+                  onClick={() => props.HandleBack(5)}
+                  style={{ paddingTop: "5px", marginRight: "4px" }}
+                  className="btn btn-md btn-success create-item-btn"
+                >
+                  <span>Back</span>
+                </button>
+              )}
+              {props.ProposalObject.selectedProposalTypeValue === 1 && (
+                <button
+                  onClick={() => props.HandleBack(2)}
+                  style={{ paddingTop: "5px", marginRight: "4px" }}
+                  className="btn btn-md btn-success create-item-btn"
+                >
+                  <span>Back</span>
+                </button>
+              )}
+            </>
+          )}
+
+          <button
+            type="submit"
+            class="btn btn-md btn-success create-item-btn"
+            onClick={() => {
+              // props.GetTemplateModalData(); // Call GetTemplateModalData function
+              props.HandleTabChange(4); // Call HandleTabChange function as before
+            }}
+          >
+            <span>Next</span>
+          </button>
+          <button
+            type="submit"
+            class="btn btn-md btn-success create-item-btn text-nowrap"
+            onClick={() =>
+              props.handleSaveAsDraft(7, moduleNameForSaveAsDraft, statusID)
+            }
+            style={{ marginLeft: "5px" }}
+          >
+            <span>Save as a Draft</span>
+          </button>
+        </div>
+      </div>
+    </>
+  );
+};
+
+const Add_Update_Proposal = (props) => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const {
+    setLoader,
+    prospectName,
+    setTopbar,
+    proposalName,
+    getCrudButtonTextName,
+    scrollUpDownByElementID,
+    getCrudPopUpTitleName,
+    formatValue,
+    formatValueWithoutCurrencySymbol,
+    activeOrganizationSubscriptionPlan,
+    EngagementName,
+    hasActionAccess,
+    GetTwoDecimalValueWithoutRoundOff,
+    hasHyphenAfterNumber,
+    getValidationMessage,
+    getFontStylesFromHtml,
+    isValidNumber,
+    replaceTemplatePricingVariables
+  } = useContext(AuthContextProvider);
+  const [openErrorModal, setOpenErrorModal] = useState(false);
+  // const [updatePackage, setIsUpdatePackage] = useState(true);
+  const [RecurringPackagesTable, setRecurringPackagesTable] = useState(null);
+  const [OneOffPackagesTable, setOneOffPackagesTable] = useState(null);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [disableCondition, setDisableCondition] = useState("");
+  const [requireServiceValidation, setRequireServiceValidation] =
+    useState(false);
+  const [TabHide, setTabHide] = useState(false);
+  const [activeTab, setActiveTab] = useState(1);
+  const [modelAction, setModelAction] = useState(null);
+  const [StatementOfFact, setStatementOfFacts] = useState([])
+  const [paymentGatewayObj, setPaymentGatewayObj] = useState({
+    userKeyID: null,
+    goCardlessAccessToken: undefined,
+    stripePublishableKey: undefined,
+    stripeSecretKey: undefined,
+    bankTransferName: null,
+    AccountNumber: null,
+    AuthenticationCode: null,
+    isDefault: null,
+    PaymentGatewayID: null,
+  });
+  const [serviceList, setServiceList] = useState([]);
+  const [QuoteTypeLookupList, setQuoteTypeLookupList] = useState([]);
+  const [getServicePackageLookupList, setGetServicePackageLookupList] =
+    useState([]);
+  const [recurringError, setRecurringError] = useState(false);
+  const [TemplateTypeLookupList, setTemplateTypeLookupList] = useState([]);
+  const [selectedPackagesDetails, setSelectedPackagesDetails] = useState([]);
+  const [quotationFinalPackageAmountList, setQuotationFinalPackageAmountList] =
+    useState([]);
+  const [templateElementList, setTemplateElementList] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [DocumentCode, setDocumentCode] = useState("");
+  const [BrandColor, setBrandColor] = useState("");
+  const [fontFamily, setFontFamily] = useState("");
+  const [fontSize, setFontSize] = useState("");
+  const [CompanyLogo, setCompanyLogo] = useState(null);
+
+  const [MergePdfUrl, setMergePdfUrl] = useState("");
+  const [templateObj, setTemplateObj] = useState([]);
+  const [QuotationAdditionalServices, setQuotationAdditionalServices] =
+    useState([]);
+  const [proposalModelObj, setProposalModelObj] = useState([]);
+
+  const [
+    lastPaymentFrequencyAndDiscountedPriceForPreview,
+    setLastPaymentFrequencyAndDiscountedPriceForPreview,
+  ] = useState({
+    PaymentFrequencyID: 1,
+    PackageOneNetValue: null,
+    PackageTwoNetValue: null,
+    PackageThreeNetValue: null,
+    RecurringServiceArray: null,
+    oneOffService: null,
+  });
+  const [
+    lastPaymentFrequencyAndDiscountedPriceForPreviewForOneOff,
+    setLastPaymentFrequencyAndDiscountedPriceForPreviewForOneOff,
+  ] = useState({
+    PaymentFrequencyID: 1,
+    PackageOneNetValue: null,
+    PackageTwoNetValue: null,
+    PackageThreeNetValue: null,
+    RecurringServiceArray: null,
+    oneOffService: null,
+  });
+  const [ClientTypeLookupList, setClientTypeLookupList] = useState([]);
+  const common = useSelector((state) => state.Storage);
+  // const [serviceCheckbox, setServiceCheckbox] = useState([]);
+  // const [disabledCheckboxes, setDisabledCheckboxes] = useState([]);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 600);
+  const [additionalInformationList, setAdditionalInformationList] = useState(
+    []
+  );
+  const [openSuccessModal, setOpenSuccessModal] = useState(false);
+  const [selectedPackages, setSelectedPackages] = useState([]);
+  const [isAddUpdatePricingActionDone, setIsAddUpdatePricingActionDone] =
+    useState(false);
+  const [showValidationForMax, setShowValidationForMax] = useState(false);
+  const [showValidationForMin, setShowValidationForMin] = useState(false);
+
+  const [ServiceElementId, setServiceElementId] = useState([]);
+  const [SelectedServices, setSelectedServices] = useState([]);
+  const [requireMessage, setRequireMessage] = useState(false);
+  const [isBack, setIsBack] = useState(false);
+
+  const [recurringServiceList, setRecurringServiceList] = useState([]);
+
+  const [selectedProposalValue, setSelectedProposalValue] = useState();
+  const [selectedProposalValueForCheck, setSelectedProposalValueForCheck] =
+    useState();
+  const [oneOffServiceList, setOneOffServiceList] = useState([]);
+
+  const [vatPercentage, setVATPercentage] = useState(null);
+  const [ServiceMappingWithPackagesList, setServiceMappingWithPackagesList] = useState([]);
+  const [ServiceMappingWithPackagesListCopy, setServiceMappingWithPackagesListCopy] = useState([]);
+  const [organisationData, setOrganisationData] = useState([]);
+  const [refIdStore, setRefIdStore] = useState("");
+  const [RecurringPricingInfo, setRecurringPricingInfo] = useState({
+    OriginalPrice: 0,
+    DefaultDiscount: null,
+    DiscountPercentagePackageOne: null,
+    DiscountPercentagePackageTwo: null,
+    DiscountPercentagePackageThree: null,
+    DiscountedPrice: "",
+    MaxDiscount: 0,
+    MinPrice: "",
+    NetTotal: 0,
+    VATPrice: null,
+    Services: null,
+    ServicePrice: 0,
+    Discount: 0,
+    GrandTotal: 0,
+    DiscountedTotal: 0,
+    packageOneNetTotal: 0,
+    packageTwoNetTotal: 0,
+    packageThreeNetTotal: 0,
+    packageOneDisCount: 0,
+    packageTwoDisCount: 0,
+    packageThreeDisCount: 0,
+    packageOneDisCountedTotal: 0,
+    packageTwoDisCountedTotal: 0,
+    packageThreeDisCountedTotal: 0,
+    PackageOneVaTPrice: null,
+    PackageTwoVaTPrice: null,
+    PackageThreeVaTPrice: null,
+    PackageOneGrandTotal: null,
+    PackageTwoGrandTotal: null,
+    PackageThreeGrandTotal: null,
+  });
+  const [OneOffPricingInfo, setOneOffPricingInfo] = useState({
+    OriginalPrice: 0,
+    DefaultDiscount: null,
+    // DefaultDiscount: 0,
+    DiscountPercentagePackageOne: null,
+    DiscountPercentagePackageTwo: null,
+    DiscountPercentagePackageThree: null,
+    VATPrice: null,
+    DiscountedPrice: "",
+    MaxDiscount: 0,
+    MinPrice: "",
+    NetTotal: 0,
+    Services: null,
+    ServicePrice: 0,
+    Discount: 0,
+    GrandTotal: 0,
+    DiscountedTotal: 0,
+    packageOneDisCount: 0,
+    packageTwoDisCount: 0,
+    packageThreeDisCount: 0,
+    packageOneDisCountedTotal: 0,
+    packageTwoDisCountedTotal: 0,
+    packageThreeDisCountedTotal: 0,
+    PackageOneVaTPrice: null,
+    PackageTwoVaTPrice: null,
+    PackageThreeVaTPrice: null,
+    PackageOneGrandTotal: null,
+    PackageTwoGrandTotal: null,
+    PackageThreeGrandTotal: null,
+  });
+  const [OneOffPricingInfoCopy, setOneOffPricingInfoCopy] = useState({
+    OriginalPrice: 0,
+    DefaultDiscount: null,
+    DiscountPercentagePackageOne: null,
+    DiscountPercentagePackageTwo: null,
+    DiscountPercentagePackageThree: null,
+    // DefaultDiscount: 0,
+    DiscountedPrice: "",
+    MaxDiscount: 0,
+    MinPrice: "",
+    NetTotal: 0,
+    Services: null,
+    ServicePrice: 0,
+    Discount: 0,
+    GrandTotal: 0,
+    DiscountedTotal: 0,
+    packageOneDisCount: 0,
+    packageTwoDisCount: 0,
+    packageThreeDisCount: 0,
+    packageOneDisCountedTotal: 0,
+    packageTwoDisCountedTotal: 0,
+    packageThreeDisCountedTotal: 0,
+    PackageOneVaTPrice: null,
+    PackageTwoVaTPrice: null,
+    PackageThreeVaTPrice: null,
+    PackageOneGrandTotal: null,
+    PackageTwoGrandTotal: null,
+    PackageThreeGrandTotal: null,
+  });
+  const [pricingSettingObj, setPricingSettingObj] = useState({
+    userKeyID: null,
+    minOneOffPriceForQC: null,
+    minMonthlyPriceForQC: null,
+    maxDiscountForQC: null,
+    PaymentFrequency: null,
+  });
+  const [modelRequestData, setModelRequestData] = useState({
+    Action: null,
+    message: "",
+    DriverName: null
+  })
+  const [ProposalObject, setProposalObject] = useState({
+    Action: null,
+    quoteKeyID: location.state?.quoteKeyID,
+    selectedProposalTypeValue: 3,
+    clientTypeId: null,
+    selectTemplateTypeId: null,
+    feeTypeId: 1,
+    Payment_Frequency: null,
+    moduleName: "Quote",
+    clientID: null,
+    templateID: null,
+    ProposalFormate: 2,
+    paymentGatewayID: null,
+    recurringHtmlContent: null,
+    oneOffHtmlContent: null,
+    DiscountLines: true,
+  });
+  const [isAdditionalServiceCheck, setIsAdditionalServiceCheck] =
+    useState(false);
+  // client name
+  const [clientLookUpOptions, setClientLookUpOptions] = useState([]);
+
+  // template name
+  const [templateLookUpOptions, setTemplateLookUpOptions] = useState([]);
+
+  // proposal name
+  const [proposalLookUpOptions, setProposalLookUpOptions] = useState([]);
+
+  useEffect(() => {
+    setTopbar("none");
+    GetClientLookupListData();
+    // GetTemplateLookupListData();
+    GetOrganisationInformationModelData();
+    GetProposalLookupListData();
+  }, []);
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 600);
+    };
+
+    // Attach the event listener for window resize
+    window.addEventListener("resize", handleResize);
+
+    // Clean up the event listener when the component unmounts
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (isAddUpdatePricingActionDone) {
+      GetPricingSettingModelData();
+      GetPaymentGatewayModelData(common.organisationKeyID);
+      setIsAddUpdatePricingActionDone(false);
+    }
+  }, [isAddUpdatePricingActionDone]);
+  // Update the total fees whenever selectedRecurringServiceList changes
+
+  const [ongoingServiceObj, setOngoingServiceObj] = useState([
+    {
+      type: null,
+      serviceKeyID: null,
+    },
+  ]);
+  const [selectedRecurringServiceList, setSelectedRecurringServiceList] =
+    useState([]);
+
+  const [RecurringServiceCopy, setRecurringServiceCopy] = useState([]);
+
+  const [selectedOneOffServiceList, setSelectedOneOffServiceList] = useState(
+    []
+  );
+
+  const [selectedPackagesList, setSelectedPackagesList] = useState([]);
+
+  const [OneOffServiceObj, setOneOffServiceObj] = useState([
+    {
+      type: null,
+      serviceKeyID: null,
+    },
+  ]);
+  const [serviceIDs, setServiceIDs] = useState([]);
+  const [SaveAsDraftError, setSaveAsDraftError] = useState({
+    basicInformationError: false,
+    pricingDrivers: false,
+    priceError: false,
+    pricingFormula: false,
+  });
+  const [RecurringFrequencyPricingInfo, setRecurringFrequencyPricingInfo] =
+    useState({
+      OriginalPrice: 0,
+      DefaultDiscount: null,
+      DiscountPercentagePackageOne: null,
+      DiscountPercentagePackageTwo: null,
+      DiscountPercentagePackageThree: null,
+      // DefaultDiscount: 0,
+      DiscountedPrice: "",
+      MaxDiscount: 0,
+      MinPrice: "",
+      NetTotal: 0,
+      Services: null,
+      ServicePrice: 0,
+      Discount: 0,
+      DiscountedTotal: 0,
+      packageOneDisCount: 0,
+      packageTwoDisCount: 0,
+      packageThreeDisCount: 0,
+      packageOneDisCountedTotal: 0,
+      packageTwoDisCountedTotal: 0,
+      packageThreeDisCountedTotal: 0,
+      PackageOneVaTPrice: null,
+      PackageTwoVaTPrice: null,
+      PackageThreeVaTPrice: null,
+      PackageOneGrandTotal: null,
+      PackageTwoGrandTotal: null,
+      PackageThreeGrandTotal: null,
+    });
+  // A]  useEffect : Will call when Add/Update button click from list page
+  useEffect(() => {
+    setModelAction(
+      location?.state?.Action === undefined || location?.state?.Action === null
+        ? "Add"
+        : "Update"
+    ); //Do not change this naming convention
+    setTopbar("none");
+  }, [location.state, recurringServiceList]);
+
+  // B] Initial useEffect :
+  // 1) Will Call Initial Api Like List Api
+  useEffect(() => {
+    GetServiceListData();
+    // GetServicePackageLookupListData();
+    GetQuoteTypeLookupListData();
+  }, [common.organisationKeyID]);
+
+  useEffect(() => {
+    setTopbar("none");
+    if (location.state?.quoteKeyID !== null) {
+      GetProposalModalData(location.state?.quoteKeyID);
+      setIsBack(true);
+      GetRecurringServiceListData();
+      GetOneOffServiceListData();
+    }
+  }, [location.state]);
+
+  const [isValidForm, setIsValidForm] = useState({
+    BasicForm: false,
+    SelectService: false,
+    AdditionalInfo: false,
+    PricingInfo: false,
+    SelectPackages: false,
+    ReviewPackages: false,
+    ReviewService: false,
+    Preview: false,
+  });
+
+  useEffect(() => {
+    const Admin_Proposal_CanAdd_New = hasActionAccess(2, 5);
+    if (
+      (location?.state?.Action === undefined ||
+        location?.state?.Action === null) &&
+      !Admin_Proposal_CanAdd_New
+    ) {
+      navigate(-1);
+    }
+    // Call the function when component mounts
+    computeRecurringTotalPackageValues();
+
+    // Call the function when component mounts
+    computeOneOffTotalPackageValues();
+  }, []);
+
+  // Function to compute the sum of package values
+  const computeRecurringTotalPackageValues = () => {
+    let totalOne = 0;
+    let totalTwo = 0;
+    let totalThree = 0;
+
+    selectedRecurringServiceList?.forEach((category) => {
+      category.servicesList.forEach((service) => {
+        // Check if the packageID is included in servicePackageIDs before adding
+        if (
+          service.servicePackageIDs?.includes(service.packageOneID) &&
+          service.packageOneValue !== null
+        ) {
+          totalOne += Number(service.packageOneValue);
+        }
+        if (
+          service.servicePackageIDs?.includes(service.packageTwoID) &&
+          service.packageTwoValue !== null
+        ) {
+          totalTwo += Number(service.packageTwoValue);
+        }
+        if (
+          service.servicePackageIDs?.includes(service.packageThreeID) &&
+          service.packageThreeValue !== null
+        ) {
+          totalThree += Number(service.packageThreeValue);
+        }
+      });
+    });
+    if (RecurringPricingInfo.packageOneDisCountedTotal == 0) {
+      setRecurringPricingInfo({
+        ...RecurringPricingInfo,
+        packageOneDisCountedTotal: totalOne,
+      });
+    }
+    if (RecurringPricingInfo.packageTwoDisCountedTotal == 0) {
+      setRecurringPricingInfo({
+        ...RecurringPricingInfo,
+        packageTwoDisCountedTotal: totalTwo,
+      });
+    }
+    if (RecurringPricingInfo.packageThreeDisCountedTotal == 0) {
+      setRecurringPricingInfo({
+        ...RecurringPricingInfo,
+        packageThreeDisCountedTotal: totalThree,
+      });
+    }
+  };
+
+  // Function to compute the sum of package values
+  const computeOneOffTotalPackageValues = () => {
+    let totalOne = 0;
+    let totalTwo = 0;
+    let totalThree = 0;
+
+    selectedOneOffServiceList?.forEach((category) => {
+      category.servicesList.forEach((service) => {
+        // Check if the value is not null before adding
+        if (service.packageOneValue !== null)
+          totalOne += service.packageOneValue;
+        if (service.packageTwoValue !== null)
+          totalTwo += service.packageTwoValue;
+        if (service.packageThreeValue !== null)
+          totalThree += service.packageThreeValue;
+      });
+    });
+
+    if (OneOffPricingInfo.packageOneDisCountedTotal == 0) {
+      setOneOffPricingInfo({
+        ...OneOffPricingInfo,
+        packageOneDisCountedTotal: totalOne,
+      });
+    }
+    if (OneOffPricingInfo.packageTwoDisCountedTotal == 0) {
+      setOneOffPricingInfo({
+        ...OneOffPricingInfo,
+        packageTwoDisCountedTotal: totalTwo,
+      });
+    }
+    if (OneOffPricingInfo.packageThreeDisCountedTotal == 0) {
+      setOneOffPricingInfo({
+        ...OneOffPricingInfo,
+        packageThreeDisCountedTotal: totalThree,
+      });
+    }
+  };
+  const GetSingleDefaultDiscountPercentageOfPackages = (
+    packageOneDiscountPercentage,
+    packageTwoDiscountPercentage,
+    packageThreeDiscountPercentage
+  ) => {
+    let DefaultDiscount = null;
+    if (
+      packageOneDiscountPercentage < 0 ||
+      packageTwoDiscountPercentage < 0 ||
+      packageThreeDiscountPercentage < 0
+    ) {
+      DefaultDiscount = -0.01;
+    } else if (
+      packageOneDiscountPercentage > 0 ||
+      packageTwoDiscountPercentage > 0 ||
+      packageThreeDiscountPercentage > 0
+    ) {
+      DefaultDiscount = 1.0;
+    }
+    return DefaultDiscount;
+  };
+  //Handle SelectPackage Checkbox
+  const handlePackageCheckboxClick = (selectedPackage) => {
+    if (selectedPackage.needToUpdate && !selectedPackages.includes(selectedPackage.servicePackageID)) {
+      setOpenErrorModal(true)
+      setErrorMessage("Please update package first")
+      return
+    }
+    setIsBack(false);
+    // setIsUpdatePackage(false)
+    setRecurringPricingInfo({
+      ...RecurringPricingInfo,
+      DiscountPercentagePackageOne: null,
+      DiscountPercentagePackageTwo: null,
+      DiscountPercentagePackageThree: null,
+    });
+    setOneOffPricingInfo({
+      ...OneOffPricingInfo,
+      DiscountPercentagePackageOne: null,
+      DiscountPercentagePackageTwo: null,
+      DiscountPercentagePackageThree: null,
+    });
+    const selectedPackagesArray = selectedPackages || [];
+    const index = selectedPackagesArray.indexOf(
+      selectedPackage.servicePackageID
+    );
+    const updatedPackages = [...selectedPackagesArray];
+    if (index === -1) {
+      if (selectedPackagesArray.length < 3) {
+        setShowValidationForMax(false); // Clear the max validation error message
+        setSelectedPackages([
+          ...selectedPackagesArray,
+          selectedPackage.servicePackageID,
+        ]);
+        setSelectedPackagesDetails([
+          ...selectedPackagesDetails,
+          selectedPackage,
+        ]);
+        setShowValidationForMin(false); // Clear the min validation error message
+      } else {
+        setShowValidationForMax(true);
+      }
+    } else {
+      updatedPackages.splice(index, 1);
+      setSelectedPackages(updatedPackages);
+      setSelectedPackagesDetails(
+        selectedPackagesDetails.filter(
+          (pkg) => pkg.servicePackageID !== selectedPackage.servicePackageID
+        )
+      );
+      if (showValidationForMax) {
+        setShowValidationForMax(false); // Clear the max validation error message
+      }
+    }
+  };
+  const handleCloseModel = () => {
+    setShowModal(false);
+  };
+  const handleClose = () => {
+    const closeModal = modelRequestData.message.includes("The result of this operation")
+    if (closeModal) {
+      setOpenErrorModal(false)
+      $("#" + "RecordsAvailablePopupModel").modal("hide");
+      setModelRequestData({
+        ...modelRequestData,
+        Action: null,
+        DriverName: [],
+        message: ""
+      })
+      return false
+    }
+    $("#" + props.id).modal("hide");
+    setOpenSuccessModal(false);
+    setOpenErrorModal(false);
+    navigate("/proposals");
+  };
+
+  const handleCloseErrorModel = () => {
+    setOpenErrorModal(false);
+  };
+
+  // Handle Calculation Package
+  async function handleSetCalculatedPackageServiceData(
+    additionalInformationList,
+    recurringServiceListData,
+    oneOffServiceListData
+  ) {
+    setRequireMessage(false);
+
+    const extractServiceData = (serviceList, serviceChargeTypeID) => {
+      return serviceList
+        ?.flatMap((recurringItem) =>
+          recurringItem?.servicesList.map((MapItem) => {
+            const pricingDriverList = MapItem.pricingDriverList;
+            if (pricingDriverList.length !== 0) {
+              return pricingDriverList
+                .filter((item) => item.driverVisibility === true)
+                .map((driver) => ({
+                  serviceID: MapItem.serviceID,
+                  globalPricingDriverID: driver.globalPricingDriverID,
+                  driverValue:
+                    (
+                      driver.variation?.find(
+                        (item) => item.isDefault === true
+                      ) || {}
+                    ).variationValue ||
+                    (driver.slab?.find((item) => item.isDefault === true) || {})
+                      .slabValue ||
+                    driver.driverValue,
+                  variationID:
+                    (
+                      driver.variation?.find(
+                        (item) => item.isDefault === true
+                      ) || {}
+                    ).variationID || null,
+                  slabID:
+                    (driver.slab?.find((item) => item.isDefault === true) || {})
+                      .slabID || null,
+                  serviceChargeTypeID: serviceChargeTypeID,
+                  serviceCatID: recurringItem.serviceCatID,
+                }));
+            } else {
+              return {
+                serviceID: MapItem.serviceID,
+                globalPricingDriverID: null,
+                serviceChargeTypeID: serviceChargeTypeID,
+                serviceCatID: recurringItem.serviceCatID,
+                driverValue: null,
+                variationID: null,
+                slabID: null,
+              };
+            }
+          })
+        )
+        .flat();
+    };
+
+    const recurringServicesObj = await extractServiceData(
+      recurringServiceListData, 1
+    );
+    const oneOffServicesObj = await extractServiceData(oneOffServiceListData, 2);
+    const AdditionalData = additionalInformationList
+      ?.filter((item) => {
+        if (item.driverTypeID === 2) {
+          return true;
+        } else if (item.slab !== null) {
+          return item.slab.some((slab) => slab.isDefault);
+        } else if (item.variation !== null) {
+          return item.variation.some((variation) => variation.isDefault);
+        } else {
+          return false;
+        }
+      })
+      .map((item) => ({
+        serviceID: item.serviceID,
+        globalPricingDriverID: item.globalPricingDriverID,
+        driverValue: item.driverValue,
+        variationID:
+          item.variation !== null
+            ? item.variation.find((variation) => variation.isDefault)
+              ?.variationID
+            : null,
+        slabID:
+          item.slab !== null
+            ? item.slab.find((slab) => slab.isDefault)?.slabID
+            : null,
+      }))
+      .flat();
+
+    const ServicePricing = {
+      userKeyID: common.userKeyID,
+      organisationKeyID: common.organisationKeyID,
+      GetValueOf: (() => {
+        let paymentFrequency = null;
+        switch (ProposalObject.Payment_Frequency) {
+          case 1:
+            paymentFrequency = "Yearly";
+            break;
+          case 2:
+            paymentFrequency = "HalfYearly";
+            break;
+          case 3:
+            paymentFrequency = "Quarterly";
+            break;
+          case 4:
+            paymentFrequency = "Monthly";
+            break;
+          default:
+            paymentFrequency = null;
+        }
+        return paymentFrequency;
+      })(),
+      ServicePackageIDs: selectedPackages || null,
+      calculateServicesGPDList: [
+        ...oneOffServicesObj,
+        ...recurringServicesObj,
+        ...AdditionalData,
+      ],
+    };
+
+    return ServicePricing;
+  }
+
+  //Handle Calculate package data
+  async function handleSetCalculatedPackageData() {
+    setRequireMessage(false);
+
+    const extractServiceData = (serviceList, serviceChargeTypeID) => {
+      return serviceList
+        ?.flatMap((recurringItem) =>
+          recurringItem?.servicesList
+            .filter((i) => i.isSelected === true)
+            .map((MapItem) => {
+              const pricingDriverList = MapItem.pricingDriverList;
+              if (pricingDriverList.length !== 0) {
+                return pricingDriverList
+                  .filter((item) => item.driverVisibility === true)
+                  .map((driver) => ({
+                    serviceID: MapItem.serviceID,
+                    globalPricingDriverID: driver.globalPricingDriverID,
+                    driverValue:
+                      (
+                        driver.variation?.find(
+                          (item) => item.isDefault === true
+                        ) || {}
+                      ).variationValue ||
+                      (
+                        driver.slab?.find((item) => item.isDefault === true) ||
+                        {}
+                      ).slabValue ||
+                      driver.driverValue,
+                    variationID:
+                      (
+                        driver.variation?.find(
+                          (item) => item.isDefault === true
+                        ) || {}
+                      ).variationID || null,
+                    slabID:
+                      (
+                        driver.slab?.find((item) => item.isDefault === true) ||
+                        {}
+                      ).slabID || null,
+                    serviceChargeTypeID: serviceChargeTypeID,
+                    serviceCatID: recurringItem.serviceCatID,
+                  }));
+              } else {
+                return {
+                  serviceID: MapItem.serviceID,
+                  globalPricingDriverID: null,
+                  serviceChargeTypeID: serviceChargeTypeID,
+                  serviceCatID: recurringItem.serviceCatID,
+                  driverValue: null,
+                  variationID: null,
+                  slabID: null,
+                };
+              }
+            })
+        )
+        .flat();
+    };
+
+    const recurringServicesObj = await extractServiceData(recurringServiceList, 1);
+    const oneOffServicesObj = await extractServiceData(oneOffServiceList, 2);
+
+    const AdditionalData = additionalInformationList
+      ?.filter((item) => {
+        if (item.driverTypeID === 2) {
+          return true;
+        } else if (item.slab !== null) {
+          return item.slab.some((slab) => slab.isDefault);
+        } else if (item.variation !== null) {
+          return item.variation.some((variation) => variation.isDefault);
+        } else {
+          return false;
+        }
+      })
+      .map((item) => ({
+        serviceID: item.serviceID,
+        globalPricingDriverID: item.globalPricingDriverID,
+        driverValue: item.driverValue,
+        variationID:
+          item.variation !== null
+            ? item.variation.find((variation) => variation.isDefault)
+              ?.variationID
+            : null,
+        slabID:
+          item.slab !== null
+            ? item.slab.find((slab) => slab.isDefault)?.slabID
+            : null,
+      }))
+      .flat();
+
+    const ServicePricing = {
+      userKeyID: common.userKeyID,
+      organisationKeyID: common.organisationKeyID,
+      ServicePackageIDs: selectedPackages || null,
+      GetValueOf: (() => {
+        let paymentFrequency = null;
+        switch (ProposalObject.Payment_Frequency) {
+          case 1:
+            paymentFrequency = "Yearly";
+            break;
+          case 2:
+            paymentFrequency = "HalfYearly";
+            break;
+          case 3:
+            paymentFrequency = "Quarterly";
+            break;
+          case 4:
+            paymentFrequency = "Monthly";
+            break;
+          default:
+            paymentFrequency = 1;
+        }
+        return paymentFrequency;
+      })(),
+      // GetValueOf: "Yearly",
+      calculateServicesGPDList: [
+        ...oneOffServicesObj,
+        ...recurringServicesObj,
+        ...AdditionalData,
+      ],
+    };
+
+    return ServicePricing;
+  }
+  function roundUpToSixDecimals(num) {
+    num = Number(num)?.toFixed(2);
+    return Number(num);
+    // if (num === null) return 0;
+    // const factor = Math.pow(10, 6);
+    // return (Math.ceil(num * factor) / factor).toFixed(6);
+  }
+  // Handle tab For Selected packages
+  const handleTabChange = async (tabIndex) => {
+    if (selectedPackages.length === 0) {
+      setShowValidationForMin(true);
+      return;
+    }
+    setActiveTab(tabIndex);
+  };
+  function updatePackageIDs(data) {
+    data.forEach((category) => {
+      category.servicesList.forEach((service) => {
+        if (!service.isAdditionalService) {
+          if (!service.servicePackageIDs.includes(service.packageOneID)) {
+            service.packageOneID = null;
+          }
+          if (!service.servicePackageIDs.includes(service.packageTwoID)) {
+            service.packageTwoID = null;
+          }
+          if (!service.servicePackageIDs.includes(service.packageThreeID)) {
+            service.packageThreeID = null;
+          }
+        }
+      });
+    });
+    return data; // Return updated data array
+  }
+  // Get Calculated Service Price
+  const GetCalculatedServicesPriceData = async (
+    obj,
+    tab,
+    recurringServiceListData,
+    oneOffServiceListData
+  ) => {
+    setLoader(true);
+
+    if (obj.calculateServicesGPDList.length === 0) {
+      return;
+    }
+
+    try {
+      const data = await GetCalculatedServicesPriceByPackages(obj);
+      if (data?.data?.statusCode === 200) {
+        setLoader(false);
+
+        if (data?.data?.responseData?.data) {
+          const PricingData = data?.data?.responseData?.data;
+
+          setSelectedServices(PricingData);
+
+          const vatPercentage = data?.data?.responseData?.vatPercentage;
+          setVATPercentage(vatPercentage);
+          setSelectedPackagesList(data?.data?.responseData?.packageList);
+          const PackageList = data?.data?.responseData?.packageList;
+          const serviceMappingWithPackagesList =
+            data?.data?.responseData?.serviceMappingWithPackagesList;
+          let recurringServices = serviceMappingWithPackagesList.filter(
+            (item) => item.serviceChargeTypeID === 1
+          );
+          let OneOffServices = serviceMappingWithPackagesList.filter(
+            (item) => item.serviceChargeTypeID === 2
+          );
+
+          if (
+            ProposalObject.selectedProposalTypeValue === 1 ||
+            ProposalObject.selectedProposalTypeValue === 2 ||
+            ProposalObject.selectedProposalTypeValue === 3
+          ) {
+            const RecurringServicePrices = {};
+            const OneOffServicePrices = {};
+            let recArray = [];
+            let OneArray = [];
+            let hasError = false
+            const oneOffService = []
+            const RecurringService = []
+            // Populate the RecurringServicePrices object
+            PricingData.filter(item => item.serviceChargeTypeID === 1).forEach((service) => {
+              // Initialize the category object if it doesn't exist
+              if (!RecurringServicePrices[service.serviceCatID]) {
+                RecurringServicePrices[service.serviceCatID] = {};
+              }
+              let ValidPrice = isValidNumber(service.price)
+              if (ProposalObject.selectedProposalTypeValue === 3) {
+                ValidPrice = isValidNumber(service.price);
+              } else {
+                // Check validity for all three package values
+                ValidPrice = isValidNumber(service.packageOneValue) &&
+                  isValidNumber(service.packageTwoValue) &&
+                  isValidNumber(service.packageThreeValue);
+              }
+              if (!ValidPrice) {
+                hasError = true
+                RecurringService.push(service)
+              }
+              RecurringServicePrices[service.serviceCatID][service.serviceID] = {
+                serviceCatID: service.serviceCatID,
+                price: roundUpToSixDecimals(Number(service.price)),
+                originalServicePrice: Number(service.price),
+                serviceDescription: service.serviceDescription,
+                packageOneValue: roundUpToSixDecimals(Number(service.packageOneValue)),
+                packageTwoValue: roundUpToSixDecimals(Number(service.packageTwoValue)),
+                packageThreeValue: roundUpToSixDecimals(Number(service.packageThreeValue)),
+                originalPackageOneValue: service.packageOneValue,
+                originalPackageTwoValue: service.packageTwoValue,
+                originalPackageThreeValue: service.packageThreeValue,
+                servicePackageIDs: service.servicePackageIDs,
+                packageOneID: service.packageOneID,
+                packageTwoID: service.packageTwoID,
+                packageThreeID: service.packageThreeID,
+                isAdditionalService: service.isAdditionalService,
+              };
+            });
+
+            // Populate the OneOffServicePrices object
+            PricingData.filter(item => item.serviceChargeTypeID === 2).forEach((service) => {
+              // Initialize the category object if it doesn't exist
+              if (!OneOffServicePrices[service.serviceCatID]) {
+                OneOffServicePrices[service.serviceCatID] = {};
+              }
+              let ValidPrice = isValidNumber(service.price)
+              if (ProposalObject.selectedProposalTypeValue === 3) {
+                ValidPrice = isValidNumber(service.price);
+              } else {
+                // Check validity for all three package values
+                ValidPrice = isValidNumber(service.packageOneValue) &&
+                  isValidNumber(service.packageTwoValue) &&
+                  isValidNumber(service.packageThreeValue);
+              }
+              if (!ValidPrice) {
+                hasError = true
+                oneOffService.push(service)
+              }
+              OneOffServicePrices[service.serviceCatID][service.serviceID] = {
+                serviceCatID: service.serviceCatID,
+                price: roundUpToSixDecimals(Number(service.price)),
+                originalServicePrice: Number(service.price),
+                serviceDescription: service.serviceDescription,
+                packageOneValue: roundUpToSixDecimals(Number(service.packageOneValue)),
+                packageTwoValue: roundUpToSixDecimals(Number(service.packageTwoValue)),
+                packageThreeValue: roundUpToSixDecimals(Number(service.packageThreeValue)),
+                originalPackageOneValue: service.packageOneValue,
+                originalPackageTwoValue: service.packageTwoValue,
+                originalPackageThreeValue: service.packageThreeValue,
+                servicePackageIDs: service.servicePackageIDs,
+                packageOneID: service.packageOneID,
+                packageTwoID: service.packageTwoID,
+                packageThreeID: service.packageThreeID,
+                isAdditionalService: service.isAdditionalService,
+              };
+            });
+            if (hasError) {
+              showModalRecordsAvailable(
+                `The result of this operation is too large to be processed. Please check the following services.`,
+                [...RecurringService, ...oneOffService]
+              );
+              return;
+            } else {
+              setModelRequestData({
+                ...modelRequestData,
+                Action: null,
+                DriverName: [],
+                message: ""
+              })
+            }
+            if (
+              ProposalObject.selectedProposalTypeValue === 1 ||
+              ProposalObject.selectedProposalTypeValue === 3
+            ) {
+              recArray = recurringServiceList
+                .filter((category) =>
+                  category.servicesList.some((service) => service.isSelected)
+                )
+                .map((category) => ({
+                  serviceCatID: category.serviceCatID,
+                  serviceCatName: category.serviceCatName,
+                  servicesList: category.servicesList.filter(
+                    (service) => service.isSelected
+                  ),
+                }));
+              OneArray = oneOffServiceList
+                .filter((category) =>
+                  category.servicesList.some((service) => service.isSelected)
+                )
+                .map((category) => ({
+                  serviceCatID: category.serviceCatID,
+                  serviceCatName: category.serviceCatName,
+                  servicesList: category.servicesList.filter(
+                    (service) => service.isSelected
+                  ),
+                }));
+            } else {
+
+              recArray = recurringServiceListData
+                .filter((category) =>
+                  category.servicesList.some((service) => service.isSelected)
+                )
+                .map((category) => ({
+                  serviceCatID: category.serviceCatID,
+                  serviceCatName: category.serviceCatName,
+                  servicesList: category.servicesList.filter(
+                    (service) => service.isSelected
+                  ),
+                }));
+              OneArray = oneOffServiceListData
+                .filter((category) =>
+                  category.servicesList.some((service) => service.isSelected)
+                )
+                .map((category) => ({
+                  serviceCatID: category.serviceCatID,
+                  serviceCatName: category.serviceCatName,
+                  servicesList: category.servicesList.filter(
+                    (service) => service.isSelected
+                  ),
+                }));
+            }
+
+            let recArrayWithPrice = recArray.map((category) => ({
+              serviceCatID: category.serviceCatID,
+              serviceCatName: category.serviceCatName,
+              servicesList: category.servicesList.map((service) => {
+                const servicePriceData = RecurringServicePrices[category.serviceCatID][service.serviceID];
+
+                // If the service price data is defined and matches the category
+                const isMatchingCategory = servicePriceData && servicePriceData.serviceCatID === category.serviceCatID;
+
+                let updatedServicePackageIDs = []; // Add logic here if this array needs to be populated.
+
+                return {
+                  ...service,
+                  serviceDescription: servicePriceData.serviceDescription,
+                  price: isMatchingCategory ? servicePriceData.price : null,
+                  originalServicePrice: servicePriceData.originalServicePrice,
+                  packageOneValue: isMatchingCategory ? Number(servicePriceData.packageOneValue) : null,
+                  packageTwoValue: isMatchingCategory ? Number(servicePriceData.packageTwoValue) : null,
+                  packageThreeValue: isMatchingCategory ? Number(servicePriceData.packageThreeValue) : null,
+                  originalPackageOneValue: isMatchingCategory ? Number(servicePriceData.originalPackageOneValue) : null,
+                  originalPackageTwoValue: isMatchingCategory ? Number(servicePriceData.originalPackageTwoValue) : null,
+                  originalPackageThreeValue: isMatchingCategory ? Number(servicePriceData.originalPackageThreeValue) : null,
+                  servicePackageIDs: updatedServicePackageIDs, // Update this based on the logic you want
+                  packageOneID: servicePriceData.packageOneID,
+                  packageTwoID: servicePriceData.packageTwoID,
+                  packageThreeID: servicePriceData.packageThreeID,
+                  isAdditionalService: servicePriceData.isAdditionalService,
+                };
+              }),
+            }));
+
+
+            let recArrayWithPriceCopy = recArray.map((category) => ({
+              serviceCatID: category.serviceCatID,
+              serviceCatName: category.serviceCatName,
+              servicesList: category.servicesList.map((service) => {
+                const servicePriceData = RecurringServicePrices[category.serviceCatID][service.serviceID];
+
+                if (!servicePriceData || servicePriceData.serviceCatID !== category.serviceCatID) {
+                  // Skip this service if servicePriceData does not match the category's serviceCatID
+                  return service;
+                }
+
+                // Extract the needed data
+                let {
+                  serviceDescription,
+                  price,
+                  packageOneValue,
+                  packageTwoValue,
+                  packageThreeValue,
+                  servicePackageIDs,
+                  packageOneID,
+                  packageTwoID,
+                  packageThreeID,
+                  isAdditionalService,
+                  originalServicePrice,
+                  originalPackageOneValue,
+                  originalPackageTwoValue,
+                  originalPackageThreeValue
+                } = servicePriceData;
+
+                let updatedServicePackageIDs = []; // If you need to modify this, add logic here
+
+                // Adjust price and package values based on the payment frequency
+                switch (ProposalObject.Payment_Frequency) {
+                  case 4: // Monthly, convert to yearly (multiplied by 12)
+                    price *= 12;
+                    originalServicePrice *= 12;
+                    packageOneValue *= 12;
+                    packageTwoValue *= 12;
+                    packageThreeValue *= 12;
+                    originalPackageOneValue *= 12;
+                    originalPackageTwoValue *= 12;
+                    originalPackageThreeValue *= 12;
+                    break;
+                  case 3: // Quarterly, convert to yearly (multiplied by 4)
+                    price *= 4;
+                    originalServicePrice *= 4;
+                    packageOneValue *= 4;
+                    packageTwoValue *= 4;
+                    packageThreeValue *= 4;
+                    originalPackageOneValue *= 4;
+                    originalPackageTwoValue *= 4;
+                    originalPackageThreeValue *= 4;
+                    break;
+                  case 2: // Semi-annual, convert to yearly (multiplied by 2)
+                    price *= 2;
+                    originalServicePrice *= 2;
+                    packageOneValue *= 2;
+                    packageTwoValue *= 2;
+                    packageThreeValue *= 2;
+                    originalPackageOneValue *= 2;
+                    originalPackageTwoValue *= 2;
+                    originalPackageThreeValue *= 2;
+                    break;
+                  case 1: // Yearly, no conversion needed
+                  default:
+                    // No adjustment required
+                    break;
+                }
+
+                return {
+                  ...service,
+                  price,
+                  originalServicePrice,
+                  serviceDescription,
+                  packageOneValue,
+                  packageTwoValue,
+                  packageThreeValue,
+                  originalPackageOneValue,
+                  originalPackageTwoValue,
+                  originalPackageThreeValue,
+                  servicePackageIDs: updatedServicePackageIDs, // Update logic if needed
+                  packageOneID,
+                  packageTwoID,
+                  packageThreeID,
+                  isAdditionalService,
+                };
+              }),
+            }));
+
+
+            let OneArrayWithPrice = OneArray.map((category) => ({
+              serviceCatID: category.serviceCatID,
+              serviceCatName: category.serviceCatName,
+              servicesList: category.servicesList.map((service) => {
+                const {
+                  serviceDescription,
+                  price,
+                  packageOneValue,
+                  packageTwoValue,
+                  packageThreeValue,
+                  originalPackageOneValue,
+                  originalPackageTwoValue,
+                  originalPackageThreeValue,
+                  servicePackageIDs,
+                  packageOneID,
+                  packageTwoID,
+                  packageThreeID,
+                  isAdditionalService,
+                  originalServicePrice,
+                } = OneOffServicePrices[category.serviceCatID][service.serviceID]
+                let updatedServicePackageIDs = [];
+
+                // Determine multiplier based on payment frequency
+                let multiplier = 1; // Default for yearly or no adjustment
+                switch (ProposalObject.Payment_Frequency) {
+                  case 4: // Monthly
+                    multiplier = 12;
+                    break;
+                  case 3: // Quarterly
+                    multiplier = 4;
+                    break;
+                  case 2: // Semi-annual
+                    multiplier = 2;
+                    break;
+                  default: // Yearly or unknown case
+                    multiplier = 1;
+                    break;
+                }
+
+                return {
+                  ...service,
+                  price: originalServicePrice * multiplier, // Multiplied price (if needed)
+                  originalServicePrice: originalServicePrice * multiplier, // Multiplied original price
+                  serviceDescription,
+                  packageOneValue: originalPackageOneValue * multiplier, // Multiplied values
+                  packageTwoValue: originalPackageTwoValue * multiplier,
+                  packageThreeValue: originalPackageThreeValue * multiplier,
+                  originalPackageOneValue: originalPackageOneValue * multiplier, // Original package values multiplied
+                  originalPackageTwoValue: originalPackageTwoValue * multiplier,
+                  originalPackageThreeValue: originalPackageThreeValue * multiplier,
+                  servicePackageIDs: updatedServicePackageIDs, // This can be updated based on logic
+                  packageOneID,
+                  packageTwoID,
+                  packageThreeID,
+                  isAdditionalService,
+                };
+              }),
+            }));
+
+
+            recArrayWithPriceCopy.forEach((category) => {
+              category.servicesList.forEach((service) => {
+                // Initialize servicePackageIDs if it's not already an array
+                if (!Array.isArray(service.servicePackageIDs)) {
+                  service.servicePackageIDs = [];
+                }
+
+                // Find matching service from recurringServices
+                recurringServices.forEach((rs) => {
+                  if (
+                    rs.serviceID === service.serviceID &&
+                    rs.serviceCatID === category.serviceCatID
+                  ) {
+                    // Ensure the servicePackageID is unique in servicePackageIDs
+                    if (
+                      !service.servicePackageIDs.includes(rs.servicePackageID)
+                    ) {
+                      service.servicePackageIDs.push(rs.servicePackageID);
+                    }
+                  }
+                });
+              });
+            });
+
+            recArrayWithPrice.forEach((category) => {
+              category.servicesList.forEach((service) => {
+                // Initialize servicePackageIDs if it's not already an array
+                if (!Array.isArray(service.servicePackageIDs)) {
+                  service.servicePackageIDs = [];
+                }
+
+                // Find matching service from recurringServices
+                recurringServices.forEach((rs) => {
+                  if (
+                    rs.serviceID === service.serviceID &&
+                    rs.serviceCatID === category.serviceCatID
+                  ) {
+                    // Ensure the servicePackageID is unique in servicePackageIDs
+                    if (
+                      !service.servicePackageIDs.includes(rs.servicePackageID)
+                    ) {
+                      service.servicePackageIDs.push(rs.servicePackageID);
+                    }
+                  }
+                });
+              });
+            });
+
+            recArrayWithPriceCopy.forEach((category) => {
+              category.servicesList.forEach((service) => {
+                if (service.isAdditionalService) {
+                  // Find matching additional service from QuotationAdditionalServices
+                  const additionalService =
+                    QuotationAdditionalServices !== null &&
+                    QuotationAdditionalServices.find(
+                      (item) =>
+                        item.serviceChargeTypeID === 1 &&
+                        item.serviceID === service.serviceID
+                    );
+
+                  // Update servicePackageIDs only if additional service is found and has package IDs
+                  const updatedServicePackageIDs =
+                    additionalService &&
+                      additionalService.servicePackageIDs.length > 0
+                      ? additionalService.servicePackageIDs
+                      : RecurringServicePrices[category.serviceCatID][service.serviceID].servicePackageIDs;
+
+                  // Update servicePackageIDs in the service object
+                  service.servicePackageIDs = updatedServicePackageIDs;
+                }
+              });
+            });
+            recArrayWithPrice.forEach((category) => {
+              category.servicesList.forEach((service) => {
+                if (service.isAdditionalService) {
+                  // Find matching additional service from QuotationAdditionalServices
+                  const additionalService =
+                    QuotationAdditionalServices !== null &&
+                    QuotationAdditionalServices.find(
+                      (item) =>
+                        item.serviceChargeTypeID === 1 &&
+                        item.serviceID === service.serviceID
+                    );
+
+                  // Update servicePackageIDs only if additional service is found and has package IDs
+                  const updatedServicePackageIDs =
+                    additionalService &&
+                      additionalService.servicePackageIDs.length > 0
+                      ? additionalService.servicePackageIDs
+                      : RecurringServicePrices[category.serviceCatID][service.serviceID].servicePackageIDs;
+
+                  // Update servicePackageIDs in the service object
+                  service.servicePackageIDs = updatedServicePackageIDs;
+                }
+              });
+            });
+            OneArrayWithPrice.filter((category) => {
+              category.servicesList.forEach((service) => {
+                // Initialize servicePackageIDs if it's not already an array
+                if (!Array.isArray(service.servicePackageIDs)) {
+                  service.servicePackageIDs = [];
+                }
+
+                // Find matching service from recurringServices
+                OneOffServices.forEach((rs) => {
+                  if (
+                    rs.serviceID === service.serviceID &&
+                    rs.serviceCatID === category.serviceCatID
+                  ) {
+                    // Ensure the servicePackageID is unique in servicePackageIDs
+                    if (
+                      !service.servicePackageIDs.includes(rs.servicePackageID)
+                    ) {
+                      service.servicePackageIDs.push(rs.servicePackageID);
+                    }
+                  }
+                });
+              });
+            });
+
+            OneArrayWithPrice.filter((category) => {
+              category.servicesList.map((service) => {
+                if (service.isAdditionalService) {
+                  // Find matching additional service from QuotationAdditionalServices
+                  const additionalService =
+                    QuotationAdditionalServices !== null &&
+                    QuotationAdditionalServices.find(
+                      (item) =>
+                        item.serviceChargeTypeID === 2 &&
+                        item.serviceID === service.serviceID
+                    );
+
+                  // Update servicePackageIDs only if additional service is found and has package IDs
+                  const updatedServicePackageIDs =
+                    additionalService &&
+                      additionalService.servicePackageIDs.length > 0
+                      ? additionalService.servicePackageIDs
+                      : OneOffServicePrices[category.serviceCatID][service.serviceID].servicePackageIDs;
+
+                  // Update servicePackageIDs in the service object
+                  service.servicePackageIDs = updatedServicePackageIDs;
+                }
+              });
+            });
+            recArrayWithPrice = updatePackageIDs(recArrayWithPrice);
+            OneArrayWithPrice = updatePackageIDs(OneArrayWithPrice);
+            setSelectedRecurringServiceList(recArrayWithPrice);
+            setRecurringServiceCopy(recArrayWithPriceCopy);
+
+            setSelectedOneOffServiceList(OneArrayWithPrice);
+
+            let RecTotal = 0;
+            let OneOffTotal = 0;
+            recArrayWithPrice.forEach((category) => {
+              category.servicesList.forEach((service) => {
+                // Perform the percentage calculation for each value
+                let currentServicePrice =
+                  service.originalServicePrice === undefined
+                    ? (service.quotationPrice = Number(service.quotationPrice))
+                    : (service.originalServicePrice = Number(
+                      service.originalServicePrice
+                    ));
+
+                let currentServicePriceWithToFixed =
+                  Number(currentServicePrice)?.toFixed(2);
+                //service.price = currentServicePriceWithToFixed
+                RecTotal = Number(
+                  Number(RecTotal) + Number(currentServicePriceWithToFixed)
+                )?.toFixed(2);
+
+                // service.price === undefined
+                //   ? (service.quotationPrice = Number(service.quotationPrice))
+                //   : (service.price = Number(service.price));
+              });
+            });
+            OneArrayWithPrice.forEach((category) => {
+              category.servicesList.forEach((service) => {
+                // Perform the percentage calculation for each value
+                let currentServicePrice =
+                  service.originalServicePrice === undefined
+                    ? (service.quotationPrice = Number(service.quotationPrice))
+                    : (service.originalServicePrice = Number(
+                      service.originalServicePrice
+                    ));
+
+                let currentServicePriceWithToFixed =
+                  Number(currentServicePrice)?.toFixed(2);
+                //service.price = currentServicePriceWithToFixed
+                OneOffTotal = Number(
+                  Number(OneOffTotal) + Number(currentServicePriceWithToFixed)
+                )?.toFixed(2);
+
+                // service.price === undefined
+                //   ? (service.quotationPrice = Number(service.quotationPrice))
+                //   : (service.price = Number(service.price));
+              });
+            });
+            // const RecTotal = recArrayWithPrice.reduce((acc, category) => {
+            //   return (
+            //     acc +
+            //     category.servicesList.reduce((subtotal, service) => {
+            //       return Number(subtotal) + Number(service.originalServicePrice);
+            //     }, 0)
+            //   );
+            // }, 0);
+            // const OneOffTotal = OneArrayWithPrice.reduce((acc, category) => {
+            //   return (
+            //     acc +
+            //     category.servicesList.reduce((subtotal, service) => {
+            //       return Number(subtotal) + Number(service.originalServicePrice);
+            //     }, 0)
+            //   );
+            // }, 0);
+
+            let totalOne = 0;
+            let totalTwo = 0;
+            let totalThree = 0;
+
+            recArrayWithPrice.forEach((category) => {
+              category.servicesList.forEach((service) => {
+                // Check if the value is not null before adding
+
+                if (service.packageOneValue !== null) {
+                  //totalOne += Number(service.packageOneValue);
+                  let currentServicePriceWithToFixed = Number(
+                    service.originalPackageOneValue
+                  )?.toFixed(2);
+                  totalOne = Number(
+                    Number(totalOne) + Number(currentServicePriceWithToFixed)
+                  )?.toFixed(2);
+                }
+                if (service.packageTwoValue !== null) {
+                  //totalTwo += Number(service.packageTwoValue);
+                  let currentServicePriceWithToFixed = Number(
+                    service.originalPackageTwoValue
+                  )?.toFixed(2);
+                  totalTwo = Number(
+                    Number(totalTwo) + Number(currentServicePriceWithToFixed)
+                  )?.toFixed(2);
+                }
+                if (service.packageThreeValue !== null) {
+                  //totalThree += Number(service.packageThreeValue);
+                  let currentServicePriceWithToFixed = Number(
+                    service.originalPackageThreeValue
+                  )?.toFixed(2);
+                  totalThree = Number(
+                    Number(totalThree) + Number(currentServicePriceWithToFixed)
+                  )?.toFixed(2);
+                }
+              });
+            });
+            // Round the totals to two decimal places
+
+            let multiplicationFactor = 1; // Default to yearly
+
+            switch (ProposalObject.Payment_Frequency) {
+              case 4:
+                multiplicationFactor = 12; // Convert to yearly
+                break;
+              case 3:
+                multiplicationFactor = 4; // Convert to yearly
+                break;
+              case 2:
+                multiplicationFactor = 2; // Convert to yearly
+                break;
+              // No adjustment needed for yearly
+              case 1:
+              default:
+                break;
+            }
+
+            let pricingSettingPaymentFrequency = 1;
+            switch (pricingSettingObj.PaymentFrequency) {
+              case 4:
+                pricingSettingPaymentFrequency = 12; // Convert to yearly
+                break;
+              case 3:
+                pricingSettingPaymentFrequency = 4; // Convert to yearly
+                break;
+              case 2:
+                pricingSettingPaymentFrequency = 2; // Convert to yearly
+                break;
+              // No adjustment needed for yearly
+              case 1:
+              default:
+                break;
+            }
+
+            let recOriginalPrice = 0.0;
+            let recDefaultPrice = 0.0;
+            let recMinPrice = 0.0;
+            let recVATPrice = 0.0;
+            let recDiscount = 0.0;
+            let recDefaultDiscount = null;
+            let recMaxDiscount = 0.0;
+            let recGrandTotal = 0.0;
+
+            let recOriginalPriceCopy = 0.0;
+            let recDefaultPriceCopy = 0.0;
+            let recMinPriceCopy = 0.0;
+            let recVATPriceCopy = 0.0;
+            let recDiscountCopy = 0.0;
+            let recDefaultDiscountCopy = null;
+            let recMaxDiscountCopy = 0.0;
+            let recGrandTotalCopy = 0.0;
+
+            let PackageOneVaTPrice = totalOne * (vatPercentage / 100);
+            let PackageTwoVaTPrice = totalTwo * (vatPercentage / 100);
+            let PackageThreeVaTPrice = totalThree * (vatPercentage / 100);
+            let PackageOneGrandTotal = PackageOneVaTPrice + totalOne;
+            let PackageTwoGrandTotal = PackageTwoVaTPrice + totalTwo;
+            let PackageThreeGrandTotal = PackageThreeVaTPrice + totalThree;
+            let packageRecurringOriginalPrice = 0;
+            let packageRecurringDefaultPrice = 0;
+            let packageOneOffOriginalPrice = 0;
+            let packageOneOffDefaultPrice = 0;
+            recOriginalPriceCopy = Number(
+              Number(RecTotal) * Number(multiplicationFactor)
+            ).toFixed(12);
+            recOriginalPrice = Number(RecTotal);
+            // recOriginalPrice = Number(RecTotal) / pricingSettingPaymentFrequency;
+
+            let DiscountPercentagePackageOne = null;
+            let DiscountPercentagePackageOneWithAllDecimal = null;
+            let DiscountPercentagePackageTwo = null;
+            let DiscountPercentagePackageTwoWithAllDecimal = null;
+            let DiscountPercentagePackageThree = null;
+            let DiscountPercentagePackageThreeWithAllDecimal = null;
+
+            let OneOffDiscountPercentagePackageOne = null;
+            let OneOffDiscountPercentagePackageOneWithAllDecimal = null;
+            let OneOffDiscountPercentagePackageTwo = null;
+            let OneOffDiscountPercentagePackageTwoWithAllDecimal = null;
+            let OneOffDiscountPercentagePackageThree = null;
+            let OneOffDiscountPercentagePackageThreeWithAllDecimal = null;
+
+            if (PackageList?.length > 0) {
+              //Recurring Package discount 1
+              if (
+                PackageList[0].recurringOriginalPrice !== null ||
+                recurringServiceList.length > 0
+              ) {
+                packageRecurringOriginalPrice =
+                  PackageList[0]?.recurringOriginalPrice;
+                packageRecurringDefaultPrice =
+                  PackageList[0]?.recurringDefaultPrice;
+                let packageDiscountPercentage =
+                  ((packageRecurringOriginalPrice -
+                    packageRecurringDefaultPrice) /
+                    packageRecurringOriginalPrice) *
+                  100;
+
+                if (
+                  RecurringPricingInfo.DiscountPercentagePackageOne === "" ||
+                  RecurringPricingInfo.DiscountPercentagePackageOne === null ||
+                  RecurringPricingInfo.DiscountPercentagePackageOne === undefined
+                ) {
+                  DiscountPercentagePackageOne = Number(
+                    packageDiscountPercentage
+                  ).toFixed(2);
+                  DiscountPercentagePackageOneWithAllDecimal =
+                    packageDiscountPercentage;
+                  if (quotationFinalPackageAmountList?.length > 0) {
+                    let packageOneQuotationFinalPackageAmountObj =
+                      quotationFinalPackageAmountList.find(
+                        (quotationFinalPackage) =>
+                          quotationFinalPackage.servicePackageID ===
+                          PackageList[0].servicePackageID &&
+                          quotationFinalPackage.serviceChargeTypeID == 1
+                      );
+                    if (
+                      packageOneQuotationFinalPackageAmountObj !== undefined &&
+                      packageOneQuotationFinalPackageAmountObj !== null
+                    ) {
+                      DiscountPercentagePackageOne = Number(
+                        packageOneQuotationFinalPackageAmountObj?.discountPercentageWithAllDecimal
+                      ).toFixed(2);
+                      DiscountPercentagePackageOneWithAllDecimal =
+                        packageOneQuotationFinalPackageAmountObj?.discountPercentageWithAllDecimal;
+                    }
+                  }
+                } else {
+                  DiscountPercentagePackageOne = isNaN(
+                    RecurringPricingInfo.DiscountPercentagePackageOne
+                  )
+                    ? 0
+                    : RecurringPricingInfo.DiscountPercentagePackageOne;
+                  DiscountPercentagePackageOneWithAllDecimal = isNaN(
+                    RecurringFrequencyPricingInfo.DiscountPercentagePackageOne
+                  )
+                    ? 0
+                    : RecurringFrequencyPricingInfo.DiscountPercentagePackageOne;
+                }
+              }
+
+              //OneOff Package discount 1
+              if (
+                PackageList[0].oneOffOriginalPrice !== null ||
+                oneOffServiceList.length > 0
+              ) {
+                packageOneOffOriginalPrice =
+                  PackageList[0]?.oneOffOriginalPrice;
+                packageOneOffDefaultPrice = PackageList[0]?.oneOffDefaultPrice;
+                let OneOffPackageDiscountPercentage =
+                  ((packageOneOffOriginalPrice - packageOneOffDefaultPrice) /
+                    packageOneOffOriginalPrice) *
+                  100;
+
+                if (
+                  OneOffPricingInfo.DiscountPercentagePackageOne === "" ||
+                  OneOffPricingInfo.DiscountPercentagePackageOne === null ||
+                  OneOffPricingInfo.DiscountPercentagePackageOne === undefined
+                ) {
+                  OneOffDiscountPercentagePackageOne = Number(
+                    OneOffPackageDiscountPercentage
+                  ).toFixed(2);
+                  OneOffDiscountPercentagePackageOneWithAllDecimal =
+                    OneOffPackageDiscountPercentage;
+
+                  if (quotationFinalPackageAmountList?.length > 0) {
+                    let OneOffPackageOneQuotationFinalPackageAmountObj =
+                      quotationFinalPackageAmountList.find(
+                        (quotationFinalPackage) =>
+                          quotationFinalPackage.servicePackageID ===
+                          PackageList[0].servicePackageID &&
+                          quotationFinalPackage.serviceChargeTypeID == 2
+                      );
+                    if (
+                      OneOffPackageOneQuotationFinalPackageAmountObj !==
+                      undefined &&
+                      OneOffPackageOneQuotationFinalPackageAmountObj !== null
+                    ) {
+                      OneOffDiscountPercentagePackageOne = Number(
+                        OneOffPackageOneQuotationFinalPackageAmountObj?.discountPercentageWithAllDecimal
+                      ).toFixed(2);
+                      OneOffDiscountPercentagePackageOneWithAllDecimal =
+                        OneOffPackageOneQuotationFinalPackageAmountObj?.discountPercentageWithAllDecimal;
+                    }
+                  }
+                } else {
+                  OneOffDiscountPercentagePackageOne = isNaN(
+                    OneOffPricingInfo.DiscountPercentagePackageOne
+                  )
+                    ? 0
+                    : OneOffPricingInfo.DiscountPercentagePackageOne;
+                  OneOffDiscountPercentagePackageOneWithAllDecimal = isNaN(
+                    OneOffPricingInfoCopy.DiscountPercentagePackageOne
+                  )
+                    ? 0
+                    : OneOffPricingInfoCopy.DiscountPercentagePackageOne;
+                }
+              }
+            }
+
+            if (PackageList?.length > 1) {
+              //Recurring Package discount 2
+              if (
+                PackageList[1].recurringOriginalPrice !== null ||
+                recurringServiceList.length > 0
+              ) {
+                packageRecurringOriginalPrice =
+                  PackageList[1]?.recurringOriginalPrice;
+                packageRecurringDefaultPrice =
+                  PackageList[1]?.recurringDefaultPrice;
+                let packageDiscountPercentage =
+                  ((packageRecurringOriginalPrice -
+                    packageRecurringDefaultPrice) /
+                    packageRecurringOriginalPrice) *
+                  100;
+
+                if (
+                  RecurringPricingInfo.DiscountPercentagePackageTwo === "" ||
+                  RecurringPricingInfo.DiscountPercentagePackageTwo === null ||
+                  RecurringPricingInfo.DiscountPercentagePackageTwo ===
+                  undefined
+                ) {
+                  DiscountPercentagePackageTwo = Number(
+                    packageDiscountPercentage
+                  ).toFixed(2);
+                  DiscountPercentagePackageTwoWithAllDecimal =
+                    packageDiscountPercentage;
+
+                  if (quotationFinalPackageAmountList?.length > 0) {
+                    let packageTwoQuotationFinalPackageAmountObj =
+                      quotationFinalPackageAmountList.find(
+                        (quotationFinalPackage) =>
+                          quotationFinalPackage.servicePackageID ===
+                          PackageList[1].servicePackageID &&
+                          quotationFinalPackage.serviceChargeTypeID == 1
+                      );
+
+                    if (
+                      packageTwoQuotationFinalPackageAmountObj !== undefined &&
+                      packageTwoQuotationFinalPackageAmountObj !== null
+                    ) {
+                      DiscountPercentagePackageTwo = Number(
+                        packageTwoQuotationFinalPackageAmountObj?.discountPercentageWithAllDecimal
+                      ).toFixed(2);
+                      DiscountPercentagePackageTwoWithAllDecimal =
+                        packageTwoQuotationFinalPackageAmountObj?.discountPercentageWithAllDecimal;
+                    }
+                  }
+                } else {
+                  DiscountPercentagePackageTwo = isNaN(
+                    RecurringPricingInfo.DiscountPercentagePackageTwo
+                  )
+                    ? 0
+                    : RecurringPricingInfo.DiscountPercentagePackageTwo;
+                  DiscountPercentagePackageTwoWithAllDecimal = isNaN(
+                    RecurringFrequencyPricingInfo.DiscountPercentagePackageTwo
+                  )
+                    ? 0
+                    : RecurringFrequencyPricingInfo.DiscountPercentagePackageTwo;
+                }
+              }
+
+              //OneOff Package discount 2
+              if (
+                PackageList[1].oneOffOriginalPrice !== null ||
+                oneOffServiceList.length > 0
+              ) {
+                packageOneOffOriginalPrice =
+                  PackageList[1]?.oneOffOriginalPrice;
+                packageOneOffDefaultPrice = PackageList[1]?.oneOffDefaultPrice;
+                let OneOffPackageDiscountPercentage =
+                  ((packageOneOffOriginalPrice - packageOneOffDefaultPrice) /
+                    packageOneOffOriginalPrice) *
+                  100;
+
+                if (
+                  OneOffPricingInfo.DiscountPercentagePackageTwo === "" ||
+                  OneOffPricingInfo.DiscountPercentagePackageTwo === null ||
+                  OneOffPricingInfo.DiscountPercentagePackageTwo === undefined
+                ) {
+                  OneOffDiscountPercentagePackageTwo = Number(
+                    OneOffPackageDiscountPercentage
+                  ).toFixed(2);
+                  OneOffDiscountPercentagePackageTwoWithAllDecimal =
+                    OneOffPackageDiscountPercentage;
+
+                  if (quotationFinalPackageAmountList?.length > 0) {
+                    let OneOffPackageTwoQuotationFinalPackageAmountObj =
+                      quotationFinalPackageAmountList.find(
+                        (quotationFinalPackage) =>
+                          quotationFinalPackage.servicePackageID ===
+                          PackageList[1].servicePackageID &&
+                          quotationFinalPackage.serviceChargeTypeID == 2
+                      );
+                    if (
+                      OneOffPackageTwoQuotationFinalPackageAmountObj !==
+                      undefined &&
+                      OneOffPackageTwoQuotationFinalPackageAmountObj !== null
+                    ) {
+                      OneOffDiscountPercentagePackageTwo = Number(
+                        OneOffPackageTwoQuotationFinalPackageAmountObj?.discountPercentageWithAllDecimal
+                      ).toFixed(2);
+                      OneOffDiscountPercentagePackageTwoWithAllDecimal =
+                        OneOffPackageTwoQuotationFinalPackageAmountObj?.discountPercentageWithAllDecimal;
+                    }
+                  }
+                } else {
+                  OneOffDiscountPercentagePackageTwo = isNaN(
+                    OneOffPricingInfo.DiscountPercentagePackageTwo
+                  )
+                    ? 0
+                    : OneOffPricingInfo.DiscountPercentagePackageTwo;
+                  OneOffDiscountPercentagePackageTwoWithAllDecimal = isNaN(
+                    OneOffPricingInfoCopy.DiscountPercentagePackageTwo
+                  )
+                    ? 0
+                    : OneOffPricingInfoCopy.DiscountPercentagePackageTwo;
+                }
+              }
+            }
+
+            if (PackageList?.length > 2) {
+              //Recurring Package discount 3
+              if (
+                PackageList[2].recurringOriginalPrice !== null ||
+                recurringServiceList.length > 0
+              ) {
+                packageRecurringOriginalPrice =
+                  PackageList[2]?.recurringOriginalPrice;
+                packageRecurringDefaultPrice =
+                  PackageList[2]?.recurringDefaultPrice;
+                let packageDiscountPercentage =
+                  ((packageRecurringOriginalPrice -
+                    packageRecurringDefaultPrice) /
+                    packageRecurringOriginalPrice) *
+                  100;
+
+                if (
+                  RecurringPricingInfo.DiscountPercentagePackageThree === "" ||
+                  RecurringPricingInfo.DiscountPercentagePackageThree ===
+                  null ||
+                  RecurringPricingInfo.DiscountPercentagePackageThree ===
+                  undefined
+                ) {
+                  DiscountPercentagePackageThree = Number(
+                    packageDiscountPercentage
+                  ).toFixed(2);
+                  DiscountPercentagePackageThreeWithAllDecimal =
+                    packageDiscountPercentage;
+
+                  if (quotationFinalPackageAmountList?.length > 0) {
+                    let packageThreeQuotationFinalPackageAmountObj =
+                      quotationFinalPackageAmountList.find(
+                        (quotationFinalPackage) =>
+                          quotationFinalPackage.servicePackageID ===
+                          PackageList[2].servicePackageID &&
+                          quotationFinalPackage.serviceChargeTypeID == 1
+                      );
+                    if (
+                      packageThreeQuotationFinalPackageAmountObj !==
+                      undefined &&
+                      packageThreeQuotationFinalPackageAmountObj !== null
+                    ) {
+                      DiscountPercentagePackageThree = Number(
+                        packageThreeQuotationFinalPackageAmountObj?.discountPercentageWithAllDecimal
+                      ).toFixed(2);
+                      DiscountPercentagePackageThreeWithAllDecimal =
+                        packageThreeQuotationFinalPackageAmountObj?.discountPercentageWithAllDecimal;
+                    }
+                  }
+                } else {
+                  DiscountPercentagePackageThree = isNaN(
+                    RecurringPricingInfo.DiscountPercentagePackageThree
+                  )
+                    ? 0
+                    : RecurringPricingInfo.DiscountPercentagePackageThree;
+
+                  DiscountPercentagePackageThreeWithAllDecimal = isNaN(
+                    RecurringFrequencyPricingInfo.DiscountPercentagePackageThree
+                  )
+                    ? 0
+                    : RecurringFrequencyPricingInfo.DiscountPercentagePackageThree;
+                }
+              }
+
+              //OneOff Package discount 3
+              if (
+                PackageList[2].oneOffOriginalPrice !== null ||
+                oneOffServiceList.length > 0
+              ) {
+                packageOneOffOriginalPrice =
+                  PackageList[2]?.oneOffOriginalPrice;
+                packageOneOffDefaultPrice = PackageList[2]?.oneOffDefaultPrice;
+                let OneOffPackageDiscountPercentage =
+                  ((packageOneOffOriginalPrice - packageOneOffDefaultPrice) /
+                    packageOneOffOriginalPrice) *
+                  100;
+
+                if (
+                  OneOffPricingInfo.DiscountPercentagePackageThree === "" ||
+                  OneOffPricingInfo.DiscountPercentagePackageThree === null ||
+                  OneOffPricingInfo.DiscountPercentagePackageThree === undefined
+                ) {
+                  OneOffDiscountPercentagePackageThree = Number(
+                    OneOffPackageDiscountPercentage
+                  ).toFixed(2);
+                  OneOffDiscountPercentagePackageThreeWithAllDecimal =
+                    OneOffPackageDiscountPercentage;
+
+                  if (quotationFinalPackageAmountList?.length > 0) {
+                    let OneOffPackageThreeQuotationFinalPackageAmountObj =
+                      quotationFinalPackageAmountList.find(
+                        (quotationFinalPackage) =>
+                          quotationFinalPackage.servicePackageID ===
+                          PackageList[2].servicePackageID &&
+                          quotationFinalPackage.serviceChargeTypeID == 2
+                      );
+                    if (
+                      OneOffPackageThreeQuotationFinalPackageAmountObj !==
+                      undefined &&
+                      OneOffPackageThreeQuotationFinalPackageAmountObj !== null
+                    ) {
+                      OneOffDiscountPercentagePackageThree = Number(
+                        OneOffPackageThreeQuotationFinalPackageAmountObj?.discountPercentageWithAllDecimal
+                      ).toFixed(2);
+                      OneOffDiscountPercentagePackageThreeWithAllDecimal =
+                        OneOffPackageThreeQuotationFinalPackageAmountObj?.discountPercentageWithAllDecimal;
+                    }
+                  }
+                } else {
+                  OneOffDiscountPercentagePackageThree = isNaN(
+                    OneOffPricingInfo.DiscountPercentagePackageThree
+                  )
+                    ? 0
+                    : OneOffPricingInfo.DiscountPercentagePackageThree;
+                  OneOffDiscountPercentagePackageThreeWithAllDecimal = isNaN(
+                    OneOffPricingInfoCopy.DiscountPercentagePackageThree
+                  )
+                    ? 0
+                    : OneOffPricingInfoCopy.DiscountPercentagePackageThree;
+                }
+              }
+            }
+            // setIsUpdatePackage(false)
+            recDefaultDiscountCopy =
+              GetSingleDefaultDiscountPercentageOfPackages(
+                isNaN(DiscountPercentagePackageOne)
+                  ? 0
+                  : DiscountPercentagePackageOne,
+                isNaN(DiscountPercentagePackageTwo)
+                  ? 0
+                  : DiscountPercentagePackageTwo,
+                isNaN(DiscountPercentagePackageThree)
+                  ? 0
+                  : DiscountPercentagePackageThree
+              );
+            recDefaultDiscount = GetSingleDefaultDiscountPercentageOfPackages(
+              isNaN(DiscountPercentagePackageOne)
+                ? 0
+                : DiscountPercentagePackageOne,
+              isNaN(DiscountPercentagePackageTwo)
+                ? 0
+                : DiscountPercentagePackageTwo,
+              isNaN(DiscountPercentagePackageThree)
+                ? 0
+                : DiscountPercentagePackageThree
+            );
+
+            if (
+              RecurringPricingInfo.OriginalPrice === "" ||
+              RecurringPricingInfo.OriginalPrice === null ||
+              RecurringPricingInfo.OriginalPrice === undefined ||
+              RecurringPricingInfo.DefaultDiscount === "" ||
+              RecurringFrequencyPricingInfo.DefaultDiscount === null ||
+              RecurringFrequencyPricingInfo.DefaultDiscount === undefined ||
+              RecurringFrequencyPricingInfo.DefaultDiscount === "0.00" ||
+              RecurringFrequencyPricingInfo.DefaultDiscount === 0 ||
+              Number(RecTotal)?.toFixed(2) !==
+              Number(RecurringPricingInfo.OriginalPrice)?.toFixed(2)
+            ) {
+              recDefaultPrice = (
+                Math.floor(Number(RecTotal).toFixed(12) * 100) / 100
+              ).toFixed(2);
+              // recDefaultPrice = (
+              //   Math.floor(Number(RecTotal / pricingSettingPaymentFrequency).toFixed(12) * 100) / 100
+              // ).toFixed(2);
+              // recDefaultPrice = Number(recDefaultPrice)
+              // recDefaultPrice = RecTotal?.toFixed(2);
+              recVATPrice = Number(recOriginalPrice) * (vatPercentage / 100);
+              recGrandTotal = Number(recVATPrice) + Number(recOriginalPrice);
+              recDefaultPriceCopy =
+                Number(RecTotal) * Number(multiplicationFactor);
+              recMinPriceCopy = Number(RecTotal) * Number(multiplicationFactor);
+
+              recVATPriceCopy =
+                Number(recOriginalPrice) * (vatPercentage / 100);
+              recGrandTotalCopy =
+                Number(recVATPrice) + Number(recOriginalPrice);
+            } else {
+              // recOriginalPrice = Number(RecurringPricingInfo.OriginalPrice);
+              recDefaultPrice = RecurringPricingInfo.DiscountedPrice;
+              const truncatedTotal = Math.trunc(recDefaultPrice * 100) / 100;
+              recDefaultPrice = Number(truncatedTotal)?.toFixed(2);
+              if (
+                RecurringPricingInfo.DiscountedPrice === undefined ||
+                RecurringPricingInfo.DiscountedPrice === "" ||
+                RecurringPricingInfo.DiscountedPrice === null
+              ) {
+                recDefaultPrice =
+                  Number(RecTotal) *
+                  (1 - Number(RecurringPricingInfo.DefaultDiscount) / 100);
+                recDefaultPrice = (
+                  Math.floor(recDefaultPrice * 100) / 100
+                ).toFixed(2);
+              }
+
+              // recDefaultPrice =
+              //   Number(RecurringPricingInfo.DiscountedPrice)?.toFixed(2);
+              recVATPrice = Number(recDefaultPrice) * (vatPercentage / 100);
+              recGrandTotal = Number(recVATPrice) + Number(recDefaultPrice);
+
+              recDiscount = Number(recOriginalPrice) - Number(recDefaultPrice); //RecurringPricingInfo.Discount;
+              recDefaultDiscount = RecurringPricingInfo.DefaultDiscount;
+              recMaxDiscount = RecurringPricingInfo.MaxDiscount;
+
+              // recDefaultPriceCopy = Number(
+              //   RecurringPricingInfo.DiscountedPrice) * Number(multiplicationFactor)
+
+              recDefaultDiscountCopy =
+                RecurringFrequencyPricingInfo.DefaultDiscount;
+              recDefaultPriceCopy =
+                Number(recOriginalPriceCopy) -
+                Number(recOriginalPriceCopy) * (recDefaultDiscountCopy / 100);
+
+              recVATPriceCopy = Number(recDefaultPrice) * (vatPercentage / 100);
+              recGrandTotalCopy = Number(recVATPrice) + Number(recDefaultPrice);
+              recDiscountCopy =
+                Number(recOriginalPriceCopy) - Number(recDefaultPriceCopy); //RecurringPricingInfo.Discount;
+
+              recMaxDiscountCopy = RecurringPricingInfo.MaxDiscount;
+            }
+
+            setRecurringPricingInfo({
+              ...RecurringPricingInfo,
+              OriginalPrice: recOriginalPrice,
+              DiscountedPrice: recDefaultPrice,
+              MinPrice: recMinPrice,
+              VATPrice: recVATPrice,
+              Discount: recDiscount,
+              DefaultDiscount:
+                recDefaultDiscount == null
+                  ? null
+                  : Number(recDefaultDiscount).toFixed(2),
+              // DefaultDiscount: Number(recDefaultDiscount).toFixed(2),
+              DiscountPercentagePackageOne: isNaN(DiscountPercentagePackageOne)
+                ? 0
+                : DiscountPercentagePackageOne,
+              DiscountPercentagePackageTwo: isNaN(DiscountPercentagePackageTwo)
+                ? 0
+                : DiscountPercentagePackageTwo,
+              DiscountPercentagePackageThree: isNaN(
+                DiscountPercentagePackageThree
+              )
+                ? 0
+                : DiscountPercentagePackageThree,
+              GrandTotal: recGrandTotal,
+              packageOneDisCountedTotal: recDefaultPrice,
+              packageTwoDisCountedTotal: recDefaultPrice,
+              packageThreeDisCountedTotal: recDefaultPrice,
+              PackageOneVaTPrice: PackageOneVaTPrice,
+              PackageTwoVaTPrice: PackageTwoVaTPrice,
+              PackageThreeVaTPrice: PackageThreeVaTPrice,
+              PackageOneGrandTotal: PackageOneGrandTotal,
+              PackageTwoGrandTotal: PackageTwoGrandTotal,
+              PackageThreeGrandTotal: PackageThreeGrandTotal,
+            });
+
+            setRecurringFrequencyPricingInfo({
+              ...RecurringFrequencyPricingInfo,
+              OriginalPrice: recOriginalPriceCopy,
+              DiscountedPrice: recDefaultPriceCopy,
+              MinPrice: recMinPriceCopy,
+              VATPrice: recVATPriceCopy,
+              Discount: recDiscountCopy,
+              DefaultDiscount:
+                recDefaultDiscountCopy == null ? null : recDefaultDiscountCopy,
+              DiscountPercentagePackageOne: isNaN(
+                DiscountPercentagePackageOneWithAllDecimal
+              )
+                ? 0
+                : DiscountPercentagePackageOneWithAllDecimal,
+              DiscountPercentagePackageTwo: isNaN(
+                DiscountPercentagePackageTwoWithAllDecimal
+              )
+                ? 0
+                : DiscountPercentagePackageTwoWithAllDecimal,
+              DiscountPercentagePackageThree: isNaN(
+                DiscountPercentagePackageThreeWithAllDecimal
+              )
+                ? 0
+                : DiscountPercentagePackageThreeWithAllDecimal,
+              // DiscountPercentagePackageOne:
+              //   DiscountPercentagePackageOneWithAllDecimal,
+              // DiscountPercentagePackageTwo:
+              //   DiscountPercentagePackageTwoWithAllDecimal,
+              // DiscountPercentagePackageThree:
+              //   DiscountPercentagePackageThreeWithAllDecimal,
+              GrandTotal: recGrandTotalCopy,
+              packageOneDisCountedTotal: recDefaultPrice,
+              packageTwoDisCountedTotal: recDefaultPrice,
+              packageThreeDisCountedTotal: recDefaultPrice,
+              PackageOneVaTPrice: PackageOneVaTPrice,
+              PackageTwoVaTPrice: PackageTwoVaTPrice,
+              PackageThreeVaTPrice: PackageThreeVaTPrice,
+              PackageOneGrandTotal: PackageOneGrandTotal,
+              PackageTwoGrandTotal: PackageTwoGrandTotal,
+              PackageThreeGrandTotal: PackageThreeGrandTotal,
+            });
+            let OneOffTotalOne = 0;
+            let OneOffTotalTwo = 0;
+            let OneOffTotalThree = 0;
+
+            OneArrayWithPrice.forEach((category) => {
+              category.servicesList.forEach((service) => {
+                // Check if the value is not null before adding
+                if (service.packageOneValue !== null)
+                  OneOffTotalOne += service.packageOneValue;
+                if (service.packageTwoValue !== null)
+                  OneOffTotalTwo += service.packageTwoValue;
+                if (service.packageThreeValue !== null)
+                  OneOffTotalThree += service.packageThreeValue;
+              });
+            });
+            let oneOffOriginalPrice = 0.0;
+            let oneOffDefaultPrice = 0.0;
+            let oneOffMinPrice = 0.0;
+            let oneOffVATPrice = 0.0;
+            let oneOffDiscount = 0.0;
+            let oneOffDefaultDiscount = null;
+            let oneOffDefaultDiscountCopy = null;
+            let oneOffMaxDiscount = 0.0;
+            let oneOffGrandTotal = 0.0;
+            if (PackageList?.length == 1) {
+              if (PackageList[0]?.oneOffOriginalPrice !== null) {
+                packageOneOffOriginalPrice =
+                  PackageList[0]?.oneOffOriginalPrice;
+                packageOneOffDefaultPrice = PackageList[0]?.oneOffDefaultPrice;
+                let packageDiscountPercentage =
+                  ((packageOneOffOriginalPrice - packageOneOffDefaultPrice) /
+                    packageOneOffOriginalPrice) *
+                  100;
+                oneOffDefaultDiscount = packageDiscountPercentage;
+                // oneOffDefaultDiscount = Number(packageDiscountPercentage).toFixed(2)
+              }
+            }
+            let OneOffPackageOneVaTPrice =
+              OneOffTotalOne * (vatPercentage / 100);
+            let OneOffPackageTwoVaTPrice =
+              OneOffTotalTwo * (vatPercentage / 100);
+            let OneOffPackageThreeVaTPrice =
+              OneOffTotalThree * (vatPercentage / 100);
+            let OneOffPackageOneGrandTotal =
+              OneOffPackageOneVaTPrice + OneOffTotalOne;
+            let OneOffPackageTwoGrandTotal =
+              OneOffPackageTwoVaTPrice + OneOffTotalTwo;
+            let OneOffPackageThreeGrandTotal =
+              OneOffPackageThreeVaTPrice + OneOffTotalThree;
+            oneOffOriginalPrice = Number(OneOffTotal).toFixed(12);
+
+            if (
+              OneOffPricingInfo.OriginalPrice === "" ||
+              OneOffPricingInfo.OriginalPrice === null ||
+              OneOffPricingInfo.OriginalPrice === undefined ||
+              OneOffPricingInfo.DefaultDiscount === "" ||
+              OneOffPricingInfoCopy.DefaultDiscount === null ||
+              OneOffPricingInfoCopy.DefaultDiscount === undefined ||
+              OneOffPricingInfoCopy.DefaultDiscount === "0.00" ||
+              OneOffPricingInfoCopy.DefaultDiscount === 0 ||
+              Number(OneOffTotal)?.toFixed(2) !==
+              Number(OneOffPricingInfo.OriginalPrice)?.toFixed(2)
+            ) {
+              oneOffDefaultPrice = (
+                Math.floor(Number(OneOffTotal).toFixed(12) * 100) / 100
+              ).toFixed(2);
+
+              oneOffVATPrice =
+                Number(oneOffOriginalPrice) * (vatPercentage / 100);
+              oneOffGrandTotal =
+                Number(oneOffVATPrice) + Number(oneOffOriginalPrice);
+            } else {
+              oneOffDefaultPrice = OneOffPricingInfo.DiscountedPrice;
+              const truncatedTotal = Math.trunc(oneOffDefaultPrice * 100) / 100;
+              oneOffDefaultPrice = Number(truncatedTotal)?.toFixed(2);
+              if (
+                OneOffPricingInfo.DiscountedPrice === undefined ||
+                OneOffPricingInfo.DiscountedPrice === "" ||
+                OneOffPricingInfo.DiscountedPrice === null
+              ) {
+                oneOffDefaultPrice =
+                  Number(OneOffTotal) *
+                  (1 - Number(OneOffPricingInfoCopy.DefaultDiscount) / 100);
+                oneOffDefaultPrice = oneOffDefaultPrice.toFixed(2);
+              }
+
+              // oneOffDefaultPrice = Number(
+              //   OneOffPricingInfo.DiscountedPrice
+              // )?.toFixed(2);
+              oneOffMinPrice = Number(OneOffPricingInfo.MinPrice)?.toFixed(2);
+              oneOffVATPrice =
+                Number(oneOffDefaultPrice) * (vatPercentage / 100);
+              oneOffGrandTotal =
+                Number(oneOffVATPrice) + Number(oneOffDefaultPrice);
+              oneOffDiscount = OneOffPricingInfo.Discount;
+              oneOffDefaultDiscount = OneOffPricingInfo.DefaultDiscount;
+              oneOffDefaultDiscountCopy = OneOffPricingInfoCopy.DefaultDiscount;
+              oneOffMaxDiscount = OneOffPricingInfo.MaxDiscount;
+            }
+
+            setOneOffPricingInfo({
+              ...OneOffPricingInfo,
+              OriginalPrice: oneOffOriginalPrice,
+              DiscountedPrice: oneOffDefaultPrice,
+
+              VATPrice: oneOffVATPrice,
+              Discount: oneOffDiscount,
+              DefaultDiscount:
+                oneOffDefaultDiscount == null ? null : oneOffDefaultDiscount,
+              DiscountPercentagePackageOne: isNaN(OneOffDiscountPercentagePackageOne)
+                ? 0
+                : OneOffDiscountPercentagePackageOne,
+              DiscountPercentagePackageTwo: isNaN(OneOffDiscountPercentagePackageTwo)
+                ? 0
+                : OneOffDiscountPercentagePackageTwo,
+              DiscountPercentagePackageThree: isNaN(
+                OneOffDiscountPercentagePackageThree
+              )
+                ? 0
+                : OneOffDiscountPercentagePackageThree,
+              GrandTotal: oneOffGrandTotal,
+              packageOneDisCountedTotal: oneOffDefaultPrice,
+              packageTwoDisCountedTotal: oneOffDefaultPrice,
+              packageThreeDisCountedTotal: oneOffDefaultPrice,
+              PackageOneVaTPrice: OneOffPackageOneVaTPrice,
+              PackageTwoVaTPrice: OneOffPackageTwoVaTPrice,
+              PackageThreeVaTPrice: OneOffPackageThreeVaTPrice,
+              PackageOneGrandTotal: OneOffPackageOneGrandTotal,
+              PackageTwoGrandTotal: OneOffPackageTwoGrandTotal,
+              PackageThreeGrandTotal: OneOffPackageThreeGrandTotal,
+            });
+
+            setOneOffPricingInfoCopy({
+              ...OneOffPricingInfoCopy,
+              DefaultDiscount:
+                oneOffDefaultDiscountCopy == null
+                  ? null
+                  : Number(oneOffDefaultDiscountCopy),
+              DiscountPercentagePackageOne: isNaN(
+                OneOffDiscountPercentagePackageOneWithAllDecimal
+              )
+                ? 0
+                : OneOffDiscountPercentagePackageOneWithAllDecimal,
+              DiscountPercentagePackageTwo: isNaN(
+                OneOffDiscountPercentagePackageTwoWithAllDecimal
+              )
+                ? 0
+                : OneOffDiscountPercentagePackageTwoWithAllDecimal,
+              DiscountPercentagePackageThree: isNaN(
+                OneOffDiscountPercentagePackageThreeWithAllDecimal
+              )
+                ? 0
+                : OneOffDiscountPercentagePackageThreeWithAllDecimal,
+              // DiscountPercentagePackageOne:
+              //   OneOffDiscountPercentagePackageOneWithAllDecimal,
+              // DiscountPercentagePackageTwo:
+              //   OneOffDiscountPercentagePackageTwoWithAllDecimal,
+              // DiscountPercentagePackageThree:
+              //   OneOffDiscountPercentagePackageThreeWithAllDecimal,
+            });
+
+            setLoader(false);
+            setActiveTab(tab);
+            setIsValidForm({
+              ...isValidForm,
+              AdditionalInfo: true,
+              SelectService: true,
+              SelectPackages: true,
+            });
+          }
+        } else {
+          HandleTabChange(3);
+          setIsValidForm({
+            ...isValidForm,
+            AdditionalInfo: true,
+            SelectService: true,
+            SelectPackages: true,
+          });
+          setTabHide(true);
+          setLoader(false);
+        }
+      } else {
+        setTabHide(true);
+        setLoader(false);
+        setActiveTab(activeTab);
+        setErrorMessage("The result of this operation is too large to be processed. Please check the input values and try again.")
+        setOpenErrorModal(true)
+        return;
+      }
+    } catch (error) {
+      setLoader(false);
+      setIsValidForm({
+        ...isValidForm,
+        AdditionalInfo: true,
+      });
+      setTabHide(true);
+      setLoader(false);
+      console.log(error);
+    }
+  };
+
+  const GetCalculatedServicesPriceByPackagesData = async (
+    obj,
+    tab,
+    recurringServiceListData,
+    oneOffServiceListData
+  ) => {
+    setLoader(true);
+
+    if (obj.calculateServicesGPDList.length === 0) {
+      return;
+    }
+
+    try {
+      const data = await GetCalculatedServicesPriceByPackages(obj);
+
+      if (data?.data?.statusCode === 200) {
+        setLoader(false);
+        if (data?.data?.responseData?.data) {
+          const PricingData = data?.data?.responseData?.data;
+
+          setSelectedServices(PricingData);
+
+          const vatPercentage = data?.data?.responseData?.vatPercentage;
+          setVATPercentage(vatPercentage);
+          setSelectedPackagesList(data?.data?.responseData?.packageList);
+          const PackageList = data?.data?.responseData?.packageList;
+          const serviceMappingWithPackagesList =
+            data?.data?.responseData?.serviceMappingWithPackagesList;
+          // setServiceMappingWithPackagesList(serviceMappingWithPackagesList)
+
+          let recurringServices = serviceMappingWithPackagesList.filter(
+            (item) => item.serviceChargeTypeID === 1
+          );
+          let OneOffServices = serviceMappingWithPackagesList.filter(
+            (item) => item.serviceChargeTypeID === 2
+          );
+          const RecurringServicePrices = {};
+          const OneOffServicePrices = {};
+          let recArray = [];
+          let OneArray = [];
+          const servicePrices = {}
+          PricingData.forEach((service) => {
+            servicePrices[service.serviceID] = {
+              price: roundUpToSixDecimals(Number(service.price)),
+              originalServicePrice: Number(service.price),
+              serviceDescription: service.serviceDescription,
+              packageOneValue: roundUpToSixDecimals(
+                Number(service.packageOneValue)
+              ),
+              packageTwoValue: roundUpToSixDecimals(
+                Number(service.packageTwoValue)
+              ),
+              packageThreeValue: roundUpToSixDecimals(
+                Number(service.packageThreeValue)
+              ),
+              originalPackageOneValue: service.packageOneValue,
+              originalPackageTwoValue: service.packageTwoValue,
+              originalPackageThreeValue: service.packageThreeValue,
+              servicePackageIDs: service.servicePackageIDs,
+              packageOneID: service.packageOneID,
+              packageTwoID: service.packageTwoID,
+              packageThreeID: service.packageThreeID,
+              isAdditionalService: service.isAdditionalService,
+            };
+          });
+
+          recArray = recurringServiceListData
+            .filter((category) =>
+              category.servicesList.some((service) => service.isSelected)
+            )
+            .map((category) => ({
+              serviceCatID: category.serviceCatID,
+              serviceCatName: category.serviceCatName,
+              servicesList: category.servicesList.filter(
+                (service) => service.isSelected
+              ),
+            }));
+          OneArray = oneOffServiceListData
+            .filter((category) =>
+              category.servicesList.some((service) => service.isSelected)
+            )
+            .map((category) => ({
+              serviceCatID: category.serviceCatID,
+              serviceCatName: category.serviceCatName,
+              servicesList: category.servicesList.filter(
+                (service) => service.isSelected
+              ),
+            }));
+
+
+          let recArrayWithPrice = await Promise.all(
+            recArray.map(async (category) => ({
+              serviceCatID: category.serviceCatID,
+              serviceCatName: category.serviceCatName,
+              servicesList: await Promise.all(
+                category.servicesList.map((service) => {
+                  const servicePriceData = servicePrices[service.serviceID];
+                  let updatedServicePackageIDs = [];
+
+                  const packageOneData = recurringServices.find(
+                    (item) =>
+                      item.servicePackageID === servicePriceData.packageOneID &&
+                      service.serviceID === item.serviceID &&
+                      item.serviceCatID === category.serviceCatID
+                  );
+                  const packageTwoData = recurringServices.find(
+                    (item) =>
+                      item.servicePackageID === servicePriceData.packageTwoID &&
+                      service.serviceID === item.serviceID &&
+                      item.serviceCatID === category.serviceCatID
+                  );
+                  const packageThreeData = recurringServices.find(
+                    (item) =>
+                      item.servicePackageID === servicePriceData.packageThreeID &&
+                      service.serviceID === item.serviceID &&
+                      item.serviceCatID === category.serviceCatID
+                  );
+
+                  return {
+                    ...service,
+                    serviceDescription: servicePriceData.serviceDescription,
+                    price: servicePriceData.price,
+                    originalServicePrice: servicePriceData.originalServicePrice,
+                    packageOneValue: packageOneData ? Number(packageOneData.price) : null,
+                    packageTwoValue: packageTwoData ? Number(packageTwoData.price) : null,
+                    packageThreeValue: packageThreeData ? Number(packageThreeData.price) : null,
+                    originalPackageOneValue: packageOneData ? Number(packageOneData.price) : null,
+                    originalPackageTwoValue: packageTwoData ? Number(packageTwoData.price) : null,
+                    originalPackageThreeValue: packageThreeData ? Number(packageThreeData.price) : null,
+                    servicePackageIDs: updatedServicePackageIDs,
+                    packageOneID: servicePriceData.packageOneID,
+                    packageTwoID: servicePriceData.packageTwoID,
+                    packageThreeID: servicePriceData.packageThreeID,
+                    isAdditionalService: servicePriceData.isAdditionalService,
+                  };
+                })
+              ),
+            }))
+          );
+
+
+
+          let recArrayWithPriceCopy = await Promise.all(
+            recArray.map(async (category) => ({
+              serviceCatID: category.serviceCatID,
+              serviceCatName: category.serviceCatName,
+              servicesList: await Promise.all(
+                category.servicesList.map((service) => {
+                  const servicePriceData = servicePrices[service.serviceID];
+
+                  // Safeguard against undefined servicePriceData
+                  if (!servicePriceData) return { ...service };
+
+                  let {
+                    serviceDescription,
+                    price,
+                    originalServicePrice,
+                    servicePackageIDs,
+                    packageOneID,
+                    packageTwoID,
+                    packageThreeID,
+                    isAdditionalService
+                  } = servicePriceData;
+
+                  // Fetch recurring service data
+                  const packageOneData = recurringServices.find(
+                    (item) =>
+                      item.servicePackageID === packageOneID &&
+                      service.serviceID === item.serviceID &&
+                      item.serviceCatID === category.serviceCatID
+                  );
+                  const packageTwoData = recurringServices.find(
+                    (item) =>
+                      item.servicePackageID === packageTwoID &&
+                      service.serviceID === item.serviceID &&
+                      item.serviceCatID === category.serviceCatID
+                  );
+                  const packageThreeData = recurringServices.find(
+                    (item) =>
+                      item.servicePackageID === packageThreeID &&
+                      service.serviceID === item.serviceID &&
+                      item.serviceCatID === category.serviceCatID
+                  );
+
+                  // Override package values if data is found in recurringServices
+                  let packageOneValue = packageOneData ? Number(packageOneData?.price) : null;
+                  let packageTwoValue = packageTwoData ? Number(packageTwoData?.price) : null;
+                  let packageThreeValue = packageThreeData ? Number(packageThreeData?.price) : null;
+
+                  let originalPackageOneValue = packageOneData ? Number(packageOneData?.price) : null;
+                  let originalPackageTwoValue = packageTwoData ? Number(packageTwoData?.price) : null;
+                  let originalPackageThreeValue = packageThreeData ? Number(packageThreeData?.price) : null;
+
+                  let updatedServicePackageIDs = [];  // Assuming you'll add logic to update this
+
+                  // Adjust price and package values based on payment frequency
+                  switch (ProposalObject.Payment_Frequency) {
+                    case 4:
+                      price *= 12;
+                      originalServicePrice *= 12;
+                      packageOneValue *= 12;
+                      packageTwoValue *= 12;
+                      packageThreeValue *= 12;
+                      originalPackageOneValue *= 12;
+                      originalPackageTwoValue *= 12;
+                      originalPackageThreeValue *= 12;
+                      break;
+                    case 3:
+                      price *= 4;
+                      originalServicePrice *= 4;
+                      packageOneValue *= 4;
+                      packageTwoValue *= 4;
+                      packageThreeValue *= 4;
+                      originalPackageOneValue *= 4;
+                      originalPackageTwoValue *= 4;
+                      originalPackageThreeValue *= 4;
+                      break;
+                    case 2:
+                      price *= 2;
+                      originalServicePrice *= 2;
+                      packageOneValue *= 2;
+                      packageTwoValue *= 2;
+                      packageThreeValue *= 2;
+                      originalPackageOneValue *= 2;
+                      originalPackageTwoValue *= 2;
+                      originalPackageThreeValue *= 2;
+                      break;
+                    case 1:
+                    default:
+                      break;
+                  }
+
+                  return {
+                    ...service,
+                    price,
+                    originalServicePrice,
+                    serviceDescription,
+                    packageOneValue,
+                    packageTwoValue,
+                    packageThreeValue,
+                    originalPackageOneValue,
+                    originalPackageTwoValue,
+                    originalPackageThreeValue,
+                    servicePackageIDs: updatedServicePackageIDs,
+                    packageOneID,
+                    packageTwoID,
+                    packageThreeID,
+                    isAdditionalService,
+                  };
+                })
+              ),
+            }))
+          );
+
+
+
+          let OneArrayWithPrice = await Promise.all(
+            OneArray.map(async (category) => ({
+              serviceCatID: category.serviceCatID,
+              serviceCatName: category.serviceCatName,
+              servicesList: await Promise.all(
+                category.servicesList.map((service) => {
+                  const servicePriceData = servicePrices[service.serviceID];
+
+                  // Safeguard against undefined servicePriceData
+                  if (!servicePriceData) return { ...service };
+
+                  let {
+                    serviceDescription,
+                    price,
+                    originalServicePrice,
+                    servicePackageIDs,
+                    packageOneID,
+                    packageTwoID,
+                    packageThreeID,
+                    isAdditionalService
+                  } = servicePriceData;
+
+                  // Fetch recurring service data
+                  const packageOneData = OneOffServices.find(
+                    (item) =>
+                      item.servicePackageID === packageOneID &&
+                      service.serviceID === item.serviceID &&
+                      item.serviceCatID === category.serviceCatID
+                  );
+                  const packageTwoData = OneOffServices.find(
+                    (item) =>
+                      item.servicePackageID === packageTwoID &&
+                      service.serviceID === item.serviceID &&
+                      item.serviceCatID === category.serviceCatID
+                  );
+                  const packageThreeData = OneOffServices.find(
+                    (item) =>
+                      item.servicePackageID === packageThreeID &&
+                      service.serviceID === item.serviceID &&
+                      item.serviceCatID === category.serviceCatID
+                  );
+
+                  // Override package values if data is found in OneOffServices
+                  let packageOneValue = Number(packageOneData?.price);
+                  let packageTwoValue = Number(packageTwoData?.price);
+                  let packageThreeValue = Number(packageThreeData?.price);
+
+                  let originalPackageOneValue = Number(packageOneData?.price);
+                  let originalPackageTwoValue = Number(packageTwoData?.price);
+                  let originalPackageThreeValue = Number(packageThreeData?.price);
+
+                  let updatedServicePackageIDs = [];  // Assuming you'll add logic to update this
+
+                  // Adjust price and package values based on payment frequency
+                  switch (ProposalObject.Payment_Frequency) {
+                    case 4:
+                      price *= 12;
+                      originalServicePrice *= 12;
+                      packageOneValue *= 12;
+                      packageTwoValue *= 12;
+                      packageThreeValue *= 12;
+                      originalPackageOneValue *= 12;
+                      originalPackageTwoValue *= 12;
+                      originalPackageThreeValue *= 12;
+                      break;
+                    case 3:
+                      price *= 4;
+                      originalServicePrice *= 4;
+                      packageOneValue *= 4;
+                      packageTwoValue *= 4;
+                      packageThreeValue *= 4;
+                      originalPackageOneValue *= 4;
+                      originalPackageTwoValue *= 4;
+                      originalPackageThreeValue *= 4;
+                      break;
+                    case 2:
+                      price *= 2;
+                      originalServicePrice *= 2;
+                      packageOneValue *= 2;
+                      packageTwoValue *= 2;
+                      packageThreeValue *= 2;
+                      originalPackageOneValue *= 2;
+                      originalPackageTwoValue *= 2;
+                      originalPackageThreeValue *= 2;
+                      break;
+                    case 1:
+                    default:
+                      break;
+                  }
+
+                  return {
+                    ...service,
+                    price,
+                    originalServicePrice,
+                    serviceDescription,
+                    packageOneValue,
+                    packageTwoValue,
+                    packageThreeValue,
+                    originalPackageOneValue,
+                    originalPackageTwoValue,
+                    originalPackageThreeValue,
+                    servicePackageIDs: updatedServicePackageIDs,
+                    packageOneID,
+                    packageTwoID,
+                    packageThreeID,
+                    isAdditionalService,
+                  };
+                })
+              ),
+            }))
+          );
+
+          recArrayWithPriceCopy.forEach((category) => {
+            category.servicesList.forEach((service) => {
+              // Initialize servicePackageIDs if it's not already an array
+              if (!Array.isArray(service.servicePackageIDs)) {
+                service.servicePackageIDs = [];
+              }
+
+              // Find matching service from recurringServices
+              recurringServices.forEach((rs) => {
+                if (
+                  rs.serviceID === service.serviceID &&
+                  rs.serviceCatID === category.serviceCatID
+                ) {
+                  // Ensure the servicePackageID is unique in servicePackageIDs
+                  if (
+                    !service.servicePackageIDs.includes(rs.servicePackageID)
+                  ) {
+                    service.servicePackageIDs.push(rs.servicePackageID);
+                  }
+                }
+              });
+            });
+          });
+
+          recArrayWithPrice.forEach((category) => {
+            category.servicesList.forEach((service) => {
+              // Initialize servicePackageIDs if it's not already an array
+              if (!Array.isArray(service.servicePackageIDs)) {
+                service.servicePackageIDs = [];
+              }
+
+              // Find matching service from recurringServices
+              recurringServices.forEach((rs) => {
+                if (
+                  rs.serviceID === service.serviceID &&
+                  rs.serviceCatID === category.serviceCatID
+                ) {
+                  // Ensure the servicePackageID is unique in servicePackageIDs
+                  if (
+                    !service.servicePackageIDs.includes(rs.servicePackageID)
+                  ) {
+                    service.servicePackageIDs.push(rs.servicePackageID);
+                  }
+                }
+              });
+            });
+          });
+
+          recArrayWithPriceCopy.forEach((category) => {
+            category.servicesList.forEach((service) => {
+              if (service.isAdditionalService) {
+                // Find matching additional service from QuotationAdditionalServices
+                const additionalService =
+                  QuotationAdditionalServices !== null &&
+                  QuotationAdditionalServices.find(
+                    (item) =>
+                      item.serviceChargeTypeID === 1 &&
+                      item.serviceID === service.serviceID
+                  );
+
+                // Update servicePackageIDs only if additional service is found and has package IDs
+                const updatedServicePackageIDs =
+                  additionalService &&
+                    additionalService.servicePackageIDs.length > 0
+                    ? additionalService.servicePackageIDs
+                    : RecurringServicePrices[category.serviceCatID][service.serviceID].servicePackageIDs;
+
+                // Update servicePackageIDs in the service object
+                service.servicePackageIDs = updatedServicePackageIDs;
+              }
+            });
+          });
+          recArrayWithPrice.forEach((category) => {
+            category.servicesList.forEach((service) => {
+              if (service.isAdditionalService) {
+                // Find matching additional service from QuotationAdditionalServices
+                const additionalService =
+                  QuotationAdditionalServices !== null &&
+                  QuotationAdditionalServices.find(
+                    (item) =>
+                      item.serviceChargeTypeID === 1 &&
+                      item.serviceID === service.serviceID
+                  );
+
+                // Update servicePackageIDs only if additional service is found and has package IDs
+                const updatedServicePackageIDs =
+                  additionalService &&
+                    additionalService.servicePackageIDs.length > 0
+                    ? additionalService.servicePackageIDs
+                    : RecurringServicePrices[category.serviceCatID][service.serviceID].servicePackageIDs;
+
+                // Update servicePackageIDs in the service object
+                service.servicePackageIDs = updatedServicePackageIDs;
+              }
+            });
+          });
+          OneArrayWithPrice.filter((category) => {
+            category.servicesList.forEach((service) => {
+              // Initialize servicePackageIDs if it's not already an array
+              if (!Array.isArray(service.servicePackageIDs)) {
+                service.servicePackageIDs = [];
+              }
+
+              // Find matching service from recurringServices
+              OneOffServices.forEach((rs) => {
+                if (
+                  rs.serviceID === service.serviceID &&
+                  rs.serviceCatID === category.serviceCatID
+                ) {
+                  // Ensure the servicePackageID is unique in servicePackageIDs
+                  if (
+                    !service.servicePackageIDs.includes(rs.servicePackageID)
+                  ) {
+                    service.servicePackageIDs.push(rs.servicePackageID);
+                  }
+                }
+              });
+            });
+          });
+
+          OneArrayWithPrice.filter((category) => {
+            category.servicesList.map((service) => {
+              if (service.isAdditionalService) {
+                // Find matching additional service from QuotationAdditionalServices
+                const additionalService =
+                  QuotationAdditionalServices !== null &&
+                  QuotationAdditionalServices.find(
+                    (item) =>
+                      item.serviceChargeTypeID === 2 &&
+                      item.serviceID === service.serviceID
+                  );
+
+                // Update servicePackageIDs only if additional service is found and has package IDs
+                const updatedServicePackageIDs =
+                  additionalService &&
+                    additionalService.servicePackageIDs.length > 0
+                    ? additionalService.servicePackageIDs
+                    : OneOffServicePrices[category.serviceCatID][service.serviceID].servicePackageIDs;
+
+                // Update servicePackageIDs in the service object
+                service.servicePackageIDs = updatedServicePackageIDs;
+              }
+            });
+          });
+          recArrayWithPrice = updatePackageIDs(recArrayWithPrice);
+          OneArrayWithPrice = updatePackageIDs(OneArrayWithPrice);
+          setSelectedRecurringServiceList(recArrayWithPrice);
+          setRecurringServiceCopy(recArrayWithPriceCopy);
+
+          setSelectedOneOffServiceList(OneArrayWithPrice);
+
+          let RecTotal = 0;
+          let OneOffTotal = 0;
+          recArrayWithPrice.forEach((category) => {
+            category.servicesList.forEach((service) => {
+              // Perform the percentage calculation for each value
+              let currentServicePrice =
+                service.originalServicePrice === undefined
+                  ? (service.quotationPrice = Number(service.quotationPrice))
+                  : (service.originalServicePrice = Number(
+                    service.originalServicePrice
+                  ));
+
+              let currentServicePriceWithToFixed =
+                Number(currentServicePrice)?.toFixed(2);
+              //service.price = currentServicePriceWithToFixed
+              RecTotal = Number(
+                Number(RecTotal) + Number(currentServicePriceWithToFixed)
+              )?.toFixed(2);
+
+              // service.price === undefined
+              //   ? (service.quotationPrice = Number(service.quotationPrice))
+              //   : (service.price = Number(service.price));
+            });
+          });
+          OneArrayWithPrice.forEach((category) => {
+            category.servicesList.forEach((service) => {
+              // Perform the percentage calculation for each value
+              let currentServicePrice =
+                service.originalServicePrice === undefined
+                  ? (service.quotationPrice = Number(service.quotationPrice))
+                  : (service.originalServicePrice = Number(
+                    service.originalServicePrice
+                  ));
+
+              let currentServicePriceWithToFixed =
+                Number(currentServicePrice)?.toFixed(2);
+              //service.price = currentServicePriceWithToFixed
+              OneOffTotal = Number(
+                Number(OneOffTotal) + Number(currentServicePriceWithToFixed)
+              )?.toFixed(2);
+
+              // service.price === undefined
+              //   ? (service.quotationPrice = Number(service.quotationPrice))
+              //   : (service.price = Number(service.price));
+            });
+          });
+
+
+          let totalOne = 0;
+          let totalTwo = 0;
+          let totalThree = 0;
+
+          recArrayWithPrice.forEach((category) => {
+            category.servicesList.forEach((service) => {
+              // Check if the value is not null before adding
+
+              if (service.packageOneValue !== null) {
+                //totalOne += Number(service.packageOneValue);
+                let currentServicePriceWithToFixed = Number(
+                  service.originalPackageOneValue
+                )?.toFixed(2);
+                totalOne = Number(
+                  Number(totalOne) + Number(currentServicePriceWithToFixed)
+                )?.toFixed(2);
+              }
+              if (service.packageTwoValue !== null) {
+                //totalTwo += Number(service.packageTwoValue);
+                let currentServicePriceWithToFixed = Number(
+                  service.originalPackageTwoValue
+                )?.toFixed(2);
+                totalTwo = Number(
+                  Number(totalTwo) + Number(currentServicePriceWithToFixed)
+                )?.toFixed(2);
+              }
+              if (service.packageThreeValue !== null) {
+                //totalThree += Number(service.packageThreeValue);
+                let currentServicePriceWithToFixed = Number(
+                  service.originalPackageThreeValue
+                )?.toFixed(2);
+                totalThree = Number(
+                  Number(totalThree) + Number(currentServicePriceWithToFixed)
+                )?.toFixed(2);
+              }
+            });
+          });
+          // Round the totals to two decimal places
+
+          let multiplicationFactor = 1; // Default to yearly
+
+          switch (ProposalObject.Payment_Frequency) {
+            case 4:
+              multiplicationFactor = 12; // Convert to yearly
+              break;
+            case 3:
+              multiplicationFactor = 4; // Convert to yearly
+              break;
+            case 2:
+              multiplicationFactor = 2; // Convert to yearly
+              break;
+            // No adjustment needed for yearly
+            case 1:
+            default:
+              break;
+          }
+          let UpdatedServiceMappingWithPackagesList = serviceMappingWithPackagesList.map((service) => {
+            // Multiply the price by 2
+            const updatedPrice = Number(service.price) * multiplicationFactor;
+
+            // Return the updated service with the new price
+            return {
+              ...service,
+              price: updatedPrice, // Update the price here
+              priceWithAllDecimal: updatedPrice?.toString(),
+              servicePriceDetails: {
+                ...service.servicePriceDetails,
+                price: updatedPrice // Also update the price in servicePriceDetails if needed
+              }
+            };
+          });
+          let UpdatedServiceMappingWithPackagesListCopy = serviceMappingWithPackagesList.map((service) => {
+            // Multiply the price by 2
+            const updatedPrice = service.serviceChargeTypeID === 2 ? Number(service.price) * multiplicationFactor : service.price;
+
+            // Return the updated service with the new price
+            return {
+              ...service,
+              price: updatedPrice, // Update the price here
+              priceWithAllDecimal: updatedPrice?.toString(),
+              servicePriceDetails: {
+                ...service.servicePriceDetails,
+                price: updatedPrice // Also update the price in servicePriceDetails if needed
+              }
+            };
+          });
+          setServiceMappingWithPackagesList(UpdatedServiceMappingWithPackagesListCopy)
+          setServiceMappingWithPackagesListCopy(UpdatedServiceMappingWithPackagesList)
+          // setServiceMappingWithPackagesList(UpdatedServiceMappingWithPackagesList)
+          let pricingSettingPaymentFrequency = 1;
+          switch (pricingSettingObj.PaymentFrequency) {
+            case 4:
+              pricingSettingPaymentFrequency = 12; // Convert to yearly
+              break;
+            case 3:
+              pricingSettingPaymentFrequency = 4; // Convert to yearly
+              break;
+            case 2:
+              pricingSettingPaymentFrequency = 2; // Convert to yearly
+              break;
+            // No adjustment needed for yearly
+            case 1:
+            default:
+              break;
+          }
+
+          let recOriginalPrice = 0.0;
+          let recDefaultPrice = 0.0;
+          let recMinPrice = 0.0;
+          let recVATPrice = 0.0;
+          let recDiscount = 0.0;
+          let recDefaultDiscount = null;
+          let recMaxDiscount = 0.0;
+          let recGrandTotal = 0.0;
+
+          let recOriginalPriceCopy = 0.0;
+          let recDefaultPriceCopy = 0.0;
+          let recMinPriceCopy = 0.0;
+          let recVATPriceCopy = 0.0;
+          let recDiscountCopy = 0.0;
+          let recDefaultDiscountCopy = null;
+          let recMaxDiscountCopy = 0.0;
+          let recGrandTotalCopy = 0.0;
+
+          let PackageOneVaTPrice = totalOne * (vatPercentage / 100);
+          let PackageTwoVaTPrice = totalTwo * (vatPercentage / 100);
+          let PackageThreeVaTPrice = totalThree * (vatPercentage / 100);
+          let PackageOneGrandTotal = PackageOneVaTPrice + totalOne;
+          let PackageTwoGrandTotal = PackageTwoVaTPrice + totalTwo;
+          let PackageThreeGrandTotal = PackageThreeVaTPrice + totalThree;
+          let packageRecurringOriginalPrice = 0;
+          let packageRecurringDefaultPrice = 0;
+          let packageOneOffOriginalPrice = 0;
+          let packageOneOffDefaultPrice = 0;
+          recOriginalPriceCopy = Number(
+            Number(RecTotal) * Number(multiplicationFactor)
+          ).toFixed(12);
+          recOriginalPrice = Number(RecTotal);
+          // recOriginalPrice = Number(RecTotal) / pricingSettingPaymentFrequency;
+
+          let DiscountPercentagePackageOne = null;
+          let DiscountPercentagePackageOneWithAllDecimal = null;
+          let DiscountPercentagePackageTwo = null;
+          let DiscountPercentagePackageTwoWithAllDecimal = null;
+          let DiscountPercentagePackageThree = null;
+          let DiscountPercentagePackageThreeWithAllDecimal = null;
+
+          let OneOffDiscountPercentagePackageOne = null;
+          let OneOffDiscountPercentagePackageOneWithAllDecimal = null;
+          let OneOffDiscountPercentagePackageTwo = null;
+          let OneOffDiscountPercentagePackageTwoWithAllDecimal = null;
+          let OneOffDiscountPercentagePackageThree = null;
+          let OneOffDiscountPercentagePackageThreeWithAllDecimal = null;
+
+          if (PackageList?.length > 0) {
+            //Recurring Package discount 1
+            if (
+              PackageList[0].recurringOriginalPrice !== null ||
+              recurringServiceList.length > 0
+            ) {
+              packageRecurringOriginalPrice =
+                PackageList[0]?.recurringOriginalPrice;
+              packageRecurringDefaultPrice =
+                PackageList[0]?.recurringDefaultPrice;
+              let packageDiscountPercentage =
+                ((packageRecurringOriginalPrice -
+                  packageRecurringDefaultPrice) /
+                  packageRecurringOriginalPrice) *
+                100;
+
+              if (
+                RecurringPricingInfo.DiscountPercentagePackageOne === "" ||
+                RecurringPricingInfo.DiscountPercentagePackageOne === null ||
+                RecurringPricingInfo.DiscountPercentagePackageOne === undefined
+              ) {
+                DiscountPercentagePackageOne = Number(
+                  packageDiscountPercentage
+                ).toFixed(2);
+                DiscountPercentagePackageOneWithAllDecimal =
+                  packageDiscountPercentage;
+                if (quotationFinalPackageAmountList?.length > 0) {
+                  let packageOneQuotationFinalPackageAmountObj =
+                    quotationFinalPackageAmountList.find(
+                      (quotationFinalPackage) =>
+                        quotationFinalPackage.servicePackageID ===
+                        PackageList[0].servicePackageID &&
+                        quotationFinalPackage.serviceChargeTypeID == 1
+                    );
+                  if (
+                    packageOneQuotationFinalPackageAmountObj !== undefined &&
+                    packageOneQuotationFinalPackageAmountObj !== null
+                  ) {
+                    DiscountPercentagePackageOne = Number(
+                      packageOneQuotationFinalPackageAmountObj?.discountPercentageWithAllDecimal
+                    ).toFixed(2);
+                    DiscountPercentagePackageOneWithAllDecimal =
+                      packageOneQuotationFinalPackageAmountObj?.discountPercentageWithAllDecimal;
+                  }
+                }
+              } else {
+                DiscountPercentagePackageOne = isNaN(
+                  RecurringPricingInfo.DiscountPercentagePackageOne
+                )
+                  ? 0
+                  : RecurringPricingInfo.DiscountPercentagePackageOne;
+                DiscountPercentagePackageOneWithAllDecimal = isNaN(
+                  RecurringFrequencyPricingInfo.DiscountPercentagePackageOne
+                )
+                  ? 0
+                  : RecurringFrequencyPricingInfo.DiscountPercentagePackageOne;
+              }
+            } else {
+              DiscountPercentagePackageOne = Number(
+                0.00
+              ).toFixed(2);
+              DiscountPercentagePackageOneWithAllDecimal =
+                0;
+            }
+
+            //OneOff Package discount 1
+            if (
+              PackageList[0].oneOffOriginalPrice !== null ||
+              oneOffServiceList.length > 0
+            ) {
+              packageOneOffOriginalPrice =
+                PackageList[0]?.oneOffOriginalPrice;
+              packageOneOffDefaultPrice = PackageList[0]?.oneOffDefaultPrice;
+              let OneOffPackageDiscountPercentage =
+                ((packageOneOffOriginalPrice - packageOneOffDefaultPrice) /
+                  packageOneOffOriginalPrice) *
+                100;
+
+              if (
+                OneOffPricingInfo.DiscountPercentagePackageOne === "" ||
+                OneOffPricingInfo.DiscountPercentagePackageOne === null ||
+                OneOffPricingInfo.DiscountPercentagePackageOne === undefined
+              ) {
+                OneOffDiscountPercentagePackageOne = Number(
+                  OneOffPackageDiscountPercentage
+                ).toFixed(2);
+                OneOffDiscountPercentagePackageOneWithAllDecimal =
+                  OneOffPackageDiscountPercentage;
+
+                if (quotationFinalPackageAmountList?.length > 0) {
+                  let OneOffPackageOneQuotationFinalPackageAmountObj =
+                    quotationFinalPackageAmountList.find(
+                      (quotationFinalPackage) =>
+                        quotationFinalPackage.servicePackageID ===
+                        PackageList[0].servicePackageID &&
+                        quotationFinalPackage.serviceChargeTypeID == 2
+                    );
+                  if (
+                    OneOffPackageOneQuotationFinalPackageAmountObj !==
+                    undefined &&
+                    OneOffPackageOneQuotationFinalPackageAmountObj !== null
+                  ) {
+                    OneOffDiscountPercentagePackageOne = Number(
+                      OneOffPackageOneQuotationFinalPackageAmountObj?.discountPercentageWithAllDecimal
+                    ).toFixed(2);
+                    OneOffDiscountPercentagePackageOneWithAllDecimal =
+                      OneOffPackageOneQuotationFinalPackageAmountObj?.discountPercentageWithAllDecimal;
+                  }
+                }
+              } else {
+                OneOffDiscountPercentagePackageOne = isNaN(
+                  OneOffPricingInfo.DiscountPercentagePackageOne
+                )
+                  ? 0
+                  : OneOffPricingInfo.DiscountPercentagePackageOne;
+                OneOffDiscountPercentagePackageOneWithAllDecimal = isNaN(
+                  OneOffPricingInfoCopy.DiscountPercentagePackageOne
+                )
+                  ? 0
+                  : OneOffPricingInfoCopy.DiscountPercentagePackageOne;
+              }
+            } else {
+              OneOffDiscountPercentagePackageOne = Number(
+                0.00
+              ).toFixed(2);
+              OneOffDiscountPercentagePackageOneWithAllDecimal =
+                0;
+            }
+          }
+
+          if (PackageList?.length > 1) {
+            //Recurring Package discount 2
+            if (
+              PackageList[1].recurringOriginalPrice !== null ||
+              recurringServiceList.length > 0
+            ) {
+              packageRecurringOriginalPrice =
+                PackageList[1]?.recurringOriginalPrice;
+              packageRecurringDefaultPrice =
+                PackageList[1]?.recurringDefaultPrice;
+              let packageDiscountPercentage =
+                ((packageRecurringOriginalPrice -
+                  packageRecurringDefaultPrice) /
+                  packageRecurringOriginalPrice) *
+                100;
+
+              if (
+                RecurringPricingInfo.DiscountPercentagePackageTwo === "" ||
+                RecurringPricingInfo.DiscountPercentagePackageTwo === null ||
+                RecurringPricingInfo.DiscountPercentagePackageTwo ===
+                undefined
+              ) {
+                DiscountPercentagePackageTwo = Number(
+                  packageDiscountPercentage
+                ).toFixed(2);
+                DiscountPercentagePackageTwoWithAllDecimal =
+                  packageDiscountPercentage;
+
+                if (quotationFinalPackageAmountList?.length > 0) {
+                  let packageTwoQuotationFinalPackageAmountObj =
+                    quotationFinalPackageAmountList.find(
+                      (quotationFinalPackage) =>
+                        quotationFinalPackage.servicePackageID ===
+                        PackageList[1].servicePackageID &&
+                        quotationFinalPackage.serviceChargeTypeID == 1
+                    );
+
+                  if (
+                    packageTwoQuotationFinalPackageAmountObj !== undefined &&
+                    packageTwoQuotationFinalPackageAmountObj !== null
+                  ) {
+                    DiscountPercentagePackageTwo = Number(
+                      packageTwoQuotationFinalPackageAmountObj?.discountPercentageWithAllDecimal
+                    ).toFixed(2);
+                    DiscountPercentagePackageTwoWithAllDecimal =
+                      packageTwoQuotationFinalPackageAmountObj?.discountPercentageWithAllDecimal;
+                  }
+                }
+              } else {
+                DiscountPercentagePackageTwo = isNaN(
+                  RecurringPricingInfo.DiscountPercentagePackageTwo
+                )
+                  ? 0
+                  : RecurringPricingInfo.DiscountPercentagePackageTwo;
+                DiscountPercentagePackageTwoWithAllDecimal = isNaN(
+                  RecurringFrequencyPricingInfo.DiscountPercentagePackageTwo
+                )
+                  ? 0
+                  : RecurringFrequencyPricingInfo.DiscountPercentagePackageTwo;
+              }
+            } else {
+              DiscountPercentagePackageTwo = Number(
+                0.00
+              ).toFixed(2);
+              DiscountPercentagePackageTwoWithAllDecimal =
+                0;
+            }
+
+            //OneOff Package discount 2
+            if (
+              PackageList[1].oneOffOriginalPrice !== null ||
+              oneOffServiceList.length > 0
+            ) {
+              packageOneOffOriginalPrice =
+                PackageList[1]?.oneOffOriginalPrice;
+              packageOneOffDefaultPrice = PackageList[1]?.oneOffDefaultPrice;
+              let OneOffPackageDiscountPercentage =
+                ((packageOneOffOriginalPrice - packageOneOffDefaultPrice) /
+                  packageOneOffOriginalPrice) *
+                100;
+
+              if (
+                OneOffPricingInfo.DiscountPercentagePackageTwo === "" ||
+                OneOffPricingInfo.DiscountPercentagePackageTwo === null ||
+                OneOffPricingInfo.DiscountPercentagePackageTwo === undefined
+              ) {
+                OneOffDiscountPercentagePackageTwo = Number(
+                  OneOffPackageDiscountPercentage
+                ).toFixed(2);
+                OneOffDiscountPercentagePackageTwoWithAllDecimal =
+                  OneOffPackageDiscountPercentage;
+
+                if (quotationFinalPackageAmountList?.length > 0) {
+                  let OneOffPackageTwoQuotationFinalPackageAmountObj =
+                    quotationFinalPackageAmountList.find(
+                      (quotationFinalPackage) =>
+                        quotationFinalPackage.servicePackageID ===
+                        PackageList[1].servicePackageID &&
+                        quotationFinalPackage.serviceChargeTypeID == 2
+                    );
+                  if (
+                    OneOffPackageTwoQuotationFinalPackageAmountObj !==
+                    undefined &&
+                    OneOffPackageTwoQuotationFinalPackageAmountObj !== null
+                  ) {
+                    OneOffDiscountPercentagePackageTwo = Number(
+                      OneOffPackageTwoQuotationFinalPackageAmountObj?.discountPercentageWithAllDecimal
+                    ).toFixed(2);
+                    OneOffDiscountPercentagePackageTwoWithAllDecimal =
+                      OneOffPackageTwoQuotationFinalPackageAmountObj?.discountPercentageWithAllDecimal;
+                  }
+                }
+              } else {
+                OneOffDiscountPercentagePackageTwo = isNaN(
+                  OneOffPricingInfo.DiscountPercentagePackageTwo
+                )
+                  ? 0
+                  : OneOffPricingInfo.DiscountPercentagePackageTwo;
+                OneOffDiscountPercentagePackageTwoWithAllDecimal = isNaN(
+                  OneOffPricingInfoCopy.DiscountPercentagePackageTwo
+                )
+                  ? 0
+                  : OneOffPricingInfoCopy.DiscountPercentagePackageTwo;
+              }
+            } else {
+              OneOffDiscountPercentagePackageTwo = Number(
+                0.00
+              ).toFixed(2);
+              OneOffDiscountPercentagePackageTwoWithAllDecimal =
+                0;
+            }
+          }
+
+          if (PackageList?.length > 2) {
+            //Recurring Package discount 3
+            if (
+              PackageList[2].recurringOriginalPrice !== null ||
+              recurringServiceList.length > 0
+            ) {
+              packageRecurringOriginalPrice =
+                PackageList[2]?.recurringOriginalPrice;
+              packageRecurringDefaultPrice =
+                PackageList[2]?.recurringDefaultPrice;
+              let packageDiscountPercentage =
+                ((packageRecurringOriginalPrice -
+                  packageRecurringDefaultPrice) /
+                  packageRecurringOriginalPrice) *
+                100;
+
+              if (
+                RecurringPricingInfo.DiscountPercentagePackageThree === "" ||
+                RecurringPricingInfo.DiscountPercentagePackageThree ===
+                null ||
+                RecurringPricingInfo.DiscountPercentagePackageThree ===
+                undefined
+              ) {
+                DiscountPercentagePackageThree = Number(
+                  packageDiscountPercentage
+                ).toFixed(2);
+                DiscountPercentagePackageThreeWithAllDecimal =
+                  packageDiscountPercentage;
+
+                if (quotationFinalPackageAmountList?.length > 0) {
+                  let packageThreeQuotationFinalPackageAmountObj =
+                    quotationFinalPackageAmountList.find(
+                      (quotationFinalPackage) =>
+                        quotationFinalPackage.servicePackageID ===
+                        PackageList[2].servicePackageID &&
+                        quotationFinalPackage.serviceChargeTypeID == 1
+                    );
+                  if (
+                    packageThreeQuotationFinalPackageAmountObj !==
+                    undefined &&
+                    packageThreeQuotationFinalPackageAmountObj !== null
+                  ) {
+                    DiscountPercentagePackageThree = Number(
+                      packageThreeQuotationFinalPackageAmountObj?.discountPercentageWithAllDecimal
+                    ).toFixed(2);
+                    DiscountPercentagePackageThreeWithAllDecimal =
+                      packageThreeQuotationFinalPackageAmountObj?.discountPercentageWithAllDecimal;
+                  }
+                }
+              } else {
+                DiscountPercentagePackageThree = isNaN(
+                  RecurringPricingInfo.DiscountPercentagePackageThree
+                )
+                  ? 0
+                  : RecurringPricingInfo.DiscountPercentagePackageThree;
+
+                DiscountPercentagePackageThreeWithAllDecimal = isNaN(
+                  RecurringFrequencyPricingInfo.DiscountPercentagePackageThree
+                )
+                  ? 0
+                  : RecurringFrequencyPricingInfo.DiscountPercentagePackageThree;
+              }
+            } else {
+              DiscountPercentagePackageThree = Number(0.00)?.toFixed(2)
+              DiscountPercentagePackageThreeWithAllDecimal = 0
+            }
+
+            //OneOff Package discount 3
+            if (
+              PackageList[2].oneOffOriginalPrice !== null ||
+              oneOffServiceList.length > 0
+            ) {
+              packageOneOffOriginalPrice =
+                PackageList[2]?.oneOffOriginalPrice;
+              packageOneOffDefaultPrice = PackageList[2]?.oneOffDefaultPrice;
+              let OneOffPackageDiscountPercentage =
+                ((packageOneOffOriginalPrice - packageOneOffDefaultPrice) /
+                  packageOneOffOriginalPrice) *
+                100;
+
+              if (
+                OneOffPricingInfo.DiscountPercentagePackageThree === "" ||
+                OneOffPricingInfo.DiscountPercentagePackageThree === null ||
+                OneOffPricingInfo.DiscountPercentagePackageThree === undefined
+              ) {
+                OneOffDiscountPercentagePackageThree = Number(
+                  OneOffPackageDiscountPercentage
+                ).toFixed(2);
+                OneOffDiscountPercentagePackageThreeWithAllDecimal =
+                  OneOffPackageDiscountPercentage;
+
+                if (quotationFinalPackageAmountList?.length > 0) {
+                  let OneOffPackageThreeQuotationFinalPackageAmountObj =
+                    quotationFinalPackageAmountList.find(
+                      (quotationFinalPackage) =>
+                        quotationFinalPackage.servicePackageID ===
+                        PackageList[2].servicePackageID &&
+                        quotationFinalPackage.serviceChargeTypeID == 2
+                    );
+                  if (
+                    OneOffPackageThreeQuotationFinalPackageAmountObj !==
+                    undefined &&
+                    OneOffPackageThreeQuotationFinalPackageAmountObj !== null
+                  ) {
+                    OneOffDiscountPercentagePackageThree = Number(
+                      OneOffPackageThreeQuotationFinalPackageAmountObj?.discountPercentageWithAllDecimal
+                    ).toFixed(2);
+                    OneOffDiscountPercentagePackageThreeWithAllDecimal =
+                      OneOffPackageThreeQuotationFinalPackageAmountObj?.discountPercentageWithAllDecimal;
+                  }
+                }
+              } else {
+                OneOffDiscountPercentagePackageThree = isNaN(
+                  OneOffPricingInfo.DiscountPercentagePackageThree
+                )
+                  ? 0
+                  : OneOffPricingInfo.DiscountPercentagePackageThree;
+                OneOffDiscountPercentagePackageThreeWithAllDecimal = isNaN(
+                  OneOffPricingInfoCopy.DiscountPercentagePackageThree
+                )
+                  ? 0
+                  : OneOffPricingInfoCopy.DiscountPercentagePackageThree;
+              }
+            } else {
+              OneOffDiscountPercentagePackageThree = Number(0.00)?.toFixed(2)
+              OneOffDiscountPercentagePackageThreeWithAllDecimal = 0
+            }
+          }
+          // setIsUpdatePackage(false)
+          recDefaultDiscountCopy =
+            GetSingleDefaultDiscountPercentageOfPackages(
+              isNaN(DiscountPercentagePackageOne)
+                ? 0
+                : DiscountPercentagePackageOne,
+              isNaN(DiscountPercentagePackageTwo)
+                ? 0
+                : DiscountPercentagePackageTwo,
+              isNaN(DiscountPercentagePackageThree)
+                ? 0
+                : DiscountPercentagePackageThree
+            );
+          recDefaultDiscount = GetSingleDefaultDiscountPercentageOfPackages(
+            isNaN(DiscountPercentagePackageOne)
+              ? 0
+              : DiscountPercentagePackageOne,
+            isNaN(DiscountPercentagePackageTwo)
+              ? 0
+              : DiscountPercentagePackageTwo,
+            isNaN(DiscountPercentagePackageThree)
+              ? 0
+              : DiscountPercentagePackageThree
+          );
+
+          if (
+            RecurringPricingInfo.OriginalPrice === "" ||
+            RecurringPricingInfo.OriginalPrice === null ||
+            RecurringPricingInfo.OriginalPrice === undefined ||
+            RecurringPricingInfo.DefaultDiscount === "" ||
+            RecurringFrequencyPricingInfo.DefaultDiscount === null ||
+            RecurringFrequencyPricingInfo.DefaultDiscount === undefined ||
+            RecurringFrequencyPricingInfo.DefaultDiscount === "0.00" ||
+            RecurringFrequencyPricingInfo.DefaultDiscount === 0 ||
+            Number(RecTotal)?.toFixed(2) !==
+            Number(RecurringPricingInfo.OriginalPrice)?.toFixed(2)
+          ) {
+            recDefaultPrice = (
+              Math.floor(Number(RecTotal).toFixed(12) * 100) / 100
+            ).toFixed(2);
+            // recDefaultPrice = (
+            //   Math.floor(Number(RecTotal / pricingSettingPaymentFrequency).toFixed(12) * 100) / 100
+            // ).toFixed(2);
+            // recDefaultPrice = Number(recDefaultPrice)
+            // recDefaultPrice = RecTotal?.toFixed(2);
+            recVATPrice = Number(recOriginalPrice) * (vatPercentage / 100);
+            recGrandTotal = Number(recVATPrice) + Number(recOriginalPrice);
+            recDefaultPriceCopy =
+              Number(RecTotal) * Number(multiplicationFactor);
+            recMinPriceCopy = Number(RecTotal) * Number(multiplicationFactor);
+
+            recVATPriceCopy =
+              Number(recOriginalPrice) * (vatPercentage / 100);
+            recGrandTotalCopy =
+              Number(recVATPrice) + Number(recOriginalPrice);
+          } else {
+            // recOriginalPrice = Number(RecurringPricingInfo.OriginalPrice);
+            recDefaultPrice = RecurringPricingInfo.DiscountedPrice;
+            const truncatedTotal = Math.trunc(recDefaultPrice * 100) / 100;
+            recDefaultPrice = Number(truncatedTotal)?.toFixed(2);
+            if (
+              RecurringPricingInfo.DiscountedPrice === undefined ||
+              RecurringPricingInfo.DiscountedPrice === "" ||
+              RecurringPricingInfo.DiscountedPrice === null
+            ) {
+              recDefaultPrice =
+                Number(RecTotal) *
+                (1 - Number(RecurringPricingInfo.DefaultDiscount) / 100);
+              recDefaultPrice = (
+                Math.floor(recDefaultPrice * 100) / 100
+              ).toFixed(2);
+            }
+
+            // recDefaultPrice =
+            //   Number(RecurringPricingInfo.DiscountedPrice)?.toFixed(2);
+            recVATPrice = Number(recDefaultPrice) * (vatPercentage / 100);
+            recGrandTotal = Number(recVATPrice) + Number(recDefaultPrice);
+
+            recDiscount = Number(recOriginalPrice) - Number(recDefaultPrice); //RecurringPricingInfo.Discount;
+            recDefaultDiscount = RecurringPricingInfo.DefaultDiscount;
+            recMaxDiscount = RecurringPricingInfo.MaxDiscount;
+
+            // recDefaultPriceCopy = Number(
+            //   RecurringPricingInfo.DiscountedPrice) * Number(multiplicationFactor)
+
+            recDefaultDiscountCopy =
+              RecurringFrequencyPricingInfo.DefaultDiscount;
+            recDefaultPriceCopy =
+              Number(recOriginalPriceCopy) -
+              Number(recOriginalPriceCopy) * (recDefaultDiscountCopy / 100);
+
+            recVATPriceCopy = Number(recDefaultPrice) * (vatPercentage / 100);
+            recGrandTotalCopy = Number(recVATPrice) + Number(recDefaultPrice);
+            recDiscountCopy =
+              Number(recOriginalPriceCopy) - Number(recDefaultPriceCopy); //RecurringPricingInfo.Discount;
+
+            recMaxDiscountCopy = RecurringPricingInfo.MaxDiscount;
+          }
+
+          setRecurringPricingInfo({
+            ...RecurringPricingInfo,
+            OriginalPrice: recOriginalPrice,
+            DiscountedPrice: recDefaultPrice,
+            MinPrice: recMinPrice,
+            VATPrice: recVATPrice,
+            Discount: recDiscount,
+            DefaultDiscount:
+              recDefaultDiscount == null
+                ? null
+                : Number(recDefaultDiscount).toFixed(2),
+            // DefaultDiscount: Number(recDefaultDiscount).toFixed(2),
+            DiscountPercentagePackageOne: isNaN(DiscountPercentagePackageOne)
+              ? 0
+              : DiscountPercentagePackageOne,
+            DiscountPercentagePackageTwo: isNaN(DiscountPercentagePackageTwo)
+              ? 0
+              : DiscountPercentagePackageTwo,
+            DiscountPercentagePackageThree: isNaN(
+              DiscountPercentagePackageThree
+            )
+              ? 0
+              : DiscountPercentagePackageThree,
+            GrandTotal: recGrandTotal,
+            packageOneDisCountedTotal: recDefaultPrice,
+            packageTwoDisCountedTotal: recDefaultPrice,
+            packageThreeDisCountedTotal: recDefaultPrice,
+            PackageOneVaTPrice: PackageOneVaTPrice,
+            PackageTwoVaTPrice: PackageTwoVaTPrice,
+            PackageThreeVaTPrice: PackageThreeVaTPrice,
+            PackageOneGrandTotal: PackageOneGrandTotal,
+            PackageTwoGrandTotal: PackageTwoGrandTotal,
+            PackageThreeGrandTotal: PackageThreeGrandTotal,
+          });
+
+          setRecurringFrequencyPricingInfo({
+            ...RecurringFrequencyPricingInfo,
+            OriginalPrice: recOriginalPriceCopy,
+            DiscountedPrice: recDefaultPriceCopy,
+            MinPrice: recMinPriceCopy,
+            VATPrice: recVATPriceCopy,
+            Discount: recDiscountCopy,
+            DefaultDiscount:
+              recDefaultDiscountCopy == null ? null : recDefaultDiscountCopy,
+            DiscountPercentagePackageOne: isNaN(
+              DiscountPercentagePackageOneWithAllDecimal
+            )
+              ? 0
+              : DiscountPercentagePackageOneWithAllDecimal,
+            DiscountPercentagePackageTwo: isNaN(
+              DiscountPercentagePackageTwoWithAllDecimal
+            )
+              ? 0
+              : DiscountPercentagePackageTwoWithAllDecimal,
+            DiscountPercentagePackageThree: isNaN(
+              DiscountPercentagePackageThreeWithAllDecimal
+            )
+              ? 0
+              : DiscountPercentagePackageThreeWithAllDecimal,
+            // DiscountPercentagePackageOne:
+            //   DiscountPercentagePackageOneWithAllDecimal,
+            // DiscountPercentagePackageTwo:
+            //   DiscountPercentagePackageTwoWithAllDecimal,
+            // DiscountPercentagePackageThree:
+            //   DiscountPercentagePackageThreeWithAllDecimal,
+            GrandTotal: recGrandTotalCopy,
+            packageOneDisCountedTotal: recDefaultPrice,
+            packageTwoDisCountedTotal: recDefaultPrice,
+            packageThreeDisCountedTotal: recDefaultPrice,
+            PackageOneVaTPrice: PackageOneVaTPrice,
+            PackageTwoVaTPrice: PackageTwoVaTPrice,
+            PackageThreeVaTPrice: PackageThreeVaTPrice,
+            PackageOneGrandTotal: PackageOneGrandTotal,
+            PackageTwoGrandTotal: PackageTwoGrandTotal,
+            PackageThreeGrandTotal: PackageThreeGrandTotal,
+          });
+          let OneOffTotalOne = 0;
+          let OneOffTotalTwo = 0;
+          let OneOffTotalThree = 0;
+
+          OneArrayWithPrice.forEach((category) => {
+            category.servicesList.forEach((service) => {
+              // Check if the value is not null before adding
+              if (service.packageOneValue !== null)
+                OneOffTotalOne += service.packageOneValue;
+              if (service.packageTwoValue !== null)
+                OneOffTotalTwo += service.packageTwoValue;
+              if (service.packageThreeValue !== null)
+                OneOffTotalThree += service.packageThreeValue;
+            });
+          });
+          let oneOffOriginalPrice = 0.0;
+          let oneOffDefaultPrice = 0.0;
+          let oneOffMinPrice = 0.0;
+          let oneOffVATPrice = 0.0;
+          let oneOffDiscount = 0.0;
+          let oneOffDefaultDiscount = null;
+          let oneOffDefaultDiscountCopy = null;
+          let oneOffMaxDiscount = 0.0;
+          let oneOffGrandTotal = 0.0;
+          if (PackageList?.length == 1) {
+            if (PackageList[0]?.oneOffOriginalPrice !== null) {
+              packageOneOffOriginalPrice =
+                PackageList[0]?.oneOffOriginalPrice;
+              packageOneOffDefaultPrice = PackageList[0]?.oneOffDefaultPrice;
+              let packageDiscountPercentage =
+                ((packageOneOffOriginalPrice - packageOneOffDefaultPrice) /
+                  packageOneOffOriginalPrice) *
+                100;
+              oneOffDefaultDiscount = packageDiscountPercentage;
+              // oneOffDefaultDiscount = Number(packageDiscountPercentage).toFixed(2)
+            }
+          }
+          let OneOffPackageOneVaTPrice =
+            OneOffTotalOne * (vatPercentage / 100);
+          let OneOffPackageTwoVaTPrice =
+            OneOffTotalTwo * (vatPercentage / 100);
+          let OneOffPackageThreeVaTPrice =
+            OneOffTotalThree * (vatPercentage / 100);
+          let OneOffPackageOneGrandTotal =
+            OneOffPackageOneVaTPrice + OneOffTotalOne;
+          let OneOffPackageTwoGrandTotal =
+            OneOffPackageTwoVaTPrice + OneOffTotalTwo;
+          let OneOffPackageThreeGrandTotal =
+            OneOffPackageThreeVaTPrice + OneOffTotalThree;
+          oneOffOriginalPrice = Number(OneOffTotal).toFixed(12);
+
+          if (
+            OneOffPricingInfo.OriginalPrice === "" ||
+            OneOffPricingInfo.OriginalPrice === null ||
+            OneOffPricingInfo.OriginalPrice === undefined ||
+            OneOffPricingInfo.DefaultDiscount === "" ||
+            OneOffPricingInfoCopy.DefaultDiscount === null ||
+            OneOffPricingInfoCopy.DefaultDiscount === undefined ||
+            OneOffPricingInfoCopy.DefaultDiscount === "0.00" ||
+            OneOffPricingInfoCopy.DefaultDiscount === 0 ||
+            Number(OneOffTotal)?.toFixed(2) !==
+            Number(OneOffPricingInfo.OriginalPrice)?.toFixed(2)
+          ) {
+            oneOffDefaultPrice = (
+              Math.floor(Number(OneOffTotal).toFixed(12) * 100) / 100
+            ).toFixed(2);
+
+            oneOffVATPrice =
+              Number(oneOffOriginalPrice) * (vatPercentage / 100);
+            oneOffGrandTotal =
+              Number(oneOffVATPrice) + Number(oneOffOriginalPrice);
+          } else {
+            oneOffDefaultPrice = OneOffPricingInfo.DiscountedPrice;
+            const truncatedTotal = Math.trunc(oneOffDefaultPrice * 100) / 100;
+            oneOffDefaultPrice = Number(truncatedTotal)?.toFixed(2);
+            if (
+              OneOffPricingInfo.DiscountedPrice === undefined ||
+              OneOffPricingInfo.DiscountedPrice === "" ||
+              OneOffPricingInfo.DiscountedPrice === null
+            ) {
+              oneOffDefaultPrice =
+                Number(OneOffTotal) *
+                (1 - Number(OneOffPricingInfoCopy.DefaultDiscount) / 100);
+              oneOffDefaultPrice = oneOffDefaultPrice.toFixed(2);
+            }
+
+            // oneOffDefaultPrice = Number(
+            //   OneOffPricingInfo.DiscountedPrice
+            // )?.toFixed(2);
+            oneOffMinPrice = Number(OneOffPricingInfo.MinPrice)?.toFixed(2);
+            oneOffVATPrice =
+              Number(oneOffDefaultPrice) * (vatPercentage / 100);
+            oneOffGrandTotal =
+              Number(oneOffVATPrice) + Number(oneOffDefaultPrice);
+            oneOffDiscount = OneOffPricingInfo.Discount;
+            oneOffDefaultDiscount = OneOffPricingInfo.DefaultDiscount;
+            oneOffDefaultDiscountCopy = OneOffPricingInfoCopy.DefaultDiscount;
+            oneOffMaxDiscount = OneOffPricingInfo.MaxDiscount;
+          }
+
+          setOneOffPricingInfo({
+            ...OneOffPricingInfo,
+            OriginalPrice: oneOffOriginalPrice,
+            DiscountedPrice: oneOffDefaultPrice,
+
+            VATPrice: oneOffVATPrice,
+            Discount: oneOffDiscount,
+            DefaultDiscount:
+              oneOffDefaultDiscount == null ? null : oneOffDefaultDiscount,
+            DiscountPercentagePackageOne: isNaN(OneOffDiscountPercentagePackageOne)
+              ? 0
+              : OneOffDiscountPercentagePackageOne,
+            DiscountPercentagePackageTwo: isNaN(OneOffDiscountPercentagePackageTwo)
+              ? 0
+              : OneOffDiscountPercentagePackageTwo,
+            DiscountPercentagePackageThree: isNaN(
+              OneOffDiscountPercentagePackageThree
+            )
+              ? 0
+              : OneOffDiscountPercentagePackageThree,
+            GrandTotal: oneOffGrandTotal,
+            packageOneDisCountedTotal: oneOffDefaultPrice,
+            packageTwoDisCountedTotal: oneOffDefaultPrice,
+            packageThreeDisCountedTotal: oneOffDefaultPrice,
+            PackageOneVaTPrice: OneOffPackageOneVaTPrice,
+            PackageTwoVaTPrice: OneOffPackageTwoVaTPrice,
+            PackageThreeVaTPrice: OneOffPackageThreeVaTPrice,
+            PackageOneGrandTotal: OneOffPackageOneGrandTotal,
+            PackageTwoGrandTotal: OneOffPackageTwoGrandTotal,
+            PackageThreeGrandTotal: OneOffPackageThreeGrandTotal,
+          });
+
+          setOneOffPricingInfoCopy({
+            ...OneOffPricingInfoCopy,
+            DefaultDiscount:
+              oneOffDefaultDiscountCopy == null
+                ? null
+                : Number(oneOffDefaultDiscountCopy),
+            DiscountPercentagePackageOne: isNaN(
+              OneOffDiscountPercentagePackageOneWithAllDecimal
+            )
+              ? 0
+              : OneOffDiscountPercentagePackageOneWithAllDecimal,
+            DiscountPercentagePackageTwo: isNaN(
+              OneOffDiscountPercentagePackageTwoWithAllDecimal
+            )
+              ? 0
+              : OneOffDiscountPercentagePackageTwoWithAllDecimal,
+            DiscountPercentagePackageThree: isNaN(
+              OneOffDiscountPercentagePackageThreeWithAllDecimal
+            )
+              ? 0
+              : OneOffDiscountPercentagePackageThreeWithAllDecimal,
+            // DiscountPercentagePackageOne:
+            //   OneOffDiscountPercentagePackageOneWithAllDecimal,
+            // DiscountPercentagePackageTwo:
+            //   OneOffDiscountPercentagePackageTwoWithAllDecimal,
+            // DiscountPercentagePackageThree:
+            //   OneOffDiscountPercentagePackageThreeWithAllDecimal,
+          });
+
+          setLoader(false);
+          setActiveTab(tab);
+          setIsValidForm({
+            ...isValidForm,
+            AdditionalInfo: true,
+            SelectService: true,
+            SelectPackages: true,
+          });
+
+        } else {
+          HandleTabChange(3);
+          setIsValidForm({
+            ...isValidForm,
+            AdditionalInfo: true,
+            SelectService: true,
+            SelectPackages: true,
+          });
+          setTabHide(true);
+          setLoader(false);
+        }
+      } else {
+        setTabHide(true);
+        setLoader(false);
+        setErrorMessage("The result of this operation is too large to be processed. Please check the input values and try again.")
+        setOpenErrorModal(true)
+        setActiveTab(activeTab);
+        return;
+      }
+    } catch (error) {
+      setLoader(false);
+      setIsValidForm({
+        ...isValidForm,
+        AdditionalInfo: true,
+      });
+      setTabHide(true);
+      setLoader(false);
+      console.log(error);
+    }
+  };
+
+  //Get Recurring Service List Data
+  const GetRecurringServiceListData = async (professionTypeId) => {
+    setLoader(true);
+    try {
+      const data = await GetPackageServicesList({
+        userKeyID: common.userKeyID,
+        organisationKeyID: common.organisationKeyID, //common.organisationKeyID,//common.organisationKeyID,
+        ServiceChargeTypeID: 1,
+        moduleKeyID: proposalModelObj.quoteKeyID,
+        moduleName: "Quotation",
+        ProfessionTypeIDs: null,
+        BusinessTypeIDs: null,
+        BusinessNatureIDs: null,
+        ClientKeyID: ProposalObject.clientID?.toString(),
+        ServicePackageIDs: selectedPackages,
+        QuoteKeyID: null,
+        QuoteTypeID: ProposalObject.selectedProposalTypeValue, //For Quotation
+        SourceID: null, //For Contract
+      });
+      if (data) {
+        if (data?.data?.statusCode === 200) {
+          setLoader(false);
+          if (data?.data?.responseData?.data) {
+            let PackageServiceListData = data.data.responseData.data;
+
+            if (PackageServiceListData.length > 0) {
+              PackageServiceListData = PackageServiceListData.map((item) => {
+                // Check if the item has servicesList array
+                if (item.servicesList && item.servicesList.length > 0) {
+                  // Iterate through each service in servicesList
+                  item.servicesList = item.servicesList.map((service) => {
+                    // Add isAdditionalService property and initialize to false
+                    service.isAdditionalService = false;
+                    service.servicePackageIDs = selectedPackages;
+                    // Check if the service meets certain conditions
+                    if (!service.isDisabled) {
+                      service.isAdditionalService = true;
+                    }
+
+                    if (
+                      service.pricingDriverList &&
+                      service.pricingDriverList.length > 0
+                    ) {
+                      // Iterate through pricingDriverList array
+                      service.pricingDriverList = service.pricingDriverList.map(
+                        (driver) => {
+                          // Check if driverTypeID is 3 and driverValue, variationID, and slabID are null
+                          if (driver.driverTypeID === 3) {
+                            // Find the default variation
+                            const defaultVariation = driver.variation.find(
+                              (variation) => variation.isDefault === true
+                            );
+                            // Update driverValue and variationID if defaultVariation exists
+                            if (defaultVariation) {
+                              driver.driverValue =
+                                defaultVariation.variationValue;
+                              driver.variationID = defaultVariation.variationID;
+                            }
+                          }
+                          // Check if driverTypeID is 4 and driverValue, variationID, and slabID are null
+                          else if (driver.driverTypeID === 4) {
+                            // Find the default slab
+                            const defaultSlab = driver.slab.find(
+                              (slab) => slab.isDefault === true
+                            );
+                            // Update driverValue and slabID if defaultSlab exists
+                            if (defaultSlab) {
+                              driver.driverValue = defaultSlab.slabValue;
+                              driver.slabID = defaultSlab.slabID;
+                            }
+                          }
+
+                          // Check if dependsOnGlobalPricingDriverID and dependsOnVariationID are not null
+                          if (
+                            driver.dependsOnGlobalPricingDriverID !== null &&
+                            driver.dependsOnVariationID !== null
+                          ) {
+                            // Find the globalPricingDriverID with value of dependsOnGlobalPricingDriverID
+                            const dependsOnGlobalDriver =
+                              service.pricingDriverList.find(
+                                (driver2) =>
+                                  driver2.globalPricingDriverID ===
+                                  driver.dependsOnGlobalPricingDriverID
+                              );
+                            // Check if dependsOnGlobalDriver exists and has variationID equal to dependsOnVariationID
+                            if (
+                              dependsOnGlobalDriver &&
+                              dependsOnGlobalDriver.variationID ===
+                              driver.dependsOnVariationID &&
+                              dependsOnGlobalDriver.driverVisibility === true
+                            ) {
+                              driver.driverVisibility = true;
+                            }
+                          }
+
+                          return driver; // Return the modified or unchanged driver object
+                        }
+                      );
+                    }
+                    return service; // Return the modified or unchanged service object
+                  });
+                }
+                return item; // Return the modified or unchanged item object
+              });
+            }
+            if (isBack) {
+              PackageServiceListData.forEach((recServices) => {
+                const matchingCatOne = recurringServiceList.find(
+                  (catOne) => catOne.serviceCatID === recServices.serviceCatID
+                );
+
+                if (matchingCatOne) {
+                  matchingCatOne.servicesList.forEach((serviceOne) => {
+                    const matchingService = recServices.servicesList.find(
+                      (service) => service.serviceID === serviceOne.serviceID
+                    );
+
+                    if (matchingService) {
+                      // Update existing service
+                      Object.assign(matchingService, serviceOne);
+                    }
+                    // else if (serviceOne.isSelected) {
+                    //   // Add new service if isSelected is true
+                    //   recServices.servicesList.push(serviceOne);
+                    // }
+                  });
+                }
+              });
+            }
+
+            await setRecurringServiceList(PackageServiceListData);
+          }
+        } else {
+          setLoader(false);
+          setErrorMessage(data?.data?.errorMessage);
+        }
+      } else {
+        setLoader(false);
+        setErrorMessage(data?.data?.errorMessage);
+      }
+    } catch (error) {
+      setLoader(false);
+
+      console.log(error);
+    }
+  };
+
+  //Get One-Off Service List
+  const GetOneOffServiceListData = async (professionTypeId) => {
+    setLoader(true);
+    try {
+      const data = await GetPackageServicesList({
+        userKeyID: common.userKeyID,
+        organisationKeyID: common.organisationKeyID, //common.organisationKeyID,//common.organisationKeyID,
+        ServiceChargeTypeID: 2,
+        moduleKeyID: proposalModelObj.quoteKeyID,
+        moduleName: "Quotation",
+        ProfessionTypeIDs: null,
+        BusinessTypeIDs: null,
+        BusinessNatureIDs: null,
+        ClientKeyID: ProposalObject.clientID?.toString(),
+        ServicePackageIDs: selectedPackages,
+        QuoteKeyID: null,
+        QuoteTypeID: ProposalObject.selectedProposalTypeValue, //For Quotation
+        SourceID: null, //For Contract
+      });
+      if (data) {
+        setLoader(false);
+        if (data?.data?.statusCode === 200) {
+          if (data?.data?.responseData?.data) {
+            let PackageServiceListData = data.data.responseData.data;
+            if (PackageServiceListData.length > 0) {
+              PackageServiceListData = PackageServiceListData.map((item) => {
+                // Check if the item has servicesList array
+                if (item.servicesList && item.servicesList.length > 0) {
+                  // Iterate through each service in servicesList
+                  item.servicesList = item.servicesList.map((service) => {
+                    // Add isAdditionalService property and initialize to false
+                    service.isAdditionalService = false;
+
+                    // Check if the service meets certain conditions
+                    if (!service.isDisabled) {
+                      service.isAdditionalService = true;
+                    }
+                    service.servicePackageIDs = selectedPackages;
+                    if (
+                      service.pricingDriverList &&
+                      service.pricingDriverList.length > 0
+                    ) {
+                      // Iterate through pricingDriverList array
+                      service.pricingDriverList = service.pricingDriverList.map(
+                        (driver) => {
+                          // Check if driverTypeID is 3 and driverValue, variationID, and slabID are null
+                          if (driver.driverTypeID === 3) {
+                            // Find the default variation
+                            const defaultVariation = driver.variation.find(
+                              (variation) => variation.isDefault === true
+                            );
+                            // Update driverValue and variationID if defaultVariation exists
+                            if (defaultVariation) {
+                              driver.driverValue =
+                                defaultVariation.variationValue;
+                              driver.variationID = defaultVariation.variationID;
+                            }
+                          }
+                          // Check if driverTypeID is 4 and driverValue, variationID, and slabID are null
+                          else if (driver.driverTypeID === 4) {
+                            // Find the default slab
+                            const defaultSlab = driver.slab.find(
+                              (slab) => slab.isDefault === true
+                            );
+                            // Update driverValue and slabID if defaultSlab exists
+                            if (defaultSlab) {
+                              driver.driverValue = defaultSlab.slabValue;
+                              driver.slabID = defaultSlab.slabID;
+                            }
+                          }
+
+                          // Check if dependsOnGlobalPricingDriverID and dependsOnVariationID are not null
+                          if (
+                            driver.dependsOnGlobalPricingDriverID !== null &&
+                            driver.dependsOnVariationID !== null
+                          ) {
+                            // Find the globalPricingDriverID with value of dependsOnGlobalPricingDriverID
+                            const dependsOnGlobalDriver =
+                              service.pricingDriverList.find(
+                                (driver2) =>
+                                  driver2.globalPricingDriverID ===
+                                  driver.dependsOnGlobalPricingDriverID
+                              );
+                            // Check if dependsOnGlobalDriver exists and has variationID equal to dependsOnVariationID
+                            if (
+                              dependsOnGlobalDriver &&
+                              dependsOnGlobalDriver.variationID ===
+                              driver.dependsOnVariationID &&
+                              dependsOnGlobalDriver.driverVisibility === true
+                            ) {
+                              driver.driverVisibility = true;
+                            }
+                          }
+
+                          return driver; // Return the modified or unchanged driver object
+                        }
+                      );
+                    }
+                    return service; // Return the modified or unchanged service object
+                  });
+                }
+                return item; // Return the modified or unchanged item object
+              });
+            }
+
+            if (isBack) {
+              PackageServiceListData.forEach((recServices) => {
+                const matchingCatOne = oneOffServiceList.find(
+                  (catOne) => catOne.serviceCatID === recServices.serviceCatID
+                );
+
+                if (matchingCatOne) {
+                  matchingCatOne.servicesList.forEach((serviceOne) => {
+                    const matchingService = recServices.servicesList.find(
+                      (service) => service.serviceID === serviceOne.serviceID
+                    );
+
+                    if (matchingService) {
+                      // Update existing service
+                      Object.assign(matchingService, serviceOne);
+                    }
+                    // else if (serviceOne.isSelected) {
+                    //   // Add new service if isSelected is true
+                    //   recServices.servicesList.push(serviceOne);
+                    // }
+                  });
+                }
+              });
+            }
+            await setOneOffServiceList(PackageServiceListData);
+          }
+        } else {
+          setLoader(false);
+          setErrorMessage(data?.data?.errorMessage);
+        }
+      } else {
+        setLoader(false);
+      }
+    } catch (error) {
+      setLoader(false);
+      console.log(error);
+    }
+  };
+  // B] Calling All Api's like List and other Here :
+  // 1) Get Service Category List Data
+
+  //Get Service List  Data
+  const GetServiceListData = async (i) => {
+    setLoader(true);
+    try {
+      const data = await GetServicesList({
+        pageSize: 10,
+        pageNo: 0,
+        organisationKeyID: common.organisationKeyID,
+        SearchKeyword: null,
+      });
+      if (data?.data?.statusCode === 200) {
+        if (data?.data?.responseData?.data) {
+          const ServiceListData = data.data.responseData.data;
+          setServiceList(ServiceListData);
+          setLoader(false);
+        }
+      } else {
+        setLoader(false);
+        setErrorMessage(data?.data?.errorMessage);
+      }
+    } catch (error) {
+      setLoader(false);
+      console.log(error);
+    }
+  };
+  //2) QuoteType Lookup List Api
+  const GetQuoteTypeLookupListData = async () => {
+    setLoader(true);
+    try {
+      const data = await GetQuoteTypeLookupList();
+      if (data?.data?.statusCode === 200) {
+        if (data?.data?.responseData?.data) {
+          let QuoteTypeListData = data?.data?.responseData?.data;
+          QuoteTypeListData = QuoteTypeListData.map((quoteType) => ({
+            value: quoteType.quoteTypeID,
+            label: quoteType.quoteTypeName,
+          }));
+          setQuoteTypeLookupList(QuoteTypeListData);
+          setLoader(false);
+        }
+      } else {
+        setLoader(false);
+      }
+    } catch (error) {
+      setLoader(false);
+      console.log(error);
+    }
+  };
+
+  //Get Client LookupList Data From Api
+  const GetClientLookupListData = async (organizationKeyID) => {
+    try {
+      setLoader(true);
+      const response = await GetClientLookupList(common.organisationKeyID);
+      const data = response.data;
+
+      if (data.statusCode === 200) {
+        const mappedOptions = data.responseData.data.map((item) => ({
+          value: item.clientID,
+          label: item.clientName,
+        }));
+        setLoader(false);
+        setClientLookUpOptions(mappedOptions);
+      } else {
+        setLoader(false);
+        console.error("Error fetching data from the API");
+      }
+    } catch (error) {
+      setLoader(false);
+      console.error("Error fetching data from the API", error);
+    }
+  };
+
+  // Get Organization Information Model data
+  const GetOrganisationInformationModelData = async () => {
+    setLoader(true);
+    const response = await GetOrganisationInformationModel(
+      common.organisationKeyID
+    );
+    if (response) {
+      if (response?.data?.statusCode === 200) {
+        const ModelData = response?.data?.responseData?.data;
+
+        // Extract emailId, phoneNumber, and countryCod
+        const { emailID, phoneNo, countryCode, website } =
+          ModelData.otherInformation;
+
+        const concatenateFullAddress = (address) => {
+          const addPart = (part) => (part ? `${part}, ` : "");
+
+          let concatenatedAddress = `${addPart(
+            address?.addressLine1?.replace(",", " ")
+          )}${addPart(address?.addressLine2)}${addPart(
+            address?.locality
+          )}${addPart(address?.region)}${addPart(
+            address?.country || address?.countryName
+          )}${address?.postcode || ""}`;
+
+          // Remove trailing comma, if present
+          if (concatenatedAddress.endsWith(", ")) {
+            concatenatedAddress = concatenatedAddress.slice(0, -2);
+          }
+          return concatenatedAddress;
+        };
+
+        const fullAddress = concatenateFullAddress(
+          ModelData.organisationAddress
+        );
+
+        // Concatenate countryCode and phoneNo
+        const concatenatedPhone = `${countryCode} ${phoneNo}`;
+
+        // Update otherInformation with only required fields
+        const updatedOtherInformation = [
+          {
+            emailID,
+            phoneNo: concatenatedPhone,
+            fullAddress,
+            website,
+          },
+        ];
+
+        // Set updated organization data
+        setOrganisationData({
+          otherInformation: updatedOtherInformation,
+        });
+        setLoader(false);
+        // Set updated organization data in local storage
+      } else {
+        setLoader(false);
+        setErrorMessage(response?.data?.errorMessage);
+      }
+    }
+  };
+
+  // Get Template Lookup list
+  const GetProposalEngLetterTemplateLookUpList = async (
+    clientID,
+    templateID
+  ) => {
+    setLoader(true);
+    try {
+      const response = await GetTemplateListLookupList({
+        TemplateTypeID: 1,
+        organisationKeyID: common.organisationKeyID,
+        clientID: clientID || ProposalObject.clientID,
+      });
+      const data = response.data;
+      if (data.statusCode === 200) {
+        setLoader(false);
+        const mappedOptions = data.responseData.data.map((item) => ({
+          value: item.templateKeyID,
+          label: item.templateName,
+          templateID: item.templateID,
+          isDefault: item.isDefault,
+        }));
+        setTemplateLookUpOptions(mappedOptions);
+        // const defaultTemplateOptions = mappedOptions.filter(
+        //   (option) => option.isDefault === true
+        // );
+        // const defaultTemplateObject = {
+        //   selectTemplateTypeId:
+        //     defaultTemplateOptions.length > 0
+        //       ? defaultTemplateOptions[0].value
+        //       : null,
+        //   templateID:
+        //     defaultTemplateOptions.length > 0
+        //       ? defaultTemplateOptions[0].templateID
+        //       : null,
+        // };
+        let defaultTemplateOptions;
+        let defaultTemplateObject;
+        // Check if templateID is present in ProposalObject
+        if (templateID) {
+          // If templateID is present, filter records based on it
+          const filteredRecords = mappedOptions.filter(
+            (record) => record.templateID === templateID
+          );
+          // Use filteredRecords to construct defaultTemplateObject if available
+          if (filteredRecords.length > 0) {
+            defaultTemplateObject = {
+              selectTemplateTypeId: filteredRecords[0].value,
+              templateID: filteredRecords[0].templateID,
+            };
+          } else {
+            // If filteredRecords is empty, set defaultTemplateOptions
+            defaultTemplateOptions = mappedOptions.filter(
+              (option) => option.isDefault === true
+            );
+          }
+        } else {
+          // If templateID is not present, set defaultTemplateOptions
+          defaultTemplateOptions = mappedOptions.filter(
+            (option) => option.isDefault === true
+          );
+        }
+        // If defaultTemplateObject is not constructed from filteredRecords, construct it from defaultTemplateOptions
+        if (!defaultTemplateObject && defaultTemplateOptions.length > 0) {
+          defaultTemplateObject = {
+            selectTemplateTypeId: defaultTemplateOptions[0].value,
+            templateID: defaultTemplateOptions[0].templateID,
+          };
+        }
+        // Set the state with the default template object
+        setProposalObject((prevState) => ({
+          ...prevState,
+          ...defaultTemplateObject,
+        }));
+        // setProposalObject((prevState) => ({
+        //   ...prevState,
+        //   selectTemplateTypeId:
+        //     mappedOptions.length > 0 ? mappedOptions[0].value : null,
+        //   templateID:
+        //     mappedOptions.length > 0 ? mappedOptions[0].templateID : null,
+        // }));
+      } else {
+        setLoader(false);
+        console.error("Error fetching data from the API");
+      }
+    } catch (error) {
+      setLoader(false);
+      console.error("Error fetching data from the API", error);
+    }
+  };
+
+  //GetServicePackageLookupList
+  const GetServicePackageLookupListData = async (organizationKeyID) => {
+    setLoader(true);
+    try {
+      const response = await GetServicePackageLookupList({
+        userKeyID: common.userKeyID,
+        organisationKeyID: common.organisationKeyID,
+        ClientKeyID: ProposalObject.clientID,
+      });
+      const data = response.data;
+
+      if (data.statusCode === 200) {
+        const mappedOptions = data.responseData.data.map((item) => ({
+          servicePackageID: item.servicePackageID,
+          servicePackageName: item.servicePackageName,
+          recurringOriginalPrice: item.recurringOriginalPrice,
+          recurringDefaultPrice: item.recurringDefaultPrice,
+          oneOffOriginalPrice: item.oneOffOriginalPrice,
+          servicePackageKeyID: item.servicePackageKeyID,
+          oneOffDefaultPrice: item.oneOffDefaultPrice,
+          needToUpdate: item.needToUpdate === 1
+        }));
+        setLoader(false);
+        setGetServicePackageLookupList(mappedOptions);
+      } else {
+        setLoader(false);
+        console.error("Error fetching data from the API");
+      }
+    } catch (error) {
+      setLoader(false);
+      console.error("Error fetching data from the API", error);
+    }
+  };
+
+  //Get Proposal Lookup List Data
+  const GetProposalLookupListData = async (organizationKeyID) => {
+    try {
+      const response = await GetProposalLookupList(common.organisationKeyID);
+      const data = response.data;
+
+      if (data.statusCode === 200) {
+        const mappedOptions = data.responseData.data.map((item) => ({
+          value: item.clientKeyID,
+          label: item.clientName,
+        }));
+
+        setProposalLookUpOptions(mappedOptions);
+      } else {
+        console.error("Error fetching data from the API");
+      }
+    } catch (error) {
+      console.error("Error fetching data from the API", error);
+    }
+  };
+
+  //Get template Model Data
+  const GetTemplateModalData = async (activeTab) => {
+    setLoader(true);
+    if (!ProposalObject.selectTemplateTypeId) {
+      return;
+    }
+    try {
+      const data = await GetTemplateModelData({
+        TemplateKeyID: ProposalObject.selectTemplateTypeId,
+        clientID: ProposalObject.clientID,
+        TemplateTypeID: 1,
+        ModuleKeyID: ProposalObject.quoteKeyID,
+      });
+      if (data?.data?.statusCode === 200) {
+        setLoader(false);
+        if (data?.data?.responseData?.data) {
+          setLoader(false);
+          const ModelData = data?.data?.responseData?.data;
+          const GetCommonFontFamily = ModelData.templateElementList.find(item => item.templateElementTypeName === "Text Block")?.htmlContent
+
+          const { uniqueFontFamilies,
+            largeFontSizes, smallFontSizes } = getFontStylesFromHtml(GetCommonFontFamily)
+          const Logo =
+            ModelData.templateElementListWithRequiredData.organisationLogoUrl;
+          let clientNameOnFirstPage =
+            ModelData.templateElementListWithRequiredData
+              .clientNameOnFirstPage == null
+              ? ""
+              : ModelData.templateElementListWithRequiredData
+                .clientNameOnFirstPage;
+          const firstPageHTML = `
+            <div style="margin-top: 300px;>
+  <div style="display: flex; justify-content: center; align-items: center; text-align: center;margin-top:${Logo ? `-100px` : "0px"}">
+    ${Logo
+              ? `
+      <div style="display: inline-block; text-align: center; width: 700px; height: 150px; background-image: url('${Logo}'); background-size: contain; background-repeat: no-repeat; background-position: center;">
+      </div>
+    `
+              : ""
+            }
+ 
+  <p style="text-align: center; color: #00BFFF; page-break-after: always;">
+    <span style="color: #00BFFF; margin-top: 15px; font-size: 50px;font-family;${uniqueFontFamilies};" class="OrgBrandColor">Proposal For</span><br><br>
+    <span style="color: black; margin-top: 15px; font-size: 25px;font-family;${uniqueFontFamilies};">${clientNameOnFirstPage}</span><br>
+  </p>
+  </div>
+  </div>
+  `;
+
+          let firstPage = ModelData.templateElementList.find(
+            (item) => item.templateElementTypeID === 10
+          );
+          let isAddedFirstPage = ModelData.templateElementList.some(
+            (item) => item.templateElementTypeID === 10
+          );
+          let AddFirstPageHtmlContent = [...ModelData.templateElementList];
+
+          if (!isAddedFirstPage) {
+            const firstPageElement = {
+              ttetMapID: null,
+              templateElementTypeID: 10,
+              templateElementTypeName: "First Page",
+              serialNo: null,
+              headings: "",
+              shortDesc: "",
+              htmlContent: firstPageHTML,
+            };
+            AddFirstPageHtmlContent.splice(0, 0, firstPageElement);
+          } else {
+            const imgTag = `<img src="${Logo}" alt="Logo" style="display: none; margin: 0 auto 15px;">`;
+
+            // Insert the imgTag after the closing </div> tag
+            const updatedHtmlContent = `${imgTag}${firstPage.htmlContent}`;
+
+            // Create a new object with the updated htmlContent
+            const updatedFirstPage = {
+              ...firstPage,
+              htmlContent: updatedHtmlContent,
+            };
+
+            // Find the index of the firstPage element and replace it in the array
+            const index = ModelData.templateElementList.findIndex(
+              (item) => item.templateElementTypeID === 10
+            );
+
+            AddFirstPageHtmlContent[index] = updatedFirstPage;
+          }
+
+          const newArray = replaceTemplatePricingVariables(
+            AddFirstPageHtmlContent,
+            RecurringPricingInfo,
+            OneOffPricingInfo,
+            ProposalObject.Payment_Frequency,
+            ProposalObject.selectedProposalTypeValue,
+            selectedPackagesList,
+            selectedRecurringServiceList,
+            selectedOneOffServiceList
+          );
+
+          setTemplateElementList(newArray);
+          //setTemplateElementList(ModelData.templateElementList);
+          setFontSize(smallFontSizes)
+          setFontFamily(uniqueFontFamilies)
+          setBrandColor(
+            ModelData.templateElementListWithRequiredData.brandColor
+          );
+          setCompanyLogo(
+            ModelData.templateElementListWithRequiredData.organisationLogoUrl
+          );
+          setDocumentCode(
+            ModelData.templateElementListWithRequiredData.documentCode
+          );
+          setActiveTab(activeTab);
+        }
+      } else {
+        setLoader(false);
+        setErrorMessage(data?.data?.errorMessage);
+      }
+    } catch (error) {
+      setLoader(false);
+      console.log(error);
+    }
+  };
+
+  //get proposal model Data
+  const GetProposalModalData = async (id) => {
+    setLoader(true);
+    if (!id) {
+      return;
+    }
+
+    try {
+      const response = await GetServicePackageLookupList({
+        userKeyID: common.userKeyID,
+        organisationKeyID: common.organisationKeyID,
+        ClientKeyID: ProposalObject.clientID,
+      });
+      const packageLookUpList = response.data;
+
+      const data = await GetProposalModel(id);
+      if (data?.data?.statusCode === 200) {
+        setLoader(false);
+        if (data?.data?.responseData?.data) {
+          setLoader(false);
+
+          const mappedOptions = packageLookUpList.responseData.data.map(
+            (item) => ({
+              servicePackageID: item.servicePackageID,
+              servicePackageName: item.servicePackageName,
+              recurringOriginalPrice: item.recurringOriginalPrice,
+              recurringDefaultPrice: item.recurringDefaultPrice,
+              oneOffOriginalPrice: item.oneOffOriginalPrice,
+              oneOffDefaultPrice: item.oneOffDefaultPrice,
+            })
+          );
+
+          const ModelData = data?.data?.responseData?.data;
+          if (ModelData.servicePackageID !== null) {
+            const SelectedPackageDetails = ModelData.servicePackageID.map(
+              (PackageID) => {
+                return mappedOptions.find((item) => {
+                  return item.servicePackageID === PackageID;
+                });
+              }
+            );
+            setQuotationFinalPackageAmountList(
+              ModelData.quotationFinalAmountList
+            );
+            setSelectedPackagesDetails(
+              ...selectedPackagesDetails,
+              SelectedPackageDetails
+            );
+
+            setSelectedPackages(
+              ...selectedPackages,
+              ModelData.servicePackageID
+            );
+          }
+
+          setQuotationAdditionalServices(
+            ModelData.quoteAdditionalServicesInPackages
+          );
+          setProposalModelObj({
+            ...proposalModelObj,
+            quoteKeyID: ModelData.quoteKeyID,
+            clientID: ModelData.clientID,
+            templateID: ModelData.templateID,
+            quoteTypeID: ModelData.quoteTypeID,
+            feesInQuoteID: ModelData.feesInQuoteID,
+            paymentFrequencyID: ModelData.paymentFrequencyID,
+            recurringOriginalPrice: ModelData.recurringOriginalPrice,
+            recurringDiscountedPrice: ModelData.recurringDiscountedPrice,
+            oneOffOriginalPrice: ModelData.oneOffOriginalPrice,
+            oneOffDiscountedPrice: ModelData.oneOffDiscountedPrice,
+            statusID: ModelData.statusID,
+            oneOffDiscountedPrice: ModelData.oneOffDiscountedPrice,
+            paymentGatewayID: ModelData.paymentGatewayID,
+          });
+
+          //const decrease = Number(recurringServicesTotal) - Number(DiscountedPrice);
+          const percentage = ModelData.recurringDiscountPercentage; //((decrease / recurringServicesTotal) * 100).toFixed(2);
+          const PercentageWithDecimal =
+            ModelData.recurringDiscountPercentage_WithAllDecimal; //((decrease / recurringServicesTotal) * 100).toFixed(2);
+          // const recDefaultDiscount = (
+          //   Math.floor(PercentageWithDecimal * 100) / 100
+          // ).toFixed(2)
+          const recDefaultDiscount = Number(PercentageWithDecimal).toFixed(2);
+
+          const OneOffDefaultDiscount = Number(
+            ModelData.oneOffDiscountPercentage_WithAllDecimal
+          ).toFixed(2);
+          // const OneOffDefaultDiscount = (
+          //   Math.floor(ModelData.oneOffDiscountPercentage_WithAllDecimal * 100) / 100
+          // ).toFixed(2)
+
+          //const decreaseOneOff = Number(OneOffServicesTotal) - Number(DiscountedOneOffPrice);
+
+          if (ModelData.servicePackageID !== null) {
+            setRecurringPricingInfo({
+              ...RecurringPricingInfo,
+              DefaultDiscount: recDefaultDiscount,
+            });
+            setRecurringFrequencyPricingInfo({
+              ...RecurringFrequencyPricingInfo,
+              DefaultDiscount: PercentageWithDecimal,
+            });
+
+            setOneOffPricingInfo({
+              ...OneOffPricingInfo,
+              DefaultDiscount: OneOffDefaultDiscount,
+            });
+            setOneOffPricingInfoCopy({
+              ...OneOffPricingInfoCopy,
+              DefaultDiscount:
+                ModelData.oneOffDiscountPercentage_WithAllDecimal,
+            });
+          } else {
+            setRecurringPricingInfo({
+              ...RecurringPricingInfo,
+              OriginalPrice: ModelData.recurringOriginalPrice,
+              DefaultDiscount: recDefaultDiscount,
+              DiscountedPrice: Number(ModelData.recurringDiscountedPrice),
+            });
+
+            setRecurringFrequencyPricingInfo({
+              ...RecurringFrequencyPricingInfo,
+              OriginalPrice: ModelData.recurringOriginalPrice_WithAllDecimal,
+              DefaultDiscount: PercentageWithDecimal,
+              DiscountedPrice: Number(ModelData.recurringDiscountedPrice),
+            });
+            setOneOffPricingInfo({
+              ...OneOffPricingInfo,
+              OriginalPrice: ModelData.oneOffOriginalPrice,
+              DefaultDiscount: OneOffDefaultDiscount,
+              DiscountedPrice: Number(ModelData.oneOffDiscountedPrice),
+            });
+            setOneOffPricingInfoCopy({
+              ...OneOffPricingInfoCopy,
+              OriginalPrice: ModelData.oneOffOriginalPrice,
+              DefaultDiscount:
+                ModelData.oneOffDiscountPercentage_WithAllDecimal,
+              DiscountedPrice: ModelData.oneOffDiscountedPrice,
+            });
+          }
+
+          setProposalObject((prevState) => ({
+            ...prevState,
+            clientID: ModelData.clientID,
+            templateID: ModelData.templateID,
+            // selectTemplateTypeId: ModelData.quoteKeyID,
+            selectedProposalTypeValue: ModelData.quoteTypeID,
+            Payment_Frequency: ModelData.paymentFrequencyID,
+            feeTypeId: ModelData.feesInQuoteID,
+            paymentGatewayID: ModelData.paymentGatewayID,
+            ProposalFormate: ModelData.quoteFormatID || 2,
+            DiscountLines:
+              ModelData.feesInQuoteID === 1
+                ? true
+                : ModelData?.showDiscountLine,
+          }));
+          GetProposalEngLetterTemplateLookUpList(
+            ModelData.clientID,
+            ModelData.templateID
+          );
+          setAdditionalInformationList(
+            ...additionalInformationList,
+            ModelData.additionalInformationList
+          );
+
+          if (ModelData.selectedServicesList.serviceChargeTypeID === 1) {
+            setRecurringServiceList(
+              ...recurringServiceList,
+              ModelData.selectedServicesList
+            );
+          }
+          const updateServiceElementId = (selectedServicesList) => {
+            const newServiceIds = selectedServicesList.map(
+              (service) => service.serviceID
+            );
+            setServiceElementId((prevIds) => [...newServiceIds]);
+          };
+
+          updateServiceElementId(ModelData.selectedServicesList);
+        }
+      } else {
+        setLoader(false);
+        setErrorMessage(data?.data?.errorMessage);
+      }
+    } catch (error) {
+      setLoader(false);
+      console.log(error);
+    }
+  };
+
+  function validatePricingInfo(
+    RecurringPricingInfo,
+    ProposalObject,
+    pricingSettingObj,
+    Type
+  ) {
+    const minMonthlyPriceForQC = pricingSettingObj.minMonthlyPriceForQC;
+    const discountedPrice = RecurringPricingInfo.DiscountedPrice;
+    const paymentFrequency = ProposalObject.Payment_Frequency;
+    const maxDiscountForQC = pricingSettingObj.maxDiscountForQC;
+
+    // Check if DiscountedPrice is invalid or not a number
+    if (Type === "Service") {
+      if (
+        isNaN(discountedPrice) ||
+        RecurringPricingInfo.DiscountedPrice === "" ||
+        RecurringPricingInfo.DiscountedPrice === null ||
+        RecurringPricingInfo.DiscountedPrice === undefined
+      ) {
+        return true;
+      }
+
+      // Check minMonthlyPriceForQC with payment frequency
+      const minPriceValid = (frequency, multiplier) =>
+        minMonthlyPriceForQC > 0 &&
+        discountedPrice < minMonthlyPriceForQC * multiplier;
+
+      if (
+        (paymentFrequency === 4 && minPriceValid(paymentFrequency, 1)) ||
+        (paymentFrequency === 3 && minPriceValid(paymentFrequency, 3)) ||
+        (paymentFrequency === 2 && minPriceValid(paymentFrequency, 6)) ||
+        (paymentFrequency === 1 && minPriceValid(paymentFrequency, 12))
+      ) {
+        return true;
+      }
+
+      // Check discounted price if minMonthlyPriceForQC is not set
+      if (minMonthlyPriceForQC <= 0 && discountedPrice <= 0) {
+        return true;
+      }
+
+      // Validate DefaultDiscount based on Type
+
+      const defaultDiscount = RecurringPricingInfo.DefaultDiscount;
+      if (isNaN(defaultDiscount)) {
+        return true;
+      }
+
+      if (
+        maxDiscountForQC > 0 &&
+        (defaultDiscount > maxDiscountForQC || defaultDiscount < -999.0)
+      ) {
+        return true;
+      }
+      if (
+        maxDiscountForQC <= 0 &&
+        (defaultDiscount < -999.0 || defaultDiscount > 100)
+      ) {
+        return true;
+      }
+    }
+
+    // Check if maxDiscountForQC is not set
+
+    // Additional checks if Type is "Package"
+    if (Type === "Package") {
+      const DiscountPercentagePackageOne =
+        RecurringPricingInfo.DiscountPercentagePackageOne;
+      const DiscountPercentagePackageTwo =
+        RecurringPricingInfo.DiscountPercentagePackageTwo;
+      const DiscountPercentagePackageThree =
+        RecurringPricingInfo.DiscountPercentagePackageThree;
+
+      // Check if discount percentages are invalid or not a number
+      if (
+        isNaN(DiscountPercentagePackageOne) ||
+        isNaN(DiscountPercentagePackageTwo) ||
+        isNaN(DiscountPercentagePackageThree)
+      ) {
+        return true;
+      }
+
+      // Apply the same maxDiscountForQC validation for Package type
+      if (
+        maxDiscountForQC > 0 &&
+        (DiscountPercentagePackageOne > maxDiscountForQC ||
+          DiscountPercentagePackageTwo > maxDiscountForQC ||
+          DiscountPercentagePackageThree > maxDiscountForQC)
+      ) {
+        return true;
+      }
+
+      // Check if maxDiscountForQC is not set
+      if (
+        maxDiscountForQC <= 0 &&
+        (DiscountPercentagePackageOne < -999.0 ||
+          DiscountPercentagePackageOne > 100 ||
+          DiscountPercentagePackageTwo < -999.0 ||
+          DiscountPercentagePackageTwo > 100 ||
+          DiscountPercentagePackageThree < -999.0 ||
+          DiscountPercentagePackageThree > 100)
+      ) {
+        return true;
+      }
+    }
+
+    // All validations passed
+    return false;
+  }
+
+  function validateOneOffPricingInfo(
+    OneOffPricingInfo,
+    pricingSettingObj,
+    Type
+  ) {
+    const minOneOffPriceForQC = pricingSettingObj.minOneOffPriceForQC;
+    const discountedPrice = OneOffPricingInfo.DiscountedPrice;
+    const defaultDiscount = OneOffPricingInfo.DefaultDiscount;
+    const maxDiscountForQC = pricingSettingObj.maxDiscountForQC;
+    if (Type === "Service") {
+      // Check if DiscountedPrice is valid and a number
+      if (
+        OneOffPricingInfo.DiscountedPrice === "" ||
+        OneOffPricingInfo.DiscountedPrice === null ||
+        OneOffPricingInfo.DiscountedPrice === undefined ||
+        isNaN(discountedPrice) ||
+        Number(discountedPrice) == 0
+      ) {
+        return true;
+      }
+
+      // Check minOneOffPriceForQC
+      if (
+        minOneOffPriceForQC !== "" &&
+        minOneOffPriceForQC !== null &&
+        minOneOffPriceForQC !== undefined &&
+        discountedPrice < minOneOffPriceForQC
+      ) {
+        return true;
+      }
+
+      // Validate DefaultDiscount based on Type
+
+      if (isNaN(defaultDiscount)) {
+        return true;
+      }
+
+      if (
+        maxDiscountForQC !== "" &&
+        maxDiscountForQC !== null &&
+        maxDiscountForQC !== undefined &&
+        (defaultDiscount > maxDiscountForQC || defaultDiscount < -999.0)
+      ) {
+        return true;
+      }
+      if (
+        (maxDiscountForQC === "" ||
+          maxDiscountForQC === null ||
+          maxDiscountForQC === undefined) &&
+        (defaultDiscount < -999.0 || defaultDiscount > 100)
+      ) {
+        return true;
+      }
+    }
+
+    // Check if maxDiscountForQC is not set
+
+    // Additional checks if Type is "Package"
+    if (Type === "Package") {
+      const DiscountPercentagePackageOne =
+        OneOffPricingInfo.DiscountPercentagePackageOne;
+      const DiscountPercentagePackageTwo =
+        OneOffPricingInfo.DiscountPercentagePackageTwo;
+      const DiscountPercentagePackageThree =
+        OneOffPricingInfo.DiscountPercentagePackageThree;
+
+      // Check if discount percentages are invalid or not a number
+      if (
+        isNaN(DiscountPercentagePackageOne) ||
+        isNaN(DiscountPercentagePackageTwo) ||
+        isNaN(DiscountPercentagePackageThree)
+      ) {
+        return true;
+      }
+
+      // Apply the same maxDiscountForQC validation for Package type
+      if (
+        maxDiscountForQC !== "" &&
+        maxDiscountForQC !== null &&
+        maxDiscountForQC !== undefined &&
+        (DiscountPercentagePackageOne > maxDiscountForQC ||
+          DiscountPercentagePackageTwo > maxDiscountForQC ||
+          DiscountPercentagePackageThree > maxDiscountForQC)
+      ) {
+        return true;
+      }
+
+      // Check if maxDiscountForQC is not set
+      if (
+        (maxDiscountForQC === "" ||
+          maxDiscountForQC === null ||
+          maxDiscountForQC === undefined) &&
+        (DiscountPercentagePackageOne < -999.0 ||
+          DiscountPercentagePackageOne > 100 ||
+          DiscountPercentagePackageTwo < -999.0 ||
+          DiscountPercentagePackageTwo > 100 ||
+          DiscountPercentagePackageThree < -999.0 ||
+          DiscountPercentagePackageThree > 100)
+      ) {
+        return true;
+      }
+    }
+
+    // All validations passed
+    return false;
+  }
+
+  // Handle Save As A Draft Proposal
+  const handleSaveAsDraft = async (activeTab, moduleName, StatusId) => {
+    let SelectedService = [];
+    if (StatusId === 2) {
+      setProposalObject({
+        ...ProposalObject,
+        Action: "Send",
+      });
+    } else if (StatusId === 3) {
+      setProposalObject({
+        ...ProposalObject,
+        Action: "Skipped",
+      });
+    } else {
+      setProposalObject({
+        ...ProposalObject,
+        Action: "Draft",
+      });
+    }
+
+    setLoader(true);
+
+    if (activeTab === ProposalHeader.BasicInformation) {
+      if (
+        ProposalObject.clientID === null ||
+        ProposalObject.selectTemplateTypeId === null ||
+        ProposalObject.selectedProposalTypeValue === null
+      ) {
+        setIsValidForm({
+          ...isValidForm,
+          BasicForm: false,
+          SelectService: false,
+          AdditionalInfo: false,
+        });
+        setSaveAsDraftError({
+          ...SaveAsDraftError,
+          basicInformationError: true,
+          priceError: true,
+        });
+        setRequireMessage(true);
+        setLoader(false);
+        return false;
+      } else {
+        setIsValidForm({
+          ...isValidForm,
+          BasicForm: true,
+        });
+
+        setSaveAsDraftError({
+          ...SaveAsDraftError,
+          basicInformationError: false,
+          priceError: false,
+        });
+      }
+    } else if (activeTab === ProposalHeader.SelectPackages) {
+      if (selectedPackages.length === 0) {
+        setShowValidationForMin(true);
+        setLoader(false);
+        return;
+      }
+    } else if (activeTab === ProposalHeader.SelectServices) {
+      let hasUndefinedDriver = false;
+      let hasUndefinedDriver2 = false;
+
+      recurringServiceList.some((rService) => {
+        return rService.servicesList?.some((service) => {
+          if (service.isSelected === true) {
+            for (let i = 0; i < service.pricingDriverList.length; i++) {
+              const pricingList = service.pricingDriverList[i];
+              if (
+                service.pricingDriverList[i].driverVisibility &&
+                (service.pricingDriverList[i].driverValue === undefined ||
+                  service.pricingDriverList[i].driverValue === null ||
+                  service.pricingDriverList[i].driverValue === "")
+              ) {
+                hasUndefinedDriver = true;
+                const elementId = `SelectServiceQuantity_${pricingList.driverName}`; // Generate unique ID for the element
+                scrollUpDownByElementID(elementId);
+                setIsValidForm({
+                  ...isValidForm,
+                  BasicForm: true,
+                  AdditionalInfo: false,
+                  PricingInfo: false,
+                });
+                return true; // Break out of the inner loop and stop iterating
+              } else {
+                hasUndefinedDriver = false;
+                setIsValidForm({
+                  ...isValidForm,
+                  BasicForm: true,
+                  PricingInfo: true,
+                });
+              }
+            }
+          }
+        });
+      });
+      oneOffServiceList.some((rService) => {
+        return rService.servicesList?.some((service) => {
+          if (service.isSelected === true) {
+            for (let i = 0; i < service.pricingDriverList.length; i++) {
+              const pricingList = service.pricingDriverList[i];
+              if (
+                service.pricingDriverList[i].driverVisibility &&
+                (service.pricingDriverList[i].driverValue === undefined ||
+                  service.pricingDriverList[i].driverValue === null ||
+                  service.pricingDriverList[i].driverValue === "")
+              ) {
+                hasUndefinedDriver2 = true;
+                setRequireMessage(true);
+                const elementId = `SelectServiceQuantity_${pricingList.driverName}`; // Generate unique ID for the element
+                scrollUpDownByElementID(elementId);
+                setIsValidForm({
+                  ...isValidForm,
+                  BasicForm: true,
+                  AdditionalInfo: false,
+                  PricingInfo: false,
+                });
+                return true; // Break out of the inner loop and stop iterating
+              } else {
+                hasUndefinedDriver2 = false;
+                setRequireMessage(true);
+                setIsValidForm({
+                  ...isValidForm,
+                  BasicForm: true,
+                  PricingInfo: true,
+                });
+              }
+            }
+          }
+        });
+      });
+
+      const recurringServicesIDsElement = await recurringServiceList?.flatMap(
+        (item) =>
+          item?.servicesList
+            .filter((i) => i.isSelected === true)
+            .map((newT) => newT.serviceID)
+      );
+
+      const oneOffServicesIDsElement = await oneOffServiceList?.flatMap(
+        (item) =>
+          item?.servicesList
+            .filter((i) => i.isSelected === true)
+            .map((newT) => newT.serviceID)
+      );
+
+      const ServicesIDsElement = await recurringServicesIDsElement.concat(
+        oneOffServicesIDsElement
+      );
+      if (hasUndefinedDriver || hasUndefinedDriver2) {
+        setRequireMessage(true);
+        setLoader(false);
+        return;
+      }
+      if (ServicesIDsElement.length === 0) {
+        setRequireMessage(true);
+        setLoader(false);
+        return;
+      }
+    } else if (activeTab === ProposalHeader.AdditionalInformation) {
+      const filteredList = additionalInformationList.filter(
+        (item) =>
+          item.driverTypeID === 2 ||
+          item.driverTypeID === 4 ||
+          item.driverTypeID === 3
+      );
+
+      // Check if any of the filtered items have driverValue as null, empty string, or undefined
+      const hasInvalidValues = filteredList.some(
+        (i) =>
+          i.driverValue === null ||
+          i.driverValue === "" ||
+          i.driverValue === undefined ||
+          i.driverValue === "." ||
+          i.driverValue === "-"
+      );
+      if (hasInvalidValues) {
+        setRequireMessage(true);
+        setIsValidForm({
+          ...isValidForm,
+          PricingInfo: false,
+          AdditionalInfo: true,
+        });
+        setLoader(false);
+        return;
+      }
+    } else if (activeTab === ProposalHeader.ReviewServices) {
+      //Check Validation for Recurring Services
+      if (selectedRecurringServiceList.length !== 0) {
+        let IsRecurringValuesValidResponse = validatePricingInfo(
+          RecurringPricingInfo,
+          ProposalObject,
+          pricingSettingObj,
+          "Service"
+        );
+
+        if (IsRecurringValuesValidResponse) {
+          // if (IsRecurringValuesValidResponse.IsRecurringValueNegative || IsRecurringValuesValidResponse.IsRecurringValueValid) {
+
+          scrollUpDownByElementID("recurring_Default");
+          setRequireMessage(true);
+          setIsValidForm({
+            ...isValidForm,
+            Preview: false,
+          });
+          setLoader(false);
+          return false;
+        }
+      }
+
+      if (selectedOneOffServiceList.length !== 0) {
+        //Check Validation for OneOff Services
+        let IsOneOffValuesValidResponse = validateOneOffPricingInfo(
+          OneOffPricingInfo,
+          pricingSettingObj,
+          "Service"
+        );
+
+        if (IsOneOffValuesValidResponse) {
+          // if (IsOneOffValuesValidResponse.IsOneOffValueValid || IsOneOffValuesValidResponse.IsOneOffValueNegative) {
+
+          scrollUpDownByElementID("OneOff_Default");
+          setRequireMessage(true);
+          setIsValidForm({
+            ...isValidForm,
+            Preview: false,
+          });
+          setLoader(false);
+          return false;
+        }
+      }
+    } else if (activeTab === ProposalHeader.ReviewPackages) {
+      if (selectedRecurringServiceList.length !== 0) {
+        let IsRecurringValuesValidResponse = validatePricingInfo(
+          RecurringPricingInfo,
+          ProposalObject,
+          pricingSettingObj,
+          "Package"
+        );
+        // let IsRecurringValuesValidResponse = IsRecurringPackageValuesValid();
+
+        if (IsRecurringValuesValidResponse) {
+          // if (IsRecurringValuesValidResponse.IsRecurringPackageValueNegative || IsRecurringValuesValidResponse.IsRecurringPackageValueValid) {
+          if (selectedPackagesList.length === 1) {
+            scrollUpDownByElementID("recurring_Default");
+          } else {
+            scrollUpDownByElementID("recurring_DefaultWithPackages");
+          }
+
+          setRequireMessage(true);
+          setIsValidForm({
+            ...isValidForm,
+            Preview: false,
+          });
+          setLoader(false);
+          return false;
+        }
+      }
+
+      if (selectedOneOffServiceList.length !== 0) {
+        //Check Validation for OneOff Services
+        let IsOneOffValuesValidResponse = validateOneOffPricingInfo(
+          OneOffPricingInfo,
+          pricingSettingObj,
+          "Package"
+        );
+        // let IsOneOffValuesValidResponse = IsOneOffPackageValuesValid();
+
+        if (IsOneOffValuesValidResponse) {
+          // if (IsOneOffValuesValidResponse.IsOneOffPackageValueValid || IsOneOffValuesValidResponse.IsOneOffPackageValueNegative) {
+          if (selectedPackagesList.length === 1) {
+            scrollUpDownByElementID("OneOff_Default");
+          } else {
+            scrollUpDownByElementID("OneOff_DefaultWithPackages");
+          }
+          setRequireMessage(true);
+          setIsValidForm({
+            ...isValidForm,
+            Preview: false,
+          });
+          setLoader(false);
+          return false;
+        }
+      }
+    } else if (activeTab === ProposalHeader.Preview) {
+      if (
+        MergePdfUrl === null ||
+        MergePdfUrl === "" ||
+        MergePdfUrl === undefined ||
+        ProposalObject.ProposalFormate === null ||
+        ProposalObject.ProposalFormate === undefined
+      ) {
+        setRequireMessage(true);
+        setLoader(false);
+        return false;
+      } else {
+        setIsValidForm({
+          ...isValidForm,
+          BasicForm: true,
+        });
+      }
+    }
+    const servicePrices = {};
+    const recArray = recurringServiceList
+      .filter((category) =>
+        category.servicesList.some((service) => service.isSelected)
+      )
+      .map((category) => ({
+        serviceCatID: category.serviceCatID,
+        serviceCatName: category.serviceCatName,
+        servicesList: category.servicesList.filter(
+          (service) => service.isSelected
+        ),
+      }));
+    const OneArray = oneOffServiceList
+      .filter((category) =>
+        category.servicesList.some((service) => service.isSelected)
+      )
+      .map((category) => ({
+        serviceCatID: category.serviceCatID,
+        serviceCatName: category.serviceCatName,
+        servicesList: category.servicesList.filter(
+          (service) => service.isSelected
+        ),
+      }));
+
+    const recArrayWithPrice = recArray.map((category) => ({
+      serviceCatID: category.serviceCatID,
+      serviceCatName: category.serviceCatName,
+      servicesList: category.servicesList.map((service) => ({
+        ...service,
+        price: servicePrices[service.serviceID], // Add the price corresponding to the service ID
+      })),
+    }));
+
+    const OneArrayWithPrice = OneArray.map((category) => ({
+      serviceCatID: category.serviceCatID,
+      serviceCatName: category.serviceCatName,
+      servicesList: category.servicesList.map((service) => ({
+        ...service,
+        price: servicePrices[service.serviceID], // Add the price corresponding to the service ID
+      })),
+    }));
+
+    if (activeTab == 2 || activeTab == 3) {
+      SelectedService = [...recArrayWithPrice, ...OneArrayWithPrice];
+    } else {
+      SelectedService = [
+        ...selectedRecurringServiceList,
+        ...selectedOneOffServiceList,
+      ];
+    }
+    // setSelectedRecurringServiceList(recArrayWithPrice);
+    // setSelectedOneOffServiceList(OneArrayWithPrice);
+    const modifiedDraftArray = {
+      selectedServicesList: SelectedService.flatMap((category) =>
+        category.servicesList.map((service) => {
+          const moduleServicesGPDList = service.pricingDriverList
+            .filter((item) => item.driverVisibility === true)
+            .map((driver) => ({
+              driverValue:
+                driver.variation !== null
+                  ? driver.variation?.filter(
+                    (item) => item.isDefault === true
+                  )[0]?.variationValue
+                  : driver.slab !== null
+                    ? driver.slab?.filter((item) => item.isDefault === true)[0]
+                      ?.slabValue
+                    : driver.driverValue,
+              msgMapID: driver.msgMapID || null,
+              msMapID: driver.msMapID || null,
+              globalPricingDriverID: driver.globalPricingDriverID,
+              variationID: driver.variation
+                ? driver.variation.filter((item) => item.isDefault === true)[0]
+                  ?.variationID
+                : null,
+              slabID: driver.slab
+                ? driver.slab.filter((item) => item.isDefault === true)[0]
+                  ?.slabID
+                : null,
+            }));
+
+          return {
+            driverValue: null,
+            msMapID: service.msMapID || null,
+            serviceID: service.serviceID,
+            serviceCatID: category.serviceCatID,
+            serviceChargeTypeID:
+              service.serviceChargeTypeName === "One Off" ? 2 : 1,
+            servicePackageID: null,
+            finalCalculatedServicePrice: service.originalServicePrice === undefined ? null : service.originalServicePrice,
+            moduleServicesGPDList:
+              moduleServicesGPDList.length === 0 ? null : moduleServicesGPDList,
+          };
+        })
+      ),
+    };
+
+    const quoteAdditionalServicesInPackages = {
+      selectedServicesList: SelectedService.flatMap((category) =>
+        category.servicesList
+          .filter(
+            (service) => service.isAdditionalService && service.isSelected
+          ) // Filter additional services
+          .map((service) => {
+            return {
+              serviceID: service.serviceID,
+              serviceCatID: category.serviceCatID,
+              serviceChargeTypeID:
+                service.serviceChargeTypeName === "One Off" ? 2 : 1,
+              servicePackageIDs: service.servicePackageIDs,
+            };
+          })
+      ),
+    };
+
+    const quotationFinalAmountList = [];
+
+    let totalOne = 0;
+    let totalTwo = 0;
+    let totalThree = 0;
+    let totalOneOffOne = 0;
+    let totalOneOffTwo = 0;
+    let totalOneOffThree = 0;
+
+    if (
+      selectedPackagesList?.length !== 0 &&
+      selectedPackagesList?.length !== undefined &&
+      selectedPackagesList !== null
+    ) {
+      selectedOneOffServiceList.forEach((category) => {
+        category.servicesList.forEach((service) => {
+          if (
+            service.packageOneValue !== null &&
+            service.servicePackageIDs.includes(service.packageOneID)
+          )
+            totalOneOffOne += Number(service.packageOneValue);
+          if (
+            service.packageTwoValue !== null &&
+            service.servicePackageIDs.includes(service.packageTwoID)
+          )
+            totalOneOffTwo += Number(service.packageTwoValue);
+          if (
+            service.packageThreeValue !== null &&
+            service.servicePackageIDs.includes(service.packageThreeID)
+          )
+            totalOneOffThree += Number(service.packageThreeValue);
+        });
+      });
+      selectedRecurringServiceList.forEach((category) => {
+        category.servicesList.forEach((service) => {
+          if (
+            service.packageOneValue !== null &&
+            service.servicePackageIDs.includes(service.packageOneID)
+          )
+            totalOne += Number(service.packageOneValue);
+          if (
+            service.packageTwoValue !== null &&
+            service.servicePackageIDs.includes(service.packageTwoID)
+          )
+            totalTwo += Number(service.packageTwoValue);
+          if (
+            service.packageThreeValue !== null &&
+            service.servicePackageIDs.includes(service.packageThreeID)
+          )
+            totalThree += Number(service.packageThreeValue);
+        });
+      });
+
+      for (let i = 0; i < selectedPackagesList?.length; i++) {
+        if (selectedRecurringServiceList.length !== 0) {
+          quotationFinalAmountList.push({
+            moduleKeyID: "Temp Key Id", // proposalModelObj.quoteKeyID || null,
+            serviceChargeTypeID: 1, // Recurring
+            servicePackageID: selectedPackagesList[i].servicePackageID,
+            // servicePackageObj: selectedPackagesDetails[i],
+            discountPercentageWithAllDecimal:
+              i == 0
+                ? RecurringFrequencyPricingInfo.DiscountPercentagePackageOne?.toString()
+                : i == 1
+                  ? RecurringFrequencyPricingInfo.DiscountPercentagePackageTwo?.toString()
+                  : i == 2
+                    ? RecurringFrequencyPricingInfo.DiscountPercentagePackageThree?.toString()
+                    : 0,
+
+            netTotal:
+              i == 0 ? totalOne : i == 1 ? totalTwo : i == 2 ? totalThree : 0,
+            discounted:
+              i == 0
+                ? RecurringPricingInfo.packageOneDisCount
+                : i == 1
+                  ? RecurringPricingInfo.packageTwoDisCount
+                  : i == 2
+                    ? RecurringPricingInfo.packageThreeDisCount
+                    : RecurringPricingInfo.packageOneDisCount == 0 &&
+                      RecurringPricingInfo.packageTwoDisCount == 0 &&
+                      RecurringPricingInfo.packageThreeDisCount == 0
+                      ? 0
+                      : 0,
+            discountedTotal:
+              i == 0
+                ? RecurringPricingInfo.packageOneDisCountedTotal
+                : i == 1
+                  ? RecurringPricingInfo.packageTwoDisCountedTotal
+                  : i == 2
+                    ? RecurringPricingInfo.packageThreeDisCountedTotal
+                    : RecurringPricingInfo.packageOneDisCount == 0 &&
+                      RecurringPricingInfo.packageTwoDisCount == 0 &&
+                      RecurringPricingInfo.packageThreeDisCount == 0
+                      ? 0
+                      : 0,
+            vatPercentage: vatPercentage ? vatPercentage : null,
+            vat:
+              i == 0
+                ? RecurringPricingInfo.PackageOneVaTPrice
+                : i == 1
+                  ? RecurringPricingInfo.PackageTwoVaTPrice
+                  : i == 2
+                    ? RecurringPricingInfo.PackageThreeVaTPrice
+                    : vatPercentage === null || vatPercentage == ""
+                      ? 0
+                      : 0,
+            grandTotal:
+              i == 0
+                ? RecurringPricingInfo.PackageOneGrandTotal
+                : i == 1
+                  ? RecurringPricingInfo.PackageTwoGrandTotal
+                  : i == 2
+                    ? RecurringPricingInfo.PackageThreeGrandTotal
+                    : vatPercentage === null || vatPercentage == ""
+                      ? 0
+                      : 0,
+          });
+        }
+        if (selectedOneOffServiceList.length !== 0) {
+          quotationFinalAmountList.push({
+            moduleKeyID: "Temp Key Id", // proposalModelObj.quoteKeyID || null,
+            serviceChargeTypeID: 2, // OneOff
+            servicePackageID: selectedPackagesList[i].servicePackageID,
+            discountPercentageWithAllDecimal:
+              i == 0
+                ? OneOffPricingInfoCopy.DiscountPercentagePackageOne?.toString()
+                : i == 1
+                  ? OneOffPricingInfoCopy.DiscountPercentagePackageTwo?.toString()
+                  : i == 2
+                    ? OneOffPricingInfoCopy.DiscountPercentagePackageThree?.toString()
+                    : 0,
+            netTotal:
+              i == 0
+                ? totalOneOffOne
+                : i == 1
+                  ? totalOneOffTwo
+                  : i == 2
+                    ? totalOneOffThree
+                    : 0,
+            discounted:
+              i == 0
+                ? OneOffPricingInfo.packageOneDisCount
+                : i == 1
+                  ? OneOffPricingInfo.packageTwoDisCount
+                  : i == 2
+                    ? OneOffPricingInfo.packageThreeDisCount
+                    : OneOffPricingInfo.packageOneDisCount == 0 &&
+                      OneOffPricingInfo.packageTwoDisCount == 0 &&
+                      OneOffPricingInfo.packageThreeDisCount == 0
+                      ? 0
+                      : 0,
+            discountedTotal:
+              i == 0
+                ? OneOffPricingInfo.packageOneDisCountedTotal
+                : i == 1
+                  ? OneOffPricingInfo.packageTwoDisCountedTotal
+                  : i == 2
+                    ? OneOffPricingInfo.packageThreeDisCountedTotal
+                    : OneOffPricingInfo.packageOneDisCount == 0 &&
+                      OneOffPricingInfo.packageTwoDisCount == 0 &&
+                      OneOffPricingInfo.packageThreeDisCount == 0
+                      ? 0
+                      : 0,
+            vatPercentage: vatPercentage ? vatPercentage : null,
+            vat:
+              i == 0
+                ? OneOffPricingInfo.PackageOneVaTPrice
+                : i == 1
+                  ? OneOffPricingInfo.PackageTwoVaTPrice
+                  : i == 2
+                    ? OneOffPricingInfo.PackageThreeVaTPrice
+                    : vatPercentage === null || vatPercentage == ""
+                      ? 0
+                      : 0,
+            grandTotal:
+              i == 0
+                ? OneOffPricingInfo.PackageOneGrandTotal
+                : i == 1
+                  ? OneOffPricingInfo.PackageTwoGrandTotal
+                  : i == 2
+                    ? OneOffPricingInfo.PackageThreeGrandTotal
+                    : vatPercentage === null || vatPercentage == ""
+                      ? 0
+                      : 0,
+          });
+        }
+      }
+    } else {
+      if (selectedRecurringServiceList.length !== 0) {
+        quotationFinalAmountList.push({
+          moduleKeyID: "Temp Key Id", // proposalModelObj.quoteKeyID || null,
+          serviceChargeTypeID: 1, // Recurring
+          discountPercentageWithAllDecimal:
+            RecurringFrequencyPricingInfo.DefaultDiscount?.toString(),
+          servicePackageID: null,
+          netTotal:
+            Number(RecurringPricingInfo.DefaultDiscount) <
+              Number(RecurringPricingInfo.OriginalPrice)
+              ? RecurringPricingInfo.OriginalPrice
+              : RecurringPricingInfo.DiscountedPrice,
+          discounted: RecurringPricingInfo.Discount,
+          discountedTotal: RecurringPricingInfo.DiscountedTotal,
+          vatPercentage: vatPercentage ? vatPercentage : null,
+          vat: vatPercentage == null ? null : RecurringPricingInfo.VATPrice,
+          grandTotal:
+            vatPercentage == null ? null : RecurringPricingInfo.GrandTotal,
+        });
+      }
+      if (selectedOneOffServiceList.length !== 0) {
+        quotationFinalAmountList.push({
+          moduleKeyID: "Temp Key Id", // proposalModelObj.quoteKeyID || null,
+          serviceChargeTypeID: 2, // OneOff
+          discountPercentageWithAllDecimal:
+            OneOffPricingInfoCopy.DefaultDiscount?.toString(),
+          servicePackageID: null,
+          netTotal:
+            Number(OneOffPricingInfo.DefaultDiscount) <
+              Number(OneOffPricingInfo.OriginalPrice)
+              ? OneOffPricingInfo.OriginalPrice
+              : OneOffPricingInfo.DiscountedPrice,
+          discounted: OneOffPricingInfo.Discount,
+          discountedTotal: OneOffPricingInfo.DiscountedTotal,
+          vatPercentage: vatPercentage ? vatPercentage : null,
+          vat: vatPercentage == null ? null : OneOffPricingInfo.VATPrice,
+          grandTotal:
+            vatPercentage == null ? null : OneOffPricingInfo.GrandTotal,
+        });
+      }
+    }
+    const modifiedAdditionalServiceArray =
+      additionalInformationList !== null &&
+      additionalInformationList
+        .filter(
+          (AddItem) =>
+            // AddItem.driverTypeID !== 1 && AddItem.driverVisibility === true
+            AddItem.driverVisibility === true
+        )
+        ?.map((item) => {
+          let driverValue;
+          let slabID;
+          let variationID;
+          let msgMapID;
+          let msMapID;
+          if (item.slab && item.slab.some((slabItem) => slabItem.isDefault)) {
+            const defaultSlab = item.slab.find(
+              (slabItem) => slabItem.isDefault
+            );
+            driverValue = defaultSlab.slabValue;
+            slabID = defaultSlab.slabID;
+            msgMapID = item.msgMapID;
+            msMapID = item.msMapID;
+          } else if (
+            item.variation &&
+            item.variation.some((variationItem) => variationItem.isDefault)
+          ) {
+            const defaultVariation = item.variation.find(
+              (variationItem) => variationItem.isDefault
+            );
+            driverValue = defaultVariation.variationValue;
+            variationID = defaultVariation.variationID;
+            msgMapID = item.msgMapID;
+            msMapID = item.msMapID;
+          } else if (item.driverTypeID === 2 || item.driverTypeID === 1) {
+            driverValue = item.driverValue === null ? 0 : item.driverValue;
+            slabID = item.slabID;
+            variationID = item.variationID;
+            msgMapID = item.msgMapID;
+            msMapID = item.msMapID;
+          }
+          return {
+            msgMapID,
+            msMapID,
+            globalPricingDriverID: item.globalPricingDriverID,
+            driverValue,
+            variationID,
+            slabID,
+          };
+        })
+        .filter((item) => item.driverTypeID !== 1)
+        .flat();
+
+    const ApiRequest_ParamsObj = {
+      organisationKeyID: common.organisationKeyID,
+      userKeyID: common.userKeyID,
+      showDiscountLine: ProposalObject.DiscountLines,
+      quoteKeyID: location.state?.quoteKeyID || null,
+      clientID: ProposalObject.clientID || null,
+      templateID: ProposalObject.templateID,
+      quoteTypeID: ProposalObject.selectedProposalTypeValue,
+      paymentGatewayID: ProposalObject.paymentGatewayID, //1	Manual
+      feesInQuoteID:
+        ProposalObject.feeTypeId === null ? 1 : ProposalObject.feeTypeId,
+      paymentFrequencyID: ProposalObject.Payment_Frequency,
+
+      recurringOriginalPrice:
+        selectedRecurringServiceList.length !== 0
+          ? RecurringPricingInfo.OriginalPrice
+          : null,
+      recurringDiscountedPrice:
+        selectedRecurringServiceList.length !== 0
+          ? RecurringPricingInfo.DiscountedPrice
+          : null,
+      recurringDiscountPercentage:
+        selectedRecurringServiceList.length !== 0
+          ? RecurringFrequencyPricingInfo.DefaultDiscount === ""
+            ? null
+            : RecurringFrequencyPricingInfo.DefaultDiscount
+          : null,
+      oneOffOriginalPrice:
+        selectedOneOffServiceList.length !== 0
+          ? OneOffPricingInfo.OriginalPrice
+          : null,
+      oneOffDiscountedPrice:
+        selectedOneOffServiceList.length !== 0
+          ? OneOffPricingInfo.DiscountedPrice
+          : null,
+      oneOffDiscountPercentage:
+        selectedOneOffServiceList.length !== 0
+          ? OneOffPricingInfoCopy.DefaultDiscount === null
+            ? OneOffPricingInfo.DefaultDiscount
+            : OneOffPricingInfoCopy.DefaultDiscount
+          : null,
+      statusID: StatusId || null,
+      TabName: moduleName,
+      quotePDFUrl: MergePdfUrl || null,
+      documentCode: DocumentCode || null,
+      quoteFormatID: ProposalObject.ProposalFormate || null,
+      recurringHtmlContent: ProposalObject.recurringHtmlContent || null,
+      oneOffHtmlContent: ProposalObject.oneOffHtmlContent || null,
+      servicePackageID: selectedPackages || null,
+      selectedServicesList: modifiedDraftArray.selectedServicesList || null,
+      additionalInformationList: modifiedAdditionalServiceArray || null,
+      quotationFinalAmountList: quotationFinalAmountList,
+      quoteAdditionalServicesInPackages:
+        quoteAdditionalServicesInPackages.selectedServicesList,
+      ServiceMappingWithPackagesList: ServiceMappingWithPackagesList
+    };
+    setRequireMessage(false);
+    console.log(ApiRequest_ParamsObj, 'ApiRequest_ParamsObj')
+
+    setLoader(true);
+
+    if (
+      ProposalObject.ProposalFormate === 1 &&
+      common.enableEL === 1 &&
+      StatusId == 2
+    ) {
+      const AvailableTemplate = await TemplateAvailableData(
+        common.organisationKeyID,
+        ProposalObject.clientID
+      );
+      if (AvailableTemplate.data?.statusCode == 200) {
+        const TemplateID = AvailableTemplate.data.totalCount;
+        const templateKeyID = AvailableTemplate.data.responseData.templateKeyID;
+        if (templateKeyID == null) {
+          setLoader(false);
+          setErrorMessage(
+            `No default template found.At least one ${EngagementName} template must be defaulted.`
+          );
+          setOpenErrorModal(true);
+        } else {
+          setLoader(true);
+          AddUpdateQuat(ApiRequest_ParamsObj, StatusId);
+        }
+      } else {
+        setLoader(false);
+      }
+    } else {
+      setLoader(true);
+      AddUpdateQuat(ApiRequest_ParamsObj, StatusId);
+    }
+    setTopbar("block");
+  };
+
+  // Handle save As A Draft And Send Proposal
+  const AddUpdateQuat = async (params, StatusId) => {
+    try {
+      const URL = "/AddUpdateQuote";
+      const data = await AddUpdateQuote(URL, params);
+      if (data?.data?.statusCode === 200) {
+        if (data?.data?.responseData && data.data?.responseData?.refID) {
+          const refID = data.data?.responseData?.refID;
+          setRefIdStore(refID);
+        }
+
+        if (StatusId === 3) {
+          navigate("/add-engagement-letter", {
+            state: { QuoteKeyID: data?.data?.responseData?.data },
+          });
+        }
+        setOpenSuccessModal(true);
+      } else {
+        let Errormessage = data?.data?.errorMessage
+        if (data?.response?.data?.statusCode === 500) {
+          Errormessage = data?.response?.data?.errorMessage
+        }
+        if (Errormessage.includes("Arithmetic overflow")) {
+          setErrorMessage("The result of this operation is too large to be processed. Please check the input values and try again.")
+          setOpenErrorModal(true)
+        } else {
+          setErrorMessage(data?.data?.errorMessage);
+        }
+
+        setLoader(false);
+      }
+    } catch (error) {
+      console.error(error);
+      setLoader(false);
+    } finally {
+      setLoader(false);
+    }
+  };
+  const ProposalType = Utils.select_Quote_Type.filter(
+    (item) => ProposalObject.selectedProposalTypeValue == item.value
+  );
+
+  //Handle Tab Redirection in Proposal
+  const HandleTabChange = async (NextTab) => {
+    const RecurringServiceListCheck = recurringServiceList.map((i) =>
+      i.servicesList.some((item) => item.isSelected === true)
+    );
+    const RecurringServiceListLength = RecurringServiceListCheck.filter(
+      (i) => i === true
+    );
+    const OnOffServiceListCheck = oneOffServiceList.map((i) =>
+      i.servicesList.some((item) => item.isSelected === true)
+    );
+    const OnOffServiceListLength = OnOffServiceListCheck.filter(
+      (i) => i === true
+    );
+    const recurringServicesIDsElement = await recurringServiceList?.flatMap(
+      (item) =>
+        item?.servicesList
+          .filter((i) => i.isSelected === true)
+          .map((newT) => newT.serviceID)
+    );
+
+    const oneOffServicesIDsElement = await oneOffServiceList?.flatMap((item) =>
+      item?.servicesList
+        .filter((i) => i.isSelected === true)
+        .map((newT) => newT.serviceID)
+    );
+
+    const ServicesIDsElement = await recurringServicesIDsElement.concat(
+      oneOffServicesIDsElement
+    );
+
+    setServiceElementId(ServicesIDsElement);
+
+    if (NextTab === ProposalHeader.AdditionalInformation) {
+      if (ServicesIDsElement.length === 0) {
+        setIsValidForm({
+          ...isValidForm,
+          AdditionalInfo: false,
+          SelectService: false,
+        });
+        setRequireMessage(true);
+        return false;
+      } else {
+        let hasUndefinedDriver = false;
+        let hasUndefinedDriver2 = false;
+
+        recurringServiceList.some((rService) => {
+          return rService.servicesList?.some((service) => {
+            if (service.isSelected === true) {
+              for (let i = 0; i < service.pricingDriverList.length; i++) {
+                const pricingList = service.pricingDriverList[i];
+                if (
+                  pricingList.driverVisibility &&
+                  (pricingList.driverValue === undefined ||
+                    pricingList.driverValue === null ||
+                    pricingList.driverValue === "")
+                ) {
+                  hasUndefinedDriver = true;
+                  const elementId = `SelectServiceQuantity_${pricingList.driverName}`; // Generate unique ID for the element
+                  scrollUpDownByElementID(elementId);
+                  setIsValidForm({
+                    ...isValidForm,
+                    BasicForm: true,
+                    AdditionalInfo: false,
+                    PricingInfo: false,
+                  });
+                  return true; // Break out of the inner loop and stop iterating
+                } else {
+                  hasUndefinedDriver = false;
+                  setIsValidForm({
+                    ...isValidForm,
+                    BasicForm: true,
+                    PricingInfo: true,
+                  });
+                }
+              }
+            }
+          });
+        });
+        oneOffServiceList.some((rService) => {
+          return rService.servicesList?.some((service) => {
+            if (service.isSelected === true) {
+              for (let i = 0; i < service.pricingDriverList.length; i++) {
+                const pricingList = service.pricingDriverList[i];
+                let count = 0; // Initialize count to zero
+                count++; // Increment count by one
+
+                if (
+                  pricingList.driverVisibility &&
+                  (pricingList.driverValue === undefined ||
+                    pricingList.driverValue === null ||
+                    pricingList.driverValue === "")
+                ) {
+                  hasUndefinedDriver2 = true;
+                  setRequireMessage(true);
+                  const elementId = `SelectServiceQuantity_${pricingList.driverName}`; // Generate unique ID for the element
+                  scrollUpDownByElementID(elementId);
+                  setIsValidForm({
+                    ...isValidForm,
+                    BasicForm: true,
+                    AdditionalInfo: false,
+                    PricingInfo: false,
+                  });
+                  return true; // Break out of the inner loop and stop iterating
+                } else {
+                  hasUndefinedDriver2 = false;
+                  setRequireMessage(true);
+                  setIsValidForm({
+                    ...isValidForm,
+                    BasicForm: true,
+                    PricingInfo: true,
+                  });
+                }
+              }
+            }
+          });
+        });
+
+        if (hasUndefinedDriver || hasUndefinedDriver2) {
+          setRequireMessage(true);
+          setIsValidForm({
+            ...isValidForm,
+            SelectService: false,
+            PricingInfo: false,
+          });
+        } else if (
+          RecurringServiceListLength.length >= 1 ||
+          OnOffServiceListLength.length >= 1
+        ) {
+          setIsValidForm({
+            ...isValidForm,
+            BasicForm: true,
+            SelectService: true,
+            PricingInfo: true,
+          });
+          setRequireMessage(false);
+          await GetAdditionalInformationListData(ServicesIDsElement);
+        }
+      }
+    }
+    if (activeTab === ProposalHeader.BasicInformation) {
+      if (
+        ProposalObject.selectedProposalTypeValue === undefined ||
+        ProposalObject.selectedProposalTypeValue === null ||
+        ProposalObject.selectedProposalTypeValue === "" ||
+        ProposalObject.clientID === undefined ||
+        ProposalObject.clientID === null ||
+        ProposalObject.clientID === "" ||
+        ProposalObject.selectTemplateTypeId === undefined ||
+        ProposalObject.selectTemplateTypeId === null ||
+        ProposalObject.selectTemplateTypeId === ""
+      ) {
+        setIsValidForm({
+          ...isValidForm,
+          BasicForm: false,
+          SelectService: false,
+          AdditionalInfo: false,
+        });
+        setRequireMessage(true);
+        return false;
+      } else {
+        if (
+          ProposalObject.selectedProposalTypeValue === 1 ||
+          ProposalObject.selectedProposalTypeValue === 2
+        ) {
+          GetServicePackageLookupListData();
+          setRequireMessage(false);
+          setIsValidForm({
+            ...isValidForm,
+            BasicForm: true,
+          });
+          GetPricingSettingModelData();
+          if (ProposalObject.paymentGatewayID === null) {
+            GetPaymentGatewayModelData(common.organisationKeyID);
+          }
+          setShowValidationForMin(false);
+          setShowValidationForMax(false);
+          setActiveTab(5);
+        } else {
+          GetRecurringServiceListData();
+          GetOneOffServiceListData();
+
+          setIsValidForm({
+            ...isValidForm,
+            BasicForm: true,
+          });
+          GetPricingSettingModelData();
+          if (ProposalObject.paymentGatewayID === null) {
+            GetPaymentGatewayModelData(common.organisationKeyID);
+          }
+          setRequireMessage(false);
+          setActiveTab(NextTab);
+        }
+      }
+    } else if (activeTab === ProposalHeader.SelectServices) {
+
+      let hasUndefinedDriver = false;
+      let hasUndefinedDriver2 = false;
+
+      recurringServiceList.some((rService) => {
+        return rService.servicesList?.some((service) => {
+          if (service.isSelected === true) {
+            for (let i = 0; i < service.pricingDriverList.length; i++) {
+              const pricingList = service.pricingDriverList[i];
+              if (
+                service.pricingDriverList[i].driverVisibility &&
+                (service.pricingDriverList[i].driverValue === undefined ||
+                  service.pricingDriverList[i].driverValue === null ||
+                  service.pricingDriverList[i].driverValue === "")
+              ) {
+                hasUndefinedDriver = true;
+                const elementId = `SelectServiceQuantity_${pricingList.driverName}`; // Generate unique ID for the element
+                scrollUpDownByElementID(elementId);
+                setIsValidForm({
+                  ...isValidForm,
+                  BasicForm: true,
+                  AdditionalInfo: false,
+                  PricingInfo: false,
+                });
+                return true; // Break out of the inner loop and stop iterating
+              } else {
+                hasUndefinedDriver = false;
+                setIsValidForm({
+                  ...isValidForm,
+                  BasicForm: true,
+                  PricingInfo: true,
+                });
+              }
+            }
+          }
+        });
+      });
+      oneOffServiceList.some((rService) => {
+        return rService.servicesList?.some((service) => {
+          if (service.isSelected === true) {
+            for (let i = 0; i < service.pricingDriverList.length; i++) {
+              const pricingList = service.pricingDriverList[i];
+              if (
+                service.pricingDriverList[i].driverVisibility &&
+                (service.pricingDriverList[i].driverValue === undefined ||
+                  service.pricingDriverList[i].driverValue === null ||
+                  service.pricingDriverList[i].driverValue === "")
+              ) {
+                hasUndefinedDriver2 = true;
+                setRequireMessage(true);
+                const elementId = `SelectServiceQuantity_${pricingList.driverName}`; // Generate unique ID for the element
+                scrollUpDownByElementID(elementId);
+                setIsValidForm({
+                  ...isValidForm,
+                  BasicForm: true,
+                  AdditionalInfo: false,
+                  PricingInfo: false,
+                });
+                return true; // Break out of the inner loop and stop iterating
+              } else {
+                hasUndefinedDriver2 = false;
+                setRequireMessage(true);
+                setIsValidForm({
+                  ...isValidForm,
+                  BasicForm: true,
+                  PricingInfo: true,
+                });
+              }
+            }
+          }
+        });
+      });
+
+      if (hasUndefinedDriver || hasUndefinedDriver2) {
+        setRequireMessage(true);
+        setIsValidForm({
+          ...isValidForm,
+          SelectService: false,
+          PricingInfo: false,
+        });
+      } else if (
+        RecurringServiceListLength.length >= 1 ||
+        OnOffServiceListLength.length >= 1
+      ) {
+        setIsValidForm({
+          ...isValidForm,
+          BasicForm: true,
+          SelectService: true,
+          PricingInfo: true,
+        });
+        setRequireMessage(false);
+        await GetAdditionalInformationListData(ServicesIDsElement);
+      } else {
+        setIsValidForm({
+          ...isValidForm,
+          SelectService: false,
+          AdditionalInfo: false,
+          PricingInfo: false,
+        });
+        setRequireMessage(true);
+      }
+    } else if (activeTab === ProposalHeader.AdditionalInformation) {
+      const filteredList = additionalInformationList.filter(
+        (item) =>
+          item.driverTypeID === 2 ||
+          item.driverTypeID === 4 ||
+          item.driverTypeID === 3
+      );
+
+      // Check if any of the filtered items have driverValue as null, empty string, or undefined
+      const hasInvalidValues = filteredList.some(
+        (i) =>
+          i.driverValue === null ||
+          i.driverValue === "" ||
+          i.driverValue === undefined ||
+          i.driverValue === "." ||
+          i.driverValue === "-"
+      );
+      if (hasInvalidValues) {
+        setRequireMessage(true);
+        setIsValidForm({
+          ...isValidForm,
+          PricingInfo: false,
+          AdditionalInfo: true,
+        });
+        return;
+      } else {
+        setRequireMessage(false);
+        const ServicePricing = await handleSetCalculatedPackageData();
+        GetCalculatedServicesPriceData(ServicePricing, NextTab);
+      }
+    } else if (activeTab === ProposalHeader.SelectPackages) {
+
+      if (selectedPackages === null || selectedPackages.length === 0) {
+        setShowValidationForMin(true);
+        setIsValidForm({
+          ...isValidForm,
+          SelectPackages: true,
+        });
+        setRequireMessage(true);
+        return;
+      } else {
+        if (ProposalObject.selectedProposalTypeValue === 1) {
+          GetRecurringServiceListData();
+          GetOneOffServiceListData();
+
+          setIsValidForm({
+            ...isValidForm,
+            SelectPackages: true,
+          });
+          setRequireMessage(false);
+          setActiveTab(NextTab);
+        } else { // Standard package validation 
+          //  await GetRecurringServiceListData();
+          const GetRecurringServiceListData = async () => {
+            try {
+              const data = await GetPackageServicesList({
+                userKeyID: common.userKeyID,
+                organisationKeyID: common.organisationKeyID,
+                ServiceChargeTypeID: 1,
+                moduleKeyID: null,
+                moduleName: "Quotation",
+                ProfessionTypeIDs: null,
+                BusinessTypeIDs: null,
+                BusinessNatureIDs: null,
+                ClientKeyID: ProposalObject.clientTypeId,
+                ServicePackageIDs: selectedPackages,
+                QuoteTypeID: ProposalObject.selectedProposalTypeValue, //For Quotation
+                SourceID: null, //For Contract
+              });
+              if (data) {
+                if (data?.data?.statusCode === 200) {
+                  if (data?.data?.responseData?.data) {
+                    const PackageServiceListData = data.data.responseData.data;
+                    // setRecurringServiceList(PackageServiceListData);
+                    return PackageServiceListData;
+                  }
+                } else {
+                  setErrorMessage(data?.data?.errorMessage);
+                }
+              }
+            } catch (error) {
+              console.log(error);
+            }
+          };
+          // await GetOneOffServiceListData();
+          const GetOneOffServiceListData = async (i) => {
+            try {
+              const data = await GetPackageServicesList({
+                userKeyID: common.userKeyID,
+                organisationKeyID: common.organisationKeyID, //common.organisationKeyID,//common.organisationKeyID,
+                ServiceChargeTypeID: 2,
+                moduleID: null,
+                moduleName: "Quotation",
+                ProfessionTypeIDs: null,
+                BusinessTypeIDs: null,
+                BusinessNatureIDs: null,
+                ClientKeyID: ProposalObject.clientTypeId,
+                ServicePackageIDs: selectedPackages,
+                QuoteTypeID: ProposalObject.selectedProposalTypeValue, //For Quotation
+                SourceID: null, //For Contract
+              });
+              if (data) {
+                if (data?.data?.statusCode === 200) {
+                  if (data?.data?.responseData?.data) {
+                    const PackageServiceListDataOneOff =
+                      data.data.responseData.data;
+                    return PackageServiceListDataOneOff;
+                  }
+                } else {
+                  setErrorMessage(data?.data?.errorMessage);
+                }
+              }
+            } catch (error) {
+              console.log(error);
+            }
+          };
+
+          const GetAdditionalInformationListData1 = async (
+            extractedServiceIDs
+          ) => {
+            setLoader(true);
+
+            try {
+              const data = await GetAdditionalInformationList({
+                userKeyID: common.userKeyID,
+                organisationKeyID: common.organisationKeyID,
+                ServicesIDs: extractedServiceIDs,
+                ServicePackageIDs: selectedPackages,
+                clientID: ProposalObject.clientID,
+                moduleID: null,
+                moduleName: "Quotation", // "ServicePackage / Quotation / Contract"
+              });
+
+              if (data && data.data) {
+                setLoader(false);
+                const { statusCode, responseData } = data.data;
+                if (statusCode === 200) {
+                  setLoader(false);
+                  if (responseData && responseData.data) {
+                    const additionalInformationListData = responseData.data;
+                    return additionalInformationListData;
+                  }
+                }
+              }
+            } catch (error) {
+              setLoader(false);
+              console.error(error);
+            }
+          };
+
+          const matchedServicePackageKeyIDs = getServicePackageLookupList
+            .filter(packages => selectedPackages.includes(packages.servicePackageID))
+            .map(packages => packages.servicePackageKeyID);
+          setLoader(true)
+          const StatementOfFacts = await StatementOfFactModal(matchedServicePackageKeyIDs)
+
+          const StatementOfFactsForStandardProposal = StatementOfFacts.data.responseData.data
+          setStatementOfFacts(StatementOfFactsForStandardProposal)
+          if (ProposalObject.selectedProposalTypeValue === 2) {
+            const recurringServiceListData =
+              await GetRecurringServiceListData();
+            const oneOffServiceListData = await GetOneOffServiceListData();
+            const SelectedRecurringService = recurringServiceListData.map(
+              (item) => {
+                return {
+                  ...item,
+                  servicesList: item.servicesList.filter(
+                    (service) => service.isSelected
+                  ),
+                };
+              }
+            );
+            const SelectedOneOffService = oneOffServiceListData.map((item) => {
+              return {
+                ...item,
+                servicesList: item.servicesList.filter(
+                  (service) => service.isSelected
+                ),
+              };
+            });
+            const combinedData = [
+              ...SelectedRecurringService,
+              ...SelectedOneOffService,
+            ];
+            const extractedServiceIDs = combinedData.flatMap((item) =>
+              item.servicesList.map((service) => service.serviceID)
+            );
+            const uniqueServiceIDs = [...new Set(extractedServiceIDs)];
+            setServiceIDs(uniqueServiceIDs);
+            const GetAdditionalInformationListData =
+              await GetAdditionalInformationListData1(uniqueServiceIDs);
+
+            const ServicePricing = await handleSetCalculatedPackageServiceData(
+              GetAdditionalInformationListData,
+              SelectedRecurringService,
+              SelectedOneOffService
+            );
+
+            GetCalculatedServicesPriceByPackagesData(
+              ServicePricing,
+              NextTab,
+              SelectedRecurringService,
+              SelectedOneOffService
+            );
+          }
+        }
+      }
+    } else if (activeTab === ProposalHeader.ReviewServices) {
+      if (selectedRecurringServiceList.length !== 0) {
+        let IsRecurringValuesValidResponse = validatePricingInfo(
+          RecurringPricingInfo,
+          ProposalObject,
+          pricingSettingObj,
+          "Service"
+        );
+
+        if (IsRecurringValuesValidResponse) {
+          // if (IsRecurringValuesValidResponse.IsRecurringValueNegative || IsRecurringValuesValidResponse.IsRecurringValueValid) {
+
+          scrollUpDownByElementID("recurring_Default");
+          setRequireMessage(true);
+          setIsValidForm({
+            ...isValidForm,
+            Preview: false,
+          });
+          setLoader(false);
+          return false;
+        }
+      }
+
+      if (selectedOneOffServiceList.length !== 0) {
+        //Check Validation for OneOff Services
+        let IsOneOffValuesValidResponse = validateOneOffPricingInfo(
+          OneOffPricingInfo,
+          pricingSettingObj,
+          "Service"
+        );
+
+        if (IsOneOffValuesValidResponse) {
+          // if (IsOneOffValuesValidResponse.IsOneOffValueValid || IsOneOffValuesValidResponse.IsOneOffValueNegative) {
+
+          scrollUpDownByElementID("OneOff_Default");
+          setRequireMessage(true);
+          setIsValidForm({
+            ...isValidForm,
+            Preview: false,
+          });
+          setLoader(false);
+          return false;
+        }
+      }
+
+      GetTemplateModalData(NextTab);
+      setRequireMessage(false);
+      setIsValidForm({
+        ...isValidForm,
+        ReviewService: true,
+        ReviewPackages: true,
+      });
+    }
+    else if (activeTab === ProposalHeader.ReviewPackages) {
+      if (selectedRecurringServiceList.length !== 0) {
+        let IsRecurringValuesValidResponse = validatePricingInfo(
+          RecurringPricingInfo,
+          ProposalObject,
+          pricingSettingObj,
+          "Package"
+        );
+        // let IsRecurringValuesValidResponse = IsRecurringPackageValuesValid();
+
+        if (IsRecurringValuesValidResponse) {
+          // if (IsRecurringValuesValidResponse.IsRecurringPackageValueNegative || IsRecurringValuesValidResponse.IsRecurringPackageValueValid) {
+
+          if (selectedPackagesList.length === 1) {
+            scrollUpDownByElementID("recurring_Default");
+          } else {
+            scrollUpDownByElementID("recurring_DefaultWithPackages");
+          }
+          setRequireMessage(true);
+          setIsValidForm({
+            ...isValidForm,
+            Preview: false,
+          });
+          setLoader(false);
+          return false;
+        }
+      }
+
+      if (selectedOneOffServiceList.length !== 0) {
+        //Check Validation for OneOff Services
+        let IsOneOffValuesValidResponse = validateOneOffPricingInfo(
+          OneOffPricingInfo,
+          pricingSettingObj,
+          "Package"
+        );
+        // let IsOneOffValuesValidResponse = IsOneOffPackageValuesValid();
+
+        if (IsOneOffValuesValidResponse) {
+          // if (IsOneOffValuesValidResponse.IsOneOffPackageValueValid || IsOneOffValuesValidResponse.IsOneOffPackageValueNegative) {
+
+          if (selectedPackagesList.length === 1) {
+            scrollUpDownByElementID("OneOff_Default");
+          } else {
+            scrollUpDownByElementID("OneOff_DefaultWithPackages");
+          }
+          setRequireMessage(true);
+          setIsValidForm({
+            ...isValidForm,
+            Preview: false,
+          });
+          setLoader(false);
+          return false;
+        }
+      }
+
+      GetTemplateModalData(NextTab);
+      setRequireMessage(false);
+      setIsValidForm({
+        ...isValidForm,
+        ReviewService: true,
+        ReviewPackages: true,
+      });
+    } else if (activeTab === ProposalHeader.Preview) {
+      setActiveTab(NextTab);
+    }
+  };
+
+  //handle cancel In Proposal
+  const handleCancelBtn = () => {
+    setTopbar("block");
+    navigate("/proposals");
+  };
+
+  //handle Back function
+  const HandleBack = async (NextTab, clickedTabID) => {
+    if (clickedTabID) {
+      let clickedTabClasses = $("#" + clickedTabID).attr("class");
+      if (clickedTabClasses?.includes("disabled")) {
+        return false;
+      }
+    }
+
+    const RecurringServiceListCheck = recurringServiceList.map((i) =>
+      i.servicesList.some((item) => item.isSelected === true)
+    );
+    const RecurringServiceListLength = RecurringServiceListCheck.filter(
+      (i) => i === true
+    );
+    const OnOffServiceListCheck = oneOffServiceList.map((i) =>
+      i.servicesList.some((item) => item.isSelected === true)
+    );
+    const OnOffServiceListLength = OnOffServiceListCheck.filter(
+      (i) => i === true
+    );
+    const recurringServicesIDsElement = await recurringServiceList?.flatMap(
+      (item) =>
+        item?.servicesList
+          .filter((i) => i.isSelected === true)
+          .map((newT) => newT.serviceID)
+    );
+
+    const oneOffServicesIDsElement = await oneOffServiceList?.flatMap((item) =>
+      item?.servicesList
+        .filter((i) => i.isSelected === true)
+        .map((newT) => newT.serviceID)
+    );
+
+    const ServicesIDsElement = await recurringServicesIDsElement.concat(
+      oneOffServicesIDsElement
+    );
+    if (ServicesIDsElement.length === 0) {
+      setIsBack(false);
+    } else {
+      setIsBack(true);
+    }
+    setServiceElementId(ServicesIDsElement);
+
+    if (activeTab === ProposalHeader.SelectServices) {
+      setIsValidForm({
+        ...isValidForm,
+        SelectService: true,
+      });
+      setActiveTab(NextTab);
+      setRequireMessage(false);
+    }
+    if (activeTab === ProposalHeader.SelectPackages) {
+      setIsValidForm({
+        ...isValidForm,
+        SelectPackages: true,
+      });
+      if (selectedPackages?.length === 0) {
+        setIsValidForm({
+          ...isValidForm,
+          SelectService: false,
+          AdditionalInfo: false,
+          ReviewPackages: false,
+        });
+        if (NextTab === 1) {
+          setActiveTab(NextTab);
+        }
+        return;
+      }
+      setActiveTab(NextTab);
+      setRequireMessage(false);
+    }
+    if (activeTab === ProposalHeader.ReviewPackages) {
+      if (selectedRecurringServiceList.length !== 0) {
+        let IsRecurringValuesValidResponse = validatePricingInfo(
+          RecurringPricingInfo,
+          ProposalObject,
+          pricingSettingObj,
+          "Package"
+        );
+        // let IsRecurringValuesValidResponse = IsRecurringPackageValuesValid();
+
+        if (IsRecurringValuesValidResponse) {
+          // if (IsRecurringValuesValidResponse.IsRecurringPackageValueNegative || IsRecurringValuesValidResponse.IsRecurringPackageValueValid) {
+
+          if (selectedPackagesList.length === 1) {
+            scrollUpDownByElementID("recurring_Default");
+          } else {
+            scrollUpDownByElementID("recurring_DefaultWithPackages");
+          }
+          setRequireMessage(true);
+          setIsValidForm({
+            ...isValidForm,
+            Preview: false,
+          });
+          setLoader(false);
+          return false;
+        }
+      }
+
+      if (selectedOneOffServiceList.length !== 0) {
+        //Check Validation for OneOff Services
+        let IsOneOffValuesValidResponse = validateOneOffPricingInfo(
+          OneOffPricingInfo,
+          pricingSettingObj,
+          "Package"
+        );
+        // let IsOneOffValuesValidResponse = IsOneOffPackageValuesValid();
+
+        if (IsOneOffValuesValidResponse) {
+          // if (IsOneOffValuesValidResponse.IsOneOffPackageValueValid || IsOneOffValuesValidResponse.IsOneOffPackageValueNegative) {
+
+          if (selectedPackagesList.length === 1) {
+            scrollUpDownByElementID("OneOff_Default");
+          } else {
+            scrollUpDownByElementID("OneOff_DefaultWithPackages");
+          }
+          setRequireMessage(true);
+          setIsValidForm({
+            ...isValidForm,
+            Preview: false,
+          });
+          setLoader(false);
+          return false;
+        }
+      }
+      setIsValidForm({
+        ...isValidForm,
+        ReviewPackages: true,
+      });
+      setActiveTab(NextTab);
+      setRequireMessage(false);
+    }
+    if (activeTab === ProposalHeader.ReviewServices) {
+      if (selectedRecurringServiceList.length !== 0) {
+        let IsRecurringValuesValidResponse = validatePricingInfo(
+          RecurringPricingInfo,
+          ProposalObject,
+          pricingSettingObj,
+          "Service"
+        );
+
+        if (IsRecurringValuesValidResponse) {
+          // if (IsRecurringValuesValidResponse.IsRecurringValueNegative || IsRecurringValuesValidResponse.IsRecurringValueValid) {
+
+          scrollUpDownByElementID("recurring_Default");
+          setRequireMessage(true);
+          setIsValidForm({
+            ...isValidForm,
+            Preview: false,
+          });
+          setLoader(false);
+          return false;
+        }
+      }
+
+      if (selectedOneOffServiceList.length !== 0) {
+        //Check Validation for OneOff Services
+        let IsOneOffValuesValidResponse = validateOneOffPricingInfo(
+          OneOffPricingInfo,
+          pricingSettingObj,
+          "Service"
+        );
+
+        if (IsOneOffValuesValidResponse) {
+          // if (IsOneOffValuesValidResponse.IsOneOffValueValid || IsOneOffValuesValidResponse.IsOneOffValueNegative) {
+
+          scrollUpDownByElementID("OneOff_Default");
+          setRequireMessage(true);
+          setIsValidForm({
+            ...isValidForm,
+            Preview: false,
+          });
+          setLoader(false);
+          return false;
+        }
+      }
+
+
+      setIsValidForm({
+        ...isValidForm,
+        ReviewService: true,
+      });
+      setActiveTab(NextTab);
+      setRequireMessage(false);
+    }
+    if (activeTab === ProposalHeader.Preview) {
+      setIsValidForm({
+        ...isValidForm,
+        Preview: true,
+      });
+      setActiveTab(NextTab);
+      setRequireMessage(false);
+    }
+    if (activeTab === ProposalHeader.AdditionalInformation) {
+      setIsValidForm({
+        ...isValidForm,
+        AdditionalInfo: true,
+      });
+      setActiveTab(NextTab);
+      setRequireMessage(false);
+    } else {
+      setRequireMessage(false);
+
+      setActiveTab(NextTab);
+    }
+  };
+
+  // handle Skip to EL
+  const handleSkipEngagementLetter = () => {
+    setTopbar("block");
+    navigate("/add-engagement-letter");
+  };
+  // Handle Get additional Information data
+  const GetAdditionalInformationListData = async (
+    ServicesIDs = ServiceElementId
+  ) => {
+    setLoader(true);
+
+    try {
+      const data = await GetAdditionalInformationList({
+        userKeyID: common.userKeyID,
+        organisationKeyID: common.organisationKeyID,
+        ServicesIDs,
+        moduleKeyID: proposalModelObj.quoteKeyID,
+        clientID: ProposalObject.clientID,
+        ServicePackageIDs: selectedPackages,
+        moduleName: "Quotation", // "ServicePackage / Quotation / Contract"
+      });
+
+      if (data && data.data) {
+        const { statusCode, responseData } = data.data;
+        setLoader(false);
+        if (statusCode === 200) {
+          setLoader(false);
+
+          if (responseData && responseData.data) {
+            let additionalInformationListData = responseData.data;
+            additionalInformationListData.forEach((dataObject) => {
+              if (dataObject.driverTypeID == 4) {
+                // Access the slab array within each object
+                const slabArray = dataObject.slab;
+
+                // Find the default slab object
+                const defaultSlab = slabArray.find(
+                  (item) => item.isDefault == true
+                );
+
+                // Update the driverValue property with the slabValue of the default slab
+                if (defaultSlab) {
+                  dataObject.driverValue = defaultSlab.slabValue;
+                }
+              } else if (dataObject.driverTypeID == 3) {
+                // Access the variation array within each object
+                const variationArray = dataObject.variation;
+
+                // Find the default variation object
+                const defaultVariation = variationArray.find(
+                  (item) => item.isDefault == true
+                );
+
+                // Update the driverValue property with the variationValue of the default variation
+                if (defaultVariation) {
+                  dataObject.driverValue = defaultVariation.variationValue;
+                }
+              }
+            });
+            if (isBack) {
+              additionalInformationListData = additionalInformationListData.map(
+                (itemTwo) => {
+                  // Check if there exists a corresponding entry in ArrayOne
+                  const matchingItem = additionalInformationList.find(
+                    (itemOne) =>
+                      itemOne.serviceID === itemTwo.serviceID &&
+                      itemOne.globalPricingDriverID ===
+                      itemTwo.globalPricingDriverID
+                  );
+
+                  // If a matching item is found, copy all data from ArrayOne to ArrayTwo
+                  if (matchingItem) {
+                    // Delete the existing slab array from ArrayTwo item if it exists
+                    delete itemTwo.slab;
+
+                    // Copy all properties from matchingItem to itemTwo
+                    return Object.assign({}, itemTwo, matchingItem);
+                  }
+
+                  // If no matching item is found, return the original itemTwo
+                  return itemTwo;
+                }
+              );
+            }
+
+            setAdditionalInformationList(additionalInformationListData);
+            if (
+              additionalInformationListData.filter(
+                (item) => item.driverTypeID !== 1
+              ).length === 0
+            ) {
+              setTabHide(false);
+              setAdditionalInformationList([]);
+
+              const ServicePricing = await handleSetCalculatedPackageData();
+              if (
+                ProposalObject.selectedProposalTypeValue === 1
+              ) {
+                setIsValidForm({
+                  ...isValidForm,
+                  AdditionalInfo: false,
+                });
+                setTabHide(false);
+                GetCalculatedServicesPriceData(ServicePricing, 7);
+              } else if (
+                ProposalObject.selectedProposalTypeValue === 2
+              ) {
+                setIsValidForm({
+                  ...isValidForm,
+                  AdditionalInfo: false,
+                });
+                setTabHide(false);
+                GetCalculatedServicesPriceByPackagesData(ServicePricing, 7);
+              } else {
+                setIsValidForm({
+                  ...isValidForm,
+                  AdditionalInfo: false,
+                  SelectService: true,
+                });
+                setTabHide(false);
+                GetCalculatedServicesPriceData(ServicePricing, 6);
+              }
+            } else {
+              setActiveTab(3);
+              setTabHide(true);
+              setIsValidForm({
+                ...isValidForm,
+                AdditionalInfo: true,
+                SelectService: true,
+              });
+            }
+          }
+        } else {
+          setLoader(false);
+          setErrorMessage(responseData?.errorMessage || "Error occurred");
+          setActiveTab(activeTab);
+          return;
+        }
+      } else {
+        setLoader(false);
+      }
+    } catch (error) {
+      setLoader(false);
+      console.error(error);
+    }
+  };
+
+
+  //Get Pricing Setting Model data
+  const updateProposalObject = (newData) => {
+    setProposalObject((prev) => ({
+      ...prev,
+      ...newData,
+    }));
+  };
+  const GetPricingSettingModelData = async () => {
+    try {
+      const data = await GetPricingSettingModel(common.organisationKeyID);
+      if (data?.data?.statusCode === 200) {
+        if (data?.data?.responseData?.data) {
+          const ModelData = data?.data?.responseData?.data;
+          setPricingSettingObj({
+            ...pricingSettingObj,
+            userKeyID: common.userKeyID,
+            minOneOffPriceForQC: ModelData.minOneOffPriceForQC,
+            minMonthlyPriceForQC: ModelData.minMonthlyPriceForQC,
+            maxDiscountForQC: ModelData.maxDiscountForQC,
+            organisationKeyID: ModelData.organisationKeyID,
+            PaymentFrequency: ModelData.paymentFrequencyID,
+          });
+
+          if (
+            ProposalObject.Payment_Frequency === "" ||
+            ProposalObject.Payment_Frequency === null ||
+            ProposalObject.Payment_Frequency === undefined
+          ) {
+            updateProposalObject({
+              Payment_Frequency:
+                ModelData.paymentFrequencyID === null
+                  ? 1
+                  : ModelData.paymentFrequencyID,
+            });
+          }
+        }
+      } else {
+        setErrorMessage(data?.data?.errorMessage);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  //38) hide tab when change value previous tab function
+  const DisableTabOnChange = () => {
+    if (activeTab == ProposalHeader.BasicInformation) {
+      setIsValidForm({
+        ...isValidForm,
+        BasicForm: false,
+        SelectService: false,
+        AdditionalInfo: false,
+        PricingInfo: false,
+        SelectPackages: false,
+        ReviewPackages: false,
+        ReviewService: false,
+        Preview: false,
+      });
+    } else if (activeTab == ProposalHeader.SelectServices) {
+      setIsValidForm({
+        ...isValidForm,
+        // SelectService: false,
+        AdditionalInfo: false,
+        PricingInfo: false,
+        ReviewPackages: false,
+        ReviewService: false,
+        Preview: false,
+      });
+    } else if (activeTab == ProposalHeader.SelectPackages) {
+      setIsValidForm({
+        ...isValidForm,
+        SelectService: false,
+        AdditionalInfo: false,
+        PricingInfo: false,
+        ReviewPackages: false,
+        ReviewService: false,
+        Preview: false,
+      });
+    } else if (activeTab == ProposalHeader.AdditionalInformation) {
+      setIsValidForm({
+        ...isValidForm,
+        AdditionalInfo: false,
+        PricingInfo: false,
+        ReviewPackages: false,
+        ReviewService: false,
+        Preview: false,
+      });
+    } else if (activeTab == ProposalHeader.ReviewServices) {
+      setIsValidForm({
+        ...isValidForm,
+        PricingInfo: false,
+        ReviewPackages: false,
+        ReviewService: false,
+        Preview: false,
+      });
+    } else if (activeTab == ProposalHeader.ReviewPackages) {
+      setIsValidForm({
+        ...isValidForm,
+        PricingInfo: false,
+        ReviewPackages: false,
+        ReviewService: false,
+        Preview: false,
+      });
+    }
+  };
+  const GetPaymentGatewayModelData = async (id) => {
+    if (!id) {
+      return;
+    }
+    try {
+      const data = await GetPaymentGatewayModel(id);
+      if (data?.data?.statusCode === 200) {
+        if (data?.data?.responseData?.data) {
+          const ModelData = data?.data?.responseData?.data;
+          setPaymentGatewayObj({
+            ...paymentGatewayObj,
+            // keyID: ModelData.KeyID,
+            userKeyID: common.userKeyID,
+            goCardlessAccessToken: ModelData.goCardlessAccessToken,
+            stripePublishableKey: ModelData.stripePublishableKey,
+            stripeSecretKey: ModelData.stripeSecretKey,
+            organisationKeyID: ModelData.organisationKeyID,
+            bankTransferName: ModelData.bankTransferName,
+            AccountNumber: ModelData.accountNumber,
+            PaymentGatewayID: ModelData.defaultPaymentGatewayID,
+            AuthenticationCode: ModelData.authenticationCode
+              ? ModelData.authenticationCode.replace(/(\d{2})(?=\d)/g, "$1-")
+              : "",
+          });
+          if (location?.state?.Action === null || location?.state?.Action === undefined) {
+            updateProposalObject({
+              paymentGatewayID:
+                ModelData.defaultPaymentGatewayID === null
+                  ? 1
+                  : ModelData.defaultPaymentGatewayID === 1
+                    ? 4 :
+                    ModelData.defaultPaymentGatewayID,
+            });
+          }
+        }
+      } else {
+        setErrorMessage(data?.data?.errorMessage);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const showModalRecordsAvailable = (message, driverNamesSet) => {
+    setModelRequestData({
+      ...modelRequestData,
+      Action: "LargePriceValueWarning",
+      message: message,
+      DriverName: driverNamesSet,
+    });
+    $("#" + "RecordsAvailablePopupModel").modal("show");
+  };
+  return (
+    <div>
+      <div className="container-fluid new-item-page-container">
+        <div className="new-item-page-content">
+          <div className={`row form-row  `}>
+            <div className="col-12">
+              <h3 class="modal-title">
+                <BackButtonSvg onClick={handleCancelBtn} />
+                {modelAction === "Add"
+                  ? getCrudPopUpTitleName("Add", proposalName)
+                  : getCrudPopUpTitleName("Update", proposalName)}
+                {/* {modelAction !== "Add" ? ` : ` : ""}{" "}
+                {isMobile
+                  ? location.state.servicePackageName?.length > 10
+                    ? `${location.state.servicePackageName.substring(0, 10)}...`
+                    : location.state.servicePackageName
+                  : location.state.servicePackageName?.length > 35
+                    ? `${location.state.servicePackageName.substring(0, 35)}...`
+                    : location.state.servicePackageName} */}
+              </h3>
+              <div
+                id="AddUpdateProposal"
+                className="steps "
+                style={{
+                  pointerEvents: "all",
+                  marginLeft: "18px",
+                }}
+              >
+                <ul className="steps-list">
+                  {/* <li>
+                    <div
+                      class={`${
+                        activeTab === ProposalHeader.BasicInformation
+                          ? "step"
+                          : "step disabled cursor-not-allowed"
+                      } w-90`}
+                    >
+                      <span class="stepCount">1</span>
+                      <span class="stepTitle">Basic Information</span>
+                    </div>
+                  </li> */}
+                  <li>
+                    <div
+                      id="PackageBasicInformation"
+                      onClick={() => HandleBack(1, "PackageBasicInformation")}
+                      class={`${activeTab === ProposalHeader.BasicInformation
+                        ? "step tab-field-center"
+                        : isValidForm.BasicForm === true
+                          ? "step tab-field-center"
+                          : "step disabled cursor-not-allowed tab-field-center"
+                        } w-90`}
+                    >
+                      <span class="stepCount">1</span>
+                      <span class="stepTitle">Basic Information</span>
+                      &nbsp;
+                      {activeTab == ProposalHeader.BasicInformation &&
+                        requireMessage && (
+                          <span className="validation">
+                            <InvalidFormIcon />
+                          </span>
+                        )}
+                    </div>
+                  </li>
+                  {ProposalObject.selectedProposalTypeValue === 1 && (
+                    <li>
+                      <div
+                        id="SelectedPackages1"
+                        onClick={() => HandleBack(5, "SelectedPackages1")}
+                        class={`${activeTab === ProposalHeader.SelectPackages
+                          ? "step tab-field-center"
+                          : isValidForm.SelectPackages === true
+                            ? "step tab-field-center"
+                            : "step disabled cursor-not-allowed tab-field-center"
+                          } w-90`}
+                      >
+                        <span class="stepCount">2</span>
+                        <span class="stepTitle">Select Packages</span>
+                        &nbsp;
+                        {activeTab == ProposalHeader.SelectPackages &&
+                          requireMessage && (
+                            <span className="validation">
+                              <InvalidFormIcon />
+                            </span>
+                          )}
+                      </div>
+                    </li>
+                  )}
+                  {ProposalObject.selectedProposalTypeValue === 1 && (
+                    // <li>
+                    //   <div
+                    //     className={`${
+                    //       activeTab === ProposalHeader.SelectServices
+                    //         ? "step"
+                    //         : "step disabled cursor-not-allowed"
+                    //     } w-90`}
+                    //   >
+                    //     <span className="stepCount">3</span>
+                    //     <span className="stepTitle">Select Service</span>
+                    //   </div>
+                    // </li>
+                    <li>
+                      <div
+                        id="PackageSelectService1"
+                        onClick={() => HandleBack(2, "PackageSelectService1")}
+                        class={`${activeTab === ProposalHeader.SelectServices
+                          ? "step tab-field-center"
+                          : isValidForm.SelectService === true
+                            ? "step tab-field-center"
+                            : "step disabled cursor-not-allowed tab-field-center"
+                          } w-90`}
+                      >
+                        <span class="stepCount">3</span>
+                        <span class="stepTitle ">
+                          Select Additional Services
+                        </span>
+                        &nbsp;
+                        {activeTab == ProposalHeader.SelectServices &&
+                          requireMessage && (
+                            <span className="validation">
+                              <InvalidFormIcon />
+                            </span>
+                          )}
+                      </div>
+                    </li>
+                  )}
+
+                  {ProposalObject.selectedProposalTypeValue === 2 && (
+                    <>
+                      {/* <li>
+                      <div
+                        className={`${
+                          activeTab === ProposalHeader.SelectPackages
+                            ? "step"
+                            : "step disabled cursor-not-allowed"
+                        } w-90`}
+                      >
+                        <span className="stepCount">2</span>
+                        <span className="stepTitle">Select Packages</span>
+                      </div>
+                    </li> */}
+                      <li>
+                        <div
+                          id="SelectedPackages2"
+                          onClick={() => HandleBack(5, "SelectedPackages2")}
+                          class={`${activeTab === ProposalHeader.SelectPackages
+                            ? "step tab-field-center"
+                            : isValidForm.SelectPackages === true
+                              ? "step tab-field-center"
+                              : "step disabled cursor-not-allowed tab-field-center"
+                            } w-90`}
+                        >
+                          <span class="stepCount">2</span>
+                          <span class="stepTitle">Select Packages</span>
+                          &nbsp;
+                          {activeTab == ProposalHeader.SelectPackages &&
+                            requireMessage && (
+                              <span className="validation">
+                                <InvalidFormIcon />
+                              </span>
+                            )}
+                        </div>
+                      </li>
+                    </>
+                  )}
+
+                  {(ProposalObject.selectedProposalTypeValue === 3 ||
+                    ProposalObject.selectedProposalTypeValue === null) && (
+                      <li>
+                        <div
+                          id="PackageSelectService3"
+                          onClick={() => HandleBack(2, "PackageSelectService3")}
+                          class={`${activeTab === ProposalHeader.SelectServices
+                            ? "step tab-field-center"
+                            : isValidForm.SelectService === true
+                              ? "step tab-field-center"
+                              : "step disabled cursor-not-allowed tab-field-center"
+                            } w-90`}
+                        >
+                          <span class="stepCount">2</span>
+                          <span class="stepTitle">Select Service</span>
+                          &nbsp;
+                          {activeTab == ProposalHeader.SelectServices &&
+                            requireMessage && (
+                              <span className="validation">
+                                <InvalidFormIcon />
+                              </span>
+                            )}
+                        </div>
+                      </li>
+                    )}
+
+                  {ProposalObject.selectedProposalTypeValue === 3 && (
+                    // <li style={{ display: TabHide ? "list-item" : "none" }}>
+                    //   <div
+                    //     // id="PackageAdditionalInfo"
+                    //     // onClick={() =>
+                    //     //   handleChangeTab(3, "PackageAdditionalInfo")
+                    //     // }
+                    //     className={`${
+                    //       activeTab === ProposalHeader.AdditionalInformation
+                    //         ? "step tab-field-center"
+                    //         : isValidForm.SelectService === true
+                    //         ? "step tab-field-center"
+                    //         : "step disabled cursor-not-allowed tab-field-center"
+                    //     } w-90`}
+                    //   >
+                    //     <span className="stepCount">3</span>
+                    //     <span className="stepTitle">
+                    //       Additional Information
+                    //     </span>
+                    //   </div>
+                    // </li>
+                    <li style={{ display: TabHide ? "list-item" : "none" }}>
+                      <div
+                        id="AdditionalInfo3"
+                        onClick={() => HandleBack(3, "AdditionalInfo3")}
+                        className={`${activeTab === ProposalHeader.AdditionalInformation
+                          ? "step tab-field-center"
+                          : isValidForm.AdditionalInfo === true
+                            ? "step tab-field-center"
+                            : "step disabled cursor-not-allowed tab-field-center"
+                          } w-90`}
+                      >
+                        <span class="stepCount">3</span>
+                        <span class="stepTitle"> Additional Information</span>
+                        &nbsp;
+                        {activeTab == ProposalHeader.AdditionalInformation &&
+                          requireMessage && (
+                            <span className="validation">
+                              <InvalidFormIcon />
+                            </span>
+                          )}
+                      </div>
+                    </li>
+                  )}
+
+                  {(ProposalObject.selectedProposalTypeValue === 3 ||
+                    ProposalObject.selectedProposalTypeValue === null) && (
+                      <li>
+                        <div
+                          id="ReviewService"
+                          onClick={() => HandleBack(6, "ReviewService")}
+                          class={`${activeTab === ProposalHeader.ReviewServices
+                            ? "step tab-field-center"
+                            : isValidForm.ReviewService === true
+                              ? "step tab-field-center"
+                              : "step disabled cursor-not-allowed tab-field-center"
+                            } w-90`}
+                        >
+                          <span class="stepCount">{TabHide ? 4 : 3}</span>
+                          <span class="stepTitle">Review Services</span>
+                          &nbsp;
+                          {activeTab == ProposalHeader.ReviewServices &&
+                            requireMessage && (
+                              <span className="validation">
+                                <InvalidFormIcon />
+                              </span>
+                            )}
+                        </div>
+                      </li>
+                    )}
+
+                  {ProposalObject.selectedProposalTypeValue === 2 && (
+                    <li>
+                      <div
+                        id="ReviewPackage"
+                        onClick={() => HandleBack(7, "ReviewPackage")}
+                        class={`${activeTab === ProposalHeader.ReviewPackages
+                          ? "step tab-field-center"
+                          : isValidForm.ReviewPackages === true
+                            ? "step tab-field-center"
+                            : "step disabled cursor-not-allowed tab-field-center"
+                          } w-90`}
+                      >
+                        <span class="stepCount">3</span>
+                        <span class="stepTitle">Review Packages</span>
+                        &nbsp;
+                        {activeTab == ProposalHeader.ReviewPackages &&
+                          requireMessage && (
+                            <span className="validation">
+                              <InvalidFormIcon />
+                            </span>
+                          )}
+                      </div>
+                    </li>
+                  )}
+                  {ProposalObject.selectedProposalTypeValue === 1 && (
+                    <li style={{ display: TabHide ? "list-item" : "none" }}>
+                      <div
+                        id="AdditionalInfo"
+                        onClick={() => HandleBack(3, "AdditionalInfo")}
+                        className={`${activeTab === ProposalHeader.AdditionalInformation
+                          ? "step tab-field-center"
+                          : isValidForm.AdditionalInfo === true
+                            ? "step tab-field-center"
+                            : "step disabled cursor-not-allowed tab-field-center"
+                          } w-90`}
+                      >
+                        <span class="stepCount">4</span>
+                        <span class="stepTitle"> Additional Information</span>
+                        &nbsp;
+                        {activeTab == ProposalHeader.AdditionalInformation &&
+                          requireMessage && (
+                            <span className="validation">
+                              <InvalidFormIcon />
+                            </span>
+                          )}
+                      </div>
+                    </li>
+                  )}
+                  {ProposalObject.selectedProposalTypeValue === 1 && (
+                    <li>
+                      <div
+                        id="ReviewPackage1"
+                        onClick={() => HandleBack(7, "ReviewPackage1")}
+                        class={`${activeTab === ProposalHeader.ReviewPackages
+                          ? "step tab-field-center"
+                          : isValidForm.ReviewPackages === true
+                            ? "step tab-field-center"
+                            : "step disabled cursor-not-allowed tab-field-center"
+                          } w-90`}
+                      >
+                        <span class="stepCount">{TabHide ? 5 : 4}</span>
+                        <span class="stepTitle">Review Packages</span>
+                        &nbsp;
+                        {activeTab == ProposalHeader.ReviewPackages &&
+                          requireMessage && (
+                            <span className="validation">
+                              <InvalidFormIcon />
+                            </span>
+                          )}
+                      </div>
+                    </li>
+                  )}
+                  {ProposalObject.selectedProposalTypeValue === 1 && (
+                    <li>
+                      <div
+                        id="Preview1"
+                        onClick={() => HandleBack(4, "Preview1")}
+                        class={`${activeTab === ProposalHeader.Preview
+                          ? "step tab-field-center"
+                          : isValidForm.Preview === true
+                            ? "step tab-field-center"
+                            : "step disabled cursor-not-allowed tab-field-center"
+                          } w-90`}
+                      >
+                        <span class="stepCount">{TabHide ? 6 : 5}</span>
+                        <span class="stepTitle">Preview</span>
+                        &nbsp;
+                        {activeTab == ProposalHeader.Preview &&
+                          requireMessage && (
+                            <span className="validation">
+                              <InvalidFormIcon />
+                            </span>
+                          )}
+                      </div>
+                    </li>
+                  )}
+                  {ProposalObject.selectedProposalTypeValue === 2 && (
+                    <li>
+                      <div
+                        id="Preview2"
+                        onClick={() => HandleBack(4, "Preview2")}
+                        class={`${activeTab === ProposalHeader.Preview
+                          ? "step tab-field-center"
+                          : isValidForm.Preview === true
+                            ? "step tab-field-center"
+                            : "step disabled cursor-not-allowed tab-field-center"
+                          } w-90`}
+                      >
+                        <span class="stepCount">4</span>
+                        <span class="stepTitle">Preview</span>
+                        &nbsp;
+                        {activeTab == ProposalHeader.Preview &&
+                          requireMessage && (
+                            <span className="validation">
+                              <InvalidFormIcon />
+                            </span>
+                          )}
+                      </div>
+                    </li>
+                  )}
+                  {ProposalObject.selectedProposalTypeValue === 3 && (
+                    <li>
+                      <div
+                        id="Preview3"
+                        onClick={() => HandleBack(4, "Preview3")}
+                        class={`${activeTab === ProposalHeader.Preview
+                          ? "step tab-field-center"
+                          : isValidForm.Preview === true
+                            ? "step tab-field-center"
+                            : "step disabled cursor-not-allowed tab-field-center"
+                          } w-90`}
+                      >
+                        <span class="stepCount">{TabHide ? 5 : 4}</span>
+                        <span class="stepTitle">Preview</span>
+                        &nbsp;
+                        {activeTab == ProposalHeader.Preview &&
+                          requireMessage && (
+                            <span className="validation">
+                              <InvalidFormIcon />
+                            </span>
+                          )}
+                      </div>
+                    </li>
+                  )}
+                </ul>
+              </div>
+              {activeTab === ProposalHeader.BasicInformation && (
+                <BasicInformationComponent
+                  selectedProposalValue={selectedProposalValue}
+                  setSelectedProposalValue={setSelectedProposalValue}
+                  QuoteTypeLookupList={QuoteTypeLookupList}
+                  setSelectedPackagesDetails={setSelectedPackagesDetails}
+                  proposalName={proposalName}
+                  setRecurringPricingInfo={setRecurringPricingInfo}
+                  setOneOffPricingInfo={setOneOffPricingInfo}
+                  setOneOffServiceList={setOneOffServiceList}
+                  RecurringPricingInfo={RecurringPricingInfo}
+                  OneOffPricingInfo={OneOffPricingInfo}
+                  DisableTabOnChange={DisableTabOnChange}
+                  ProposalType={ProposalType}
+                  prospectName={prospectName}
+                  setTabHide={setTabHide}
+                  handleSaveAsDraft={handleSaveAsDraft}
+                  handleCancelBtn={handleCancelBtn}
+                  ProposalObject={ProposalObject}
+                  setProposalObject={setProposalObject}
+                  clientLookUpOptions={clientLookUpOptions}
+                  templateLookUpOptions={templateLookUpOptions}
+                  proposalLookUpOptions={proposalLookUpOptions}
+                  setClientLookUpOptions={setClientLookUpOptions}
+                  setTemplateLookUpOptions={setTemplateLookUpOptions}
+                  setProposalLookUpOptions={setProposalLookUpOptions}
+                  requireMessage={requireMessage}
+                  HandleTabChange={HandleTabChange}
+                  setSelectedPackages={setSelectedPackages}
+                  GetProposalEngLetterTemplateLookUpList={
+                    GetProposalEngLetterTemplateLookUpList
+                  }
+                  modelAction={modelAction}
+                  templateObj={templateObj}
+                  setIsBack={setIsBack}
+                  setSelectedProposalValueForCheck={
+                    setSelectedProposalValueForCheck
+                  }
+                  setIsValidForm={setIsValidForm}
+                  isValidForm={isValidForm}
+                // ProposalTypeUpdate={ProposalTypeUpdate}
+                />
+              )}
+              {/* {activeTab === ProposalHeader.SelectServices && (       
+              
+
+              
+                // <SelectServices
+                //   // EngagementLetterAddUpdateBtnClicked={
+                //   //   EngagementLetterAddUpdateBtnClicked
+                //   // }
+
+                //   ongoingServiceObj={ongoingServiceObj}
+                //   setOngoingServiceObj={setOngoingServiceObj}
+                //   OneOffServiceObj={OneOffServiceObj}
+                //   setOneOffServiceObj={setOneOffServiceObj}
+                //   handleCancelBtn={handleCancelBtn}
+                //   handleSaveAsDraft={handleSaveAsDraft}
+                //   HandleTabChange={HandleTabChange}
+                //   serviceList={serviceList}
+                //   errorMessage={errorMessage}
+                //   requireServiceValidation={requireServiceValidation}
+                //   setRequireServiceValidation={setRequireServiceValidation}
+                // />
+                <SelectedProposalStandard 
+                 // EngagementLetterAddUpdateBtnClicked={
+                  //   EngagementLetterAddUpdateBtnClicked
+                  // }
+                  
+                  selectedProposalValue={selectedProposalValue}
+                  ongoingServiceObj={ongoingServiceObj}
+                  setOngoingServiceObj={setOngoingServiceObj}
+                  OneOffServiceObj={OneOffServiceObj}
+                  setOneOffServiceObj={setOneOffServiceObj}
+                  handleCancelBtn={handleCancelBtn}
+                  handleSaveAsDraft={handleSaveAsDraft}
+                  HandleTabChange={HandleTabChange}
+                  serviceList={serviceList}
+                  errorMessage={errorMessage}
+                  recurringServiceList={recurringServiceList}
+                  oneOffServiceList={oneOffServiceList}
+                  setOneOffPricingInfo ={setOneOffPricingInfo }
+                  RecurringPricingInfo={RecurringPricingInfo}
+                  OneOffPricingInfo={OneOffPricingInfo}
+                  setRecurringPricingInfo={setRecurringPricingInfo}
+                  setOneOffServiceList={setOneOffServiceList}
+                  setRecurringServiceList={setRecurringServiceList}
+                  requireServiceValidation={requireServiceValidation}
+                  setRequireServiceValidation={setRequireServiceValidation}/>
+                  
+                 
+              )} */}
+              {activeTab === ProposalHeader.SelectServices && (
+                <SelectServices
+                  selectedProposalValue={selectedProposalValue}
+                  ongoingServiceObj={ongoingServiceObj}
+                  setOngoingServiceObj={setOngoingServiceObj}
+                  OneOffServiceObj={OneOffServiceObj}
+                  hasHyphenAfterNumber={hasHyphenAfterNumber}
+                  setOneOffServiceObj={setOneOffServiceObj}
+                  handleCancel={handleCancelBtn}
+                  handleSaveAsDraft={handleSaveAsDraft}
+                  serviceList={serviceList}
+                  DisableTabOnChange={DisableTabOnChange}
+                  errorMessage={errorMessage}
+                  recurringServiceList={recurringServiceList}
+                  oneOffServiceList={oneOffServiceList}
+                  setOneOffPricingInfo={setOneOffPricingInfo}
+                  RecurringPricingInfo={RecurringPricingInfo}
+                  OneOffPricingInfo={OneOffPricingInfo}
+                  OneOffPricingInfoCopy={OneOffPricingInfoCopy}
+                  setRecurringPricingInfo={setRecurringPricingInfo}
+                  setOneOffServiceList={setOneOffServiceList}
+                  setRecurringServiceList={setRecurringServiceList}
+                  requireServiceValidation={requireServiceValidation}
+                  setRequireServiceValidation={setRequireServiceValidation}
+                  HandleTabChange={HandleTabChange}
+                  HandleBack={HandleBack}
+                  ProposalObject={ProposalObject}
+                  TabHide={TabHide}
+                  getCrudButtonTextName={getCrudButtonTextName}
+                  moduleName={"Quote"}
+                  requireMessage={requireMessage}
+                  proposalName={proposalName}
+                />
+              )}
+              {activeTab === ProposalHeader.SelectPackages && (
+                <SelectedProposalCustomize
+                  DisableTabOnChange={DisableTabOnChange}
+                  hasHyphenAfterNumber={hasHyphenAfterNumber}
+                  selectedProposalValue={selectedProposalValue}
+                  ongoingServiceObj={ongoingServiceObj}
+                  setOngoingServiceObj={setOngoingServiceObj}
+                  OneOffServiceObj={OneOffServiceObj}
+                  setOneOffServiceObj={setOneOffServiceObj}
+                  handleCancelBtn={handleCancelBtn}
+                  handleSaveAsDraft={handleSaveAsDraft}
+                  serviceList={serviceList}
+                  errorMessage={errorMessage}
+                  recurringServiceList={recurringServiceList}
+                  oneOffServiceList={oneOffServiceList}
+                  setOneOffPricingInfo={setOneOffPricingInfo}
+                  RecurringPricingInfo={RecurringPricingInfo}
+                  OneOffPricingInfo={OneOffPricingInfo}
+                  setRecurringPricingInfo={setRecurringPricingInfo}
+                  setOneOffServiceList={setOneOffServiceList}
+                  setRecurringServiceList={setRecurringServiceList}
+                  requireServiceValidation={requireServiceValidation}
+                  getServicePackageLookupList={getServicePackageLookupList}
+                  setRequireServiceValidation={setRequireServiceValidation}
+                  HandleTabChange={HandleTabChange}
+                  HandleBack={HandleBack}
+                  setActiveTab={setActiveTab}
+                  selectedPackages={selectedPackages}
+                  handlePackageCheckboxClick={handlePackageCheckboxClick}
+                  showValidationForMax={showValidationForMax}
+                  setShowValidationForMax={setShowValidationForMax}
+                  handleTabChange={handleTabChange}
+                  showValidationForMin={showValidationForMin}
+                  ProposalObject={ProposalObject}
+                  proposalName={proposalName}
+                />
+              )}
+
+              {/* {activeTab === ProposalHeader.SelectPackages && (
+                <SelectPackagesComponent
+                  handleSaveAsDraft={handleSaveAsDraft}
+                  handleCancelBtn={handleCancelBtn}
+                  HandleTabChange={HandleTabChange}
+                />
+              )} */}
+              {activeTab === ProposalHeader.AdditionalInformation && (
+                <AdditionalInformation
+                  DisableTabOnChange={DisableTabOnChange}
+                  HandleTabChange={HandleTabChange}
+                  HandleBack={HandleBack}
+                  requireMessage={requireMessage}
+                  additionalInformationList={additionalInformationList}
+                  setAdditionalInformationList={setAdditionalInformationList}
+                  recurringError={recurringError}
+                  hasHyphenAfterNumber={hasHyphenAfterNumber}
+                  handleCancel={handleCancelBtn}
+                  ProposalObject={ProposalObject}
+                  getCrudButtonTextName={getCrudButtonTextName}
+                  handleSaveAsDraft={handleSaveAsDraft}
+                  moduleName={"Quote"}
+                  proposalName={proposalName}
+                />
+              )}
+
+              {activeTab === ProposalHeader.ReviewServices && (
+                <ReviewServicesComponent
+                  DisableTabOnChange={DisableTabOnChange}
+                  handleSaveAsDraft={handleSaveAsDraft}
+                  handleCancelBtn={handleCancelBtn}
+                  HandleTabChange={HandleTabChange}
+                  TabHide={TabHide}
+                  setPricingSettingObj={setPricingSettingObj}
+                  pricingSettingObj={pricingSettingObj}
+                  hasHyphenAfterNumber={hasHyphenAfterNumber}
+                  disableCondition={disableCondition}
+                  common={common}
+                  requireMessage={requireMessage}
+                  proposalName={proposalName}
+                  selectedRecurringServiceList={selectedRecurringServiceList}
+                  selectedOneOffServiceList={selectedOneOffServiceList}
+                  GetTemplateModalData={GetTemplateModalData}
+                  ProposalObject={ProposalObject}
+                  setSelectedRecurringServiceList={
+                    setSelectedRecurringServiceList
+                  }
+                  GetTwoDecimalValueWithoutRoundOff={
+                    GetTwoDecimalValueWithoutRoundOff
+                  }
+                  setDisableCondition={setDisableCondition}
+                  setRecurringServiceCopy={setRecurringServiceCopy}
+                  RecurringServiceCopy={RecurringServiceCopy}
+                  setProposalObject={setProposalObject}
+                  RecurringPricingInfo={RecurringPricingInfo}
+                  OneOffPricingInfo={OneOffPricingInfo}
+                  OneOffPricingInfoCopy={OneOffPricingInfoCopy}
+                  vatPercentage={vatPercentage}
+                  setRecurringPricingInfo={setRecurringPricingInfo}
+                  setOneOffPricingInfo={setOneOffPricingInfo}
+                  setOneOffPricingInfoCopy={setOneOffPricingInfoCopy}
+                  HandleBack={HandleBack}
+                  setRecurringFrequencyPricingInfo={
+                    setRecurringFrequencyPricingInfo
+                  }
+                  RecurringFrequencyPricingInfo={RecurringFrequencyPricingInfo}
+                  formatValue={formatValue}
+                />
+              )}
+              {activeTab === ProposalHeader.ReviewPackages && (
+                <ReviewPackagesComponent
+                  setIsAddUpdatePricingActionDone={setIsAddUpdatePricingActionDone}
+                  isAddUpdatePricingActionDone={isAddUpdatePricingActionDone}
+                  DisableTabOnChange={DisableTabOnChange}
+                  handleSaveAsDraft={handleSaveAsDraft}
+                  getValidationMessage={getValidationMessage}
+                  GetSingleDefaultDiscountPercentageOfPackages={
+                    GetSingleDefaultDiscountPercentageOfPackages
+                  }
+                  ServiceMappingWithPackagesList={ServiceMappingWithPackagesList}
+                  setServiceMappingWithPackagesList={setServiceMappingWithPackagesList}
+                  ServiceMappingWithPackagesListCopy={ServiceMappingWithPackagesListCopy}
+                  setServiceMappingWithPackagesListCopy={setServiceMappingWithPackagesListCopy}
+                  hasHyphenAfterNumber={hasHyphenAfterNumber}
+                  setDisableCondition={setDisableCondition}
+                  GetTwoDecimalValueWithoutRoundOff={
+                    GetTwoDecimalValueWithoutRoundOff
+                  }
+                  disableCondition={disableCondition}
+                  handleCancelBtn={handleCancelBtn}
+                  HandleTabChange={HandleTabChange}
+                  setQuotationAdditionalServices={
+                    setQuotationAdditionalServices
+                  }
+                  ProposalObject={ProposalObject}
+                  setProposalObject={setProposalObject}
+                  setOneOffPricingInfoCopy={setOneOffPricingInfoCopy}
+                  TabHide={TabHide}
+                  common={common}
+                  setIsAdditionalServiceCheck={setIsAdditionalServiceCheck}
+                  isAdditionalServiceCheck={isAdditionalServiceCheck}
+                  requireMessage={requireMessage}
+                  pricingSettingObj={pricingSettingObj}
+                  setPricingSettingObj={setPricingSettingObj}
+                  proposalName={proposalName}
+                  RecurringPackagesTable={RecurringPackagesTable}
+                  setRecurringPackagesTable={setRecurringPackagesTable}
+                  OneOffPackagesTable={OneOffPackagesTable}
+                  setOneOffPackagesTable={setOneOffPackagesTable}
+                  vatPercentage={vatPercentage}
+                  setVATPercentage={setVATPercentage}
+                  selectedRecurringServiceList={selectedRecurringServiceList}
+                  setSelectedRecurringServiceList={
+                    setSelectedRecurringServiceList
+                  }
+                  selectedPackagesDetails={selectedPackagesDetails}
+                  setSelectedPackagesDetails={setSelectedPackagesDetails}
+                  formatValue={formatValue}
+                  setRecurringServiceCopy={setRecurringServiceCopy}
+                  RecurringServiceCopy={RecurringServiceCopy}
+                  setSelectedOneOffServiceList={setSelectedOneOffServiceList}
+                  selectedOneOffServiceList={selectedOneOffServiceList}
+                  GetTemplateModalData={GetTemplateModalData}
+                  selectedPackages={selectedPackages}
+                  RecurringPricingInfo={RecurringPricingInfo}
+                  setRecurringPricingInfo={setRecurringPricingInfo}
+                  OneOffPricingInfo={OneOffPricingInfo}
+                  OneOffPricingInfoCopy={OneOffPricingInfoCopy}
+                  setOneOffPricingInfo={setOneOffPricingInfo}
+                  HandleBack={HandleBack}
+                  selectedPackagesList={selectedPackagesList}
+                  setRecurringFrequencyPricingInfo={
+                    setRecurringFrequencyPricingInfo
+                  }
+                  RecurringFrequencyPricingInfo={RecurringFrequencyPricingInfo}
+                  lastPaymentFrequencyAndDiscountedPriceForPreview={
+                    lastPaymentFrequencyAndDiscountedPriceForPreview
+                  }
+                  setLastPaymentFrequencyAndDiscountedPriceForPreview={
+                    setLastPaymentFrequencyAndDiscountedPriceForPreview
+                  }
+                  setLastPaymentFrequencyAndDiscountedPriceForPreviewForoneoff={
+                    setLastPaymentFrequencyAndDiscountedPriceForPreviewForOneOff
+                  }
+                  lastPaymentFrequencyAndDiscountedPriceForPreviewForoneoff={
+                    lastPaymentFrequencyAndDiscountedPriceForPreviewForOneOff
+                  }
+                />
+              )}
+              {activeTab === ProposalHeader.Preview && (
+                <PreviewComponentPdf
+                  DocumentCode={DocumentCode}
+                  setIsAddUpdatePricingActionDone={setIsAddUpdatePricingActionDone}
+                  isAddUpdatePricingActionDone={isAddUpdatePricingActionDone}
+                  paymentGatewayObj={paymentGatewayObj}
+                  BrandColor={BrandColor}
+                  Logo={CompanyLogo}
+                  fontFamily={fontFamily}
+                  fontSize={fontSize}
+                  StatementOfFact={StatementOfFact}
+                  DisableTabOnChange={DisableTabOnChange}
+                  handleSaveAsDraft={handleSaveAsDraft}
+                  HandleTabChange={HandleTabChange}
+                  handleCancelBtn={handleCancelBtn}
+                  DiscountLines={ProposalObject.DiscountLines}
+                  handleSkipEngagementLetter={handleSkipEngagementLetter}
+                  RecurringPackagesTable={RecurringPackagesTable}
+                  setRecurringPackagesTable={setRecurringPackagesTable}
+                  OneOffPackagesTable={OneOffPackagesTable}
+                  selectedPackagesList={selectedPackagesList}
+                  setOneOffPackagesTable={setOneOffPackagesTable}
+                  ProposalObject={ProposalObject}
+                  MergePdfUrl={MergePdfUrl}
+                  additionalInformationList={additionalInformationList}
+                  setMergePdfUrl={setMergePdfUrl}
+                  vatPercentage={vatPercentage}
+                  feeTypeId={ProposalObject.feeTypeId}
+                  selectedRecurringServiceList={selectedRecurringServiceList}
+                  selectedOneOffServiceList={selectedOneOffServiceList}
+                  templateElementList={templateElementList}
+                  organisationData={organisationData}
+                  moduleName={"Quote"}
+                  RecurringPricingInfo={RecurringPricingInfo}
+                  OneOffPricingInfo={OneOffPricingInfo}
+                  selectedPackages={selectedPackagesDetails}
+                  setProposalObject={setProposalObject}
+                  requireMessage={requireMessage}
+                  setRequireMessage={setRequireMessage}
+                  lastPaymentFrequencyAndDiscountedPriceForPreview={
+                    lastPaymentFrequencyAndDiscountedPriceForPreview
+                  }
+                  formatValue={formatValue}
+                  formatValueWithoutCurrencySymbol={formatValueWithoutCurrencySymbol}
+                  setLastPaymentFrequencyAndDiscountedPriceForPreview={
+                    setLastPaymentFrequencyAndDiscountedPriceForPreview
+                  }
+                  setLastPaymentFrequencyAndDiscountedPriceForPreviewForoneoff={
+                    setLastPaymentFrequencyAndDiscountedPriceForPreviewForOneOff
+                  }
+                  lastPaymentFrequencyAndDiscountedPriceForPreviewForoneoff={
+                    lastPaymentFrequencyAndDiscountedPriceForPreviewForOneOff
+                  }
+                  proposalName={proposalName}
+                />
+              )}
+            </div>
+          </div>
+        </div>
+        <ViewPlan
+          showModal={showModal}
+          handleCloseModel={handleCloseModel}
+          setShowModal={setShowModal}
+          activeOrganizationKeyId={common.organisationKeyID}
+        />
+        <ErrorModel
+          ErrorModel={openErrorModal}
+          handleClose={handleCloseErrorModel}
+          ErrorMessage={errorMessage}
+        />
+        <RecordsAvailablePopupModel
+          handleClose={handleClose}
+          openErrorModal={openErrorModal}
+          openSuccessModal={openSuccessModal}
+          modelRequestData={modelRequestData}
+        />
+        <SuccessModal
+          handleClose={handleClose}
+          setOpenSuccessModal={setOpenSuccessModal}
+          openSuccessModal={openSuccessModal}
+          modelAction={ProposalObject.Action}
+          message={proposalName}
+          refIdStore={refIdStore}
+        />
+      </div>
+    </div>
+  );
+};
+
+export default Add_Update_Proposal;

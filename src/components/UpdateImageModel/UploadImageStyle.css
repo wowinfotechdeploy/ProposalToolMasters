@@ -1,0 +1,74 @@
+.modal-dialog {
+  border-radius: 8px;
+}
+
+.text-center-1 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.remove-upload-image-preview {
+  position: absolute;
+  top: -20px;
+  right: -10px;
+  font-size: 28px;
+  cursor: pointer;
+  color: darkred;
+}
+.upload-image-preview-div {
+  width: 100%;
+  position: relative;
+}
+.upload-image-preview-div img {
+  width: 100%;
+}
+
+.Upload-signature {
+  display: flex;
+  flex-direction: column;
+  border: 1px dashed #b5b5b5ed;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+}
+.cloud {
+  font-size: 4rem;
+  color: #b5b5b5ed;
+}
+.img-display {
+  display: none;
+}
+.css-i4bv87-MuiSvgIcon-root {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  width: 20px;
+  height: 1em;
+  display: inline-block;
+  fill: currentColor;
+  -webkit-flex-shrink: 0;
+  -ms-flex-negative: 0;
+  flex-shrink: 0;
+  -webkit-transition: fill 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+  transition: fill 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+  font-size: 1.5rem;
+}
+.helpMessage {
+  font-size: 12px;
+}
+
+@media (min-width: 360px) and (max-width: 740px) {
+  .Responsive-Config-service-package {
+    background-color: inherit !important;
+  }
+
+  .NoWrap-Responsive {
+    white-space: nowrap;
+  }
+}
+
+.FontW {
+  font-weight: 600;
+  /* color: red; */
+}

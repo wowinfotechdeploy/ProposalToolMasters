@@ -1,0 +1,33 @@
+.xcard {
+  box-shadow: 2px 2px 5px rgb(247, 240, 240);
+  border-radius: 30px;
+  background: #f5f0f0;
+}
+.xcard-body {
+  /* height: 400px; */
+  background: #fffdfd;
+  /* overflow: auto; */
+}
+.logo_security {
+  width: 100px;
+  margin: 20px auto;
+}
+.description {
+  font-size: 16px;
+  color: #eee8e8;
+  line-height: 1.5;
+}
+.form-check-input:checked {
+  background-color: #00afef !important;
+  border-color: #00afef !important;
+}
+.twoFactorVerificationContainer {
+  background-color: #fff;
+  border-radius: 5px;
+  /* box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); */
+  text-align: center;
+}
+.centerDiv {
+  display: flex;
+  justify-content: center;
+}

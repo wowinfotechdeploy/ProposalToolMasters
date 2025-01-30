@@ -1,0 +1,13 @@
+/* heading */
+.element-block .element {
+  padding: 10px;
+  border: 1px solid transparent;
+  border-radius: 2px;
+  background-color: #fff;
+  text-align: left;
+  cursor: default;
+}
+/* Text block */
+.separator {
+  border-bottom: 1px solid #ebebeb;
+}

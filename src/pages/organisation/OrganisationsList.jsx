@@ -1,0 +1,719 @@
+/* global $ */
+import React, { useContext, useEffect, useState } from "react";
+import "./Organisation.css";
+import PaginationComponent from "../../components/PaginationModel";
+import Footer from "../../components/Footer";
+import { useNavigate } from "react-router-dom";
+import Android12Switch from "../../components/AndroidSwitch";
+import FormGroup from "@mui/material/FormGroup";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Tooltip, { tooltipClasses } from "@mui/material/Tooltip";
+import { AuthContextProvider } from "../../AuthContext/AuthContext";
+import NoResultFoundModel from "../../components/NoResultFoundModel";
+import RecordsAvailablePopupModel from "../../components/RecordsAvailablePopupModel";
+import { useLocation } from "react-router-dom";
+import {
+  DeleteOrganisation,
+  GetOrganisationList,
+  OrganisationChangeStatus,
+} from "../../redux/Services/Setting/Organisation";
+import { useSelector } from "react-redux";
+import ConfirmModel from "../../components/ConfirmationBox";
+import ErrorModel from "../../components/ErrorModel";
+import SuccessModal from "../../components/SuccessModal";
+import { ChoosePlanApi } from "../../redux/Services/Setting/PaymentGatewayApi";
+const Organisation = () => {
+  let getOrganisationListCallCount = 0;
+  const moduleName = "Organisation/Practice";
+  const [searchKeywordUsers, setSearchKeywordUsers] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const location = useLocation();
+  const [openErrorModal, setOpenErrorModal] = React.useState(false);
+  const [openSuccessModal, setOpenSuccessModal] = React.useState(false);
+  const [title, setTitle] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [primarySortDirectionUsers, setPrimarySortDirectionUsers] =
+    useState(null); //setPrimarySortDirectionUsers
+  const [selectedOrganizationKeyId, setSelectedOrganizationKeyId] =
+    useState(null);
+  const [primaryUserSortDirectionObj, setPrimaryUserSortDirectionObj] =
+    useState({
+      UserNameTypeSort: null,
+      RoleTypeSort: null,
+      AcceptanceStatusTypeSort: null,
+      EmailTypeSort: null,
+    });
+  const [searchKeyword, setSearchKeyword] = useState("");
+  const [organisationList, setOrganisationList] = useState([]);
+
+  const [chooseApiData, setChooseApiData] = useState([]);
+  const navigate = useNavigate();
+  const common = useSelector((state) => state.Storage);
+  const [modelRequestData, setModelRequestData] = useState({
+    OrgKeyID: null,
+    status: null,
+    Action: "",
+    OrgName: null,
+    userKeyID: null,
+  });
+  const {
+    prospectName,
+    setLoader,
+    setTopbar,
+    maxCountToRecallApi,
+    totalPage,
+    isMobile,
+    setListCount,
+    listCount,
+    desktopRecords,
+    isMobileRecords,
+    getCrudButtonTextName,
+    getPlaceholderTextName,
+    getCrudButtonToolTipName,
+    userAccessData,
+    handleErrorMessage,
+  } = useContext(AuthContextProvider);
+  const pageSize = isMobile ? isMobileRecords : desktopRecords;
+  const formattedErrorMessage = handleErrorMessage(errorMessage);
+  const [totalRecords, setTotalRecords] = useState(-1);
+
+  //initial effect
+  useEffect(() => {
+    setTopbar("block");
+    GetOrganisationListData(1);
+  }, []);
+
+  useEffect(() => {
+    if (modelRequestData.Action == "View") {
+      navigate("/view-organisations-details", { state: modelRequestData });
+    }
+  }, [modelRequestData]);
+  useEffect(() => {
+    // Check if the location state is "Templates PDF"
+    if (location.state === "ChoosePlane") {
+      GetOrganisationListData(1, null, null);
+    }
+  }, [location.state]);
+  //Organisation Crud is here
+  const GetOrganisationListData = async (i, searchKeywordValue, sortValue, UserSort) => {
+    setLoader(true);
+    const pageNoList = i - 1;
+    try {
+      const data = await GetOrganisationList({
+        pageSize: pageSize,
+        pageNo: pageNoList,
+        userKeyID: common.userKeyID,
+        searchKeyword:
+          searchKeywordValue === undefined ? searchKeyword : searchKeywordValue,
+        primarySortDirection:
+          sortValue === undefined ? primarySortDirectionUsers : sortValue,
+        PrimarySortColumnName:
+          UserSort === undefined ||
+            UserSort === null ||
+            UserSort === ""
+            ? null
+            : UserSort,
+      });
+
+      if (data) {
+        if (data?.data?.statusCode === 200) {
+          setLoader(false);
+          getOrganisationListCallCount = 0;
+          if (data?.data?.responseData?.data) {
+            const orgList = data?.data?.responseData?.data;
+            const totalCount = data.data.totalCount;
+            if (pageNoList > 0 && orgList.length === 0) {
+              let newPaneNo = Number(pageNoList);
+              if (newPaneNo > 1) {
+                newPaneNo = newPaneNo - 1;
+              }
+              GetOrganisationListData(newPaneNo, searchKeywordValue, sortValue);
+              setCurrentPage(pageNoList);
+              return;
+            }
+            setListCount(totalCount);
+            setOrganisationList(orgList);
+            setTotalRecords(orgList.length);
+          }
+        } else {
+          if (getOrganisationListCallCount < maxCountToRecallApi) {
+            getOrganisationListCallCount += 1;
+            setTimeout(function () {
+              GetOrganisationListData(i, searchKeywordValue, sortValue);
+            }, 2000);
+          } else {
+            setLoader(false);
+          }
+
+          setErrorMessage(data?.data?.errorMessage);
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  // const handlePurchaseModalClose = () => {
+  //   setOpenPurchaseModal(false)
+  // };
+  const showPurchaseModal = async (Org) => {
+    await ChoosePlanApiModelData();
+    navigate("/ChoosePlan", {
+      state: { organizationKeyId: Org.organisationKeyID },
+    });
+    // setSelectedOrganizationKeyId(Org.organisationKeyID)
+    // setOpenPurchaseModal(true)
+  };
+  const ChoosePlanApiModelData = async () => {
+    try {
+      const data = await ChoosePlanApi();
+      if (data?.data?.statusCode === 200) {
+        if (data?.data?.responseData?.data) {
+          const ModelData = data?.data?.responseData?.data;
+          setChooseApiData(ModelData);
+        }
+      } else {
+        setErrorMessage(data?.data?.errorMessage);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  // 2) On Click Organisation Status Button
+  const OrganisationDeleteData = async () => {
+    setLoader(true);
+    if (modelRequestData.Action === "Delete") {
+      try {
+        const Data = await DeleteOrganisation(
+          modelRequestData.OrgKeyID,
+          modelRequestData.userKeyID
+        );
+        if (Data) {
+          setLoader(false);
+          if (Data?.data?.statusCode === 200) {
+            if (
+              Data?.data?.responseData.organisationExistsInUser.length !== 0
+            ) {
+              const servicePackageNames =
+                Data?.data?.responseData.organisationExistsInUser.map(
+                  (item) => item.email
+                );
+              setModelRequestData({
+                ...modelRequestData,
+                Action: "OrganisationWarning",
+                message: `This Organisation is assigned to below users. You must remove the Organisations from these before you InActive it.`,
+                ServiceName: servicePackageNames,
+              });
+              $("#" + "ConfirmModel").modal("hide");
+              $("#" + "RecordsAvailablePopupModel").modal("show");
+              GetOrganisationListData(currentPage);
+            } else {
+              GetOrganisationListData(currentPage);
+
+              setOpenSuccessModal(true);
+            }
+          } else {
+            setErrorMessage(Data?.response?.data?.errorMessage);
+            setOpenErrorModal(true);
+          }
+          GetOrganisationListData(currentPage);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    } else if (modelRequestData.Action === "Status") {
+      try {
+        const Data = await OrganisationChangeStatus(
+          modelRequestData.OrgKeyID,
+          modelRequestData.userKeyID
+        );
+        if (Data) {
+          setLoader(false);
+          if (Data?.data?.statusCode === 200) {
+            setOpenSuccessModal(true);
+          } else {
+            setErrorMessage(Data?.response?.data?.errors?.OrgKeyID[0]);
+            setOpenErrorModal(true);
+          }
+        }
+        GetOrganisationListData(currentPage);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
+
+  const handleViewOrganisation = (org) => {
+    setModelRequestData({
+      ...modelRequestData,
+      OrgKeyID: org.organisationKeyID, // Change OrgKeyID to OrgKeyID
+      Action: "View",
+    });
+  };
+
+  const handleClose = () => {
+    setModelRequestData({
+      ...modelRequestData,
+      OrgKeyID: null,
+      Action: "",
+      OrgName: null,
+    });
+    $("#" + "ConfirmModel").modal("hide");
+    setOpenSuccessModal(false);
+    setOpenErrorModal(false);
+  };
+
+  const handleSearch = (e) => {
+    const searchKeywordValue = e.target.value;
+    setSearchKeyword(searchKeywordValue);
+    setCurrentPage(1);
+    GetOrganisationListData(1, searchKeywordValue);
+  };
+
+  const handlePageChange = async (pageNumber) => {
+    setCurrentPage(pageNumber);
+    await GetOrganisationListData(pageNumber); // Call your function with the selected page number
+  };
+
+  const handleUserSort = (sortValue, UserSort) => {
+    if (UserSort === "TradingBusinessName") {
+      setPrimarySortDirectionUsers(sortValue);
+      setPrimaryUserSortDirectionObj({
+        ...primaryUserSortDirectionObj,
+        UserNameTypeSort: sortValue,
+      });
+      setCurrentPage(1);
+      GetOrganisationListData(1, searchKeywordUsers, sortValue, UserSort);
+    } else if (UserSort === "UserFullName") {
+      setPrimarySortDirectionUsers(sortValue);
+      setPrimaryUserSortDirectionObj({
+        ...primaryUserSortDirectionObj,
+        RoleTypeSort: sortValue,
+      });
+      setCurrentPage(1);
+      GetOrganisationListData(1, searchKeywordUsers, sortValue, UserSort);
+    }
+  };
+  return (
+    <div>
+      <div class="main-content">
+        <div class="services page-background">
+          <div class="page-info-header page-info-strip">
+            <div class="container">
+              <div className="row">
+                <div className="col-md-6 col-6">
+                  <div class="page-title-cls">Organisation/Practice</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="container">
+            <div class="row">
+              <div class="col-lg-12">
+                <div class="card">
+                  {/* end card header  */}
+                  <div class="card-body">
+                    <div id="customerList">
+                      <div class="row g-4 mb-3"></div>
+
+                      <div class="table-responsive table-card  mb-3 table-padding">
+                        <div className="search-box col-md-3 col-6 width-searchbox mb-2">
+                          <div>
+                            <div>
+                              <i class="ri-search-line search-icon"></i>
+                              <input
+                                type="text"
+                                class="form-control search"
+                                value={searchKeyword}
+                                onChange={(e) => {
+                                  handleSearch(e);
+                                }}
+                                placeholder={
+                                  isMobile
+                                    ? "Search"
+                                    : getPlaceholderTextName(
+                                      "Search",
+                                      moduleName
+                                    )
+                                }
+                              />
+                            </div>
+                          </div>
+                        </div>
+                        <table
+                          class="table align-middle table-nowrap"
+                          id="customerTable"
+                        >
+                          <thead class="table-light">
+                            <tr className="head-row">
+                              <td
+                                className="tr-table-class text-white"
+                                style={{ width: "30%" }}
+                              >
+                                Organisation/Practice Name{" "}
+                                {primaryUserSortDirectionObj.UserNameTypeSort ===
+                                  "desc" && (
+                                    <i
+                                      onClick={() => {
+                                        handleUserSort(
+                                          "asc",
+                                          "TradingBusinessName"
+                                        );
+                                      }}
+                                      style={{ cursor: "pointer" }}
+                                      class="fas fa-sort-alpha-up ml-1"
+                                    ></i>
+                                  )}
+                                {(primaryUserSortDirectionObj.UserNameTypeSort ===
+                                  null ||
+                                  primaryUserSortDirectionObj.UserNameTypeSort ===
+                                  "asc") && (
+                                    <i
+                                      onClick={() => {
+                                        handleUserSort(
+                                          primaryUserSortDirectionObj.UserNameTypeSort ===
+                                            null
+                                            ? "asc"
+                                            : "desc",
+                                          "TradingBusinessName"
+                                        );
+                                      }}
+                                      style={{ cursor: "pointer" }}
+                                      class="fas fa-sort-alpha-down ml-1"
+                                    ></i>
+                                  )}
+                              </td>
+                              <td
+                                className="tr-table-class text-white"
+                                style={{ width: "20%" }}
+                              >
+                                Created By{" "}
+                                {primaryUserSortDirectionObj.RoleTypeSort ===
+                                  "desc" && (
+                                    <i
+                                      onClick={() => {
+                                        handleUserSort("asc", "UserFullName");
+                                      }}
+                                      style={{ cursor: "pointer" }}
+                                      class="fas fa-sort-alpha-up ml-1"
+                                    ></i>
+                                  )}
+                                {(primaryUserSortDirectionObj.RoleTypeSort ===
+                                  null ||
+                                  primaryUserSortDirectionObj.RoleTypeSort ===
+                                  "asc") && (
+                                    <i
+                                      onClick={() => {
+                                        handleUserSort(
+                                          primaryUserSortDirectionObj.RoleTypeSort ===
+                                            null
+                                            ? "asc"
+                                            : "desc",
+                                          "UserFullName"
+                                        );
+                                      }}
+                                      style={{ cursor: "pointer" }}
+                                      class="fas fa-sort-alpha-down ml-1"
+                                    ></i>
+                                  )}
+                              </td>
+                              <td className="tr-table-class text-white">
+                                Number Of User
+                              </td>
+
+                              <td className="tr-table-class text-white">
+                                Current Plan
+                              </td>
+                              <td className="tr-table-class text-white">
+                                Status
+                              </td>
+                              <td
+                                className="tr-table-class text-white text-center"
+                                style={{
+                                  width: "10%",
+                                }}
+                              >
+                                Action
+                              </td>
+                            </tr>
+                          </thead>
+                          <tbody class="list form-check-all">
+                            {organisationList
+                              .slice(
+                                0,
+                                isMobile ? isMobileRecords : desktopRecords
+                              )
+                              .map((Org) => {
+                                return (
+                                  <>
+                                    <tr class="table_new">
+                                      <td className="table-content-font">
+                                        {isMobile ? (
+                                          <>
+                                            {Org.tradingBusinessName.length > 20
+                                              ? Org.tradingBusinessName
+                                                .substring(0, 20)
+                                                .toLowerCase()
+                                                .replace(/\b\w/g, (l) =>
+                                                  l.toUpperCase()
+                                                ) + "..."
+                                              : Org.tradingBusinessName
+                                                .substring(0, 20)
+                                                .toLowerCase()
+                                                .replace(/\b\w/g, (l) =>
+                                                  l.toUpperCase()
+                                                )}
+                                          </>
+                                        ) : (
+                                          <>
+                                            {Org.tradingBusinessName.length >
+                                              50 ? (
+                                              <Tooltip
+                                                title={Org.tradingBusinessName}
+                                              >
+                                                {Org.tradingBusinessName
+                                                  .substring(0, 50)
+                                                  .toLowerCase()
+                                                  .replace(/\b\w/g, (l) =>
+                                                    l.toUpperCase()
+                                                  ) + "..."}
+                                              </Tooltip>
+                                            ) : (
+                                              <>
+                                                {Org.tradingBusinessName
+                                                  .toLowerCase()
+                                                  .replace(/\b\w/g, (l) =>
+                                                    l.toUpperCase()
+                                                  )}
+                                              </>
+                                            )}
+                                          </>
+                                        )}
+                                      </td>
+                                      <td className="table-content-font ">
+                                        {Org.fullName}{" "}
+                                      </td>
+                                      <td className="table-content-font text-center">
+                                        <span>{Org.numberOfUsers}</span>
+                                      </td>
+                                      <td className="table-content-font">
+                                        {Org.currentPlan ? (
+                                          <span>{Org.currentPlan}</span>
+                                        ) : (
+                                          <span
+                                            style={{
+                                              textDecoration: "none",
+                                              color: "purple",
+                                              cursor: "pointer",
+                                            }}
+                                            onMouseOver={(e) =>
+                                            (e.target.style.textDecoration =
+                                              "underline")
+                                            }
+                                            onMouseOut={(e) =>
+                                            (e.target.style.textDecoration =
+                                              "none")
+                                            }
+                                            onClick={() => {
+                                              showPurchaseModal(Org);
+                                            }}
+                                          >
+                                            Buy Plan
+                                          </span>
+                                        )}
+                                      </td>
+
+                                      <td className="Switch table-content-font">
+                                        <div
+                                          style={{
+                                            alignItems: "none",
+                                            marginLeft:
+                                              userAccessData.Organisation_CanEdit
+                                                ? ""
+                                                : "10px",
+                                          }}
+                                          class="d-flex gap-2 "
+                                        >
+                                          <div style={{ width: "50px" }}>
+                                            {" "}
+                                            {Org.statusName}
+                                          </div>
+                                          {userAccessData.Organisation_CanDelete && (
+                                            <Tooltip
+                                              title={getCrudButtonToolTipName(
+                                                "Change Status"
+                                              )}
+                                            >
+                                              <FormGroup>
+                                                <FormControlLabel
+                                                  control={
+                                                    <Android12Switch
+                                                      onClick={() =>
+                                                        setModelRequestData({
+                                                          ...modelRequestData,
+                                                          status:
+                                                            Org.statusName,
+                                                          OrgKeyID:
+                                                            Org.organisationKeyID,
+                                                          OrgName:
+                                                            Org.tradingBusinessName,
+                                                          userKeyID:
+                                                            common.userKeyID,
+                                                          Action: "Status",
+                                                        })
+                                                      }
+                                                      checked={
+                                                        Org.statusName ===
+                                                        "Active"
+                                                      }
+                                                      data-bs-toggle="modal"
+                                                      data-bs-target="#ConfirmModel"
+                                                    />
+                                                  }
+                                                />
+                                              </FormGroup>
+                                            </Tooltip>
+                                          )}
+                                        </div>
+                                      </td>
+                                      <td className="table-content-font">
+                                        <div
+                                          class="d-flex gap-2"
+                                          style={{ float: "right" }}
+                                        >
+                                          {userAccessData.Organisation_CanView && (
+                                            <Tooltip
+                                              title={getCrudButtonToolTipName(
+                                                "View",
+                                                moduleName
+                                              )}
+                                            >
+                                              <div class="view">
+                                                <button
+                                                  class="btn btn-md btn-success create-item-btn view"
+                                                  onClick={() =>
+                                                    handleViewOrganisation(Org)
+                                                  }
+                                                >
+                                                  {/* <i class="ri-pencil-fill"></i> */}
+                                                  <span
+                                                    style={{
+                                                      marginRight: "4px",
+                                                    }}
+                                                  >
+                                                    View
+                                                  </span>
+                                                  <i class="bi bi-eye"></i>
+                                                </button>
+                                              </div>
+                                            </Tooltip>
+                                          )}
+                                          {userAccessData.Organisation_CanDelete && (
+                                            <Tooltip
+                                              title={getCrudButtonToolTipName(
+                                                "Delete",
+                                                moduleName
+                                              )}
+                                            >
+                                              <div class="remove">
+                                                <button
+                                                  class="btn btn-sm btn-danger remove-item-btn actionButtonsStyle"
+                                                  data-bs-toggle="modal"
+                                                  data-bs-target="#ConfirmModel"
+                                                  onClick={() =>
+                                                    setModelRequestData({
+                                                      ...modelRequestData,
+                                                      status: Org.statusName,
+                                                      OrgKeyID:
+                                                        Org.organisationKeyID,
+                                                      OrgName:
+                                                        Org.tradingBusinessName,
+                                                      userKeyID:
+                                                        common.userKeyID,
+                                                      Action: "Delete",
+                                                    })
+                                                  }
+                                                >
+                                                  <i class="ri-delete-bin-5-fill"></i>
+                                                </button>
+                                              </div>
+                                            </Tooltip>
+                                          )}
+                                        </div>
+                                      </td>
+                                    </tr>
+                                  </>
+                                );
+                              })}
+                          </tbody>
+                        </table>
+
+                        {totalRecords <= 0 && (
+                          <NoResultFoundModel
+                            name={moduleName}
+                            totalRecords={totalRecords}
+                          />
+                        )}
+                      </div>
+                    </div>
+
+                    {/* end card  */}
+                  </div>
+                  {listCount > pageSize && (
+                    <PaginationComponent
+                      totalCount={listCount}
+                      totalPages={totalPage}
+                      currentPage={currentPage}
+                      onPageChange={handlePageChange}
+                    />
+                  )}
+                </div>
+                {/* end col */}
+              </div>
+              {/* end col  */}
+            </div>
+            {/* end row */}
+            <ConfirmModel
+              openErrorModal={openErrorModal}
+              openSuccessModal={openSuccessModal}
+              modelRequestData={modelRequestData}
+              UpdatedStatus={OrganisationDeleteData}
+              handleClose={handleClose}
+            />
+
+            <ErrorModel
+              ErrorModel={openErrorModal}
+              handleClose={handleClose}
+              ErrorMessage={formattedErrorMessage}
+            />
+
+            <SuccessModal
+              handleClose={handleClose}
+              setOpenSuccessModal={setOpenSuccessModal}
+              openSuccessModal={openSuccessModal}
+              modelAction={modelRequestData.Action}
+              message={
+                modelRequestData.Action === "Delete"
+                  ? "Organisation " + modelRequestData.OrgName
+                  : "Status has been changed successfully!"
+              }
+            />
+
+            <RecordsAvailablePopupModel
+              handleClose={handleClose}
+              openErrorModal={openErrorModal}
+              openSuccessModal={openSuccessModal}
+              modelRequestData={modelRequestData}
+              UpdatedStatus={OrganisationDeleteData}
+            />
+          </div>
+
+          {/* container-fluid  */}
+        </div>
+        {/* End Page-content */}
+      </div>
+      <Footer />
+    </div>
+  );
+};
+
+export default Organisation;

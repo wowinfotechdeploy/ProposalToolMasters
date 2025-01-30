@@ -1,0 +1,57 @@
+.title-bg-1 {
+  color: #ffffff;
+  background: #343a40;
+  font-weight: 600;
+}
+
+.token-size {
+  font-size: 16px !important;
+}
+
+.access-key {
+  align-items: baseline;
+}
+
+.access-key-content {
+  margin-top: calc(25px + 21px);
+  padding: 68px 0;
+}
+
+.access-key td {
+  color: #5b626b !important;
+  font-size: 12px !important;
+  padding: 6px;
+  vertical-align: middle;
+}
+
+.left-align {
+  display: flex;
+  justify-content: center;
+}
+.access-row td {
+  padding: 6px;
+  vertical-align: middle;
+}
+
+/* ...............mobile responsive css........... */
+@media (min-width: 320px) and (max-width: 767px) {
+  .access-key-content {
+    margin-top: calc(25px + 21px);
+    padding: 38px 0;
+  }
+}
+
+/* .............tab responsive css................ */
+@media (min-width: 768px) and (max-width: 991px) {
+  .access-key-content {
+    margin-top: calc(25px + 21px);
+    padding: 38px 0;
+  }
+}
+
+@media only screen and (max-width: 1024px) {
+  .access-key-content {
+    margin-top: calc(25px + 21px);
+    padding: 38px 0;
+  }
+}

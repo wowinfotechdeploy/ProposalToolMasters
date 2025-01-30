@@ -1,0 +1,13 @@
+.active>.page-link, .page-link.active {
+    background-color:#00afef !important;
+    border-color:#00afef !important;
+}
+.active>.page-link, .page-link.active {
+    color:white !important;
+}
+/* .pagination{
+    color: green !important;
+} */
+.page-link{
+    color: #00afef  !important;
+}

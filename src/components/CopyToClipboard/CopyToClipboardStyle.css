@@ -1,0 +1,13 @@
+.custom-tooltip {
+  position: absolute;
+  background-color: #4caf50;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  z-index: 1;
+  cursor: pointer;
+}
+.CopyHeading {
+  font-size: 12px;
+  font-weight: 600;
+}

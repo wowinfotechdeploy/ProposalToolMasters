@@ -1,0 +1,43 @@
+.btn-primary {
+    color: #fff;
+    background-color: #02A499;
+    border-color: #02A499;
+}
+
+.btn-primary:hover {
+    color: #fff;
+    background-color: #02A499;
+    border-color: #02A499;
+}
+
+.activity_logs {
+    margin-top: 60px;
+}
+.activity-logs-content{
+    margin-top: calc(25px + 21px);
+  padding: 68PX 0;
+}
+
+/* .............tab responsive css................ */
+@media (min-width: 768px) and (max-width: 991px){
+    .activity-logs-content{
+        margin-top: calc(25px + 21px);
+      padding: 38PX 0;
+    }
+
+}
+/* ...............mobile responsive css........... */
+@media (min-width: 320px) and (max-width: 767px) {
+    .activity-logs-content{
+        margin-top: calc(25px + 21px);
+      padding: 38PX 0;
+    }
+}
+
+@media only screen and (max-width:1024px) {
+    .activity-logs-content{
+        margin-top: calc(25px + 21px);
+      padding: 38PX 0;
+    }
+
+}

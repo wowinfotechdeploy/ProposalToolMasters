@@ -1,0 +1,103 @@
+.height {
+  height: 40px;
+}
+
+
+.ml-28 {
+  margin-left: 28px !important;
+}
+
+.ml-6 {
+  margin-left: 6px !important;
+}
+
+.form-control-2 {
+  width: 100%;
+  padding: 0.375rem 0.75rem;
+  border: var(--bs-border-width) solid var(--bs-border-color);
+}
+
+.card-1 {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  word-wrap: break-word;
+  background-color: #fff;
+  background-clip: border-box;
+  border-radius: 0.25rem;
+  border: 1px solid #cccccc;
+}
+
+.officer-padding {
+  padding: 25px;
+}
+
+.w-11 {
+  width: 11%;
+}
+
+.w-30 {
+  width: 30%;
+}
+
+.delete-margin {
+  margin-bottom: 0 !important;
+}
+
+.usericon {
+  float: right;
+}
+
+.user-content {
+  margin-top: calc(25px + 21px);
+  padding: 68px 0;
+}
+
+.user-content .table-padding {
+  margin-top: 80px;
+}
+
+#customerTable td {
+  /* color: #5b626b !important; */
+  /* font-size: 14px; */
+}
+
+#customerTable .table-light td {
+  color: #fff !important;
+}
+
+.user-font td {
+  font-size: 12px;
+  padding: 6px;
+  vertical-align: middle;
+}
+
+@media (min-width: 320px) and (max-width: 767px) {
+  .user-content {
+    margin-top: calc(25px + 21px);
+    padding: 40px 0;
+  }
+
+  .page-info-header {
+    margin-top: 0px !important;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  .user-content {
+    margin-top: calc(25px + 21px);
+    padding: 40px 0;
+  }
+}
+
+@media only screen and (max-width:1024px) {
+  .user-content {
+    margin-top: calc(25px + 21px);
+    padding: 40px 0;
+  }
+}
+
+.user-role-select.css-b62m3t-container {
+  width: 100% !important;
+}

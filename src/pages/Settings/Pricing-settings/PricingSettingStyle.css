@@ -1,0 +1,86 @@
+label {
+    font-weight: 500;
+}
+
+.fieldset-label {
+    margin-bottom: 0;
+    align-items: center;
+}
+
+.fieldset-label {
+    margin-bottom: 0;
+    align-items: center;
+}
+
+.col-12 {
+    flex: 0 0 100% !important;
+    max-width: 100% !important;
+}
+
+.pricing-submit {
+    background-color: #02a499;
+    color: #fff;
+    width: 100%;
+    font-size: 14px;
+}
+
+.pricing-submit:hover {
+    background-color: #02a499;
+    color: #fff;
+    width: 100%;
+}
+
+/* .btn:hover{
+    background-color: #02a499;
+    color: #fff;
+} */
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-right: -12px;
+    margin-left: -12px;
+}
+
+.fieldset {
+    margin-bottom: 0.5rem;
+    align-items: center;
+}
+
+body {
+    margin: 0;
+    font-family: "Roboto", sans-serif;
+    font-size: 0.875rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #5b626b;
+    text-align: left;
+    background-color: #f8f8fa;
+}
+
+.card-body {
+    flex: 1 1 auto;
+    min-height: 1px;
+    padding: 1.25rem;
+}
+
+.cus-card {
+    top: 20px;
+    margin-bottom: 95px;
+}
+
+.pricing_settings {
+    margin-top: 60px;
+}
+
+@media (max-width: 740px) {
+.page-content {
+    padding: 0 !important;
+}
+
+}
+
+@media (min-device-width : 768px) and (max-device-width : 1024px) {
+    .Pricing-container-card{
+        margin-top: 8vh;
+    }
+}

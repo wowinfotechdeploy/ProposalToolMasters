@@ -1,0 +1,115 @@
+label {
+  font-weight: 500;
+}
+
+.fieldset-label {
+  margin-bottom: 0;
+  align-items: center;
+}
+
+.fieldset-label {
+  margin-bottom: 0;
+  align-items: center;
+}
+
+.col-12 {
+  flex: 0 0 100% !important;
+  max-width: 100% !important;
+}
+
+.pricing-submit {
+  background-color: #02a499;
+  color: #fff;
+  width: 100%;
+  font-size: 14px;
+}
+
+.pricing-submit:hover {
+  background-color: #02a499;
+  color: #fff;
+  width: 100%;
+}
+
+/* .btn:hover{
+  background-color: #02a499;
+  color: #fff;
+} */
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  margin-right: -12px;
+  margin-left: -12px;
+}
+
+.fieldset {
+  margin-bottom: 0.5rem;
+  align-items: center;
+}
+
+body {
+  margin: 0;
+  font-family: "Roboto", sans-serif;
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #5b626b;
+  text-align: left;
+  background-color: #f8f8fa;
+}
+
+.card-body {
+  flex: 1 1 auto;
+  min-height: 1px;
+  padding: 1.25rem;
+}
+
+.cus-card {
+  top: 20px;  
+}
+
+.pricing_settings {
+  margin-top: 60px;
+}
+
+
+.pricing-setting-content {
+  margin-top: calc(25px + 21px);
+  padding: 68px 0;
+}
+
+.pricing-setting-content .card-body {
+  margin-top: 20px;
+}
+
+@media (min-width: 320px) and (max-width: 767px) {
+  .pricing-setting-content {
+    margin-top: calc(25px + 21px);
+    padding: 40px 0;
+  }
+    .cus-card {
+    top: 20px;
+    margin-bottom: 0px !important;
+  }
+  #Responsive-btn-config{
+    padding: 7px;
+   }
+   
+}
+
+@media (min-width: 768px) and (max-width: 991px){
+  .pricing-setting-content {
+    margin-top: calc(25px + 21px);
+    padding: 40px 0;
+  }
+  .pricing_settings {
+    margin-top: 79px;
+  }
+  
+  
+
+}
+.emailStatusChangeBtn {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}

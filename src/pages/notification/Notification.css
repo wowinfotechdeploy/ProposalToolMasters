@@ -1,0 +1,18 @@
+.ml-2 {
+  margin-left: 0.5rem !important;
+}
+
+.activity-feed .feed-item .activity-text {
+  position: relative;
+  top: -3px;
+}
+/* 
+strong {
+  font-weight: 500 !important;
+  color: #5b626b !important;
+} */
+
+.activity-feed {
+  padding: 56px 15px 0 15px !important;
+  list-style: none;
+}

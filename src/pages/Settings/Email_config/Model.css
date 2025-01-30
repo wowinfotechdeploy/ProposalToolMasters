@@ -1,0 +1,41 @@
+/* InstructionModal.css */
+/* .modal-dialog {
+  max-width: 500px;
+  margin: auto;
+} */
+
+.modal-content {
+  border-radius: 8px;
+  background-color: white;
+}
+
+.modal-body {
+  padding: 20px;
+}
+
+.instructions-text {
+  font-size: 16px;
+  line-height: 1.5;
+  text-align: left;
+}
+
+.button-container {
+  display: flex;
+  justify-content: right;
+  margin-top: 20px;
+}
+
+/* Apply success button color */
+.MuiButton-containedSuccess {
+  background-color: #00afef; /* Darker shade on hover */
+  color: #ffffff;
+}
+
+.MuiButton-containedSuccess:hover {
+  background-color: #00afef; /* Darker shade on hover */
+}
+/* Model.css */
+/* .modal-header {
+    margin-top: 12px; 
+    margin-left: 17px;
+  } */

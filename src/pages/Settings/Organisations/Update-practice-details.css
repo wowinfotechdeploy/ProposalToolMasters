@@ -1,0 +1,469 @@
+.custom-datepicker {
+  height: 5.8vh;
+}
+
+.card-1 {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  word-wrap: break-word;
+  background-color: #fff;
+  background-clip: border-box;
+  border-radius: 0.25rem;
+  border: 1px solid #cccccc;
+}
+
+.officer-padding {
+  padding: 25px;
+}
+
+.w-11 {
+  width: 11%;
+}
+
+.w-30 {
+  width: 30%;
+}
+
+.delete-fieldset-group {
+  position: absolute !important;
+  right: 24px !important;
+  top: -14px !important;
+  display: flex !important;
+  align-items: center !important;
+  font-size: 80% !important;
+}
+
+.update-practice-label {
+  display: flex !important;
+  align-items: center !important;
+}
+
+.delete-margin {
+  margin-bottom: 0 !important;
+}
+.phone-input-div.createCompanyInfo.css-b62m3t-container {
+  width: 35% !important;
+}
+.CurrencySelect.css-b62m3t-container {
+  width: 100%;
+}
+.CompanyInfo.css-b62m3t-container {
+  width: 25%;
+}
+.height {
+  height: 40px;
+}
+
+.delete-right {
+  margin-bottom: 0px;
+  display: flex;
+  align-items: center;
+  justify-content: right;
+}
+.address-label {
+  font-size: 12px !important;
+}
+/* .btn:hover {
+    color: #aaa;
+    background-color: #02a499;
+    border: none;
+} */
+
+.w-99 {
+  width: 99%;
+  border-radius: 4px;
+  font-size: 1.2rem;
+  border: none;
+  color: #fff;
+  font-weight: 500;
+  padding: 5px;
+}
+
+.bg-color {
+  background-color: #02a499;
+}
+
+
+.form-control-2 {
+  width: 100%;
+  padding: 0.375rem 0.75rem;
+  border: var(--bs-border-width) solid var(--bs-border-color);
+}
+
+.practice-detail form {
+  padding-left: 30px;
+}
+input.form-control:read-only {
+  background: #eee;
+}
+
+.update-practice-title {
+  font-size: 19px;
+  font-weight: 500;
+  color: #000000;
+  padding-left: 10px;
+}
+
+.update-practice-content {
+  margin-top: calc(25px + 21px);
+  padding: 68px 0;
+}
+
+.update-practice-content .card-body {
+  background-color: #fff;
+}
+
+.update-practice-content .card {
+  margin-top: 70px;
+}
+
+.practice-detail .form-label {
+  color: #5b626b;
+  font-size: 14px;
+}
+
+.practice-detail h5 {
+  color: #5b626b;
+}
+
+.practice-detail .officer-row .d-flex {
+  justify-content: end;
+}
+
+.address-cls label {
+  text-align: right;
+}
+
+@media (min-width: 320px) and (max-width: 767px) {
+  .office-name {
+    font-size: 16px !important;
+  }
+
+  .trading-detail {
+    margin-top: 35px;
+  }
+
+  .practice-detail form {
+    padding-left: 0px;
+  }
+
+  .page-info-header .page-display-title {
+    font-size: medium;
+  }
+
+  .page-content h5 {
+    font-size: 16px;
+  }
+
+  .page-content label {
+    font-size: 14px;
+    font-weight: 500 !important;
+  }
+
+  .page-content input {
+    font-size: 14px;
+  }
+
+  .page-content select {
+    font-size: 14px;
+  }
+
+  .w-99 {
+    font-size: 14px;
+  }
+
+  .update-practice-content {
+    margin-top: calc(25px + 21px);
+    padding: 38px 0;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  .update-practice-content {
+    margin-top: calc(25px + 21px);
+    padding: 38px 0;
+  }
+}
+
+@media only screen and (max-width: 1024px) {
+  .update-practice-content {
+    margin-top: calc(25px + 21px);
+    padding: 38px 0;
+  }
+}
+
+/* .......Create Practice css................. */
+.custom-control {
+  position: relative;
+  z-index: 1;
+  display: block;
+  min-height: 1.3125rem;
+  padding-left: 1.5rem;
+  print-color-adjust: exact;
+}
+.custom-switch {
+  padding-left: 2.25rem;
+}
+
+.fieldset-group {
+  border: 1px solid #cccccc;
+  border-radius: 4px;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  padding: 0 10px;
+  position: relative;
+}
+.fieldset-group-label {
+  top: -11px;
+  position: relative;
+  background-color: #fff;
+  margin-bottom: 0;
+  padding: 0 5px;
+  margin-left: 15px;
+  font-size: 115%;
+}
+
+.fieldset-group-label-lg {
+  font-size: 150%;
+  top: -17px;
+}
+.phone-input-country-code.selectDropDown.Drop-down-width.css-b62m3t-container {
+  width: 100%;
+}
+
+.businessType .css-b62m3t-container {
+  width: 100%;
+}
+.tdPatch {
+  vertical-align: middle !important;
+  padding: 10px !important;
+}
+
+.patchD1 {
+  background: #00afef !important;
+}
+
+.tdPatchD2 {
+  background: rgb(0, 175, 239) !important;
+}
+
+.tdPatch1 {
+  background: rgb(5, 152, 206) !important;
+}
+
+.pricing-table .pricing-table-item {
+  color: #fff !important;
+}
+
+.pricing-table .pricing-table-item .pricing-table-item-head {
+  padding: 26px 5px !important;
+  text-align: center;
+}
+
+.pricing-table td:first-child,
+.pricing-table .pricing-table-list td:first-child {
+  background-color: #333547 !important;
+}
+
+.pricing-table .pricing-table-text {
+  text-align: center;
+  border-radius: 20px 0px 0px 0px;
+}
+
+.pricing-table td {
+  padding: 0px;
+}
+
+.pricing-table .pricing-table-text {
+  text-align: center;
+  border-radius: 20px 0px 0px 0px;
+}
+
+
+.pricing-table .pricing-table-item .pricing-table-item-head p {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 21px;
+  margin-bottom: 0px;
+}
+
+.empty {
+  background: rgb(243, 243, 243) !important;
+}
+
+.pricing-table .pricing-table-list td {
+  padding: 10px 8px;
+  font-weight: 500;
+  text-align: center;
+  font-size: 12px;
+  background: #ffffff;
+}
+
+.pricing-table .pricing-table-list td:first-child {
+  font-weight: 600;
+  text-align: left;
+  border-left: 0px;
+  font-size: 12px;
+  color: #ffffff;
+  padding-left: 30px;
+}
+
+.pricing-table .pricing-table-list .fa-check {
+  color: #68af27;
+  font-size: 16px;
+}
+.pricing-table .pricing-table-list .fa-times {
+  color: #c22439;
+  font-size: 16px;
+}
+.css-ahj2mt-MuiTypography-root {
+  margin-right: 25px;
+  font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 1.5;
+  letter-spacing: 0.00938em;
+}
+.searchList {
+  list-style: none;
+}
+
+.searchList li::before {
+  content: "📍"; /* Add your location symbol here */
+  margin-right: 10px;
+}
+
+.autocomplete-input-div {
+  position: absolute;
+  width: calc(100% - 24px);
+  left: 0;
+  margin-left: 12px;
+  z-index: 2;
+  background: #fff;
+  border-color: #cccccc;
+  border-radius: 4px;
+  border-style: solid;
+  border-width: 1px;
+  margin-top: 6px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  cursor: pointer;
+}
+.autocomplete-input-div ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+.autocomplete-input-div ul li {
+  padding-left: 12px;
+  padding-right: 12px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  font-size: 12px;
+}
+.autocomplete-input-div ul li:hover {
+  background-color: rgba(222, 235, 235, 0.75) !important;
+}
+
+.autocomplete-input-div.show {
+  display: block;
+}
+button.btn.btn-md.btn-primary.create-item-btn {
+  z-index: 0;
+}
+.update-practice {
+  width: 100%;
+}
+.css-1fdsijx-ValueContainer {
+  padding: 0px 7px;
+}
+.updatePractice {
+  padding: 0rem 1.5rem 1.5rem 1.5rem;
+}
+.update-practice-phone .css-b62m3t-container {
+  width: 35%;
+}
+.AuthoritySign {
+  background: #ec4561;
+  width: 95% !important;
+}
+
+.flex-center-div {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.css-1uvydh2 {
+  font: inherit;
+  letter-spacing: inherit;
+  color: currentcolor;
+  border: 0px;
+  box-sizing: content-box;
+  background: none;
+  height: 38px;
+  margin: 0px;
+  -webkit-tap-highlight-color: transparent;
+  display: block;
+  min-width: 0px;
+  width: 100%;
+  animation-name: mui-auto-fill-cancel;
+  animation-duration: 10ms;
+  padding: 0px 10px;
+}
+
+.css-nxo287-MuiInputBase-input-MuiOutlinedInput-input.Mui-disabled {
+  opacity: 1;
+  -webkit-text-fill-color: rgb(8 5 5 / 78%);
+}
+
+/* Width adjust css */
+.Update-Scroll-res {
+  height: 55vh;
+  overflow: Auto;
+}
+@media only screen and (max-width: 768px) {
+  .Update-Scroll-res {
+    height: 442px;
+  }
+}
+@media only screen and (min-width: 992px) {
+  .slider-scroll {
+    height: 0px;
+    z-index: 0;
+  }
+}
+.css-bkzwk2-MuiStack-root {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  overflow: hidden !important;
+  padding-top: 8px;
+}
+
+.read-only,
+.read-only .react-date-picker__wrapper {
+  background-color: #eeeeee !important;
+  cursor: not-allowed;
+}
+input.input-text:read-only {
+  background: #eee;
+}
+
+.isAuthorized {
+  color: #5b626b;
+  font-size: 12px;
+  font-weight: bold !important;
+}
+
+.SwitchEL {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: end !important;
+}

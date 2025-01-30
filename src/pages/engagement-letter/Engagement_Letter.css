@@ -1,0 +1,227 @@
+.tab_nav {
+  color: #495057;
+  font-weight: 500;
+  border-color: #ced4da #ced4da #fff;
+}
+
+.fieldset-group {
+  border: 1px solid #cccccc;
+  border-radius: 4px;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  padding: 0 10px;
+  position: relative;
+}
+
+.fieldset-group-label {
+  top: -12px;
+  position: relative;
+  background-color: #fff;
+  margin-bottom: 0;
+  padding: 0 5px;
+  margin-left: 15px;
+  font-size: 115%;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  margin-right: -12px;
+  margin-left: -12px;
+}
+
+.fieldset {
+  margin-bottom: 0.5rem;
+  align-items: center;
+}
+
+.text-right {
+  text-align: right !important;
+}
+
+.col-12 {
+  flex: 0 1 0100%;
+  max-width: 100%;
+}
+
+.fieldset-group-label-1 {
+  top: -15px;
+  /* position: relative; */
+  background-color: #fff;
+  margin-bottom: 0;
+  padding: 0 5px;
+  margin-left: 63%;
+  font-size: 115%;
+}
+
+.font-11 {
+  font-size: 11px;
+}
+
+.engagement-font {
+  font-size: 12px;
+  padding: 6px !important;
+}
+
+.engagement-letter {
+  font-size: 16px;
+  color: #6c757d;
+  font-weight: 600;
+  padding-left: 10px;
+}
+
+.search-letter {
+  font-size: 13px;
+}
+
+.edit-item-btn span {
+  font-size: 13px;
+}
+
+.engagement-content {
+  margin-top: calc(25px + 21px);
+  padding: 68px 0;
+}
+.css-nxo287-MuiInputBase-input-MuiOutlinedInput-input {
+  font: inherit;
+  letter-spacing: inherit;
+  color: currentColor;
+  border: 0;
+  box-sizing: content-box;
+  background: none;
+  height: 1.4375em;
+  margin: 0;
+  -webkit-tap-highlight-color: transparent;
+  display: block;
+  min-width: 0;
+  width: 100%;
+  -webkit-animation-name: mui-auto-fill-cancel;
+  animation-name: mui-auto-fill-cancel;
+  -webkit-animation-duration: 10ms;
+  animation-duration: 10ms;
+  padding: 0.5px 4px !important;
+  padding-right: 0;
+}
+
+.padding {
+  padding: 2px;
+}
+.background {
+  background: #02a499;
+  border-radius: 3px;
+  color: #fff;
+  font-weight: 500;
+  border: none;
+}
+.head-grey-row {
+  background-color: #888 !important;
+  color: #fff;
+}
+
+@media (min-width: 320px) and (max-width: 767px) {
+  .engagement-content {
+    margin-top: calc(25px + 21px);
+    padding: 40px 0;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  .engagement-content {
+    margin-top: calc(25px + 21px);
+    padding: 39px 0;
+  }
+  .margin-prospect {
+    margin-top: 25px !important;
+  }
+}
+@media (min-width: 1040px) {
+  .margin-prospect {
+    margin-top: 22px !important;
+  }
+}
+@media screen and (max-width: 599px) {
+  .box12 {
+    width: "100%";
+  }
+  .searchField {
+    width: 50%;
+  }
+  .py2 {
+    position: absolute;
+    top: 485px !important;
+  }
+}
+.box12 {
+  width: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: white;
+  padding: 50px 0px;
+}
+.py1 {
+  position: absolute;
+  top: 340px;
+}
+@media only screen and (max-width: 1040px) {
+  .engagement-content {
+    margin-top: calc(25px + 21px);
+    padding: 36px 0;
+  }
+  .py {
+    position: absolute !important;
+    top: 350px !important;
+  }
+}
+
+.Height_View_scroll {
+  max-height: 55vh;
+  overflow: overlay;
+}
+
+.py {
+  position: absolute !important;
+  top: 350px !important;
+}
+/* Dropdown container */
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+/* Dropdown button */
+.dropdown-btn {
+  background: none;
+  border: none;
+  font-size: 12px;
+  cursor: pointer;
+  color: #333;
+  padding: 8px 12px;
+  z-index: 99999;
+}
+
+/* Dropdown content (hidden by default) */
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  left: 0; /* Align to the right */
+  background-color: #f9f9f9;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+  z-index: 99999;
+}
+
+/* Dropdown item links */
+.dropdown-menu a {
+  cursor: pointer;
+  color: black;
+  padding: 6px 8px;
+  text-decoration: none;
+  display: block;
+  font-size: 12px;
+}
+
+/* Hover effect for dropdown items */
+.dropdown-menu a:hover {
+  background-color: #f1f1f1;
+}
