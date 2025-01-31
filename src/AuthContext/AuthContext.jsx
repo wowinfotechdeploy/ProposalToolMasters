@@ -1262,7 +1262,7 @@ const AuthContext = ({ children }) => {
       <table style="border-collapse: collapse; width: 100%; page-break-inside: avoid; break-inside: avoid;">
         <tr>
           <td style="border: 1px solid black; padding: 8px; width: 50%;">${Type}</td>
-          <td style="border: 1px solid black; padding: 8px; width: 50%;">${RecurringValue === null ? 0 : RecurringValue}</td>
+          <td style="border: 1px solid black; padding: 8px; width: 50%;text-align: right;">${RecurringValue === null ? formatValue(0) : formatValue(RecurringValue)}</td>
         </tr>
       </table>
       <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
@@ -1271,7 +1271,7 @@ const AuthContext = ({ children }) => {
       <table style="border-collapse: collapse; width: 100%; page-break-inside: avoid; break-inside: avoid;">
         <tr>
           <td style="border: 1px solid black; padding: 8px; width: 50%;">${Type}</td>
-          <td style="border: 1px solid black; padding: 8px; width: 50%;">${OneOffValue === null ? 0 : OneOffValue}</td>
+          <td style="border: 1px solid black; padding: 8px; width: 50%;text-align: right;">${OneOffValue === null ? formatValue(0) : formatValue(OneOffValue)}</td>
         </tr>
       </table>
     `;
@@ -1349,22 +1349,22 @@ const AuthContext = ({ children }) => {
       )}</td>`;
     } else if (servicePackageList.length === 2) {
       rowValues = `
-        <td style="border: 1px solid black; padding: 8px;text-align:center;width: 25%;">${formatValue(
+        <td style="border: 1px solid black; padding: 8px;text-align:right;width: 25%;">${formatValue(
         PackageOneValue
       )}</td>
-        <td style="border: 1px solid black; padding: 8px;text-align:center;width: 25%;">${formatValue(
+        <td style="border: 1px solid black; padding: 8px;text-align:right;width: 25%;">${formatValue(
         PackageTwoValue
       )}</td>
       `;
     } else if (servicePackageList.length === 3) {
       rowValues = `
-        <td style="border: 1px solid black; padding: 8px;text-align:center;width: 25%;">${formatValue(
+        <td style="border: 1px solid black; padding: 8px;text-align: right;width: 25%;">${formatValue(
         PackageOneValue
       )}</td>
-        <td style="border: 1px solid black; padding: 8px;text-align:center;width: 25%;">${formatValue(
+        <td style="border: 1px solid black; padding: 8px;text-align: right;width: 25%;">${formatValue(
         PackageTwoValue
       )}</td>
-        <td style="border: 1px solid black; padding: 8px;text-align:center;width: 25%;">${formatValue(
+        <td style="border: 1px solid black; padding: 8px;text-align: right;width: 25%;">${formatValue(
         PackageThreeValue
       )}</td>
       `;
@@ -1500,32 +1500,32 @@ const AuthContext = ({ children }) => {
 
     let rowValues = "";
     if (servicePackageList.length === 1) {
-      rowValues = `<td style="border: 1px solid black; padding: 8px;width: 25%;"> <ul>
+      rowValues = `<td style="border: 1px solid black; padding: 8px;width: 25%;text-align: right;"> <ul>
           <li>Recurring Services: ${formatValue(PackageOneValue)}</li>
           <li>One-Off Services: ${formatValue(PackageOneOneOffValue)}</li>
         </ul></td>`;
     } else if (servicePackageList.length === 2) {
       rowValues = `
-        <td style="border: 1px solid black; padding: 8px;width: 25%;"><ul>
+        <td style="border: 1px solid black; padding: 8px;width: 25%;text-align: right;"><ul>
           <li>Recurring Services: ${formatValue(PackageOneValue)}</li>
           <li>One-Off Services: ${formatValue(PackageOneOneOffValue)}</li>
         </ul></td>
-        <td style="border: 1px solid black; padding: 8px;width: 25%;"><ul>
+        <td style="border: 1px solid black; padding: 8px;width: 25%;text-align: right;"><ul>
           <li>Recurring Services: ${formatValue(PackageTwoValue)}</li>
           <li>One-Off Services: ${formatValue(PackageTwoOneOffValue)}</li>
         </ul></td>
       `;
     } else if (servicePackageList.length === 3) {
       rowValues = `
-        <td style="border: 1px solid black; padding: 8px;width: 25%;"><ul>
+        <td style="border: 1px solid black; padding: 8px;width: 25%;text-align: right;"><ul>
           <li>Recurring Services: ${formatValue(PackageOneValue)}</li>
           <li>One-Off Services: ${formatValue(PackageOneOneOffValue)}</li>
         </ul></td>
-        <td style="border: 1px solid black; padding: 8px;width: 25%;"><ul>
+        <td style="border: 1px solid black; padding: 8px;width: 25%;text-align: right;"><ul>
           <li>Recurring Services: ${formatValue(PackageTwoValue)}</li>
           <li>One-Off Services: ${formatValue(PackageTwoOneOffValue)}</li>
         </ul></td>
-        <td style="border: 1px solid black; padding: 8px;width: 25%;"><ul>
+        <td style="border: 1px solid black; padding: 8px;width: 25%;text-align: right;"><ul>
           <li>Recurring Services: ${formatValue(PackageThreeValue)}</li>
           <li>One-Off Services: ${formatValue(PackageThreeOneOffValue)}</li>
         </ul></td>
@@ -1836,43 +1836,149 @@ const AuthContext = ({ children }) => {
     }
   };
 
-  const ReplaceVariable_WithTableView = () => {
-    return `
-             <table style="border-collapse: collapse; width: 100%; margin-bottom: 16px;page-break-inside: avoid; break-inside: avoid;">
-           <tr>
+  const ReplaceVariable_WithTableView = (SelectedServiceList, PricingInfo, selectedProposalTypeValue, SelectedPackageList, Type) => {
+    if (!SelectedServiceList || SelectedServiceList.length === 0) {
+      return "";
+    }
+    if (selectedProposalTypeValue === 3) {
+      const conditionalRecurringNetTotal =
+        Number(PricingInfo.OriginalPrice) <
+          Number(PricingInfo.DiscountedPrice)
+          ? PricingInfo.DiscountedPrice
+          : PricingInfo.OriginalPrice;
+      const rows = [
+        { label: 'Net Total', value: conditionalRecurringNetTotal },
+        { label: 'Discount', value: PricingInfo.Discount },
+        { label: 'Discounted Price', value: PricingInfo.DiscountedTotal },
+        { label: 'VAT', value: PricingInfo.VATPrice },
+        { label: 'Grand Total', value: PricingInfo.GrandTotal },
+      ];
+
+      return `
+            <table style="border-collapse: collapse; width: 100%; margin-bottom: 16px; page-break-inside: avoid; break-inside: avoid;">
+              ${rows
+          .map(
+            ({ label, value }) => `
+                    <tr>
                       <td style="font-weight: 600; border: 1px solid rgb(10, 10, 10); padding: 8px; font-size: 16px; text-align: left; width: 60%;">
-  Net Total
+                        ${label}
                       </td>
-                       <td style="font-weight: 600; border: 1px solid rgb(10, 10, 10); padding: 8px; font-size: 16px; text-align: left; width: 60%;">
-  ${formatValue(0)}
+                      <td style="font-weight: 600; border: 1px solid rgb(10, 10, 10); padding: 8px; font-size: 16px; text-align: right; width: 60%;">
+                        ${formatValue(value)}
                       </td>
-                           <td style="font-weight: 600; border: 1px solid rgb(10, 10, 10); padding: 8px; font-size: 16px; text-align: left; width: 60%;">
-  Discount
-                      </td>
-                       <td style="font-weight: 600; border: 1px solid rgb(10, 10, 10); padding: 8px; font-size: 16px; text-align: left; width: 60%;">
-  ${formatValue(0)}
-                      </td>
-                      <td style="font-weight: 600; border: 1px solid rgb(10, 10, 10); padding: 8px; font-size: 16px; text-align: left; width: 60%;">
-  Discounted Price
-                      </td>
-                       <td style="font-weight: 600; border: 1px solid rgb(10, 10, 10); padding: 8px; font-size: 16px; text-align: left; width: 60%;">
-  ${formatValue(0)}
-                      </td>
-                      <td style="font-weight: 600; border: 1px solid rgb(10, 10, 10); padding: 8px; font-size: 16px; text-align: left; width: 60%;">
-  VAT
-                      </td>
-                       <td style="font-weight: 600; border: 1px solid rgb(10, 10, 10); padding: 8px; font-size: 16px; text-align: left; width: 60%;">
-  ${formatValue(0)}
-                      </td>
-                      <td style="font-weight: 600; border: 1px solid rgb(10, 10, 10); padding: 8px; font-size: 16px; text-align: left; width: 60%;">
-  Grand Total
-                      </td>
-                       <td style="font-weight: 600; border: 1px solid rgb(10, 10, 10); padding: 8px; font-size: 16px; text-align: left; width: 60%;">
-  ${formatValue(0)}
-                      </td>
-  </tr>
+                    </tr>
+                  `
+          )
+          .join('')}
+            </table>
+          `;
+
+    } else {
+      const packageData = [
+        {
+          label: "Package One",
+          netTotal: PricingInfo.packageOneNetTotal,
+          discountedTotal: PricingInfo.packageOneDisCountedTotal,
+          discount: PricingInfo.packageOneDisCount,
+          vatPrice: PricingInfo.PackageOneVaTPrice,
+          grandTotal: PricingInfo.PackageOneGrandTotal,
+          discountPercentage: PricingInfo.DiscountPercentagePackageOne,
+        },
+        {
+          label: "Package Two",
+          netTotal: PricingInfo.packageTwoNetTotal,
+          discountedTotal: PricingInfo.packageTwoDisCountedTotal,
+          discount: PricingInfo.packageTwoDisCount,
+          vatPrice: PricingInfo.PackageTwoVaTPrice,
+          grandTotal: PricingInfo.PackageTwoGrandTotal,
+          discountPercentage: PricingInfo.DiscountPercentagePackageTwo,
+        },
+        {
+          label: "Package Three",
+          netTotal: PricingInfo.packageThreeNetTotal,
+          discountedTotal: PricingInfo.packageThreeDisCountedTotal,
+          discount: PricingInfo.packageThreeDisCount,
+          vatPrice: PricingInfo.PackageThreeVaTPrice,
+          grandTotal: PricingInfo.PackageThreeGrandTotal,
+          discountPercentage: PricingInfo.DiscountPercentagePackageThree,
+        },
+      ];
+
+      // Add computed properties
+      packageData.forEach((pkg) => {
+        pkg.netTotal = Math.max(pkg.netTotal, pkg.discountedTotal);
+      });
+
+      return `
+  <table style="border-collapse: collapse; width: 100%; margin-bottom: 16px; page-break-inside: avoid; break-inside: avoid;">
+    <!-- Package Names Row -->
+    ${Type !== "WithOutName"
+          ? `
+        <tr>
+          <th style="border: 1px solid rgb(10, 10, 10); padding: 8px; text-align: left; width: 25%;">Package Name</th>
+          ${SelectedPackageList.map(
+            (pkg) => `
+              <th style="border: 1px solid rgb(10, 10, 10); padding: 8px; text-align: right; width: 25%;">
+                ${pkg.servicePackageName}
+              </th>
+            `
+          ).join("")}
+        </tr>
+      `
+          : ""
+        }
+
+    <!-- Data Rows -->
+   
+          <tr>
+            <td style="border: 1px solid rgb(10, 10, 10); padding: 8px; text-align: left; width: 25%;">Net Total</td>
+            ${SelectedPackageList.map((pkg, index) => `
+              <td style="border: 1px solid rgb(10, 10, 10); padding: 8px; text-align: right; width: 25%;">
+                ${formatValue(packageData[index]?.netTotal || 0)}
+              </td>
+            `).join("")}
+          </tr>
+          <tr>
+            <td style="border: 1px solid rgb(10, 10, 10); padding: 8px; text-align: left; width: 25%;">Discount</td>
+            ${SelectedPackageList.map((pkg, index) => `
+              <td style="border: 1px solid rgb(10, 10, 10); padding: 8px; text-align: right; width: 25%;">
+                ${formatValue(packageData[index]?.discount || 0)}
+              </td>
+            `).join("")}
+          </tr>
+          <tr>
+            <td style="border: 1px solid rgb(10, 10, 10); padding: 8px; text-align: left; width: 25%;">Discounted Price</td>
+            ${SelectedPackageList.map((pkg, index) => `
+              <td style="border: 1px solid rgb(10, 10, 10); padding: 8px; text-align: right; width: 25%;">
+                ${formatValue(packageData[index]?.discountedTotal || 0)}
+              </td>
+            `).join("")}
+          </tr>
+          <tr>
+            <td style="border: 1px solid rgb(10, 10, 10); padding: 8px; text-align: left; width: 25%;">VAT</td>
+            ${SelectedPackageList.map((pkg, index) => `
+              <td style="border: 1px solid rgb(10, 10, 10); padding: 8px; text-align: right; width: 25%;">
+                ${formatValue(packageData[index]?.vatPrice || 0)}
+              </td>
+            `).join("")}
+          </tr>
+          <tr>
+            <td style="border: 1px solid rgb(10, 10, 10); padding: 8px; text-align: left; width: 25%;">Grand Total</td>
+            ${SelectedPackageList.map((pkg, index) => `
+              <td style="border: 1px solid rgb(10, 10, 10); padding: 8px; text-align: right; width: 25%;">
+                ${formatValue(packageData[index]?.grandTotal || 0)}
+              </td>
+            `).join("")}
+          </tr>
+        
+        
   </table>
-    `
+`;
+
+
+    }
+
+
   }
   //single and package service list variable replace function.
   const GetReplaceServiceWithTableView = (selectedRecurringServiceList, selectedOneOffServiceList, servicePackageList) => {
@@ -1982,7 +2088,7 @@ const AuthContext = ({ children }) => {
             </p>
       ${recurringServices}   
     <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
-              OneOff
+              One-Off Services
             </p>
       ${oneOffServices}
     </div>
@@ -2001,7 +2107,7 @@ const AuthContext = ({ children }) => {
                       <td style="font-weight: 600; border: 1px solid rgb(10, 10, 10); padding: 8px; font-size: 16px; text-align: left; width: 60%;">
   Service Name
 </td>
-                      <td style="font-weight: 600; border: 1px solid rgb(10, 10, 10); padding: 8px; font-size: 16px; text-align: left; width: 60%;">
+                      <td style="font-weight: 600; border: 1px solid rgb(10, 10, 10); padding: 8px; font-size: 16px; text-align: right; width: 60%;">
   Price
 </td>
 
@@ -2072,7 +2178,7 @@ const AuthContext = ({ children }) => {
                       <td style="font-weight: 600; border: 1px solid rgb(10, 10, 10); padding: 8px; font-size: 16px; text-align: left; width: 60%;">
   Service Name
 </td>
-                      <td style="font-weight: 600; border: 1px solid rgb(10, 10, 10); padding: 8px; font-size: 16px; text-align: left; width: 60%;">
+                      <td style="font-weight: 600; border: 1px solid rgb(10, 10, 10); padding: 8px; font-size: 16px; text-align: right; width: 60%;">
   Price
 </td>
 
@@ -2094,7 +2200,7 @@ const AuthContext = ({ children }) => {
                           ${subService.serviceName}
                         </td>
                         <td style="border: 1px solid rgb(10, 10, 10); padding: 8px; font-size: 16px; text-align: right; width: 30%;">
-                          ${packageValue}
+                          ${formatValue(packageValue)}
                         </td>
                       </tr>
                     `;
@@ -2119,7 +2225,7 @@ const AuthContext = ({ children }) => {
             </p>
       ${recurringServices}   
     <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
-              OneOff
+              One-Off Services
             </p>
       ${oneOffServices}
     </div>
@@ -2195,7 +2301,7 @@ const AuthContext = ({ children }) => {
             </p>
       ${recurringServices}   
     <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
-              OneOff
+              One-Off Services
             </p>
       ${oneOffServices}
     </div>
@@ -2286,7 +2392,7 @@ const AuthContext = ({ children }) => {
               </p>
         ${recurringServices}   
       <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
-                OneOff
+                One-Off Services
               </p>
         ${oneOffServices}
       </div>
@@ -2369,7 +2475,7 @@ const AuthContext = ({ children }) => {
             </p>
       ${recurringServices}   
     <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
-              OneOff
+              One-Off Services
             </p>
       ${oneOffServices}
     </div>
@@ -2466,7 +2572,7 @@ const AuthContext = ({ children }) => {
               </p>
         ${recurringServices}   
       <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
-                OneOff
+                One-Off Services
               </p>
         ${oneOffServices}
       </div>
@@ -2496,6 +2602,11 @@ const AuthContext = ({ children }) => {
     //selectProposalTypeValue 3= single(Custumized)
     if (selectedProposalTypeValue === 3) {
       ResultTotalVariablesWithValues = {
+        // All Total result variable with table view
+        AllRecuringResultTotalVariable_WithPackageName: ReplaceVariable_WithTableView(selectedRecurringServiceList, RecurringPricingInfo, selectedProposalTypeValue, null, null),
+        AllOneOffResultTotalVariable_WithPackageName: ReplaceVariable_WithTableView(selectedOneOffServiceList, OneOffPricingInfo, selectedProposalTypeValue, null, null),
+        AllRecurringResultTotalVariable_WithoutPackageName: ReplaceVariable_WithTableView(selectedRecurringServiceList, RecurringPricingInfo, selectedProposalTypeValue, null, null),
+        AllOneOffResultTotalVariable_WithoutPackageName: ReplaceVariable_WithTableView(selectedOneOffServiceList, OneOffPricingInfo, selectedProposalTypeValue, null, null),
         //service Variable
         AllServices_WithTableView: GetReplaceServiceWithTableView(selectedRecurringServiceList, selectedOneOffServiceList, null),
         AllServicesWithPrice_WithTableView: GetReplaceServiceWithTableViewWithPrice(selectedRecurringServiceList, selectedOneOffServiceList, null),
@@ -2675,6 +2786,11 @@ const AuthContext = ({ children }) => {
       };
     } else {
       ResultTotalVariablesWithValues = {
+        // All Total result variable with table view
+        AllRecuringResultTotalVariable_WithPackageName: ReplaceVariable_WithTableView(selectedRecurringServiceList, RecurringPricingInfo, selectedProposalTypeValue, servicePackageList, null),
+        AllOneOffResultTotalVariable_WithPackageName: ReplaceVariable_WithTableView(selectedOneOffServiceList, OneOffPricingInfo, selectedProposalTypeValue, servicePackageList, null),
+        AllRecurringResultTotalVariable_WithoutPackageName: ReplaceVariable_WithTableView(selectedRecurringServiceList, RecurringPricingInfo, selectedProposalTypeValue, servicePackageList, "WithOutName"),
+        AllOneOffResultTotalVariable_WithoutPackageName: ReplaceVariable_WithTableView(selectedOneOffServiceList, OneOffPricingInfo, selectedProposalTypeValue, servicePackageList, "WithOutName"),
         //service Price replace variables
         AllServices_WithTableView: GetReplaceServiceWithTableView(selectedRecurringServiceList, selectedOneOffServiceList, servicePackageList),
         AllServicesWithPrice_WithTableView: GetReplaceServiceWithTableViewWithPrice(selectedRecurringServiceList, selectedOneOffServiceList, servicePackageList),
@@ -2967,10 +3083,51 @@ const AuthContext = ({ children }) => {
       return `<span style="display: block; word-wrap: break-word; word-break: break-word; overflow-wrap: break-word; overflow-x: auto; white-space: pre-wrap;">${url}</span>`;
     });
   };
+
+  const isValueGreaterThan20000 = (RecurringPricingInfo, OneOffPricingInfo, vatPercentage) => {
+    // Check main grand totals and discounted values
+    if (
+      (vatPercentage && RecurringPricingInfo.GrandTotal > 20000) ||
+      (RecurringPricingInfo.DefaultDiscount >= 0 && RecurringPricingInfo.DiscountedTotal > 20000) ||
+      RecurringPricingInfo.DiscountedPrice > 20000 ||
+      (vatPercentage && OneOffPricingInfo.GrandTotal > 20000) ||
+      (OneOffPricingInfo.DefaultDiscount >= 0 && OneOffPricingInfo.DiscountedTotal > 20000) ||
+      OneOffPricingInfo.DiscountedPrice > 20000
+    ) {
+      return true;
+    }
+  
+    // Check all three package values for RecurringPricingInfo and OneOffPricingInfo
+    const packageLabels = ["One", "Two", "Three"];
+
+    for (let i = 0; i < 3; i++) {
+      const label = packageLabels[i];
+  
+      console.log(RecurringPricingInfo[`Package${label}GrandTotal`], `RecurringPricingInfo Package${label}GrandTotal`);
+      console.log(RecurringPricingInfo[`package${label}DisCountedTotal`], `RecurringPricingInfo package${label}DisCountedTotal`);
+  
+      if (
+        (vatPercentage && RecurringPricingInfo[`Package${label}GrandTotal`] > 20000) ||
+        (RecurringPricingInfo[`DiscountPercentagePackage${label}`] >= 0 &&
+          RecurringPricingInfo[`package${label}DisCountedTotal`] > 20000) ||
+        RecurringPricingInfo[`package${label}DisCountedTotal`] > 20000 ||
+        (vatPercentage && OneOffPricingInfo[`Package${label}GrandTotal`] > 20000) ||
+        (OneOffPricingInfo[`DiscountPercentagePackage${label}`] >= 0 &&
+          OneOffPricingInfo[`package${label}DisCountedTotal`] > 20000) ||
+        OneOffPricingInfo[`package${label}DisCountedTotal`] > 20000
+      ) {
+        return true;
+      }
+    }
+  
+    return false;
+  };
+  
   /* -------------- Set All Function Used Globally Throughout The Project ------------ */
   return (
     <AuthContextProvider.Provider
       value={{
+        isValueGreaterThan20000,
         replaceUrlInHtml,
         replaceTemplatePricingVariables,
         isValidNumber,

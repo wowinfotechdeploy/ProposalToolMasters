@@ -10,6 +10,7 @@ import Utils from "../../Middleware/Utils";
 import { useLocation } from "react-router-dom";
 import "./Engagement_Letter.css";
 import {
+  ChangeDefaultPaymentGatewaysTypes,
   EngagementLetterHeader,
   Payment_Frequency,
   ServiceChargeTypeEnum,
@@ -675,6 +676,7 @@ const ReviewServicesComponent = (props) => {
     }
   };
   const handlePaymentFrequencyChange = (e) => {
+    
     props.DisableTabOnChange();
     setLastPaymentFrequencyAndDiscountedPrice({
       ...lastPaymentFrequencyAndDiscountedPrice,
@@ -853,7 +855,7 @@ const ReviewServicesComponent = (props) => {
     props.setRecurringPricingInfo({
       ...props.RecurringPricingInfo,
       OriginalPrice: OriginalPrice,
-      DiscountedPrice: (Math.floor(DiscountedPrice * 100) / 100).toFixed(2),
+      DiscountedPrice: Number(DiscountedPrice )?.toFixed(2),
       DefaultDiscount: Number(DefaultDiscount).toFixed(2),
       Discount: Discount,
       DiscountedTotal: DiscountedTotal,
@@ -1496,11 +1498,9 @@ const ReviewServicesComponent = (props) => {
                             type="text"
                             className="input-text"
                             value={Number(
-                              Math.floor(
-                                props.RecurringPricingInfo.OriginalPrice * 100
-                              ) / 100
+                                props.RecurringPricingInfo.OriginalPrice 
                             )
-                              .toFixed(2)
+                              ?.toFixed(2)
                               .replace(/\B(?=(\d{3})+(?!\d))/g, ",")} // Add commas as thousand separators
                           />
                         </div>
@@ -2031,11 +2031,8 @@ const ReviewServicesComponent = (props) => {
                               // props.OneOffPricingInfo.OriginalPrice
                               // )
                               Number(
-                                Math.floor(
-                                  props.OneOffPricingInfo.OriginalPrice * 100
-                                ) / 100
                               )
-                                .toFixed(2)
+                                ?.toFixed(2)
                                 .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
                             } // Add commas as thousand separators
                           />
@@ -5313,7 +5310,8 @@ const Add_Update_Engagement_Letter = () => {
     formatValueWithoutCurrencySymbol,
     getFontStylesFromHtml,
     isValidNumber,
-    replaceTemplatePricingVariables
+    replaceTemplatePricingVariables,
+    isValueGreaterThan20000
   } = useContext(AuthContextProvider);
   const [recurringObj, setRecurringObj] = useState([]);
   const [recurringError, setRecurringError] = useState(false);
@@ -6761,7 +6759,7 @@ const Add_Update_Engagement_Letter = () => {
               Number(RecTotal) * Number(multiplicationFactor)
             ).toFixed(12);
             recOriginalPrice = Number(RecTotal).toFixed(12);
-
+ 
             if (
               RecurringPricingInfo.OriginalPrice === "" ||
               RecurringPricingInfo.OriginalPrice === null ||
@@ -6774,9 +6772,7 @@ const Add_Update_Engagement_Letter = () => {
               Number(RecTotal)?.toFixed(2) !==
               Number(RecurringPricingInfo.OriginalPrice)?.toFixed(2)
             ) {
-              recDefaultPrice = (
-                Math.floor(Number(RecTotal).toFixed(12) * 100) / 100
-              ).toFixed(2);
+              recDefaultPrice = Number(RecTotal)?.toFixed(2);
 
               // recDefaultPrice = RecTotal?.toFixed(2);
               recVATPrice = Number(recOriginalPrice) * (vatPercentage / 100);
@@ -6803,9 +6799,7 @@ const Add_Update_Engagement_Letter = () => {
                 recDefaultPrice =
                   Number(RecTotal) *
                   (1 - Number(RecurringPricingInfo.DefaultDiscount) / 100);
-                recDefaultPrice = (
-                  Math.floor(recDefaultPrice * 100) / 100
-                ).toFixed(2);
+                recDefaultPrice = Number(recDefaultPrice)?.toFixed(2);
               }
 
               // recDefaultPrice =
@@ -6883,9 +6877,7 @@ const Add_Update_Engagement_Letter = () => {
               Number(OneOffTotal)?.toFixed(2) !==
               Number(OneOffPricingInfo.OriginalPrice)?.toFixed(2)
             ) {
-              oneOffDiscountedPrice = (
-                Math.floor(Number(OneOffTotal).toFixed(12) * 100) / 100
-              ).toFixed(2);
+              oneOffDiscountedPrice = Number(OneOffTotal)?.toFixed(2);
 
               oneOffVATPrice =
                 Number(oneOffOriginalPrice) * (vatPercentage / 100);
@@ -8238,9 +8230,7 @@ const Add_Update_Engagement_Letter = () => {
             Number(RecTotal)?.toFixed(2) !==
             Number(RecurringPricingInfo.OriginalPrice)?.toFixed(2)
           ) {
-            recDefaultPrice = (
-              Math.floor(Number(RecTotal).toFixed(12) * 100) / 100
-            ).toFixed(2);
+            recDefaultPrice = Number(RecTotal)?.toFixed(2);
             // recDefaultPrice = (
             //   Math.floor(Number(RecTotal / pricingSettingPaymentFrequency).toFixed(12) * 100) / 100
             // ).toFixed(2);
@@ -8267,9 +8257,7 @@ const Add_Update_Engagement_Letter = () => {
               recDefaultPrice =
                 Number(RecTotal) *
                 (1 - Number(RecurringPricingInfo.DefaultDiscount) / 100);
-              recDefaultPrice = (
-                Math.floor(recDefaultPrice * 100) / 100
-              ).toFixed(2);
+              recDefaultPrice =Number(recDefaultPrice)?.toFixed(2);
             }
 
             // recDefaultPrice =
@@ -8432,9 +8420,7 @@ const Add_Update_Engagement_Letter = () => {
             Number(OneOffTotal)?.toFixed(2) !==
             Number(OneOffPricingInfo.OriginalPrice)?.toFixed(2)
           ) {
-            oneOffDefaultPrice = (
-              Math.floor(Number(OneOffTotal).toFixed(12) * 100) / 100
-            ).toFixed(2);
+            oneOffDefaultPrice = Number(OneOffTotal)?.toFixed(2);
 
             oneOffVATPrice =
               Number(oneOffOriginalPrice) * (vatPercentage / 100);
@@ -10533,7 +10519,14 @@ const Add_Update_Engagement_Letter = () => {
     if (statusId == 1) {
       setModelAction("Draft");
     }
-
+    if (engagementObj.paymentGatewayID === ChangeDefaultPaymentGatewaysTypes.Stripe) {
+      if (isValueGreaterThan20000(RecurringPricingInfo, OneOffPricingInfo, vatPercentage)) {
+        setLoader(false)
+        setErrorMessage("Stripe cannot be selected as the payment method because your total exceeds £20,000. Please choose another payment method.")
+        setOpenErrorModal(true)
+        return;
+      }
+    }
     const response = await AddUpdateEngagement(Api_ObjectParam);
     try {
       if (response) {
@@ -11932,13 +11925,10 @@ const Add_Update_Engagement_Letter = () => {
           const recOriginalPriceCopy = (
             Number(RecTotal) * multiplicationFactor
           ).toFixed(12);
-          const recDefaultPriceCopy = (
-            Math.floor(
+          const recDefaultPriceCopy =
               Number(
                 finalQuotationAmount.discountedTotal * multiplicationFactor
-              ) * 100
-            ) / 100
-          ).toFixed(2);
+              )?.toFixed(2);
 
           const recVATPriceCopy = (
             Number(recDefaultPriceCopy) *
@@ -11960,9 +11950,7 @@ const Add_Update_Engagement_Letter = () => {
             OriginalPrice: Number(RecTotal),
             DefaultDiscount: Number(discountedPercentage)?.toFixed(2),
             servicePackageName: finalQuotationAmount.servicePackageName,
-            DiscountedPrice: (
-              Math.floor(finalQuotationAmount.discountedTotal * 100) / 100
-            ).toFixed(2),
+            DiscountedPrice: (finalQuotationAmount.discountedTotal )?.toFixed(2),
             NetTotal: Math.max(
               Number(finalQuotationAmount.netTotal),
               Number(finalQuotationAmount.discountedTotal)
@@ -12062,9 +12050,7 @@ const Add_Update_Engagement_Letter = () => {
               OriginalPrice: OneOffTotal,
               servicePackageName: finalQuotationAmount.servicePackageName,
               DefaultDiscount: Number(discountedPercentage)?.toFixed(2),
-              DiscountedPrice: (
-                Math.floor(finalQuotationAmount.discountedTotal * 100) / 100
-              ).toFixed(2),
+              DiscountedPrice: Number(finalQuotationAmount.discountedTotal )?.toFixed(2),
               NetTotal: Math.max(
                 Number(finalQuotationAmount.netTotal),
                 Number(finalQuotationAmount.discountedTotal)
@@ -12080,12 +12066,8 @@ const Add_Update_Engagement_Letter = () => {
               OriginalPrice: OneOffTotal,
               servicePackageName: finalQuotationAmount.servicePackageName,
               DefaultDiscount: Number(percentage),
-              DiscountedPrice: (
-                Math.floor(finalQuotationAmount.discountedTotal * 100) / 100
-              ).toFixed(2),
-              NetTotal: (
-                Math.floor(Number(finalQuotationAmount.netTotal) * 100) / 100
-              ).toFixed(2),
+              DiscountedPrice: Number(finalQuotationAmount.discountedTotal )?.toFixed(2),
+              NetTotal:Number(finalQuotationAmount.netTotal)?.toFixed(2),
               VATPrice: Number(finalQuotationAmount.vat),
               Discount: Number(finalQuotationAmount.discounted),
               DiscountedTotal: Number(finalQuotationAmount.discountedTotal),

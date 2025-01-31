@@ -15,6 +15,7 @@ import {
 import { GetQuoteTypeLookupList } from "../../redux/Services/Master/QuoteTypeLookupList";
 import { useSelector } from "react-redux";
 import {
+  ChangeDefaultPaymentGatewaysTypes,
   Payment_Frequency,
   ProposalHeader,
   ServiceChargeTypeEnum,
@@ -2210,7 +2211,7 @@ const ReviewServicesComponent = (props) => {
     props.setRecurringPricingInfo({
       ...props.RecurringPricingInfo,
       OriginalPrice: OriginalPrice,
-      DiscountedPrice: (Math.floor(DiscountedPrice * 100) / 100).toFixed(2),
+      DiscountedPrice: Number(DiscountedPrice)?.toFixed(2),
       // DiscountedPrice: Number(DiscountedPrice)?.toFixed(2),
       DefaultDiscount: Number(DefaultDiscount).toFixed(2),
       Discount: Discount,
@@ -2332,7 +2333,7 @@ const ReviewServicesComponent = (props) => {
     // Update state
     props.setRecurringPricingInfo({
       ...props.RecurringPricingInfo,
-      DiscountedPrice: (Math.floor(discountedPrice * 100) / 100).toFixed(2),
+      DiscountedPrice: Number(discountedPrice)?.toFixed(2),
       // DiscountedPrice: discountedPrice?.toFixed(2),
       DefaultDiscount: parsedValue,
       Discount: originalPrice - discountedPrice,
@@ -2408,7 +2409,7 @@ const ReviewServicesComponent = (props) => {
     // Update state
     props.setOneOffPricingInfo({
       ...props.OneOffPricingInfo,
-      DiscountedPrice: (Math.floor(discountedPrice * 100) / 100).toFixed(2),
+      DiscountedPrice: Number(discountedPrice)?.toFixed(2),
       // DiscountedPrice: discountedPrice?.toFixed(2),
       DefaultDiscount: parsedValue,
       Discount: originalPrice - discountedPrice,
@@ -2857,14 +2858,21 @@ const ReviewServicesComponent = (props) => {
                           readonly=""
                           type="text"
                           class="input-text"
+                          // value={
+                          //   // props.formatValue(
+                          //   //   props.RecurringPricingInfo.OriginalPrice
+                          //   // )
+                          //   Number(
+                          //     Math.floor(
+                          //       props.RecurringPricingInfo.OriginalPrice * 100
+                          //     ) / 100
+                          //   )
+                          //     .toFixed(2)
+                          //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                          // }
                           value={
-                            // props.formatValue(
-                            //   props.RecurringPricingInfo.OriginalPrice
-                            // )
                             Number(
-                              Math.floor(
-                                props.RecurringPricingInfo.OriginalPrice * 100
-                              ) / 100
+                              props.RecurringPricingInfo.OriginalPrice
                             )
                               .toFixed(2)
                               .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
@@ -3313,14 +3321,28 @@ const ReviewServicesComponent = (props) => {
                           readonly=""
                           type="text"
                           class="input-text"
+                          // value={
+                          //   // props.formatValue(
+                          //   //   props.OneOffPricingInfo.OriginalPrice
+                          //   // )
+                          //   Number(
+                          //     Math.floor(
+                          //       props.OneOffPricingInfo.OriginalPrice * 100
+                          //     ) / 100
+                          //   )
+                          //     .toFixed(2)
+                          //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                          //   // props.OneOffPricingInfo.OriginalPrice.toString().replace(
+                          //   //   /\B(?=(\d{3})+(?!\d))/g,
+                          //   //   ","
+                          //   // )
+                          // }
                           value={
                             // props.formatValue(
                             //   props.OneOffPricingInfo.OriginalPrice
                             // )
                             Number(
-                              Math.floor(
-                                props.OneOffPricingInfo.OriginalPrice * 100
-                              ) / 100
+                              props.OneOffPricingInfo.OriginalPrice
                             )
                               .toFixed(2)
                               .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
@@ -10341,7 +10363,8 @@ const Add_Update_Proposal = (props) => {
     getValidationMessage,
     getFontStylesFromHtml,
     isValidNumber,
-    replaceTemplatePricingVariables
+    replaceTemplatePricingVariables,
+    isValueGreaterThan20000
   } = useContext(AuthContextProvider);
   const [openErrorModal, setOpenErrorModal] = useState(false);
   // const [updatePackage, setIsUpdatePackage] = useState(true);
@@ -12288,9 +12311,7 @@ const Add_Update_Proposal = (props) => {
               Number(RecTotal)?.toFixed(2) !==
               Number(RecurringPricingInfo.OriginalPrice)?.toFixed(2)
             ) {
-              recDefaultPrice = (
-                Math.floor(Number(RecTotal).toFixed(12) * 100) / 100
-              ).toFixed(2);
+              recDefaultPrice = Number(RecTotal).toFixed(2)
               // recDefaultPrice = (
               //   Math.floor(Number(RecTotal / pricingSettingPaymentFrequency).toFixed(12) * 100) / 100
               // ).toFixed(2);
@@ -12319,9 +12340,7 @@ const Add_Update_Proposal = (props) => {
                 recDefaultPrice =
                   Number(RecTotal) *
                   (1 - Number(RecurringPricingInfo.DefaultDiscount) / 100);
-                recDefaultPrice = (
-                  Math.floor(recDefaultPrice * 100) / 100
-                ).toFixed(2);
+                recDefaultPrice = Number(recDefaultPrice)?.toFixed(2)
               }
 
               // recDefaultPrice =
@@ -12489,9 +12508,8 @@ const Add_Update_Proposal = (props) => {
               Number(OneOffTotal)?.toFixed(2) !==
               Number(OneOffPricingInfo.OriginalPrice)?.toFixed(2)
             ) {
-              oneOffDefaultPrice = (
-                Math.floor(Number(OneOffTotal).toFixed(12) * 100) / 100
-              ).toFixed(2);
+              oneOffDefaultPrice =
+                Number(OneOffTotal)?.toFixed(2)
 
               oneOffVATPrice =
                 Number(oneOffOriginalPrice) * (vatPercentage / 100);
@@ -13776,9 +13794,7 @@ const Add_Update_Proposal = (props) => {
             Number(RecTotal)?.toFixed(2) !==
             Number(RecurringPricingInfo.OriginalPrice)?.toFixed(2)
           ) {
-            recDefaultPrice = (
-              Math.floor(Number(RecTotal).toFixed(12) * 100) / 100
-            ).toFixed(2);
+            recDefaultPrice = Number(RecTotal)?.toFixed(2)
             // recDefaultPrice = (
             //   Math.floor(Number(RecTotal / pricingSettingPaymentFrequency).toFixed(12) * 100) / 100
             // ).toFixed(2);
@@ -13807,9 +13823,7 @@ const Add_Update_Proposal = (props) => {
               recDefaultPrice =
                 Number(RecTotal) *
                 (1 - Number(RecurringPricingInfo.DefaultDiscount) / 100);
-              recDefaultPrice = (
-                Math.floor(recDefaultPrice * 100) / 100
-              ).toFixed(2);
+              recDefaultPrice = Number(recDefaultPrice).toFixed(2);
             }
 
             // recDefaultPrice =
@@ -13977,9 +13991,7 @@ const Add_Update_Proposal = (props) => {
             Number(OneOffTotal)?.toFixed(2) !==
             Number(OneOffPricingInfo.OriginalPrice)?.toFixed(2)
           ) {
-            oneOffDefaultPrice = (
-              Math.floor(Number(OneOffTotal).toFixed(12) * 100) / 100
-            ).toFixed(2);
+            oneOffDefaultPrice = Number(OneOffTotal).toFixed(2)
 
             oneOffVATPrice =
               Number(oneOffOriginalPrice) * (vatPercentage / 100);
@@ -16012,6 +16024,16 @@ const Add_Update_Proposal = (props) => {
 
   // Handle save As A Draft And Send Proposal
   const AddUpdateQuat = async (params, StatusId) => {
+
+    if (ProposalObject.paymentGatewayID === ChangeDefaultPaymentGatewaysTypes.Stripe && ProposalObject?.ProposalFormate === 1) {
+      if (isValueGreaterThan20000(RecurringPricingInfo, OneOffPricingInfo, vatPercentage)) {
+        setLoader(false)
+        setErrorMessage("Stripe cannot be selected as the payment method because your total exceeds £20,000. Please choose another payment method.")
+        setOpenErrorModal(true)
+        return;
+      }
+    }
+
     try {
       const URL = "/AddUpdateQuote";
       const data = await AddUpdateQuote(URL, params);
