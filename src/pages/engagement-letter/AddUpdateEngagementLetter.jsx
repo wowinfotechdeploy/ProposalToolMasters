@@ -9305,6 +9305,14 @@ const Add_Update_Engagement_Letter = () => {
         AddUpdateEngagementLatter(statusID.Draft, "ReviewPackage");
         setRequireMessage(false);
       } else {
+        if (engagementObj.paymentGatewayID === ChangeDefaultPaymentGatewaysTypes.Stripe) {
+          if (isValueGreaterThan20000(RecurringPricingInfo, OneOffPricingInfo, vatPercentage)) {
+            setLoader(false)
+            setErrorMessage("Stripe cannot be selected as the payment method because your total exceeds £20,000. Please choose another payment method.")
+            setOpenErrorModal(true)
+            return;
+          }
+        }
         GetTemplateModalData(NextTab);
         setRequireMessage(false);
         setIsValidForm({
@@ -9809,6 +9817,14 @@ const Add_Update_Engagement_Letter = () => {
           setRequireMessage(false);
           AddUpdateEngagementLatter(statusID.Draft, "ReviewServices");
         } else {
+          if (engagementObj.paymentGatewayID === ChangeDefaultPaymentGatewaysTypes.Stripe) {
+            if (isValueGreaterThan20000(RecurringPricingInfo, OneOffPricingInfo, vatPercentage)) {
+              setLoader(false)
+              setErrorMessage("Stripe cannot be selected as the payment method because your total exceeds £20,000. Please choose another payment method.")
+              setOpenErrorModal(true)
+              return;
+            }
+          }
           setRequireMessage(false);
           GetTemplateModalData(NextTab);
         }
@@ -10520,14 +10536,7 @@ const Add_Update_Engagement_Letter = () => {
     if (statusId == 1) {
       setModelAction("Draft");
     }
-    if (engagementObj.paymentGatewayID === ChangeDefaultPaymentGatewaysTypes.Stripe) {
-      if (isValueGreaterThan20000(RecurringPricingInfo, OneOffPricingInfo, vatPercentage)) {
-        setLoader(false)
-        setErrorMessage("Stripe cannot be selected as the payment method because your total exceeds £20,000. Please choose another payment method.")
-        setOpenErrorModal(true)
-        return;
-      }
-    }
+ 
     const response = await AddUpdateEngagement(Api_ObjectParam);
     try {
       if (response) {
