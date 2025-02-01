@@ -3102,10 +3102,6 @@ const AuthContext = ({ children }) => {
 
     for (let i = 0; i < 3; i++) {
       const label = packageLabels[i];
-  
-      console.log(RecurringPricingInfo[`Package${label}GrandTotal`], `RecurringPricingInfo Package${label}GrandTotal`);
-      console.log(RecurringPricingInfo[`package${label}DisCountedTotal`], `RecurringPricingInfo package${label}DisCountedTotal`);
-  
       if (
         (vatPercentage && RecurringPricingInfo[`Package${label}GrandTotal`] > 20000) ||
         (RecurringPricingInfo[`DiscountPercentagePackage${label}`] >= 0 &&

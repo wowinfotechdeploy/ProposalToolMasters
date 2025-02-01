@@ -2031,6 +2031,7 @@ const ReviewServicesComponent = (props) => {
                               // props.OneOffPricingInfo.OriginalPrice
                               // )
                               Number(
+                                props.OneOffPricingInfo.OriginalPrice
                               )
                                 ?.toFixed(2)
                                 .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
