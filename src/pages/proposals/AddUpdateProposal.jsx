@@ -16024,9 +16024,8 @@ const Add_Update_Proposal = (props) => {
 
   // Handle save As A Draft And Send Proposal
   const AddUpdateQuat = async (params, StatusId) => {
-
     if (ProposalObject.paymentGatewayID === ChangeDefaultPaymentGatewaysTypes.Stripe && ProposalObject?.ProposalFormate === 1) {
-      if (isValueGreaterThan20000(RecurringPricingInfo, OneOffPricingInfo, vatPercentage)) {
+      if (isValueGreaterThan20000(RecurringPricingInfo, OneOffPricingInfo, vatPercentage, selectedPackages)) {
         setLoader(false)
         setErrorMessage("Stripe cannot be selected as the payment method because your total exceeds £20,000. Please choose another payment method.")
         setOpenErrorModal(true)

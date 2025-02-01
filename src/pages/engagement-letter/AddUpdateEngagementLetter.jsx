@@ -676,7 +676,7 @@ const ReviewServicesComponent = (props) => {
     }
   };
   const handlePaymentFrequencyChange = (e) => {
-    
+
     props.DisableTabOnChange();
     setLastPaymentFrequencyAndDiscountedPrice({
       ...lastPaymentFrequencyAndDiscountedPrice,
@@ -855,7 +855,7 @@ const ReviewServicesComponent = (props) => {
     props.setRecurringPricingInfo({
       ...props.RecurringPricingInfo,
       OriginalPrice: OriginalPrice,
-      DiscountedPrice: Number(DiscountedPrice )?.toFixed(2),
+      DiscountedPrice: Number(DiscountedPrice)?.toFixed(2),
       DefaultDiscount: Number(DefaultDiscount).toFixed(2),
       Discount: Discount,
       DiscountedTotal: DiscountedTotal,
@@ -1498,7 +1498,7 @@ const ReviewServicesComponent = (props) => {
                             type="text"
                             className="input-text"
                             value={Number(
-                                props.RecurringPricingInfo.OriginalPrice 
+                              props.RecurringPricingInfo.OriginalPrice
                             )
                               ?.toFixed(2)
                               .replace(/\B(?=(\d{3})+(?!\d))/g, ",")} // Add commas as thousand separators
@@ -6760,7 +6760,7 @@ const Add_Update_Engagement_Letter = () => {
               Number(RecTotal) * Number(multiplicationFactor)
             ).toFixed(12);
             recOriginalPrice = Number(RecTotal).toFixed(12);
- 
+
             if (
               RecurringPricingInfo.OriginalPrice === "" ||
               RecurringPricingInfo.OriginalPrice === null ||
@@ -8258,7 +8258,7 @@ const Add_Update_Engagement_Letter = () => {
               recDefaultPrice =
                 Number(RecTotal) *
                 (1 - Number(RecurringPricingInfo.DefaultDiscount) / 100);
-              recDefaultPrice =Number(recDefaultPrice)?.toFixed(2);
+              recDefaultPrice = Number(recDefaultPrice)?.toFixed(2);
             }
 
             // recDefaultPrice =
@@ -9306,7 +9306,7 @@ const Add_Update_Engagement_Letter = () => {
         setRequireMessage(false);
       } else {
         if (engagementObj.paymentGatewayID === ChangeDefaultPaymentGatewaysTypes.Stripe) {
-          if (isValueGreaterThan20000(RecurringPricingInfo, OneOffPricingInfo, vatPercentage)) {
+          if (isValueGreaterThan20000(RecurringPricingInfo, OneOffPricingInfo, vatPercentage, selectedPackagesList)) {
             setLoader(false)
             setErrorMessage("Stripe cannot be selected as the payment method because your total exceeds £20,000. Please choose another payment method.")
             setOpenErrorModal(true)
@@ -9818,7 +9818,7 @@ const Add_Update_Engagement_Letter = () => {
           AddUpdateEngagementLatter(statusID.Draft, "ReviewServices");
         } else {
           if (engagementObj.paymentGatewayID === ChangeDefaultPaymentGatewaysTypes.Stripe) {
-            if (isValueGreaterThan20000(RecurringPricingInfo, OneOffPricingInfo, vatPercentage)) {
+            if (isValueGreaterThan20000(RecurringPricingInfo, OneOffPricingInfo, vatPercentage, selectedPackagesList)) {
               setLoader(false)
               setErrorMessage("Stripe cannot be selected as the payment method because your total exceeds £20,000. Please choose another payment method.")
               setOpenErrorModal(true)
@@ -10536,7 +10536,7 @@ const Add_Update_Engagement_Letter = () => {
     if (statusId == 1) {
       setModelAction("Draft");
     }
- 
+
     const response = await AddUpdateEngagement(Api_ObjectParam);
     try {
       if (response) {
@@ -11936,9 +11936,9 @@ const Add_Update_Engagement_Letter = () => {
             Number(RecTotal) * multiplicationFactor
           ).toFixed(12);
           const recDefaultPriceCopy =
-              Number(
-                finalQuotationAmount.discountedTotal * multiplicationFactor
-              )?.toFixed(2);
+            Number(
+              finalQuotationAmount.discountedTotal * multiplicationFactor
+            )?.toFixed(2);
 
           const recVATPriceCopy = (
             Number(recDefaultPriceCopy) *
@@ -11960,7 +11960,7 @@ const Add_Update_Engagement_Letter = () => {
             OriginalPrice: Number(RecTotal),
             DefaultDiscount: Number(discountedPercentage)?.toFixed(2),
             servicePackageName: finalQuotationAmount.servicePackageName,
-            DiscountedPrice: (finalQuotationAmount.discountedTotal )?.toFixed(2),
+            DiscountedPrice: (finalQuotationAmount.discountedTotal)?.toFixed(2),
             NetTotal: Math.max(
               Number(finalQuotationAmount.netTotal),
               Number(finalQuotationAmount.discountedTotal)
@@ -12060,7 +12060,7 @@ const Add_Update_Engagement_Letter = () => {
               OriginalPrice: OneOffTotal,
               servicePackageName: finalQuotationAmount.servicePackageName,
               DefaultDiscount: Number(discountedPercentage)?.toFixed(2),
-              DiscountedPrice: Number(finalQuotationAmount.discountedTotal )?.toFixed(2),
+              DiscountedPrice: Number(finalQuotationAmount.discountedTotal)?.toFixed(2),
               NetTotal: Math.max(
                 Number(finalQuotationAmount.netTotal),
                 Number(finalQuotationAmount.discountedTotal)
@@ -12076,8 +12076,8 @@ const Add_Update_Engagement_Letter = () => {
               OriginalPrice: OneOffTotal,
               servicePackageName: finalQuotationAmount.servicePackageName,
               DefaultDiscount: Number(percentage),
-              DiscountedPrice: Number(finalQuotationAmount.discountedTotal )?.toFixed(2),
-              NetTotal:Number(finalQuotationAmount.netTotal)?.toFixed(2),
+              DiscountedPrice: Number(finalQuotationAmount.discountedTotal)?.toFixed(2),
+              NetTotal: Number(finalQuotationAmount.netTotal)?.toFixed(2),
               VATPrice: Number(finalQuotationAmount.vat),
               Discount: Number(finalQuotationAmount.discounted),
               DiscountedTotal: Number(finalQuotationAmount.discountedTotal),

@@ -3084,41 +3084,59 @@ const AuthContext = ({ children }) => {
     });
   };
 
-  const isValueGreaterThan20000 = (RecurringPricingInfo, OneOffPricingInfo, vatPercentage) => {
+  const isValueGreaterThan20000 = (RecurringPricingInfo, OneOffPricingInfo, vatPercentage, selectedPackagesList) => {
     // Check main grand totals and discounted values
-    if (
-      (vatPercentage && RecurringPricingInfo.GrandTotal > 20000) ||
-      (RecurringPricingInfo.DefaultDiscount >= 0 && RecurringPricingInfo.DiscountedTotal > 20000) ||
-      RecurringPricingInfo.DiscountedPrice > 20000 ||
-      (vatPercentage && OneOffPricingInfo.GrandTotal > 20000) ||
-      (OneOffPricingInfo.DefaultDiscount >= 0 && OneOffPricingInfo.DiscountedTotal > 20000) ||
-      OneOffPricingInfo.DiscountedPrice > 20000
-    ) {
-      return true;
-    }
-  
-    // Check all three package values for RecurringPricingInfo and OneOffPricingInfo
-    const packageLabels = ["One", "Two", "Three"];
-
-    for (let i = 0; i < 3; i++) {
-      const label = packageLabels[i];
+    if (selectedPackagesList?.length == 0) {
+      if (vatPercentage && RecurringPricingInfo.GrandTotal > 20000) {
+        return true;
+      }
       if (
-        (vatPercentage && RecurringPricingInfo[`Package${label}GrandTotal`] > 20000) ||
-        (RecurringPricingInfo[`DiscountPercentagePackage${label}`] >= 0 &&
-          RecurringPricingInfo[`package${label}DisCountedTotal`] > 20000) ||
-        RecurringPricingInfo[`package${label}DisCountedTotal`] > 20000 ||
-        (vatPercentage && OneOffPricingInfo[`Package${label}GrandTotal`] > 20000) ||
-        (OneOffPricingInfo[`DiscountPercentagePackage${label}`] >= 0 &&
-          OneOffPricingInfo[`package${label}DisCountedTotal`] > 20000) ||
-        OneOffPricingInfo[`package${label}DisCountedTotal`] > 20000
+        (RecurringPricingInfo.DefaultDiscount !== 0 || !RecurringPricingInfo.DefaultDiscount) &&
+        RecurringPricingInfo.DiscountedTotal > 20000
       ) {
         return true;
       }
+      if (RecurringPricingInfo.DiscountedPrice > 20000) {
+        return true;
+      }
+      if (vatPercentage && OneOffPricingInfo.GrandTotal > 20000) {
+        return true;
+      }
+      if (
+        (OneOffPricingInfo.DefaultDiscount !== 0 || !OneOffPricingInfo.DefaultDiscount) &&
+        OneOffPricingInfo.DiscountedTotal > 20000
+      ) {
+        return true;
+      }
+      if (OneOffPricingInfo.DiscountedPrice > 20000) {
+        return true;
+      }
+
+    } else {
+      // Check all three package values for RecurringPricingInfo and OneOffPricingInfo
+      const packageLabels = ["One", "Two", "Three"];
+
+      for (let i = 0; i < 3; i++) {
+        const label = packageLabels[i];
+
+        if (
+          (vatPercentage && RecurringPricingInfo[`Package${label}GrandTotal`] > 20000) ||
+          (RecurringPricingInfo[`DiscountPercentagePackage${label}`] >= 0 &&
+            RecurringPricingInfo[`package${label}DisCountedTotal`] > 20000) ||
+          RecurringPricingInfo[`package${label}DisCountedTotal`] > 20000 ||
+          (vatPercentage && OneOffPricingInfo[`Package${label}GrandTotal`] > 20000) ||
+          (OneOffPricingInfo[`DiscountPercentagePackage${label}`] >= 0 &&
+            OneOffPricingInfo[`package${label}DisCountedTotal`] > 20000) ||
+          OneOffPricingInfo[`package${label}DisCountedTotal`] > 20000
+        ) {
+          return true;
+        }
+      }
+
     }
-  
     return false;
   };
-  
+
   /* -------------- Set All Function Used Globally Throughout The Project ------------ */
   return (
     <AuthContextProvider.Provider
