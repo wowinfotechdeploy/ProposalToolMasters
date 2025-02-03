@@ -53,6 +53,7 @@ function UnpaidUpdateAccountDeletion() {
 
   const [reminderObj, setReminderObj] = useState({
     reminderName: null,
+    reminderNameType:null,
     reminderKeyID: id,
     organisationKeyID: null,
     userKeyID: null,
@@ -73,6 +74,7 @@ function UnpaidUpdateAccountDeletion() {
   }, []);
 
   useEffect(() => {
+    
     if (location?.state) {
       setTemplateTypeID(location.state.templateTypeID);
       GetEmailTemplateTypeData(location.state.templateTypeID);
@@ -183,6 +185,7 @@ function UnpaidUpdateAccountDeletion() {
             isRepeat: ModelData.isRepeat,
             reminderFrequencyID: ModelData.reminderFrequencyID,
             documentStatusIDs: ModelData.documentStatusIDs,
+            reminderNameType:location.state.reminderNameType
           });
 
         }
@@ -354,6 +357,33 @@ function UnpaidUpdateAccountDeletion() {
                         {requireErrorMessage &&
                           (reminderObj.reminderName === "" ||
                             reminderObj.reminderName === undefined) ? (
+                          <label className="validation">{ERROR_MESSAGES}</label>
+                        ) : (
+                          ""
+                        )}
+                      </div>
+                    </div>
+                    <div className="col-lg-6">
+                      <div className="mb-3">
+                        <label className="form-label">
+                          Reminder Type <span className="text-danger">*</span>
+                        </label>
+                        <div className="input-group input-height">
+                          <input
+                            type="text"
+                            readOnly
+                            className="input-text"
+                            placeholder="Enter Reminder Name"
+                            value={reminderObj.reminderNameType?.replace(/_/g, ' ')}
+                            onChange={handleReminderNameChange}
+                            required
+                            maxLength={100}
+                          />
+                        </div>
+
+                        {requireErrorMessage &&
+                          (reminderObj.reminderNameType === "" ||
+                            reminderObj.reminderNameType === undefined) ? (
                           <label className="validation">{ERROR_MESSAGES}</label>
                         ) : (
                           ""

@@ -73,6 +73,7 @@ function AccountDeletionReminder() {
     userKeyID: null,
     emailTemplateType: null,
     listType: null,
+    reminderNameType:null
   });
   const dispatch = useDispatch();
   const pageSize = isMobile ? isMobileRecords : desktopRecords;
@@ -321,39 +322,47 @@ function AccountDeletionReminder() {
     let templateTypeID = null;
     let greaterDay = null
     let lessDay = null
+   let reminderNameType=Template.reminderNameType
     if (listType === "Unpaid") {
       if (Template.reminderNameType === "Login_To_Outbooks_Warning_Email_First_Unpaid_User") {
         templateTypeID = EmailTemplates.UnpaidUser_FirstMail;
         templateTypeID = EmailTemplates.UnpaidUser_FirstMail;
         // greaterDay = EmailTemplateList[index + 1].days
+        reminderNameType=Template.reminderNameType
         greaterDay = EmailTemplateList.find(item => item.reminderNameType === "Login_To_Outbooks_Warning_Email_Second_Unpaid_User").days
         lessDay = null
       } else if (Template.reminderNameType === "Login_To_Outbooks_Warning_Email_Second_Unpaid_User") {
         templateTypeID = EmailTemplates.UnpaidUser_SecondMail;
         greaterDay = EmailTemplateList.find(item => item.reminderNameType === "Login_To_Outbooks_Warning_Email_Third_Unpaid_User").days
         lessDay = EmailTemplateList.find(item => item.reminderNameType === "Login_To_Outbooks_Warning_Email_First_Unpaid_User").days
+        reminderNameType=Template.reminderNameType
       } else if (Template.reminderNameType === "Login_To_Outbooks_Warning_Email_Third_Unpaid_User") {
         templateTypeID = EmailTemplates.UnpaidUser_ThirdMail;
         greaterDay = EmailTemplateList.find(item => item.reminderNameType === "Account_Deletion_Email_Unpaid_User").days
         lessDay = EmailTemplateList.find(item => item.reminderNameType === "Login_To_Outbooks_Warning_Email_Second_Unpaid_User").days
+        reminderNameType=Template.reminderNameType
       } else if (Template.reminderNameType === "Account_Deletion_Email_Unpaid_User") {
         templateTypeID = EmailTemplates.UnpaidUser_DeletionMail;
         greaterDay = null
         lessDay = EmailTemplateList.find(item => item.reminderNameType === "Login_To_Outbooks_Warning_Email_Third_Unpaid_User").days
+        reminderNameType=Template.reminderNameType
       }
     } else if (listType === "Paid") {
       if (Template.reminderNameType === "Login_To_Outbooks_Warning_Email_First_Paid_User") {
         templateTypeID = EmailTemplates.PaidUser_FirstMail;
         greaterDay = ReminderTemplateList.find(item => item.reminderNameType === "Login_To_Outbooks_Warning_Email_Second_Paid_User").days
         lessDay = null
+        reminderNameType=Template.reminderNameType
       } else if (Template.reminderNameType === "Login_To_Outbooks_Warning_Email_Second_Paid_User") {
         templateTypeID = EmailTemplates.PaidUser_SecondMail;
         greaterDay = ReminderTemplateList.find(item => item.reminderNameType === "Login_To_Outbooks_Warning_Email_Third_Paid_User").days
         lessDay = ReminderTemplateList.find(item => item.reminderNameType === "Login_To_Outbooks_Warning_Email_First_Paid_User").days
+        reminderNameType=Template.reminderNameType
       } else if (Template.reminderNameType === "Login_To_Outbooks_Warning_Email_Third_Paid_User") {
         templateTypeID = EmailTemplates.PaidUser_ThirdMail;
         greaterDay = null
         lessDay = ReminderTemplateList.find(item => item.reminderNameType === "Login_To_Outbooks_Warning_Email_Second_Paid_User").days
+        reminderNameType=Template.reminderNameType
       }
     }
 
@@ -373,6 +382,7 @@ function AccountDeletionReminder() {
       templateTypeID: templateTypeID,
       reminderTypeID: listType === "Paid" ? 3 : 2,
       listType: listType,
+      reminderNameType:reminderNameType
     });
   };
 
@@ -468,6 +478,9 @@ function AccountDeletionReminder() {
                                   Reminder Name
                                 </td>
                                 <td className="tr-table-class text-white">
+                                  Reminder Type
+                                </td>
+                                <td className="tr-table-class text-white">
                                   Email Template
                                 </td>
                                 <td className="tr-table-class text-white">
@@ -502,6 +515,9 @@ function AccountDeletionReminder() {
                                     <td className="table-content-font">
                                       {Template.reminderName}
                                     </td>
+                                    <td className="table-content-font">
+                                        {Template.reminderNameType?.replace(/_/g, ' ')}
+                                      </td>
                                     <td className="table-content-font">
                                       {Template.templateName}
                                     </td>
@@ -615,6 +631,9 @@ function AccountDeletionReminder() {
                                     Reminder Name
                                   </td>
                                   <td className="tr-table-class text-white">
+                                    Reminder Type
+                                  </td>
+                                  <td className="tr-table-class text-white">
                                     Email Template
                                   </td>
 
@@ -647,6 +666,9 @@ function AccountDeletionReminder() {
                                     >
                                       <td className="table-content-font">
                                         {Template.reminderName}
+                                      </td>
+                                      <td className="table-content-font">
+                                        {Template.reminderNameType?.replace(/_/g, ' ')}
                                       </td>
                                       <td className="table-content-font">
                                         {Template.templateName}
