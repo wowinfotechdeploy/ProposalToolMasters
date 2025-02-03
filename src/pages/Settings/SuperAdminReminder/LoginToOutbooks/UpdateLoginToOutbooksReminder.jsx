@@ -342,7 +342,6 @@ function UnpaidUpdateAccountDeletion() {
                         <div className="input-group input-height">
                           <input
                             type="text"
-                            readOnly
                             className="input-text"
                             placeholder="Enter Reminder Name"
                             value={reminderObj.reminderName}
