@@ -1,10 +1,7 @@
 import React from "react";
 import AccountantVariables from "./AccountantVariables";
 import CopyToClipboard from "../CopyToClipboard/CopyToClipboard";
-import Utils from "../../Middleware/Utils";
-import { CLIENT_TYPES, SUPER_EMAIL_TEMPLATE } from "../../Middleware/enums";
-import BusinessTypeVariables from "../../Database/VariableHelpers/BusinessTypeVariables";
-import ProspectTypeVariables from "../../Database/VariableHelpers/ProspectTypeVariables";
+import { SUPER_EMAIL_TEMPLATE } from "../../Middleware/enums";
 import SuperTemplateTypeVariable from "../../Database/VariableHelpers/SuperTemplateTypeVariable";
 
 function SuperAdminEmailTemplateVariable({
@@ -50,6 +47,27 @@ function SuperAdminEmailTemplateVariable({
         </>
       )}
       {businessTypeId == SUPER_EMAIL_TEMPLATE.Two_FA && (
+        <>
+          {" "}
+          <div className="separator mt-2 mb-2" />
+          <CopyToClipboard texts={SuperTemplateTypeVariable.TwoFA} />
+        </>
+      )}
+      {businessTypeId == SUPER_EMAIL_TEMPLATE.SubscriptionPurchase && (
+        <>
+          {" "}
+          <div className="separator mt-2 mb-2" />
+          <CopyToClipboard texts={SuperTemplateTypeVariable.SubscriptionPurchase} />
+        </>
+      )}
+      {businessTypeId == SUPER_EMAIL_TEMPLATE.SubscriptionRenew && (
+        <>
+          {" "}
+          <div className="separator mt-2 mb-2" />
+          <CopyToClipboard texts={SuperTemplateTypeVariable.SubscriptionRenewal} />
+        </>
+      )}
+      {businessTypeId == SUPER_EMAIL_TEMPLATE.AccesskeyCreated && (
         <>
           {" "}
           <div className="separator mt-2 mb-2" />

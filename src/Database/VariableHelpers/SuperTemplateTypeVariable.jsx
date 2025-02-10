@@ -66,8 +66,33 @@ const Subscription = [
   "$NewOrganisationCreatedDate$",
   "$OrganisationLastUpdatedDate$"
 ];
-
+const SubscriptionPurchase = [
+  "$NewSubscription.Name$",
+  "$NewSubscription.StartDate$",
+  "$NewSubscription.EndDate$",
+  "$NewSubscription.Price$",
+  "$OldSubscription.Name$",
+  "$OldSubscription.StartDate$",
+  "$OldSubscription.EndDate$",
+  "$OldSubscription.Price$",
+  "$AttachInvoice$",
+  "$Offer$"
+];
+const SubscriptionRenewal = [
+  "$NewSubscription.Name$",
+  "$NewSubscription.StartDate$",
+  "$NewSubscription.EndDate$",
+  "$NewSubscription.Price$",
+  "$OldSubscription.Name$",
+  "$OldSubscription.StartDate$",
+  "$OldSubscription.EndDate$",
+  "$OldSubscription.Price$",
+  "$AttachInvoice$",
+  "$Offer$"
+];
 export default {
+  SubscriptionPurchase,
+  SubscriptionRenewal,
   ConfirmationEmail,
   WelcomeEmail,
   ForgotPasswordEmail,

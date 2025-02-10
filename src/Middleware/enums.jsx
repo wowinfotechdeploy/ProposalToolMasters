@@ -47,6 +47,9 @@ export const SUPER_EMAIL_TEMPLATE = {
   Forget_Password_Email: 15,
   Invite_For_Sign_UP_Email: 12,
   Two_FA: 16,
+  SubscriptionPurchase: 39,
+  SubscriptionRenew: 40,
+  AccesskeyCreated: 41
 };
 export const Template_Type = {
   Quote: 1,
