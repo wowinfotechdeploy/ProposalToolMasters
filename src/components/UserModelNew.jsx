@@ -14,6 +14,7 @@ import { GetUserModelData } from "../redux/Services/Setting/UsersApi";
 // import Loader from "../../loader/Loader";
 import { updateState } from "../redux/Persist";
 import { AuthContextProvider } from "../AuthContext/AuthContext";
+import { UserRole } from "../redux/Services/Master/RoleTypeLookupListApi";
 
 const UserModelNew = (props) => {
   const modalRef = useRef(null);
@@ -37,6 +38,7 @@ const UserModelNew = (props) => {
   // const [loader, setLoader] = useState(true);
   const { setLoader, setTopbar } = useContext(AuthContextProvider);
   const [countryName, setcountryName] = useState([]);
+  const [userRole, setUserRole] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
   const [requireErrorMessage, setRequireErrorMessage] = useState(false);
   const dispatch = useDispatch();
@@ -49,7 +51,7 @@ const UserModelNew = (props) => {
       ) {
         // call here
         GetSocialLoginModelData(props.UserKeyID);
-
+        GetRoleTypeLookupListData()
         GetCountryCodeData();
         GetCountryNameData();
         setOpen(true);
@@ -78,6 +80,7 @@ const UserModelNew = (props) => {
               ModelData.countryCodeID === null ? 9 : ModelData.countryCodeID,
             country: ModelData.countryID,
             UserKeyID: ModelData.UserKeyID,
+            roleTypeID_ForUpdate: ModelData.roleTypeID_ForUpdate,
           });
         }
       } else {
@@ -120,10 +123,38 @@ const UserModelNew = (props) => {
       console.log(error);
     }
   };
+
+  const GetRoleTypeLookupListData = async () => {
+    try {
+      let callingFrom = "Admin";
+      if (
+        common.roleTypeId === 1 &&
+        (common.organisationKeyID === null || common.organisationKeyID === "")
+      ) {
+        callingFrom = "SuperAdmin";
+      }
+      const data = await UserRole(callingFrom);
+      let UserRoleData = data.data.responseData.data;
+      if (callingFrom === "Admin") {
+        UserRoleData = UserRoleData.filter((role) => role.roleTypeId !== 1);
+        setUserRole(UserRoleData);
+      } else if (callingFrom === "SuperAdmin") {
+        setUserRole(UserRoleData);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const CountryNameOption = countryName.map((name) => ({
     value: name.countryId,
     label: name.countryName,
   }));
+  const UserRoleTypeLookupList = userRole.map((userRoleType) => ({
+    value: userRoleType.roleTypeId,
+    label: userRoleType.roleName,
+  }));
+  const userRoleValue = UserRoleTypeLookupList.find((item) => item.value == socialObj.roleTypeID_ForUpdate)
   const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
   const phoneNumberRegex = /^\d{10,15}$/; // Allow between 10 and 15 digits
 
@@ -145,7 +176,10 @@ const UserModelNew = (props) => {
       socialObj.country === null ||
       socialObj.country === "" ||
       socialObj.phoneCode === null ||
-      socialObj.phoneCode === ""
+      socialObj.phoneCode === "" ||
+      socialObj.roleTypeID_ForUpdate === "" ||
+      socialObj.roleTypeID_ForUpdate === null ||
+      socialObj.roleTypeID_ForUpdate === undefined
     ) {
       hasError = true;
 
@@ -160,6 +194,7 @@ const UserModelNew = (props) => {
       setErrorMessage("");
     }
 
+
     // Preparing Object For Add Update and if any modification then it will done here
     const ApiRequest_ParamsObj = {
       UserKeyID: common.userKeyID,
@@ -170,7 +205,7 @@ const UserModelNew = (props) => {
       countryCodeID: socialObj.phoneCode,
       countryID: socialObj.country,
       phoneNumber: socialObj?.phone,
-
+      roleTypeID_ForUpdate: socialObj.roleTypeID_ForUpdate
     };
     $("#" + props.id).modal("hide");
 
@@ -483,9 +518,31 @@ const UserModelNew = (props) => {
                       ""
                     )}
                   </div>
+                  {!props.Edit &&
+                    <div className="mb-2">
+                      <label className="form-label">
+                        User Role <span className="text-danger">*</span>
+                      </label>
 
-
-
+                      <Select
+                        className="user-role-select"
+                        // id="customerName-field"
+                        value={userRoleValue}
+                        onChange={(roleTypeID_ForUpdate) => {
+                          setSocialObj({ ...socialObj, roleTypeID_ForUpdate: roleTypeID_ForUpdate.value });
+                        }}
+                        options={UserRoleTypeLookupList}
+                        placeholder="Select..."
+                      // className="form-select placeholderStyle h-40"
+                      />
+                      {requireErrorMessage &&
+                        (socialObj.roleTypeID_ForUpdate === "" || socialObj.roleTypeID_ForUpdate === null || socialObj.roleTypeID_ForUpdate === undefined) ? (
+                        <label className="validation">{ERROR_MESSAGES}</label>
+                      ) : (
+                        ""
+                      )}
+                    </div>
+                  }
                   <label
                     className="validation  "
                     style={{ textAlign: "center", display: "block" }}
@@ -493,6 +550,7 @@ const UserModelNew = (props) => {
                     {errorMessage}
                   </label>
                 </div>
+
               </div>
             </div>
             <div class="modal-footer">
