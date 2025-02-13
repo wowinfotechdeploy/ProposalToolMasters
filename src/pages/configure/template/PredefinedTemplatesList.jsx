@@ -1160,12 +1160,10 @@ function Predefined_Templates() {
                                               20
                                               ? Template.templatePdfTitle
                                                 .substring(0, 20)
-                                                .toLowerCase()
                                                 .replace(/\b\w/g, (l) =>
                                                   l.toUpperCase()
                                                 ) + "..."
                                               : Template.templatePdfTitle
-                                                .toLowerCase()
                                                 .replace(/\b\w/g, (l) =>
                                                   l.toUpperCase()
                                                 )}
@@ -1602,13 +1600,11 @@ function Predefined_Templates() {
                                             {Template.templateName.length > 20
                                               ? Template.templateName
                                                 .substring(0, 20)
-                                                .toLowerCase()
                                                 .replace(/\b\w/g, (l) =>
                                                   l.toUpperCase()
                                                 ) + "..."
                                               : Template.templateName
                                                 .substring(0, 20)
-                                                .toLowerCase()
                                                 .replace(/\b\w/g, (l) =>
                                                   l.toUpperCase()
                                                 )}
@@ -1623,7 +1619,6 @@ function Predefined_Templates() {
                                                 >
                                                   {Template.templateName
                                                     .substring(0, 78)
-                                                    .toLowerCase()
                                                     .replace(/\b\w/g, (l) =>
                                                       l.toUpperCase()
                                                     ) + "..."}
@@ -1634,7 +1629,6 @@ function Predefined_Templates() {
                                                 >
                                                   {Template.templateName
                                                     .substring(0, 48)
-                                                    .toLowerCase()
                                                     .replace(/\b\w/g, (l) =>
                                                       l.toUpperCase()
                                                     ) + "..."}
@@ -1643,7 +1637,6 @@ function Predefined_Templates() {
                                             ) : (
                                               <>
                                                 {Template.templateName
-                                                  .toLowerCase()
                                                   .replace(/\b\w/g, (l) =>
                                                     l.toUpperCase()
                                                   )}

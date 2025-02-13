@@ -553,13 +553,11 @@ function Global_Constants() {
                                           {GlobalConstant.driverName.length > 20
                                             ? GlobalConstant.driverName
                                               .substring(0, 20)
-                                              .toLowerCase()
                                               .replace(/\b\w/g, (l) =>
                                                 l.toUpperCase()
                                               ) + "..."
                                             : GlobalConstant.driverName
                                               .substring(0, 20)
-                                              .toLowerCase()
                                               .replace(/\b\w/g, (l) =>
                                                 l.toUpperCase()
                                               )}
@@ -573,7 +571,6 @@ function Global_Constants() {
                                             >
                                               {GlobalConstant.driverName
                                                 .substring(0, 63)
-                                                .toLowerCase()
                                                 .replace(/\b\w/g, (l) =>
                                                   l.toUpperCase()
                                                 ) + "..."}
@@ -581,7 +578,6 @@ function Global_Constants() {
                                           ) : (
                                             <>
                                               {GlobalConstant.driverName
-                                                .toLowerCase()
                                                 .replace(/\b\w/g, (l) =>
                                                   l.toUpperCase()
                                                 )}

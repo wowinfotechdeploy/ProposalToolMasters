@@ -561,13 +561,11 @@ const Service_Categories = () => {
                                             .length > 20
                                             ? serviceCategory.serviceCatName
                                               .substring(0, 20)
-                                              .toLowerCase()
                                               .replace(/\b\w/g, (l) =>
                                                 l.toUpperCase()
                                               ) + "..."
                                             : serviceCategory.serviceCatName
                                               .substring(0, 20)
-                                              .toLowerCase()
                                               .replace(/\b\w/g, (l) =>
                                                 l.toUpperCase()
                                               )}
@@ -583,7 +581,6 @@ const Service_Categories = () => {
                                             >
                                               {serviceCategory.serviceCatName
                                                 .substring(0, 50)
-                                                .toLowerCase()
                                                 .replace(/\b\w/g, (l) =>
                                                   l.toUpperCase()
                                                 ) + "..."}
@@ -591,7 +588,6 @@ const Service_Categories = () => {
                                           ) : (
                                             <>
                                               {serviceCategory.serviceCatName
-                                                .toLowerCase()
                                                 .replace(/\b\w/g, (l) =>
                                                   l.toUpperCase()
                                                 )}

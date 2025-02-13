@@ -27,179 +27,179 @@ export const SelectServices = (props) => {
     if (type === "RecurringService") {
       let updatedRecurringList = props.recurringServiceList?.map((category) => {
 
-          if (category?.serviceCatID === recurringService?.serviceCatID) {
-            return {
-              ...category,
-              servicesList: category.servicesList?.map((service) => {
-                if (service.serviceID === subRecurringService.serviceID) {
-                  return {
-                    ...service,
-                    pricingDriverList: service.pricingDriverList?.map(
-                      (pricingList) => {
-                        const isVariation =
-                          pricingList.variation &&
-                          pricingList.variation.some(
-                            (variation) => variation.variationID === id.value
-                          );
-                        const isSlab =
-                          pricingList.slab &&
-                          pricingList.slab.some(
-                            (slab) => slab.slabID === id.value
-                          );
-                                    if (isVariation) {
-                                      return {
-                                        ...pricingList,
-                                        driverVisibility: true,
-                                        driverValue: pricingList.variation
-                                          .filter(
-                                            (variation) => variation.variationID === id.value
-                                          )
-                                          .map((varValue) => varValue.variationValue)
-                                          .join(", "),
-                                        variation: pricingList.variation.map((variation) => ({
-                                          ...variation,
-                                          isDefault: variation.variationID === id.value,
-                                        })),
-                                      };
-                                    } else if (isSlab) {
-                                      return {
-                                        ...pricingList,
-                                        driverVisibility: true,
-                                        driverValue:
-                                          pricingList.slab
-                                            .filter(
-                                              (Slab) =>
-                                                Slab.slabID === id.value &&
-                                                Slab.slabTypeID == 1
-                                            )
-                                            .map((slabsValue) => slabsValue.slabValue)
-                                            .join(", ") || null,
-                                        slab: pricingList.slab.map((slab) => ({
-                                          ...slab,
-                                          isDefault: slab.slabID === id.value,
-                                        })),
-                                      };
-                                    }
-
-                                    if (pricingList.dependsOnVariationID === id.value) {
-
-                                          return {
-                                            ...pricingList,
-                                            driverVisibility: true,
-                                          };
-                                        } else if (
-                                          variationIdMatches?.includes(
-                                            pricingList.dependsOnVariationID
-                                          )
-                                        ) {
-
-                                          return {
-                                            ...pricingList,
-                                            driverVisibility: false,
-                                            driverValue: null,
-                                          };
-                                        } else if (
-                                          pricingList.globalPricingDriverID ===
-                                          prevId.globalPricingDriverID
-                                        ) {
-
-                                          return {
-                                            ...pricingList,
-                                            driverValue: id.variationValue,
-                                          };
-                                        }
-
-                                    // Make sure to return the original object when none of the conditions are met
-                                    return pricingList;
-                                  }
-                                ),
-                          };
-                        }
-
-                      return service;
-                    }),
-            };
-          }
-          return category;
-        });
-      updatedRecurringList = updatedRecurringList.map((item) => {
-      // Check if the item has servicesList array
-          if (item?.serviceCatID === recurringService?.serviceCatID) {
-              if (item.servicesList && item.servicesList.length > 0) {
-                // Iterate through each service in servicesList
-                item.servicesList = item.servicesList.map((service) => {
-              // Check if pricingDriverList array exists and has elements
-                  if (service.serviceID === subRecurringService.serviceID) {
-                      if (
-                        service.pricingDriverList &&
-                        service.pricingDriverList.length > 0
-                      ) {
-                        //Iterate through pricingDriverList array
-                        service.pricingDriverList = service.pricingDriverList.map(
-                          (driver) => {
-                            // Check if driverTypeID is 3 and driverValue, variationID, and slabID are null
-                            if (driver.driverTypeID === 3) {
-                              // Find the default variation
-                              const defaultVariation = driver.variation.find(
-                                (variation) => variation.isDefault === true
-                              );
-                              // Update driverValue and variationID if defaultVariation exists
-                              if (defaultVariation) {
-                                driver.driverValue = defaultVariation.variationValue;
-                                driver.variationID = defaultVariation.variationID;
-                              }
-                            }
-                            // Check if driverTypeID is 4 and driverValue, variationID, and slabID are null
-                            else if (driver.driverTypeID === 4) {
-                              // Find the default slab
-                              const defaultSlab = driver.slab.find(
-                                (slab) => slab.isDefault === true
-                              );
-                              // Update driverValue and slabID if defaultSlab exists
-                              if (defaultSlab) {
-
-                                driver.driverValue =
-                                  defaultSlab.slabTypeID == 2
-                                    ? null
-                                    : defaultSlab.slabValue;
-                                driver.slabID = defaultSlab.slabID;
-                              }
-                            }
-                            // Check if dependsOnGlobalPricingDriverID and dependsOnVariationID are not null
-                            if (
-                              driver.dependsOnGlobalPricingDriverID !== null &&
-                              driver.dependsOnVariationID !== null
-                            ) {
-                              // Find the globalPricingDriverID with value of dependsOnGlobalPricingDriverID
-                              const dependsOnGlobalDriver =
-                                service.pricingDriverList.find(
-                                  (driver2) =>
-                                    driver2.globalPricingDriverID ===
-                                    driver.dependsOnGlobalPricingDriverID
-                                );
-                              // Check if dependsOnGlobalDriver exists and has variationID equal to dependsOnVariationID
-                              if (
-                                dependsOnGlobalDriver &&
-                                dependsOnGlobalDriver.variationID ===
-                                driver.dependsOnVariationID &&
-                                dependsOnGlobalDriver.driverVisibility === true
-                              ) {
-                                driver.driverVisibility = true;
-                              } else {
-                                driver.driverVisibility = false;
-                              }
-                            }
-                            return driver; // Return the modified or unchanged driver object
-                          }
+        if (category?.serviceCatID === recurringService?.serviceCatID) {
+          return {
+            ...category,
+            servicesList: category.servicesList?.map((service) => {
+              if (service.serviceID === subRecurringService.serviceID) {
+                return {
+                  ...service,
+                  pricingDriverList: service.pricingDriverList?.map(
+                    (pricingList) => {
+                      const isVariation =
+                        pricingList.variation &&
+                        pricingList.variation.some(
+                          (variation) => variation.variationID === id.value
                         );
+                      const isSlab =
+                        pricingList.slab &&
+                        pricingList.slab.some(
+                          (slab) => slab.slabID === id.value
+                        );
+                      if (isVariation) {
+                        return {
+                          ...pricingList,
+                          driverVisibility: true,
+                          driverValue: pricingList.variation
+                            .filter(
+                              (variation) => variation.variationID === id.value
+                            )
+                            .map((varValue) => varValue.variationValue)
+                            .join(", "),
+                          variation: pricingList.variation.map((variation) => ({
+                            ...variation,
+                            isDefault: variation.variationID === id.value,
+                          })),
+                        };
+                      } else if (isSlab) {
+                        return {
+                          ...pricingList,
+                          driverVisibility: true,
+                          driverValue:
+                            pricingList.slab
+                              .filter(
+                                (Slab) =>
+                                  Slab.slabID === id.value &&
+                                  Slab.slabTypeID == 1
+                              )
+                              .map((slabsValue) => slabsValue.slabValue)
+                              .join(", ") || null,
+                          slab: pricingList.slab.map((slab) => ({
+                            ...slab,
+                            isDefault: slab.slabID === id.value,
+                          })),
+                        };
+                      }
+
+                      if (pricingList.dependsOnVariationID === id.value) {
+
+                        return {
+                          ...pricingList,
+                          driverVisibility: true,
+                        };
+                      } else if (
+                        variationIdMatches?.includes(
+                          pricingList.dependsOnVariationID
+                        )
+                      ) {
+
+                        return {
+                          ...pricingList,
+                          driverVisibility: false,
+                          driverValue: null,
+                        };
+                      } else if (
+                        pricingList.globalPricingDriverID ===
+                        prevId.globalPricingDriverID
+                      ) {
+
+                        return {
+                          ...pricingList,
+                          driverValue: id.variationValue,
+                        };
+                      }
+
+                      // Make sure to return the original object when none of the conditions are met
+                      return pricingList;
                     }
+                  ),
+                };
+              }
+
+              return service;
+            }),
+          };
+        }
+        return category;
+      });
+      updatedRecurringList = updatedRecurringList.map((item) => {
+        // Check if the item has servicesList array
+        if (item?.serviceCatID === recurringService?.serviceCatID) {
+          if (item.servicesList && item.servicesList.length > 0) {
+            // Iterate through each service in servicesList
+            item.servicesList = item.servicesList.map((service) => {
+              // Check if pricingDriverList array exists and has elements
+              if (service.serviceID === subRecurringService.serviceID) {
+                if (
+                  service.pricingDriverList &&
+                  service.pricingDriverList.length > 0
+                ) {
+                  //Iterate through pricingDriverList array
+                  service.pricingDriverList = service.pricingDriverList.map(
+                    (driver) => {
+                      // Check if driverTypeID is 3 and driverValue, variationID, and slabID are null
+                      if (driver.driverTypeID === 3) {
+                        // Find the default variation
+                        const defaultVariation = driver.variation.find(
+                          (variation) => variation.isDefault === true
+                        );
+                        // Update driverValue and variationID if defaultVariation exists
+                        if (defaultVariation) {
+                          driver.driverValue = defaultVariation.variationValue;
+                          driver.variationID = defaultVariation.variationID;
+                        }
+                      }
+                      // Check if driverTypeID is 4 and driverValue, variationID, and slabID are null
+                      else if (driver.driverTypeID === 4) {
+                        // Find the default slab
+                        const defaultSlab = driver.slab.find(
+                          (slab) => slab.isDefault === true
+                        );
+                        // Update driverValue and slabID if defaultSlab exists
+                        if (defaultSlab) {
+
+                          driver.driverValue =
+                            defaultSlab.slabTypeID == 2
+                              ? null
+                              : defaultSlab.slabValue;
+                          driver.slabID = defaultSlab.slabID;
+                        }
+                      }
+                      // Check if dependsOnGlobalPricingDriverID and dependsOnVariationID are not null
+                      if (
+                        driver.dependsOnGlobalPricingDriverID !== null &&
+                        driver.dependsOnVariationID !== null
+                      ) {
+                        // Find the globalPricingDriverID with value of dependsOnGlobalPricingDriverID
+                        const dependsOnGlobalDriver =
+                          service.pricingDriverList.find(
+                            (driver2) =>
+                              driver2.globalPricingDriverID ===
+                              driver.dependsOnGlobalPricingDriverID
+                          );
+                        // Check if dependsOnGlobalDriver exists and has variationID equal to dependsOnVariationID
+                        if (
+                          dependsOnGlobalDriver &&
+                          dependsOnGlobalDriver.variationID ===
+                          driver.dependsOnVariationID &&
+                          dependsOnGlobalDriver.driverVisibility === true
+                        ) {
+                          driver.driverVisibility = true;
+                        } else {
+                          driver.driverVisibility = false;
+                        }
+                      }
+                      return driver; // Return the modified or unchanged driver object
                     }
-                  return service; // Return the modified or unchanged service object
-                });
-            }
-            }
-          return item; // Return the modified or unchanged item object
-        });
+                  );
+                }
+              }
+              return service; // Return the modified or unchanged service object
+            });
+          }
+        }
+        return item; // Return the modified or unchanged item object
+      });
       props.setRecurringServiceList(updatedRecurringList);
     } else if (type === "OneOffService") {
       let updatedOneOffList = props.oneOffServiceList?.map((category) => {
@@ -251,128 +251,128 @@ export const SelectServices = (props) => {
                               .map((slabsValue) => slabsValue.slabValue)
                               .join(", ") || null,
 
-                                            slab: pricingList.slab.map((slab) => ({
-                                              ...slab,
-                                              isDefault: slab.slabID === id.value,
-                                            })),
-                                          };
-                                        }
-
-                                    if (pricingList.dependsOnVariationID === id.value) {
-                                      return {
-                                        ...pricingList,
-                                        driverVisibility: true,
-                                      };
-                                    } else if (
-                                      variationIdMatches?.includes(
-                                        pricingList.dependsOnVariationID
-                                      )
-                                    ) {
-                                      return {
-                                        ...pricingList,
-                                        driverVisibility: false,
-                                        driverValue: null,
-                                      };
-                                    } else if (
-                                      pricingList.globalPricingDriverID ===
-                                      prevId.globalPricingDriverID
-                                    ) {
-                                      return {
-                                        ...pricingList,
-                                        driverValue: id.variationValue,
-                                      };
-                                    }
-
-                                    // Make sure to return the original object when none of the conditions are met
-                                    return pricingList;
-                                  }
-                                ),
-                          };
-                        }
-
-                      return service;
-                    }),
-            };
-          }
-          return category;
-        });
-      updatedOneOffList = updatedOneOffList.map((item) => {
-      // Check if the item has servicesList array
-          if (item?.serviceCatID === recurringService?.serviceCatID) {
-              if (item.servicesList && item.servicesList.length > 0) {
-                // Iterate through each service in servicesList
-                item.servicesList = item.servicesList.map((service) => {
-              // Check if pricingDriverList array exists and has elements
-                  if (service.serviceID === subRecurringService.serviceID) {
-                      if (
-                        service.pricingDriverList &&
-                        service.pricingDriverList.length > 0
-                      ) {
-                        //Iterate through pricingDriverList array
-                        service.pricingDriverList = service.pricingDriverList.map(
-                          (driver) => {
-                            // Check if driverTypeID is 3 and driverValue, variationID, and slabID are null
-                            if (driver.driverTypeID === 3) {
-                              // Find the default variation
-                              const defaultVariation = driver.variation.find(
-                                (variation) => variation.isDefault === true
-                              );
-                              // Update driverValue and variationID if defaultVariation exists
-                              if (defaultVariation) {
-                                driver.driverValue = defaultVariation.variationValue;
-                                driver.variationID = defaultVariation.variationID;
-                              }
-                            }
-                            // Check if driverTypeID is 4 and driverValue, variationID, and slabID are null
-                            else if (driver.driverTypeID === 4) {
-                              // Find the default slab
-                              const defaultSlab = driver.slab.find(
-                                (slab) => slab.isDefault === true
-                              );
-                              // Update driverValue and slabID if defaultSlab exists
-                              if (defaultSlab) {
-                                driver.driverValue =
-                                  defaultSlab.slabTypeID == 2
-                                    ? null
-                                    : defaultSlab.slabValue;
-                                driver.slabID = defaultSlab.slabID;
-                              }
-                            }
-                            // Check if dependsOnGlobalPricingDriverID and dependsOnVariationID are not null
-                            if (
-                              driver.dependsOnGlobalPricingDriverID !== null &&
-                              driver.dependsOnVariationID !== null
-                            ) {
-                              // Find the globalPricingDriverID with value of dependsOnGlobalPricingDriverID
-                              const dependsOnGlobalDriver =
-                                service.pricingDriverList.find(
-                                  (driver2) =>
-                                    driver2.globalPricingDriverID ===
-                                    driver.dependsOnGlobalPricingDriverID
-                                );
-                              // Check if dependsOnGlobalDriver exists and has variationID equal to dependsOnVariationID
-                              if (
-                                dependsOnGlobalDriver &&
-                                dependsOnGlobalDriver.variationID ===
-                                driver.dependsOnVariationID &&
-                                dependsOnGlobalDriver.driverVisibility === true
-                              ) {
-                                driver.driverVisibility = true;
-                              } else {
-                                driver.driverVisibility = false;
-                              }
-                            }
-                            return driver; // Return the modified or unchanged driver object
-                          }
-                        );
+                          slab: pricingList.slab.map((slab) => ({
+                            ...slab,
+                            isDefault: slab.slabID === id.value,
+                          })),
+                        };
                       }
+
+                      if (pricingList.dependsOnVariationID === id.value) {
+                        return {
+                          ...pricingList,
+                          driverVisibility: true,
+                        };
+                      } else if (
+                        variationIdMatches?.includes(
+                          pricingList.dependsOnVariationID
+                        )
+                      ) {
+                        return {
+                          ...pricingList,
+                          driverVisibility: false,
+                          driverValue: null,
+                        };
+                      } else if (
+                        pricingList.globalPricingDriverID ===
+                        prevId.globalPricingDriverID
+                      ) {
+                        return {
+                          ...pricingList,
+                          driverValue: id.variationValue,
+                        };
+                      }
+
+                      // Make sure to return the original object when none of the conditions are met
+                      return pricingList;
                     }
-                  return service; // Return the modified or unchanged service object
-                });
-            }
-            }
-          return item; // Return the modified or unchanged item object
-        });
+                  ),
+                };
+              }
+
+              return service;
+            }),
+          };
+        }
+        return category;
+      });
+      updatedOneOffList = updatedOneOffList.map((item) => {
+        // Check if the item has servicesList array
+        if (item?.serviceCatID === recurringService?.serviceCatID) {
+          if (item.servicesList && item.servicesList.length > 0) {
+            // Iterate through each service in servicesList
+            item.servicesList = item.servicesList.map((service) => {
+              // Check if pricingDriverList array exists and has elements
+              if (service.serviceID === subRecurringService.serviceID) {
+                if (
+                  service.pricingDriverList &&
+                  service.pricingDriverList.length > 0
+                ) {
+                  //Iterate through pricingDriverList array
+                  service.pricingDriverList = service.pricingDriverList.map(
+                    (driver) => {
+                      // Check if driverTypeID is 3 and driverValue, variationID, and slabID are null
+                      if (driver.driverTypeID === 3) {
+                        // Find the default variation
+                        const defaultVariation = driver.variation.find(
+                          (variation) => variation.isDefault === true
+                        );
+                        // Update driverValue and variationID if defaultVariation exists
+                        if (defaultVariation) {
+                          driver.driverValue = defaultVariation.variationValue;
+                          driver.variationID = defaultVariation.variationID;
+                        }
+                      }
+                      // Check if driverTypeID is 4 and driverValue, variationID, and slabID are null
+                      else if (driver.driverTypeID === 4) {
+                        // Find the default slab
+                        const defaultSlab = driver.slab.find(
+                          (slab) => slab.isDefault === true
+                        );
+                        // Update driverValue and slabID if defaultSlab exists
+                        if (defaultSlab) {
+                          driver.driverValue =
+                            defaultSlab.slabTypeID == 2
+                              ? null
+                              : defaultSlab.slabValue;
+                          driver.slabID = defaultSlab.slabID;
+                        }
+                      }
+                      // Check if dependsOnGlobalPricingDriverID and dependsOnVariationID are not null
+                      if (
+                        driver.dependsOnGlobalPricingDriverID !== null &&
+                        driver.dependsOnVariationID !== null
+                      ) {
+                        // Find the globalPricingDriverID with value of dependsOnGlobalPricingDriverID
+                        const dependsOnGlobalDriver =
+                          service.pricingDriverList.find(
+                            (driver2) =>
+                              driver2.globalPricingDriverID ===
+                              driver.dependsOnGlobalPricingDriverID
+                          );
+                        // Check if dependsOnGlobalDriver exists and has variationID equal to dependsOnVariationID
+                        if (
+                          dependsOnGlobalDriver &&
+                          dependsOnGlobalDriver.variationID ===
+                          driver.dependsOnVariationID &&
+                          dependsOnGlobalDriver.driverVisibility === true
+                        ) {
+                          driver.driverVisibility = true;
+                        } else {
+                          driver.driverVisibility = false;
+                        }
+                      }
+                      return driver; // Return the modified or unchanged driver object
+                    }
+                  );
+                }
+              }
+              return service; // Return the modified or unchanged service object
+            });
+          }
+        }
+        return item; // Return the modified or unchanged item object
+      });
 
       props.setOneOffServiceList(updatedOneOffList);
     }
@@ -788,12 +788,10 @@ export const SelectServices = (props) => {
                                   {recurringService?.serviceCatName.length > 20
                                     ? recurringService?.serviceCatName
                                       .substring(0, 20)
-                                      .toLowerCase()
                                       .replace(/\b\w/g, (l) =>
                                         l.toUpperCase()
                                       ) + "..."
                                     : recurringService?.serviceCatName
-                                      .toLowerCase()
                                       .replace(/\b\w/g, (l) =>
                                         l.toUpperCase()
                                       )}
@@ -807,7 +805,6 @@ export const SelectServices = (props) => {
                                     >
                                       {recurringService?.serviceCatName
                                         .substring(0, 30)
-                                        .toLowerCase()
                                         .replace(/\b\w/g, (l) =>
                                           l.toUpperCase()
                                         ) + "..."}
@@ -815,7 +812,6 @@ export const SelectServices = (props) => {
                                   ) : (
                                     <>
                                       {recurringService?.serviceCatName
-                                        .toLowerCase()
                                         .replace(/\b\w/g, (l) =>
                                           l.toUpperCase()
                                         )}
@@ -928,7 +924,6 @@ export const SelectServices = (props) => {
                                                           <>
                                                             {i?.driverName
                                                               .substring(0, 10)
-                                                              .toLowerCase()
                                                               .replace(
                                                                 /\b\w/g,
                                                                 (l) =>
@@ -949,7 +944,6 @@ export const SelectServices = (props) => {
                                                                     0,
                                                                     38
                                                                   )
-                                                                  .toLowerCase()
                                                                   .replace(
                                                                     /\b\w/g,
                                                                     (l) =>
@@ -959,7 +953,6 @@ export const SelectServices = (props) => {
                                                             ) : (
                                                               <>
                                                                 {i?.driverName
-                                                                  .toLowerCase()
                                                                   .replace(
                                                                     /\b\w/g,
                                                                     (l) =>
@@ -1035,7 +1028,6 @@ export const SelectServices = (props) => {
                                                           <>
                                                             {i?.driverName
                                                               .substring(0, 10)
-                                                              .toLowerCase()
                                                               .replace(
                                                                 /\b\w/g,
                                                                 (l) =>
@@ -1056,7 +1048,6 @@ export const SelectServices = (props) => {
                                                                     0,
                                                                     38
                                                                   )
-                                                                  .toLowerCase()
                                                                   .replace(
                                                                     /\b\w/g,
                                                                     (l) =>
@@ -1066,7 +1057,6 @@ export const SelectServices = (props) => {
                                                             ) : (
                                                               <>
                                                                 {i?.driverName
-                                                                  .toLowerCase()
                                                                   .replace(
                                                                     /\b\w/g,
                                                                     (l) =>
@@ -1127,52 +1117,49 @@ export const SelectServices = (props) => {
                                                     id={`SelectServiceQuantity_${i.driverName}`}
                                                   >
                                                     <label className="mt-1">
-                                                    <strong>
-                                                      {isMobile ? (
-                                                        <>
-                                                          {i?.driverName
-                                                            .substring(0, 10)
-                                                            .toLowerCase()
-                                                            .replace(
-                                                              /\b\w/g,
-                                                              (l) =>
-                                                                l.toUpperCase()
-                                                            ) + "..."}
-                                                        </>
-                                                      ) : (
-                                                        <>
-                                                          {i?.driverName
-                                                            .length > 38 ? (
-                                                            <Tooltip
-                                                              title={
-                                                                i?.driverName
-                                                              }
-                                                            >
-                                                              {i?.driverName
-                                                                .substring(
-                                                                  0,
-                                                                  38
-                                                                )
-                                                                .toLowerCase()
-                                                                .replace(
-                                                                  /\b\w/g,
-                                                                  (l) =>
-                                                                    l.toUpperCase()
-                                                                ) + "..."}
-                                                            </Tooltip>
-                                                          ) : (
-                                                            <>
-                                                              {i?.driverName
-                                                                .toLowerCase()
-                                                                .replace(
-                                                                  /\b\w/g,
-                                                                  (l) =>
-                                                                    l.toUpperCase()
-                                                                )}
-                                                            </>
-                                                          )}
-                                                        </>
-                                                      )}
+                                                      <strong>
+                                                        {isMobile ? (
+                                                          <>
+                                                            {i?.driverName
+                                                              .substring(0, 10)
+                                                              .replace(
+                                                                /\b\w/g,
+                                                                (l) =>
+                                                                  l.toUpperCase()
+                                                              ) + "..."}
+                                                          </>
+                                                        ) : (
+                                                          <>
+                                                            {i?.driverName
+                                                              .length > 38 ? (
+                                                              <Tooltip
+                                                                title={
+                                                                  i?.driverName
+                                                                }
+                                                              >
+                                                                {i?.driverName
+                                                                  .substring(
+                                                                    0,
+                                                                    38
+                                                                  )
+                                                                  .replace(
+                                                                    /\b\w/g,
+                                                                    (l) =>
+                                                                      l.toUpperCase()
+                                                                  ) + "..."}
+                                                              </Tooltip>
+                                                            ) : (
+                                                              <>
+                                                                {i?.driverName
+                                                                  .replace(
+                                                                    /\b\w/g,
+                                                                    (l) =>
+                                                                      l.toUpperCase()
+                                                                  )}
+                                                              </>
+                                                            )}
+                                                          </>
+                                                        )}
                                                       </strong>
                                                       <span className="text-danger">
                                                         *
@@ -1428,7 +1415,6 @@ export const SelectServices = (props) => {
                                                         <>
                                                           {i?.driverName
                                                             .substring(0, 10)
-                                                            .toLowerCase()
                                                             .replace(
                                                               /\b\w/g,
                                                               (l) =>
@@ -1449,7 +1435,6 @@ export const SelectServices = (props) => {
                                                                   0,
                                                                   38
                                                                 )
-                                                                .toLowerCase()
                                                                 .replace(
                                                                   /\b\w/g,
                                                                   (l) =>
@@ -1459,7 +1444,6 @@ export const SelectServices = (props) => {
                                                           ) : (
                                                             <>
                                                               {i?.driverName
-                                                                .toLowerCase()
                                                                 .replace(
                                                                   /\b\w/g,
                                                                   (l) =>
@@ -1531,7 +1515,6 @@ export const SelectServices = (props) => {
                                                         <>
                                                           {i?.driverName
                                                             .substring(0, 10)
-                                                            .toLowerCase()
                                                             .replace(
                                                               /\b\w/g,
                                                               (l) =>
@@ -1552,7 +1535,6 @@ export const SelectServices = (props) => {
                                                                   0,
                                                                   38
                                                                 )
-                                                                .toLowerCase()
                                                                 .replace(
                                                                   /\b\w/g,
                                                                   (l) =>
@@ -1562,7 +1544,6 @@ export const SelectServices = (props) => {
                                                           ) : (
                                                             <>
                                                               {i?.driverName
-                                                                .toLowerCase()
                                                                 .replace(
                                                                   /\b\w/g,
                                                                   (l) =>
@@ -1621,52 +1602,49 @@ export const SelectServices = (props) => {
                                                 >
                                                   <label className="mt-1">
                                                     <strong>
-                                                    {isMobile ? (
-                                                      <>
-                                                        {i?.driverName
-                                                          .substring(0, 10)
-                                                          .toLowerCase()
-                                                          .replace(
-                                                            /\b\w/g,
-                                                            (l) =>
-                                                              l.toUpperCase()
-                                                          ) + "..."}
-                                                      </>
-                                                    ) : (
-                                                      <>
-                                                        {i?.driverName
-                                                          .length > 38 ? (
-                                                          <Tooltip
-                                                            title={
-                                                              i?.driverName
-                                                            }
-                                                          >
-                                                            {i?.driverName
-                                                              .substring(
-                                                                0,
-                                                                38
-                                                              )
-                                                              .toLowerCase()
-                                                              .replace(
-                                                                /\b\w/g,
-                                                                (l) =>
-                                                                  l.toUpperCase()
-                                                              ) + "..."}
-                                                          </Tooltip>
-                                                        ) : (
-                                                          <>
-                                                            {i?.driverName
-                                                              .toLowerCase()
-                                                              .replace(
-                                                                /\b\w/g,
-                                                                (l) =>
-                                                                  l.toUpperCase()
-                                                              )}
-                                                          </>
-                                                        )}
-                                                      </>
-                                                    )}
-                                                  </strong>
+                                                      {isMobile ? (
+                                                        <>
+                                                          {i?.driverName
+                                                            .substring(0, 10)
+                                                            .replace(
+                                                              /\b\w/g,
+                                                              (l) =>
+                                                                l.toUpperCase()
+                                                            ) + "..."}
+                                                        </>
+                                                      ) : (
+                                                        <>
+                                                          {i?.driverName
+                                                            .length > 38 ? (
+                                                            <Tooltip
+                                                              title={
+                                                                i?.driverName
+                                                              }
+                                                            >
+                                                              {i?.driverName
+                                                                .substring(
+                                                                  0,
+                                                                  38
+                                                                )
+                                                                .replace(
+                                                                  /\b\w/g,
+                                                                  (l) =>
+                                                                    l.toUpperCase()
+                                                                ) + "..."}
+                                                            </Tooltip>
+                                                          ) : (
+                                                            <>
+                                                              {i?.driverName
+                                                                .replace(
+                                                                  /\b\w/g,
+                                                                  (l) =>
+                                                                    l.toUpperCase()
+                                                                )}
+                                                            </>
+                                                          )}
+                                                        </>
+                                                      )}
+                                                    </strong>
                                                     <span className="text-danger">
                                                       *
                                                     </span>

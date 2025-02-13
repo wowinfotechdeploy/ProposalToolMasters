@@ -706,13 +706,11 @@ function ReminderTemplateList() {
                                         {Template.templateName.length > 20
                                           ? Template.templateName
                                             .substring(0, 20)
-                                            .toLowerCase()
                                             .replace(/\b\w/g, (l) =>
                                               l.toUpperCase()
                                             ) + "..."
                                           : Template.templateName
                                             .substring(0, 20)
-                                            .toLowerCase()
                                             .replace(/\b\w/g, (l) =>
                                               l.toUpperCase()
                                             )}
@@ -725,7 +723,6 @@ function ReminderTemplateList() {
                                           >
                                             {Template.templateName
                                               .substring(0, 50)
-                                              .toLowerCase()
                                               .replace(/\b\w/g, (l) =>
                                                 l.toUpperCase()
                                               ) + "..."}
@@ -733,7 +730,6 @@ function ReminderTemplateList() {
                                         ) : (
                                           <>
                                             {Template.templateName
-                                              .toLowerCase()
                                               .replace(/\b\w/g, (l) =>
                                                 l.toUpperCase()
                                               )}

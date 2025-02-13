@@ -780,12 +780,10 @@ function Term_and_Condition() {
                                         {Template.templateName.length > 20
                                           ? Template.templateName
                                             .substring(0, 20)
-                                            .toLowerCase()
                                             .replace(/\b\w/g, (l) =>
                                               l.toUpperCase()
                                             ) + "..."
                                           : Template.templateName
-                                            .toLowerCase()
                                             .replace(/\b\w/g, (l) =>
                                               l.toUpperCase()
                                             )}
@@ -798,7 +796,6 @@ function Term_and_Condition() {
                                           >
                                             {Template.templateName
                                               .substring(0, 50)
-                                              .toLowerCase()
                                               .replace(/\b\w/g, (l) =>
                                                 l.toUpperCase()
                                               ) + "..."}
@@ -806,7 +803,6 @@ function Term_and_Condition() {
                                         ) : (
                                           <>
                                             {Template.templateName
-                                              .toLowerCase()
                                               .replace(/\b\w/g, (l) =>
                                                 l.toUpperCase()
                                               )}

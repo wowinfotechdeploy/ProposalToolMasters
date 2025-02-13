@@ -9,6 +9,7 @@ import Android12Switch from "../../../components/AndroidSwitch";
 import { AuthContextProvider } from "../../../AuthContext/AuthContext";
 import NoResultFoundModel from "../../../components/NoResultFoundModel";
 import {
+  CopyService,
   DeleteService,
   GetServiceModel,
   GetServicesList,
@@ -248,6 +249,21 @@ const Services = () => {
       } catch (error) {
         console.log(error);
       }
+    } else if (modelRequestData.Action === "Copy") {
+      try {
+        const CopyServiceData = await CopyService(
+          modelRequestData.serviceKeyID,
+          modelRequestData.userKeyID
+        );
+        if (CopyServiceData.data.statusCode === 200) {
+          setLoader(false);
+          setOpenSuccessModal(true);
+          GetServiceListData(currentPage);
+        }
+      } catch (error) {
+        setLoader(false);
+        console.log(error);
+      }
     }
   };
 
@@ -452,7 +468,6 @@ const Services = () => {
                                               <td className="table-content-font">
                                                 {service?.serviceCatName
                                                   .substring(0, 20)
-                                                  .toLowerCase()
                                                   .replace(/\b\w/g, (l) =>
                                                     l.toUpperCase()
                                                   )}
@@ -468,7 +483,6 @@ const Services = () => {
                                                 <td className="table-content-font">
                                                   {service?.serviceCatName
                                                     .substring(0, 40)
-                                                    .toLowerCase()
                                                     .replace(/\b\w/g, (l) =>
                                                       l.toUpperCase()
                                                     ) + "..."}
@@ -477,7 +491,6 @@ const Services = () => {
                                             ) : (
                                               <td>
                                                 {service?.serviceCatName
-                                                  .toLowerCase()
                                                   .replace(/\b\w/g, (l) =>
                                                     l.toUpperCase()
                                                   )}
@@ -567,7 +580,6 @@ const Services = () => {
                                                           <>
                                                             {subService.serviceName
                                                               .substring(0, 15)
-                                                              .toLowerCase()
                                                               .replace(
                                                                 /\b\w/g,
                                                                 (l) =>
@@ -577,7 +589,6 @@ const Services = () => {
                                                         ) : (
                                                           <>
                                                             {subService.serviceName
-                                                              .toLowerCase()
                                                               .replace(
                                                                 /\b\w/g,
                                                                 (l) =>
@@ -601,7 +612,6 @@ const Services = () => {
                                                           >
                                                             {subService.serviceName
                                                               .substring(0, 45)
-                                                              .toLowerCase()
                                                               .replace(
                                                                 /\b\w/g,
                                                                 (l) =>
@@ -611,7 +621,6 @@ const Services = () => {
                                                         ) : (
                                                           <>
                                                             {subService.serviceName
-                                                              .toLowerCase()
                                                               .replace(
                                                                 /\b\w/g,
                                                                 (l) =>
@@ -694,7 +703,35 @@ const Services = () => {
                                                     <div
                                                       style={{ padding: "0px" }}
                                                       class="d-flex gap-2"
+                                                    ><Tooltip
+                                                      title={getCrudButtonToolTipName(
+                                                        "Copy",
+                                                        moduleName
+                                                      )}
                                                     >
+                                                        <div class="edit">
+                                                          <button
+                                                            onClick={() =>
+                                                              setModelRequestData(
+                                                                {
+                                                                  ...modelRequestData,
+                                                                  serviceKeyID:
+                                                                    subService.serviceKeyID,
+                                                                  serviceCatName:
+                                                                    subService.serviceName,
+                                                                  userKeyID:
+                                                                    common.userKeyID,
+                                                                  Action:
+                                                                    "Copy",
+                                                                })}
+                                                            class="btn btn-sm btn-success edit-item-btn edit"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#ConfirmModel"
+                                                          >
+                                                            <i class="fa-solid fa-copy"></i>
+                                                          </button>
+                                                        </div>
+                                                      </Tooltip>
                                                       {((userAccessData.Admin_Config_Service_CanEdit &&
                                                         common.organisationKeyID !==
                                                         null) ||
@@ -813,10 +850,11 @@ const Services = () => {
               setOpenSuccessModal={setOpenSuccessModal}
               openSuccessModal={openSuccessModal}
               modelAction={modelRequestData.Action}
-              message={`${modelRequestData.Action === "Delete"
-                ? `${moduleName} ${modelRequestData.serviceCatName}`
-                : "Status has been changed successfully!"
-                }`}
+              message={modelRequestData.Action === "Copy"
+                ? `The Copy of ${modelRequestData.serviceCatName} has been created successfully!` : modelRequestData.Action === "Delete"
+                  ? `${moduleName} ${modelRequestData.serviceCatName}`
+                  : "Status has been changed successfully!"
+              }
             />
 
             {/* Modal  */}

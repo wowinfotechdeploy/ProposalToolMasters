@@ -10,6 +10,7 @@ import Tooltip, { tooltipClasses } from "@mui/material/Tooltip";
 import { AuthContextProvider } from "../../../AuthContext/AuthContext";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  CopyPackage,
   GetPackageList,
   GetServicePackageModel,
   ServicePackageChangeStatus,
@@ -261,6 +262,21 @@ const Predefined_Package = () => {
       } catch (error) {
         console.log(error);
       }
+    } else if (modelRequestData.Action === "Copy") {
+      try {
+        const CopyPackageData = await CopyPackage(
+          modelRequestData.servicePackageKeyID,
+          modelRequestData.userKeyID
+        );
+        if (CopyPackageData.data.statusCode === 200) {
+          setLoader(false);
+          setOpenSuccessModal(true);
+          GetPackageListData(currentPage);
+        }
+      } catch (error) {
+        setLoader(false);
+        console.log(error);
+      }
     }
   };
 
@@ -375,6 +391,7 @@ const Predefined_Package = () => {
     setProspectType(null);
     GetPackageListData(1, searchKeyword, primarySortDirection, null, null);
   };
+
   return (
     <div>
       <div class="main-content">
@@ -579,13 +596,11 @@ const Predefined_Package = () => {
                                         {Package.servicePackageName.length > 20
                                           ? Package.servicePackageName
                                             .substring(0, 20)
-                                            .toLowerCase()
                                             .replace(/\b\w/g, (l) =>
                                               l.toUpperCase()
                                             ) + "..."
                                           : Package.servicePackageName
                                             .substring(0, 20)
-                                            .toLowerCase()
                                             .replace(/\b\w/g, (l) =>
                                               l.toUpperCase()
                                             )}
@@ -600,7 +615,6 @@ const Predefined_Package = () => {
                                             >
                                               {Package.servicePackageName
                                                 .substring(0, 80)
-                                                .toLowerCase()
                                                 .replace(/\b\w/g, (l) =>
                                                   l.toUpperCase()
                                                 ) + "..."}
@@ -611,7 +625,6 @@ const Predefined_Package = () => {
                                             >
                                               {Package.servicePackageName
                                                 .substring(0, 35)
-                                                .toLowerCase()
                                                 .replace(/\b\w/g, (l) =>
                                                   l.toUpperCase()
                                                 ) + "..."}
@@ -620,7 +633,6 @@ const Predefined_Package = () => {
                                         ) : (
                                           <>
                                             {Package.servicePackageName
-                                              .toLowerCase()
                                               .replace(/\b\w/g, (l) =>
                                                 l.toUpperCase()
                                               )}
@@ -714,6 +726,33 @@ const Predefined_Package = () => {
                                   </td>
                                   <td className="table-content-font">
                                     <div class="d-flex gap-2">
+                                      <Tooltip
+                                        title={getCrudButtonToolTipName(
+                                          "Copy",
+                                          moduleName
+                                        )}
+                                      >
+                                        <div class="edit">
+                                          <button
+                                            onClick={() =>
+                                              setModelRequestData({
+                                                ...modelRequestData,
+                                                servicePackageKeyID:
+                                                  Package.servicePackageKeyID,
+                                                servicePackageName:
+                                                  Package.servicePackageName,
+                                                userKeyID: common.userKeyID,
+                                                Action: "Copy",
+                                              })
+                                            }
+                                            class="btn btn-sm btn-success edit-item-btn edit"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#ConfirmModel"
+                                          >
+                                            <i class="fa-solid fa-copy"></i>
+                                          </button>
+                                        </div>
+                                      </Tooltip>
                                       {((userAccessData.Admin_Config_ServicePackage_CanEdit &&
                                         common.organisationKeyID !== null) ||
                                         (userAccessData.SuperAdmin_Config_ServicePackage_CanEdit &&
@@ -737,6 +776,7 @@ const Predefined_Package = () => {
                                             </div>
                                           </Tooltip>
                                         )}
+
                                       {((userAccessData.Admin_Config_ServicePackage_CanDelete &&
                                         common.organisationKeyID !== null) ||
                                         (userAccessData.SuperAdmin_Config_ServicePackage_CanDelete &&
@@ -770,6 +810,7 @@ const Predefined_Package = () => {
                                             </div>
                                           </Tooltip>
                                         )}
+
                                     </div>
                                   </td>
                                 </tr>
@@ -835,10 +876,11 @@ const Predefined_Package = () => {
           setOpenSuccessModal={setOpenSuccessModal}
           openSuccessModal={openSuccessModal}
           modelAction={modelRequestData.Action}
-          message={`${modelRequestData.Action === "Delete"
-            ? `${moduleName} ${modelRequestData.servicePackageName}`
-            : "Status has been changed successfully!"
-            }`}
+          message={modelRequestData.Action === "Copy"
+            ? `The Copy of ${modelRequestData.servicePackageName} has been created successfully!` : modelRequestData.Action === "Delete"
+              ? `${moduleName} ${modelRequestData.servicePackageName}`
+              : "Status has been changed successfully!"
+          }
         />
         {/* End Page-content */}
         <FilterModel

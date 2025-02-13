@@ -84,3 +84,12 @@ export const GetCalculatedServicesPriceByPackages = async (params) => {
     );
     return res;
 };
+
+export const CopyService = async (serviceKeyID, UserKeyID) => {
+
+    const res = await getListWithAuthenticated(
+        // `${TemplateBaseUrl}/GetMasterTemplateDetailsWithVariableValues?TemplateKeyID=${params.TemplateKeyID}&ClientKeyID=${params.clientID}`
+        `${services}/CopyServices?serviceKeyID=${serviceKeyID}&UserKeyID=${UserKeyID}`
+    );
+    return res;
+};

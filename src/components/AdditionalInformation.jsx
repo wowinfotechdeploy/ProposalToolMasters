@@ -196,19 +196,19 @@ export const AdditionalInformation = (props) => {
                                                     <label class="form-label">
                                                         {isMobile ? (
                                                             <>
-                                                                {i?.driverName.substring(0, 30).toLowerCase().replace(/\b\w/g, l => l.toUpperCase())}
+                                                                {i?.driverName.substring(0, 30).replace(/\b\w/g, l => l.toUpperCase())}
                                                             </>
                                                         ) : (
                                                             <>
                                                                 {(props.moduleName === "Package" || props.moduleName === "Quote") ? (
-                                                                    i?.driverName.toLowerCase().replace(/\b\w/g, l => l.toUpperCase())
+                                                                    i?.driverName.replace(/\b\w/g, l => l.toUpperCase())
                                                                 ) : (
                                                                     i?.driverName.length > 20 ? (
                                                                         <Tooltip title={i?.driverName}>
-                                                                            {i?.driverName.substring(0, 25).toLowerCase().replace(/\b\w/g, l => l.toUpperCase()) + '...'}
+                                                                            {i?.driverName.substring(0, 25).replace(/\b\w/g, l => l.toUpperCase()) + '...'}
                                                                         </Tooltip>
                                                                     ) : (
-                                                                        i?.driverName.toLowerCase().replace(/\b\w/g, l => l.toUpperCase())
+                                                                        i?.driverName.replace(/\b\w/g, l => l.toUpperCase())
                                                                     )
                                                                 )}
                                                             </>
@@ -256,19 +256,19 @@ export const AdditionalInformation = (props) => {
                                                     <label class="form-label">
                                                         {isMobile ? (
                                                             <>
-                                                                {i?.driverName.substring(0, 30).toLowerCase().replace(/\b\w/g, l => l.toUpperCase())}
+                                                                {i?.driverName.substring(0, 30).replace(/\b\w/g, l => l.toUpperCase())}
                                                             </>
                                                         ) : (
                                                             <>
                                                                 {(props.moduleName === "Package" || props.moduleName === "Quote") ? (
-                                                                    i?.driverName.toLowerCase().replace(/\b\w/g, l => l.toUpperCase())
+                                                                    i?.driverName.replace(/\b\w/g, l => l.toUpperCase())
                                                                 ) : (
                                                                     i?.driverName.length > 20 ? (
                                                                         <Tooltip title={i?.driverName}>
-                                                                            {i?.driverName.substring(0, 25).toLowerCase().replace(/\b\w/g, l => l.toUpperCase()) + '...'}
+                                                                            {i?.driverName.substring(0, 25).replace(/\b\w/g, l => l.toUpperCase()) + '...'}
                                                                         </Tooltip>
                                                                     ) : (
-                                                                        i?.driverName.toLowerCase().replace(/\b\w/g, l => l.toUpperCase())
+                                                                        i?.driverName.replace(/\b\w/g, l => l.toUpperCase())
                                                                     )
                                                                 )}
                                                             </>
@@ -328,19 +328,19 @@ export const AdditionalInformation = (props) => {
                                                     <label class="form-label">
                                                         {isMobile ? (
                                                             <>
-                                                                {i?.driverName.substring(0, 30).toLowerCase().replace(/\b\w/g, l => l.toUpperCase())}
+                                                                {i?.driverName.substring(0, 30).replace(/\b\w/g, l => l.toUpperCase())}
                                                             </>
                                                         ) : (
                                                             <>
                                                                 {(props.moduleName === "Package" || props.moduleName === "Quote") ? (
-                                                                    i?.driverName.toLowerCase().replace(/\b\w/g, l => l.toUpperCase())
+                                                                    i?.driverName.replace(/\b\w/g, l => l.toUpperCase())
                                                                 ) : (
                                                                     i?.driverName.length > 20 ? (
                                                                         <Tooltip title={i?.driverName}>
-                                                                            {i?.driverName.substring(0, 25).toLowerCase().replace(/\b\w/g, l => l.toUpperCase()) + '...'}
+                                                                            {i?.driverName.substring(0, 25).replace(/\b\w/g, l => l.toUpperCase()) + '...'}
                                                                         </Tooltip>
                                                                     ) : (
-                                                                        i?.driverName.toLowerCase().replace(/\b\w/g, l => l.toUpperCase())
+                                                                        i?.driverName.replace(/\b\w/g, l => l.toUpperCase())
                                                                     )
                                                                 )}
                                                             </>

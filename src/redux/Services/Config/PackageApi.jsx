@@ -92,3 +92,12 @@ export const StatementOfFactModal = async (params) => {
 
     return res;
 }
+
+export const CopyPackage = async (servicePackageKeyID, UserKeyID) => {
+
+    const res = await getListWithAuthenticated(
+        // `${TemplateBaseUrl}/GetMasterTemplateDetailsWithVariableValues?TemplateKeyID=${params.TemplateKeyID}&ClientKeyID=${params.clientID}`
+        `${PackageBaseUrl}/CopyServicesPackage?servicePackageKeyID=${servicePackageKeyID}&UserKeyID=${UserKeyID}`
+    );
+    return res;
+};

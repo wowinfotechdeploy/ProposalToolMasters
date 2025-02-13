@@ -589,13 +589,11 @@ function Predefined_Global_Pricing_Drivers() {
                                           {PricingDriver.driverName.length > 20
                                             ? PricingDriver.driverName
                                               .substring(0, 20)
-                                              .toLowerCase()
                                               .replace(/\b\w/g, (l) =>
                                                 l.toUpperCase()
                                               ) + "..."
                                             : PricingDriver.driverName
                                               .substring(0, 20)
-                                              .toLowerCase()
                                               .replace(/\b\w/g, (l) =>
                                                 l.toUpperCase()
                                               )}
@@ -609,7 +607,6 @@ function Predefined_Global_Pricing_Drivers() {
                                             >
                                               {PricingDriver.driverName
                                                 .substring(0, 71)
-                                                .toLowerCase()
                                                 .replace(/\b\w/g, (l) =>
                                                   l.toUpperCase()
                                                 ) + "..."}
@@ -617,7 +614,6 @@ function Predefined_Global_Pricing_Drivers() {
                                           ) : (
                                             <>
                                               {PricingDriver.driverName
-                                                .toLowerCase()
                                                 .replace(/\b\w/g, (l) =>
                                                   l.toUpperCase()
                                                 )}

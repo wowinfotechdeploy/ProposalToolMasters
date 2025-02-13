@@ -98,12 +98,10 @@ export const SelectedProposalCustomize = (props) => {
                                     {servicePackage.servicePackageName.length > 20
                                       ? servicePackage.servicePackageName
                                         .substring(0, 20)
-                                        .toLowerCase()
                                         .replace(/\b\w/g, (l) =>
                                           l.toUpperCase()
                                         ) + "..."
                                       : servicePackage.servicePackageName
-                                        .toLowerCase()
                                         .replace(/\b\w/g, (l) =>
                                           l.toUpperCase()
                                         )}
@@ -130,12 +128,10 @@ export const SelectedProposalCustomize = (props) => {
                                           {servicePackage.servicePackageName.length > 20
                                             ? servicePackage.servicePackageName
                                               .substring(0, 20)
-                                              .toLowerCase()
                                               .replace(/\b\w/g, (l) =>
                                                 l.toUpperCase()
                                               ) + "..."
                                             : servicePackage.servicePackageName
-                                              .toLowerCase()
                                               .replace(/\b\w/g, (l) =>
                                                 l.toUpperCase()
                                               )}
@@ -149,7 +145,6 @@ export const SelectedProposalCustomize = (props) => {
                                             >
                                               {servicePackage.servicePackageName
                                                 .substring(0, 45)
-                                                .toLowerCase()
                                                 .replace(/\b\w/g, (l) =>
                                                   l.toUpperCase()
                                                 ) + "..."}
@@ -157,7 +152,6 @@ export const SelectedProposalCustomize = (props) => {
                                           ) : (
                                             <>
                                               {servicePackage.servicePackageName
-                                                .toLowerCase()
                                                 .replace(/\b\w/g, (l) =>
                                                   l.toUpperCase()
                                                 )}
