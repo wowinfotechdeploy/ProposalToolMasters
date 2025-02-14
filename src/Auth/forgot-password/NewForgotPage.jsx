@@ -316,16 +316,19 @@ const NewForgotPage = () => {
                         </div>
                     </div>
                     <div className="lncol-3">
-                        <p className="lnp lnadr">
-                            Suite 18, Winsor & Newton Building,
-                            <br />
-                            Whitefriars Avenue, Harrow HA3 5RN
+                        <p>
+                            <b>
+                                OUTBOOKS TECH LTD
+                            </b>
                         </p>
-                        <p className="lnp lnregno">Registration No: 10746177</p>
+                        <p className="lnp lnadr">
+                            415 C, MARGARET POWELL HOUSE, Midsummer Blvd,Milton Keynes MK9 3BN, United Kingdom
+                        </p>
+                        <p className="lnp lnregno">Registration No: 15082614</p>
                         <ul className="lnul lncontact-links">
                             <li>
-                                <a className="lna" href="mailto:info@outbooks.com">
-                                    &#9993; &nbsp; info@outbooks.com
+                                <a className="lna" href="mailto:info@outbookstech.com">
+                                    &#9993; &nbsp; info@outbookstech.com
                                 </a>
                             </li>
                             <li>
