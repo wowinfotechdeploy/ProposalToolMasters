@@ -43,11 +43,12 @@ function UsersModel(props) {
   // B] Initial useEffect : Will call when Add/Update button click from list page
   useEffect(() => {
     setModelAction(props.modelRequestData.Action === null ? "Add" : "Update"); //Do not change this naming convention
-    GetRoleTypeLookupListData();
+
     if (
       props.modelRequestData.Action !== undefined &&
       props.modelRequestData.Action !== null
     ) {
+      GetRoleTypeLookupListData();
       GetUserModelData(props.modelRequestData.inviteUserKeyID);
     } else {
       SetInitialModelData();
