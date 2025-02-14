@@ -200,14 +200,14 @@ const Services = () => {
               });
               $("#" + "ConfirmModel").modal("hide");
               $("#" + "RecordsAvailablePopupModel").modal("show");
-              // GetServiceListData(currentPage);
+              //  GetServiceListData(null, null, null);
             } else {
-              GetServiceListData(currentPage);
+              GetServiceListData(null, null, null);
               setOpenSuccessModal(true);
             }
           } else {
             setErrorMessage(Data?.response?.data?.errorMessage);
-            GetServiceListData(currentPage);
+            GetServiceListData(null, null, null);
             setOpenErrorModal(true);
           }
         }
@@ -235,16 +235,16 @@ const Services = () => {
                 ServiceName: servicePackageNames,
               });
               $("#" + "ConfirmModel").modal("show");
-              // GetServiceListData(currentPage);
+              //  GetServiceListData(null, null, null);
             } else {
               setOpenSuccessModal(true);
-              GetServiceListData(currentPage);
+              GetServiceListData(null, null, null);
             }
           } else {
             setErrorMessage(Data?.response?.data?.errorMessage);
             setOpenErrorModal(true);
           }
-          // GetServiceListData(currentPage);
+          //  GetServiceListData(null, null, null);
         }
       } catch (error) {
         console.log(error);
@@ -258,7 +258,7 @@ const Services = () => {
         if (CopyServiceData.data.statusCode === 200) {
           setLoader(false);
           setOpenSuccessModal(true);
-          GetServiceListData(currentPage);
+          GetServiceListData(null, null, null);
         }
       } catch (error) {
         setLoader(false);
