@@ -3603,6 +3603,32 @@ const Create_practice_details = () => {
             ChoosePlanApiModelData()
           }
           $("#" + "ConfirmModel").modal("hide");
+
+          const professionTypeIDs = basicInfo.professionTypeList.map(
+            (item) => item.professionTypeId
+          );
+          localStorage.removeItem("OrganisationLocalList");
+          if (common.organisationCount == 0) {
+            dispatch(
+              updateState({
+                businessTypeID: basicInfo.businessTypeID,
+                organisationCount: Number(common.organisationCount) + 1,
+                organisationKeyID: ModuleKeyID,
+                professionTypeLists: professionTypeIDs,
+                enableEL: 1,
+              })
+            );
+          } else {
+            dispatch(
+              updateState({
+                businessTypeID: basicInfo.businessTypeID,
+                organisationKeyID: ModuleKeyID,
+                professionTypeLists: professionTypeIDs,
+                enableEL: 1,
+              })
+            );
+
+          }
         } else {
           setLoader(false);
           setErrorMessage(response?.response?.data?.errorMessage);
@@ -3621,31 +3647,6 @@ const Create_practice_details = () => {
           }
         }
 
-        const professionTypeIDs = basicInfo.professionTypeList.map(
-          (item) => item.professionTypeId
-        );
-        localStorage.removeItem("OrganisationLocalList");
-        if (common.organisationCount == 0) {
-          dispatch(
-            updateState({
-              businessTypeID: basicInfo.businessTypeID,
-              organisationCount: Number(common.organisationCount) + 1,
-              organisationKeyID: OrganisationKeyId,
-              professionTypeLists: professionTypeIDs,
-              enableEL: 1,
-            })
-          );
-        } else {
-          dispatch(
-            updateState({
-              businessTypeID: basicInfo.businessTypeID,
-              organisationKeyID: OrganisationKeyId,
-              professionTypeLists: professionTypeIDs,
-              enableEL: 1,
-            })
-          );
-
-        }
       }
     } catch (error) {
       setLoader(false);
