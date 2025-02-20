@@ -12,9 +12,17 @@ export const AddUpdateClientInformation = async (params) => {
   return res;
 };
 
+// export const GetClientList = async (params) => {
+//   const res = await postApiWithAuthenticated(
+//     `${clientsListUrl}/GetClientList`,
+//     params
+//   );
+//   return res;
+// };
+
 export const GetClientList = async (params) => {
   const res = await postApiWithAuthenticated(
-    `${clientsListUrl}/GetClientList`,
+    `${clientsListUrl}/GetClientList?ClientFor=${params.clientFor}`,
     params
   );
   return res;

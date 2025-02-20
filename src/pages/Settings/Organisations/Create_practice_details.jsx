@@ -8,15 +8,14 @@ import { ERROR_MESSAGES } from "../../../components/GlobalMessage";
 import Upload_image_modal from "../../../components/UpdateImageModel/Upload_image_modal";
 import Upload_Logo_Modal from "../../../components/UpdateImageModel/Upload_logo_modal";
 import AddressModal from "../../../components/AddressModal/AddressModal";
-import DropDown from "../../../components/DropDown";
 import Utils from "../../../Middleware/Utils";
-import Radio from "@mui/material/Radio";
 import Select from "react-select";
 import {
   GetCompanyDetails,
   GetCompanyList,
   GetCompanyOfficers,
 } from "../../../redux/Services/Master/companyDetailsAPI";
+import { Row, Col, Card, CardBody } from "reactstrap";
 import DatePicker from "react-date-picker";
 import "react-date-picker/dist/DatePicker.css";
 import "react-calendar/dist/Calendar.css";
@@ -45,6 +44,7 @@ import { forEach } from "lodash";
 import ConfirmModel from "../../../components/ConfirmationBox";
 import BackButtonSvg from "../../../components/BackButtonSvg";
 import InvalidFormIcon from "../../../components/InvalidFormIcon";
+import { BuyPlan, ChoosePlanApi, CreateStripeCheckoutSession } from "../../../redux/Services/Setting/PaymentGatewayApi";
 // Basic Information component
 const Basic_information = (props) => {
   const [openAddressPopUp, setOpenAddressPopUp] = useState(false);
@@ -2764,8 +2764,8 @@ const OtherInformation = (props) => {
             class="btn btn-md btn-primary create-item-btn"
             onClick={() => props.handleTabChange(4)}
           >
-            {/* <span>Next</span> */}
-            <span> Create Practice</span>
+            <span>Next</span>
+            {/* <span> Create Practice</span> */}
           </button>
         </div>
       </div>
@@ -2773,6 +2773,352 @@ const OtherInformation = (props) => {
   );
 };
 
+const SubscriptionPlanView = (props) => {
+  return (
+    <>
+      <div class="col-12">
+        <div class="d-flex justify-content-sm-end add-new-btn">
+          <label style={{ marginRight: "1rem" }}>Monthly</label>
+          <FormControlLabel
+            control={
+              <Switch
+                checked={props.isYearly}
+                onChange={props.handleToggle}
+                color="primary"
+              />
+            }
+          />
+          <label style={{ marginRight: "1rem" }}>Yearly</label>
+        </div>
+      </div>
+      <div className="create-practice-height scrollbar" id="style-1">
+        <div className="tab-content">
+          <>
+            <Row
+              className="d-flex"
+              style={{ background: "white" }}
+            >
+              {props.chooseApiData?.map(
+                (PurchasePlanList, index) => {
+                  return (
+                    <>
+                      <Col xl={6} md={6}>
+                        <Card className="pricing-box d-flex shadow-lg p-3 mb-3 bg-white rounded">
+                          <CardBody className="p-3">
+                            <div className="media ">
+                              <i className="ion ion-ios-airplane h2 align-self-center"></i>
+                              <div className="media-body text-center ">
+                                <div className="text-center login-logo">
+                                  <img
+                                    width={130}
+                                    height={25}
+                                    src="data:image/png;base64,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"
+                                    alt="login"
+                                  />
+                                </div>
+
+                                <h6 className="text-dark">
+                                  {
+                                    PurchasePlanList?.packageName
+                                  }
+                                </h6>
+
+                                {!props.isYearly ?
+                                  <div>
+
+                                    {
+                                      (() => {
+                                        const MonthlyPrice = Number(PurchasePlanList?.yearlyValuePlan) / 12;
+                                        return props.formatValue(MonthlyPrice);
+                                      })()
+                                    }
+
+                                    / Month
+                                  </div> :
+                                  <div>
+                                    {(
+                                      props.formatValue(PurchasePlanList?.yearlyValuePlan)
+                                    )}
+                                    / Year
+                                  </div>
+                                }
+                              </div>
+                            </div>
+                            <div className="pricing-features mt-1 pt-2">
+                              <div>
+                                {PurchasePlanList?.apiIntegration ==
+                                  true ? (
+                                  <span
+                                    style={{
+                                      color: "green",
+                                    }}
+                                    className="fa fa-check"
+                                  ></span>
+                                ) : (
+                                  <span
+                                    style={{
+                                      color: "red",
+                                    }}
+                                    className="fa fa-times"
+                                  ></span>
+                                )}
+                                <span
+                                  style={{
+                                    marginLeft: "10px",
+                                  }}
+                                >
+                                  {" "}
+                                  API Integration
+                                </span>
+                              </div>
+                              <div>
+                                {PurchasePlanList?.prepareQuote ==
+                                  true ? (
+                                  <span
+                                    style={{
+                                      color: "green",
+                                    }}
+                                    className="fa fa-check"
+                                  ></span>
+                                ) : (
+                                  <span
+                                    style={{
+                                      color: "red",
+                                    }}
+                                    className="fa fa-times"
+                                  ></span>
+                                )}
+                                <span
+                                  style={{
+                                    marginLeft: "10px",
+                                  }}
+                                >
+                                  {" "}
+                                  Prepare {props.proposalName}
+                                </span>
+                              </div>
+                              <div>
+                                {PurchasePlanList?.prepareContract ===
+                                  true ? (
+                                  <span
+                                    style={{
+                                      color: "green",
+                                    }}
+                                    className="fa fa-check"
+                                  ></span>
+                                ) : (
+                                  <span
+                                    style={{
+                                      color: "red",
+                                    }}
+                                    className="fa fa-times"
+                                  ></span>
+                                )}
+                                {"  "}
+                                <span
+                                  style={{
+                                    marginLeft: "10px",
+                                  }}
+                                >
+                                  {" "}
+                                  Prepare {props.EngagementName}
+                                </span>
+                              </div>
+                              <div>
+                                {PurchasePlanList?.sendQuote ===
+                                  true ? (
+                                  <span
+                                    style={{
+                                      color: "green",
+                                    }}
+                                    className="fa fa-check"
+                                  ></span>
+                                ) : (
+                                  <span
+                                    style={{
+                                      color: "red",
+                                    }}
+                                    className="fa fa-times"
+                                  ></span>
+                                )}
+                                <span
+                                  style={{
+                                    marginLeft: "10px",
+                                  }}
+                                >
+                                  {" "}
+                                  Send {props.proposalName}
+                                </span>
+                              </div>
+
+                              <div className="d-flex align-items-start">
+                                <div>
+                                  {PurchasePlanList?.eSignaturePerMonth >
+                                    0 ? (
+                                    <span
+                                      style={{
+                                        color: "green",
+                                      }}
+                                      className="fa fa-check"
+                                    ></span>
+                                  ) : (
+                                    <span
+                                      style={{
+                                        color: "red",
+                                      }}
+                                      className="fa fa-times"
+                                    ></span>
+                                  )}
+                                </div>
+                                <span
+                                  style={{
+                                    marginLeft: "10px",
+                                  }}
+                                >
+                                  Send And Digitally Sign The {props.EngagementName}
+
+                                  {PurchasePlanList?.eSignaturePerMonth >
+                                    0 && (
+                                      <>
+                                        : {props.formatValueWithoutCurrencySymbol(PurchasePlanList?.eSignaturePerMonth)}/Month
+                                      </>
+                                    )}
+                                </span>
+
+                              </div>
+                              <div>
+                                {(PurchasePlanList?.isMailBox ===
+                                  true || PurchasePlanList?.isMailBox ===
+                                  null) ? (
+                                  <span
+                                    style={{
+                                      color: "green",
+                                    }}
+                                    className="fa fa-check"
+                                  ></span>
+                                ) : (
+                                  <span
+                                    style={{
+                                      color: "red",
+                                    }}
+                                    className="fa fa-times"
+                                  ></span>
+                                )}
+                                <span
+                                  style={{
+                                    marginLeft: "10px",
+                                  }}
+                                >
+                                  {" "}
+                                  Personalized Outgoing
+                                  Mailbox
+                                </span>
+                              </div>
+                              {PurchasePlanList && (
+                                <div
+                                  className="d-flex flex-column"
+                                  style={{
+                                    minHeight: PurchasePlanList.isFreePackage ? "110px" : "90px",
+                                  }}
+                                >
+                                  {(props.isYearly &&
+                                    PurchasePlanList
+                                      .yearlyOffer
+                                      ?.length > 0) ||
+                                    (!props.isYearly &&
+                                      PurchasePlanList
+                                        .monthlyOffer
+                                        ?.length > 0) ? (
+                                    <div className="w-100">
+                                      <label></label>
+                                      <Select
+                                        placeholder="Select Offer"
+                                        menuPosition="auto"
+                                        className="phone-input-country-code selectDropDown Drop-down-width"
+                                        onChange={(
+                                          selectedOption
+                                        ) =>
+                                          props.handleSelectChange(
+                                            selectedOption,
+                                            index,
+                                            PurchasePlanList.subscriptionPackageKeyID,
+                                            PurchasePlanList.packageName
+                                          )
+                                        }
+                                        options={(props.isYearly
+                                          ? PurchasePlanList.yearlyOffer
+                                          : PurchasePlanList.monthlyOffer
+                                        )?.map(
+                                          (offer) => ({
+                                            id: offer.offerID,
+                                            label:
+                                              offer.offerName,
+                                            value:
+                                              offer.offerID,
+                                          })
+                                        )}
+                                        value={
+                                          props.selectedOfferID &&
+                                            props.selectedOfferID.index ===
+                                            index
+                                            ? props.selectedOfferID
+                                            : null
+                                        }
+                                      />
+                                    </div>
+                                  ) : (
+                                    <div className="flex-grow-1"></div>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                            {props.errorMessage && (
+                              <p>{props.errorMessage}</p>
+                            )}
+                            <div className="d-flex justify-content-center">
+                              {!PurchasePlanList.isFreePackage ? (
+                                <button
+                                  onClick={() =>
+                                    props.BuyPlanData(
+                                      index,
+                                      PurchasePlanList.subscriptionPackageKeyID
+                                    )
+                                  }
+                                  className="btn btn-success create-item-btn add-new "
+                                >
+                                  <span> Purchase</span>
+                                </button>
+                              ) : <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+                              }
+                            </div>
+
+                          </CardBody>
+                        </Card>
+                      </Col>
+                    </>
+                  );
+                }
+              )}
+            </Row>
+          </>
+          {/* end modal  */}
+        </div>
+      </div>
+      <div class="separator"></div>
+      <div class="row fieldset modal-footer">
+        <div class="col-lg-12 hstack gap-2 justify-content-end text-right mt-3">
+          <button
+            class="btn btn-md btn-primary create-item-btn"
+            onClick={() => props.handleSuccessPopupOk(4)}
+          >
+            <span>Continue With The Free Package</span>
+            {/* <span> Create Practice</span> */}
+          </button>
+        </div>
+      </div>
+    </>
+  )
+}
 const Create_practice_details = () => {
   // A] Declare State
   const {
@@ -2781,6 +3127,7 @@ const Create_practice_details = () => {
     setLoader,
     scrollUptoCurrentPosition,
     setIsAddUpdatePurchaseDone
+    , EngagementName, proposalName, formatValue, formatValueWithoutCurrencySymbol,
   } = useContext(AuthContextProvider);
   const dispatch = useDispatch();
   const common = useSelector((state) => state.Storage);
@@ -2805,6 +3152,7 @@ const Create_practice_details = () => {
     BasicForm: false,
     OfficerForm: false,
     OtherInfoForm: false,
+    ChooseSubscriptionPlan: false,
   });
   const [AuthorityCount, setAuthorityCount] = useState(0);
   const [openSuccessModal, setOpenSuccessModal] = useState(false);
@@ -2824,7 +3172,15 @@ const Create_practice_details = () => {
   const [addressUpdatedDatetime, setAddressUpdatedDatetime] = useState(
     Date.now()
   );
-
+  const [selectedOfferID, setSelectedOfferID] = useState({
+    value: null,
+    label: null,
+    index: null,
+    subscriptionPackageKeyID: null,
+    packageName: null,
+  });
+  const [chooseApiData, setChooseApiData] = useState();
+  const [isYearly, setIsYearly] = useState(true);
   const [modelRequestData, setModelRequestData] = useState({
     Action: null,
     message: "",
@@ -3157,7 +3513,7 @@ const Create_practice_details = () => {
       }, 200);
     }
   };
-  const AddUpdateClickedPracticeDetails = (confirmToSave) => {
+  const AddUpdateClickedPracticeDetails = (confirmToSave, nextTab) => {
     const ApiRequest_ParamsObj = {
       organisationKeyID: null,
       confirmToSave:
@@ -3194,10 +3550,10 @@ const Create_practice_details = () => {
       professionTypeList: basicInfo.professionTypeList,
     };
 
-    AddUpdateOrganisationData(ApiRequest_ParamsObj);
+    AddUpdateOrganisationData(ApiRequest_ParamsObj, nextTab);
   };
   // Add or Update Service Category Data
-  const AddUpdateOrganisationData = async (apiRequestParams) => {
+  const AddUpdateOrganisationData = async (apiRequestParams, nextTab) => {
     setLoader(true);
     try {
       let url = "/Organisation/AddUpdateOrganisationInformation"; // Default URL for Adding Data
@@ -3219,7 +3575,10 @@ const Create_practice_details = () => {
 
           if (showSuccessModalWhen === "OrganisationSuccess") {
             setLoader(false);
-            setOpenSuccessModal(true);
+            // setOpenSuccessModal(true);
+            $("#" + "ConfirmModel").modal("hide");
+            setActiveTab(nextTab)
+            ChoosePlanApiModelData()
           }
           if (basicInfo.signatoryImage !== null) {
             const Signature = new FormData();
@@ -3239,8 +3598,11 @@ const Create_practice_details = () => {
 
           if (uploadSignatureResponse || uploadLogoResponse) {
             setLoader(false);
-            setOpenSuccessModal(true);
+            // setOpenSuccessModal(true);
+            setActiveTab(nextTab)
+            ChoosePlanApiModelData()
           }
+          $("#" + "ConfirmModel").modal("hide");
         } else {
           setLoader(false);
           setErrorMessage(response?.response?.data?.errorMessage);
@@ -3257,6 +3619,32 @@ const Create_practice_details = () => {
 
             $("#" + "ConfirmModel").modal("show");
           }
+        }
+
+        const professionTypeIDs = basicInfo.professionTypeList.map(
+          (item) => item.professionTypeId
+        );
+        localStorage.removeItem("OrganisationLocalList");
+        if (common.organisationCount == 0) {
+          dispatch(
+            updateState({
+              businessTypeID: basicInfo.businessTypeID,
+              organisationCount: Number(common.organisationCount) + 1,
+              organisationKeyID: OrganisationKeyId,
+              professionTypeLists: professionTypeIDs,
+              enableEL: 1,
+            })
+          );
+        } else {
+          dispatch(
+            updateState({
+              businessTypeID: basicInfo.businessTypeID,
+              organisationKeyID: OrganisationKeyId,
+              professionTypeLists: professionTypeIDs,
+              enableEL: 1,
+            })
+          );
+
         }
       }
     } catch (error) {
@@ -3565,6 +3953,9 @@ const Create_practice_details = () => {
   };
   // tab value change
   const handleChangeTab = (newTab, clickedTabID) => {
+    if (activeTab === CREATE_PRACTICE_DETAILS.ChoosePlan) {
+      return false;
+    }
     let clickedTabClasses = $("#" + clickedTabID).attr("class");
     if (clickedTabClasses?.includes("disabled")) {
       return false;
@@ -3593,7 +3984,6 @@ const Create_practice_details = () => {
   };
 
   const handleSuccessPopupOk = () => {
-
     $("#" + "ConfirmModel").modal("hide");
     const professionTypeIDs = basicInfo.professionTypeList.map(
       (item) => item.professionTypeId
@@ -3606,8 +3996,6 @@ const Create_practice_details = () => {
           organisationCount: Number(common.organisationCount) + 1,
           organisationKeyID: OrganisationKeyId,
           professionTypeLists: professionTypeIDs,
-
-
           enableEL: 1,
         })
       );
@@ -3649,7 +4037,7 @@ const Create_practice_details = () => {
       Action: "PracticeWarning",
       Status: 1,
     });
-    AddUpdateClickedPracticeDetails(1);
+    AddUpdateClickedPracticeDetails(1, 4);
   };
   const phoneNumberRegex = /^\d{10,15}$/; // Allow between 10 and 15 digits
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -3838,6 +4226,7 @@ const Create_practice_details = () => {
             BasicForm: false,
             OfficerForm: false,
             OtherInfoForm: false,
+            ChooseSubscriptionPlan: false
           });
           return false;
         } else {
@@ -3873,6 +4262,7 @@ const Create_practice_details = () => {
               ...isValidForm,
               OfficerForm: false,
               OtherInfoForm: false,
+              ChooseSubscriptionPlan: false
             });
             break; // Use break to exit the loop once an error is found
           } else {
@@ -3889,6 +4279,7 @@ const Create_practice_details = () => {
                     BasicForm: false,
                     OfficerForm: false,
                     OtherInfoForm: false,
+                    ChooseSubscriptionPlan: false
                   });
                   hasOfficerError = true;
                 }
@@ -3931,33 +4322,12 @@ const Create_practice_details = () => {
               ...isValidForm,
               OfficerForm: false,
               OtherInfoForm: false,
+              ChooseSubscriptionPlan: false
             });
             hasOfficerError = true;
             return false;
           }
-          // else {
-          //   if (basicInfo.businessTypeID === CLIENT_TYPES.Partnership) {
-          //     let authoritySignatoryFound = false;
-          //     for (let j = 0; j < officersForm.length; j++) {
-          //       if (officersForm[j].isAuthorisedSignatory === true) {
-          //         authoritySignatoryFound = true;
-          //         break;
-          //       }
-          //     }
-          //     if (authoritySignatoryFound) {
-          //       hasOfficerError = false;
-          //     } else {
-          //       setAuthoritySignatorySignatory(true);
-          //       setIsValidForm({
-          //         ...isValidForm,
-          //         OfficerForm: false,
-          //         OtherInfoForm: false,
-          //       });
-          //       hasOfficerError = true;
-          //       return false;
-          //     }
-          //   }
-          // }
+
         }
         if (!hasOfficerError) {
           setActiveTab(newTab);
@@ -3971,43 +4341,6 @@ const Create_practice_details = () => {
         basicInfo.businessTypeID === CLIENT_TYPES.LLP ||
         basicInfo.businessTypeID === CLIENT_TYPES.Company
       ) {
-        // for (let i = 0; i < officersForm.length; i++) {
-        //   const dateString = officersForm[i].appointedOn;
-        //   if (
-        //     dateString !== undefined &&
-        //     dateString !== null &&
-        //     dateString !== ""
-        //   ) {
-        //     const parsedDate = new Date(dateString);
-
-        //     const minYear = 1970; // Minimum acceptable year
-        //     const maxYear = new Date().getFullYear(); // Maximum acceptable year
-
-        //     if (
-        //       !isNaN(parsedDate.getTime()) &&
-        //       parsedDate.getFullYear() >= minYear &&
-        //       parsedDate.getFullYear() <= maxYear
-        //     ) {
-        //       // Valid date
-        //       setInvalidAppointedOnDate(false);
-        //       OfficerAppointedOnDate = false; // Set to false only when the date is valid
-
-        //       // Update other state variables or perform additional actions as needed
-        //     } else {
-        //       // Invalid date
-        //       setInvalidAppointedOnDate(true);
-        //       OfficerAppointedOnDate = true; // Set to true when the date is invalid
-
-        //       // Update other state variables or perform additional actions as needed
-        //     }
-        //   } else {
-        //     // Invalid date string format or empty date
-        //     setInvalidAppointedOnDate(true);
-        //     OfficerAppointedOnDate = true; // Set to true when the date is invalid
-
-        //     // Update other state variables or perform additional actions as needed
-        //   }
-        // }
         for (let i = 0; i < officersForm.length; i++) {
           if (
             officersForm[i].firstName === "" ||
@@ -4035,32 +4368,12 @@ const Create_practice_details = () => {
               ...isValidForm,
               OfficerForm: false,
               OtherInfoForm: false,
+              ChooseSubscriptionPlan: false
             });
 
             hasOfficerError = true;
             return false;
           }
-          // else {
-          //   let authoritySignatoryFound = false;
-          //   for (let i = 0; i < officersForm.length; i++) {
-          //     if (officersForm[i].isAuthorisedSignatory === true) {
-          //       authoritySignatoryFound = true;
-          //       break;
-          //     }
-          //   }
-          //   if (authoritySignatoryFound) {
-          //     hasOfficerError = false;
-          //   } else {
-          //     setAuthoritySignatorySignatory(true);
-          //     setIsValidForm({
-          //       ...isValidForm,
-          //       OfficerForm: false,
-          //       OtherInfoForm: false,
-          //     });
-          //     hasOfficerError = true;
-          //     return false;
-          //   }
-          // }
         }
         for (let i = 0; i < officersForm.length; i++) {
           if (
@@ -4076,6 +4389,7 @@ const Create_practice_details = () => {
                 BasicForm: false,
                 OfficerForm: false,
                 OtherInfoForm: false,
+                ChooseSubscriptionPlan: false
               });
               hasOfficerError = true;
             }
@@ -4112,34 +4426,155 @@ const Create_practice_details = () => {
           setRequireOtherErrorMessage(true);
           return false;
         } else {
-          // setActiveTab(newTab);
           setIsValidForm({
             ...isValidForm,
             OfficerForm: true,
+            ChooseSubscriptionPlan: true
           });
           setRequireOtherErrorMessage(false);
           if (createPractice) {
             return;
           } else {
-            AddUpdateClickedPracticeDetails();
-            // setActiveTab(newTab);
+            AddUpdateClickedPracticeDetails(null, newTab);
+
           }
         }
       } else {
-        // setActiveTab(newTab);
         setIsValidForm({
           ...isValidForm,
           OfficerForm: true,
+          ChooseSubscriptionPlan: true
         });
         setRequireOtherErrorMessage(false);
         if (createPractice) {
           return;
         } else {
-          AddUpdateClickedPracticeDetails();
-          // setActiveTab(newTab);
+          AddUpdateClickedPracticeDetails(null, newTab);
+
         }
       }
     }
+  };
+  const ChoosePlanApiModelData = async () => {
+    try {
+      const data = await ChoosePlanApi();
+      if (data?.data?.statusCode === 200) {
+        if (data?.data?.responseData?.data) {
+          const ModelData = data?.data?.responseData?.data;
+
+          setChooseApiData(ModelData);
+        }
+      } else {
+        setErrorMessage(data?.data?.errorMessage);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleToggle = () => {
+    setIsYearly(!isYearly); // Toggle between monthly and yearly
+    // Additional logic if needed
+    setSelectedOfferID({
+      value: null,
+      label: null,
+      index: null,
+      subscriptionPackageKeyID: null,
+      packageName: null,
+    });
+  };
+
+  const BuyPlanData = async (i, subscriptionPackageKeyIDForPurchase) => {
+    setLoader(true);
+    try {
+      const subscriptionPackageData =
+        subscriptionPackageKeyIDForPurchase ===
+          selectedOfferID?.subscriptionPackageKeyID
+          ? selectedOfferID.subscriptionPackageKeyID
+          : subscriptionPackageKeyIDForPurchase;
+      const offerData =
+        subscriptionPackageKeyIDForPurchase ===
+          selectedOfferID?.subscriptionPackageKeyID
+          ? selectedOfferID.value
+          : null;
+      const data = await BuyPlan({
+        organisationKeyID: OrganisationKeyId,
+        userKeyID: common.userKeyID,
+        subscriptionPackageKeyID: subscriptionPackageData,
+        paymentFrequencyID: isYearly ? 1 : 4,
+        offerID: offerData,
+      });
+
+      if (data && data?.data?.statusCode === 200) {
+        setLoader(false);
+
+        const invoiceKeyID = data.data.responseData.invoiceKeyID;
+        const finalBillingAmount = data.data.responseData.finalBillingAmount;
+        if (finalBillingAmount !== null) {
+          CreateStripeCheckoutSessionRedirection(
+            common.userKeyID,
+            invoiceKeyID
+          );
+        } else {
+          navigate("/mySubscription");
+        }
+      } else {
+        setLoader(false);
+        setErrorMessage(data?.data?.errorMessage);
+      }
+    } catch (error) {
+      setLoader(false);
+      console.log(error);
+    }
+  };
+  const CreateStripeCheckoutSessionRedirection = async (
+    userKeyID,
+    InvoiceKeyID
+  ) => {
+    setLoader(true);
+
+    try {
+      const response = await CreateStripeCheckoutSession(
+        userKeyID,
+        InvoiceKeyID
+      );
+      const data = response.data;
+
+      if (data.statusCode === 200) {
+        const sessionURL = data.responseData.sessionURL;
+        setLoader(false);
+
+        window.open(sessionURL, "_self");
+      } else {
+        console.error("Error fetching data from the API");
+        setLoader(false);
+      }
+    } catch (error) {
+      console.error("Error fetching data from the API", error);
+      setLoader(false);
+    }
+  };
+
+  const handleSelectChange = (
+    selectedOption,
+    index,
+    subscriptionPackageKeyIDNew,
+    packageNameNew
+  ) => {
+    // Extract the offerID and label from the selected option
+    const selectedOfferID = selectedOption.value;
+    const selectedName = selectedOption.label;
+    const subscriptionPackageKeyID = subscriptionPackageKeyIDNew;
+
+    // Store the selected offerID, label, and index in state
+    setSelectedOfferID({
+      value: selectedOfferID,
+      label: selectedName,
+      index,
+      subscriptionPackageKeyID: subscriptionPackageKeyID,
+      packageName: packageNameNew,
+    });
+    // setSelectedIndex(index);
   };
 
   return (
@@ -4232,17 +4667,19 @@ const Create_practice_details = () => {
                     )}
                   </div>
                 </li>
-                {/* <li>
+                <li>
                   <div
                     class={`${activeTab === CREATE_PRACTICE_DETAILS.ChoosePlan
-                      ? "step disabled cursor-not-allowed tab-field-center"
-                      : "step disabled cursor-not-allowed tab-field-center"
+                      ? "step tab-field-center"
+                      : isValidForm.ChooseSubscriptionPlan === true
+                        ? "step tab-field-center"
+                        : "step disabled cursor-not-allowed tab-field-center"
                       } w-90`}
                   >
                     <span class="stepCount">4</span>
                     <span class="stepTitle">Choose Plan</span>
                   </div>
-                </li> */}
+                </li>
               </ul>
             </div>
             {activeTab === CREATE_PRACTICE_DETAILS.BasicInformation && (
@@ -4348,22 +4785,24 @@ const Create_practice_details = () => {
                 handleCancel={handleCancel}
                 handleTabChange={handleTabChange}
                 handleBackBtnChange={handleBackBtnChange}
-                AddUpdateClickedPracticeDetails={
-                  AddUpdateClickedPracticeDetails
-                }
               />
             )}
-            {/* {activeTab === CREATE_PRACTICE_DETAILS.ChoosePlan && (
-              <Choose_plan
-                AddUpdateClickedPracticeDetails={
-                  AddUpdateClickedPracticeDetails
-                }
-                errorMessage={errorMessage}
-                handleCancel={handleCancel}
-                handleTabChange={handleTabChange}
-                handleBackBtnChange={handleBackBtnChange}
+            {activeTab === CREATE_PRACTICE_DETAILS.ChoosePlan && (
+              <SubscriptionPlanView
+                handleSelectChange={handleSelectChange}
+                BuyPlanData={BuyPlanData}
+                handleSuccessPopupOk={handleSuccessPopupOk}
+                handleToggle={handleToggle}
+                isYearly={isYearly}
+                setIsYearly={setIsYearly}
+                formatValue={formatValue}
+                EngagementName={EngagementName}
+                proposalName={proposalName}
+                selectedOfferID={selectedOfferID}
+                chooseApiData={chooseApiData}
+                formatValueWithoutCurrencySymbol={formatValueWithoutCurrencySymbol}
               />
-            )} */}
+            )}
 
             {/* Write Component here */}
           </div>

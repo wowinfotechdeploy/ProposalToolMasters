@@ -223,7 +223,7 @@ const ChoosePlanForPurchase = (props) => {
                                     className="d-flex"
                                     style={{ background: "white" }}
                                   >
-                                    {chooseApiData?.map(
+                                    {chooseApiData?.filter((item) => !item.isFreePackage).map(
                                       (PurchasePlanList, index) => {
                                         return (
                                           <>
@@ -267,7 +267,7 @@ const ChoosePlanForPurchase = (props) => {
                                                           {(
                                                             formatValue(PurchasePlanList?.yearlyValuePlan)
                                                           )}
-                                                          / year
+                                                          / Year
                                                         </div>
                                                       }
                                                     </div>

@@ -6,10 +6,21 @@ import {
 
 const Engagement_Letters = `${Base_Url}/Contract`;
 
+// export const GetEngagementList = async (params) => {
+//     let url = params.StatusID !== undefined && params.StatusID !== null ?
+//         `/GetContractList?StatusID=${params.StatusID}` :
+//         `/GetContractList`
+//     const res = await postApiWithAuthenticated(
+//         Engagement_Letters + url,
+//         params
+//     );
+//     return res;
+// };
+
 export const GetEngagementList = async (params) => {
     let url = params.StatusID !== undefined && params.StatusID !== null ?
-        `/GetContractList?StatusID=${params.StatusID}` :
-        `/GetContractList`
+        `/GetContractList?StatusID=${params.StatusID}&ContractsFor=${params.contractsFor}` :
+        `/GetContractList?ContractsFor=${params.contractsFor}`
     const res = await postApiWithAuthenticated(
         Engagement_Letters + url,
         params

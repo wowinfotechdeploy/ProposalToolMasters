@@ -3,7 +3,7 @@ import React, { useContext, useEffect, useState } from "react";
 import CommonButtonComponent from "../../../../components/CommonButtonComponent";
 import "./AccessKeyStyle.css";
 import { useSelector } from "react-redux";
-
+import hint from "../../../../assets/images/hint.png";
 import AccesskeyModal from "./AccesskeyModal";
 import PaginationComponent from "../../../../components/PaginationModel";
 import NoResultFoundModel from "../../../../components/NoResultFoundModel";
@@ -16,10 +16,11 @@ import ConfirmModel from "../../../../components/ConfirmationBox";
 import Footer from "../../../../components/Footer";
 import { AuthContextProvider } from "../../../../AuthContext/AuthContext";
 import Android12Switch from "../../../../components/AndroidSwitch";
-import { DeleteAccessKey, GetAccessKeyList } from "../../../../redux/Services/Setting/AccessKeyApi";
-import { USER_ROLE_TYPE } from "../../../../Middleware/enums";
+import { AccessKeyChangeStatus, DeleteAccessKey, EnableAccessKeyApiIntegationChangeStatus, GetAccessKeyList } from "../../../../redux/Services/Setting/AccessKeyApi";
 import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
+import { AccessKeyBaseUrl } from "../../../../Base-Url/Base_Url";
+import AccessKeyUsesModal from "./AccessKeyUsesModel";
 const AccessKeyList = () => {
   let getAccessKeyListApiCallCount = 0;
   const navigate = useNavigate();
@@ -42,28 +43,32 @@ const AccessKeyList = () => {
   const [primarySortDirection, setPrimarySortDirection] = useState(null);
   const [searchKeyword, setSearchKeyword] = useState("");
   const [openErrorModal, setOpenErrorModal] = useState(false);
+  const [isSingleApiAccessKeyEnable, setIsSingleApiAccessKeyEnable] = useState(false);
+
   const [openSuccessModal, setOpenSuccessModal] = React.useState(false);
   const {
     setLoader,
     setTopbar,
     maxCountToRecallApi,
-    totalPage,
     isMobile,
     setListCount,
     listCount,
-    desktopRecords,
-    isMobileRecords,
     getCrudButtonTextName,
     getPlaceholderTextName,
     getCrudButtonToolTipName,
     userAccessData,
-    activeOrganizationSubscriptionPlan
+    activeOrganizationSubscriptionPlan,
+    desktopRecords,
+    isMobileRecords
   } = useContext(AuthContextProvider);
+  const totalPage = isMobile
+    ? Math.ceil(listCount / isMobileRecords)
+    : Math.ceil(listCount / desktopRecords);
   const pageSize = isMobile ? isMobileRecords : desktopRecords;
   // B] Initial useEffect :
   // 1) Will Call Initial Api Like List Api
   useEffect(() => {
-    if (!activeOrganizationSubscriptionPlan?.apiIntegration) {
+    if (common.organisationKeyID !== null && !activeOrganizationSubscriptionPlan?.apiIntegration) {
       navigate(-1); // Redirect to the previous page
     }
     setTopbar("block");
@@ -108,6 +113,8 @@ const AccessKeyList = () => {
           if (data?.data?.responseData?.data) {
             const totalCount = data.data.totalCount;
             const AccessKeyListData = data.data.responseData.data;
+            const isSingleApiAccessKeyEnable = data.data.responseData.isSingleApiAccessKeyEnable;
+            setIsSingleApiAccessKeyEnable(isSingleApiAccessKeyEnable)
             if (pageNoList > 0 && AccessKeyListData.length === 0) {
               let newPaneNo = Number(pageNoList);
               if (newPaneNo > 1) {
@@ -150,30 +157,68 @@ const AccessKeyList = () => {
     }
   };
 
-  // 2) On Click Access Key Delete Button
-  const DeleteAccessKeyData = async () => {
-    if (modelRequestData.Action === "Active") {
-      return
-    }
-    setLoader(true);
-    try {
-      const Data = await DeleteAccessKey(
-        modelRequestData.accessKeyKeyID,
-        modelRequestData.userKeyID
-      );
-      if (Data) {
-        setLoader(false);
-        if (Data?.data?.statusCode === 200) {
-          setOpenSuccessModal(true);
-        } else {
-          setErrorMessage(Data?.response?.data?.errorMessage);
-          setOpenErrorModal(true);
+  // 2) On Click Access Key ChangeStatus Button
+  const ChangeStatusAccessKeyData = async () => {
+    if (modelRequestData.Action === "EnableApiIntegration") {
+      try {
+        const Data = await EnableAccessKeyApiIntegationChangeStatus(
+          common.organisationKeyID,
+          modelRequestData.userKeyID
+        );
+        if (Data) {
+          setLoader(false);
+          if (Data?.data?.statusCode === 200) {
+            setOpenSuccessModal(true);
+          } else {
+            setErrorMessage(Data?.response?.data?.errorMessage);
+            setOpenErrorModal(true);
+          }
+          GetAccessKeyListData(currentPage);
         }
-        GetAccessKeyListData(currentPage);
+      } catch (error) {
+        console.log(error);
       }
-    } catch (error) {
-      console.log(error);
+    } else if (modelRequestData.Action === "Status") {
+      try {
+        const Data = await AccessKeyChangeStatus(
+          modelRequestData.accessKeyKeyID,
+          modelRequestData.userKeyID
+        );
+        if (Data) {
+          setLoader(false);
+          if (Data?.data?.statusCode === 200) {
+            setOpenSuccessModal(true);
+          } else {
+            setErrorMessage(Data?.response?.data?.errorMessage);
+            setOpenErrorModal(true);
+          }
+          GetAccessKeyListData(currentPage);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      setLoader(true);
+      try {
+        const Data = await DeleteAccessKey(
+          modelRequestData.accessKeyKeyID,
+          modelRequestData.userKeyID
+        );
+        if (Data) {
+          setLoader(false);
+          if (Data?.data?.statusCode === 200) {
+            setOpenSuccessModal(true);
+          } else {
+            setErrorMessage(Data?.response?.data?.errorMessage);
+            setOpenErrorModal(true);
+          }
+          GetAccessKeyListData(currentPage);
+        }
+      } catch (error) {
+        console.log(error);
+      }
     }
+
   };
 
   // F] Pagination :
@@ -211,24 +256,39 @@ const AccessKeyList = () => {
             <div className="container">
               <div className="row">
                 <div className="col-md-6 col-6">
-                  <div class="page-title-cls">Access Keys</div>
+                  <div class="page-title-cls">
+                    Access Keys
+                    {/* <i style={{ cursor: "pointer" }} data-bs-toggle="modal"
+                      data-bs-target="#AccessKeyInstructionModel" class="fas fa-question-circle mx-2"></i> */}
+                  </div>
+
                 </div>
                 <div className="col-md-6 col-6">
                   {common.organisationKeyID !== null &&
                     <div className="d-flex justify-content-sm-end add-new-btn">
-                      <Tooltip title={`Enable/Disable 2 step verification`}>
+                      <Tooltip title={`Enable/Disable Single API Access Key`}>
                         <div
                           className="d-flex gap-2 justify-content-sm-end add-new-btn"
                           style={{ marginRight: "10px" }}
                         >
                           <span style={{ marginBottom: "5px" }}>
-                            Enable Single API Integration
+                            {isSingleApiAccessKeyEnable ? "Enable" : "Disable"} Single API Access Key
                           </span>{" "}
                           <FormGroup>
                             <FormControlLabel
                               control={
                                 <Android12Switch
-
+                                  checked={isSingleApiAccessKeyEnable}
+                                  onClick={() =>
+                                    setModelRequestData({
+                                      ...modelRequestData,
+                                      userKeyID: common.userKeyID,
+                                      status: isSingleApiAccessKeyEnable ? "Enable" : "Disable",
+                                      Action: "EnableApiIntegration",
+                                    })
+                                  }
+                                  data-bs-toggle="modal"
+                                  data-bs-target="#ConfirmModel"
                                 />
                               }
                             />
@@ -275,12 +335,29 @@ const AccessKeyList = () => {
                                 AddBtn={() => AccessKeyAddBtnClicked()}
                               />
                             )}
+                            {common.organisationKeyID !== null && (
+                              <Tooltip title={` How To Use ${moduleName}`}>
+                                {/* <button
+                                  className="btn btn-md btn-success create-item-btn"
+                                  data-bs-target="#AccessKeyUsesModel"
+                                  data-bs-toggle="modal"
+                                // AddBtn={() => AccessKeyAddBtnClicked()}
+                                >
+                                  How To Use {moduleName}
+                                </button> */}
+                                <a style={{ cursor: "pointer" }} data-bs-target="#AccessKeyUsesModel"
+                                  data-bs-toggle="modal" >
+                                  How To Use  {moduleName} ? <img src={hint} className="hint" />
+                                </a>
+                              </Tooltip>
+                            )}
                           </div>
                         </div>
-
+                        {/* <div className="AccessKeyTable"> */}
                         <table
                           class="table align-middle table-nowrap"
                           id="customerTable"
+                        // style={{ height: "50px", overflowY: "auto" }}
                         >
                           <thead class="table-light table-header-font">
                             <tr className="head-row ">
@@ -321,9 +398,17 @@ const AccessKeyList = () => {
                               <td className="tr-table-class  text-white">
                                 Organisation Name
                               </td>
+                              {common.organisationKeyID !== null &&
+                                <>
+                                  <td className="tr-table-class  text-white">
+                                    Status
+                                  </td>
+                                </>
+                              }
                               <td className="tr-table-class  text-white">
                                 Expiry Date
                               </td>
+
                               {common.organisationKeyID === null &&
                                 <>
                                   <td className="tr-table-class  text-white">
@@ -361,8 +446,13 @@ const AccessKeyList = () => {
                                       {AccessKey.token}
                                     </td>
                                     <td className="table-content-font">
-                                      WOWInfotect
+                                      {AccessKey.organisationName}
                                     </td>
+                                    {common.organisationKeyID !== null &&
+                                      <td className="table-content-font">
+                                        {AccessKey.expiryStatus}
+                                      </td>
+                                    }
                                     <td className="table-content-font">
                                       {" "}
                                       {AccessKey.expiryDate ? dayjs(AccessKey.expiryDate).format("DD/MM/YYYY") : " "}
@@ -418,35 +508,35 @@ const AccessKeyList = () => {
                                         {/* <td> {AccessKey.statusName}</td> */}
                                         <td className="table-content-font">
                                           <div class="d-flex gap-2 justify-content-center">
-                                            {userAccessData.Admin_Setting_AccessKeyCanDelete && (
-                                              <Tooltip
-                                                title={getCrudButtonToolTipName(
-                                                  "Delete",
-                                                  moduleName
-                                                )}
-                                              >
-                                                <div class="remove">
-                                                  <button
-                                                    class="btn btn-sm btn-danger remove-item-btn actionButtonsStyle"
-                                                    data-bs-toggle="modal"
-                                                    data-bs-target="#ConfirmModel"
-                                                    onClick={() =>
-                                                      setModelRequestData({
-                                                        ...modelRequestData,
-                                                        accessKeyKeyID:
-                                                          AccessKey.accessKeyKeyID,
-                                                        AccessKeyName:
-                                                          AccessKey.accessKeyName,
-                                                        userKeyID: common.userKeyID,
-                                                        Action: "Delete",
-                                                      })
-                                                    }
-                                                  >
-                                                    <i class="ri-delete-bin-5-fill"></i>
-                                                  </button>
-                                                </div>
-                                              </Tooltip>
-                                            )}
+
+                                            <Tooltip
+                                              title={getCrudButtonToolTipName(
+                                                "Delete",
+                                                moduleName
+                                              )}
+                                            >
+                                              <div class="remove">
+                                                <button
+                                                  class="btn btn-sm btn-danger remove-item-btn actionButtonsStyle"
+                                                  data-bs-toggle="modal"
+                                                  data-bs-target="#ConfirmModel"
+                                                  onClick={() =>
+                                                    setModelRequestData({
+                                                      ...modelRequestData,
+                                                      accessKeyKeyID:
+                                                        AccessKey.accessKeyKeyID,
+                                                      AccessKeyName:
+                                                        AccessKey.accessKeyName,
+                                                      userKeyID: common.userKeyID,
+                                                      Action: "Delete",
+                                                    })
+                                                  }
+                                                >
+                                                  <i class="ri-delete-bin-5-fill"></i>
+                                                </button>
+                                              </div>
+                                            </Tooltip>
+
                                           </div>
                                         </td>
                                       </>
@@ -457,6 +547,26 @@ const AccessKeyList = () => {
                           </tbody>
                         </table>
 
+                        {/* </div> */}
+                        {/* <div class="card">
+                          <div className="card-body d-flex justify-content-center flex-column">
+                            <h5>
+                              {moduleName} Uses:
+                            </h5>
+                            <p>Follow these steps to authenticate using the access key:</p>
+                            <ol>
+                              <li>Call below API from your website.<br></br>
+                                API: <b>{`${AccessKeyBaseUrl}/api/login/authenticate?accessKey={Token}`}</b>
+                              </li>
+                              <li>After calling the above API, you will receive the redirection URL in the response.<br></br>
+                                Response:<br></br>
+                                <b> {`{redirectUrl: redirectUrl}`}</b>
+                              </li>
+                              <li>Open the redirection URL in a new tab or popup.</li>
+                              <li>Finish.</li>
+                            </ol>
+                          </div>
+                        </div> */}
                         {totalRecords <= 0 && (
                           <NoResultFoundModel
                             name={moduleName}
@@ -464,8 +574,11 @@ const AccessKeyList = () => {
                           />
                         )}
                       </div>
+
                     </div>
+
                   </div>
+
                   {listCount > pageSize && (
                     <PaginationComponent
                       totalCount={listCount}
@@ -487,7 +600,7 @@ const AccessKeyList = () => {
               openErrorModal={openErrorModal}
               openSuccessModal={openSuccessModal}
               modelRequestData={modelRequestData}
-              UpdatedStatus={DeleteAccessKeyData}
+              UpdatedStatus={ChangeStatusAccessKeyData}
             />
 
             {/* Success Modal  */}
@@ -506,6 +619,15 @@ const AccessKeyList = () => {
             <AccesskeyModal
               class="modal fade"
               id="showModal1"
+              tabIndex="-1"
+              aria_labelledby="exampleModalLabel"
+              aria_hidden="true"
+              setIsAddUpdateActionDone={setIsAddUpdateActionDone}
+              modelRequestData={modelRequestData}
+            />
+            <AccessKeyUsesModal
+              class="modal fade"
+              id="AccessKeyUsesModel"
               tabIndex="-1"
               aria_labelledby="exampleModalLabel"
               aria_hidden="true"

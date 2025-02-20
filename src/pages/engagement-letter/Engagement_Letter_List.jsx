@@ -51,6 +51,7 @@ const Engagement_Letter = () => {
     refId: null,
   });
   const [totalRecords, setTotalRecords] = useState(-1);
+  const [totalSingleRecords, setTotalSingleRecords] = useState(-1);
   const [emailError, setEmailError] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [openErrorModal, setOpenErrorModal] = useState(false);
@@ -61,17 +62,21 @@ const Engagement_Letter = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [searchKeyword, setSearchKeyword] = useState("");
   const [OldElSearchKeyword, setSearchOldELKeyword] = useState("");
+  const [SingleElSearchKeyword, setSearchSingleELKeyword] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [ElCurrentPage, OldElCurrentPage] = useState(1);
+  const [ElCurrentPage, setOldElCurrentPage] = useState(1);
+  const [SingleElCurrentPage, setSingleElCurrentPage] = useState(1);
   const location = useLocation();
   const common = useSelector((state) => state.Storage);
   const [title, setTitle] = useState("");
   const [isAddUpdateActionDone, setIsAddUpdateActionDone] = useState(false);
   const [engagementList, setEngagementList] = useState([]);
   const [OldEngagementList, setOldEngagementList] = useState([]);
+  const [SingleEngagementList, setSingleEngagementList] = useState([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [activeTab, setActiveTab] = useState("NewEL");
   const [oldElListCount, setOldElListCount] = useState(0);
+  const [SingleElListCount, setSingleElListCount] = useState(0);
 
   const {
     EngagementName,
@@ -218,6 +223,7 @@ const Engagement_Letter = () => {
           prospectTypeId === undefined ? prospectType : prospectTypeId,
         businessNatureID:
           businessNatureId === undefined ? businessNatureID : businessNatureId,
+        contractsFor: "Outbooks"
       });
 
       if (data) {
@@ -295,7 +301,7 @@ const Engagement_Letter = () => {
                 newPaneNo = newPaneNo - 1;
               }
               GetOldEngagementListData(newPaneNo, searchKeywordValue);
-              OldElCurrentPage(pageNoList);
+              setOldElCurrentPage(pageNoList);
               return;
             }
             setOldElListCount(totalCount);
@@ -320,6 +326,77 @@ const Engagement_Letter = () => {
       console.log(error);
     }
   };
+
+  //Single Api List
+  const GetEngagementListForSingleApiData = async (
+    i,
+    searchKeywordValue,
+    Status,
+    FromDate,
+    ToDate,
+    businessNatureId,
+    prospectTypeId,
+
+  ) => {
+    setLoader(true);
+    const pageNoList = i - 1;
+    try {
+      const data = await GetEngagementList({
+        pageSize: Number(pageSize),
+        pageNo: pageNoList,
+        organisationKeyID: common.organisationKeyID,
+        searchKeyword:
+          searchKeywordValue === undefined ? searchKeyword : searchKeywordValue,
+        StatusID: Status !== undefined ? Status : status,
+        userKeyID: common.userKeyID || null,
+        fromDate: FromDate === undefined ? fromDate === "" ? null : fromDate : FromDate,
+        toDate: ToDate === undefined ? toDate === "" ? null : toDate : ToDate,
+        businessTypeID:
+          prospectTypeId === undefined ? prospectType : prospectTypeId,
+        businessNatureID:
+          businessNatureId === undefined ? businessNatureID : businessNatureId,
+        contractsFor: "SingleApi"
+      });
+
+      if (data) {
+        if (data?.data?.statusCode === 200) {
+          setLoader(false);
+          getEngagementListApiCallCount = 0;
+          if (data?.data?.responseData?.data) {
+            const engagementList = data?.data?.responseData?.data;
+            const totalCount = data.data.totalCount;
+            if (pageNoList > 0 && engagementList.length === 0) {
+              let newPaneNo = Number(pageNoList);
+              if (newPaneNo > 1) {
+                newPaneNo = newPaneNo - 1;
+              }
+              GetEngagementListForSingleApiData(newPaneNo, searchKeywordValue);
+              setSingleElCurrentPage(pageNoList);
+              return;
+            }
+            setSingleElListCount(totalCount);
+            setSingleEngagementList(engagementList);
+            setTotalSingleRecords(engagementList.length);
+          }
+        } else {
+          if (getEngagementListApiCallCount < maxCountToRecallApi) {
+            getEngagementListApiCallCount += 1;
+            setTimeout(function () {
+              GetEngagementListForSingleApiData(i, searchKeywordValue);
+            }, 2000);
+          } else {
+            setLoader(false);
+          }
+
+          setErrorMessage(data?.data?.errorMessage);
+        }
+        return data;
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const handleCloseModel = () => {
     setShowModal(false);
   };
@@ -548,8 +625,7 @@ const Engagement_Letter = () => {
       }
     }
   };
-
-
+  // el seacrh function
   const handleSearch = (e) => {
     const searchKeywordValue = e.target.value;
     setSearchKeyword(searchKeywordValue);
@@ -564,10 +640,11 @@ const Engagement_Letter = () => {
       prospectType, false
     );
   };
+  //old El search 
   const handleSearchOldEl = (e) => {
     const searchKeywordValue = e.target.value;
     setSearchOldELKeyword(searchKeywordValue);
-    OldElCurrentPage(ElCurrentPage);
+    setOldElCurrentPage(ElCurrentPage);
     GetOldEngagementListData(
       ElCurrentPage,
       searchKeywordValue,
@@ -576,7 +653,19 @@ const Engagement_Letter = () => {
       null
     );
   };
-
+  //single api Search finction
+  const handleSearchSingleEl = (e) => {
+    const searchKeywordValue = e.target.value;
+    setSearchSingleELKeyword(searchKeywordValue);
+    setSingleElCurrentPage(ElCurrentPage);
+    GetEngagementListForSingleApiData(
+      ElCurrentPage,
+      searchKeywordValue,
+      null,
+      null,
+      null
+    );
+  };
   // F] Pagination :
   const handlePageChange = async (pageNumber) => {
     setCurrentPage(pageNumber);
@@ -584,8 +673,12 @@ const Engagement_Letter = () => {
   };
 
   const handlePageOldELChange = async (pageNumber) => {
-    OldElCurrentPage(pageNumber);
+    setOldElCurrentPage(pageNumber);
     await GetOldEngagementListData(pageNumber); // Call your function with the selected page number
+  };
+  const handlePageSingleELChange = async (pageNumber) => {
+    setSingleElCurrentPage(pageNumber);
+    await GetEngagementListForSingleApiData(pageNumber); // Call your function with the selected page number
   };
   const handleViewEngagementDetails = (engagement) => {
     setModelRequestData({
@@ -648,6 +741,9 @@ const Engagement_Letter = () => {
     if (tab === "OldEL") {
       GetOldEngagementListData(1);
       setActiveTab(tab);
+    } else if (tab === "WebEL") {
+      setActiveTab(tab);
+      GetEngagementListForSingleApiData(1)
     } else {
       GetEngagementListData(1);
       setActiveTab(tab);
@@ -1028,10 +1124,10 @@ const Engagement_Letter = () => {
 
                                   <input
                                     type="text"
-                                    value={searchKeyword}
+                                    value={SingleElSearchKeyword}
                                     class="form-control search"
                                     onChange={(e) => {
-                                      handleSearch(e);
+                                      handleSearchSingleEl(e);
                                     }}
                                     placeholder={
                                       isMobile
@@ -1926,16 +2022,16 @@ const Engagement_Letter = () => {
                                   <td className="tr-table-class text-white">
                                     Send Reminder
                                   </td>
-                                  <td className="tr-table-class text-white">
+                                  {/* <td className="tr-table-class text-white">
                                     {(userAccessData.Admin_Engagement_Latter_CanEdit ||
                                       userAccessData.Admin_Engagement_Latter_CanView) && (
                                         <>Action</>
                                       )}
-                                  </td>
+                                  </td> */}
                                 </tr>
                               </thead>
                               <tbody class="list form-check-all">
-                                {engagementList
+                                {SingleEngagementList
                                   .slice(
                                     0,
                                     isMobile ? isMobileRecords : desktopRecords
@@ -2180,9 +2276,9 @@ const Engagement_Letter = () => {
                                               </div>
                                             }
                                           </td>
-                                          <td className="table-content-font">
+                                          {/* <td className="table-content-font">
                                             <div class="d-flex gap-2">
-                                              {/* Dropdown for all actions */}
+                                             
                                               <div class="dropdown">
                                                 <button
                                                   class="btn btn-md btn-success create-item-btn"
@@ -2199,10 +2295,10 @@ const Engagement_Letter = () => {
                                                 <ul style={{
                                                   padding: `${engagement.statusID === statusID.Draft ? "2px 0px 2px 0px" : "6px 8px"}`
                                                 }} class="dropdown-menu" aria-labelledby="dropdownElMenuButton">
-                                                  {/* Draft button */}
+                                               
                                                   {engagement.statusID === statusID.Draft && userAccessData.Admin_Engagement_Latter_CanEdit && (
                                                     <li>
-                                                      {/* <Tooltip title={`Edit ${EngagementName}`}> */}
+                                                     
                                                       <a class="dropdown-item" onClick={() =>
                                                         EngagementEditBtnClicked(
                                                           engagement
@@ -2213,11 +2309,11 @@ const Engagement_Letter = () => {
                                                           style={{ marginRight: "2px" }}
                                                         ></i> Edit {EngagementName}
                                                       </a>
-                                                      {/* </Tooltip> */}
+                                                     
                                                     </li>
                                                   )}
 
-                                                  {/* View button */}
+                                                
                                                   {(engagement.statusID !== statusID.Draft) && userAccessData.Admin_Engagement_Latter_CanView && (
                                                     <li>
 
@@ -2232,7 +2328,7 @@ const Engagement_Letter = () => {
                                                     </li>
                                                   )}
 
-                                                  {/* Copy button */}
+                                                
                                                   {engagement.statusID !== statusID.Draft && (
                                                     <li>
 
@@ -2252,7 +2348,7 @@ const Engagement_Letter = () => {
 
                                                     </li>
                                                   )}
-                                                  {/* Resend button*/}
+                                                 
                                                   {(engagement.statusID === statusID.Sent || engagement.statusID === statusID.Awaiting_Signature
                                                   ) && userAccessData.Admin_Engagement_Latter_CanEdit && (
                                                       <li>
@@ -2274,7 +2370,7 @@ const Engagement_Letter = () => {
                                               </div>
                                             </div>
 
-                                          </td>
+                                          </td> */}
                                           {/* <td>
                                             <div class="d-flex gap-2">
                                               {userAccessData.Admin_Engagement_Latter_CanView && (
@@ -2395,10 +2491,10 @@ const Engagement_Letter = () => {
                         )}
                         {activeTab === "WebEL" && (
                           <div>
-                            {totalRecords <= 0 && (
+                            {totalSingleRecords <= 0 && (
                               <NoResultFoundModel
                                 name={EngagementName}
-                                totalRecords={totalRecords}
+                                totalRecords={totalSingleRecords}
                               />
                             )}
                           </div>
@@ -2422,14 +2518,14 @@ const Engagement_Letter = () => {
                   )}
                   {activeTab === "WebEL" && (
                     <div>
-                      {listCount > Number(pageSize) && (
+                      {SingleElListCount > Number(pageSize) && (
                         <PaginationComponent
-                          totalCount={listCount}
+                          totalCount={SingleElListCount}
                           totalPages={isMobile
-                            ? Math.ceil(listCount / isMobileRecords)
-                            : Math.ceil(listCount / ((desktopRecords > 5 && window.innerHeight == 652) ? 5 : desktopRecords))}
-                          currentPage={currentPage}
-                          onPageChange={handlePageChange}
+                            ? Math.ceil(SingleElListCount / isMobileRecords)
+                            : Math.ceil(SingleElListCount / ((desktopRecords > 5 && window.innerHeight == 652) ? 5 : desktopRecords))}
+                          currentPage={SingleElCurrentPage}
+                          onPageChange={handlePageSingleELChange}
                         />
                       )}
                     </div>

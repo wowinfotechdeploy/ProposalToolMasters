@@ -26,9 +26,22 @@ export const AddUpdateAccessKey = async (url, params) => {
 };
 
 //Delete Access Key Callback function
-export const DeleteAccessKey = async (id,userKeyID) => {
+export const AccessKeyChangeStatus = async (id, userKeyID) => {
+    const res = await getListWithAuthenticated(
+        `${AccessKeyBaseUrl}/ChangeAccessKeyStatus?AccessKeyKeyID=${id}&UserKeyID=${userKeyID}`
+    );
+    return res;
+};
+export const DeleteAccessKey = async (id, userKeyID) => {
     const res = await getListWithAuthenticated(
         `${AccessKeyBaseUrl}/AccessKeyDelete?AccessKeyKeyID=${id}&UserKeyID=${userKeyID}`
+    );
+    return res;
+};
+
+export const EnableAccessKeyApiIntegationChangeStatus = async (OrganisationKeyID, userKeyID) => {
+    const res = await getListWithAuthenticated(
+        `${AccessKeyBaseUrl}/EnableSingleApiIntegrationStatus?OrganisationKeyID=${OrganisationKeyID}&UserKeyID=${userKeyID}`
     );
     return res;
 };

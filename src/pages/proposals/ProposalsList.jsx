@@ -61,9 +61,11 @@ const Proposals = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [isAddUpdateActionDone, setIsAddUpdateActionDone] = useState(false);
   const [ProposalList, setProposalList] = useState([]);
+  const [SingleProposalList, setSingleProposalList] = useState([]);
   const [oldProposalList, setOldProposalList] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [OldProposalCurrentPage, setOldProposalCurrentPage] = useState(1);
+  const [SingleProposalCurrentPage, setSingleProposalCurrentPage] = useState(1);
   const [businessNatureID, setBusinessNatureID] = useState(null);
   const [prospectType, setProspectType] = useState(null);
   const [isFilterApply, setIsFilterApply] = useState(false);
@@ -85,6 +87,7 @@ const Proposals = () => {
   const [showModal, setShowModal] = useState(false);
   const [status, setStatus] = useState("");
   const [oldProposalListCount, setOldProposalListCount] = useState(0);
+  const [SingleProposalListCount, setSingleProposalListCount] = useState(0);
   const [openErrorModal, setOpenErrorModal] = useState(false);
   const navigate = useNavigate();
   const {
@@ -224,6 +227,11 @@ const Proposals = () => {
   const handlePageChangeOldProposal = async (pageNumber) => {
     setOldProposalCurrentPage(pageNumber);
     await GetOldProposalListData(pageNumber); // Call your function with the selected page number  
+
+  };
+  const handlePageChangeSingleProposal = async (pageNumber) => {
+    setSingleProposalCurrentPage(pageNumber);
+    await GetProposalListSingleApiData(pageNumber); // Call your function with the selected page number  
 
   };
 
@@ -413,6 +421,7 @@ const Proposals = () => {
           prospectTypeId === undefined ? prospectType : prospectTypeId,
         businessNatureID:
           businessNatureId === undefined ? businessNatureID : businessNatureId,
+        quoteFor: "Outbooks"
       });
       if (data) {
         if (data?.data?.statusCode === 200) {
@@ -439,6 +448,80 @@ const Proposals = () => {
             getTemplateListApiCallCount += 1;
             setTimeout(function () {
               GetProposalListData(i, searchKeywordValue);
+            }, 2000);
+          } else {
+            setLoader(false);
+          }
+
+          setErrorMessage(data?.data?.errorMessage);
+        }
+        return data;
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const GetProposalListSingleApiData = async (
+    i,
+    searchKeywordValue,
+    Status,
+    FromDate,
+    ToDate,
+    businessNatureId,
+    prospectTypeId
+
+  ) => {
+    setLoader(true);
+
+    const pageNoList = i - 1;
+    try {
+      const data = await GetProposalList({
+        organisationKeyID: common.organisationKeyID,
+        pageSize: Number(pageSize),
+        pageNo: pageNoList,
+        SearchKeyword:
+          searchKeywordValue === undefined ? searchKeyword : searchKeywordValue,
+        StatusID: Status !== undefined ? Status : status,
+        userKeyID: common.userKeyID || null,
+        fromDate:
+          FromDate === undefined
+            ? fromDate == ""
+              ? null
+              : fromDate
+            : FromDate,
+        toDate: ToDate === undefined ? (toDate == "" ? null : toDate) : ToDate,
+        businessTypeID:
+          prospectTypeId === undefined ? prospectType : prospectTypeId,
+        businessNatureID:
+          businessNatureId === undefined ? businessNatureID : businessNatureId,
+        quoteFor: "SingleApi"
+      });
+      if (data) {
+        if (data?.data?.statusCode === 200) {
+          setLoader(false);
+          getTemplateListApiCallCount = 0;
+          if (data?.data?.responseData?.data) {
+            const totalCount = data.data.totalCount;
+            const ProposalListData = data.data.responseData.data;
+            if (pageNoList > 0 && ProposalListData.length === 0) {
+              let newPaneNo = Number(pageNoList);
+              if (newPaneNo > 1) {
+                newPaneNo = newPaneNo - 1;
+              }
+              GetProposalListSingleApiData(newPaneNo, searchKeywordValue);
+              setSingleProposalCurrentPage(pageNoList);
+              return;
+            }
+            setSingleProposalListCount(totalCount);
+            setSingleProposalList(ProposalListData);
+            setTotalRecords(ProposalListData.length);
+          }
+        } else {
+          if (getTemplateListApiCallCount < maxCountToRecallApi) {
+            getTemplateListApiCallCount += 1;
+            setTimeout(function () {
+              GetProposalListSingleApiData(i, searchKeywordValue);
             }, 2000);
           } else {
             setLoader(false);
@@ -540,6 +623,7 @@ const Proposals = () => {
 
 
   const TabHandle = (tab) => {
+
     if (tab === "Old Proposal") {
       setActiveTab(tab);
       GetOldProposalListData(1)
@@ -548,7 +632,8 @@ const Proposals = () => {
       GetProposalListData(1)
     } else {
       setActiveTab(tab);
-      GetProposalListData(1)
+      // GetProposalListData(1)
+      GetProposalListSingleApiData(1)
     }
 
   };
@@ -1818,15 +1903,15 @@ const Proposals = () => {
                                   <td className="tr-table-class text-white">
                                     Send Reminder
                                   </td>
-                                  <td className="tr-table-class text-white">
+                                  {/* <td className="tr-table-class text-white">
                                     {userAccessData.Admin_Proposal_CanView && (
                                       <>Action</>
                                     )}
-                                  </td>
+                                  </td> */}
                                 </tr>
                               </thead>
                               <tbody class="list form-check-all">
-                                {ProposalList.slice(
+                                {SingleProposalList.slice(
                                   0,
                                   isMobile ? isMobileRecords : desktopRecords
                                 ).map((item, index) => {
@@ -2079,9 +2164,9 @@ const Proposals = () => {
                                         }
                                       </td>
                                       {/*buttons */}
-                                      <td className="table-content-font">
+                                      {/* <td className="table-content-font">
                                         <div class="d-flex gap-2">
-                                          {/* Dropdown for all actions */}
+                                         
                                           <div class="dropdown">
                                             <button
                                               class="btn btn-md btn-success create-item-btn"
@@ -2104,10 +2189,10 @@ const Proposals = () => {
                                               class="dropdown-menu"
                                               aria-labelledby="dropdownMenuButton"
                                             >
-                                              {/* Draft button */}
+                                             
                                               {item.statusID === statusID.Draft && userAccessData.Admin_Proposal_CanEdit && (
                                                 <li>
-                                                  {/* <Tooltip title={`Edit ${proposalName}`} placement="right"> */}
+                                                
                                                   <a
                                                     className="dropdown-item"
                                                     onClick={() => {
@@ -2121,12 +2206,12 @@ const Proposals = () => {
                                                     ></i>{" "}
                                                     Edit {proposalName}
                                                   </a>
-                                                  {/* </Tooltip> */}
+                                               
                                                 </li>
 
                                               )}
 
-                                              {/* View button */}
+                                              
                                               {(item.statusID === statusID.Accepted ||
                                                 item.statusID === statusID.Declined ||
                                                 item.statusID === statusID.Sent ||
@@ -2141,7 +2226,7 @@ const Proposals = () => {
                                                   </li>
                                                 )}
 
-                                              {/* Generate Contract button */}
+                                             
                                               {(item.statusID === statusID.Sent || item.statusID === statusID.Skipped) &&
                                                 common.enableEL == 1 &&
                                                 userAccessData.Admin_Engagement_Latter_CanAdd &&
@@ -2161,7 +2246,6 @@ const Proposals = () => {
                                                   </li>
                                                 )}
 
-                                              {/* Copy button */}
                                               {item.statusID !== statusID.Draft && (
                                                 <li>
 
@@ -2184,7 +2268,6 @@ const Proposals = () => {
                                                 </li>
                                               )}
 
-                                              {/* Resend Proposal */}
                                               {item.statusID === statusID.Sent && userAccessData.Admin_Proposal_CanEdit && (
                                                 <li>
                                                   <a
@@ -2208,7 +2291,7 @@ const Proposals = () => {
                                             </ul>
                                           </div>
                                         </div>
-                                      </td>
+                                      </td> */}
 
                                     </tr>
                                   );
@@ -2270,10 +2353,12 @@ const Proposals = () => {
                     <div>
                       {oldProposalListCount > Number(pageSize) && (
                         <PaginationComponent
-                          totalCount={oldProposalListCount}
-                          totalPages={totalOldProposalPage}
-                          currentPage={OldProposalCurrentPage}
-                          onPageChange={handlePageChangeOldProposal}
+                          totalCount={SingleProposalListCount}
+                          totalPages={isMobile
+                            ? Math.ceil(SingleProposalListCount / isMobileRecords)
+                            : Math.ceil(SingleProposalListCount / ((desktopRecords > 5 && window.innerHeight == 652) ? 5 : desktopRecords))}
+                          currentPage={SingleProposalCurrentPage}
+                          onPageChange={handlePageChangeSingleProposal}
                         />
                       )}
                     </div>

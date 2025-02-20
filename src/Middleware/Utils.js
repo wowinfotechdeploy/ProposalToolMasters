@@ -625,14 +625,30 @@ const FontFamily = [
   },
 ];
 
+// const FontSize = [
+//   { value: 1, label: "1px" },
+//   { value: 2, label: "2px" },
+//   { value: 3, label: "3px" },
+//   { value: 4, label: "4px" },
+//   { value: 5, label: "5px" },
+//   { value: 6, label: "6px" },
+//   { value: 7, label: "7px" },
+// ];
+
 const FontSize = [
-  { value: 1, label: "1" },
-  { value: 2, label: "2" },
-  { value: 3, label: "3" },
-  { value: 4, label: "4" },
-  { value: 5, label: "5" },
-  { value: 6, label: "6" },
-  { value: 7, label: "7" },
+  { value: 5, label: "5px" },
+  { value: 6, label: "6px" },
+  { value: 7, label: "7px" },
+  { value: 10, label: "10px" },
+  { value: 12, label: "12px" },
+  { value: 14, label: "14px" },
+  { value: 16, label: "16px" },
+  { value: 18, label: "18px" },
+  { value: 20, label: "20px" },
+  { value: 24, label: "24px" },
+  { value: 30, label: "30px" },
+  { value: 36, label: "36px" },
+  { value: 48, label: "48px" },
 ];
 
 export default {

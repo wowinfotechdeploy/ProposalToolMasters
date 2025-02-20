@@ -564,19 +564,14 @@ function PaymentGatewayModel(props) {
                                                 value={paymentGatewayObj.goCardlessAccessToken}
                                                 onChange={(e) => {
                                                     const inputValue = e.target.value;
-                                                    const sanitizedValue = inputValue.replace(
-                                                        /\s/g,
-                                                        ""
-                                                    );
-                                                    // const inputValue = e.target.value;
-                                                    // const trimmedValue = inputValue.replace(/^\s+/g, '');
-                                                    // const capitalizedValue = trimmedValue.charAt(0).toUpperCase() + trimmedValue.slice(1);
+                                                    // Directly update the state without modifying the input value
                                                     setPaymentGatewayObj({
                                                         ...paymentGatewayObj,
-                                                        goCardlessAccessToken: sanitizedValue,
+                                                        goCardlessAccessToken: inputValue,
                                                     });
                                                 }}
                                             />
+
                                             {RequireGoCardLessErrorMessage &&
                                                 !paymentGatewayObj.goCardlessAccessToken ? (
                                                 <label className="validation">
@@ -854,7 +849,7 @@ function PaymentGatewayModel(props) {
                                                             ) : (
                                                                 isInvalidInput(paymentGatewayObj.AccountNumber, 8) && (
                                                                     <label className="validation">
-                                                                            Please enter a valid account number consisting of 8 digits. {/* Show a specific error message if the account number is not exactly 8 digits */}
+                                                                        Please enter a valid account number consisting of 8 digits. {/* Show a specific error message if the account number is not exactly 8 digits */}
                                                                     </label>
                                                                 )
                                                             )}
@@ -901,7 +896,7 @@ function PaymentGatewayModel(props) {
                                                             ) : (
                                                                 paymentGatewayObj.sortCode.replace(/-/g, "").length !== 6 && (
                                                                     <label className="validation">
-                                                                            Please enter a valid sort code consisting of 6 digits. {/* Show a specific error message if sortCode is not exactly 6 digits */}
+                                                                        Please enter a valid sort code consisting of 6 digits. {/* Show a specific error message if sortCode is not exactly 6 digits */}
                                                                     </label>
                                                                 )
                                                             )}
@@ -961,13 +956,13 @@ function PaymentGatewayModel(props) {
                         ErrorMessage={errorMessage}
                     />
                     <SuccessModal
-                    handleClose={handleClose}
-                    setDismissModal={setDismissModal}
-                    setOpenSuccessModal={setOpenSuccessModal}
-                    openSuccessModal={openSuccessModal}
+                        handleClose={handleClose}
+                        setDismissModal={setDismissModal}
+                        setOpenSuccessModal={setOpenSuccessModal}
+                        openSuccessModal={openSuccessModal}
                         modelAction={modelRequestData.Action === "PaymentStatus" ? "Status" : modelRequestData.Action === "ResetPaymentGatewayChange" ? null : "Update"}
                         message={modelRequestData.Action === "PaymentStatus" ? "Status has been changed successfully!" : modelRequestData.Action === "ResetPaymentGatewayChange" ? `${modelRequestData.moduleName} has been reset successfully!` : successMessage}
-                />
+                    />
 
                 </div>
 

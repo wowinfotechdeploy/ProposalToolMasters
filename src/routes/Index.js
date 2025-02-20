@@ -183,6 +183,9 @@ const Email_Config = Loadable(
   lazy(() => import("../pages/Settings/Email_config/EmailConfig"))
 );
 
+const SuperAdminEmail_Config = Loadable(
+  lazy(() => import("../pages/Settings/SuperAdminReminder/EmailConfig/EmailConfig"))
+);
 const Users = Loadable(lazy(() => import("../pages/Settings/users/UsersList")));
 const Payment_Gateway = Loadable(
   lazy(() => import("../pages/Settings/payment-gateway/PaymentGateway"))
@@ -1098,6 +1101,7 @@ function Index() {
                         element={<ViewProspects />}
                       />
                       <Route path="/email-config" element={<Email_Config />} />
+                      <Route path="/reminder-Email-Config" element={<SuperAdminEmail_Config />} />
                       <Route
                         path="/add-proposal"
                         element={<Add_New_Proposals />}

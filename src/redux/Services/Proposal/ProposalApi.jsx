@@ -14,10 +14,20 @@ const GetContractDetails = `${Base_Url}/Contract`;
 
 // Arrow function as a method
 //Get Service Category List Data Services Callback function
+// export const GetProposalList = async (params) => {
+//     let url = params.StatusID !== undefined && params.StatusID !== null ?
+//         `/GetQuoteList?StatusID=${params.StatusID}` :
+//         `/GetQuoteList`
+//     const res = await postApiWithAuthenticated(
+//         ProposalBaseUrlQuote + url,
+//         params
+//     );
+//     return res;
+// };
 export const GetProposalList = async (params) => {
     let url = params.StatusID !== undefined && params.StatusID !== null ?
-        `/GetQuoteList?StatusID=${params.StatusID}` :
-        `/GetQuoteList`
+        `/GetQuoteList?StatusID=${params.StatusID}&QuotesFor=${params.quoteFor}` :
+        `/GetQuoteList?QuotesFor=${params.quoteFor}`
     const res = await postApiWithAuthenticated(
         ProposalBaseUrlQuote + url,
         params

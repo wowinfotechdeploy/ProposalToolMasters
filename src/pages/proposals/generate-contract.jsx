@@ -13,8 +13,6 @@ import {
 import { GetSendToSignEasy } from "../../redux/Services/SignEasy";
 import GeneratePdfLoaderPage from "../../components/GeneratePdfloaderpage";
 import { generatePdfUrl, mergePdfApiUrl } from "../../Base-Url/Base_Url";
-import { GetVariableValuesForTnCTemplate } from "../../redux/Services/ReplaceVariables";
-
 function AcceptInvitation() {
   const { setTopbar, setLoader, formatValueWithoutCurrencySymbol, formatValue, getFontStylesFromHtml, replaceTemplatePricingVariables, replaceUrlInHtml } = useContext(AuthContextProvider);
   const [templateElementList, setTemplateElementList] = useState([]);

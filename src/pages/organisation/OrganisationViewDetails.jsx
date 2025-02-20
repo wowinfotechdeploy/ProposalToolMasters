@@ -167,9 +167,9 @@ const OrganisationViewDetails = () => {
   });
   const [subscriptionPackageObj, setSubscriptionPackageObj] = useState({
     ospKeyID: null,
+    apiIntegration: null,
     subscriptionPackageKeyID: null,
     packageName: "",
-    apiIntegration: null,
     prepareQuote: false,
     sendQuote: false,
     prepareContract: false,
@@ -179,10 +179,18 @@ const OrganisationViewDetails = () => {
     yearlyValuePlan: "",
     discountPercentage: "",
     discountPrice: "",
+    subscriptionStartDate: "",
     monthFree: "",
     getMonths: "",
     inPriceOfMonth: "",
     isMailBox: false,
+    paymentFrequencyID: null,
+    renewDate: "",
+    paymentStatus: "",
+    subscriptionStatus: "",
+    subscriptionPackageObj: "",
+    hostedInvoiceUrl: "",
+    invoiceKeyID: "",
   });
   const [officersForm, setOfficers] = useState([
     {
@@ -299,6 +307,14 @@ const OrganisationViewDetails = () => {
             getMonths: ModelData.getMonths,
             inPriceOfMonth: ModelData.inPriceOfMonth,
             isMailBox: ModelData.isMailBox,
+            paymentFrequencyID: ModelData.paymentFrequencyID,
+            subscriptionStartDate: ModelData.subscriptionStartDate,
+            renewDate: ModelData.renewDate,
+            paymentStatus: ModelData.paymentStatus,
+            subscriptionStatus: ModelData.subscriptionStatus,
+            subscriptionPackageObj: ModelData.subscriptionPackageObj,
+            hostedInvoiceUrl: ModelData.hostedInvoiceUrl,
+            invoiceKeyID: ModelData.invoiceKeyID,
           });
         }
       } else {

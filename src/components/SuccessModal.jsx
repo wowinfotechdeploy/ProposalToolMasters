@@ -163,6 +163,7 @@ const SuccessModal = (props) => {
                       ? `${props.message} has been deleted successfully!`
                       : null}
                     {props.modelAction === "Copy" ? `${props.message}` : null}
+                    {props.modelAction === "EnableApiIntegration" ? `${props.message}` : null}
                     {props.modelAction === "Status" ? `${props.message}` : null}
                     {props.modelAction === "ReminderStatus" ? `${props.message}` : null}
                     {props.modelAction === "ShowMessage"

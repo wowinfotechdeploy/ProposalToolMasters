@@ -29,6 +29,7 @@ function Setting() {
     } = useContext(AuthContextProvider);
     //Common UseState here
     const [isModalOpen, setISModalOpen] = useState(false);
+    const [isAddUpdateDone, setIsAddUpdateDone] = useState(false);
     const [openSuccessModal, setOpenSuccessModal] = useState(false);
     const [requireErrorMessage, setRequireErrorMessage] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
@@ -79,6 +80,10 @@ function Setting() {
         customSingleLabel: null,
         packagedStandardLabel: null,
         packagedCustomisableLabel: null,
+        getQuoteLabel: null,
+        signContractLabel: null,
+        successUrl: null,
+        cancelledUrl: null,
     })
 
     useEffect(() => {
@@ -107,8 +112,9 @@ function Setting() {
         if (common.userKeyID && common.organisationKeyID) {
             // Call GetSingleApiSettingsModelData with userKeyID and organisationKeyID as arguments
             GetSingleApiSettingsModelData(common.userKeyID, common.organisationKeyID);
+            setIsAddUpdateDone(false)
         }
-    }, [common.userKeyID, common.organisationKeyID]);  // Dependency array that triggers useEffect when either value changes
+    }, [common.userKeyID, common.organisationKeyID, isAddUpdateDone]);  // Dependency array that triggers useEffect when either value changes
 
     useEffect(() => {
         if (isAddUpdatePricingActionDone) {
@@ -167,6 +173,10 @@ function Setting() {
                     customSingleLabel: ModalData.customSingleLabel,
                     packagedStandardLabel: ModalData.packagedStandardLabel,
                     packagedCustomisableLabel: ModalData.packagedCustomisableLabel,
+                    getQuoteLabel: ModalData.getQuoteLabel,
+                    signContractLabel: ModalData.signContractLabel,
+                    successUrl: ModalData.successUrl,
+                    cancelledUrl: ModalData.cancelledUrl,
                 })
             } else {
                 setLoader(false)
@@ -983,6 +993,26 @@ function Setting() {
             setRequireErrorMessage(true);
             return;
         }
+        if (setting.getQuoteLabel === "" || setting.getQuoteLabel === null || setting.getQuoteLabel === undefined) {
+            scrollUpDownByElementID("GetQuote");
+            setRequireErrorMessage(true);
+            return;
+        }
+        if (setting.signContractLabel === "" || setting.signContractLabel === null || setting.signContractLabel === undefined) {
+            scrollUpDownByElementID("SignContract");
+            setRequireErrorMessage(true);
+            return;
+        }
+        if (setting.successUrl === "" || setting.successUrl === null || setting.successUrl === undefined) {
+            scrollUpDownByElementID("successUrl");
+            setRequireErrorMessage(true);
+            return;
+        }
+        if (setting.cancelledUrl === "" || setting.cancelledUrl === null || setting.cancelledUrl === undefined) {
+            scrollUpDownByElementID("cancelledUrl");
+            setRequireErrorMessage(true);
+            return;
+        }
         const Api_Params = {
             organisationKeyID: common.organisationKeyID,
             userKeyID: common.userKeyID,
@@ -1004,6 +1034,10 @@ function Setting() {
             customSingleLabel: setting.customSingleLabel,
             packagedStandardLabel: setting.packagedStandardLabel,
             packagedCustomisableLabel: setting.packagedCustomisableLabel,
+            getQuoteLabel: setting.getQuoteLabel,
+            signContractLabel: setting.signContractLabel,
+            successUrl: setting.successUrl,
+            cancelledUrl: setting.cancelledUrl,
         };
 
         AddUpdateSingleApiSettingsData(Api_Params);
@@ -1015,6 +1049,7 @@ function Setting() {
         try {
             if (resp.data.statusCode === 200) {
                 setLoader(false)
+                setIsAddUpdateDone(true)
                 setOpenSuccessModal(true)
             } else {
                 setLoader(false)
@@ -1319,7 +1354,7 @@ function Setting() {
                                                                                     <FormGroup>
                                                                                         <FormControlLabel
                                                                                             control={
-                                                                                                <CustomWidthTooltip title="Enable/Disable EL">
+                                                                                                <CustomWidthTooltip title={`Enable/Disable ${EngagementName}`}>
                                                                                                     <Android12Switch
                                                                                                         id="isEL"
                                                                                                         checked={setting.isContractEnabled}
@@ -1856,6 +1891,77 @@ function Setting() {
                                                                                 </div>
                                                                             </div>
                                                                         </div>
+                                                                        {/* Success Url*/}
+                                                                        <div class="col-lg-12">
+                                                                            <div class="row mb-3" id="successUrl">
+                                                                                <div class="col-md-3 col-sm-12 text-start text-md-end">
+                                                                                    <label class="form-label">
+                                                                                        Success Url
+                                                                                        <span className="text-danger">*</span>
+                                                                                    </label>
+                                                                                </div>
+                                                                                <div class="col-md-9 col-sm-12">
+                                                                                    <div className="input-group">
+                                                                                        <input
+                                                                                            type="text"
+                                                                                            className="input-text"
+                                                                                            placeholder="Success Url"
+                                                                                            value={setting.successUrl}
+                                                                                            onChange={(e) => {
+                                                                                                setSetting({
+                                                                                                    ...setting,
+                                                                                                    successUrl: e.target.value
+                                                                                                })
+                                                                                            }}
+                                                                                        />
+                                                                                        {requireErrorMessage &&
+                                                                                            (setting.successUrl === "" ||
+                                                                                                setting.successUrl === null ||
+                                                                                                setting.successUrl === undefined) ? (
+                                                                                            <label className="validation">{ERROR_MESSAGES}</label>
+                                                                                        ) : (
+                                                                                            ""
+                                                                                        )}
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        {/* Cancel Url*/}
+                                                                        <div class="col-lg-12">
+                                                                            <div class="row mb-3" id="cancelledUrl">
+                                                                                <div class="col-md-3 col-sm-12 text-start text-md-end">
+                                                                                    <label class="form-label">
+                                                                                        Cancel Url
+                                                                                        <span className="text-danger">*</span>
+                                                                                    </label>
+                                                                                </div>
+                                                                                <div class="col-md-9 col-sm-12">
+                                                                                    <div className="input-group">
+                                                                                        <input
+                                                                                            type="text"
+                                                                                            className="input-text"
+                                                                                            placeholder="Cancel Url"
+
+                                                                                            value={setting.cancelledUrl}
+                                                                                            onChange={(e) => {
+                                                                                                setSetting({
+                                                                                                    ...setting,
+                                                                                                    cancelledUrl: e.target.value
+                                                                                                })
+                                                                                            }}
+                                                                                        />
+                                                                                        {requireErrorMessage &&
+                                                                                            (setting.cancelledUrl === "" ||
+                                                                                                setting.cancelledUrl === null ||
+                                                                                                setting.cancelledUrl === undefined) ? (
+                                                                                            <label className="validation">{ERROR_MESSAGES}</label>
+                                                                                        ) : (
+                                                                                            ""
+                                                                                        )}
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -2020,6 +2126,70 @@ function Setting() {
                                                                                         (setting.packagedCustomisableLabel === "" ||
                                                                                             setting.packagedCustomisableLabel === null ||
                                                                                             setting.packagedCustomisableLabel === undefined) ? (
+                                                                                        <label className="validation">{ERROR_MESSAGES}</label>
+                                                                                    ) : (
+                                                                                        ""
+                                                                                    )}
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="row">
+                                                                        <div class="col-lg-12">
+                                                                            <div class="row mb-2" id="GetQuote">
+                                                                                <div class="col-md-3 col-sm-12 text-start text-md-end">
+                                                                                    <label class="form-label">
+                                                                                        Get {proposalName} Button
+                                                                                        <span className="text-danger">*</span>
+                                                                                    </label>
+                                                                                </div>
+                                                                                <div class="col-md-9 col-sm-12">
+                                                                                    <input
+                                                                                        type="text"
+                                                                                        className="input-text"
+                                                                                        placeholder="Change Custom(Single)"
+                                                                                        value={setting.getQuoteLabel}
+                                                                                        onChange={(e) => setSetting({
+                                                                                            ...setting,
+                                                                                            getQuoteLabel: e.target.value
+                                                                                        })}
+                                                                                    />
+                                                                                    {requireErrorMessage &&
+                                                                                        (setting.getQuoteLabel === "" ||
+                                                                                            setting.getQuoteLabel === null ||
+                                                                                            setting.getQuoteLabel === undefined) ? (
+                                                                                        <label className="validation">{ERROR_MESSAGES}</label>
+                                                                                    ) : (
+                                                                                        ""
+                                                                                    )}
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="row">
+                                                                        <div class="col-lg-12">
+                                                                            <div class="row mb-2" id="SignContract">
+                                                                                <div class="col-md-3 col-sm-12 text-start text-md-end">
+                                                                                    <label class="form-label">
+                                                                                        Sign {EngagementName} Button
+                                                                                        <span className="text-danger">*</span>
+                                                                                    </label>
+                                                                                </div>
+                                                                                <div class="col-md-9 col-sm-12">
+                                                                                    <input
+                                                                                        type="text"
+                                                                                        className="input-text"
+                                                                                        placeholder="Change Custom(Single)"
+                                                                                        value={setting.signContractLabel}
+                                                                                        onChange={(e) => setSetting({
+                                                                                            ...setting,
+                                                                                            signContractLabel: e.target.value
+                                                                                        })}
+                                                                                    />
+                                                                                    {requireErrorMessage &&
+                                                                                        (setting.signContractLabel === "" ||
+                                                                                            setting.signContractLabel === null ||
+                                                                                            setting.signContractLabel === undefined) ? (
                                                                                         <label className="validation">{ERROR_MESSAGES}</label>
                                                                                     ) : (
                                                                                         ""

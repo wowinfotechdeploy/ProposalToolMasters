@@ -10,7 +10,7 @@ import DatePicker from "react-date-picker";
 import "react-date-picker/dist/DatePicker.css";
 import "react-calendar/dist/Calendar.css";
 import Select from "react-select";
-import { GetOrganisationLookupList } from "../../../../redux/Services/Master/OrganisationLookupList";
+import { GetAllOrganisationLookupList, GetOrganisationLookupList } from "../../../../redux/Services/Master/OrganisationLookupList";
 const AccesskeyModal = (props) => {
   // A] States Declaration :
   const moduleName = "Access Key";
@@ -53,7 +53,7 @@ const AccesskeyModal = (props) => {
     }
     try {
       setLoader(true);
-      const response = await GetOrganisationLookupList(KeyID);
+      const response = await GetAllOrganisationLookupList(KeyID);
       if (response?.data?.statusCode === 200) {
         setLoader(false);
         let modelData = response.data.responseData.data
@@ -73,14 +73,17 @@ const AccesskeyModal = (props) => {
   const AccessKeyAddUpdateBtnClicked = () => {
     //Check Validations will be done here
     if (
-      typeof accessKeyObj.accessKeyName === undefined ||
-      accessKeyObj.accessKeyName.trim() === ""
+      accessKeyObj.accessKeyName === undefined ||
+      accessKeyObj.accessKeyName === "" ||
+      accessKeyObj.accessKeyName === null ||
+      accessKeyObj.ExpiryDate === undefined ||
+      accessKeyObj.ExpiryDate === "" ||
+      accessKeyObj.ExpiryDate === null
     ) {
       setRequireErrorMessage(true);
-
       return false; // Return false or handle your error logic here if needed.
     } else {
-      setRequireErrorMessage(""); // Clear the error message if there are no errors.
+      setRequireErrorMessage(false); // Clear the error message if there are no errors.
     }
 
     // Preparing Object For Add Update and if any modification then it will done here
@@ -142,6 +145,7 @@ const AccesskeyModal = (props) => {
   const handleClose = () => {
     $("#" + props.id).modal("hide");
     setOpenSuccessModal(false);
+    setRequireErrorMessage(false)
   };
 
   //Variable value
@@ -172,9 +176,10 @@ const AccesskeyModal = (props) => {
             <button
               type="button"
               class="btn-close"
-              data-bs-dismiss="modal"
+              // data-bs-dismiss="modal"
               aria-label="Close"
               id="close-modal"
+              onClick={() => handleClose()}
             >
               {/* Close Button End */}
             </button>
@@ -239,7 +244,9 @@ const AccesskeyModal = (props) => {
                     }}
                     maxLength={50}
                   />
-                  {RequireErrorMessage && accessKeyObj.accessKeyName === "" ? (
+                  {RequireErrorMessage && (accessKeyObj.accessKeyName === undefined ||
+                    accessKeyObj.accessKeyName === "" ||
+                    accessKeyObj.accessKeyName === null) ? (
                     <label className="validation">{ERROR_MESSAGES}</label>
                   ) : (
                     ""
@@ -275,7 +282,11 @@ const AccesskeyModal = (props) => {
                     popperPlacement="bottom-start"
                   />
 
-                  {RequireErrorMessage && accessKeyObj.ExpiryDate === "" ? (
+                  {RequireErrorMessage && (
+                    accessKeyObj.ExpiryDate === undefined ||
+                    accessKeyObj.ExpiryDate === "" ||
+                    accessKeyObj.ExpiryDate === null
+                  ) ? (
                     <label className="validation">{ERROR_MESSAGES}</label>
                   ) : (
                     ""
@@ -299,7 +310,8 @@ const AccesskeyModal = (props) => {
               <button
                 type="button"
                 class="btn btn-light"
-                data-bs-dismiss="modal"
+                // data-bs-dismiss="modal"
+                onClick={() => handleClose()}
               // onClick={() => SetInitialModelData()}
               >
                 {getCrudButtonTextName("Cancel")}

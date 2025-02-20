@@ -15,6 +15,13 @@ export const GetEmailConfigModel = async (id) => {
     );
     return res;
 };
+//Get pricing setting Model Data Services Callback function
+export const GetReminderEmailConfigModel = async (id) => {
+    const res = await getListWithAuthenticated(
+        `${EmailConfigBaseUrl}/GetReminderEmailConfigModel?organisationKeyID=${id}`
+    );
+    return res;
+};
 
 // user modal 
 export const GetUserEmailConfigModel = async (id) => {

@@ -96,7 +96,8 @@ const AccesskeyModal = (props) => {
       couponObj.endDate === null ||
       couponObj.description === "" ||
       couponObj.description === undefined ||
-      couponObj.description === null
+      couponObj.description === null ||
+      (couponObj.couponTypeID==2&&couponObj.couponAmt>100)
     ) {
       setRequireErrorMessage(true);
 
@@ -307,6 +308,8 @@ const AccesskeyModal = (props) => {
                   {RequireErrorMessage && (couponObj.couponAmt === "" || couponObj.couponAmt === undefined || couponObj.couponAmt === null) ? (
                     <label className="validation">{ERROR_MESSAGES}</label>
                   ) : (
+                      (RequireErrorMessage && couponObj.couponTypeID == 2 && couponObj.couponAmt > 100) ?
+                      <label className="validation">Please set the coupon amount between 1% and 100%.</label>:
                     ""
                   )}
                 </div>

@@ -544,22 +544,18 @@ const Payment_Gateway = () => {
                               class="input-text"
                               placeholder="Access Token"
                               type="password"
+                              maxLength={50}
                               value={paymentGatewayObj.goCardlessAccessToken}
                               onChange={(e) => {
                                 const inputValue = e.target.value;
-                                const sanitizedValue = inputValue.replace(
-                                  /\s/g,
-                                  ""
-                                );
-                                // const inputValue = e.target.value;
-                                // const trimmedValue = inputValue.replace(/^\s+/g, '');
-                                // const capitalizedValue = trimmedValue.charAt(0).toUpperCase() + trimmedValue.slice(1);
+                                // Directly update the state without modifying the input value
                                 setPaymentGatewayObj({
                                   ...paymentGatewayObj,
-                                  goCardlessAccessToken: sanitizedValue,
+                                  goCardlessAccessToken: inputValue,
                                 });
                               }}
                             />
+
                             {RequireGoCardLessErrorMessage &&
                               !paymentGatewayObj.goCardlessAccessToken ? (
                               <label className="validation">
@@ -836,7 +832,7 @@ const Payment_Gateway = () => {
                                     ) : (
                                       isInvalidInput(paymentGatewayObj.AccountNumber, 8) && (
                                         <label className="validation">
-                                            Please enter a valid account number consisting of 8 digits.{/* Show a specific error message if the account number is not exactly 8 digits */}
+                                          Please enter a valid account number consisting of 8 digits.{/* Show a specific error message if the account number is not exactly 8 digits */}
                                         </label>
                                       )
                                     )}

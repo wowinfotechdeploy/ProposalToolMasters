@@ -10,6 +10,12 @@ export const GetOrganisationLookupList = async (keyID) => {
     );
     return res;
 };
+export const GetAllOrganisationLookupList = async (keyID) => {
+    const res = await getListWithAuthenticated(
+        `${OrganisationLookupListUrl}/GetAllOrganisationLookupList?UserKeyID=${keyID}`
+    );
+    return res;
+};
 export const OrganisationLoginUpdate = async (UserKeyID, OrganisationKeyID) => {
     let url = `${OrganisationLookupListUrl}/UpdateOrganisationLastLogin?UserKeyID=${UserKeyID}&OrganisationKeyID=${OrganisationKeyID}`
     if (OrganisationKeyID === null) {
