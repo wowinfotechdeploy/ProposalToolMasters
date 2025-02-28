@@ -116,7 +116,7 @@ function SuperAdminMarketingReminderAddUpdate(props) {
             sequenceID: ModelData.sequenceID,
             isRepeat: ModelData.isRepeat ? 1 : 2, // Assuming 1 is for Yes, 2 is for No
           });
-          GetTriggerPointTypeData(ModelData.emailAddressID, ModelData.emailAddressIDType)
+          GetTriggerPointTypeData(ModelData.emailAddressID === null ? ModelData.subscriptionPackageID : ModelData.emailAddressID, ModelData.emailAddressIDType)
         }
         setLoader(false);
       } else {
@@ -357,9 +357,11 @@ function SuperAdminMarketingReminderAddUpdate(props) {
   const TriggerPoints = triggerPointTypeLookupList?.find(
     (trigger) => trigger.value == reminderMarketingObj.triggerPointID
   );
-  const TemplateEmailAddress = emailAddressTypeLookupList?.find(
-    (emailTemp) => emailTemp.value === reminderMarketingObj.emailAddressID &&
-      emailTemp.emailAddressIDType === reminderMarketingObj.emailAddressIDType
+  const TemplateEmailAddress = emailAddressTypeLookupList?.find((emailTemp) =>
+    (reminderMarketingObj.emailAddressID === null
+      ? emailTemp.value === reminderMarketingObj.subscriptionPackageID
+      : emailTemp.value === reminderMarketingObj.emailAddressID) &&
+    emailTemp.emailAddressIDType === reminderMarketingObj.emailAddressIDType
   );
 
   return (
