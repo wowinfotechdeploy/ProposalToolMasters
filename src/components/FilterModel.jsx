@@ -52,7 +52,6 @@ function Filter(props) {
   //calender Filter
   useEffect(() => {
     GetEmailAddressTypeData()
-    GetTriggerPointTypeData()
     GetDocumentStatusTypeData()
     GetNOBTypeLookUpListData();
     GetBusinessTypeLookupListData();
@@ -64,7 +63,6 @@ function Filter(props) {
   useEffect(() => {
     if (isAddUpdateDone) {
       GetEmailAddressTypeData()
-      GetTriggerPointTypeData()
       GetDocumentStatusTypeData()
       GetNOBTypeLookUpListData();
       GetBusinessTypeLookupListData();
@@ -265,6 +263,7 @@ function Filter(props) {
   };
   const handleChangeEmailAddress = (selectedOption) => {
     props.setEmailAddressType(selectedOption?.value);
+    GetTriggerPointTypeData(selectedOption.value, selectedOption.emailAddressIDType)
   };
   const handleChangeTriggerPoint = (selectedOption) => {
     props.setTriggerPointType(selectedOption?.value);
@@ -379,6 +378,7 @@ function Filter(props) {
           emailAddressTypeData = emailAddressTypeData.map((emailAddressType) => ({
             value: emailAddressType.emailAddressID,
             label: emailAddressType.emailAddressName?.replace(/prospects/gi, prospectName),
+            emailAddressIDType: emailAddressType.emailAddressIDType
           }));
           setEmailAddressTypeLookupList(emailAddressTypeData);
         }
@@ -388,10 +388,10 @@ function Filter(props) {
       console.log(error);
     }
   };
-  const GetTriggerPointTypeData = async () => {
+  const GetTriggerPointTypeData = async (emailAddressID, emailAddressIDType) => {
     setLoader(true)
     try {
-      const data = await GetTriggerPointTypeLookupList(props.ModuleName === "Reminder" ? 1 : 4);
+      const data = await GetTriggerPointTypeLookupList(props.ModuleName === "Reminder" ? 1 : 4, emailAddressID, emailAddressIDType);
       if (data?.data?.statusCode === 200) {
         if (data?.data?.responseData?.data) {
           setLoader(false)

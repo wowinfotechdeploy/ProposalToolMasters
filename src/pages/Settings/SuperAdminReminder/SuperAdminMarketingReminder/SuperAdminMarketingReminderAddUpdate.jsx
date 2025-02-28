@@ -86,7 +86,7 @@ function SuperAdminMarketingReminderAddUpdate(props) {
     GetFrequencyTypeData();
     setTopbar("none");
     GetMarketingReminderModelData(location.state?.reminderKeyID);
-    GetTriggerPointTypeData()
+
     GetEmailTemplateTypeData()
     GetEmailAddressTypeData()
   }, [location.state]);
@@ -116,6 +116,7 @@ function SuperAdminMarketingReminderAddUpdate(props) {
             sequenceID: ModelData.sequenceID,
             isRepeat: ModelData.isRepeat ? 1 : 2, // Assuming 1 is for Yes, 2 is for No
           });
+          GetTriggerPointTypeData(ModelData.emailAddressID, ModelData.emailAddressIDType)
         }
         setLoader(false);
       } else {
@@ -289,10 +290,10 @@ function SuperAdminMarketingReminderAddUpdate(props) {
       console.log(error);
     }
   };
-  const GetTriggerPointTypeData = async () => {
+  const GetTriggerPointTypeData = async (emailAddressID, emailAddressIDType) => {
     setLoader(true)
     try {
-      const data = await GetTriggerPointTypeLookupList(4);
+      const data = await GetTriggerPointTypeLookupList(4, emailAddressID, emailAddressIDType);
       if (data?.data?.statusCode === 200) {
         setLoader(false)
         let triggerPointTypeData = data?.data?.responseData?.data;
@@ -466,6 +467,7 @@ function SuperAdminMarketingReminderAddUpdate(props) {
                                   emailAddressIDType: selectedOption.emailAddressIDType
                                 }));
                               }
+                              GetTriggerPointTypeData(selectedOption.value, selectedOption.emailAddressIDType)
                             }}
 
                           />

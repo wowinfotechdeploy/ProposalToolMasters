@@ -53,7 +53,7 @@ function UnpaidUpdateAccountDeletion() {
 
   const [reminderObj, setReminderObj] = useState({
     reminderName: null,
-    reminderNameType:null,
+    reminderNameType: null,
     reminderKeyID: id,
     organisationKeyID: null,
     userKeyID: null,
@@ -74,7 +74,7 @@ function UnpaidUpdateAccountDeletion() {
   }, []);
 
   useEffect(() => {
-    
+
     if (location?.state) {
       setTemplateTypeID(location.state.templateTypeID);
       GetEmailTemplateTypeData(location.state.templateTypeID);
@@ -82,7 +82,7 @@ function UnpaidUpdateAccountDeletion() {
       GetReminderModelData(location.state.reminderKeyID);
 
       GetEmailAddressTypeData(location.state?.reminderTypeID)
-      GetTriggerPointTypeData(location.state?.reminderTypeID);
+
     }
     setTopbar("none");
   }, [location.state, id]);
@@ -114,10 +114,10 @@ function UnpaidUpdateAccountDeletion() {
       console.log(error);
     }
   };
-  const GetTriggerPointTypeData = async (Id) => {
+  const GetTriggerPointTypeData = async (Id, emailAddressID, emailAddressIDType) => {
     setLoader(true)
     try {
-      const data = await GetTriggerPointTypeLookupList(Id);
+      const data = await GetTriggerPointTypeLookupList(Id, emailAddressID, emailAddressIDType);
       if (data?.data?.statusCode === 200) {
         setLoader(false)
         let triggerPointTypeData = data?.data?.responseData?.data;
@@ -185,9 +185,9 @@ function UnpaidUpdateAccountDeletion() {
             isRepeat: ModelData.isRepeat,
             reminderFrequencyID: ModelData.reminderFrequencyID,
             documentStatusIDs: ModelData.documentStatusIDs,
-            reminderNameType:location.state.reminderNameType
+            reminderNameType: location.state.reminderNameType
           });
-
+          GetTriggerPointTypeData(location.state?.reminderTypeID, ModelData.emailAddressID, ModelData.emailAddressIDType)
         }
       } else {
         setErrorMessage(data?.data?.errorMessage);
@@ -434,13 +434,15 @@ function UnpaidUpdateAccountDeletion() {
                             options={emailAddressTypeLookupList}
                             value={TemplateEmailAddress}
                             // onChange={(e) => setReminderObj.emailAddressID(e.value)}
-                            onChange={(selectedOption) =>
+                            onChange={(selectedOption) => {
                               setReminderObj((prev) => ({
                                 ...prev,
                                 emailAddressID: selectedOption
                                   ? selectedOption.value
                                   : null,
                               }))
+                              GetTriggerPointTypeData(location.state?.reminderTypeID, selectedOption.value, selectedOption.emailAddressIDType)
+                            }
                             }
                           />
                         </div>

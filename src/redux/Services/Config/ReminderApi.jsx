@@ -16,9 +16,9 @@ export const GetEmailAddressTypeLookupList = async (ReminderTypeID) => {
 };
 
 // Get Trigger Point Type Lookup List
-export const GetTriggerPointTypeLookupList = async (ReminderTypeID) => {
+export const GetTriggerPointTypeLookupList = async (ReminderTypeID, EmailAddressTypeID, EmailAddressIDType) => {
     const res = await getListWithAuthenticated(
-        `${ReminderTemplateBaseUrl}/GetTriggerPointTypeLookupList?ReminderTypeID=${ReminderTypeID}`
+        `${ReminderTemplateBaseUrl}/GetTriggerPointTypeLookupList?ReminderTypeID=${ReminderTypeID}&EmailAddressTypeID=${EmailAddressTypeID}&EmailAddressIDType=${EmailAddressIDType}`
     );
     return res;
 };

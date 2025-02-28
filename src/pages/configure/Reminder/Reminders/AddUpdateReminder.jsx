@@ -79,7 +79,7 @@ function AddUpdateReminder(props) {
   useEffect(() => {
     setModelAction(location.state?.reminderKeyID === null ? "Add" : "Update"); //Do not change this naming convention
     GetEmailAddressTypeData();
-    GetTriggerPointTypeData();
+
     GetFrequencyTypeData();
     GetDocumentStatusTypeData();
     GetEmailTemplateTypeData();
@@ -115,7 +115,9 @@ function AddUpdateReminder(props) {
             period: ModelData.sequenceID,
             repeats: ModelData.isRepeat ? 1 : 2
           }));
+          GetTriggerPointTypeData(ModelData.emailAddressID, ModelData.emailAddressIDType)
         }
+
         setLoader(false);
       } else {
         setErrorMessage(data?.data?.errorMessage);
@@ -328,6 +330,7 @@ function AddUpdateReminder(props) {
       emailAddressTypeData = emailAddressTypeData.map((emailAddressType) => ({
         value: emailAddressType.emailAddressID,
         label: emailAddressType.emailAddressName?.replace(/prospects/gi, prospectName),
+        emailAddressIDType: emailAddressType.emailAddressIDType
       }));
       setEmailAddressTypeLookupList(emailAddressTypeData);
     } catch (error) {
@@ -336,9 +339,9 @@ function AddUpdateReminder(props) {
     }
   };
 
-  const GetTriggerPointTypeData = async () => {
+  const GetTriggerPointTypeData = async (emailAddressID, emailAddressIDType) => {
     try {
-      const data = await GetTriggerPointTypeLookupList(1);
+      const data = await GetTriggerPointTypeLookupList(1, emailAddressID, emailAddressIDType);
       let triggerPointTypeData = data?.data?.responseData?.data;
 
       triggerPointTypeData = triggerPointTypeData
@@ -589,13 +592,15 @@ function AddUpdateReminder(props) {
                             options={emailAddressTypeLookupList}
                             value={TemplateEmailAddress}
                             // onChange={(e) => setReminderObj.emailAddress(e.value)}
-                            onChange={(selectedOption) =>
+                            onChange={(selectedOption) => {
                               setReminderObj((prev) => ({
                                 ...prev,
                                 emailAddress: selectedOption
                                   ? selectedOption.value
                                   : null,
                               }))
+                              GetTriggerPointTypeData(selectedOption.value, selectedOption.emailAddressIDType)
+                            }
                             }
                           />
                         </div>
