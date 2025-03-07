@@ -116,7 +116,9 @@ function SuperAdminMarketingReminderAddUpdate(props) {
             sequenceID: ModelData.sequenceID,
             isRepeat: ModelData.isRepeat ? 1 : 2, // Assuming 1 is for Yes, 2 is for No
           });
+
           GetTriggerPointTypeData(ModelData.emailAddressID === null ? ModelData.subscriptionPackageID : ModelData.emailAddressID, ModelData.emailAddressIDType)
+
         }
         setLoader(false);
       } else {
@@ -363,6 +365,7 @@ function SuperAdminMarketingReminderAddUpdate(props) {
       : emailTemp.value === reminderMarketingObj.emailAddressID) &&
     emailTemp.emailAddressIDType === reminderMarketingObj.emailAddressIDType
   );
+
 
   return (
     <>

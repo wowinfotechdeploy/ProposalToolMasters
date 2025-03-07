@@ -625,7 +625,7 @@ const Engagement_Letter = () => {
       }
     }
   };
-  // el seacrh function
+// el seacrh function
   const handleSearch = (e) => {
     const searchKeywordValue = e.target.value;
     setSearchKeyword(searchKeywordValue);
@@ -944,7 +944,7 @@ const Engagement_Letter = () => {
                         <b>{EngagementName}</b>
                       </a>
                     </li>
-                    {/* <li className="nav-item">
+                    <li className="nav-item">
                       <a
                         className={`nav-link tab_nav ${activeTab === "WebEL" ? "active" : ""
                           }`}
@@ -956,7 +956,7 @@ const Engagement_Letter = () => {
                       >
                         <b>API {EngagementName}</b>
                       </a>
-                    </li> */}
+                    </li>
                     {OldEngagementList?.length > 0 &&
                       <li className="nav-item">
                         <a

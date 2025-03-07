@@ -157,15 +157,20 @@ function AcceptInvitation() {
   // };
 
   //Change span color
-  function changeSpanColor(htmlContent) {
+  function changeSpanColor(htmlContent, newColorCode) {
     const parser = new DOMParser();
     const doc = parser.parseFromString(htmlContent, "text/html");
-    const elements = doc.getElementsByClassName("OrgBrandColor");
+    const elements = doc.getElementsByClassName("OrgnewColorCode");
+
+
+    // Check if any elements are found with the class name 'OrgnewColorCode'
     if (elements.length > 0) {
       // Loop through each element and change its color
       for (let i = 0; i < elements.length; i++) {
-        elements[i].style.color = BrandColor;
+        elements[i].style.color = newColorCode;
       }
+    } else {
+      return htmlContent
     }
 
     return doc.body.innerHTML;
@@ -202,183 +207,97 @@ function AcceptInvitation() {
             }
             break;
           case ElementType.STATEMENT_OF_FACTS:
-            if (
-              prevElementType !== ElementType.PAGE_BREAK &&
-              prevElementType !== ElementType.AWS_PDF_LINK
-            ) {
-              currentArray.push({
-                textbox: ` ${imgTag}<div style="padding-left: 40px; padding-right: 40px;margin-top: 10px"> 
+            if (prevElementType === ElementType.PAGE_BREAK ||
+              prevElementType === ElementType.AWS_PDF_LINK) {
+              pdfDataArray.push(currentArray);
+              currentArray = [];
+            }
+            currentArray.push({
+              textbox: ` ${imgTag}<div style="padding-left: 40px; padding-right: 40px;margin-top: 10px"> 
                 ${serviceDescriptionList
-                    .map(
-                      (serviceCat) => `
+                  .map(
+                    (serviceCat) => `
                       <div>
                           <p style="font-family:${fontFamily};color: black; font-size: ${fontSizeHeading}; font-weight: bold;">
                               ${serviceCat.serviceCatName}
                           </p>
                           <hr style="color: gray; margin-top: -15px;">
                           ${serviceCat.servicesList
-                          .map(
-                            (subService) => `
+                        .map(
+                          (subService) => `
                               <p style="font-family:${fontFamily}; color:black; font-size: ${fontSize};">
                                   ${subService.serviceName}
                               </p>
                               ${subService?.gpdList !== null
-                                ? subService?.gpdList.filter(item => item.driverTypeID !== 1)
-                                  ?.map(
-                                    (pricingDriver) => `
+                              ? subService?.gpdList.filter(item => item.driverTypeID !== 1)
+                                ?.map(
+                                  (pricingDriver) => `
                                 <li style="font-family:${fontFamily}; color:black; font-size: ${fontSize}; margin-top:5px;">
                                 ${pricingDriver.driverName}: 
                                 <span style="">
                                      <strong> ${
-                                      //formatValue(pricingDriver.driverValue)
-                                      pricingDriver.driverTypeID === 2
-                                        ? Number(pricingDriver.driverValue)
-                                          .toFixed(2)
-                                          .toString()
-                                          .replace(
-                                            /\B(?=(\d{3})+(?!\d))/g,
-                                            ","
-                                          )
-                                        : pricingDriver.driverTypeID === 3
-                                          ? pricingDriver.variationName
-                                          : pricingDriver.driverTypeID === 4
-                                            ? pricingDriver.slabTypeID === 2 ?
-                                              formatValueWithoutCurrencySymbol(pricingDriver.driverValue) :
-                                              Number(pricingDriver.slabFrom)
-                                                .toFixed(2)
-                                                .toString()
-                                                .replace(
-                                                  /\B(?=(\d{3})+(?!\d))/g,
-                                                  ","
-                                                ) +
-                                              "-" +
-                                              Number(pricingDriver.slabTo)
-                                                .toFixed(2)
-                                                .toString()
-                                                .replace(
-                                                  /\B(?=(\d{3})+(?!\d))/g,
-                                                  ","
-                                                )
-                                            : ""
-                                      }</strong>
+                                    //formatValue(pricingDriver.driverValue)
+                                    pricingDriver.driverTypeID === 2
+                                      ? Number(pricingDriver.driverValue)
+                                        .toFixed(2)
+                                        .toString()
+                                        .replace(
+                                          /\B(?=(\d{3})+(?!\d))/g,
+                                          ","
+                                        )
+                                      : pricingDriver.driverTypeID === 3
+                                        ? pricingDriver.variationName
+                                        : pricingDriver.driverTypeID === 4
+                                          ? pricingDriver.slabTypeID === 2 ?
+                                            formatValueWithoutCurrencySymbol(pricingDriver.driverValue) :
+                                            Number(pricingDriver.slabFrom)
+                                              .toFixed(2)
+                                              .toString()
+                                              .replace(
+                                                /\B(?=(\d{3})+(?!\d))/g,
+                                                ","
+                                              ) +
+                                            "-" +
+                                            Number(pricingDriver.slabTo)
+                                              .toFixed(2)
+                                              .toString()
+                                              .replace(
+                                                /\B(?=(\d{3})+(?!\d))/g,
+                                                ","
+                                              )
+                                          : ""
+                                    }</strong>
                                 </span> 
                             </li>
                               `
-                                  )
-                                  .join("")
-                                : ``
-                              }
+                                )
+                                .join("")
+                              : ``
+                            }
                           `
-                          )
-                          .join("")}
+                        )
+                        .join("")}
                       </div>
                   `
-                    )
-                    .join("")}
+                  )
+                  .join("")}
                                         ${AdditionalInformation?.length > 0 ?
-                    `<p style="font-family:${fontFamily}; color: ${BrandColor}; font-size: ${fontSizeHeading}; font-weight: bold;">
+                  `<p style="font-family:${fontFamily}; color: ${BrandColor}; font-size: ${fontSizeHeading}; font-weight: bold;">
         Additional Information
     </p>
     <hr style="color: gray; margin-top: -15px;" />` +
-                    AdditionalInformation.filter(item => item.driverTypeID !== 1).map(serviceCat => `
+                  AdditionalInformation.filter(item => item.driverTypeID !== 1).map(serviceCat => `
         <div>
             <p style="font-family:${fontFamily}; color:black; font-size: ${fontSize};">
                 ${serviceCat.driverName}: ${serviceCat.driverTypeID === 4 ? serviceCat.slabTypeID === 2 ? `<strong>${formatValueWithoutCurrencySymbol(serviceCat.driverValue)}</strong>` : `<strong>${formatValueWithoutCurrencySymbol(serviceCat.slabFrom)}-${formatValueWithoutCurrencySymbol(serviceCat.slabTo)}</strong>` : serviceCat.driverTypeID === 3 ? `<strong>${serviceCat.variationName}</strong>` : `${serviceCat.driverName}: <strong>${formatValueWithoutCurrencySymbol(serviceCat.driverValue)}</strong>`}
             </p>
         </div>
     `).join("") : ""
-                  }
+                }
 
                   </div>`,
-              });
-            } else {
-              pdfDataArray.push(currentArray);
-              currentArray.push({
-                textbox: ` ${imgTag}<div style="padding-left: 40px; padding-right: 40px;margin-top: 10px"> 
-                ${serviceDescriptionList
-                    .map(
-                      (serviceCat) => `
-                      <div>
-                          <p style="font-family:${fontFamily}; color: black; font-size: ${fontSizeHeading}; font-weight: bold;">
-                              ${serviceCat.serviceCatName}
-                          </p>
-                          <hr style="color: gray; margin-top: -15px;">
-                          ${serviceCat.servicesList
-                          .map(
-                            (subService) => `
-                              <p style="font-family:${fontFamily}; color:black; font-size: ${fontSize}; ">
-                                  ${subService.serviceName}
-                              </p>
-                              ${subService?.gpdList !== null
-                                ? subService?.gpdList.filter(item => item.driverTypeID !== 1)
-                                  ?.map(
-                                    (pricingDriver) => `
-                                <li style="font-family:${fontFamily}; color:black; font-size: ${fontSize}; margin-top:5px;">
-                                ${pricingDriver.driverName}: 
-                                <span style="">
-                                     <strong> ${
-                                      //formatValue(pricingDriver.driverValue)
-                                      pricingDriver.driverTypeID === 2
-                                        ? Number(pricingDriver.driverValue)
-                                          .toFixed(2)
-                                          .toString()
-                                          .replace(
-                                            /\B(?=(\d{3})+(?!\d))/g,
-                                            ","
-                                          )
-                                        : pricingDriver.driverTypeID === 3
-                                          ? pricingDriver.variationName
-                                          : pricingDriver.driverTypeID === 4
-                                            ? pricingDriver.slabTypeID === 2 ?
-                                              formatValueWithoutCurrencySymbol(pricingDriver.driverValue) :
-                                              Number(pricingDriver.slabFrom)
-                                                .toFixed(2)
-                                                .toString()
-                                                .replace(
-                                                  /\B(?=(\d{3})+(?!\d))/g,
-                                                  ","
-                                                ) +
-                                              "-" +
-                                              Number(pricingDriver.slabTo)
-                                                .toFixed(2)
-                                                .toString()
-                                                .replace(
-                                                  /\B(?=(\d{3})+(?!\d))/g,
-                                                  ","
-                                                )
-                                            : ""
-                                      }</strong>
-                                </span> 
-                            </li>
-                              `
-                                  )
-                                  .join("")
-                                : ``
-                              }
-                          `
-                          )
-                          .join("")}
-                      </div>
-                  `
-                    )
-                    .join("")}
-                                 ${AdditionalInformation?.length > 0 ?
-                    `<p style="font-family:${fontFamily}; color: ${BrandColor}; font-size: ${fontSizeHeading}; font-weight: bold;">
-        Additional Information
-    </p>
-    <hr style="color: gray; margin-top: -15px;" />` +
-                    AdditionalInformation.filter(item => item.driverTypeID !== 1).map(serviceCat => `
-        <div>
-            <p style="font-family:${fontFamily}; color:black; font-size: ${fontSize};">
-                 ${serviceCat.driverName}: ${serviceCat.driverTypeID === 4 ? serviceCat.slabTypeID === 2 ? `<strong>${formatValueWithoutCurrencySymbol(serviceCat.driverValue)}</strong>` : `<strong>${formatValueWithoutCurrencySymbol(serviceCat.slabFrom)}-${formatValueWithoutCurrencySymbol(serviceCat.slabTo)}</strong>` : serviceCat.driverTypeID === 3 ? `<strong>${serviceCat.variationName}</strong>` : `${serviceCat.driverName}: <strong>${formatValueWithoutCurrencySymbol(serviceCat.driverValue)}</strong>`}
-            </p>
-        </div>
-    `).join("") : ""
-                  }
+            });
 
-                  </div>`,
-              });
-            }
             break;
           case ElementType.TEXT_BLOCK:
             if (
@@ -517,7 +436,7 @@ function AcceptInvitation() {
             }
             break;
           case ElementType.First_Page:
-            const coloredHtmlContent = changeSpanColor(element.htmlContent);
+            const coloredHtmlContent = changeSpanColor(element.htmlContent, BrandColor);
             if (
               prevElementType !== ElementType.PAGE_BREAK &&
               prevElementType !== ElementType.AWS_PDF_LINK
@@ -535,38 +454,39 @@ function AcceptInvitation() {
             }
             break;
           case ElementType.SERVICE_PRICING_TABLE:
-            if (
-              prevElementType !== ElementType.PAGE_BREAK &&
-              prevElementType !== ElementType.AWS_PDF_LINK
-            ) {
-              if (packageList.length > 0) {
-                currentArray.push({
-                  table: packageList.map(
-                    (selectedPackagesData) =>
-                      ` ${imgTag}<div style="padding-left: 40px; padding-right: 40px; color:${BrandColor}; font-size: 30px;">Package :${selectedPackagesData.servicePackageName} </div>`
-                  ),
-                });
+            if (prevElementType === ElementType.PAGE_BREAK ||
+              prevElementType === ElementType.AWS_PDF_LINK) {
+              pdfDataArray.push(currentArray);
+              currentArray = [];
+            }
+            if (packageList.length > 0) {
+              currentArray.push({
+                table: packageList.map(
+                  (selectedPackagesData) =>
+                    ` ${imgTag}<div style="padding-left: 40px; padding-right: 40px; color:${BrandColor}; font-size: 30px;">Package :${selectedPackagesData.servicePackageName} </div>`
+                ),
+              });
 
-                if (recurringServiceCatList.length > 0) {
-                  currentArray.push({
-                    table: `
+              if (recurringServiceCatList.length > 0) {
+                currentArray.push({
+                  table: `
                               <div style="padding-left: 40px; padding-right: 40px; font-family:${fontFamily};page-break-inside: avoid; break-inside: avoid;">
                                 <p style="font-family:${fontFamily}; color: ${BrandColor}; font-size: 20px; margin-top: 15px;">Recurring Fees (${getPaymentFrequencyLabel()})</p>
                                 <table style="font-family:${fontFamily}; border-collapse: collapse; width: 100%; margin-top: -15px;">
                                   <tr style="background-color: ${BrandColor};">
                                     <th style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white; font-size: 18px;">Services</th>
                                     ${packageList
-                        .map(
-                          (selectedPackagesData) => `
+                      .map(
+                        (selectedPackagesData) => `
                                       <th style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; font-size: 18px;">
                                         ${selectedPackagesData.servicePackageName}
                                       </th>`
-                        )
-                        .join("")}
+                      )
+                      .join("")}
                                   </tr>
                                   ${recurringServiceCatList
-                        .map(
-                          (serviceCat) => `
+                      .map(
+                        (serviceCat) => `
                                     <tr style="background-color: #DCDCDC;">
                                       <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; font-weight: bold; font-size: 18px;">
                                         ${serviceCat.serviceCatName}
@@ -574,61 +494,61 @@ function AcceptInvitation() {
                                       <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;"></td>
                                     </tr>
                                     ${serviceCat.servicesList
-                              .map(
-                                (subService) => `
+                            .map(
+                              (subService) => `
                                       <tr>
                                         <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">
                                           ${subService.serviceName}
                                         </td>
                                  ${feeTypeId == 1
-                                    ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;"> ${formatValue(
-                                      subService.quotationPrice
-                                    )}</td>`
-                                    : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
-                                  }
+                                  ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;"> ${formatValue(
+                                    subService.quotationPrice
+                                  )}</td>`
+                                  : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
+                                }
 
                                       </tr>`
-                              )
-                              .join("")}
+                            )
+                            .join("")}
                                   `
-                        )
-                        .join("")}
+                      )
+                      .join("")}
                                   <tr style="background-color:#808080;">
                                     <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white;">
                                       Net Total
                                     </td>
                                     <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
                                         ${finalQuotationAmountList
-                        .filter(
-                          (x) =>
-                            x.serviceChargeTypeID === 1 &&
-                            x.servicePackageID ===
-                            packageList[0]?.servicePackageID
-                        )
-                        .map((x) => (x.netTotal) < (x.discountedTotal) || (x.discounted > 0 && (!ShowDiscountLine)) ? formatValue(x.discountedTotal) : formatValue(x.netTotal))
-                        .join("")}
+                      .filter(
+                        (x) =>
+                          x.serviceChargeTypeID === 1 &&
+                          x.servicePackageID ===
+                          packageList[0]?.servicePackageID
+                      )
+                      .map((x) => (x.netTotal) < (x.discountedTotal) || (x.discounted > 0 && (!ShowDiscountLine)) ? formatValue(x.discountedTotal) : formatValue(x.netTotal))
+                      .join("")}
                                     </td>
                                   </tr>
                                   ${finalQuotationAmountList.some(
-                          (x) =>
-                            x.serviceChargeTypeID === 1 &&
-                            x.discounted > 0
-                        ) && ShowDiscountLine
-                        ? `
+                        (x) =>
+                          x.serviceChargeTypeID === 1 &&
+                          x.discounted > 0
+                      ) && ShowDiscountLine
+                      ? `
                                     <tr style="background-color: #DCDCDC;">
                                       <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: black;">
                                         Discount
                                       </td>
                                       <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: black;">
                                         (-)  ${finalQuotationAmountList
-                          .filter(
-                            (x) =>
-                              x.serviceChargeTypeID === 1 &&
-                              x.servicePackageID ===
-                              packageList[0]?.servicePackageID
-                          )
-                          .map((x) => formatValue(x.discounted))
-                          .join("")}
+                        .filter(
+                          (x) =>
+                            x.serviceChargeTypeID === 1 &&
+                            x.servicePackageID ===
+                            packageList[0]?.servicePackageID
+                        )
+                        .map((x) => formatValue(x.discounted))
+                        .join("")}
                                       </td>
                                     </tr>
                                   <tr style="background-color:#808080;">
@@ -637,40 +557,40 @@ function AcceptInvitation() {
                                     </td>
                                     <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
                                        ${finalQuotationAmountList
-                          .filter(
-                            (x) =>
-                              x.serviceChargeTypeID === 1 &&
-                              x.servicePackageID ===
-                              packageList[0]?.servicePackageID
-                          )
-                          .map((x) =>
-                            formatValue(x.discountedTotal)
-                          )
-                          .join("")}
+                        .filter(
+                          (x) =>
+                            x.serviceChargeTypeID === 1 &&
+                            x.servicePackageID ===
+                            packageList[0]?.servicePackageID
+                        )
+                        .map((x) =>
+                          formatValue(x.discountedTotal)
+                        )
+                        .join("")}
                                     </td>
                                   </tr>`
-                        : ""
-                      }
+                      : ""
+                    }
                                      ${finalQuotationAmountList.some(
-                        (x) =>
-                          x.serviceChargeTypeID === 1 &&
-                          x.vat > 0
-                      )
-                        ? `
+                      (x) =>
+                        x.serviceChargeTypeID === 1 &&
+                        x.vat > 0
+                    )
+                      ? `
                                   <tr style="background-color: #DCDCDC;">
                                     <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: black;">
                                       VAT
                                     </td>
                                     <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: black;">
                                        ${finalQuotationAmountList
-                          .filter(
-                            (x) =>
-                              x.serviceChargeTypeID === 1 &&
-                              x.servicePackageID ===
-                              packageList[0]?.servicePackageID
-                          )
-                          .map((x) => formatValue(x.vat))
-                          .join("")}
+                        .filter(
+                          (x) =>
+                            x.serviceChargeTypeID === 1 &&
+                            x.servicePackageID ===
+                            packageList[0]?.servicePackageID
+                        )
+                        .map((x) => formatValue(x.vat))
+                        .join("")}
                                     </td>
                                   </tr>
                                   <tr style="background-color:#808080;">
@@ -679,27 +599,27 @@ function AcceptInvitation() {
                                     </td>
                                     <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
                                        ${finalQuotationAmountList
-                          .filter(
-                            (x) =>
-                              x.serviceChargeTypeID === 1 &&
-                              x.servicePackageID ===
-                              packageList[0]?.servicePackageID
-                          )
-                          .map((x) => formatValue(x.grandTotal))
-                          .join("")}
+                        .filter(
+                          (x) =>
+                            x.serviceChargeTypeID === 1 &&
+                            x.servicePackageID ===
+                            packageList[0]?.servicePackageID
+                        )
+                        .map((x) => formatValue(x.grandTotal))
+                        .join("")}
                                     </td>
                                   </tr>`
-                        : ""
-                      }
+                      : ""
+                    }
                                 </table>
                               </div>
                             `,
-                  });
-                }
+                });
+              }
 
-                if (oneOffServiceCatList.length > 0) {
-                  currentArray.push({
-                    table: `
+              if (oneOffServiceCatList.length > 0) {
+                currentArray.push({
+                  table: `
                                 <div style="padding-left: 40px; padding-right: 40px; font-family:${fontFamily};page-break-inside: avoid; break-inside: avoid;">
 
                                   <p style="font-family:${fontFamily}; color: ${BrandColor}; font-size: 20px; margin-top: 15px;"> One-Off Fees </p>
@@ -707,17 +627,17 @@ function AcceptInvitation() {
                                   <tr style="background-color: ${BrandColor};">
                                     <th style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white; font-size: 18px;">Services</th>
                                     ${packageList
-                        .map(
-                          (selectedPackagesData) => `
+                      .map(
+                        (selectedPackagesData) => `
                                       <th style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; font-size: 18px;">
                                         ${selectedPackagesData.servicePackageName}
                                       </th>`
-                        )
-                        .join("")}
+                      )
+                      .join("")}
                                   </tr>
                                   ${oneOffServiceCatList
-                        .map(
-                          (serviceCat) => `
+                      .map(
+                        (serviceCat) => `
                                     <tr style="background-color: #DCDCDC;">
                                       <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; font-weight: bold; font-size: 18px;">
                                         ${serviceCat.serviceCatName}
@@ -725,61 +645,61 @@ function AcceptInvitation() {
                                       <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;"></td>
                                     </tr>
                                     ${serviceCat.servicesList
-                              .map(
-                                (subService) => `
+                            .map(
+                              (subService) => `
                                       <tr>
                                         <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">
                                           ${subService.serviceName}
                                         </td>
                                         ${feeTypeId == 1
-                                    ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;"> ${formatValue(
-                                      subService.quotationPrice
-                                    )}</td>`
-                                    : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
-                                  }
+                                  ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;"> ${formatValue(
+                                    subService.quotationPrice
+                                  )}</td>`
+                                  : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
+                                }
 
                                       </tr>`
-                              )
-                              .join("")}
+                            )
+                            .join("")}
                                   `
-                        )
-                        .join("")}
+                      )
+                      .join("")}
                                   <tr style="background-color:#808080;">
                                     <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white;">
                                       Net Total
                                     </td>
                                     <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
                                      ${finalQuotationAmountList
-                        .filter(
-                          (x) =>
-                            x.serviceChargeTypeID === 2 &&
-                            x.servicePackageID ===
-                            packageList[0]?.servicePackageID
-                        )
-                        .map((x) => (x.netTotal) < (x.discountedTotal) || (x.discounted > 0 && (!ShowDiscountLine)) ? formatValue(x.discountedTotal) : formatValue(x.netTotal))
-                        .join("")}
+                      .filter(
+                        (x) =>
+                          x.serviceChargeTypeID === 2 &&
+                          x.servicePackageID ===
+                          packageList[0]?.servicePackageID
+                      )
+                      .map((x) => (x.netTotal) < (x.discountedTotal) || (x.discounted > 0 && (!ShowDiscountLine)) ? formatValue(x.discountedTotal) : formatValue(x.netTotal))
+                      .join("")}
                                     </td>
                                   </tr>
                                    ${finalQuotationAmountList.some(
-                          (x) =>
-                            x.serviceChargeTypeID === 2 &&
-                            x.discounted > 0
-                        ) && ShowDiscountLine
-                        ? `
+                        (x) =>
+                          x.serviceChargeTypeID === 2 &&
+                          x.discounted > 0
+                      ) && ShowDiscountLine
+                      ? `
                                     <tr style="background-color: #DCDCDC;">
                                       <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: black;">
                                         Discount
                                       </td>
                                       <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: black;">
                                         (-)  ${finalQuotationAmountList
-                          .filter(
-                            (x) =>
-                              x.serviceChargeTypeID === 2 &&
-                              x.servicePackageID ===
-                              packageList[0]?.servicePackageID
-                          )
-                          .map((x) => formatValue(x.discounted))
-                          .join("")}
+                        .filter(
+                          (x) =>
+                            x.serviceChargeTypeID === 2 &&
+                            x.servicePackageID ===
+                            packageList[0]?.servicePackageID
+                        )
+                        .map((x) => formatValue(x.discounted))
+                        .join("")}
                                       </td>
                                     </tr>
                                   <tr style="background-color:#808080;">
@@ -788,40 +708,40 @@ function AcceptInvitation() {
                                     </td>
                                     <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
                                        ${finalQuotationAmountList
-                          .filter(
-                            (x) =>
-                              x.serviceChargeTypeID === 2 &&
-                              x.servicePackageID ===
-                              packageList[0]?.servicePackageID
-                          )
-                          .map((x) =>
-                            formatValue(x.discountedTotal)
-                          )
-                          .join("")}
+                        .filter(
+                          (x) =>
+                            x.serviceChargeTypeID === 2 &&
+                            x.servicePackageID ===
+                            packageList[0]?.servicePackageID
+                        )
+                        .map((x) =>
+                          formatValue(x.discountedTotal)
+                        )
+                        .join("")}
                                     </td>
                                   </tr>`
-                        : ""
-                      }
+                      : ""
+                    }
                                      ${finalQuotationAmountList.some(
-                        (x) =>
-                          x.serviceChargeTypeID === 2 &&
-                          x.vat > 0
-                      )
-                        ? `
+                      (x) =>
+                        x.serviceChargeTypeID === 2 &&
+                        x.vat > 0
+                    )
+                      ? `
                                   <tr style="background-color: #DCDCDC;">
                                     <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: black;">
                                       VAT
                                     </td>
                                     <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: black;">
                                        ${finalQuotationAmountList
-                          .filter(
-                            (x) =>
-                              x.serviceChargeTypeID === 2 &&
-                              x.servicePackageID ===
-                              packageList[0]?.servicePackageID
-                          )
-                          .map((x) => formatValue(x.vat))
-                          .join("")}
+                        .filter(
+                          (x) =>
+                            x.serviceChargeTypeID === 2 &&
+                            x.servicePackageID ===
+                            packageList[0]?.servicePackageID
+                        )
+                        .map((x) => formatValue(x.vat))
+                        .join("")}
                                     </td>
                                   </tr>
                                   <tr style="background-color:#808080;">
@@ -830,27 +750,27 @@ function AcceptInvitation() {
                                     </td>
                                     <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
                                        ${finalQuotationAmountList
-                          .filter(
-                            (x) =>
-                              x.serviceChargeTypeID === 2 &&
-                              x.servicePackageID ===
-                              packageList[0]?.servicePackageID
-                          )
-                          .map((x) => formatValue(x.grandTotal))
-                          .join("")}
+                        .filter(
+                          (x) =>
+                            x.serviceChargeTypeID === 2 &&
+                            x.servicePackageID ===
+                            packageList[0]?.servicePackageID
+                        )
+                        .map((x) => formatValue(x.grandTotal))
+                        .join("")}
                                     </td>
                                   </tr>`
-                        : ""
-                      }
+                      : ""
+                    }
                                 </table>
                                 </div>
                               `,
-                  });
-                }
-              } else {
-                if (recurringServiceCatList.length > 0) {
-                  currentArray.push({
-                    table: ` ${imgTag}
+                });
+              }
+            } else {
+              if (recurringServiceCatList.length > 0) {
+                currentArray.push({
+                  table: ` ${imgTag}
                           <div style="padding: 40px; padding-top:0px; font-family:${fontFamily};page-break-inside: avoid; break-inside: avoid;">
                             <p style="font-family:${fontFamily}; color: ${BrandColor}; font-size: 20px; margin-top: 0px;">Recurring Fees (${getPaymentFrequencyLabel()})</p>
                             <table style="font-family:${fontFamily}; border-collapse: collapse; width: 100%; margin-top: -15px;">
@@ -859,8 +779,8 @@ function AcceptInvitation() {
                                 <th style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; font-size: 18px;">Fees (£)</th>
                               </tr>
                               ${recurringServiceCatList
-                        .map(
-                          (serviceCat) => `
+                      .map(
+                        (serviceCat) => `
                                 <tr style="background-color: #eee;">
                                   <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; font-weight: bold; font-size: 18px;">
                                     ${serviceCat.serviceCatName}
@@ -868,42 +788,42 @@ function AcceptInvitation() {
                                   <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;"></td>
                                 </tr>
                                 ${serviceCat.servicesList
-                              .map(
-                                (subService) => `
+                            .map(
+                              (subService) => `
                                   <tr>
                                     <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">
                                       ${subService.serviceName}
                                     </td>
                                           ${feeTypeId == 1
-                                    ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;"> ${formatValue(
-                                      subService.quotationPrice
-                                    )}</td>`
-                                    : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
-                                  }
+                                  ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;"> ${formatValue(
+                                    subService.quotationPrice
+                                  )}</td>`
+                                  : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
+                                }
                                   </tr>`
-                              )
-                              .join("")}
+                            )
+                            .join("")}
                               `
-                        )
-                        .join("")}
+                      )
+                      .join("")}
                               ${ChargeTypeId1Array.map(
-                          (value) => `
+                        (value) => `
                                 <tr style="background-color:#808080;">
                                   <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white;">
                                     Net Total
                                   </td>
                                   <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
                                      ${(value.netTotal < value.discountedTotal) ||
-                              (Number(value?.discounted) > 0 && (!ShowDiscountLine))
-                              ? formatValue(value.discountedTotal)
-                              : formatValue(value.netTotal)
-                            }
+                            (Number(value?.discounted) > 0 && (!ShowDiscountLine))
+                            ? formatValue(value.discountedTotal)
+                            : formatValue(value.netTotal)
+                          }
                                   </td>
                                 </tr>
                                 ${(value?.discounted !== null &&
-                              value?.discounted !== 0.0) &&
-                              ShowDiscountLine
-                              ? `
+                            value?.discounted !== 0.0) &&
+                            ShowDiscountLine
+                            ? `
                                   <tr style="background-color: #DCDCDC;">
                                     <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: black;">
                                       Discount
@@ -920,10 +840,10 @@ function AcceptInvitation() {
                                        ${formatValue(value?.discountedTotal)}
                                     </td>
                                   </tr>`
-                              : ""
-                            }
+                            : ""
+                          }
                                 ${value?.vat !== null && value?.vat !== 0.0
-                              ? `
+                            ? `
                                   <tr style="background-color: #DCDCDC;">
                                     <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: black;">
                                       VAT
@@ -940,20 +860,20 @@ function AcceptInvitation() {
                                        ${formatValue(value?.grandTotal)}
                                     </td>
                                   </tr>`
-                              : ""
-                            }
+                            : ""
+                          }
                               `
-                        ).join("")}
+                      ).join("")}
                             </table>
                           </div>
                         `,
-                  });
-                }
-                // Check if selectedOneOffServiceList has items
-                if (oneOffServiceCatList.length > 0) {
-                  // Append the table for selectedOneOffServiceList
-                  currentArray.push({
-                    table: `
+                });
+              }
+              // Check if selectedOneOffServiceList has items
+              if (oneOffServiceCatList.length > 0) {
+                // Append the table for selectedOneOffServiceList
+                currentArray.push({
+                  table: `
                                 <div style="padding: 40px; padding-top:0px; font-family:${fontFamily};page-break-inside: avoid; break-inside: avoid;">
                                   <p style="font-family:${fontFamily}; color: ${BrandColor}; font-size: 20px;margin-top: 0px;">One-Off Fees</p>
                                   <table style="font-family:${fontFamily}; border-collapse: collapse; width: 100%; margin-top: -15px;">
@@ -962,8 +882,8 @@ function AcceptInvitation() {
                                       <th style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; font-size: 18px;">Fees ()</th>
                                     </tr>
                                     ${oneOffServiceCatList
-                        .map(
-                          (serviceCat) => `
+                      .map(
+                        (serviceCat) => `
                                       <tr style="background-color:#eee;">
                                         <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; font-weight: bold; font-size: 18px;">
                                           ${serviceCat.serviceCatName}
@@ -971,50 +891,50 @@ function AcceptInvitation() {
                                         <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;"></td>
                                       </tr>
                                       ${serviceCat.servicesList
-                              .map(
-                                (subService) => `
+                            .map(
+                              (subService) => `
                                         <tr>
                                     <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">
                                       ${subService.serviceName}
                                     </td>
                                           ${feeTypeId == 1
-                                    ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;"> ${formatValue(
-                                      subService.quotationPrice
-                                    )}</td>`
-                                    : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
-                                  }
+                                  ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;"> ${formatValue(
+                                    subService.quotationPrice
+                                  )}</td>`
+                                  : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
+                                }
                                   </tr>`
-                              )
-                              .join("")}
+                            )
+                            .join("")}
                                     `
-                        )
-                        .join("")}
+                      )
+                      .join("")}
                                     ${ChargeTypeId2Array.map(
-                          (value) => `
+                        (value) => `
                                       <tr style="background-color:#808080;">
                                         <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white;">
                                           Net Total
                                         </td>
                                         <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
                                            ${(value.netTotal < value.discountedTotal) ||
-                              (Number(value?.discounted) > 0 && (!ShowDiscountLine))
-                              ? formatValue(value.discountedTotal)
-                              : formatValue(value.netTotal)
-                            }
+                            (Number(value?.discounted) > 0 && (!ShowDiscountLine))
+                            ? formatValue(value.discountedTotal)
+                            : formatValue(value.netTotal)
+                          }
                                         </td>
                                       </tr>
                                       ${(value?.discounted !== null &&
-                              value?.discounted !== 0.0) &&
-                              ShowDiscountLine
-                              ? `
+                            value?.discounted !== 0.0) &&
+                            ShowDiscountLine
+                            ? `
                                         <tr style="background-color: #DCDCDC;">
                                           <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: black;">
                                             Discount
                                           </td>
                                           <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: black;">
                                             (-)  ${formatValue(
-                                value.discounted
-                              )}
+                              value.discounted
+                            )}
                                           </td>
                                         </tr>
                                         <tr style="background-color:#808080;">
@@ -1023,15 +943,15 @@ function AcceptInvitation() {
                                           </td>
                                           <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
                                              ${formatValue(
-                                value.discountedTotal
-                              )}
+                              value.discountedTotal
+                            )}
                                           </td>
                                         </tr>`
-                              : ""
-                            }
+                            : ""
+                          }
                                       ${value?.vat !== null &&
-                              value?.vat !== 0.0
-                              ? `
+                            value?.vat !== 0.0
+                            ? `
                                         <tr style="background-color: #DCDCDC;">
                                           <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: black;">
                                             VAT
@@ -1048,530 +968,17 @@ function AcceptInvitation() {
                                              ${formatValue(value.grandTotal)}
                                           </td>
                                         </tr>`
-                              : ""
-                            }
+                            : ""
+                          }
                                     `
-                        ).join("")}
+                      ).join("")}
                                   </table>
                                 </div>
                               `,
-                  });
-                }
-              }
-            } else {
-              if (packageList.length > 0) {
-                currentArray.push({
-                  table: packageList.map(
-                    (selectedPackagesData) =>
-                      ` ${imgTag}<div style="padding-left: 40px; padding-right: 40px; color:${BrandColor}; font-size: 30px;">Package:${selectedPackagesData.servicePackageName} <br
-                  ></br></div>`
-                  ),
                 });
-                if (recurringServiceCatList.length > 0) {
-                  currentArray.push({
-                    table: `
-                              <div style="padding-left: 40px; padding-right: 40px; font-family:${fontFamily};page-break-inside: avoid; break-inside: avoid;">
-                                <p style="font-family:${fontFamily}; color: ${BrandColor}; font-size: 20px; margin-top: 15px;">Recurring Fees (${getPaymentFrequencyLabel()})</p>
-                                <table style="font-family:${fontFamily}; border-collapse: collapse; width: 100%; margin-top: -15px;">
-                                  <tr style="background-color: ${BrandColor};">
-                                    <th style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white; font-size: 18px;">Services</th>
-                                    ${packageList
-                        .map(
-                          (selectedPackagesData) => `
-                                      <th style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; font-size: 18px;">
-                                        ${selectedPackagesData.servicePackageName}
-                                      </th>`
-                        )
-                        .join("")}
-                                  </tr>
-                                  ${recurringServiceCatList
-                        .map(
-                          (serviceCat) => `
-                                    <tr style="background-color: #DCDCDC;">
-                                      <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; font-weight: bold; font-size: 18px;">
-                                        ${serviceCat.serviceCatName}
-                                      </td>
-                                      <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;"></td>
-                                    </tr>
-                                    ${serviceCat.servicesList
-                              .map(
-                                (subService) => `
-                                      <tr>
-                                        <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">
-                                          ${subService.serviceName}
-                                        </td>
-                                              ${feeTypeId == 1
-                                    ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;"> ${formatValue(
-                                      subService.quotationPrice
-                                    )}</td>`
-                                    : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
-                                  }
-                                      </tr>`
-                              )
-                              .join("")}
-                                  `
-                        )
-                        .join("")}
-                                  <tr style="background-color:#808080;">
-                                    <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white;">
-                                      Net Total
-                                    </td>
-                                    <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
-                                     ${finalQuotationAmountList
-                        .filter(
-                          (x) =>
-                            x.serviceChargeTypeID === 1 &&
-                            x.servicePackageID ===
-                            packageList[0]?.servicePackageID
-                        )
-                        .map((x) => (x.netTotal) < (x.discountedTotal) || (x.discounted > 0 && (!ShowDiscountLine)) ? formatValue(x.discountedTotal) : formatValue(x.netTotal))
-                        .join("")}
-                                    </td>
-                                  </tr>
-                                ${finalQuotationAmountList.some(
-                          (x) =>
-                            x.serviceChargeTypeID === 1 &&
-                            x.discounted > 0
-                        ) && ShowDiscountLine
-                        ? `
-                                    <tr style="background-color: #DCDCDC;">
-                                      <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: black;">
-                                        Discount
-                                      </td>
-                                      <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: black;">
-                                        (-)  ${finalQuotationAmountList
-                          .filter(
-                            (x) =>
-                              x.serviceChargeTypeID === 1 &&
-                              x.servicePackageID ===
-                              packageList[0]?.servicePackageID
-                          )
-                          .map((x) => formatValue(x.discounted))
-                          .join("")}
-                                      </td>
-                                    </tr>
-                                  <tr style="background-color:#808080;">
-                                    <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white;">
-                                      Discounted Total
-                                    </td>
-                                    <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
-                                       ${finalQuotationAmountList
-                          .filter(
-                            (x) =>
-                              x.serviceChargeTypeID === 1 &&
-                              x.servicePackageID ===
-                              packageList[0]?.servicePackageID
-                          )
-                          .map((x) =>
-                            formatValue(x.discountedTotal)
-                          )
-                          .join("")}
-                                    </td>
-                                  </tr>`
-                        : ""
-                      }
-                                     ${finalQuotationAmountList.some(
-                        (x) =>
-                          x.serviceChargeTypeID === 1 &&
-                          x.vat > 0
-                      )
-                        ? `
-                                  <tr style="background-color: #DCDCDC;">
-                                    <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: black;">
-                                      VAT
-                                    </td>
-                                    <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: black;">
-                                       ${finalQuotationAmountList
-                          .filter(
-                            (x) =>
-                              x.serviceChargeTypeID === 1 &&
-                              x.servicePackageID ===
-                              packageList[0]?.servicePackageID
-                          )
-                          .map((x) => formatValue(x.vat))
-                          .join("")}
-                                    </td>
-                                  </tr>
-                                  <tr style="background-color:#808080;">
-                                    <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white;">
-                                      Grand Total
-                                    </td>
-                                    <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
-                                       ${finalQuotationAmountList
-                          .filter(
-                            (x) =>
-                              x.serviceChargeTypeID === 1 &&
-                              x.servicePackageID ===
-                              packageList[0]?.servicePackageID
-                          )
-                          .map((x) => formatValue(x.grandTotal))
-                          .join("")}
-                                    </td>
-                                  </tr>`
-                        : ""
-                      }
-                                </table>
-                              </div>
-                            `,
-                  });
-                }
-
-                if (oneOffServiceCatList.length > 0) {
-                  currentArray.push({
-                    table: `
-                                <div style="padding-left: 40px; padding-right: 40px; font-family:${fontFamily};page-break-inside: avoid; break-inside: avoid;">
-
-                                  <p style="font-family:${fontFamily}; color: ${BrandColor}; font-size: 20px; margin-top: 15px;"> One-Off Fees </p>
-                                  <table style="font-family:${fontFamily}; border-collapse: collapse; width: 100%; margin-top: -15px;">
-                                  <tr style="background-color: ${BrandColor};">
-                                    <th style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white; font-size: 18px;">Services</th>
-                                    ${packageList
-                        .map(
-                          (selectedPackagesData) => `
-                                      <th style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; font-size: 18px;">
-                                        ${selectedPackagesData.servicePackageName}
-                                      </th>`
-                        )
-                        .join("")}
-                                  </tr>
-                                  ${oneOffServiceCatList
-                        .map(
-                          (serviceCat) => `
-                                    <tr style="background-color: #DCDCDC;">
-                                      <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; font-weight: bold; font-size: 18px;">
-                                        ${serviceCat.serviceCatName}
-                                      </td>
-                                      <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;"></td>
-                                    </tr>
-                                    ${serviceCat.servicesList
-                              .map(
-                                (subService) => `
-                                      <tr>
-                                        <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">
-                                          ${subService.serviceName}
-                                        </td>
-                                              ${feeTypeId == 1
-                                    ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;"> ${formatValue(
-                                      subService.quotationPrice
-                                    )}</td>`
-                                    : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
-                                  }
-                                      </tr>`
-                              )
-                              .join("")}
-                                  `
-                        )
-                        .join("")}
-                                  <tr style="background-color:#808080;">
-                                    <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white;">
-                                      Net Total
-                                    </td>
-                                    <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
-                                       ${finalQuotationAmountList
-                        .filter(
-                          (x) =>
-                            x.serviceChargeTypeID === 2 &&
-                            x.servicePackageID ===
-                            packageList[0]?.servicePackageID
-                        )
-                        .map((x) => (x.netTotal) < (x.discountedTotal) || (x.discounted > 0 && (!ShowDiscountLine)) ? formatValue(x.discountedTotal) : formatValue(x.netTotal))
-                        .join("")}
-                                    </td>
-                                  </tr>
-                                   ${finalQuotationAmountList.some(
-                          (x) =>
-                            x.serviceChargeTypeID === 2 &&
-                            x.discounted > 0
-                        ) && ShowDiscountLine
-                        ? `
-                                    <tr style="background-color: #DCDCDC;">
-                                      <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: black;">
-                                        Discount
-                                      </td>
-                                      <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: black;">
-                                        (-)  ${finalQuotationAmountList
-                          .filter(
-                            (x) =>
-                              x.serviceChargeTypeID === 2 &&
-                              x.servicePackageID ===
-                              packageList[0]?.servicePackageID
-                          )
-                          .map((x) => formatValue(x.discounted))
-                          .join("")}
-                                      </td>
-                                    </tr>
-                                  <tr style="background-color:#808080;">
-                                    <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white;">
-                                      Discounted Total
-                                    </td>
-                                    <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
-                                       ${finalQuotationAmountList
-                          .filter(
-                            (x) =>
-                              x.serviceChargeTypeID === 2 &&
-                              x.servicePackageID ===
-                              packageList[0]?.servicePackageID
-                          )
-                          .map((x) =>
-                            formatValue(x.discountedTotal)
-                          )
-                          .join("")}
-                                    </td>
-                                  </tr>`
-                        : ""
-                      }
-                                     ${finalQuotationAmountList.some(
-                        (x) =>
-                          x.serviceChargeTypeID === 2 &&
-                          x.vat > 0
-                      )
-                        ? `
-                                  <tr style="background-color: #DCDCDC;">
-                                    <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: black;">
-                                      VAT
-                                    </td>
-                                    <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: black;">
-                                       ${finalQuotationAmountList
-                          .filter(
-                            (x) =>
-                              x.serviceChargeTypeID === 2 &&
-                              x.servicePackageID ===
-                              packageList[0]?.servicePackageID
-                          )
-                          .map((x) => formatValue(x.vat))
-                          .join("")}
-                                    </td>
-                                  </tr>
-                                  <tr style="background-color:#808080;">
-                                    <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white;">
-                                      Grand Total
-                                    </td>
-                                    <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
-                                       ${finalQuotationAmountList
-                          .filter(
-                            (x) =>
-                              x.serviceChargeTypeID === 2 &&
-                              x.servicePackageID ===
-                              packageList[0]?.servicePackageID
-                          )
-                          .map((x) => formatValue(x.grandTotal))
-                          .join("")}
-                                    </td>
-                                  </tr>`
-                        : ""
-                      }
-                                </table>
-                                </div>
-                              `,
-                  });
-                }
-              } else {
-                if (recurringServiceCatList.length > 0) {
-                  currentArray.push({
-                    table: ` ${imgTag}
-                          <div style="padding: 40px; padding-top:5px; font-family:${fontFamily};page-break-inside: avoid; break-inside: avoid;">
-                            <p style="font-family:${fontFamily}; color: ${BrandColor}; font-size: 20px; margin-top: 0px;">Recurring Fees (${getPaymentFrequencyLabel()})</p>
-                            <table style="font-family:${fontFamily}; border-collapse: collapse; width: 100%; margin-top: -15px;">
-                              <tr style="background-color: ${BrandColor};">
-                                <th style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white; font-size: 18px;">Services</th>
-                                <th style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; font-size: 18px;">Fees (£)</th>
-                              </tr>
-                              ${recurringServiceCatList
-                        .map(
-                          (serviceCat) => `
-                                <tr style="background-color: #eee;">
-                                  <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; font-weight: bold; font-size: 18px;">
-                                    ${serviceCat.serviceCatName}
-                                  </td>
-                                  <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;"></td>
-                                </tr>
-                                ${serviceCat.servicesList
-                              .map(
-                                (subService) => `
-                                      <tr>
-                                    <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">
-                                      ${subService.serviceName}
-                                    </td>
-                                          ${feeTypeId == 1
-                                    ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;"> ${formatValue(
-                                      subService.quotationPrice
-                                    )}</td>`
-                                    : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
-                                  }
-                                  </tr>`
-                              )
-                              .join("")}
-                              `
-                        )
-                        .join("")}
-                              ${ChargeTypeId1Array.map(
-                          (value) => `
-                                <tr style="background-color:#808080;">
-                                  <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white;">
-                                    Net Total
-                                  </td>
-                                  <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
-                                     ${(value.netTotal < value.discountedTotal) ||
-                              (Number(value?.discounted) > 0 && (!ShowDiscountLine))
-                              ? formatValue(value.discountedTotal)
-                              : formatValue(value.netTotal)
-                            }
-                                  </td>
-                                </tr>
-                               ${(value?.discounted !== null &&
-                              value?.discounted !== 0.0) &&
-                              ShowDiscountLine
-                              ? `
-                                  <tr style="background-color: #DCDCDC;">
-                                    <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: black;">
-                                      Discount
-                                    </td>
-                                    <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: black;">
-                                      (-)  ${formatValue(value?.discounted)}
-                                    </td>
-                                  </tr>
-                                  <tr style="background-color:#808080;">
-                                    <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white;">
-                                      Discounted Total
-                                    </td>
-                                    <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
-                                       ${formatValue(value?.discountedTotal)}
-                                    </td>
-                                  </tr>`
-                              : ""
-                            }
-                                ${value?.vat !== null && value?.vat !== 0.0
-                              ? `
-                                  <tr style="background-color: #DCDCDC;">
-                                    <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: black;">
-                                      VAT
-                                    </td>
-                                    <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: black;">
-                                       ${formatValue(value?.vat)}
-                                    </td>
-                                  </tr>
-                                  <tr style="background-color:#808080;">
-                                    <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white;">
-                                      Grand Total
-                                    </td>
-                                    <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
-                                       ${formatValue(value?.grandTotal)}
-                                    </td>
-                                  </tr>`
-                              : ""
-                            }
-                              `
-                        ).join("")}
-                            </table>
-                          </div>
-                        `,
-                  });
-                }
-                // Check if selectedOneOffServiceList has items
-                if (oneOffServiceCatList.length > 0) {
-                  // Append the table for selectedOneOffServiceList
-                  currentArray.push({
-                    table: ` ${imgTag}
-                          <div style="padding: 40px; padding-top:0px; font-family:${fontFamily};page-break-inside: avoid; break-inside: avoid;">
-                            <p style="font-family:${fontFamily}; color: ${BrandColor}; font-size: 20px;margin-top: 0px;">One-Off Fees</p>
-                            <table style="font-family:${fontFamily}; border-collapse: collapse; width: 100%; margin-top: -15px;">
-                              <tr style="background-color: ${BrandColor};">
-                                <th style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white; font-size: 18px;">Services</th>
-                                <th style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; font-size: 18px;">Fees (£)</th>
-                              </tr>
-                              ${oneOffServiceCatList
-                        .map(
-                          (serviceCat) => `
-                                <tr style="background-color:#eee;">
-                                  <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; font-weight: bold; font-size: 18px;">
-                                    ${serviceCat.serviceCatName}
-                                  </td>
-                                  <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;"></td>
-                                </tr>
-                                ${serviceCat.servicesList
-                              .map(
-                                (subService) => `
-                                      <tr>
-                                    <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">
-                                      ${subService.serviceName}
-                                    </td>
-                                          ${feeTypeId == 1
-                                    ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;"> ${formatValue(
-                                      subService.quotationPrice
-                                    )}</td>`
-                                    : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
-                                  }
-                                  </tr>`
-                              )
-                              .join("")}
-                              `
-                        )
-                        .join("")}
-                              ${ChargeTypeId2Array.map(
-                          (value) => `
-                                <tr style="background-color:#808080;">
-                                  <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white;">
-                                    Net Total
-                                  </td>
-                                  <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
-                                     ${(value.netTotal < value.discountedTotal) ||
-                              (Number(value?.discounted) > 0 && (!ShowDiscountLine))
-                              ? formatValue(value.discountedTotal)
-                              : formatValue(value.netTotal)
-                            }
-                                  </td>
-                                </tr>
-                               ${(value?.discounted !== null &&
-                              value?.discounted !== 0.0) &&
-                              ShowDiscountLine
-                              ? `
-                                  <tr style="background-color: #DCDCDC;">
-                                    <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: black;">
-                                      Discount
-                                    </td>
-                                    <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: black;">
-                                      (-)  ${formatValue(value.discounted)}
-                                    </td>
-                                  </tr>
-                                  <tr style="background-color:#808080;">
-                                    <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white;">
-                                      Discounted Total
-                                    </td>
-                                    <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
-                                       ${formatValue(value.discountedTotal)}
-                                    </td>
-                                  </tr>`
-                              : ""
-                            }
-                                ${value?.vat !== null && value?.vat !== 0.0
-                              ? `
-                                  <tr style="background-color: #DCDCDC;">
-                                    <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: black;">
-                                      VAT
-                                    </td>
-                                    <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: black;">
-                                       ${formatValue(value.vat)}
-                                    </td>
-                                  </tr>
-                                  <tr style="background-color:#808080;">
-                                    <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white;">
-                                      Grand Total
-                                    </td>
-                                    <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
-                                       ${formatValue(value.grandTotal)}
-                                    </td>
-                                  </tr>`
-                              : ""
-                            }
-                              `
-                        ).join("")}
-                            </table>
-                          </div>
-                        `,
-                  });
-                }
               }
             }
+
             break;
           case ElementType.SERVICE_DESCRIPTION:
             if (

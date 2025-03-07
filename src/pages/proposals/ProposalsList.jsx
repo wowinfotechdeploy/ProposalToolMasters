@@ -914,7 +914,7 @@ const Proposals = () => {
                         </a>
                       </li>
                     }
-                    {/* <li className="nav-item">
+                    <li className="nav-item">
                       <a
                         className={`nav-link tab_nav ${activeTab === "Web Proposal" ? "active" : ""
                           }`}
@@ -929,7 +929,7 @@ const Proposals = () => {
                       >
                         <b>API {proposalName} </b>
                       </a>
-                    </li> */}
+                    </li>
                   </ul>
                 </div>
               </div>

@@ -4,7 +4,6 @@ import "./template.css";
 import { Row, Col, Card, Alert } from "reactstrap";
 import Select from "react-select";
 import { AuthContextProvider } from "../../../AuthContext/AuthContext";
-
 import { useNavigate } from "react-router-dom";
 import IndividualVariable from "../../../components/Variables/IndividualVariables";
 import SoleTraderVariable from "../../../components/Variables/SoleTraderVariable";
@@ -32,7 +31,6 @@ import {
   GetTemplateLookupPDFList,
 } from "../../../redux/Services/Config/TemplateApi";
 import { useDispatch, useSelector } from "react-redux";
-
 import SuccessModal from "../../../components/SuccessModal";
 import { ERROR_MESSAGES } from "../../../components/GlobalMessage";
 import Utils from "../../../Middleware/Utils";
@@ -43,6 +41,7 @@ import { DeclineSuperAdminChanges } from "../../../redux/Services/Config/Service
 import ErrorModel from "../../../components/ErrorModel";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import SAPredefinedChangesNotifyMessageModel from "../../../components/SAPredefinedChangesNotifyMessageModel";
+import CommonProspectVariable from "../../../components/Variables/CommonProspectVariable";
 
 function Add_New_Templates(props) {
   //Declare State:
@@ -109,12 +108,14 @@ function Add_New_Templates(props) {
   const [TemplateObj, setTemplateObj] = useState({
     templateKeyID: null,
     organisationID: null,
-    originalBusinessTypeID: null,
+    originalBusinessTypeID: [],
+    originalBusinessTypeIDs: [],
     createdByID: null,
     isDefault: false,
     templateName: undefined,
     templateTypeID: null,
     clientBusinessTypeID: null,
+    clientBusinessTypeIDs: [],
     orgBusinessTypeID: common.businessTypeID,
     isPredefined: null,
     professionTypeList: [],
@@ -154,6 +155,7 @@ function Add_New_Templates(props) {
       templateName: undefined,
       templateTypeID: null,
       clientBusinessTypeID: null,
+      clientBusinessTypeIDs: null,
       orgBusinessTypeID: null,
       isPredefined: null,
       professionTypeList: [],
@@ -377,10 +379,12 @@ function Add_New_Templates(props) {
             isDefault: ModelData.isDefault,
             templateTypeID: ModelData.templateTypeID,
             clientBusinessTypeID: ModelData.clientBusinessTypeID,
+            clientBusinessTypeIDs: ModelData.clientBusinessTypeIDs,
             orgBusinessTypeID: ModelData.orgBusinessTypeID,
             isPredefined: ModelData.isPredefined,
             professionTypeList: ModelData.professionTypeList,
-            originalBusinessTypeID: ModelData.originalBusinessTypeID
+            originalBusinessTypeID: ModelData.originalBusinessTypeID,
+            originalBusinessTypeIDs: ModelData.originalBusinessTypeIDs
           });
           setTemplateElementList(
             ...templateElementList,
@@ -454,8 +458,9 @@ function Add_New_Templates(props) {
       TemplateObj.templateTypeID === undefined ||
       TemplateObj.templateTypeID === "" ||
       TemplateObj.templateTypeID === null ||
-      TemplateObj.clientBusinessTypeID === null ||
-      TemplateObj.clientBusinessTypeID === "" ||
+      // TemplateObj.clientBusinessTypeID === null ||
+      // TemplateObj.clientBusinessTypeID === "" ||
+      TemplateObj.clientBusinessTypeIDs.length === 0 ||
       (common.organisationKeyID === null &&
         (TemplateObj.orgBusinessTypeID === "" ||
           TemplateObj.orgBusinessTypeID === null ||
@@ -469,8 +474,9 @@ function Add_New_Templates(props) {
       ) {
         scrollUpDownByElementID("OrganisationBusinessDiv");
       } else if (
-        TemplateObj.clientBusinessTypeID === null ||
-        TemplateObj.clientBusinessTypeID === ""
+        // TemplateObj.clientBusinessTypeID === null ||
+        // TemplateObj.clientBusinessTypeID === ""
+        TemplateObj.clientBusinessTypeIDs.length === 0
       ) {
         scrollUpDownByElementID("ProspectBusinessDiv");
       } else if (
@@ -767,6 +773,7 @@ function Add_New_Templates(props) {
       templateKeyID: TemplateObj.templateKeyID,
       userKeyID: common.userKeyID,
       clientBusinessTypeID: TemplateObj.clientBusinessTypeID,
+      clientBusinessTypeIDs: TemplateObj.clientBusinessTypeIDs,
       orgBusinessTypeID: TemplateObj.orgBusinessTypeID,
       isPredefined: common.roleTypeId === USER_ROLE_TYPE.SuperAdmin ? 1 : 0,
       isDefault: TemplateObj.isDefault,
@@ -933,6 +940,7 @@ function Add_New_Templates(props) {
         isDefault: false,
         // templateName: "",
         clientBusinessTypeID: null,
+        clientBusinessTypeIDs: [],
         orgBusinessTypeID: common.businessTypeID,
         isPredefined: null,
       });
@@ -982,8 +990,12 @@ function Add_New_Templates(props) {
     }
   }, [templateTypeFilter]);
   const businessTypeFilter = ProspectTypeVariation?.filter(
-    (businessType) => businessType.value == TemplateObj.clientBusinessTypeID
+    (businessType) => TemplateObj.clientBusinessTypeIDs?.includes(businessType.value)
   );
+  // const businessTypeFilter = ProspectTypeVariation?.filter(
+  //   (businessType) => TemplateObj.clientBusinessTypeID?.includes(businessType.value)
+  // );
+
   const orgBusinessTypeFilter = BusinessTypeLookupList?.filter(
     (businessType) => businessType.value == TemplateObj.orgBusinessTypeID
   );
@@ -1082,6 +1094,16 @@ function Add_New_Templates(props) {
       DeclineSuperAdminChangesData()
     }
   }
+
+  const handleMultiSelectChange = (selectedOptions) => {
+    setTemplateObj({
+      ...TemplateObj,
+      clientBusinessTypeIDs: selectedOptions.map((opt) => opt.value),
+      originalBusinessTypeIDs: selectedOptions.map(
+        (opt) => opt.originalBusinessTypeID
+      ),
+    });
+  };
   return (
     <div className="container-fluid new-item-page-container">
       <div
@@ -1208,18 +1230,16 @@ function Add_New_Templates(props) {
                       <Select
                         className="user-role-select"
                         options={ProspectTypeVariation}
+                        isMulti
                         value={businessTypeFilter}
-                        onChange={(e) =>
-                          setTemplateObj({
-                            ...TemplateObj,
-                            clientBusinessTypeID: e.value,
-                            originalBusinessTypeID: e.originalBusinessTypeID
-                          })
-                        }
+                        onChange={handleMultiSelectChange}
                       />
                       {requireErrorMessage &&
-                        (TemplateObj.clientBusinessTypeID === "" ||
-                          TemplateObj.clientBusinessTypeID === null) ? (
+                        (
+                          // TemplateObj.clientBusinessTypeID === "" ||
+                          // TemplateObj.clientBusinessTypeID === null
+                          TemplateObj.clientBusinessTypeIDs.length === 0
+                        ) ? (
                         <label className="validation">{ERROR_MESSAGES}</label>
                       ) : (
                         ""
@@ -1355,7 +1375,7 @@ function Add_New_Templates(props) {
                 <div className="row" id="VariablesDiv">
                   <div className="col-12">
                     <div className="overflow-hidden">
-                      {TemplateObj?.originalBusinessTypeID ===
+                      {/* {TemplateObj?.originalBusinessTypeID ===
                         CLIENT_TYPES.Individual &&
                         TemplateObj.templateTypeID !== null && (
                           <>
@@ -1412,6 +1432,21 @@ function Add_New_Templates(props) {
                             <LlpAndCompanyVariable
                               ModuleName="Template"
                               ClintType={TemplateObj?.originalBusinessTypeID}
+                              businessTypeId={
+                                common.organisationKeyID === null
+                                  ? TemplateObj.orgBusinessTypeID
+                                  : common.businessTypeID
+                              }
+                            />
+                          </>
+                        )} */}
+                      {
+                        TemplateObj.templateTypeID !== null && (
+                          <>
+                            <div className="separator mb-3" />
+                            <CommonProspectVariable
+                              ModuleName="Template"
+                              ClintType={TemplateObj?.originalBusinessTypeIDs}
                               businessTypeId={
                                 common.organisationKeyID === null
                                   ? TemplateObj.orgBusinessTypeID

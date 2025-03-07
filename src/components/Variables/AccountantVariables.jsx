@@ -4,7 +4,7 @@ import {
   Template_Type,
   SUPER_EMAIL_TEMPLATE,
 } from "../../Middleware/enums";
-import React from "react";
+import React, { useContext } from "react";
 import "./variables.css";
 import CopyToClipboard from "../CopyToClipboard/CopyToClipboard";
 import Utils from "../../Middleware/Utils";
@@ -13,19 +13,38 @@ import BusinessTypeVariables from "../../Database/VariableHelpers/BusinessTypeVa
 import TemplateTypeVariables from "../../Database/VariableHelpers/TemplateTypeVariables";
 import SuperTemplateTypeVariable from "../../Database/VariableHelpers/SuperTemplateTypeVariable";
 import ServicePricingVariables from "../../Database/VariableHelpers/ServicePricingVariables";
+import { AuthContextProvider } from "../../AuthContext/AuthContext";
+import ProspectTypeVariables from "../../Database/VariableHelpers/ProspectTypeVariables";
 const AccountantVariables = ({
   businessTypeId,
   ClintType,
   TemplateType,
   SuperTemplateType,
   ModuleName,
+  ClintTypeID
 }) => {
   const common = useSelector((state) => state.Storage);
+  const { prospectName } = useContext(AuthContextProvider);
   if (businessTypeId == CLIENT_TYPES.Sole_Trader && ModuleName === "Template") {
     return (
       <div>
         {/* {ClintType !== null && <hr />} */}
-          <span className="variableHeading"> Organisation Variables :</span>
+        <span className="variableHeading">Common Variables :</span>
+        <CopyToClipboard
+          texts={BusinessTypeVariables.commonVariablesForOrganisation}
+          heading="Organisation:"
+        />
+        {ClintTypeID !== 1 &&
+          <>
+            <CopyToClipboard
+              texts={ProspectTypeVariables.CommonClientVariables}
+              heading={`${prospectName}:`}
+            />
+          </>
+        }
+
+        {ClintType !== null && <hr />}
+        <span className="variableHeading"> Organisation Variables :</span>
         <CopyToClipboard
           texts={BusinessTypeVariables.BusinessSoleTraderVariables}
         />
@@ -51,6 +70,10 @@ const AccountantVariables = ({
           heading={`Combined(Bullet List Wise):`}
           texts={ServicePricingVariables.CombinedBulletWise}
         />
+        <CopyToClipboard
+          heading={`Total Result (Table View):`}
+          texts={ServicePricingVariables.TotalResulttableVariable}
+        />
         {ClintType !== null && <hr />}
       </div>
     );
@@ -60,7 +83,22 @@ const AccountantVariables = ({
   ) {
     return (
       <div>
-           <span className="variableHeading"> Organisation Variables :</span>
+        <span className="variableHeading">Common Variables :</span>
+        <CopyToClipboard
+          texts={BusinessTypeVariables.commonVariablesForOrganisation}
+          heading="Organisation:"
+        />
+        {ClintTypeID !== 1 &&
+          <>
+            <CopyToClipboard
+              texts={ProspectTypeVariables.CommonClientVariables}
+              heading={`${prospectName}:`}
+            />
+          </>
+        }
+
+        {ClintType !== null && <hr />}
+        <span className="variableHeading"> Organisation Variables :</span>
         <CopyToClipboard
           texts={BusinessTypeVariables.BusinessPartnerShipVariables}
         />
@@ -86,12 +124,31 @@ const AccountantVariables = ({
           heading={`Combined(Bullet List Wise):`}
           texts={ServicePricingVariables.CombinedBulletWise}
         />
+        <CopyToClipboard
+          heading={`Total Result (Table View):`}
+          texts={ServicePricingVariables.TotalResulttableVariable}
+        />
         {ClintType !== null && <hr />}
       </div>
     );
   } else if (businessTypeId == CLIENT_TYPES.LLP && ModuleName === "Template") {
     return (
       <div>
+        <span className="variableHeading">Common Variables :</span>
+        <CopyToClipboard
+          texts={BusinessTypeVariables.commonVariablesForOrganisation}
+          heading="Organisation:"
+        />
+        {ClintTypeID !== 1 &&
+          <>
+            <CopyToClipboard
+              texts={ProspectTypeVariables.CommonClientVariables}
+              heading={`${prospectName}:`}
+            />
+          </>
+        }
+
+        {ClintType !== null && <hr />}
         <span className="variableHeading"> Organisation Variables :</span>
         <CopyToClipboard texts={BusinessTypeVariables.BusinessLLpVariables} />
         {ClintType !== null && <hr />}
@@ -116,6 +173,10 @@ const AccountantVariables = ({
           heading={`Combined(Bullet List Wise):`}
           texts={ServicePricingVariables.CombinedBulletWise}
         />
+        <CopyToClipboard
+          heading={`Total Result (Table View):`}
+          texts={ServicePricingVariables.TotalResulttableVariable}
+        />
         {ClintType !== null && <hr />}
       </div>
     );
@@ -125,6 +186,21 @@ const AccountantVariables = ({
   ) {
     return (
       <div>
+        <span className="variableHeading">Common Variables :</span>
+        <CopyToClipboard
+          texts={BusinessTypeVariables.commonVariablesForOrganisation}
+          heading="Organisation:"
+        />
+        {ClintTypeID !== 1 &&
+          <>
+            <CopyToClipboard
+              texts={ProspectTypeVariables.CommonClientVariables}
+              heading={`${prospectName}:`}
+            />
+          </>
+        }
+
+        {ClintType !== null && <hr />}
         <span className="variableHeading"> Organisation Variables :</span>
         <CopyToClipboard
           texts={BusinessTypeVariables.BusinessCompanyVariables}
@@ -151,6 +227,10 @@ const AccountantVariables = ({
           heading={`Combined(Bullet List Wise):`}
           texts={ServicePricingVariables.CombinedBulletWise}
         />
+        <CopyToClipboard
+          heading={`Total Result (Table View):`}
+          texts={ServicePricingVariables.TotalResulttableVariable}
+        />
         {ClintType !== null && <hr />}
       </div>
     );
@@ -159,7 +239,13 @@ const AccountantVariables = ({
     ModuleName === "TnCTemplate"
   ) {
     return (
-      <div>        
+      <div>
+        <span className="variableHeading">Common Variables :</span>
+        <CopyToClipboard
+          texts={BusinessTypeVariables.commonVariablesForOrganisation}
+          heading="Organisation:"
+        />
+        {ClintType !== null && <hr />}
         <CopyToClipboard
           texts={BusinessTypeVariables.TncCustomBusinessPartnerShipVariables}
         />
@@ -171,7 +257,13 @@ const AccountantVariables = ({
     ModuleName === "TnCTemplate"
   ) {
     return (
-      <div>        
+      <div>
+        <span className="variableHeading">Common Variables :</span>
+        <CopyToClipboard
+          texts={BusinessTypeVariables.commonVariablesForOrganisation}
+          heading="Organisation:"
+        />
+        {ClintType !== null && <hr />}
         <CopyToClipboard
           texts={BusinessTypeVariables.TncCustomBusinessCompanyVariables}
         />
@@ -184,6 +276,12 @@ const AccountantVariables = ({
   ) {
     return (
       <div>
+        <span className="variableHeading">Common Variables :</span>
+        <CopyToClipboard
+          texts={BusinessTypeVariables.commonVariablesForOrganisation}
+          heading="Organisation:"
+        />
+        {ClintType !== null && <hr />}
         <CopyToClipboard
           texts={BusinessTypeVariables.TncCustomBusinessSoleTraderVariables}
         />
@@ -196,6 +294,12 @@ const AccountantVariables = ({
   ) {
     return (
       <div>
+        <span className="variableHeading">Common Variables :</span>
+        <CopyToClipboard
+          texts={BusinessTypeVariables.commonVariablesForOrganisation}
+          heading="Organisation:"
+        />
+        {ClintType !== null && <hr />}
         <CopyToClipboard
           texts={BusinessTypeVariables.TncCustomBusinessLLpVariables}
         />
@@ -207,8 +311,12 @@ const AccountantVariables = ({
     TemplateType === null
   ) {
     return (
-      <div>        
-        <CopyToClipboard texts={TemplateTypeVariables.AllVariables} />
+      <div>
+        <span className="variableHeading">Common Variables :</span>
+        <CopyToClipboard
+          texts={BusinessTypeVariables.commonVariablesForOrganisation}
+          heading="Organisation:"
+        />
       </div>
     );
   } else if (
@@ -217,6 +325,16 @@ const AccountantVariables = ({
   ) {
     return (
       <div>
+        <span className="variableHeading">Common Variables :</span>
+        <CopyToClipboard
+          texts={BusinessTypeVariables.commonVariablesForOrganisation}
+          heading="Organisation:"
+        />
+        <CopyToClipboard
+          texts={ProspectTypeVariables.CommonClientVariables}
+          heading={`${prospectName}:`}
+        />
+        <hr />
         <CopyToClipboard texts={TemplateTypeVariables.Quote} />
       </div>
     );
@@ -226,6 +344,16 @@ const AccountantVariables = ({
   ) {
     return (
       <div>
+        <span className="variableHeading">Common Variables :</span>
+        <CopyToClipboard
+          texts={BusinessTypeVariables.commonVariablesForOrganisation}
+          heading="Organisation:"
+        />
+        <CopyToClipboard
+          texts={ProspectTypeVariables.CommonClientVariables}
+          heading={`${prospectName}:`}
+        />
+        <hr />
         <CopyToClipboard texts={TemplateTypeVariables.Contract} />
       </div>
     );
@@ -235,6 +363,13 @@ const AccountantVariables = ({
   ) {
     return (
       <div>
+        <span className="variableHeading">Common Variables :</span>
+        <CopyToClipboard
+          texts={BusinessTypeVariables.commonVariablesForOrganisation}
+          heading="Organisation:"
+        />
+
+        <hr />
         <CopyToClipboard texts={TemplateTypeVariables.EmailInvite} />
       </div>
     );
@@ -244,6 +379,16 @@ const AccountantVariables = ({
   ) {
     return (
       <div>
+        <span className="variableHeading">Common Variables :</span>
+        <CopyToClipboard
+          texts={BusinessTypeVariables.commonVariablesForOrganisation}
+          heading="Organisation:"
+        />
+        <CopyToClipboard
+          texts={ProspectTypeVariables.CommonClientVariables}
+          heading={`${prospectName}:`}
+        />
+        <hr />
         <CopyToClipboard texts={TemplateTypeVariables.ContractAccepted} />
       </div>
     );
@@ -253,6 +398,16 @@ const AccountantVariables = ({
   ) {
     return (
       <div>
+        <span className="variableHeading">Common Variables :</span>
+        <CopyToClipboard
+          texts={BusinessTypeVariables.commonVariablesForOrganisation}
+          heading="Organisation:"
+        />
+        <CopyToClipboard
+          texts={ProspectTypeVariables.CommonClientVariables}
+          heading={`${prospectName}:`}
+        />
+        <hr />
         <CopyToClipboard texts={TemplateTypeVariables.ContractDeclined} />
       </div>
     );
@@ -262,6 +417,16 @@ const AccountantVariables = ({
   ) {
     return (
       <div>
+        <span className="variableHeading">Common Variables :</span>
+        <CopyToClipboard
+          texts={BusinessTypeVariables.commonVariablesForOrganisation}
+          heading="Organisation:"
+        />
+        <CopyToClipboard
+          texts={ProspectTypeVariables.CommonClientVariables}
+          heading={`${prospectName}:`}
+        />
+        <hr />
         <CopyToClipboard texts={TemplateTypeVariables.ContractViewed} />
       </div>
     );
@@ -271,6 +436,16 @@ const AccountantVariables = ({
   ) {
     return (
       <div>
+        <span className="variableHeading">Common Variables :</span>
+        <CopyToClipboard
+          texts={BusinessTypeVariables.commonVariablesForOrganisation}
+          heading="Organisation:"
+        />
+        <CopyToClipboard
+          texts={ProspectTypeVariables.CommonClientVariables}
+          heading={`${prospectName}:`}
+        />
+        <hr />
         <CopyToClipboard texts={TemplateTypeVariables.QuotePdf} />
       </div>
     );
@@ -289,6 +464,16 @@ const AccountantVariables = ({
   ) {
     return (
       <div>
+        <span className="variableHeading">Common Variables :</span>
+        <CopyToClipboard
+          texts={BusinessTypeVariables.commonVariablesForOrganisation}
+          heading="Organisation:"
+        />
+        <CopyToClipboard
+          texts={ProspectTypeVariables.CommonClientVariables}
+          heading={`${prospectName}:`}
+        />
+        <hr />
         <CopyToClipboard texts={TemplateTypeVariables.QuoteAccepted} />
       </div>
     );
@@ -298,6 +483,16 @@ const AccountantVariables = ({
   ) {
     return (
       <div>
+        <span className="variableHeading">Common Variables :</span>
+        <CopyToClipboard
+          texts={BusinessTypeVariables.commonVariablesForOrganisation}
+          heading="Organisation:"
+        />
+        <CopyToClipboard
+          texts={ProspectTypeVariables.CommonClientVariables}
+          heading={`${prospectName}:`}
+        />
+        <hr />
         <CopyToClipboard texts={TemplateTypeVariables.QuoteDecline} />
       </div>
     );
@@ -307,6 +502,12 @@ const AccountantVariables = ({
   ) {
     return (
       <div>
+        <span className="variableHeading">Common Variables :</span>
+        <CopyToClipboard
+          texts={BusinessTypeVariables.commonVariablesForOrganisation}
+          heading="Organisation:"
+        />
+        <hr />
         <CopyToClipboard
           texts={TemplateTypeVariables.EmailInviteForOrganisation}
         />
@@ -314,11 +515,21 @@ const AccountantVariables = ({
     );
   } else if (
     businessTypeId ==
-      EMAIL_TEMPLATE.Quote_AcceptedDeclined_Email_Send_To_Sender &&
+    EMAIL_TEMPLATE.Quote_AcceptedDeclined_Email_Send_To_Sender &&
     ModuleName === "EmailTemplate"
   ) {
     return (
       <div>
+        <span className="variableHeading">Common Variables :</span>
+        <CopyToClipboard
+          texts={BusinessTypeVariables.commonVariablesForOrganisation}
+          heading="Organisation:"
+        />
+        <CopyToClipboard
+          texts={ProspectTypeVariables.CommonClientVariables}
+          heading={`${prospectName}:`}
+        />
+        <hr />
         <CopyToClipboard
           texts={TemplateTypeVariables.QuoteAcceptedDeclinedEmailSendToSender}
         />
@@ -330,6 +541,16 @@ const AccountantVariables = ({
   ) {
     return (
       <div>
+        <span className="variableHeading">Common Variables :</span>
+        <CopyToClipboard
+          texts={BusinessTypeVariables.commonVariablesForOrganisation}
+          heading="Organisation:"
+        />
+        <CopyToClipboard
+          texts={ProspectTypeVariables.CommonClientVariables}
+          heading={`${prospectName}:`}
+        />
+        <hr />
         <CopyToClipboard
           texts={
             TemplateTypeVariables.EngagementLetterAcceptedEmailSendToSender
@@ -343,6 +564,17 @@ const AccountantVariables = ({
   ) {
     return (
       <div>
+        <span className="variableHeading">Common Variables :</span>
+        <CopyToClipboard
+          texts={BusinessTypeVariables.commonVariablesForOrganisation}
+          heading="Organisation:"
+        />
+        <hr />
+        <CopyToClipboard
+          texts={ProspectTypeVariables.CommonClientVariables}
+          heading={`${prospectName}:`}
+        />
+        <hr />
         <CopyToClipboard
           texts={
             TemplateTypeVariables.EngagementLetterDeclinedEmailSendToReceiver

@@ -48,11 +48,11 @@ function UsersModel(props) {
       props.modelRequestData.Action !== undefined &&
       props.modelRequestData.Action !== null
     ) {
-      GetRoleTypeLookupListData();
       GetUserModelData(props.modelRequestData.inviteUserKeyID);
     } else {
       SetInitialModelData();
     }
+    GetRoleTypeLookupListData();
   }, [props.modelRequestData]);
 
   // C] This function will clear all data from popup model

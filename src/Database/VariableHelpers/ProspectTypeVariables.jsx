@@ -12,11 +12,11 @@ const ClientSoleTraderVariables = [
     "$Client.SoleTrader.LastName$",
     "$Client.SoleTrader.Email$",
     "$Client.SoleTrader.Phone$",
-    "$Client.TradingName$",
-    "$Client.TradingAddress$",
-    "$Client.TradingAddressWithLineBreak$",
     "$Client.SoleTrader.Address$",
     "$Client.SoleTrader.AddressWithLineBreak$"
+    // "$Client.TradingName$",
+    // "$Client.TradingAddress$",
+    // "$Client.TradingAddressWithLineBreak$",
 ]
 
 const ClientPartnerShipVariables = [
@@ -25,11 +25,11 @@ const ClientPartnerShipVariables = [
     "$Client.Partner.LastName$",
     "$Client.Partner.Email$",
     "$Client.Partner.Phone$",
-    "$Client.TradingName$",
-    "$Client.TradingAddress$",
-    "$Client.TradingAddressWithLineBreak$",
     "$Client.Partner.Address$",
     "$Client.Partner.AddressWithLineBreak$"
+    // "$Client.TradingName$",
+    // "$Client.TradingAddress$",
+    // "$Client.TradingAddressWithLineBreak$",
 ];
 
 
@@ -41,9 +41,9 @@ const ClientLLpVariables = [
     "$Client.Officer.Phone$",
     "$Client.Officer.Address$",
     "$Client.Officer.AddressWithLineBreak$",
-    "$Client.TradingName$",
-    "$Client.TradingAddress$",
-    "$Client.TradingAddressWithLineBreak$",
+    // "$Client.TradingName$",
+    // "$Client.TradingAddress$",
+    // "$Client.TradingAddressWithLineBreak$",
     "$Client.Company.Name$",
     "$Client.Company.Number$",
     "$Client.Company.RegisteredAddress$",
@@ -59,18 +59,29 @@ const ClientCompanyVariables = [
     "$Client.Officer.Phone$",
     "$Client.Officer.Address$",
     "$Client.Officer.AddressWithLineBreak$",
-    "$Client.TradingName$",
-    "$Client.TradingAddress$",
-    "$Client.TradingAddressWithLineBreak$",
+    // "$Client.TradingName$",
+    // "$Client.TradingAddress$",
+    // "$Client.TradingAddressWithLineBreak$",
     "$Client.Company.Name$",
     "$Client.Company.Number$",
     "$Client.Company.RegisteredAddress$",
     "$Client.Company.RegisteredAddressWithLineBreak$"
 ];
+
+const CommonClientVariables = [
+    "$Client.FirstName$",
+    "$Client.LastName$",
+    "$Client.Email$",
+    "$Client.Phone$",
+    "$Client.Address$",
+    "$Client.AddressWithLineBreak$",
+]
+
 export default {
     ClientIndividualVariables,
     ClientSoleTraderVariables,
     ClientPartnerShipVariables,
     ClientLLpVariables,
-    ClientCompanyVariables
+    ClientCompanyVariables,
+    CommonClientVariables
 }

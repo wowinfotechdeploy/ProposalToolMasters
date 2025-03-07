@@ -1333,6 +1333,11 @@ export default function PreviewComponentPdf(props) {
             break;
           case ElementType.SERVICE_PRICING_TABLE:
             // Append the table for selectedRecurringServiceList
+            if (prevElementType === ElementType.PAGE_BREAK ||
+              prevElementType === ElementType.AWS_PDF_LINK) {
+              pdfDataArray.push(currentArray);
+              currentArray = [];
+            }
             if (props?.servicePackageName?.length > 0) {
               currentArray.push({
                 table:

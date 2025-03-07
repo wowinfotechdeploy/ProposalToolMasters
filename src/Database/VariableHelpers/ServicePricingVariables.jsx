@@ -35,8 +35,8 @@ const CombinedTableView = [
     "$Original_Price_WithTableView$",
     "$Discount_Percentage_WithTableView$",
     "$Discounted_Price_WithTableView$",
-    // "$AllServices_WithTableView$",
-    // "$AllServicesWithPrice_WithTableView$",
+    "$AllServices_WithTableView$",
+    "$AllServicesWithPrice_WithTableView$",
 ];
 
 const CombinedCommaWise = [
@@ -48,8 +48,8 @@ const CombinedCommaWise = [
     "$Original_Price_WithComma$",
     "$Discount_Percentage_WithComma$",
     "$Discounted_Price_WithComma$",
-    // "$AllServices_WithComma$",
-    // "$AllServicesWithPrice_WithComma$",
+    "$AllServices_WithComma$",
+    "$AllServicesWithPrice_WithComma$",
 ];
 
 
@@ -62,14 +62,22 @@ const CombinedBulletWise = [
     "$Original_Price_WithBulletList$",
     "$Discount_Percentage_WithBulletList$",
     "$Discounted_Price_WithBulletList$",
-    // "$AllServices_WithBulletList$",
-    // "$AllServicesWithPrice_WithBulletList$",
+    "$AllServices_WithBulletList$",
+    "$AllServicesWithPrice_WithBulletList$",
 ];
+
+const TotalResulttableVariable = [
+    "$AllRecuringResultTotalVariable_WithPackageName$",
+    "$AllOneOffResultTotalVariable_WithPackageName$",
+    "$AllRecurringResultTotalVariable_WithoutPackageName$",
+    "$AllOneOffResultTotalVariable_WithoutPackageName$"
+]
 
 export default {
     OnlyForRecurring,
     OnlyForOneOff,
     CombinedTableView,
     CombinedCommaWise,
-    CombinedBulletWise
+    CombinedBulletWise,
+    TotalResulttableVariable
 }

@@ -6,18 +6,19 @@ import { CLIENT_TYPES } from "../../Middleware/enums";
 import BusinessTypeVariables from "../../Database/VariableHelpers/BusinessTypeVariables";
 import ProspectTypeVariables from "../../Database/VariableHelpers/ProspectTypeVariables";
 
-import {AuthContextProvider} from "../../AuthContext/AuthContext";
+import { AuthContextProvider } from "../../AuthContext/AuthContext";
 function IndividualVariable({ businessTypeId, ClintType, ModuleName }) {
-  const {prospectName} = useContext(AuthContextProvider);
+  const { prospectName } = useContext(AuthContextProvider);
   return (
     <div className="fieldset-group helper-variables-div">
-      <label className="fieldset-group-label">Variables</label>     
+      <label className="fieldset-group-label">Variables</label>
       <AccountantVariables
         ModuleName={ModuleName}
         ClintType={ClintType}
         businessTypeId={businessTypeId}
+        ClintTypeID={1}
       />
-      {ModuleName==='Template' && <span className="text-start variableHeading">{prospectName} Variables :</span>}
+      {ModuleName === 'Template' && <span className="text-start variableHeading">{prospectName} Variables :</span>}
       <CopyToClipboard
         texts={ProspectTypeVariables.ClientIndividualVariables}
       />

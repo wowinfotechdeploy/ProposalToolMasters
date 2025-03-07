@@ -1,16 +1,16 @@
 const AllVariables = [
-  "$Accountant.Partner.FirstName$",
-  "$Accountant.Partner.LastName$",
-  "$Accountant.Partner.Email$",
-  "$Accountant.Partner.Phone$",
-  "$Accountant.TradingName$",
-  "$Accountant.TradingAddress$",
-  "$Accountant.TradingAddressWithLineBreak$",
-  "$Accountant.Partner.Address$",
-  "$Accountant.Partner.AddressWithLineBreak$",
-  "$Accountant.AffiliatedAccountingBodyName$",
-  "$Accountant.CountryIncorporatedIn$",
-  "$CurrentDate$",
+  // "$Accountant.Partner.FirstName$",
+  // "$Accountant.Partner.LastName$",
+  // "$Accountant.Partner.Email$",
+  // "$Accountant.Partner.Phone$",
+  // "$Accountant.TradingName$",
+  // "$Accountant.TradingAddress$",
+  // "$Accountant.TradingAddressWithLineBreak$",
+  // "$Accountant.Partner.Address$",
+  // "$Accountant.Partner.AddressWithLineBreak$",
+  // "$Accountant.AffiliatedAccountingBodyName$",
+  // "$Accountant.CountryIncorporatedIn$",
+  // "$CurrentDate$",
 ];
 
 const Quote = [
@@ -20,7 +20,8 @@ const Quote = [
   "$User.firstName$",
   "$User.lastName$",
   "$ServiceDescription$",
-  "$organisation.trading_business_name$", "$appUrl$"
+  "$organisation.trading_business_name$",
+  // "$appUrl$"
 ];
 const QuoteDecline = [
   "$signatory.last_name$",
@@ -28,7 +29,8 @@ const QuoteDecline = [
   "$owner.first_name$",
   "$owner.last_name$",
   "$proposalCode$",
-  "$organisation.trading_business_name$", "$appUrl$"
+  "$organisation.trading_business_name$",
+  // "$appUrl$"
 
 ];
 const Contract = [
@@ -39,7 +41,8 @@ const Contract = [
   "$organisation.logo_url$",
   "$signatory.firstName$",
   "$signatory.lastName$",
-  "$documentName$", "$appUrl$"
+  "$documentName$",
+  // "$appUrl$"
 ];
 const QuotePdf = [
   "$Prospect.officer.firstName$",
@@ -47,7 +50,8 @@ const QuotePdf = [
   "$ProposalRef$",
   "$User.firstName$",
   "$User.lastName$",
-  "$organisation.trading_business_name$", "$appUrl$"
+  "$organisation.trading_business_name$",
+  // "$appUrl$"
 ];
 const EmailInvite = [
   "$appUrl$",
@@ -64,7 +68,8 @@ const ContractViewed = [
   "$owner.last_name$",
   "$event$",
   "$EngagementLetterCode$",
-  "$organisation.trading_business_name$", "$appUrl$"
+  "$organisation.trading_business_name$",
+  // "$appUrl$"
 ];
 const ContractAccepted = [
   "$signatory.last_name$",
@@ -74,8 +79,9 @@ const ContractAccepted = [
   "$signatory.first_name$",
   "$organisation.trading_business_name$",
   "$paymentGateway.name$",
-  "$paymentGateway.link$", "$appUrl$",
+  "$paymentGateway.link$",
   "$BankTransfer$"
+  // "$appUrl$"
 ];
 const ContractDeclined = [
   "$signatory.last_name$",
@@ -84,7 +90,8 @@ const ContractDeclined = [
   "$owner.last_name$",
   "$EngagementLetterCode$",
   "$reason$",
-  "$organisation.trading_business_name$", "$appUrl$"
+  "$organisation.trading_business_name$",
+  // "$appUrl$"
 ];
 const EmailInviteForOrganisation = [
   "$appUrl$",
@@ -100,7 +107,8 @@ const QuoteAccepted = [
   "$owner.last_name$",
   "$proposalCode$",
   "$signatory.first_name$",
-  "$organisation.trading_business_name$", "$appUrl$"
+  "$organisation.trading_business_name$",
+  // "$appUrl$"
 ];
 
 const QuoteAcceptedDeclinedEmailSendToSender = [
@@ -117,7 +125,8 @@ const EngagementLetterAcceptedEmailSendToSender = [
   "$owner.first_name$",
   "$owner.last_name$",
   "$EngagementLetterCode$",
-  "$organisation.trading_business_name$", "$appUrl$"
+  "$organisation.trading_business_name$",
+  // "$appUrl$"
 ];
 const EngagementLetterDeclinedEmailSendToReceiver = [
   "$signatory.last_name$",
@@ -126,23 +135,8 @@ const EngagementLetterDeclinedEmailSendToReceiver = [
   "$EngagementLetterCode$",
   "$signatory.first_name$",
   "$organisation.trading_business_name$",
-  "$reason$", "$appUrl$"
-];
-const QuotationSendTriggerPoint = ["QuoteSendTrigger"
-];
-const QuotationViewTriggerPoint = ["QuotationViewTriggerPoint"
-];
-const QuotationAcceptedTriggerPoint = ["QuotationAcceptedTriggerPoint"
-];
-const QuotationDeclinedTriggerPoint = ["QuotationDeclinedTriggerPoint"
-];
-const EngagementLetterSendTriggerPoint = ["EngagementLetterSendTriggerPoint"
-];
-const EngagementLetterViewTriggerPoint = ["EngagementLetterViewTriggerPoint"
-];
-const EngagementLetterDeclinedTriggerPoint = ["EngagementLetterDeclinedTriggerPoint"
-];
-const EngagementLetterSignedTriggerPoint = ["EngagementLetterSignedTriggerPoint"
+  "$reason$",
+  // "$appUrl$"
 ];
 export default {
   AllVariables,
@@ -159,12 +153,5 @@ export default {
   QuoteAcceptedDeclinedEmailSendToSender,
   EngagementLetterAcceptedEmailSendToSender,
   EngagementLetterDeclinedEmailSendToReceiver,
-  QuotationSendTriggerPoint,
-  QuotationViewTriggerPoint,
-  QuotationAcceptedTriggerPoint,
-  QuotationDeclinedTriggerPoint,
-  EngagementLetterSendTriggerPoint,
-  EngagementLetterViewTriggerPoint,
-  EngagementLetterDeclinedTriggerPoint,
-  EngagementLetterSignedTriggerPoint
+
 };

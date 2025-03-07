@@ -1732,7 +1732,7 @@ const Topbar = () => {
                                       </Link>
                                     </li>
                                   )}
-                                  {userAccessData.Admin_Setting_AccessKeyCanView && (
+                                  {/* {userAccessData.Admin_Setting_AccessKeyCanView && (
                                     <li class="nav-item ">
                                       <Link
                                         to="/access-key"
@@ -1750,8 +1750,93 @@ const Topbar = () => {
                                         </a>
                                       </Link>
                                     </li>
+                                  )} */}
+                                  {userAccessData.Admin_Setting_Practice_Config_CanView && activeOrganizationSubscriptionPlan?.apiIntegration && (
+                                    <li
+                                      class="nav-item"
+                                      onMouseLeave={() =>
+                                        hideSettingSubList("WebIntegration")
+                                      }
+                                      onMouseEnter={() =>
+                                        showSettingSubList("WebIntegration")
+                                      }
+                                      onClick={() =>
+                                        toggleSettingSubList("WebIntegration")
+                                      }
+                                    >
+                                      <a
+                                        href="#sidebarProfile"
+                                        class="nav-link collapsed"
+                                        data-bs-toggle="collapse"
+                                        role="button"
+                                        aria-expanded="false"
+                                        aria-controls="sidebarProfile"
+                                        data-key="t-profile"
+                                      >
+                                        API Integration
+                                      </a>
+                                      <div
+                                        class="subList collapse menu-dropdown"
+                                        id="WebIntegration"
+                                        style={style}
+                                      >
+                                        <ul class="nav nav-sm flex-column">
+                                          <li class="nav-item">
+                                            <Link
+                                              to="/WebSetting"
+                                              onClick={togglenav}
+                                            >
+                                              <a
+                                                onClick={() => {
+                                                  toggleSettingList("Setting");
+                                                  NotificationCountData();
+                                                }}
+                                                style={{ whiteSpace: "nowrap" }}
+                                                class="nav-link"
+                                                data-key="t-basic-3"
+                                              >
+                                                Setting
+                                              </a>
+                                            </Link>
+                                          </li>
+                                          <li class="nav-item">
+                                            <Link
+                                              to="/AccessKey"
+                                              onClick={togglenav}
+                                            >
+                                              <a
+                                                onClick={() => {
+                                                  toggleSettingList("Setting");
+                                                  NotificationCountData();
+                                                }}
+                                                class="nav-link"
+                                                data-key="t-basic-6"
+                                              >
+                                                Access Key
+                                              </a>
+                                            </Link>
+                                          </li>
+                                          <li class="nav-item">
+                                            <Link
+                                              to="/coupon"
+                                              onClick={togglenav}
+                                            >
+                                              <a
+                                                onClick={() => {
+                                                  toggleSettingList("Setting");
+                                                  NotificationCountData();
+                                                }}
+                                                class="nav-link"
+                                                data-key="t-basic-7"
+                                              >
+                                                Coupons
+                                              </a>
+                                            </Link>
+                                          </li>
+                                        </ul>
+                                      </div>
+                                    </li>
                                   )}
-
                                   {userAccessData.Admin_Setting_Practice_Config_CanView && (
                                     <li
                                       class="nav-item"
@@ -2594,7 +2679,7 @@ const Topbar = () => {
                                     </li>
                                     {/* )} */}
 
-                                    {/* <li
+                                    <li
                                       class="nav-item"
                                       onMouseLeave={() =>
                                         hideSettingSubList("WebIntegration")
@@ -2623,7 +2708,7 @@ const Topbar = () => {
                                         style={style}
                                       >
                                         <ul class="nav nav-sm flex-column">
-                                        <li class="nav-item">
+                                          <li class="nav-item">
                                             <Link
                                               to="/AccessKey"
                                               onClick={togglenav}
@@ -2640,9 +2725,9 @@ const Topbar = () => {
                                               </a>
                                             </Link>
                                           </li>
-                                      </ul>
+                                        </ul>
                                       </div>
-                                    </li> */}
+                                    </li>
 
                                     {userAccessData.SuperAdmin_Personalize_SettingCanView && (
                                       <li class="nav-item">

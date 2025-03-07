@@ -64,7 +64,7 @@ body {
 }
 
 .cus-card {
-  top: 20px;  
+  top: 20px;
 }
 
 .pricing_settings {
@@ -86,30 +86,99 @@ body {
     margin-top: calc(25px + 21px);
     padding: 40px 0;
   }
-    .cus-card {
+
+  .cus-card {
     top: 20px;
     margin-bottom: 0px !important;
   }
-  #Responsive-btn-config{
+
+  #Responsive-btn-config {
     padding: 7px;
-   }
-   
+  }
+
 }
 
-@media (min-width: 768px) and (max-width: 991px){
+@media (min-width: 768px) and (max-width: 991px) {
   .pricing-setting-content {
     margin-top: calc(25px + 21px);
     padding: 40px 0;
   }
+
   .pricing_settings {
     margin-top: 79px;
   }
-  
-  
+
+
 
 }
+
 .emailStatusChangeBtn {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.payment-gateway-logo {
+  height: 27px;
+  max-width: 100%;
+}
+
+.payment-gateway-logoGoCardLess {
+  height: 27px;
+  padding: 5px;
+  max-width: 80%;
+}
+
+.card-header {
+  padding: 0.75rem 1.25rem;
+  margin-bottom: 0;
+  background-color: #e9ecef;
+  border-bottom: 0 solid #dee2e6;
+  margin-left: 0px !important;
+}
+
+.Bank-Transfer-header {
+  margin-bottom: 0;
+  background-color: #e9ecef;
+  border-bottom: 0 solid #dee2e6;
+  margin-left: 0px !important;
+  font-size: 28px;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  color: #00afef !important;
+  font-family: sans-serif;
+}
+
+.payment-field .card-body {
+  padding: 1.25rem 1.25rem 8px 1.25rem;
+}
+
+.access-token {
+  padding-left: 20px;
+}
+
+.EmailConfig {
+  margin-top: 58px;
+  overflow: auto;
+}
+
+.payment_gateway-content {
+  margin-top: calc(25px + 21px);
+  padding: 68px 0;
+}
+
+.EmailConfig .card-body {
+  background-color: #fff;
+}
+
+.payment-field label {
+  color: #5b626b;
+  font-size: 14px;
+}
+
+@media only screen and (max-width: 1040px) {
+  .payment_gateway-content {
+    margin-top: calc(25px + 21px);
+    padding: 38px 0;
+  }
 }

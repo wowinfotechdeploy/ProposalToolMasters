@@ -14568,6 +14568,7 @@ const Add_Update_Proposal = (props) => {
         clientID: clientID || ProposalObject.clientID,
       });
       const data = response.data;
+      debugger
       if (data.statusCode === 200) {
         setLoader(false);
         const mappedOptions = data.responseData.data.map((item) => ({
@@ -14621,6 +14622,11 @@ const Add_Update_Proposal = (props) => {
           defaultTemplateObject = {
             selectTemplateTypeId: defaultTemplateOptions[0].value,
             templateID: defaultTemplateOptions[0].templateID,
+          };
+        } else {
+          defaultTemplateObject = {
+            selectTemplateTypeId: "",
+            templateID: "",
           };
         }
         // Set the state with the default template object
@@ -16024,6 +16030,7 @@ const Add_Update_Proposal = (props) => {
 
   // Handle save As A Draft And Send Proposal
   const AddUpdateQuat = async (params, StatusId) => {
+
     if (ProposalObject.paymentGatewayID === ChangeDefaultPaymentGatewaysTypes.Stripe && ProposalObject?.ProposalFormate === 1) {
       if (isValueGreaterThan20000(RecurringPricingInfo, OneOffPricingInfo, vatPercentage, selectedPackages)) {
         setLoader(false)
