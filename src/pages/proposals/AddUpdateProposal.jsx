@@ -14568,7 +14568,6 @@ const Add_Update_Proposal = (props) => {
         clientID: clientID || ProposalObject.clientID,
       });
       const data = response.data;
-      debugger
       if (data.statusCode === 200) {
         setLoader(false);
         const mappedOptions = data.responseData.data.map((item) => ({
@@ -14623,7 +14622,8 @@ const Add_Update_Proposal = (props) => {
             selectTemplateTypeId: defaultTemplateOptions[0].value,
             templateID: defaultTemplateOptions[0].templateID,
           };
-        } else {
+        }
+        else if (!defaultTemplateObject) {
           defaultTemplateObject = {
             selectTemplateTypeId: "",
             templateID: "",
