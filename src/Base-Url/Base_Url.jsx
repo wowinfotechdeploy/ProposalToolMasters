@@ -38,9 +38,9 @@ export const redirectUri = "https://master.proposal.outbooks.com";
 // export const saveImage = "http://localhost:3001/save-image";
 //new Dev Link
 
-export const mergePdfApiUrl = "https://proposaltoolnodejsapi.onrender.com/mergeUserPdfs";
-export const generatePdfUrl = "https://proposaltoolnodejsapi.onrender.com/generatePdf";
-export const saveImage = "https://proposaltoolnodejsapi.onrender.com/save-image";
+export const mergePdfApiUrl = "https://multipurpose.mkisan.com/mergeUserPdfs";
+export const generatePdfUrl = "https://multipurpose.mkisan.com/generatePdf";
+export const saveImage = "https://multipurpose.mkisan.com/save-image";
 // export const mergePdfApiUrl = "https://proposal.pdfgenration.mkisan.com/mergeUserPdfs";
 // export const generatePdfUrl = "https://proposal.pdfgenration.mkisan.com/generatePdf";
 // export const saveImage = "https://proposal.pdfgenration.mkisan.com/save-image"
