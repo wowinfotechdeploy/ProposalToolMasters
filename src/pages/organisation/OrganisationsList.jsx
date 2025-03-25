@@ -22,6 +22,11 @@ import ConfirmModel from "../../components/ConfirmationBox";
 import ErrorModel from "../../components/ErrorModel";
 import SuccessModal from "../../components/SuccessModal";
 import { ChoosePlanApi } from "../../redux/Services/Setting/PaymentGatewayApi";
+import { GetProfessionTypeLookupList } from "../../redux/Services/Master/ProfessionTypeApi";
+import { GetBusinessTypeLookupList } from "../../redux/Services/Master/BusinessTypeLookupListApi";
+import Select from "react-select";
+import Utils from "../../Middleware/Utils";
+import { ActiveDateFilterEnum } from "../../Middleware/enums";
 const Organisation = () => {
   let getOrganisationListCallCount = 0;
   const moduleName = "Organisation/Practice";
@@ -72,15 +77,37 @@ const Organisation = () => {
     getCrudButtonToolTipName,
     userAccessData,
     handleErrorMessage,
+    GetActiveDateRange
   } = useContext(AuthContextProvider);
   const pageSize = isMobile ? isMobileRecords : desktopRecords;
   const formattedErrorMessage = handleErrorMessage(errorMessage);
   const [totalRecords, setTotalRecords] = useState(-1);
+  const [userCount, setUserCount] = useState(null);
+  const [prospectType, setProspectType] = useState(null);
+  const [businessTypeID, setBusinessTypeID] = useState(null);
+  const [professionTypeID, setProfessionTypeID] = useState(null);
+  const [isFilterApply, setIsFilterApply] = useState(false);
+  const [UserSortType, setUserSortType] = useState("");
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedOption, setSelectedOption] = useState("");
+  const [fromDate, setFromDate] = useState(null);
+  const [toDate, setToDate] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [formDateOfCalenderForExport, setFormDateOfCalenderForExport] =
+    useState(null);
+  const [toDateCalenderForExport, setToDateCalenderForExport] = useState(null);
+  const [OrganisationBusinessTypeLookupList, setOrganisationBusinessTypeLookupList] = useState([]);
+  const [ProfessionTypeLookupList,setProfessionTypeLookupList] = useState([]);
+
 
   //initial effect
   useEffect(() => {
     setTopbar("block");
     GetOrganisationListData(1);
+    GetProfessionTypeLookupList();
+    GetOrganisationBusinessTypeLookupListData();
+    GetProfessionTypeLookupListData();
   }, []);
 
   useEffect(() => {
@@ -94,8 +121,91 @@ const Organisation = () => {
       GetOrganisationListData(1, null, null);
     }
   }, [location.state]);
+
+  const orgBusinessTypeFilter = OrganisationBusinessTypeLookupList?.filter(
+    (businessType) => businessType.value == businessTypeID
+  );
+
+  const professionTypeFilter = ProfessionTypeLookupList?.filter(
+    (professionType) => professionType.value == professionTypeID ? professionTypeID : null
+  );
+
+  const handleSelectChange = (selectedOption) => {
+    setBusinessTypeID(selectedOption ? selectedOption.value : null);
+  };
+
+  const handleSelectProfessionChange =(selectedOption) => {
+    setProfessionTypeID(selectedOption ? selectedOption.value : null);
+  }
+
+  const handleActiveDateChange = (selectedOption) => {
+    let dateFormat = "mm-dd-yyyy";
+    setSelectedOption(selectedOption);
+    if (!selectedOption) {
+      setSelectedOption(null);
+      setToDate(null);
+      setFromDate(null);
+      return;
+    }
+    switch (selectedOption.value) {
+      case ActiveDateFilterEnum.Active_In_Last_1_Day:
+      case ActiveDateFilterEnum.Active_In_Last_7_Days:
+      case ActiveDateFilterEnum.Active_In_Last_30_Days:
+      case ActiveDateFilterEnum.Active_In_Last_60_Days:
+      case ActiveDateFilterEnum.Active_In_Last_90_Days:
+      case ActiveDateFilterEnum.Active_In_Last_6_Months:
+      case ActiveDateFilterEnum.Active_In_Last_1_Year:
+          const dateRange = GetActiveDateRange(dateFormat, selectedOption.value);
+          setFromDate(dateRange.fromDate);
+          setToDate(dateRange.toDate);
+          break;
+      default:
+          break;
+  }
+  };
+  const GetOrganisationBusinessTypeLookupListData = async () => {
+    try {
+      const data = await GetBusinessTypeLookupList();
+
+      if (data?.data?.statusCode === 200) {
+        if (data?.data?.responseData?.data) {
+          let BusinessTypeListData = data?.data?.responseData?.data;
+          BusinessTypeListData = BusinessTypeListData.map((BusinessType) => ({
+            value: BusinessType.businessTypeID,
+            label: BusinessType.businessTypeName,
+          }));
+
+          setOrganisationBusinessTypeLookupList(BusinessTypeListData.slice(1, 5));
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const GetProfessionTypeLookupListData = async () => {
+    try {
+      const data = await GetProfessionTypeLookupList(
+        common.userKeyID,
+        common.organisationKeyID
+      );
+      if (data?.data?.statusCode === 200) {
+        if (data?.data?.responseData?.data) {
+          let ProfessionTypeListData = data?.data?.responseData?.data;
+          ProfessionTypeListData = ProfessionTypeListData.map((ProfessionType) => ({
+            value: ProfessionType.professionTypeId,
+            label: ProfessionType.professionTypeName,
+          }));
+
+          setProfessionTypeLookupList(ProfessionTypeListData);
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
   //Organisation Crud is here
-  const GetOrganisationListData = async (i, searchKeywordValue, sortValue, UserSort) => {
+  const GetOrganisationListData = async (i, searchKeywordValue, sortValue, UserSort, businessTypeId,professionTypeId,FromDate,ToDate) => {
     setLoader(true);
     const pageNoList = i - 1;
     try {
@@ -105,6 +215,12 @@ const Organisation = () => {
         userKeyID: common.userKeyID,
         searchKeyword:
           searchKeywordValue === undefined ? searchKeyword : searchKeywordValue,
+        businessTypeID:
+          businessTypeId == undefined ? prospectType : businessTypeId,
+        professionTypeID:
+          professionTypeId == undefined ? null : professionTypeId,
+        fromDate: FromDate === undefined ? (fromDate == "" ? null : fromDate) : FromDate,
+        toDate: ToDate === undefined ? (toDate == "" ? null : toDate) : ToDate,
         primarySortDirection:
           sortValue === undefined ? primarySortDirectionUsers : sortValue,
         PrimarySortColumnName:
@@ -122,6 +238,7 @@ const Organisation = () => {
           if (data?.data?.responseData?.data) {
             const orgList = data?.data?.responseData?.data;
             const totalCount = data.data.totalCount;
+            const totalUserCount = data.data.responseData?.totalUserCount;
             if (pageNoList > 0 && orgList.length === 0) {
               let newPaneNo = Number(pageNoList);
               if (newPaneNo > 1) {
@@ -132,6 +249,7 @@ const Organisation = () => {
               return;
             }
             setListCount(totalCount);
+            setUserCount(totalUserCount);
             setOrganisationList(orgList);
             setTotalRecords(orgList.length);
           }
@@ -269,9 +387,22 @@ const Organisation = () => {
     GetOrganisationListData(1, searchKeywordValue);
   };
 
+  // const handlePageChange = async (pageNumber) => {
+  //   setCurrentPage(pageNumber);
+  //   await GetOrganisationListData(pageNumber); // Call your function with the selected page number
+  // };
   const handlePageChange = async (pageNumber) => {
     setCurrentPage(pageNumber);
-    await GetOrganisationListData(pageNumber); // Call your function with the selected page number
+    await GetOrganisationListData(
+      pageNumber,
+      searchKeyword,
+      primarySortDirectionUsers,
+      UserSortType,
+      businessTypeID,
+      professionTypeID,
+      fromDate,
+      toDate,
+    ); 
   };
 
   const handleUserSort = (sortValue, UserSort) => {
@@ -282,7 +413,8 @@ const Organisation = () => {
         UserNameTypeSort: sortValue,
       });
       setCurrentPage(1);
-      GetOrganisationListData(1, searchKeywordUsers, sortValue, UserSort);
+      // GetOrganisationListData(1, searchKeywordUsers, sortValue, UserSort);
+      GetOrganisationListData(1, searchKeywordUsers, sortValue, UserSort, businessTypeID,professionTypeID,fromDate,toDate);
     } else if (UserSort === "UserFullName") {
       setPrimarySortDirectionUsers(sortValue);
       setPrimaryUserSortDirectionObj({
@@ -290,8 +422,49 @@ const Organisation = () => {
         RoleTypeSort: sortValue,
       });
       setCurrentPage(1);
-      GetOrganisationListData(1, searchKeywordUsers, sortValue, UserSort);
+      // GetOrganisationListData(1, searchKeywordUsers, sortValue, UserSort);
+      GetOrganisationListData(1, searchKeywordUsers, sortValue, UserSort,businessTypeID,professionTypeID,fromDate,toDate);
     }
+  };
+   // Filter
+   const ApplyFilter = () => {
+    if (
+      (businessTypeID !== null && businessTypeID !== "") ||
+      (professionTypeID !== null && professionTypeID !== "") ||
+      (fromDate !== null && fromDate !== "") ||
+      (toDate !== null && toDate !== "") ||
+      (selectedOption !== "" && selectedOption !== null)
+    ) {
+      setIsFilterApply(true);
+    } else {
+      setIsFilterApply(false);
+    }
+    const normalizedFromDate =
+      fromDate === undefined || fromDate === "" ? null : fromDate;
+    const normalizedToDate =
+      toDate === undefined || toDate === "" ? null : toDate;
+    setCurrentPage(1);
+    GetOrganisationListData(
+      1,
+      searchKeyword,
+      primarySortDirectionUsers,
+      UserSortType,
+      businessTypeID,
+      professionTypeID,
+      normalizedFromDate,
+      normalizedToDate,
+    );
+  };
+  const ClearFilter = () => {
+    setCurrentPage(1);
+    setSelectedOption("");
+    setIsFilterApply(false);
+    setBusinessTypeID(null);
+    setProfessionTypeID(null);
+    setFromDate(null);
+    setToDate(null);
+    GetOrganisationListData(1, searchKeyword, null, null, null, null,null,null);
+    // console.log(fromDate,toDate);
   };
   return (
     <div>
@@ -300,8 +473,17 @@ const Organisation = () => {
           <div class="page-info-header page-info-strip">
             <div class="container">
               <div className="row">
-                <div className="col-md-6 col-6">
+                <div className="col-md-3 col-6">
                   <div class="page-title-cls">Organisation/Practice</div>
+                </div>
+                <div className="col d-flex align-items-center justify-content-end ms-auto">
+                <div className="count-card">
+                  Total Organisations:{" "}
+                  {listCount > 0 ? (listCount) : ( <span style={{ fontSize: "12px" }}>  0</span>)}
+                </div>
+                <div className="count-card">
+                  Total Users: {userCount > 0 ? (userCount) : (<span style={{ fontSize: "12px" }}>  0</span>)}
+                </div>
                 </div>
               </div>
             </div>
@@ -316,7 +498,8 @@ const Organisation = () => {
                       <div class="row g-4 mb-3"></div>
 
                       <div class="table-responsive table-card  mb-3 table-padding">
-                        <div className="search-box col-md-3 col-6 width-searchbox mb-2">
+                      <div className="row align-items-center justify-content">
+                        <div className="search-box col-md-3 col-sm-4 width-searchbox mb-2">
                           <div>
                             <div>
                               <i class="ri-search-line search-icon"></i>
@@ -337,6 +520,60 @@ const Organisation = () => {
                                 }
                               />
                             </div>
+                          </div>
+                        </div>
+                        <div className="col-md-9 d-flex justify-content-end align-items-center flex-wrap gap-2">
+                        <div className="col-md-3 col-sm-4 mb-2">
+                            <div className="input-group">
+                              <Select
+                                className="phone-input-country-code selectDropDown Drop-down-width"
+                                placeholder="Organisation type"
+                                options={OrganisationBusinessTypeLookupList}
+                                value={orgBusinessTypeFilter}
+                                onChange={handleSelectChange}
+                                styles={{ option: (base) => ({ ...base, cursor: "pointer" }) }}
+                                isClearable
+                              />
+                            </div>
+                          </div>
+                          <div className="col-md-3 col-sm-4 mb-2" >
+                            <div className="input-group">
+                              <Select
+                                className="phone-input-country-code selectDropDown Drop-down-width"
+                                style={{cursor: "pointer"}}
+                                placeholder = "Profession type"
+                                options={ProfessionTypeLookupList}
+                                value= {professionTypeFilter}
+                                onChange={handleSelectProfessionChange}
+                                styles={{ option: (base) => ({ ...base, cursor: "pointer" }) }}
+                                isClearable
+                              />
+                            </div>
+                          </div>
+                          <div className="col-md-3 col-sm-4 mb-2">
+                            <div className="input-group">
+                              <Select
+                                className="phone-input-country-code selectDropDown Drop-down-width"
+                                style={{cursor: "pointer"}}
+                                placeholder = "Date Filter"
+                                options={Utils.DateFilter}
+                                value= {selectedOption}
+                                onChange={handleActiveDateChange}
+                                styles={{ option: (base) => ({ ...base, cursor: "pointer" }) }}
+                                isClearable
+                              />
+                            </div>
+                          </div>
+                          <div className="d-flex justify-content align-items-center gap-2 mb-2">
+                          <button className="btn btn-md btn-success create-item-btn" onClick={ApplyFilter}>
+                            <span>Apply Filter</span>
+                          </button>
+                          {isFilterApply &&
+                          <button className="btn btn-md btn-success create-item-btn" onClick={ClearFilter}>
+                            <span>Clear Filter</span>
+                          </button>
+                          }
+                          </div>
                           </div>
                         </div>
                         <table

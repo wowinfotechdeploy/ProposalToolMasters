@@ -5,6 +5,7 @@ import CommonButtonComponent from "../../../components/CommonButtonComponent";
 import ServicesCategoriesModel from "./ServicesCategoriesModel";
 import ConfirmModel from "../../../components/ConfirmationBox";
 import {
+  CopyServiceCategory,
   DeleteServiceCategory,
   GetServiceCategoryList,
   GetServiceCategoryModel,
@@ -215,6 +216,24 @@ const Service_Categories = () => {
     }
   };
 
+  // Copy Service Category
+  const CopyServiceCategoryData = async() => {
+    if(!common.organisationKeyID) return;
+    try {
+      const data = await CopyServiceCategory(modelRequestData.serviceCatKeyID,common.userKeyID);
+      if(data?.data?.statusCode === 200) {
+        setOpenSuccessModal(true);
+        GetServiceCategoryListData(currentPage);
+      }
+      else {
+        setErrorMessage(data?.data?.errorMessage);
+        setOpenErrorModal(true);
+      }
+    }
+    catch(error) {
+      console.error(error);
+    }
+  }
   // Update Function Modal
   // 2) On Click Service Category Status Button
   const ServiceCategoryChangeStatusDataAndDeleteData = async () => {
@@ -670,6 +689,30 @@ const Service_Categories = () => {
 
                                     <td className="table-content-font">
                                       <div class="d-flex gap-2">
+                                      <Tooltip
+                                        title={getCrudButtonToolTipName(
+                                          "Copy",
+                                          moduleName
+                                        )}
+                                      >
+                                        <div class="copy">
+                                          <button
+                                            class="btn btn-sm btn-success edit-item-btn edit"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#ConfirmModel"
+                                            onClick={() =>
+                                              setModelRequestData({
+                                                ...modelRequestData,
+                                                Action: "Copy",
+                                                serviceCatKeyID: serviceCategory.serviceCatKeyID,
+                                                userKeyID: common.userKeyID
+                                              })
+                                            }
+                                          >
+                                            <i class="fa-solid fa-copy"></i>
+                                          </button>
+                                        </div>
+                                      </Tooltip> 
                                         {((userAccessData.Admin_Config_ServiceCat_CanEdit &&
                                           common.organisationKeyID !== null) ||
                                           (userAccessData.SuperAdmin_Config_ServiceCat_CanEdit &&
@@ -770,7 +813,7 @@ const Service_Categories = () => {
               openErrorModal={openErrorModal}
               openSuccessModal={openSuccessModal}
               modelRequestData={modelRequestData}
-              UpdatedStatus={ServiceCategoryChangeStatusDataAndDeleteData}
+              UpdatedStatus={modelRequestData.Action === "Delete" || modelRequestData.Action === "Status" ? ServiceCategoryChangeStatusDataAndDeleteData : CopyServiceCategoryData}
             />
             <RecordsAvailablePopupModel
               handleClose={handleClose}
@@ -785,10 +828,13 @@ const Service_Categories = () => {
               setOpenSuccessModal={setOpenSuccessModal}
               openSuccessModal={openSuccessModal}
               modelAction={modelRequestData.Action}
-              message={`${modelRequestData.Action === "Delete"
-                ? `${moduleName} ${modelRequestData.serviceCatName}`
-                : "Status has been changed successfully!"
-                }`}
+              message={`${
+                modelRequestData.Action === "Delete"
+                  ? `${moduleName} ${modelRequestData.serviceCatName}`
+                  : modelRequestData.Action === "Copy"
+                  ? "Copy of the Service Category has been created successfully!"
+                  : "Status has been changed successfully!"
+              }`}
             />
 
             {/* service Category Modal  */}

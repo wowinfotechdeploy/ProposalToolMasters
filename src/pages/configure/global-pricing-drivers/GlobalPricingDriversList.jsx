@@ -4,6 +4,7 @@ import "./GlobalPricingDriversStyle.css";
 import CommonButtonComponent from "../../../components/CommonButtonComponent";
 import Global_Pricing_Driver_model from "./GlobalPricingDriverModel";
 import {
+  CopyGlobalPricingDriver,
   DeleteGlobalPricingDriver,
   GetGlobalPricingDriverList,
   GetGlobalPricingDriverModel,
@@ -301,7 +302,24 @@ function Predefined_Global_Pricing_Drivers() {
       }
     }
   };
-
+  // Copy
+  const CopyGlobalPricingDriverData = async() => {
+    if(!common.organisationKeyID) return;
+    try{
+      const data = await CopyGlobalPricingDriver(modelRequestData.globalPricingDriverKeyID,common.userKeyID);
+      if(data?.data?.statusCode === 200) {
+        setOpenSuccessModal(true);
+        GetGlobalPricingDriverListData(currentPage);
+      }
+      else {
+        setErrorMessage(data?.data?.errorMessage);
+        setOpenErrorModal(true);
+      }
+    }
+    catch(error) {
+      console.error(error);
+    }
+  }
   // F] Pagination :
   const handlePageChange = async (pageNumber) => {
     setCurrentPage(pageNumber);
@@ -717,6 +735,30 @@ function Predefined_Global_Pricing_Drivers() {
 
                                     <td className="table-content-font">
                                       <div class="d-flex gap-2">
+                                      <Tooltip
+                                          title={getCrudButtonToolTipName(
+                                            "Copy",
+                                            moduleName
+                                          )}
+                                        >
+                                          <div class="copy">
+                                            <button
+                                              class="btn btn-sm btn-success edit-item-btn edit"
+                                              data-bs-toggle="modal"
+                                              data-bs-target="#ConfirmModel"
+                                              onClick={() =>
+                                                setModelRequestData({
+                                                  ...modelRequestData,
+                                                  Action: "Copy",
+                                                  globalPricingDriverKeyID: PricingDriver.globalPricingDriverKeyID,
+                                                  userKeyID: common.userKeyID
+                                                })
+                                              }
+                                            >
+                                              <i class="fa-solid fa-copy"></i>
+                                            </button>
+                                          </div>
+                                        </Tooltip>
                                         {((userAccessData.Admin_Config_Global_Driver_CanEdit &&
                                           common.organisationKeyID !== null) ||
                                           (userAccessData.SuperAdmin_Config_Global_Driver_CanEdit &&
@@ -824,7 +866,7 @@ function Predefined_Global_Pricing_Drivers() {
               openErrorModal={openErrorModal}
               openSuccessModal={openSuccessModal}
               modelRequestData={modelRequestData}
-              UpdatedStatus={GlobalPricingDriverChangeStatusDataAndDeleteData}
+              UpdatedStatus={modelRequestData.Action === "Delete" || modelRequestData.Action === "Status" ? GlobalPricingDriverChangeStatusDataAndDeleteData : CopyGlobalPricingDriverData}
             />
 
             <RecordsAvailablePopupModel
@@ -841,10 +883,13 @@ function Predefined_Global_Pricing_Drivers() {
               setOpenSuccessModal={setOpenSuccessModal}
               openSuccessModal={openSuccessModal}
               modelAction={modelRequestData.Action}
-              message={`${modelRequestData.Action === "Delete"
-                ? `${moduleName} ${modelRequestData.driverName}`
-                : "Status has been changed successfully!"
-                }`}
+              message={`${
+                modelRequestData.Action === "Delete"
+                  ? `${moduleName} ${modelRequestData.driverName}`
+                  : modelRequestData.Action === "Copy"
+                  ? "Copy of the Global Pricing Driver has been created successfully!"
+                  : "Status has been changed successfully!"
+              }`}
             />
             {/* Model */}
 

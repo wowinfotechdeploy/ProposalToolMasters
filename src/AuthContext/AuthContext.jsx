@@ -7,7 +7,7 @@ import React, {
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { resetState, updateState } from "../redux/Persist";
-import { CalenderFilterEnum } from "../Middleware/enums";
+import { CalenderFilterEnum, ActiveDateFilterEnum } from "../Middleware/enums";
 import moment from "moment/moment";
 import { GetSaveImage } from "../redux/Services/SaveImage/SaveImageApi";
 const initialState = {
@@ -630,7 +630,27 @@ const AuthContext = ({ children }) => {
     }
     return { fromDate: _fromDate, toDate: _toDate };
   };
+  const GetActiveDateRange = (dateFormat, dateType) => {
+    const today = moment(); // Current date
+    let _fromDate = null;
 
+    if (dateType === ActiveDateFilterEnum.Active_In_Last_1_Day) {
+        _fromDate = today.clone().subtract(1, "day");
+    } else if (dateType === ActiveDateFilterEnum.Active_In_Last_7_Days) {
+        _fromDate = today.clone().subtract(7, "days");
+    } else if (dateType === ActiveDateFilterEnum.Active_In_Last_30_Days) {
+        _fromDate = today.clone().subtract(30, "days");
+    } else if (dateType === ActiveDateFilterEnum.Active_In_Last_60_Days) {
+        _fromDate = today.clone().subtract(60, "days");
+    } else if (dateType === ActiveDateFilterEnum.Active_In_Last_90_Days) {
+        _fromDate = today.clone().subtract(90, "days");
+    } else if (dateType === ActiveDateFilterEnum.Active_In_Last_6_Months) {
+        _fromDate = today.clone().subtract(6, "months");
+    } else if (dateType === ActiveDateFilterEnum.Active_In_Last_1_Year) {
+        _fromDate = today.clone().subtract(1, "year");
+    }
+    return { fromDate: _fromDate, toDate: today };
+};
   const hasActionAccess = (moduleId, mActionId) => {
     let userAccess = localStorage.getItem("userAccess");
     userAccess = JSON.parse(userAccess);
@@ -3146,6 +3166,7 @@ const AuthContext = ({ children }) => {
         replaceTemplatePricingVariables,
         isValidNumber,
         getFontStylesFromHtml,
+        GetActiveDateRange,
         topbar,
         loader,
         listCount,

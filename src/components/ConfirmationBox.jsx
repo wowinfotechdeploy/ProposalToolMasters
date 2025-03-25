@@ -134,6 +134,11 @@ function ConfirmModel({
                     Are you sure you want to delete this record?
                   </span>
                 )}
+                {modelRequestData.Action === "Void" && (
+                  <span class="text-muted mb-0">
+                    Are you sure you want to void this record?
+                  </span>
+                )}
                 {modelRequestData.Action ===
                   "ResetEmailConfigurationChange" && (
                     <span class="text-muted mb-0">
@@ -290,6 +295,7 @@ function ConfirmModel({
                 modelRequestData.Action === "ReminderStatus" ||
                 modelRequestData.Action === "PaymentStatus" ||
                 modelRequestData.Action === "Delete" ||
+                modelRequestData.Action === "Void" ||
                 modelRequestData.Action == "PracticeWarning" ||
                 modelRequestData.Action === "2FaStatusChange" ||
                 modelRequestData.Action === "ELStatusChange" ||
@@ -321,6 +327,9 @@ function ConfirmModel({
 
                     {modelRequestData.Action === "Delete" && (
                       <span>Yes, Delete It!</span>
+                    )}
+                     {modelRequestData.Action === "Void" && (
+                      <span>Yes, Void It!</span>
                     )}
                     {(modelRequestData.Action ===
                       "ResetEmailConfigurationChange" ||

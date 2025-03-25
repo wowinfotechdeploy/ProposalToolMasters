@@ -28,6 +28,11 @@ import Footer from "../../components/Footer";
 import { GetUsersList } from "../../redux/Services/User/UsersApi";
 import UserModelNew from "../../components/UserModelNew";
 import RecordsAvailablePopupModel from "../../components/RecordsAvailablePopupModel";
+import { GetCountryLookUpList } from "../../Database/ProposalToolDatabase";
+import { ActiveDateFilterEnum } from "../../Middleware/enums";
+import Utils from "../../Middleware/Utils";
+import Select from "react-select";
+import { SuperAdminRoleTypeLookupList } from "../../Database/ProposalToolDatabase";
 const InviteUser = () => {
   // A] States Declaration :
   const moduleName = "User";
@@ -75,6 +80,7 @@ const InviteUser = () => {
     getCrudButtonTextName,
     getPlaceholderTextName,
     getCrudButtonToolTipName,
+    GetActiveDateRange
   } = useContext(AuthContextProvider);
   const [usersList, setUsersList] = useState([]);
   const totalUserPage = isMobile
@@ -102,6 +108,14 @@ const InviteUser = () => {
   const pageSize = isMobile ? isMobileRecords : desktopRecords;
   const [InviteUserSortType, setInviteUserSortType] = useState("");
   const formattedErrorMessage = handleErrorMessage(errorMessage);
+  const [selectedOption,setSelectedOption] = useState(null);
+  const [countryId,setCountryId] = useState(null);
+  const [roleType,setRoleType] = useState(null);
+  const [isFilterApply, setIsFilterApply] = useState(null);
+  const [orgCount,setOrgCount] = useState(null);
+  const [toDate,setToDate] = useState(null);
+  const [fromDate,setFromDate] = useState(null);
+  const [usersPage,setUsersPage] = useState(true);
 
   // B] Initial useEffect :
   // 1) Will Call Initial Api Like List Api
@@ -143,6 +157,7 @@ const InviteUser = () => {
     InviteUserSort
   ) => {
     setLoader(true);
+    setUsersPage(false);
     try {
       const data = await GetInviteUsersList({
         pageSize: pageSize,
@@ -196,6 +211,10 @@ const InviteUser = () => {
   const GetUsersListData = async (
     i,
     searchKeywordValue,
+    countryId,
+    roleType,
+    FromDate,
+    ToDate,
     sortValue,
     UserSort
   ) => {
@@ -210,6 +229,12 @@ const InviteUser = () => {
           searchKeywordValue === undefined
             ? searchKeywordUsers
             : searchKeywordValue,
+        countryID:
+          countryId === undefined || countryId === null ? null : countryId,
+        RoleType:
+          roleType === undefined || roleType === null ? null : roleType,
+        fromDate: FromDate === undefined ? (fromDate == "" ? null : fromDate) : FromDate,
+        toDate: ToDate === undefined ? (toDate == "" ? null : toDate) : ToDate,
         primarySortDirection:
           sortValue === undefined ? primarySortDirectionUsers : sortValue,
         PrimarySortColumnName:
@@ -224,9 +249,11 @@ const InviteUser = () => {
           if (data?.data?.responseData?.data) {
             const totalCount = data.data.totalCount;
             const UsersListData = data.data.responseData.data;
+            const orgCount = data.data.responseData.totalOrgCount;
             setUserListCount(totalCount);
             setUsersList(UsersListData);
             setTotalRecords(UsersListData.length);
+            setOrgCount(orgCount);
           }
         } else {
           if (getUsersListCallCount < maxCountToRecallApi) {
@@ -246,6 +273,55 @@ const InviteUser = () => {
     }
   };
 
+  const handleActiveDateChange = (selectedOption) => {
+    let dateFormat = "mm-dd-yyyy";
+    setSelectedOption(selectedOption);
+    if (!selectedOption) {
+      setSelectedOption(null);
+      setToDate(null);
+      setFromDate(null);
+      return;
+    }
+    switch (selectedOption.value) {
+      case ActiveDateFilterEnum.Active_In_Last_1_Day:
+      case ActiveDateFilterEnum.Active_In_Last_7_Days:
+      case ActiveDateFilterEnum.Active_In_Last_30_Days:
+      case ActiveDateFilterEnum.Active_In_Last_60_Days:
+      case ActiveDateFilterEnum.Active_In_Last_90_Days:
+      case ActiveDateFilterEnum.Active_In_Last_6_Months:
+      case ActiveDateFilterEnum.Active_In_Last_1_Year:
+          const dateRange = GetActiveDateRange(dateFormat, selectedOption.value);
+          setFromDate(dateRange.fromDate);
+          setToDate(dateRange.toDate);
+          break;
+      default:
+          break;
+  }
+  };
+
+  const UserRoleTypeLookupList = SuperAdminRoleTypeLookupList.data?.responseData?.data?.map((userRoleType) => ({
+    value: userRoleType.roleTypeId,
+    label: userRoleType.roleName,
+  }));
+
+  const countryNameListData = GetCountryLookUpList?.data?.responseData?.data.map((countryData) => ({
+    value: countryData.countryId,
+    label: countryData.countryName,
+  }));
+  console.log(countryNameListData);
+  const countryNameFilter = countryNameListData?.filter(
+    (country) => country.value == countryId
+  );
+  const RoleTypeFilter = UserRoleTypeLookupList?.filter(
+    (role) => role.value == roleType
+  );
+
+  const handleSelectCountryChange = (selectedOption) => {
+    setCountryId(selectedOption ? selectedOption.value : null);
+  };
+  const handleSelectRoleTypeChange = (selectedOption) => {
+    setRoleType(selectedOption ? selectedOption.value : null);
+  };
   // F] Pagination :
   // const handlePageChange = async (pageNumber) => {
   //   setCurrentPageUsers(pageNumber);
@@ -384,7 +460,8 @@ const InviteUser = () => {
 
   const HandlePageChangeUsers = async (pageNumber) => {
     setCurrentPageUsers(pageNumber);
-    await GetUsersListData(pageNumber); // Call your function with the selected page number
+    await GetUsersListData(pageNumber,searchKeyword,countryId,roleType,fromDate,toDate,primarySortDirection);
+    // await GetUsersListData(pageNumber); // Call your function with the selected page number
   };
 
   // E] Sorting & handle Function
@@ -440,7 +517,8 @@ const InviteUser = () => {
         UserNameTypeSort: sortValue,
       });
       setCurrentPage(1);
-      GetUsersListData(1, searchKeyword, sortValue, UserSort);
+      // GetUsersListData(1, searchKeyword, sortValue, UserSort);
+      GetUsersListData(1, searchKeyword,countryId,roleType,fromDate,toDate, sortValue, UserSort);
     } else if (UserSort == "RoleName") {
       setPrimarySortDirectionUsers(sortValue);
       setPrimaryUserSortDirectionObj({
@@ -448,7 +526,8 @@ const InviteUser = () => {
         RoleTypeSort: sortValue,
       });
       setCurrentPage(1);
-      GetUsersListData(1, searchKeyword, sortValue, UserSort);
+      // GetUsersListData(1, searchKeyword, sortValue, UserSort);
+      GetUsersListData(1, searchKeyword,countryId,roleType,fromDate,toDate, sortValue, UserSort);
     } else if (UserSort == "Email") {
       setPrimarySortDirectionUsers(sortValue);
       setPrimaryUserSortDirectionObj({
@@ -456,7 +535,8 @@ const InviteUser = () => {
         EmailTypeSort: sortValue,
       });
       setCurrentPage(1);
-      GetUsersListData(1, searchKeyword, sortValue, UserSort);
+      // GetUsersListData(1, searchKeyword, sortValue, UserSort);
+      GetUsersListData(1, searchKeyword,countryId,roleType,fromDate,toDate, sortValue, UserSort);
     } else if (UserSort == "LastName") {
       setPrimarySortDirectionUsers(sortValue);
       setPrimaryUserSortDirectionObj({
@@ -464,7 +544,8 @@ const InviteUser = () => {
         UserLNameTypeSort: sortValue,
       });
       setCurrentPage(1);
-      GetUsersListData(1, searchKeyword, sortValue, UserSort);
+      // GetUsersListData(1, searchKeyword, sortValue, UserSort);
+      GetUsersListData(1, searchKeyword,countryId,roleType,fromDate,toDate, sortValue, UserSort);
     }
   };
 
@@ -482,6 +563,10 @@ const InviteUser = () => {
     GetUsersListData(
       currentPage,
       searchKeywordValue,
+      countryId,
+      roleType,
+      fromDate,
+      toDate,
       primarySortDirectionUsers,
       UserSortType
     );
@@ -499,6 +584,47 @@ const InviteUser = () => {
 
   const userFun = () => {
     GetUsersListData(currentPageUsers);
+    setUsersPage(true);
+  };
+  //Filters
+  const ApplyFilter = () => {
+    if (
+      (countryId !== null && countryId !== "") ||
+      (roleType !== null && roleType !== "") ||
+      (fromDate !== null && fromDate !== "") ||
+      (toDate !== null && toDate !== "") ||
+      (selectedOption !== "" && selectedOption !== null)
+    ) {
+      setIsFilterApply(true);
+    } else {
+      setIsFilterApply(false);
+    }
+    // const normalizedFromDate =
+    //   fromDate === undefined || fromDate === "" ? null : fromDate;
+    // const normalizedToDate =
+    //   toDate === undefined || toDate === "" ? null : toDate;
+    setCurrentPageUsers(1);
+    GetUsersListData(
+      1,
+      searchKeyword,
+      countryId,
+      roleType,
+      fromDate,
+      toDate,
+      primarySortDirectionUsers,
+      UserSortType
+    );
+  };
+  const ClearFilter = () => {
+    setCurrentPageUsers(1);
+    setSelectedOption("");
+    setIsFilterApply(false);
+    setCountryId(null);
+    setRoleType(null);
+    setFromDate(null);
+    setToDate(null);
+    GetUsersListData(1, searchKeyword, null, null, null, null, null,null);
+    // console.log(fromDate,toDate);
   };
   //Design part :
   return (
@@ -508,7 +634,7 @@ const InviteUser = () => {
           <div class="page-info-header page-info-strip">
             <div class="container">
               <div className="row">
-                <div className="col-md-12 col-12">
+                <div className="col-md-3 col-6">
                   {/* <div class="page-title-cls">Users</div> */}
                   <ul class="nav nav-tabs " role="tablist">
                     <li class="nav-item">
@@ -537,6 +663,24 @@ const InviteUser = () => {
                     </li>
                   </ul>
                 </div>
+                <div className="col d-flex align-items-center justify-content-end ms-auto">
+                <div className="count-card">
+                  {usersPage ? (
+                    <>
+                      Total Users: {UserListCount > 0 ? UserListCount : <span style={{ fontSize: "12px" }}>Loading...</span>}
+                    </>
+                  ) : (
+                    <>
+                      Total Users: {listCount > 0 ? listCount : <span style={{ fontSize: "12px" }}>Loading...</span>}
+                    </>
+                  )}
+                </div>
+                {usersPage && (
+                  <div className="count-card">
+                    Total Organisations: {orgCount > 0 ? orgCount : (<span style={{ fontSize: "12px" }}> 0</span>)}
+                  </div>
+                )}
+                </div>
               </div>
             </div>
           </div>
@@ -555,29 +699,81 @@ const InviteUser = () => {
                           role="tabpanel"
                         >
                           <div class="table-responsive table-card  mb-3 table-padding">
-                            <div className="row">
-                              <div class="col-md-6 col-6">
-                                <div className="search-box col-md-5 col-12 width-searchbox mb-2">
-                                  <i class="ri-search-line search-icon"></i>
-                                  <input
-                                    type="text"
-                                    value={searchKeywordUsers}
-                                    onChange={(e) => {
-                                      HandleSearchUsers(e);
-                                    }}
-                                    className="form-control search"
-                                    placeholder={
-                                      isMobile
-                                        ? "Search"
-                                        : getPlaceholderTextName(
-                                          "Search",
-                                          moduleName
-                                        )
-                                    }
+                            <div className="row align-items-center justify-content">
+                            
+                              <div className="search-box col-md-3 col-sm-4 width-searchbox mb-2">
+                                <i class="ri-search-line search-icon"></i>
+                                <input
+                                  type="text"
+                                  value={searchKeywordUsers}
+                                  onChange={(e) => {
+                                    HandleSearchUsers(e);
+                                  }}
+                                  className="form-control search"
+                                  placeholder={
+                                    isMobile
+                                      ? "Search"
+                                      : getPlaceholderTextName(
+                                        "Search",
+                                        moduleName
+                                      )
+                                  }
+                                />
+                              </div>
+                              <div className="col-md-9 d-flex justify-content-end align-items-center flex-wrap gap-2">
+                              <div className="col-md-3 col-sm-4 mb-2">
+                                <div className="input-group">
+                                  <Select
+                                    className="phone-input-country-code selectDropDown Drop-down-width"
+                                    placeholder="Select Country"
+                                    options={countryNameListData}
+                                    value={countryNameFilter}
+                                    onChange={handleSelectCountryChange}
+                                    styles={{ option: (base) => ({ ...base, cursor: "pointer" }) }}
+                                    isClearable
                                   />
                                 </div>
                               </div>
+                              <div className="col-md-3 col-sm-4 mb-2">
+                                <div className="input-group">
+                                  <Select
+                                    className="phone-input-country-code selectDropDown Drop-down-width"
+                                    placeholder="Select Role"
+                                    options={UserRoleTypeLookupList}
+                                    value={RoleTypeFilter}
+                                    onChange={handleSelectRoleTypeChange}
+                                    styles={{ option: (base) => ({ ...base, cursor: "pointer" }) }}
+                                    isClearable
+                                  />
+                                </div>
+                              </div>
+                              <div className="col-md-3 col-sm-4 mb-2">
+                                <div className="input-group">
+                                  <Select
+                                    className="phone-input-country-code selectDropDown Drop-down-width"
+                                    style={{ cursor: "pointer" }}
+                                    placeholder="Date Filter"
+                                    options={Utils.DateFilter}
+                                    value={selectedOption}
+                                    onChange={handleActiveDateChange}
+                                    styles={{ option: (base) => ({ ...base, cursor: "pointer" }) }}
+                                    isClearable
+                                  />
+                                </div>
+                              </div>
+                              <div className="d-flex justify-content align-items-center gap-2 mb-2">
+                                <button className="btn btn-md btn-success create-item-btn" onClick={ApplyFilter}>
+                                  <span>Apply Filter</span>
+                                </button>
+                                {isFilterApply &&
+                                  <button className="btn btn-md btn-success create-item-btn" onClick={ClearFilter}>
+                                    <span>Clear Filter</span>
+                                  </button>
+                                }
+                              </div>
+                              </div>
                             </div>
+
                             <table
                               class="table align-middle"
                               id="customerTable"

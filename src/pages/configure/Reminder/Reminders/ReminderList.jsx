@@ -9,6 +9,7 @@ import {
   GetReminderList,
   ReminderChangeStatus,
   GetReminderModel,
+  CopyReminder,
 } from "../../../../redux/Services/Config/ReminderCrudApi";
 import PaginationComponent from "../../../../components/PaginationModel";
 
@@ -402,6 +403,24 @@ function ReminderList() {
       : updatedStatusName;
   };
 
+  // Copy Record
+  const CopyReminderData = async() => {
+    if(!common.organisationKeyID) return;
+    try{
+      const data = await CopyReminder(modelRequestData.reminderKeyID,common.userKeyID);
+      if(data?.data?.statusCode === 200) {
+        setOpenSuccessModal(true);
+        GetEmailTemplatesListData(isCurrentPage);
+      }
+      else {
+        setErrorMessage(data?.data?.errorMessage);
+        setOpenErrorModal(true);
+      }
+    }
+    catch(error){
+      console.error(error);
+    }
+  }
   const ApplyFilter = () => {
 
     if (
@@ -826,6 +845,34 @@ function ReminderList() {
                                   </td>
                                   <td className="table-content-font">
                                     <div class="d-flex gap-2">
+                                    <Tooltip
+                                        title={getCrudButtonToolTipName(
+                                          "Copy",
+                                          moduleName
+                                        )}
+                                      >
+                                        <div class="copy">
+                                          <button
+                                            class="btn btn-md btn-success create-item-btn"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#ConfirmModel"
+                                            onClick={() =>
+                                              setModelRequestData({
+                                                ...modelRequestData,
+                                                Action: "Copy",
+                                                reminderKeyID: Template.reminderKeyID,
+                                                userKeyID: common.userKeyID
+                                              })
+                                            }
+                                          >
+                                            <span
+                                              style={{ marginRight: "4px" }}
+                                            >
+                                            <i class="fa-solid fa-copy"></i>
+                                            </span>
+                                          </button>
+                                        </div>
+                                      </Tooltip>
                                       {((userAccessData.Admin_Config_Email_Template_CanEdit &&
                                         common.organisationKeyID !== null) ||
                                         (userAccessData.SuperAdmin_Config_Email_Template_CanEdit &&
@@ -928,7 +975,7 @@ function ReminderList() {
           openErrorModal={openErrorModal}
           openSuccessModal={openSuccessModal}
           modelRequestData={modelRequestData}
-          UpdatedStatus={EmailTemplatesChangeStatusDataAndDeleteData}
+          UpdatedStatus={modelRequestData.Action === "Delete" || modelRequestData.Action === "Status" ? EmailTemplatesChangeStatusDataAndDeleteData : CopyReminderData}
         />
         <RecordsAvailablePopupModel
           handleClose={handleClose}
@@ -943,11 +990,13 @@ function ReminderList() {
           setOpenSuccessModal={setOpenSuccessModal}
           openSuccessModal={openSuccessModal}
           modelAction={modelRequestData.Action}
-          message={
+          message={`${
             modelRequestData.Action === "Delete"
-              ? `${moduleName} ${reminderName}`
+              ? `${moduleName} ${modelRequestData.templateName}`
+              : modelRequestData.Action === "Copy"
+              ? "Copy of the Reminder has been created successfully!"
               : "Status has been changed successfully!"
-          }
+          }`}
         />
         <FilterModel
           class="modal fade"

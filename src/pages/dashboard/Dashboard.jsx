@@ -23,6 +23,10 @@ import { GetActivityLogsList } from "../../redux/Services/Setting/ActivityLogs";
 import Utils from "../../Middleware/Utils";
 import { DashboardCountList } from "../../redux/Services/Setting/DashBoardCountApi";
 import { CalenderFilterEnum, statusID } from "../../Middleware/enums";
+import { GetProspectTypeVariationLookupList } from "../../redux/Services/Master/BusinessTypeLookupListApi";
+import { GetProposalList } from "../../redux/Services/Proposal/ProposalApi";
+import { GetEngagementList } from "../../redux/Services/EngagementLetter/EngagementLetterApi";
+import { GetNOBTypeLookupList } from "../../redux/Services/Master/NOBTypeLookupListApi";
 import * as XLSX from "xlsx";
 
 const Dashboard = () => {
@@ -76,7 +80,7 @@ const Dashboard = () => {
     setProspectName,
     setOrgLoaderList,
     setEngagementName,
-
+    formatValue,
     maxCountToRecallApi,
     setActiveOrganization,
 
@@ -89,7 +93,7 @@ const Dashboard = () => {
   const { cardBackgroundColor, cardStyle } = useContext(ColorContext);
   const [showDatePicker, setShowDatePicker] = useState(false);
 
-  const [selectedOption, setSelectedOption] = useState("");
+  const [selectedOption, setSelectedOption] = useState(Utils.CalenderFilter[0]);
   const [showUserModal, setShowUserModal] = useState(false);
   const [fromDate, setFromDate] = useState(dayjs());
   const [toDate, setToDate] = useState(dayjs().add(0, "day"));
@@ -195,105 +199,371 @@ const Dashboard = () => {
       setDashboardActivityLogLoader(true);
     }
   };
+  // const handleExport = async () => {
+  //   // Fetch data for export
+  //   const data = await DashboardCountData(fromDateForExport, toDateForExport);
+  //   // Check if data is fetched successfully
+  //   if (data && data.data.statusCode === 200) {
+  //     // Check if data contains any records
+  //     if (data?.data?.responseData) {
+  //       // Extract ProposalListData from the fetched data
+  //       const DashboardCountsListData = data?.data?.responseData;
+  //       // Get the selected filter option
+  //       const selectedFilterValue = selectedOption;
+  //       // Get the filter heading
+  //       const filterHeading = getFilterHeading(selectedFilterValue);
+  //       // Define columns to show based on the condition of common.enableEL
+  //       let columnsToShow = {
+  //         quotationDraft: `${proposalName} Draft`,
+  //         quotationSent: `${proposalName} Sent`,
+  //         quotationAwaitingSignature: `${proposalName} Awaiting Response`,
+  //         quotationAccepted: `${proposalName} Accepted`,
+  //         quotationDeclined: `${proposalName} Decline`,
+  //         contractDraft: `${EngagementName} Draft`,
+  //         contractSent: `${EngagementName} Sent`,
+  //         contractAwaitingSignature: `${EngagementName} Viewed`,
+  //         contractSigned: `${EngagementName} Signed`,
+  //         contractDeclined: `${EngagementName} Declined`,
+  //       };
+  //       // Update columns to show based on common.enableEL value
+  //       if (common.enableEL === 0) {
+  //         columnsToShow = {
+  //           quotationDraft: `${proposalName} Draft`,
+  //           quotationSent: `${proposalName} Sent`,
+  //           quotationAwaitingSignature: `Awaiting Response`,
+  //           quotationAccepted: `${proposalName} Accepted`,
+  //           quotationDeclined: `${proposalName} Decline`,
+  //         };
+  //       } else if (common.enableEL === 1) {
+  //         columnsToShow = {
+  //           quotationDraft: `${proposalName} Draft`,
+  //           quotationSent: `${proposalName} Sent`,
+  //           contractDraft: `${EngagementName} Draft`,
+  //           contractSent: `${EngagementName} Sent`,
+  //           contractAwaitingSignature: `${EngagementName} Viewed`,
+  //           contractSigned: `${EngagementName} Signed`,
+  //           contractDeclined: `${EngagementName} Declined`,
+  //         };
+  //       }
+  //       // Convert DashboardCountsListData to an array of key-value pairs
+  //       const dataArray = Object.entries(DashboardCountsListData).flatMap(
+  //         ([Key, value]) => {
+  //           const rowData = [
+  //             { "Column Name": "Practice Name :", Value: orgName },
+  //             { "Column Name": "Reporting Period :", Value: filterHeading },
+  //             { "Column Name": "", Value: "" },
+  //             { "Column Name": "", Value: "" },
+  //             ...Object.entries(value)
+  //               .filter(([key]) => key in columnsToShow)
+  //               .map(([key, val]) => ({
+  //                 "Column Name": columnsToShow[key],
+  //                 Value: val,
+  //               })),
+  //           ];
+  //           return rowData;
+  //         }
+  //       );
+  //       // Convert dataArray to Excel workbook
+  //       const workbook = XLSX.utils.book_new();
+  //       const worksheet = XLSX.utils.json_to_sheet(dataArray, {
+  //         skipHeader: true,
+  //       });
+
+  //       // Calculate column widths
+  //       const maxWidths = [0, 0]; // Initialize with two columns
+  //       dataArray.forEach(row => {
+  //         const columnNameLength = row["Column Name"] ? row["Column Name"].toString().length : 0;
+  //         const valueLength = row["Value"] ? row["Value"].toString().length : 0;
+  //         maxWidths[0] = Math.max(maxWidths[0], columnNameLength);
+  //         maxWidths[1] = Math.max(maxWidths[1], valueLength);
+  //       });
+
+  //       // Set column widths
+  //       worksheet['!cols'] = maxWidths.map(width => ({ wch: width + 2 })); // Add 2 for padding
+
+  //       XLSX.utils.book_append_sheet(workbook, worksheet, "Summary");
+  //       // Generate a file name for the Excel file
+  //       const fileName = `Dashboard_data_${orgName}_${filterHeading}.xlsx`;
+  //       // Save the Excel file
+  //       XLSX.writeFile(workbook, fileName);
+  //       // Fetch data again to reset page size for subsequent calls
+  //       await DashboardCountData(fromDateForExport, toDateForExport);
+  //     } else {
+  //       // Handle error if data fetching fails
+  //       console.error("Failed to fetch data for export");
+  //     }
+  //   } else {
+  //     // Handle error if data fetching fails
+  //     console.error("Failed to fetch data for export");
+  //   }
+  // };
   const handleExport = async () => {
-    // Fetch data for export
-    const data = await DashboardCountData(fromDateForExport, toDateForExport);
-    // Check if data is fetched successfully
-    if (data && data.data.statusCode === 200) {
-      // Check if data contains any records
-      if (data?.data?.responseData) {
-        // Extract ProposalListData from the fetched data
-        const DashboardCountsListData = data?.data?.responseData;
-        // Get the selected filter option
-        const selectedFilterValue = selectedOption;
-        // Get the filter heading
-        const filterHeading = getFilterHeading(selectedFilterValue);
-        // Define columns to show based on the condition of common.enableEL
-        let columnsToShow = {
-          quotationDraft: `${proposalName} Draft`,
-          quotationSent: `${proposalName} Sent`,
-          quotationAwaitingSignature: `${proposalName} Awaiting Response`,
-          quotationAccepted: `${proposalName} Accepted`,
-          quotationDeclined: `${proposalName} Decline`,
-          contractDraft: `${EngagementName} Draft`,
-          contractSent: `${EngagementName} Sent`,
-          contractAwaitingSignature: `${EngagementName} Viewed`,
-          contractSigned: `${EngagementName} Signed`,
-          contractDeclined: `${EngagementName} Declined`,
-        };
-        // Update columns to show based on common.enableEL value
-        if (common.enableEL === 0) {
-          columnsToShow = {
+    try {
+      let BusinessTypeListData = [];
+          const ProspectData = await GetProspectTypeVariationLookupList(
+            common.organisationKeyID,
+            common.userKeyID
+          );
+          if (ProspectData?.data?.statusCode === 200) {
+            if (ProspectData?.data?.responseData?.data) {
+              BusinessTypeListData = ProspectData.data.responseData.data.map(
+                (BusinessType) => ({
+                  value: BusinessType.businessTypeID,
+                  label: BusinessType.businessTypeName,
+                })
+              );
+            }
+          }
+          let NoBTypeListData = [];
+          const NOBType = await GetNOBTypeLookupList(
+            common.organisationKeyID,
+            common.userKeyID
+          );
+          if (NOBType?.data?.statusCode === 200) {
+            console.log(NOBType?.data?.responseData?.data);
+            if (NOBType?.data?.responseData?.data) {
+              NoBTypeListData = NOBType.data.responseData.data.map((NOB) => ({
+                value: NOB.businessNatureID,
+                label: NOB.businessNatureName,
+              }));
+            }
+          }     
+      // Fetch data for export
+      const data = await DashboardCountData(fromDateForExport, toDateForExport);
+      if (data && data.data.statusCode === 200) {
+
+        if (data?.data?.responseData) {
+          const DashboardCountsListData = data?.data?.responseData;
+  
+          // Define headers dynamically
+          const selectedFilterValue = selectedOption;
+
+          const filterHeading = getFilterHeading(selectedFilterValue);
+          let OrganisationList = localStorage.getItem("OrganisationLocalList");
+          let OrganisationListData = [];
+          if (OrganisationList) {
+            OrganisationListData = JSON.parse(OrganisationList);
+          }
+          const orgName = OrganisationListData.find(
+            (org) => org.organisationKeyID === common.organisationKeyID
+          )?.organisationName || "Unknown";
+  
+          const headersArray = [
+            ["Practice Name", orgName],
+            ["Reporting Period", filterHeading],
+          ];
+  
+          // Define columns dynamically
+          const defaultColumns = {
             quotationDraft: `${proposalName} Draft`,
             quotationSent: `${proposalName} Sent`,
-            quotationAwaitingSignature: `Awaiting Response`,
+            quotationAwaitingSignature: `${proposalName} Awaiting Response`,
             quotationAccepted: `${proposalName} Accepted`,
-            quotationDeclined: `${proposalName} Decline`,
+            quotationDeclined: `${proposalName} Declined`,
           };
-        } else if (common.enableEL === 1) {
-          columnsToShow = {
-            quotationDraft: `${proposalName} Draft`,
-            quotationSent: `${proposalName} Sent`,
+          const engagementColumns = {
             contractDraft: `${EngagementName} Draft`,
             contractSent: `${EngagementName} Sent`,
             contractAwaitingSignature: `${EngagementName} Viewed`,
+            contractAccepted: `${EngagementName} Accepted`,
             contractSigned: `${EngagementName} Signed`,
             contractDeclined: `${EngagementName} Declined`,
+            contractVoid: `${EngagementName} Void`,
           };
-        }
-        // Convert DashboardCountsListData to an array of key-value pairs
-        const dataArray = Object.entries(DashboardCountsListData).flatMap(
-          ([Key, value]) => {
-            const rowData = [
-              { "Column Name": "Practice Name :", Value: orgName },
-              { "Column Name": "Reporting Period :", Value: filterHeading },
-              { "Column Name": "", Value: "" },
-              { "Column Name": "", Value: "" },
-              ...Object.entries(value)
-                .filter(([key]) => key in columnsToShow)
-                .map(([key, val]) => ({
-                  "Column Name": columnsToShow[key],
-                  Value: val,
-                })),
-            ];
-            return rowData;
+  
+          const columnsToShow =
+            {...defaultColumns, ...engagementColumns};
+  
+          // Map data to rows dynamically
+          const baseRows = [];
+        for (const [key, value] of Object.entries(DashboardCountsListData)) {
+          for (const [subKey, val] of Object.entries(value)) {
+            if (subKey in columnsToShow) {  
+              baseRows.push([columnsToShow[subKey], val]);
+            }
           }
-        );
-        // Convert dataArray to Excel workbook
-        const workbook = XLSX.utils.book_new();
-        const worksheet = XLSX.utils.json_to_sheet(dataArray, {
-          skipHeader: true,
-        });
 
-        // Calculate column widths
-        const maxWidths = [0, 0]; // Initialize with two columns
-        dataArray.forEach(row => {
-          const columnNameLength = row["Column Name"] ? row["Column Name"].toString().length : 0;
-          const valueLength = row["Value"] ? row["Value"].toString().length : 0;
-          maxWidths[0] = Math.max(maxWidths[0], columnNameLength);
-          maxWidths[1] = Math.max(maxWidths[1], valueLength);
-        });
+          }
+          
+          // Convert headers and rows into a 2D array
+          headersArray.push([]); // Add an empty row before data
+          headersArray.push([]); 
 
-        // Set column widths
-        worksheet['!cols'] = maxWidths.map(width => ({ wch: width + 2 })); // Add 2 for padding
+          const baseRowsProposal = [];
+          const proposalHeader = [
+              "Ref Id",
+              "Prospect Name",
+              "Prospect Type",
+              "Nature Of Business",
+              "Recurring Price",
+              "One Off Price",
+              "Status",
+              "Last Updated On",
+              "Sent On Date",
+            ];
+            baseRowsProposal.push(proposalHeader);
+            baseRowsProposal.push([]);
 
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Summary");
-        // Generate a file name for the Excel file
-        const fileName = `Dashboard_data_${orgName}_${filterHeading}.xlsx`;
-        // Save the Excel file
-        XLSX.writeFile(workbook, fileName);
-        // Fetch data again to reset page size for subsequent calls
-        await DashboardCountData(fromDateForExport, toDateForExport);
+          const proposalDataResponse = await GetProposalList({
+                organisationKeyID: common.organisationKeyID,
+                pageSize: 30,
+                pageNo: 0,
+                userKeyID: common.userKeyID || null,
+                fromDate: fromDateForExport === "" ? null : fromDateForExport,
+                toDate: toDateForExport === "" ? null : toDateForExport,
+              });
+
+              if (proposalDataResponse?.data?.statusCode === 200) {
+                const proposalData = proposalDataResponse.data.responseData.data || [];
+                console.log(proposalData);
+                // Define status mappings
+                const statusMappings = [
+                  { id: 1, label: "Draft" },
+                  { id: 2, label: "Sent" }
+                ];
+            
+                // Filter and process data for each status
+                statusMappings.forEach(({ id, label }) => {
+                  const filteredData = proposalData.filter(item => item.statusID === id);
+                  const dataRows = filteredData.map(item => [
+                    item.prefix,
+                    item.clientName,
+                    item.businessTypeName,
+                    item.businessNatureName,
+                    // new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(item.recurringPrice || 0),
+                    formatValue(item.recurringPrice,1),
+                    // new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(item.oneOffPrice || 0),
+                    formatValue(item.oneOffPrice,1),
+                    label,
+                    item.lastUpdatedOn || "-",
+                    item.sentOn || "-",
+                  ]);
+                  baseRowsProposal.push(...dataRows);
+                });
+              }
+
+          const baseRowsContract = [];
+          const contractHeader = [
+            "Ref Id",
+            "Prospect Name",
+            "Prospect Type",
+            "Nature Of Business",
+            "Recurring Price",
+            "One Off Price",
+            "Status",
+            "Last Updated On",
+            "Sent On Date",
+            "Viewed On Date",
+            "Signed On Date",
+            "Declined On Date",
+          ];
+          baseRowsContract.push(contractHeader);
+          baseRowsContract.push([]);
+
+          const contractDataResponse = await GetEngagementList({
+            organisationKeyID: common.organisationKeyID,
+            pageSize: 30,
+            pageNo: 0,
+            userKeyID: common.userKeyID || null,
+            fromDate: fromDateForExport === "" ? null : fromDateForExport,
+            toDate: toDateForExport === "" ? null : toDateForExport,
+          });
+          if (contractDataResponse?.data?.statusCode === 200) {
+            const contractData = contractDataResponse.data.responseData.data || [];
+            console.log(contractData);
+            // status mappings
+            const statusMappings = [
+              { id: 1, label: "Draft" },
+              { id: 2, label: "Sent" },
+              { id: 4, label: "Awaiting Response" },
+              { id: 5, label: "Signed" },
+              { id: 7, label: "Declined" },
+              { id: 8, label: "Void" },
+            ];
+        
+            // Filter and process data for each status
+            statusMappings.forEach(({ id, label }) => {
+              const filteredData = contractData.filter(item => item.statusID === id);
+              const dataRows = filteredData.map(item => [
+                item.prefix,
+                item.clientName,
+                item.businessTypeName,
+                item.businessNatureName,
+                // new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(item.recurringPrice || 0),
+                formatValue(item.recurringPrice,1),
+                // new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(item.oneOffPrice || 0),
+                formatValue(item.oneOffPrice,1),
+                label,
+                item.lastUpdatedOn || "-",
+                item.sentOn || "-",
+                item.viewedOn || "-",
+                item.signedOn || "-",
+                item.declinedOn || "-",
+              ]);
+              baseRowsContract.push(...dataRows);
+            });
+          }
+          // const rowsArray = rows.map((row) => [row["Column Name"], row.Value]);  
+          const worksheetData = [...headersArray, ...baseRows];
+          const worksheetProposalData = [...headersArray, ...baseRowsProposal];
+          const worksheetContractData = [...headersArray, ...baseRowsContract];          
+  
+          // Create Excel worksheet and adjust column widths
+          const workbook = XLSX.utils.book_new();
+          const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+          const worksheetProposal = XLSX.utils.aoa_to_sheet(worksheetProposalData);
+          const worksheetContract = XLSX.utils.aoa_to_sheet(worksheetContractData);
+  
+          const maxWidths = worksheetData.reduce((widths, row) => {
+            row.forEach((cell, i) => {
+              const cellValue =
+                cell !== null && cell !== undefined ? String(cell) : "";
+              widths[i] = Math.max(widths[i] || 0, cellValue.length);
+            });
+            return widths;
+          }, []);
+          const maxWidthsProposal = worksheetProposalData.reduce((widths, row) => {
+            row.forEach((cell, i) => {
+              const cellValue =
+                cell !== null && cell !== undefined ? String(cell) : "";
+              widths[i] = Math.max(widths[i] || 0, cellValue.length);
+            });
+            return widths;
+          }, []);
+          const maxWidthsContract = worksheetContractData.reduce((widths, row) => {
+            row.forEach((cell, i) => {
+              const cellValue =
+                cell !== null && cell !== undefined ? String(cell) : "";
+              widths[i] = Math.max(widths[i] || 0, cellValue.length);
+            });
+            return widths;
+          }, []);
+          worksheet["!cols"] = maxWidths.map((w) => ({ wch: w + 2 }));
+          worksheetProposal["!cols"] = maxWidthsProposal.map((w) => ({ wch: w + 2 }));
+          worksheetContract["!cols"] = maxWidthsContract.map((w) => ({ wch: w + 2 }));
+  
+          XLSX.utils.book_append_sheet(workbook, worksheet, "Summary");
+          if(common.organisationKeyID) {
+            XLSX.utils.book_append_sheet(workbook, worksheetProposal, "Proposal");
+            XLSX.utils.book_append_sheet(workbook, worksheetContract, "Engagement Letter");
+          }
+  
+          // Generate file name
+          const fileName = `Dashboard_Data_${orgName}_${filterHeading}.xlsx`;
+          XLSX.writeFile(workbook, fileName);
+  
+          // Re-fetch data to reset the state
+          await DashboardCountData(fromDateForExport, toDateForExport);
+        } else {
+          console.error("No data available for export");
+        }
       } else {
-        // Handle error if data fetching fails
         console.error("Failed to fetch data for export");
       }
-    } else {
-      // Handle error if data fetching fails
-      console.error("Failed to fetch data for export");
-    }
+  } catch (error) {
+    console.error("Error during export:", error);
+  }
   };
-
   const DashboardCountData = async (startDate, endDate, i) => {
     if (
       common?.organisationKeyID === "" ||
@@ -840,6 +1110,7 @@ const Dashboard = () => {
     setModelRequestData((prevData) => ({
       ...prevData,
       Draft: type === "Draft" ? proposalValue : null,
+      Void: type === "Void" ? proposalValue : null,
       Sent: type === "Sent" ? proposalValue : null,
       Accepted: type === "Accepted" ? proposalValue : null,
       Decline: type === "Decline" ? proposalValue : null,
@@ -1022,7 +1293,7 @@ const Dashboard = () => {
                                       </div>
                                     </div>
                                   </div>
-
+                                  
                                   <div
                                     className={`col-xl-3 col-lg-3 col-md-4 dashboard-box col-sm-12  ${common.organisationKeyID !== null
                                       ? "cursor-pointer"
@@ -1304,7 +1575,58 @@ const Dashboard = () => {
                                       </div>
                                     </div>
                                   </div>
-
+                                  <div
+                                    className={`col-xl-3 col-lg-3 col-md-4 dashboard-box col-sm-12  ${common.organisationKeyID !== null
+                                      ? "cursor-pointer"
+                                      : ""
+                                      } `}
+                                  >
+                                    <div className="dashboard-new-design">
+                                      <div
+                                        class="card"
+                                        onClick={() =>
+                                          GetHandleChangeFilter(
+                                            "Void",
+                                            statusID.Void
+                                          )
+                                        }
+                                      >
+                                        <div
+                                          class="card-header p-3 pt-2"
+                                          style={cardStyle}
+                                        >
+                                          <div className="row">
+                                            <div className="col-lg-6">
+                                              <img
+                                                src={EngagementLatterSignedSvg}
+                                                className="CardImage"
+                                                alt
+                                              />
+                                            </div>
+                                            <div className="col-lg-6">
+                                              <div class="text-end pt-1">
+                                                <h4 class="mb-0 text-white ">
+                                                  {" "}
+                                                  {dashboardCount?.contractVoid}
+                                                </h4>
+                                              </div>
+                                            </div>
+                                          </div>
+                                          <div class="text-end pt-1"></div>
+                                        </div>
+                                        <hr class="dark horizontal my-0" />
+                                        <div
+                                          class="card-footer p-3"
+                                          style={cardStyle}
+                                        >
+                                          <p class="mb-0 font-weight-bolder">
+                                            <span class="text-success text-sm font-weight-bolder" />
+                                              Void {EngagementName}
+                                          </p>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
                                   <div
                                     className={`col-xl-3 col-lg-3 col-md-4 dashboard-box col-sm-12  ${common.organisationKeyID !== null
                                       ? "cursor-pointer"

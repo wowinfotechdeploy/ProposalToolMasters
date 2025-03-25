@@ -80,3 +80,9 @@ export const ChangeContractStatus = async (ContractKeyID, UserKeyID) => {
     return res;
 };
 
+export const VoidContract = async (ContractKeyID, UserKeyID) => {
+    const res = await postApiWithAuthenticated(
+        `${Engagement_Letters}/VoidContract?ContractKeyID=${ContractKeyID}&UserKeyID=${UserKeyID}`
+    );
+    return res;
+};

@@ -131,3 +131,11 @@ export const GetPricingDriverUsedInModules = async (
   const res = await getListWithAuthenticated(url);
   return res;
 };
+
+// Cop Global Pricing Driver Record
+export const CopyGlobalPricingDriver = async(GlobalPricingDriverKeyID, UserKeyID) => {
+  const res = await postApiWithAuthenticated(
+      `${globalPricingDriverListUrl}/CopyGlobalPricingDriver?GlobalPricingDriverKeyID=${GlobalPricingDriverKeyID}&UserKeyID=${UserKeyID}`
+  );
+  return res;
+}

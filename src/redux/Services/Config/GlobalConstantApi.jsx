@@ -60,3 +60,10 @@ export const GlobalConstantChangeStatus = async (GlobalPricingDriverKeyID, userK
     );
     return res;
 };
+// Cop Global Constant Record
+export const CopyGlobalConstant = async(GlobalPricingDriverKeyID, UserKeyID) => {
+    const res = await postApiWithAuthenticated(
+        `${globalConstantListUrl}/CopyGlobalConstant?GlobalPricingDriverKeyID=${GlobalPricingDriverKeyID}&UserKeyID=${UserKeyID}`
+    );
+    return res;
+}

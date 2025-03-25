@@ -280,6 +280,10 @@ const select_Quote_Type = [
     value: 3,
     label: "Custom (Single)",
   },
+  {
+    value: 4,
+    label: "Master Agreement- Custom Variable Fee"
+  }
 ];
 
 const ProposalStatus = [
@@ -414,6 +418,36 @@ const CalenderFilter = [
   {
     value: 11,
     label: "Custom Date Range",
+  },
+];
+const DateFilter = [
+  {
+    value: 0,
+    label: "Active in last 1 day",
+  },
+  {
+    value: 1,
+    label: "Active in last 7 days",
+  },
+  {
+    value: 2,
+    label: "Active in last 1 month",
+  },
+  {
+    value: 3,
+    label: "Active in last 2 months",
+  },
+  {
+    value: 4,
+    label: "Active in last 3 months",
+  },
+  {
+    value: 5,
+    label: "Active in last 6 months",
+  },
+  {
+    value: 6,
+    label: "Active in last 1 year",
   },
 ];
 const ucFirst = (word) => word.charAt(0).toUpperCase() + word.slice(1); // Upper Case First Letter
@@ -584,6 +618,10 @@ const repeats = [
 
 const FontFamily = [
   {
+    value: null,
+    label: "Select",
+  },
+  {
     value: 1,
     label: "Georgia, serif",
   },
@@ -634,7 +672,10 @@ const FontFamily = [
 //   { value: 6, label: "6px" },
 //   { value: 7, label: "7px" },
 // ];
-
+const heightOptions = Array.from({ length: 39 }, (_, i) => {
+  const value = `${10 + i * 5}px`;
+  return { value, label: value };
+});
 const FontSize = [
   { value: 5, label: "5px" },
   { value: 6, label: "6px" },
@@ -652,6 +693,7 @@ const FontSize = [
 ];
 
 export default {
+  heightOptions,
   FontSize,
   FontFamily,
   emailTemplates,
@@ -680,4 +722,5 @@ export default {
   fees,
   DiscountLines,
   dropdownOptions,
+  DateFilter
 };

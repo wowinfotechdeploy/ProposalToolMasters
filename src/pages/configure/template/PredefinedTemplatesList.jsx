@@ -15,6 +15,12 @@ import {
   GetTemplateLookupPDFList,
   GetTemplateModel,
   GetTemplatePdfModel,
+  GetTemplateHeaderFooterList,
+  GetTemplateHeaderFooterModel,DeleteTemplateHeaderFooter,
+  TemplateHeaderFooterChangeStatus,
+  AddUpdateTemplateHeaderFooter,
+  CopyTemplate,
+  CopyTemplatePdf
 } from "../../../redux/Services/Config/TemplateApi";
 import PaginationComponent from "../../../components/PaginationModel";
 import { useDispatch, useSelector } from "react-redux";
@@ -40,6 +46,7 @@ function Predefined_Templates() {
   //A]Declare state
   const moduleName = "Template";
   const moduleNameForTemplatePdf = "Template PDF";
+  const moduleNameForHeaderFooter = "Header and Footer";
   let getTemplateListApiCallCount = 0;
   const common = useSelector((state) => state.Storage); //Getting Logged Users Details From Persist Storage of redux hooks
   const [showProfessionType, setShowProfessionType] = useState(
@@ -77,6 +84,7 @@ function Predefined_Templates() {
   const [activeTab, setActiveTab] = useState("Templates");
   const [TemplateList, setTemplateList] = useState([]);
   const [TemplatePdfList, setTemplatePdfList] = useState([]);
+  const [TemplateHeaderFooterList, setTemplateHeaderFooterList] = useState([]);
   const location = useLocation();
   const [errorMessage, setErrorMessage] = useState("");
   const [isAddUpdateActionDone, setIsAddUpdateActionDone] = useState(false);
@@ -87,6 +95,7 @@ function Predefined_Templates() {
   const [currentPageUsers, setCurrentPageUsers] = useState(1);
   const [totalRecords, setTotalRecords] = useState(-1);
   const [pdfListCount, setPdfListCount] = useState([]);
+  const [HeaderFooterListCount,setHeaderFooterListCount] = useState([]);
   const totalPdfPage = Math.ceil(pdfListCount / 10);
   const [openErrorModal, setOpenErrorModal] = useState(false);
   const [modelRequestData, setModelRequestData] = useState({
@@ -101,6 +110,7 @@ function Predefined_Templates() {
     Action: "",
     userKeyID: null,
     templatePdfKeyID: null,
+    hfTemplateKeyID: null
   });
   const [sortType, setSortType] = useState(null);
 
@@ -112,8 +122,12 @@ function Predefined_Templates() {
     ProspectBusinessType: null,
     ProfessionType: null,
     templatePdfListSort: null,
+    hfTemplateName: null,
+    hfProfessionType:null,
+    hfTemplateType:null
   });
   const [searchKeyword, setSearchKeyword] = useState("");
+  const [searchKeywordHF,setSearchKeywordHF] = useState("");
   const pageSize = isMobile ? isMobileRecords : desktopRecords;
   const isCurrentPage =
     common.currentPage === "" ? currentPage : common.currentPage;
@@ -172,6 +186,15 @@ function Predefined_Templates() {
     }
   }, [location.state]);
 
+  useEffect(() => {
+    // Check if the location state is "Templates PDF"
+    if (location.state === "Header and Footer") {
+      console.log("Header and Footer");
+      // Do something when the state is "Templates PDF"
+      setActiveTab("Header and Footer");
+      GetTemplateHFListData(1, null, null, null);
+    }
+  }, [location.state]);
   useEffect(() => {
     if (
       modelRequestData.TemplateID !== null &&
@@ -269,6 +292,42 @@ function Predefined_Templates() {
       console.log(error);
     }
   };
+
+  const CopyTemplateData = async() => {
+    if(!common.organisationKeyID) return;
+    try{
+      const data = await CopyTemplate(modelRequestData.templateKeyID,common.userKeyID);
+      if(data?.data?.statusCode) {
+        setOpenSuccessModal(true);
+        GetTemplateListData(isCurrentPage);
+      }
+      else {
+        setErrorMessage(data?.data?.errorMessage);
+        setOpenErrorModal(true);
+      }
+    }
+    catch(error) {
+      console.error(error);
+    }
+  }
+    // Copy Template Data
+    const CopyTemplatePdfData = async() => {
+      if(!common.organisationKeyID) return;
+      try{
+        const data = await CopyTemplatePdf(modelRequestData.templatePdfKeyID,common.userKeyID);
+        if(data?.data?.statusCode) {
+          setOpenSuccessModal(true);
+          GetTemplatePdfListData(isCurrentPage);
+        }
+        else {
+          setErrorMessage(data?.data?.errorMessage);
+          setOpenErrorModal(true);
+        }
+      }
+      catch(error) {
+        console.error(error);
+      }
+    }
   const ApplyFilter = () => {
     if (
       (selectedTemplateType !== null && selectedTemplateType !== "") ||
@@ -289,6 +348,77 @@ function Predefined_Templates() {
       businessTypeID
     );
   };
+
+  const GetTemplateHFListData = async (
+    i,
+    searchKeywordHF,
+    sortValue,
+    TemplateSort
+  ) => {
+    setLoader(true);
+    const pageNoList = i - 1;
+    try {
+      const data = await GetTemplateHeaderFooterList({
+        pageSize: 10,
+        pageNo: pageNoList,
+        SearchKeyword:
+          searchKeywordHF === undefined
+            ? searchKeywordHF
+            : searchKeywordHF,
+        userKeyID: common.userKeyID || null,
+        organisationKeyID: common.organisationKeyID,
+        primarySortDirection:
+          sortValue === undefined ? primarySortDirection : sortValue,
+        PrimarySortColumnName: sortType == "" ? TemplateSort : sortType,
+      });
+      if (data) {
+        if (data?.data?.statusCode === 200) {
+          setLoader(false);
+          getTemplateListApiCallCount = 0;
+          if (data?.data?.responseData?.data) {
+            const totalCount = data.data.totalCount;
+            const TemplateListData = data.data.responseData.data;
+            if (pageNoList > 0 && TemplateListData.length === 0) {
+              let newPaneNo = Number(pageNoList);
+              if (newPaneNo > 1) {
+                newPaneNo = newPaneNo - 1;
+              }
+              GetTemplateHFListData(
+                newPaneNo,
+                searchKeywordHF,
+                sortValue,
+                TemplateSort
+              );
+              setCurrentPageUsers(pageNoList);
+              return;
+            }
+            setHeaderFooterListCount(totalCount);
+            setTemplateHeaderFooterList(TemplateListData);
+            setTotalRecords(TemplateListData.length);
+          }
+        } else {
+          if (getTemplateListApiCallCount < maxCountToRecallApi) {
+            getTemplateListApiCallCount += 1;
+            setTimeout(function () {
+              GetTemplateHFListData(
+                i,
+                searchKeywordHF,
+                sortValue,
+                TemplateSort
+              );
+            }, 2000);
+          } else {
+            setLoader(false);
+          }
+
+          setErrorMessage(data?.data?.errorMessage);
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const GetTemplatePdfListData = async (
     i,
     searchKeywordForPDF,
@@ -648,6 +778,50 @@ function Predefined_Templates() {
     }
   };
 
+  const TemplateHeaderFooterChangeStatusAndDeleteData = async () => {
+    setLoader(true);
+  
+      if (modelRequestData.Action === "Delete") {
+        try {
+          const Data = await DeleteTemplateHeaderFooter(
+            modelRequestData.hfTemplateKeyID,
+            modelRequestData.userKeyID
+          );
+          if (Data) {
+            setLoader(false);
+            if (Data?.data?.statusCode === 200) {
+              setOpenSuccessModal(true);
+            } else {
+              setErrorMessage(Data?.response?.data?.errorMessage);
+              setOpenErrorModal(true);
+            }
+            GetTemplateHFListData(currentPage);
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      } else if (modelRequestData.Action === "Status") {
+        try {
+          const Data = await TemplateHeaderFooterChangeStatus(
+            modelRequestData.hfTemplateKeyID,
+            modelRequestData.userKeyID
+          );
+          if (Data) {
+            setLoader(false);
+            if (Data?.data?.statusCode === 200) {
+              setOpenSuccessModal(true);
+            } else {
+              setErrorMessage(Data?.response?.data?.errorMessage);
+              setOpenErrorModal(true);
+            }
+          }
+          GetTemplateHFListData(currentPage);
+        } catch (error) {
+          console.log(error);
+        }
+      }
+    };
+
   //E] Update Function Modal
   // 1) On Click Service Category Add Button
   const TemplateAddBtnClicked = () => {
@@ -666,6 +840,23 @@ function Predefined_Templates() {
     };
     setTopbar("none");
     navigate("/add-template", { state: addTemplateRequestData });
+  };
+  const TemplateHeaderFooterAddBtnClicked = () => {
+    {
+      setModelRequestData({
+        ...modelRequestData,
+        TemplateID: null,
+        templateKeyID: null,
+      });
+    }
+    let addTemplateRequestData = {
+      TemplateID: null,
+      templateName: null,
+      templateKeyID: null,
+      status: null,
+    };
+    setTopbar("none");
+    navigate("/add-template-header-footer", { state: addTemplateRequestData });
   };
   const TemplatePDFEditBtnClicked = async (Template, type) => {
     if (type === "editPredefined") {
@@ -752,6 +943,57 @@ function Predefined_Templates() {
       });
     }
   };
+  const TemplateHeaderFooterEditBtnClicked = async (Template, type) => {
+    if (type === "edit") {
+      setLoader(true);
+      const data = await GetTemplateHeaderFooterModel(
+        Template?.hfTemplateKeyID,
+      );
+      if (data?.data?.statusCode === 200) {
+        setLoader(false);
+        setModelRequestData({
+          ...modelRequestData,
+          TemplateID: null,
+          hfTemplateName: Template?.hfTemplateName || null,
+          hfTemplateKeyID: Template?.hfTemplateKeyID,
+          Action: "Update",
+          Type: true,
+        });
+        let addTemplateRequestData = {
+          TemplateID: null,
+          hfTemplateName: Template?.hfTemplateName || null,
+          hfTemplateKeyID: Template?.hfTemplateKeyID || null,
+          templateTypeID: Template?.templateTypeID || null,
+          status: null,
+          Action: "Update",
+          Type: true,
+        };
+        setTopbar("none");
+        navigate("/add-template-header-footer", { state: addTemplateRequestData });
+      } else {
+        console.log("type: not edit");
+        setLoader(false);
+        setErrorMessage(data?.response?.data?.errorMessage);
+        setOpenErrorModal(true);
+      }
+    } else {
+      {
+        setModelRequestData({
+          ...modelRequestData,
+          TemplateID: null,
+          hfTemplateKeyID: null,
+        });
+      }
+      let addTemplateRequestData = {
+        TemplateID: null,
+        hfTemplateName: Template?.hfTemplateName || null,
+        hfTemplateKeyID: Template?.hfTemplateKeyID || null,
+        status: null,
+      };
+      setTopbar("none");
+      navigate("/add-template-header-footer", { state: addTemplateRequestData });
+    }
+  };
 
   // F] Pagination :
   const handlePageChange = async (pageNumber) => {
@@ -810,6 +1052,30 @@ function Predefined_Templates() {
       });
       setCurrentPageUsers(currentPage);
       GetTemplatePdfListData(currentPage, searchKeywordForPDF, sortValue);
+    } else if (sortType === "HFProfessionType") {
+      setPrimarySortDirection(sortValue);
+      setPrimarySortDirectionObj({
+        ...primarySortDirectionObj,
+        hfProfessionType: sortValue,
+      });
+      setCurrentPage(1);
+      GetTemplateHFListData(isCurrentPage,searchKeywordHF,sortValue);
+    } else if (sortType === "HFTemplateName") {
+      setPrimarySortDirection(sortValue);
+      setPrimarySortDirectionObj({
+        ...primarySortDirectionObj,
+        hfTemplateName: sortValue,
+      });
+      setCurrentPage(1);
+      GetTemplateHFListData(isCurrentPage,searchKeywordHF,sortValue);
+    } else if (sortType === "HFTemplateType") {
+      setPrimarySortDirection(sortValue);
+      setPrimarySortDirectionObj({
+        ...primarySortDirectionObj,
+        hfTemplateType: sortValue,
+      });
+      setCurrentPage(1);
+      GetTemplateHFListData(isCurrentPage,searchKeywordHF,sortValue);
     }
   };
 
@@ -825,7 +1091,12 @@ function Predefined_Templates() {
     setCurrentPage(currentPage);
     GetTemplatePdfListData(currentPage, searchKeywordForPDF);
   };
-
+  const handleSearchForHF = (e) => {
+    const searchKeywordHF = e.target.value;
+    setSearchKeywordHF(searchKeywordHF);
+    setCurrentPage(currentPage);
+    GetTemplateHFListData(currentPage, searchKeywordHF);
+  };
   const handleClose = () => {
     $("#" + "ConfirmModel").modal("hide");
     $("#" + "RecordsAvailablePopupModel").modal("hide");
@@ -847,6 +1118,10 @@ function Predefined_Templates() {
     setOpenErrorModal(false);
   };
 
+  const OnHeaderFooterTabClicked = () => {
+    setActiveTab("Header and Footer");
+    GetTemplateHFListData(1);
+  }
   const OnTemplatePDFTabClicked = () => {
     setActiveTab("Templates PDF");
     GetTemplatePdfListData(1);
@@ -892,6 +1167,19 @@ function Predefined_Templates() {
                         onClick={() => OnTemplatePDFTabClicked()}
                       >
                         <b>Templates PDF</b>
+                      </a>
+                    </li>
+                    <li className="nav-item">
+                      <a
+                        className={`nav-link tab_nav ${activeTab === "Header and Footer" ? "active" : ""
+                          }`}
+                        data-bs-toggle="tab"
+                        href="#Header and Footer"
+                        role="tab"
+                        aria-selected={activeTab === "Header and Footer"}
+                        onClick={() => OnHeaderFooterTabClicked()}
+                      >
+                        <b>Header and Footer</b>
                       </a>
                     </li>
                   </ul>
@@ -1006,6 +1294,77 @@ function Predefined_Templates() {
                                 </div>
                               </div>
                             )}
+                            {activeTab === "Header and Footer" && (
+                              <div className="d-flex justify-content-start">
+                                <div
+                                  class="search-box  width-searchbox "
+                                  id="w-100"
+                                  style={{ marginRight: "10px" }}
+                                >
+                                  <i className="ri-search-line search-icon"></i>
+                                  <input
+                                    type="text"
+                                    value={searchKeywordHF}
+                                    onChange={(e) => {
+                                      handleSearchForHF(e);
+                                    }}
+                                    className="form-control search"
+                                    placeholder={
+                                      isMobile
+                                        ? "Search"
+                                        : getPlaceholderTextName(
+                                          "Search",
+                                          moduleNameForHeaderFooter
+                                        )
+                                    }
+                                  />
+                                </div>
+                                {/* <div className=" d-flex align-items-start justify-content-start ">
+                                  <Tooltip
+                                    title={getCrudButtonToolTipName(
+                                      "Filter",
+                                      moduleNameForHeaderFooter
+                                    )}
+                                  >
+                                    <div>
+                                      <button
+                                        className={
+                                          isFilterApply
+                                            ? "btn btn-md btn-success create-item-btn filter me-2"
+                                            : "btn btn-md btn-success create-item-btn-apply filter me-2"
+                                        }
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#FilterModel"
+                                      >
+                                        <i
+                                          className={
+                                            isFilterApply
+                                              ? "ri-filter-fill align-bottom "
+                                              : "ri-filter-fill align-bottom Filter-apply-color"
+                                          }
+                                        ></i>
+                                      </button>
+                                    </div>
+                                  </Tooltip>
+                                  <div className="col-9">
+                                    {isFilterApply ? (
+                                      <Tooltip title={"Clear Filter"}>
+                                        <div>
+                                          <button
+                                            className="btn btn-md btn-success create-Filter-item-btn text-nowrap"
+                                            onClick={ClearFilter} // Corrected from onclick to onClick
+                                          >
+                                            <span>Clear Filter</span>
+                                          </button>
+                                        </div>
+                                      </Tooltip>
+                                    ) : (
+                                      ""
+                                    )}
+                                  </div>
+                                </div> */}
+                              </div>
+                            )}
                           </div>
 
                           <div class="col-lg-6 col-md-6 col-5  mb-2">
@@ -1051,7 +1410,19 @@ function Predefined_Templates() {
                                       AddBtn={() => TemplateAddBtnClicked()}
                                     />
                                   )}
-
+                                {activeTab === "Header and Footer" && (
+                                  <CommonButtonComponent
+                                    title={getCrudButtonToolTipName(
+                                      "Add",
+                                      moduleNameForHeaderFooter
+                                    )}
+                                    name={getCrudButtonTextName(
+                                      "Add",
+                                      moduleNameForHeaderFooter
+                                    )}
+                                    AddBtn={() => TemplateHeaderFooterAddBtnClicked()}
+                                  />
+                                )}
                                   {/* </div> */}
                                 </div>
                               )}
@@ -1269,6 +1640,30 @@ function Predefined_Templates() {
                                       </td>
                                       <td>
                                         <div class="d-flex gap-2">
+                                        <Tooltip
+                                            title={getCrudButtonToolTipName(
+                                              "Copy",
+                                              moduleNameForTemplatePdf
+                                            )}
+                                          >
+                                            <div class="copy">
+                                              <button
+                                                class="btn btn-sm btn-success edit-item-btn edit"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#ConfirmModel"
+                                                onClick={() =>
+                                                  setModelRequestData({
+                                                    ...modelRequestData,
+                                                    Action: "Copy",
+                                                    templatePdfKeyID: Template.templatePdfKeyID,
+                                                    userKeyID: common.userKeyID
+                                                  })
+                                                }
+                                              >
+                                                <i class="fa-solid fa-copy"></i>
+                                              </button>
+                                            </div>
+                                          </Tooltip>
                                           {((userAccessData.Admin_Config_Template_CanEdit &&
                                             common.organisationKeyID !==
                                             null) ||
@@ -1815,6 +2210,30 @@ function Predefined_Templates() {
                                       </td>
                                       <td>
                                         <div class="d-flex gap-2">
+                                        <Tooltip
+                                            title={getCrudButtonToolTipName(
+                                              "Copy",
+                                              moduleName
+                                            )}
+                                          >
+                                            <div class="copy">
+                                              <button
+                                                class="btn btn-sm btn-success edit-item-btn edit"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#ConfirmModel"
+                                                onClick={() =>
+                                                  setModelRequestData({
+                                                    ...modelRequestData,
+                                                    Action: "Copy",
+                                                    templateKeyID: Template.templateKeyID,
+                                                    userKeyID: common.userKeyID
+                                                  })
+                                                }
+                                              >
+                                                <i class="fa-solid fa-copy"></i>
+                                              </button>
+                                            </div>
+                                          </Tooltip>  
                                           {((userAccessData.Admin_Config_Template_CanEdit &&
                                             common.organisationKeyID !==
                                             null) ||
@@ -1885,7 +2304,566 @@ function Predefined_Templates() {
                             </table>
                           )}
                         </div>
+                        <div
+                          className={`tab-pane ${activeTab === "Header and Footer" ? "active" : ""
+                            }`}
+                          id="base-justified-home"
+                        >
+                          {activeTab === "Header and Footer" && (
+                            <table
+                              class="table align-middle table-nowrap"
+                              id="customerTable"
+                            >
+                              <thead class="table-light table-header-font">
+                                <tr className="head-row">
+                                  <td
+                                    className="tr-table-class text-white"
+                                    style={{width: "10%"}}
+                                  >
+                                    Template Name
+                                    {primarySortDirectionObj.hfTemplateName ===
+                                      "desc" && (
+                                        <i
+                                          onClick={() => {
+                                            setSortType("HFTemplateName");
+                                            handleSort("asc");
+                                          }}
+                                          class="fas fa-sort-alpha-up ml-1"
+                                        ></i>
+                                      )}
+                                    {(primarySortDirectionObj.hfTemplateName ===
+                                      null ||
+                                      primarySortDirectionObj.hfTemplateName ===
+                                      "asc") && (
+                                        <i
+                                          onClick={() => {
+                                            setSortType("HFTemplateName");
+                                            handleSort(
+                                              primarySortDirectionObj.hfTemplateName ===
+                                                null
+                                                ? "asc"
+                                                : "desc"
+                                            );
+                                          }}
+                                          class="fas fa-sort-alpha-down  ml-1"
+                                        ></i>
+                                      )}
+                                  </td>
+                                  
+                                  <td className="tr-table-class text-white profession-type-column">
+                                    {showProfessionType && (
+                                      <>
+                                        Profession Type
+                                        {primarySortDirectionObj.hfProfessionType ===
+                                          "desc" && (
+                                            <i
+                                              onClick={() => {
+                                                setSortType("HFProfessionType");
+                                                handleSort("asc");
+                                              }}
+                                              class="fas fa-sort-alpha-up ml-1"
+                                            ></i>
+                                          )}
+                                        {(primarySortDirectionObj.hfProfessionType ===
+                                          null ||
+                                          primarySortDirectionObj.hfProfessionType ===
+                                          "asc") && (
+                                            <i
+                                              onClick={() => {
+                                                setSortType("HFProfessionType");
+                                                handleSort(
+                                                  primarySortDirectionObj.hfProfessionType ===
+                                                    null
+                                                    ? "asc"
+                                                    : "desc"
+                                                );
+                                              }}
+                                              class="fas fa-sort-alpha-down  ml-1"
+                                            ></i>
+                                          )}
+                                      </>
+                                    )}
+                                  </td>
+                                  {/* <td className="tr-table-class text-white profession-type-column">
+                                    {showProfessionType && (
+                                      <>
+                                        Profession Type
+                                        {primarySortDirectionObj.ProfessionType ===
+                                          "desc" && (
+                                            <i
+                                              onClick={() => {
+                                                setSortType("ProfessionType");
+                                                handleSort("asc");
+                                              }}
+                                              class="fas fa-sort-alpha-up ml-1"
+                                            ></i>
+                                          )}
+                                        {(primarySortDirectionObj.ProfessionType ===
+                                          null ||
+                                          primarySortDirectionObj.ProfessionType ===
+                                          "asc") && (
+                                            <i
+                                              onClick={() => {
+                                                setSortType("ProfessionType");
+                                                handleSort(
+                                                  primarySortDirectionObj.ProfessionType ===
+                                                    null
+                                                    ? "asc"
+                                                    : "desc"
+                                                );
+                                              }}
+                                              class="fas fa-sort-alpha-down  ml-1"
+                                            ></i>
+                                          )}
+                                      </>
+                                    )}
+                                  </td> */}
+                                  {/* {common.roleTypeId ===
+                                    USER_ROLE_TYPE.SuperAdmin &&
+                                    common.organisationKeyID === null ? (
+                                    <td className="tr-table-class text-white">
+                                      Business Type
+                                      {primarySortDirectionObj.BusinessType ===
+                                        "desc" && (
+                                          <i
+                                            onClick={() => {
+                                              setSortType("BusinessType");
+                                              handleSort("asc");
+                                            }}
+                                            class="fas fa-sort-alpha-up ml-1"
+                                          ></i>
+                                        )}
+                                      {(primarySortDirectionObj.BusinessType ===
+                                        null ||
+                                        primarySortDirectionObj.BusinessType ===
+                                        "asc") && (
+                                          <i
+                                            onClick={() => {
+                                              setSortType("BusinessType");
+                                              handleSort(
+                                                primarySortDirectionObj.BusinessType ===
+                                                  null
+                                                  ? "asc"
+                                                  : "desc"
+                                              );
+                                            }}
+                                            class="fas fa-sort-alpha-down  ml-1"
+                                          ></i>
+                                        )}
+                                    </td>
+                                  ) : (
+                                    <td className="tr-table-class text-white">
+                                      <span className="invisible">
+                                        Business Type
+                                        {primarySortDirectionObj.BusinessType ===
+                                          "desc" && (
+                                            <i
+                                              onClick={() => {
+                                                setSortType("BusinessType");
+                                                handleSort("asc");
+                                              }}
+                                              class="fas fa-sort-alpha-up ml-1"
+                                            ></i>
+                                          )}
+                                        {(primarySortDirectionObj.BusinessType ===
+                                          null ||
+                                          primarySortDirectionObj.BusinessType ===
+                                          "asc") && (
+                                            <i
+                                              onClick={() => {
+                                                setSortType("BusinessType");
+                                                handleSort(
+                                                  primarySortDirectionObj.BusinessType ===
+                                                    null
+                                                    ? "asc"
+                                                    : "desc"
+                                                );
+                                              }}
+                                              class="fas fa-sort-alpha-down  ml-1"
+                                            ></i>
+                                          )}
+                                      </span>
+                                    </td>
+                                  )} */}
+                                  <td className="tr-table-class text-white">
+                                    Template Type
+                                    {primarySortDirectionObj.hfTemplateType ===
+                                      "desc" && (
+                                        <i
+                                          onClick={() => {
+                                            setSortType("HFTemplateType");
+                                            handleSort("asc");
+                                          }}
+                                          class="fas fa-sort-alpha-up ml-1"
+                                        ></i>
+                                      )}
+                                    {(primarySortDirectionObj.hfTemplateType ===
+                                      null ||
+                                      primarySortDirectionObj.hfTemplateType ===
+                                      "asc") && (
+                                        <i
+                                          onClick={() => {
+                                            setSortType("HFTemplateType");
+                                            handleSort(
+                                              primarySortDirectionObj.hfTemplateType ===
+                                                null
+                                                ? "asc"
+                                                : "desc"
+                                            );
+                                          }}
+                                          class="fas fa-sort-alpha-down  ml-1"
+                                        ></i>
+                                      )}
+                                  </td>
+                                  {/* <td className="tr-table-class text-white">
+                                    {prospectName} Type
+                                    {primarySortDirectionObj.ProspectBusinessType ===
+                                      "desc" && (
+                                        <i
+                                          onClick={() => {
+                                            setSortType("ProspectBusinessType");
+                                            handleSort("asc");
+                                          }}
+                                          class="fas fa-sort-alpha-up ml-1"
+                                        ></i>
+                                      )}
+                                    {(primarySortDirectionObj.ProspectBusinessType ===
+                                      null ||
+                                      primarySortDirectionObj.ProspectBusinessType ===
+                                      "asc") && (
+                                        <i
+                                          onClick={() => {
+                                            setSortType("ProspectBusinessType");
+                                            handleSort(
+                                              primarySortDirectionObj.ProspectBusinessType ===
+                                                null
+                                                ? "asc"
+                                                : "desc"
+                                            );
+                                          }}
+                                          class="fas fa-sort-alpha-down  ml-1"
+                                        ></i>
+                                      )}
+                                  </td> */}
+                                  <td className="tr-table-class text-white">
+                                    Status
+                                  </td>
+                                  <td className="tr-table-class text-white">
+                                    {((userAccessData.Admin_Config_Template_CanEdit &&
+                                      common.organisationKeyID !== null) ||
+                                      (userAccessData.Admin_Config_Template_CanDelete &&
+                                        common.organisationKeyID !== null)) && (
+                                        <>Action</>
+                                      )}
+                                  </td>
+                                </tr>
+                              </thead>
+                              <tbody class="list form-check-all">
+                                {TemplateHeaderFooterList.slice(
+                                  0,
+                                  isMobile ? isMobileRecords : desktopRecords
+                                ).map((Template) => {
+                                  return (
+                                    <tr class="table_new table-content-font">
+                                      <td className="table_new table-content-font">
+                                        {/* {Template.notifySAChanges !== null && common.organisationKeyID !== null && (
+                                          <>
+                                            <Tooltip
+                                              title="View System Administrator Changes"
 
+                                            >
+                                              <span onClick={() =>
+                                                TemplateEditBtnClicked(
+                                                  Template, "editPredefined"
+                                                )
+                                              }
+                                                className="UpdateConfigValue"
+                                              // data-bs-toggle="modal"
+
+                                              // data-bs-target="#addUpdateModal"
+                                              ><i class="fa fa-regular fa-bell"></i></span>
+                                            </Tooltip>
+                                          </>
+                                        )} */}
+                                        {isMobile ? (
+                                          <>
+                                            {Template.hfTemplateName.length > 20
+                                              ? Template.hfTemplateName
+                                                .substring(0, 20)
+                                                .toLowerCase()
+                                                .replace(/\b\w/g, (l) =>
+                                                  l.toUpperCase()
+                                                ) + "..."
+                                              : Template.hfTemplateName
+                                                .substring(0, 20)
+                                                .toLowerCase()
+                                                .replace(/\b\w/g, (l) =>
+                                                  l.toUpperCase()
+                                                )}
+                                          </>
+                                        ) : (
+                                          <>
+                                            {Template.hfTemplateName.length >
+                                              48 ? (
+                                              !showProfessionType ? (
+                                                <Tooltip
+                                                  title={Template.hfTemplateName}
+                                                >
+                                                  {Template.hfTemplateName
+                                                    .substring(0, 78)
+                                                    .toLowerCase()
+                                                    .replace(/\b\w/g, (l) =>
+                                                      l.toUpperCase()
+                                                    ) + "..."}
+                                                </Tooltip>
+                                              ) : (
+                                                <Tooltip
+                                                  title={Template.hfTemplateName}
+                                                >
+                                                  {Template.hfTemplateName
+                                                    .substring(0, 48)
+                                                    .toLowerCase()
+                                                    .replace(/\b\w/g, (l) =>
+                                                      l.toUpperCase()
+                                                    ) + "..."}
+                                                </Tooltip>
+                                              )
+                                            ) : (
+                                              <>
+                                                {Template.hfTemplateName
+                                                  .toLowerCase()
+                                                  .replace(/\b\w/g, (l) =>
+                                                    l.toUpperCase()
+                                                  )}
+                                              </>
+                                            )}
+                                          </>
+                                        )}
+                                      </td>
+                                      <td className="table-content-font">
+                                        {showProfessionType &&
+                                          Template.professionTypeNames}
+                                      </td>
+
+                                      <td className="table-content-font">
+                                        {/* {showProfessionType &&
+                                          Template.professionTypeNames} */}
+                                      <td>{Template.templateTypeID === 41 ? 'Custom Template' : 'Image'}</td>
+                                      </td>
+                                      {/* {common.roleTypeId ===
+                                        USER_ROLE_TYPE.SuperAdmin &&
+                                        common.organisationKeyID === null ? (
+                                        <td>{Template.orgBusinessType}</td>
+                                      ) : (
+                                        <td>&nbsp;</td>
+                                        )} */}
+                                      {/* <td> */}
+                                        {/* {Template.templateType == "Contract"
+                                          ? `${EngagementName}`
+                                          : `${proposalName}`} */}
+                                      {/* </td> */}
+                                      {/* <td className="Switch">
+                                        <div
+                                          style={{
+                                            alignItems: "none",
+                                            marginLeft:
+                                              ((userAccessData.Admin_Config_Template_CanEdit &&
+                                                common.organisationKeyID !==
+                                                null) ||
+                                                (userAccessData.SuperAdmin_Config_Template_CanEdit &&
+                                                  common.organisationKeyID ===
+                                                  null)) &&
+                                                ((userAccessData.Admin_Config_Template_CanDelete &&
+                                                  common.organisationKeyID !==
+                                                  null) ||
+                                                  (userAccessData.SuperAdmin_Config_Template_CanDelete &&
+                                                    common.organisationKeyID ===
+                                                    null))
+                                                ? ""
+                                                : "10px",
+                                          }}
+                                          class="d-flex gap-2 "
+                                        >
+                                          <div style={{ width: "20px" }}>
+                                            {" "}
+                                            {Template.isDefault === 1 ? 'Yes' : 'No'}
+                                          </div>
+                                          {((userAccessData.Admin_Config_Template_CanDelete &&
+                                            common.organisationKeyID !==
+                                            null) ||
+                                            (userAccessData.SuperAdmin_Config_Template_CanDelete &&
+                                              common.organisationKeyID ===
+                                              null)) && (
+                                              <Tooltip
+                                                title={getCrudButtonToolTipName(
+                                                  "Change Is Default"
+                                                )}
+                                              >
+                                                <FormGroup>
+                                                  <FormControlLabel
+                                                    control={
+                                                      <Android12Switch
+                                                        onClick={() =>
+                                                          setModelRequestData({
+                                                            ...modelRequestData,
+                                                            professionTypeNames:
+                                                              Template.professionTypeNames,
+                                                            BusinessTypeName:
+                                                              Template.orgBusinessType,
+                                                            status:
+                                                              Template.status,
+                                                            templateKeyID:
+                                                              Template.templateKeyID,
+                                                            StatusType:
+                                                              "IsDefault",
+                                                            isDefault:
+                                                              Template.isDefault ===
+                                                                1
+                                                                ? false
+                                                                : true,
+                                                            Action: "Status",
+                                                          })
+                                                        }
+                                                        checked={
+                                                          Template.isDefault ===
+                                                          1
+                                                        }
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#ConfirmModel"
+                                                      />
+                                                    }
+                                                  />
+                                                </FormGroup>
+                                              </Tooltip>
+                                            )}
+                                        </div>
+                                      </td> */}
+                                      <td className="Switch">
+                                        <div
+                                          style={{
+                                            alignItems: "none",
+                                            marginLeft:
+                                              ((userAccessData.Admin_Config_Template_CanEdit &&
+                                                common.organisationKeyID !==
+                                                null)) &&
+                                                ((userAccessData.Admin_Config_Template_CanDelete &&
+                                                  common.organisationKeyID !==
+                                                  null))
+                                                ? ""
+                                                : "10px",
+                                          }}
+                                          class="d-flex gap-2 "
+                                        >
+                                          <div style={{ width: "40px" }}>
+                                            {" "}
+                                            {Template.status === 1 ? 'Active' : "Inactive"}
+                                          </div>
+                                          {((userAccessData.Admin_Config_Template_CanDelete &&
+                                            common.organisationKeyID !==
+                                            null)) && (
+                                              <Tooltip
+                                                title={getCrudButtonToolTipName(
+                                                  "Change Status"
+                                                )}
+                                              >
+                                                <FormGroup>
+                                                  <FormControlLabel
+                                                    control={
+                                                      <Android12Switch
+                                                        onClick={() =>
+                                                          setModelRequestData({
+                                                            ...modelRequestData,
+                                                            status:
+                                                              Template.status,
+                                                              hfTemplateKeyID:
+                                                              Template.hfTemplateKeyID,
+                                                            userKeyID:
+                                                              common.userKeyID,
+
+                                                            StatusType: null,
+                                                            Action: "Status",
+                                                          })
+                                                        }
+                                                        checked={
+                                                          Template.status ===
+                                                          1
+                                                        }
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#ConfirmModel"
+                                                      />
+                                                    }
+                                                  />
+                                                </FormGroup>
+                                              </Tooltip>
+                                            )}
+                                        </div>
+                                      </td>
+                                      <td>
+                                        <div class="d-flex gap-2">     
+                                          {((userAccessData.Admin_Config_Template_CanEdit &&
+                                            common.organisationKeyID !==
+                                            null)) && (
+                                              <Tooltip
+                                                title={getCrudButtonToolTipName(
+                                                  "Update",
+                                                  moduleNameForHeaderFooter
+                                                )}
+                                              >
+                                                <div class="edit">
+                                                  <button
+                                                    onClick={() =>
+                                                      TemplateHeaderFooterEditBtnClicked(
+                                                        Template, "edit"
+                                                      )
+                                                    }
+                                                    class="btn btn-sm btn-success edit-item-btn actionButtonsStyle"
+                                                  >
+                                                    <i class="ri-pencil-fill"></i>
+                                                  </button>
+                                                </div>
+                                              </Tooltip>
+                                            )}
+                                          {((userAccessData.Admin_Config_Template_CanDelete &&
+                                            common.organisationKeyID !==
+                                            null)) && (
+                                              <Tooltip
+                                                title={getCrudButtonToolTipName(
+                                                  "Delete",
+                                                  moduleNameForHeaderFooter
+                                                )}
+                                              >
+                                                <div class="remove">
+                                                  <button
+                                                    onClick={() =>
+                                                      setModelRequestData({
+                                                        ...modelRequestData,
+                                                        hfTemplateKeyID:
+                                                          Template.hfTemplateKeyID,
+                                                        templateName:
+                                                          Template.hfTemplateName,
+                                                        userKeyID:
+                                                          common.userKeyID,
+                                                        Action: "Delete",
+                                                      })
+                                                    }
+                                                    class="btn btn-sm btn-danger remove-item-btn actionButtonsStyle"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#ConfirmModel"
+                                                  >
+                                                    <i class="ri-delete-bin-5-fill"></i>
+                                                  </button>
+                                                </div>
+                                              </Tooltip>
+                                            )}
+                                        </div>
+                                      </td>
+                                    </tr>
+                                  );
+                                })}
+                              </tbody>
+                            </table>
+                          )}
+                        </div>
                         {activeTab === "Templates" && (
                           <div>
                             {totalRecords <= 0 && (
@@ -1901,6 +2879,16 @@ function Predefined_Templates() {
                             {totalRecords <= 0 && (
                               <NoResultFoundModel
                                 name={moduleNameForTemplatePdf}
+                                totalRecords={totalRecords}
+                              />
+                            )}
+                          </div>
+                        )}
+                        {activeTab === "Header and Footer" && (
+                          <div>
+                            {totalRecords <= 0 && (
+                              <NoResultFoundModel
+                                name={moduleNameForHeaderFooter}
                                 totalRecords={totalRecords}
                               />
                             )}
@@ -1933,6 +2921,22 @@ function Predefined_Templates() {
                           totalPages={totalPdfPage}
                           currentPage={currentPageUsers}
                           onPageChange={HandlePageChangeUsers}
+                        />
+                      )}
+                    </div>
+                  )}
+                  {activeTab === "Header and Footer" && (
+                    <div>
+                      {HeaderFooterListCount > pageSize && (
+                        <PaginationComponent
+                          totalCount={HeaderFooterListCount}
+                          totalPages={
+                            isMobile
+                              ? Math.ceil(HeaderFooterListCount / isMobileRecords)
+                              : Math.ceil(HeaderFooterListCount / desktopRecords)
+                          }
+                          currentPage={currentPageUsers}
+                          onPageChange={handlePageChange}
                         />
                       )}
                     </div>
@@ -1981,7 +2985,7 @@ function Predefined_Templates() {
               openErrorModal={openErrorModal}
               openSuccessModal={openSuccessModal}
               modelRequestData={modelRequestData}
-              UpdatedStatus={TemplatePdfChangeStatusDataAndDeleteData}
+              UpdatedStatus = {modelRequestData.Action === "Delete" || modelRequestData.Action === "Status" ? TemplatePdfChangeStatusDataAndDeleteData : CopyTemplatePdfData}
             />
             <RecordsAvailablePopupModel
               handleClose={handleClose}
@@ -1998,7 +3002,7 @@ function Predefined_Templates() {
               openErrorModal={openErrorModal}
               openSuccessModal={openSuccessModal}
               modelRequestData={modelRequestData}
-              UpdatedStatus={TemplateChangeStatusDataAndDeleteData}
+              UpdatedStatus = {modelRequestData.Action === "Delete" || modelRequestData.Action === "Status" ? TemplateChangeStatusDataAndDeleteData : CopyTemplateData}
             />
             <RecordsAvailablePopupModel
               handleClose={handleClose}
@@ -2009,7 +3013,23 @@ function Predefined_Templates() {
             />
           </>
         )}
-
+        {activeTab === "Header and Footer" && (
+          <>
+            <ConfirmModel
+              openErrorModal={openErrorModal}
+              openSuccessModal={openSuccessModal}
+              modelRequestData={modelRequestData}
+              UpdatedStatus = {TemplateHeaderFooterChangeStatusAndDeleteData}
+            />
+            <RecordsAvailablePopupModel
+              handleClose={handleClose}
+              openErrorModal={openErrorModal}
+              openSuccessModal={openSuccessModal}
+              modelRequestData={modelRequestData}
+              UpdatedStatus={TemplateHeaderFooterChangeStatusAndDeleteData}
+            />
+          </>
+        )}
         {activeTab === "Templates PDF" && (
           <>
             <SuccessModal
@@ -2017,11 +3037,13 @@ function Predefined_Templates() {
               setOpenSuccessModal={setOpenSuccessModal}
               openSuccessModal={openSuccessModal}
               modelAction={modelRequestData.Action}
-              message={
+              message={`${
                 modelRequestData.Action === "Delete"
-                  ? `${moduleNameForTemplatePdf} ${modelRequestData.templateName}`
+                  ? `${moduleNameForTemplatePdf} ${modelRequestData.templatePdfTitle}`
+                  : modelRequestData.Action === "Copy"
+                  ? "Copy of the Template PDF has been created successfully!"
                   : "Status has been changed successfully!"
-              }
+              }`}
             />
           </>
         )}
@@ -2032,14 +3054,31 @@ function Predefined_Templates() {
               setOpenSuccessModal={setOpenSuccessModal}
               openSuccessModal={openSuccessModal}
               modelAction={modelRequestData.Action}
-              message={`${modelRequestData.Action === "Delete"
-                ? `${moduleName} ${modelRequestData.templateName}`
-                : "Status has been changed successfully!"
-                }`}
+              message={`${
+                modelRequestData.Action === "Delete"
+                  ? `${moduleName} ${modelRequestData.templateName}`
+                  : modelRequestData.Action === "Copy"
+                  ? "Copy of the Template has been created successfully!"
+                  : "Status has been changed successfully!"
+              }`}
             />
           </>
         )}
-
+        {activeTab === "Header and Footer" && (
+          <>
+            <SuccessModal
+              handleClose={handleClose}
+              setOpenSuccessModal={setOpenSuccessModal}
+              openSuccessModal={openSuccessModal}
+              modelAction={modelRequestData.Action}
+              message={`${
+                modelRequestData.Action === "Delete"
+                  ? `${moduleNameForHeaderFooter} ${modelRequestData.templateName}`
+                  :  "Status has been changed successfully!"
+              }`}
+            />
+          </>
+        )}
         {/* Success Modal  */}
 
         {/* End Page-content */}

@@ -16,6 +16,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import {
   ChangeQuoteStatus,
   CopyQuotation,
+  DeleteQuotation,
   GetOldProposalList,
   GetProposalList,
   ResendProposal,
@@ -830,7 +831,23 @@ const Proposals = () => {
 
     }
   };
-
+    // Delete Draft Quotation
+    const DeleteQuotationData = async() => {
+      try{
+        const data = await DeleteQuotation(modelRequestData.quoteKeyID,common.userKeyID);
+        if(data?.data?.statusCode === 200) {
+          setOpenSuccessModal(true);
+          // GetProposalListData(currentPage);
+        }
+        else {
+          setErrorMessage(data?.data?.errorMessage);
+          setOpenErrorModal(true);
+        }
+      }
+      catch(error){
+        console.error(error);
+      }
+    }
   const ApplyFilter = () => {
     if (
       (businessNatureID !== null && businessNatureID !== "") ||
@@ -1758,6 +1775,7 @@ const Proposals = () => {
                                             >
                                               {/* Draft button */}
                                               {item.statusID === statusID.Draft && userAccessData.Admin_Proposal_CanEdit && (
+                                                <>
                                                 <li>
                                                   {/* <Tooltip title={`Edit ${proposalName}`} placement="right"> */}
                                                   <a
@@ -1775,7 +1793,32 @@ const Proposals = () => {
                                                   </a>
                                                   {/* </Tooltip> */}
                                                 </li>
-
+                                                <li>
+                                                    {/* <Tooltip title={`Delete ${proposalName}`} placement="right"> */}
+                                                    <a
+                                                      class="dropdown-item"
+                                                      data-bs-toggle="modal"
+                                                      data-bs-target="#ConfirmModel"
+                                                      onClick={() => {
+                                                        setModelRequestData({
+                                                          ...modelRequestData,
+                                                          Action: "Delete",
+                                                          quoteKeyID: item.quoteKeyID,
+                                                          userKeyID: common.userKeyID,
+                                                          message : "Are you sure you want to delete this quote?",
+                                                        }
+                                                      )
+                                                      }}
+                                                    >
+                                                      <i
+                                                        className="ri-delete-bin-5-fill"
+                                                        style={{ marginRight: "2px" }}
+                                                      ></i>{" "}
+                                                      Delete {proposalName}
+                                                    </a>
+                                                    {/* </Tooltip> */}
+                                                  </li>
+                                                  </>
                                               )}
 
                                               {/* View button */}
@@ -2391,7 +2434,7 @@ const Proposals = () => {
       <ConfirmModel
         openSuccessModal={openSuccessModal}
         modelRequestData={modelRequestData}
-        UpdatedStatus={modelRequestData.Action === "ReminderStatus" ? ChangeQuoteStatusData : modelRequestData.Action === "Resend" ? handleResend : CopyQuotationData}
+        UpdatedStatus={modelRequestData.Action === "ReminderStatus" ? ChangeQuoteStatusData : modelRequestData.Action === "Resend" ? handleResend : modelRequestData.Action === "Copy" ? CopyQuotationData : DeleteQuotationData}
       />
       <SuccessModal
         handleClose={handleClose}
@@ -2399,6 +2442,7 @@ const Proposals = () => {
         openSuccessModal={openSuccessModal}
         modelAction={modelRequestData.Action}
         message={
+          modelRequestData.Action === "Delete" ? "Record has been deleted!" :
           modelRequestData.Action === "Copy"
             ? `The Copy of ${modelRequestData.RefId} has been created successfully! `
             : modelRequestData.Action === "ReminderStatus" ? "Status has been changed successfully!" : modelRequestData.Action === "Resend" ? proposalName : ""

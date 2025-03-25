@@ -10,6 +10,7 @@ import {
   ReminderTemplatesChangeStatus,
   GetChangeIsDefaultStatus,
   GetReminderTemplatesModel,
+  CopyReminderEmailTemplate,
 } from "../../../../redux/Services/Config/ReminderTemplatesApi";
 import PaginationComponent from "../../../../components/PaginationModel";
 import Android12Switch from "../../../../components/AndroidSwitch";
@@ -369,7 +370,24 @@ function ReminderTemplateList() {
       });
     }
   };
-
+  // Copy Reminder Email Record
+  const CopyReminderEmailTemplateData = async() => {
+    if(!common.organisationKeyID) return;
+    try{
+      const data = await CopyReminderEmailTemplate(modelRequestData.templateKeyID,common.userKeyID);
+      if(data?.data?.statusCode === 200) {
+        setOpenSuccessModal(true);
+        GetEmailTemplatesListData(isCurrentPage);
+      }
+      else{
+        setErrorMessage(data?.data?.errorMessage);
+        setOpenErrorModal(true);
+      }
+    }
+    catch(error) {
+      console.error(error);
+    }
+  }
   // Pagination :
   const handlePageChange = async (pageNumber) => {
     setCurrentPage(pageNumber);
@@ -864,6 +882,30 @@ function ReminderTemplateList() {
                                   </td>
                                   <td className="table-content-font">
                                     <div class="d-flex gap-2">
+                                    <Tooltip
+                                        title={getCrudButtonToolTipName(
+                                          "Copy",
+                                          moduleName
+                                        )}
+                                      >
+                                        <div class="copy">
+                                          <button
+                                            class="btn btn-sm btn-success edit-item-btn edit"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#ConfirmModel"
+                                            onClick={() =>
+                                              setModelRequestData({
+                                                ...modelRequestData,
+                                                Action: "Copy",
+                                                templateKeyID: Template.templateKeyID,
+                                                userKeyID: common.userKeyID
+                                              })
+                                            }
+                                          >
+                                            <i class="fa-solid fa-copy"></i>
+                                          </button>
+                                        </div>
+                                      </Tooltip> 
                                       {((userAccessData.Admin_Config_Email_Template_CanEdit &&
                                         common.organisationKeyID !== null) ||
                                         (userAccessData.SuperAdmin_Config_Email_Template_CanEdit &&
@@ -964,7 +1006,7 @@ function ReminderTemplateList() {
           openErrorModal={openErrorModal}
           openSuccessModal={openSuccessModal}
           modelRequestData={modelRequestData}
-          UpdatedStatus={EmailTemplatesChangeStatusDataAndDeleteData}
+          UpdatedStatus={modelRequestData.Action === "Delete" || modelRequestData.Action === "Status" ? EmailTemplatesChangeStatusDataAndDeleteData : CopyReminderEmailTemplateData}
         />
         <RecordsAvailablePopupModel
           handleClose={handleClose}
@@ -979,11 +1021,13 @@ function ReminderTemplateList() {
           setOpenSuccessModal={setOpenSuccessModal}
           openSuccessModal={openSuccessModal}
           modelAction={modelRequestData.Action}
-          message={
+          message={`${
             modelRequestData.Action === "Delete"
-              ? moduleName + " " + modelRequestData.templateName
+              ? `${moduleName} ${modelRequestData.templateName}`
+              : modelRequestData.Action === "Copy"
+              ? "Copy of the Workflow Reminder Email has been created successfully!"
               : "Status has been changed successfully!"
-          }
+          }`}
         />
         <FilterModel
           class="modal fade"

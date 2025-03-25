@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 
 import { Row, Col, Card, CardBody } from "reactstrap";
 import { AuthContextProvider } from "../../AuthContext/AuthContext";
-import { GetTemplateModelData } from "../../redux/Services/Config/TemplateApi";
+import { GetTemplateListLookupList, GetTemplateModelData } from "../../redux/Services/Config/TemplateApi";
 import { ElementType } from "../../Middleware/enums";
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
@@ -13,6 +13,7 @@ import {
 import { GetSendToSignEasy } from "../../redux/Services/SignEasy";
 import GeneratePdfLoaderPage from "../../components/GeneratePdfloaderpage";
 import { generatePdfUrl, mergePdfApiUrl } from "../../Base-Url/Base_Url";
+import Utils from "../../Middleware/Utils";
 function AcceptInvitation() {
   const { setTopbar, setLoader, formatValueWithoutCurrencySymbol, formatValue, getFontStylesFromHtml, replaceTemplatePricingVariables, replaceUrlInHtml } = useContext(AuthContextProvider);
   const [templateElementList, setTemplateElementList] = useState([]);
@@ -37,8 +38,15 @@ function AcceptInvitation() {
   const [feeTypeId, setFeeTypeId] = useState("");
   const [TnCHtmlContent, setTnCHtmlContent] = useState(null);
   const [TnCPdf, setTnCPdf] = useState(null);
+  const [quoteTypeID,setQuoteTypeID] = useState(null);
   const [webSite, setWebSite] = useState("");
   const [AdditionalInformation, setAdditionalInformation] = useState([]);
+  const [HeaderContent, setHeaderContent] = useState(null);
+  const [FooterContent, setFooterContent] = useState(null);
+  const [HeaderHeight, setHeaderHeight] = useState(null);
+  const [FooterHeight, setFooterHeight] = useState(null);
+  const [HeaderImage,setHeaderImage] = useState(null);
+  const [FooterImage,setFooterImage] = useState(null);
   const imgTag = `<img src="${BrandLogo}" alt="Logo" style="display: none; margin: 0 auto 15px;">`;
 
   const [contractSignatoriesList, setContractSignatoriesList] = useState([]);
@@ -63,6 +71,7 @@ function AcceptInvitation() {
 
   useEffect(() => {
     setTopbar("none");
+    GetTemplateLookupListData(quoteKeyID);
     //  GetTemplateModalData()
     GenerateContractFromProposalData();
     // GetOrganisationInformationModelData()
@@ -157,24 +166,118 @@ function AcceptInvitation() {
   // };
 
   //Change span color
-  function changeSpanColor(htmlContent, newColorCode) {
+  function changeSpanColor(htmlContent) {
     const parser = new DOMParser();
     const doc = parser.parseFromString(htmlContent, "text/html");
-    const elements = doc.getElementsByClassName("OrgnewColorCode");
-
-
-    // Check if any elements are found with the class name 'OrgnewColorCode'
+    const elements = doc.getElementsByClassName("OrgBrandColor");
     if (elements.length > 0) {
       // Loop through each element and change its color
       for (let i = 0; i < elements.length; i++) {
-        elements[i].style.color = newColorCode;
+        elements[i].style.color = BrandColor;
       }
-    } else {
-      return htmlContent
     }
 
     return doc.body.innerHTML;
   }
+
+  function getFontNameById(id){
+    const font = Utils.FontFamily.find(f => f.value === id);
+    return font? font.label : null;
+  }; 
+  // Set Default Font 
+  function setDefaultFontFamily(htmlContent, fontFamily) {
+    if (!fontFamily) return htmlContent;
+  
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(htmlContent, "text/html");
+  
+    const elements = doc.querySelectorAll('*');
+  
+    elements.forEach((el) => {
+      const inlineStyle = el.getAttribute("style") || "";
+      const fontFamilyMatch = inlineStyle.match(/font-family:\s*([^;]*)/i);
+      
+      if (fontFamilyMatch) {
+        const existingFonts = fontFamilyMatch[1]
+          .replace(/['"]/g, '') // Remove quotes
+          .split(/\s*,\s*/)
+          .map(f => f.toLowerCase());
+  
+        // Check if Roboto is the first font in the list
+        const hasRobotoPrimary = existingFonts[0] === 'roboto';
+        
+        // Check if no font family is actually set (empty value)
+        const isEmptyFontFamily = existingFonts[0] === '';
+  
+        if (hasRobotoPrimary || isEmptyFontFamily) {
+          el.style.setProperty("font-family", fontFamily, "important");
+        }
+      } else {
+        // If no font-family exists at all, apply the new font
+        el.style.setProperty("font-family", fontFamily, "important");
+      }
+    });
+  
+    return doc.body.innerHTML;
+  }
+  // function setDefaultFontFamily(htmlContent, fontFamily) {
+  //   if (!fontFamily) return htmlContent;
+  
+  //   const parser = new DOMParser();
+  //   const doc = parser.parseFromString(htmlContent, "text/html");
+  
+  //   const elements = doc.querySelectorAll('*');
+  
+  //   elements.forEach((el) => {
+  //       // Get existing font-family from inline style
+  //       const inlineStyle = el.getAttribute("style") || "";
+  //       const hasFontFamily = inlineStyle.match(/font-family:\s*([^;]+)/i);
+  
+  //       if (hasFontFamily) {
+  //           const existingFont = hasFontFamily[1].toLowerCase();
+  
+  //           // If "Roboto" is found, replace it with the new font
+  //           if (existingFont.includes("roboto") || existingFont === "") {
+  //               el.style.setProperty("font-family", fontFamily, "important");
+  //           }
+  //       }
+  //       else {
+  //         // If no font-family exists, apply the new font
+  //         el.style.setProperty("font-family", fontFamily, "important");
+  //       }
+  //   });
+  
+  //   return doc.body.innerHTML;
+  // }
+//   function setDefaultFontFamily(htmlContent, fontFamily) {
+//     const parser = new DOMParser();
+//     const doc = parser.parseFromString(htmlContent, "text/html");
+
+//     // Detect browser's default font
+//     const tempElement = document.createElement("div");
+//     document.body.appendChild(tempElement);
+//     const defaultFontFamily = window.getComputedStyle(tempElement).fontFamily.toLowerCase();
+//     document.body.removeChild(tempElement);
+
+//     const elements = doc.querySelectorAll('*');
+
+//     elements.forEach((el) => {
+//         const computedFont = window.getComputedStyle(el).fontFamily?.toLowerCase().trim();
+//         const hasInlineFont = el.style.fontFamily?.toLowerCase().trim();
+
+//         if (
+//             !hasInlineFont || 
+//             computedFont === defaultFontFamily || 
+//             hasInlineFont === 'inherit' || 
+//             hasInlineFont === 'initial' || 
+//             hasInlineFont === 'default'
+//         ) {
+//             el.style.setProperty("font-family", fontFamily, "important");
+//         }
+//     });
+
+//     return doc.body.innerHTML;
+// }
   //Generate Pdf Array and objects
   useEffect(() => {
     if (templateElementList) {
@@ -212,106 +315,109 @@ function AcceptInvitation() {
               pdfDataArray.push(currentArray);
               currentArray = [];
             }
-            currentArray.push({
-              textbox: ` ${imgTag}<div style="padding-left: 40px; padding-right: 40px;margin-top: 10px"> 
+              currentArray.push({
+                textbox: ` ${imgTag}<div style="padding-left: 40px; padding-right: 40px;margin-top: 10px"> 
                 ${serviceDescriptionList
-                  .map(
-                    (serviceCat) => `
+                    .map(
+                      (serviceCat) => `
                       <div>
                           <p style="font-family:${fontFamily};color: black; font-size: ${fontSizeHeading}; font-weight: bold;">
                               ${serviceCat.serviceCatName}
                           </p>
                           <hr style="color: gray; margin-top: -15px;">
                           ${serviceCat.servicesList
-                        .map(
-                          (subService) => `
+                          .map(
+                            (subService) => `
                               <p style="font-family:${fontFamily}; color:black; font-size: ${fontSize};">
                                   ${subService.serviceName}
                               </p>
                               ${subService?.gpdList !== null
-                              ? subService?.gpdList.filter(item => item.driverTypeID !== 1)
-                                ?.map(
-                                  (pricingDriver) => `
+                                ? subService?.gpdList.filter(item => item.driverTypeID !== 1)
+                                  ?.map(
+                                    (pricingDriver) => `
                                 <li style="font-family:${fontFamily}; color:black; font-size: ${fontSize}; margin-top:5px;">
                                 ${pricingDriver.driverName}: 
                                 <span style="">
                                      <strong> ${
-                                    //formatValue(pricingDriver.driverValue)
-                                    pricingDriver.driverTypeID === 2
-                                      ? Number(pricingDriver.driverValue)
-                                        .toFixed(2)
-                                        .toString()
-                                        .replace(
-                                          /\B(?=(\d{3})+(?!\d))/g,
-                                          ","
-                                        )
-                                      : pricingDriver.driverTypeID === 3
-                                        ? pricingDriver.variationName
-                                        : pricingDriver.driverTypeID === 4
-                                          ? pricingDriver.slabTypeID === 2 ?
-                                            formatValueWithoutCurrencySymbol(pricingDriver.driverValue) :
-                                            Number(pricingDriver.slabFrom)
-                                              .toFixed(2)
-                                              .toString()
-                                              .replace(
-                                                /\B(?=(\d{3})+(?!\d))/g,
-                                                ","
-                                              ) +
-                                            "-" +
-                                            Number(pricingDriver.slabTo)
-                                              .toFixed(2)
-                                              .toString()
-                                              .replace(
-                                                /\B(?=(\d{3})+(?!\d))/g,
-                                                ","
-                                              )
-                                          : ""
-                                    }</strong>
+                                      //formatValue(pricingDriver.driverValue)
+                                      pricingDriver.driverTypeID === 2
+                                        ? Number(pricingDriver.driverValue)
+                                          .toFixed(2)
+                                          .toString()
+                                          .replace(
+                                            /\B(?=(\d{3})+(?!\d))/g,
+                                            ","
+                                          )
+                                        : pricingDriver.driverTypeID === 3
+                                          ? pricingDriver.variationName
+                                          : pricingDriver.driverTypeID === 4
+                                            ? pricingDriver.slabTypeID === 2 ?
+                                              formatValueWithoutCurrencySymbol(pricingDriver.driverValue) :
+                                              Number(pricingDriver.slabFrom)
+                                                .toFixed(2)
+                                                .toString()
+                                                .replace(
+                                                  /\B(?=(\d{3})+(?!\d))/g,
+                                                  ","
+                                                ) +
+                                              "-" +
+                                              Number(pricingDriver.slabTo)
+                                                .toFixed(2)
+                                                .toString()
+                                                .replace(
+                                                  /\B(?=(\d{3})+(?!\d))/g,
+                                                  ","
+                                                )
+                                            : ""
+                                      }</strong>
                                 </span> 
                             </li>
                               `
-                                )
-                                .join("")
-                              : ``
-                            }
+                                  )
+                                  .join("")
+                                : ``
+                              }
                           `
-                        )
-                        .join("")}
+                          )
+                          .join("")}
                       </div>
                   `
-                  )
-                  .join("")}
+                    )
+                    .join("")}
                                         ${AdditionalInformation?.length > 0 ?
-                  `<p style="font-family:${fontFamily}; color: ${BrandColor}; font-size: ${fontSizeHeading}; font-weight: bold;">
+                    `<p style="font-family:${fontFamily}; color: ${BrandColor}; font-size: ${fontSizeHeading}; font-weight: bold;">
         Additional Information
     </p>
     <hr style="color: gray; margin-top: -15px;" />` +
-                  AdditionalInformation.filter(item => item.driverTypeID !== 1).map(serviceCat => `
+                    AdditionalInformation.filter(item => item.driverTypeID !== 1).map(serviceCat => `
         <div>
             <p style="font-family:${fontFamily}; color:black; font-size: ${fontSize};">
                 ${serviceCat.driverName}: ${serviceCat.driverTypeID === 4 ? serviceCat.slabTypeID === 2 ? `<strong>${formatValueWithoutCurrencySymbol(serviceCat.driverValue)}</strong>` : `<strong>${formatValueWithoutCurrencySymbol(serviceCat.slabFrom)}-${formatValueWithoutCurrencySymbol(serviceCat.slabTo)}</strong>` : serviceCat.driverTypeID === 3 ? `<strong>${serviceCat.variationName}</strong>` : `${serviceCat.driverName}: <strong>${formatValueWithoutCurrencySymbol(serviceCat.driverValue)}</strong>`}
             </p>
         </div>
     `).join("") : ""
-                }
+                  }
 
                   </div>`,
-            });
+              });
 
             break;
           case ElementType.TEXT_BLOCK:
+            const appliedFontContent = setDefaultFontFamily(element.htmlContent,fontFamily);
             if (
               prevElementType !== ElementType.PAGE_BREAK &&
               prevElementType !== ElementType.AWS_PDF_LINK
             ) {
               currentArray.push({
-                textbox: ` ${imgTag}<div style="padding-left: 40px; padding-right: 40px;">${replaceUrlInHtml(element.htmlContent)}</div>`,
+                // textbox: ` ${imgTag}<div style="padding-left: 40px; padding-right: 40px;">${replaceUrlInHtml(element.htmlContent)}</div>`,
+                textbox: ` ${imgTag}<div style="padding-left: 40px; padding-right: 40px;font-family: ${fontFamily};">${appliedFontContent}</div>`,
               });
             } else {
               pdfDataArray.push(currentArray);
               currentArray = [
                 {
-                  textbox: ` ${imgTag}<div style="padding-left: 40px; padding-right: 40px;">${replaceUrlInHtml(element.htmlContent)}</div>`,
+                  // textbox: ` ${imgTag}<div style="padding-left: 40px; padding-right: 40px;">${replaceUrlInHtml(element.htmlContent)}</div>`,
+                  textbox: ` ${imgTag}<div style="padding-left: 40px; padding-right: 40px; font-family: ${fontFamily};">${appliedFontContent}</div>`,
                 },
               ];
             }
@@ -436,19 +542,19 @@ function AcceptInvitation() {
             }
             break;
           case ElementType.First_Page:
-            const coloredHtmlContent = changeSpanColor(element.htmlContent, BrandColor);
+            const coloredHtmlContent = changeSpanColor(element.htmlContent);
             if (
               prevElementType !== ElementType.PAGE_BREAK &&
               prevElementType !== ElementType.AWS_PDF_LINK
             ) {
               currentArray.push({
-                textbox: `<div style="padding-left: 40px; padding-right: 40px;">${coloredHtmlContent}</div>`,
+                textbox: `<div style="padding-left: 40px; padding-right: 40px; font-family: ${fontFamily};">${coloredHtmlContent}</div>`,
               });
             } else {
               pdfDataArray.push(currentArray);
               currentArray = [
                 {
-                  textbox: `<div style="padding-left: 40px; padding-right: 40px;">${coloredHtmlContent}</div>`,
+                  textbox: `<div style="padding-left: 40px; padding-right: 40px; font-family: ${fontFamily};">${coloredHtmlContent}</div>`,
                 },
               ];
             }
@@ -459,34 +565,34 @@ function AcceptInvitation() {
               pdfDataArray.push(currentArray);
               currentArray = [];
             }
-            if (packageList.length > 0) {
-              currentArray.push({
-                table: packageList.map(
-                  (selectedPackagesData) =>
-                    ` ${imgTag}<div style="padding-left: 40px; padding-right: 40px; color:${BrandColor}; font-size: 30px;">Package :${selectedPackagesData.servicePackageName} </div>`
-                ),
-              });
-
-              if (recurringServiceCatList.length > 0) {
+              if (packageList.length > 0) {
                 currentArray.push({
-                  table: `
+                  table: packageList.map(
+                    (selectedPackagesData) =>
+                      ` ${imgTag}<div style="padding-left: 40px; padding-right: 40px; color:${BrandColor}; font-size: 30px;">Package :${selectedPackagesData.servicePackageName} </div>`
+                  ),
+                });
+
+                if (recurringServiceCatList.length > 0) {
+                  currentArray.push({
+                    table: `
                               <div style="padding-left: 40px; padding-right: 40px; font-family:${fontFamily};page-break-inside: avoid; break-inside: avoid;">
                                 <p style="font-family:${fontFamily}; color: ${BrandColor}; font-size: 20px; margin-top: 15px;">Recurring Fees (${getPaymentFrequencyLabel()})</p>
                                 <table style="font-family:${fontFamily}; border-collapse: collapse; width: 100%; margin-top: -15px;">
                                   <tr style="background-color: ${BrandColor};">
                                     <th style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white; font-size: 18px;">Services</th>
                                     ${packageList
-                      .map(
-                        (selectedPackagesData) => `
+                        .map(
+                          (selectedPackagesData) => `
                                       <th style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; font-size: 18px;">
                                         ${selectedPackagesData.servicePackageName}
                                       </th>`
-                      )
-                      .join("")}
+                        )
+                        .join("")}
                                   </tr>
                                   ${recurringServiceCatList
-                      .map(
-                        (serviceCat) => `
+                        .map(
+                          (serviceCat) => `
                                     <tr style="background-color: #DCDCDC;">
                                       <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; font-weight: bold; font-size: 18px;">
                                         ${serviceCat.serviceCatName}
@@ -494,61 +600,61 @@ function AcceptInvitation() {
                                       <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;"></td>
                                     </tr>
                                     ${serviceCat.servicesList
-                            .map(
-                              (subService) => `
+                              .map(
+                                (subService) => `
                                       <tr>
                                         <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">
                                           ${subService.serviceName}
                                         </td>
                                  ${feeTypeId == 1
-                                  ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;"> ${formatValue(
-                                    subService.quotationPrice
-                                  )}</td>`
-                                  : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
-                                }
+                                    ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;"> ${formatValue(
+                                      subService.quotationPrice
+                                    )}</td>`
+                                    : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
+                                  }
 
                                       </tr>`
-                            )
-                            .join("")}
+                              )
+                              .join("")}
                                   `
-                      )
-                      .join("")}
+                        )
+                        .join("")}
                                   <tr style="background-color:#808080;">
                                     <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white;">
                                       Net Total
                                     </td>
                                     <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
                                         ${finalQuotationAmountList
-                      .filter(
-                        (x) =>
-                          x.serviceChargeTypeID === 1 &&
-                          x.servicePackageID ===
-                          packageList[0]?.servicePackageID
-                      )
-                      .map((x) => (x.netTotal) < (x.discountedTotal) || (x.discounted > 0 && (!ShowDiscountLine)) ? formatValue(x.discountedTotal) : formatValue(x.netTotal))
-                      .join("")}
-                                    </td>
-                                  </tr>
-                                  ${finalQuotationAmountList.some(
-                        (x) =>
-                          x.serviceChargeTypeID === 1 &&
-                          x.discounted > 0
-                      ) && ShowDiscountLine
-                      ? `
-                                    <tr style="background-color: #DCDCDC;">
-                                      <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: black;">
-                                        Discount
-                                      </td>
-                                      <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: black;">
-                                        (-)  ${finalQuotationAmountList
                         .filter(
                           (x) =>
                             x.serviceChargeTypeID === 1 &&
                             x.servicePackageID ===
                             packageList[0]?.servicePackageID
                         )
-                        .map((x) => formatValue(x.discounted))
+                        .map((x) => (x.netTotal) < (x.discountedTotal) || (x.discounted > 0 && (!ShowDiscountLine)) ? formatValue(x.discountedTotal) : formatValue(x.netTotal))
                         .join("")}
+                                    </td>
+                                  </tr>
+                                  ${finalQuotationAmountList.some(
+                          (x) =>
+                            x.serviceChargeTypeID === 1 &&
+                            x.discounted > 0
+                        ) && ShowDiscountLine
+                        ? `
+                                    <tr style="background-color: #DCDCDC;">
+                                      <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: black;">
+                                        Discount
+                                      </td>
+                                      <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: black;">
+                                        (-)  ${finalQuotationAmountList
+                          .filter(
+                            (x) =>
+                              x.serviceChargeTypeID === 1 &&
+                              x.servicePackageID ===
+                              packageList[0]?.servicePackageID
+                          )
+                          .map((x) => formatValue(x.discounted))
+                          .join("")}
                                       </td>
                                     </tr>
                                   <tr style="background-color:#808080;">
@@ -557,40 +663,40 @@ function AcceptInvitation() {
                                     </td>
                                     <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
                                        ${finalQuotationAmountList
-                        .filter(
-                          (x) =>
-                            x.serviceChargeTypeID === 1 &&
-                            x.servicePackageID ===
-                            packageList[0]?.servicePackageID
-                        )
-                        .map((x) =>
-                          formatValue(x.discountedTotal)
-                        )
-                        .join("")}
+                          .filter(
+                            (x) =>
+                              x.serviceChargeTypeID === 1 &&
+                              x.servicePackageID ===
+                              packageList[0]?.servicePackageID
+                          )
+                          .map((x) =>
+                            formatValue(x.discountedTotal)
+                          )
+                          .join("")}
                                     </td>
                                   </tr>`
-                      : ""
-                    }
+                        : ""
+                      }
                                      ${finalQuotationAmountList.some(
-                      (x) =>
-                        x.serviceChargeTypeID === 1 &&
-                        x.vat > 0
-                    )
-                      ? `
+                        (x) =>
+                          x.serviceChargeTypeID === 1 &&
+                          x.vat > 0
+                      )
+                        ? `
                                   <tr style="background-color: #DCDCDC;">
                                     <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: black;">
                                       VAT
                                     </td>
                                     <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: black;">
                                        ${finalQuotationAmountList
-                        .filter(
-                          (x) =>
-                            x.serviceChargeTypeID === 1 &&
-                            x.servicePackageID ===
-                            packageList[0]?.servicePackageID
-                        )
-                        .map((x) => formatValue(x.vat))
-                        .join("")}
+                          .filter(
+                            (x) =>
+                              x.serviceChargeTypeID === 1 &&
+                              x.servicePackageID ===
+                              packageList[0]?.servicePackageID
+                          )
+                          .map((x) => formatValue(x.vat))
+                          .join("")}
                                     </td>
                                   </tr>
                                   <tr style="background-color:#808080;">
@@ -599,27 +705,27 @@ function AcceptInvitation() {
                                     </td>
                                     <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
                                        ${finalQuotationAmountList
-                        .filter(
-                          (x) =>
-                            x.serviceChargeTypeID === 1 &&
-                            x.servicePackageID ===
-                            packageList[0]?.servicePackageID
-                        )
-                        .map((x) => formatValue(x.grandTotal))
-                        .join("")}
+                          .filter(
+                            (x) =>
+                              x.serviceChargeTypeID === 1 &&
+                              x.servicePackageID ===
+                              packageList[0]?.servicePackageID
+                          )
+                          .map((x) => formatValue(x.grandTotal))
+                          .join("")}
                                     </td>
                                   </tr>`
-                      : ""
-                    }
+                        : ""
+                      }
                                 </table>
                               </div>
                             `,
-                });
-              }
+                  });
+                }
 
-              if (oneOffServiceCatList.length > 0) {
-                currentArray.push({
-                  table: `
+                if (oneOffServiceCatList.length > 0) {
+                  currentArray.push({
+                    table: `
                                 <div style="padding-left: 40px; padding-right: 40px; font-family:${fontFamily};page-break-inside: avoid; break-inside: avoid;">
 
                                   <p style="font-family:${fontFamily}; color: ${BrandColor}; font-size: 20px; margin-top: 15px;"> One-Off Fees </p>
@@ -627,17 +733,17 @@ function AcceptInvitation() {
                                   <tr style="background-color: ${BrandColor};">
                                     <th style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white; font-size: 18px;">Services</th>
                                     ${packageList
-                      .map(
-                        (selectedPackagesData) => `
+                        .map(
+                          (selectedPackagesData) => `
                                       <th style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; font-size: 18px;">
                                         ${selectedPackagesData.servicePackageName}
                                       </th>`
-                      )
-                      .join("")}
+                        )
+                        .join("")}
                                   </tr>
                                   ${oneOffServiceCatList
-                      .map(
-                        (serviceCat) => `
+                        .map(
+                          (serviceCat) => `
                                     <tr style="background-color: #DCDCDC;">
                                       <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; font-weight: bold; font-size: 18px;">
                                         ${serviceCat.serviceCatName}
@@ -645,61 +751,61 @@ function AcceptInvitation() {
                                       <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;"></td>
                                     </tr>
                                     ${serviceCat.servicesList
-                            .map(
-                              (subService) => `
+                              .map(
+                                (subService) => `
                                       <tr>
                                         <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">
                                           ${subService.serviceName}
                                         </td>
                                         ${feeTypeId == 1
-                                  ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;"> ${formatValue(
-                                    subService.quotationPrice
-                                  )}</td>`
-                                  : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
-                                }
+                                    ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;"> ${formatValue(
+                                      subService.quotationPrice
+                                    )}</td>`
+                                    : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
+                                  }
 
                                       </tr>`
-                            )
-                            .join("")}
+                              )
+                              .join("")}
                                   `
-                      )
-                      .join("")}
+                        )
+                        .join("")}
                                   <tr style="background-color:#808080;">
                                     <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white;">
                                       Net Total
                                     </td>
                                     <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
                                      ${finalQuotationAmountList
-                      .filter(
-                        (x) =>
-                          x.serviceChargeTypeID === 2 &&
-                          x.servicePackageID ===
-                          packageList[0]?.servicePackageID
-                      )
-                      .map((x) => (x.netTotal) < (x.discountedTotal) || (x.discounted > 0 && (!ShowDiscountLine)) ? formatValue(x.discountedTotal) : formatValue(x.netTotal))
-                      .join("")}
-                                    </td>
-                                  </tr>
-                                   ${finalQuotationAmountList.some(
-                        (x) =>
-                          x.serviceChargeTypeID === 2 &&
-                          x.discounted > 0
-                      ) && ShowDiscountLine
-                      ? `
-                                    <tr style="background-color: #DCDCDC;">
-                                      <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: black;">
-                                        Discount
-                                      </td>
-                                      <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: black;">
-                                        (-)  ${finalQuotationAmountList
                         .filter(
                           (x) =>
                             x.serviceChargeTypeID === 2 &&
                             x.servicePackageID ===
                             packageList[0]?.servicePackageID
                         )
-                        .map((x) => formatValue(x.discounted))
+                        .map((x) => (x.netTotal) < (x.discountedTotal) || (x.discounted > 0 && (!ShowDiscountLine)) ? formatValue(x.discountedTotal) : formatValue(x.netTotal))
                         .join("")}
+                                    </td>
+                                  </tr>
+                                   ${finalQuotationAmountList.some(
+                          (x) =>
+                            x.serviceChargeTypeID === 2 &&
+                            x.discounted > 0
+                        ) && ShowDiscountLine
+                        ? `
+                                    <tr style="background-color: #DCDCDC;">
+                                      <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: black;">
+                                        Discount
+                                      </td>
+                                      <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: black;">
+                                        (-)  ${finalQuotationAmountList
+                          .filter(
+                            (x) =>
+                              x.serviceChargeTypeID === 2 &&
+                              x.servicePackageID ===
+                              packageList[0]?.servicePackageID
+                          )
+                          .map((x) => formatValue(x.discounted))
+                          .join("")}
                                       </td>
                                     </tr>
                                   <tr style="background-color:#808080;">
@@ -708,40 +814,40 @@ function AcceptInvitation() {
                                     </td>
                                     <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
                                        ${finalQuotationAmountList
-                        .filter(
-                          (x) =>
-                            x.serviceChargeTypeID === 2 &&
-                            x.servicePackageID ===
-                            packageList[0]?.servicePackageID
-                        )
-                        .map((x) =>
-                          formatValue(x.discountedTotal)
-                        )
-                        .join("")}
+                          .filter(
+                            (x) =>
+                              x.serviceChargeTypeID === 2 &&
+                              x.servicePackageID ===
+                              packageList[0]?.servicePackageID
+                          )
+                          .map((x) =>
+                            formatValue(x.discountedTotal)
+                          )
+                          .join("")}
                                     </td>
                                   </tr>`
-                      : ""
-                    }
+                        : ""
+                      }
                                      ${finalQuotationAmountList.some(
-                      (x) =>
-                        x.serviceChargeTypeID === 2 &&
-                        x.vat > 0
-                    )
-                      ? `
+                        (x) =>
+                          x.serviceChargeTypeID === 2 &&
+                          x.vat > 0
+                      )
+                        ? `
                                   <tr style="background-color: #DCDCDC;">
                                     <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: black;">
                                       VAT
                                     </td>
                                     <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: black;">
                                        ${finalQuotationAmountList
-                        .filter(
-                          (x) =>
-                            x.serviceChargeTypeID === 2 &&
-                            x.servicePackageID ===
-                            packageList[0]?.servicePackageID
-                        )
-                        .map((x) => formatValue(x.vat))
-                        .join("")}
+                          .filter(
+                            (x) =>
+                              x.serviceChargeTypeID === 2 &&
+                              x.servicePackageID ===
+                              packageList[0]?.servicePackageID
+                          )
+                          .map((x) => formatValue(x.vat))
+                          .join("")}
                                     </td>
                                   </tr>
                                   <tr style="background-color:#808080;">
@@ -750,27 +856,27 @@ function AcceptInvitation() {
                                     </td>
                                     <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
                                        ${finalQuotationAmountList
-                        .filter(
-                          (x) =>
-                            x.serviceChargeTypeID === 2 &&
-                            x.servicePackageID ===
-                            packageList[0]?.servicePackageID
-                        )
-                        .map((x) => formatValue(x.grandTotal))
-                        .join("")}
+                          .filter(
+                            (x) =>
+                              x.serviceChargeTypeID === 2 &&
+                              x.servicePackageID ===
+                              packageList[0]?.servicePackageID
+                          )
+                          .map((x) => formatValue(x.grandTotal))
+                          .join("")}
                                     </td>
                                   </tr>`
-                      : ""
-                    }
+                        : ""
+                      }
                                 </table>
                                 </div>
                               `,
-                });
-              }
-            } else {
-              if (recurringServiceCatList.length > 0) {
-                currentArray.push({
-                  table: ` ${imgTag}
+                  });
+                }
+              } else {
+                if (recurringServiceCatList.length > 0 && quoteTypeID !== 4) {
+                  currentArray.push({
+                    table: ` ${imgTag}
                           <div style="padding: 40px; padding-top:0px; font-family:${fontFamily};page-break-inside: avoid; break-inside: avoid;">
                             <p style="font-family:${fontFamily}; color: ${BrandColor}; font-size: 20px; margin-top: 0px;">Recurring Fees (${getPaymentFrequencyLabel()})</p>
                             <table style="font-family:${fontFamily}; border-collapse: collapse; width: 100%; margin-top: -15px;">
@@ -779,8 +885,8 @@ function AcceptInvitation() {
                                 <th style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; font-size: 18px;">Fees (£)</th>
                               </tr>
                               ${recurringServiceCatList
-                      .map(
-                        (serviceCat) => `
+                        .map(
+                          (serviceCat) => `
                                 <tr style="background-color: #eee;">
                                   <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; font-weight: bold; font-size: 18px;">
                                     ${serviceCat.serviceCatName}
@@ -788,42 +894,42 @@ function AcceptInvitation() {
                                   <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;"></td>
                                 </tr>
                                 ${serviceCat.servicesList
-                            .map(
-                              (subService) => `
+                              .map(
+                                (subService) => `
                                   <tr>
                                     <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">
                                       ${subService.serviceName}
                                     </td>
                                           ${feeTypeId == 1
-                                  ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;"> ${formatValue(
-                                    subService.quotationPrice
-                                  )}</td>`
-                                  : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
-                                }
+                                    ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;"> ${formatValue(
+                                      subService.quotationPrice
+                                    )}</td>`
+                                    : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
+                                  }
                                   </tr>`
-                            )
-                            .join("")}
+                              )
+                              .join("")}
                               `
-                      )
-                      .join("")}
+                        )
+                        .join("")}
                               ${ChargeTypeId1Array.map(
-                        (value) => `
+                          (value) => `
                                 <tr style="background-color:#808080;">
                                   <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white;">
                                     Net Total
                                   </td>
                                   <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
                                      ${(value.netTotal < value.discountedTotal) ||
-                            (Number(value?.discounted) > 0 && (!ShowDiscountLine))
-                            ? formatValue(value.discountedTotal)
-                            : formatValue(value.netTotal)
-                          }
+                              (Number(value?.discounted) > 0 && (!ShowDiscountLine))
+                              ? formatValue(value.discountedTotal)
+                              : formatValue(value.netTotal)
+                            }
                                   </td>
                                 </tr>
                                 ${(value?.discounted !== null &&
-                            value?.discounted !== 0.0) &&
-                            ShowDiscountLine
-                            ? `
+                              value?.discounted !== 0.0) &&
+                              ShowDiscountLine
+                              ? `
                                   <tr style="background-color: #DCDCDC;">
                                     <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: black;">
                                       Discount
@@ -840,10 +946,10 @@ function AcceptInvitation() {
                                        ${formatValue(value?.discountedTotal)}
                                     </td>
                                   </tr>`
-                            : ""
-                          }
+                              : ""
+                            }
                                 ${value?.vat !== null && value?.vat !== 0.0
-                            ? `
+                              ? `
                                   <tr style="background-color: #DCDCDC;">
                                     <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: black;">
                                       VAT
@@ -860,20 +966,20 @@ function AcceptInvitation() {
                                        ${formatValue(value?.grandTotal)}
                                     </td>
                                   </tr>`
-                            : ""
-                          }
+                              : ""
+                            }
                               `
-                      ).join("")}
+                        ).join("")}
                             </table>
                           </div>
                         `,
-                });
-              }
-              // Check if selectedOneOffServiceList has items
-              if (oneOffServiceCatList.length > 0) {
-                // Append the table for selectedOneOffServiceList
-                currentArray.push({
-                  table: `
+                  });
+                }
+                // Check if selectedOneOffServiceList has items
+                if (oneOffServiceCatList.length > 0 && quoteTypeID !== 4) {
+                  // Append the table for selectedOneOffServiceList
+                  currentArray.push({
+                    table: `
                                 <div style="padding: 40px; padding-top:0px; font-family:${fontFamily};page-break-inside: avoid; break-inside: avoid;">
                                   <p style="font-family:${fontFamily}; color: ${BrandColor}; font-size: 20px;margin-top: 0px;">One-Off Fees</p>
                                   <table style="font-family:${fontFamily}; border-collapse: collapse; width: 100%; margin-top: -15px;">
@@ -882,8 +988,8 @@ function AcceptInvitation() {
                                       <th style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; font-size: 18px;">Fees ()</th>
                                     </tr>
                                     ${oneOffServiceCatList
-                      .map(
-                        (serviceCat) => `
+                        .map(
+                          (serviceCat) => `
                                       <tr style="background-color:#eee;">
                                         <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; font-weight: bold; font-size: 18px;">
                                           ${serviceCat.serviceCatName}
@@ -891,50 +997,50 @@ function AcceptInvitation() {
                                         <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;"></td>
                                       </tr>
                                       ${serviceCat.servicesList
-                            .map(
-                              (subService) => `
+                              .map(
+                                (subService) => `
                                         <tr>
                                     <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">
                                       ${subService.serviceName}
                                     </td>
                                           ${feeTypeId == 1
-                                  ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;"> ${formatValue(
-                                    subService.quotationPrice
-                                  )}</td>`
-                                  : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
-                                }
+                                    ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;"> ${formatValue(
+                                      subService.quotationPrice
+                                    )}</td>`
+                                    : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
+                                  }
                                   </tr>`
-                            )
-                            .join("")}
+                              )
+                              .join("")}
                                     `
-                      )
-                      .join("")}
+                        )
+                        .join("")}
                                     ${ChargeTypeId2Array.map(
-                        (value) => `
+                          (value) => `
                                       <tr style="background-color:#808080;">
                                         <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white;">
                                           Net Total
                                         </td>
                                         <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
                                            ${(value.netTotal < value.discountedTotal) ||
-                            (Number(value?.discounted) > 0 && (!ShowDiscountLine))
-                            ? formatValue(value.discountedTotal)
-                            : formatValue(value.netTotal)
-                          }
+                              (Number(value?.discounted) > 0 && (!ShowDiscountLine))
+                              ? formatValue(value.discountedTotal)
+                              : formatValue(value.netTotal)
+                            }
                                         </td>
                                       </tr>
                                       ${(value?.discounted !== null &&
-                            value?.discounted !== 0.0) &&
-                            ShowDiscountLine
-                            ? `
+                              value?.discounted !== 0.0) &&
+                              ShowDiscountLine
+                              ? `
                                         <tr style="background-color: #DCDCDC;">
                                           <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: black;">
                                             Discount
                                           </td>
                                           <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: black;">
                                             (-)  ${formatValue(
-                              value.discounted
-                            )}
+                                value.discounted
+                              )}
                                           </td>
                                         </tr>
                                         <tr style="background-color:#808080;">
@@ -943,15 +1049,15 @@ function AcceptInvitation() {
                                           </td>
                                           <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
                                              ${formatValue(
-                              value.discountedTotal
-                            )}
+                                value.discountedTotal
+                              )}
                                           </td>
                                         </tr>`
-                            : ""
-                          }
+                              : ""
+                            }
                                       ${value?.vat !== null &&
-                            value?.vat !== 0.0
-                            ? `
+                              value?.vat !== 0.0
+                              ? `
                                         <tr style="background-color: #DCDCDC;">
                                           <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: black;">
                                             VAT
@@ -968,16 +1074,16 @@ function AcceptInvitation() {
                                              ${formatValue(value.grandTotal)}
                                           </td>
                                         </tr>`
-                            : ""
-                          }
+                              : ""
+                            }
                                     `
-                      ).join("")}
+                        ).join("")}
                                   </table>
                                 </div>
                               `,
-                });
+                  });
+                }
               }
-            }
 
             break;
           case ElementType.SERVICE_DESCRIPTION:
@@ -1099,6 +1205,7 @@ function AcceptInvitation() {
               );
 
               if ((TnCHtmlContent !== null && TnCHtmlContent !== undefined)) {
+                const appliedFontContent = setDefaultFontFamily(TnCHtmlContent,fontFamily);
                 // Handling Terms and Conditions
                 //     if (
                 //       prevElementType !== ElementType.PAGE_BREAK &&
@@ -1152,7 +1259,7 @@ function AcceptInvitation() {
                   {
                     textbox: `<div style="padding-left: 40px; padding-right: 40px; color:${BrandColor}; font-size: ${fontSizeHeading}; font-family:${fontFamily};" >TERMS & CONDITIONS<br>
                     <hr style="padding-left: 40px; padding-right: 40px; color: black;"></hr></div>
-                      <div style="padding-left: 40px; padding-right: 40px;">${TnCHtmlContent}</div><br>
+                      <div style="padding-left: 40px; padding-right: 40px;">${appliedFontContent}</div><br>
             ${(() => {
                         htmlContentForSignatories += `<div id='SignatoryBlock' style='width: 95%; padding-left: 0px; padding-right: 0px; margin-top: 30px; page-break-inside: avoid; break-inside: avoid;'>`
                         {/* "<div style='width: 95%; padding-left: 0px; padding-right: 0px; margin-top: 50px;'>"; */ }
@@ -1348,7 +1455,13 @@ function AcceptInvitation() {
       webSite: webSite,
       BrandLogo: BrandLogo,
       fontSizeContent: fontSize,
-      fontFamily: fontFamily
+      fontFamily: fontFamily,
+      HeaderContent: HeaderContent,
+      FooterContent: FooterContent,
+      HeaderHeight: HeaderHeight,
+      FooterHeight: FooterHeight,
+      HeaderImage: HeaderImage,
+      FooterImage: FooterImage
     };
     try {
       const response = await fetch(generatePdfUrl, {
@@ -1478,6 +1591,54 @@ function AcceptInvitation() {
       generatePdf();
     }
   }, [generatePdfData, organisationData]);
+
+    const GetTemplateLookupListData = async (ClientId, QuoteId) => {
+      setLoader(true);
+      try {
+        const response = await GetTemplateListLookupList({
+          TemplateTypeID: 2,
+          organisationKeyID: common.organisationKeyID,
+          QuoteKeyID: quoteKeyID,
+        });
+        const data = response.data;
+        const isSelectedDefault = data.responseData.data.filter(
+          (item) => item.isDefault === true
+        );
+        if (data.statusCode === 200) {
+          setLoader(false);
+          const mappedOptions = data.responseData.data.map((item) => ({
+            value: item.templateKeyID,
+            label: item.templateName,
+            templateID: item.templateID,
+            fontFamilyID: item.fontFamilyID,
+            headerHeight: item.headerHeight,
+            footerHeight: item.footerHeight,
+            headerImage: item.headerImage,
+            footerImage: item.footerImage,
+            headerContent: item.headerContent,
+            footerContent: item.footerContent
+          }));
+          // setTemplateLookUpOptions(mappedOptions);
+          // const isSelectedDefault = data.responseData.data.filter(
+          //   (item) => item.isDefault === true
+          // );
+          setQuoteTypeID(isSelectedDefault[0]?.quoteTypeID);
+          setFontFamily(getFontNameById(mappedOptions[0].fontFamilyID));
+          setHeaderContent(mappedOptions[0]?.headerContent);
+          setFooterContent(mappedOptions[0]?.footerContent);
+          setHeaderImage(mappedOptions[0]?.headerImage);
+          setFooterImage(mappedOptions[0]?.footerImage)
+          setHeaderHeight(mappedOptions[0]?.headerHeight);
+          setFooterHeight(mappedOptions[0]?.footerHeight);
+        } else {
+          setLoader(false);
+          console.error("Error fetching data from the API");
+        }
+      } catch (error) {
+        setLoader(false);
+        console.error("Error fetching data from the API", error);
+      }
+    };
   //Get Template Model Data 
   const GetTemplateModalData = async (
     TemplateKeyID,
@@ -1569,7 +1730,7 @@ function AcceptInvitation() {
           setBrandLogo(Logo)
           let clientNameOnFirstPage = ModelData.templateElementListWithRequiredData.clientNameOnFirstPage == null ? "" : ModelData.templateElementListWithRequiredData.clientNameOnFirstPage
           const firstPageHTML = `
-         <div style="margin-top: 300px;>
+         <div style="margin-top: 300px;">
      <div style="display: flex; justify-content: center; align-items: center; text-align: center;margin-top:${Logo ? `-100px` : "0px"}">
     ${Logo ? `
       <div style="display: inline-block; text-align: center; width: 700px; height: 150px; background-image: url('${Logo}'); background-size: contain; background-repeat: no-repeat; background-position: center;">
@@ -1577,8 +1738,8 @@ function AcceptInvitation() {
     ` : ''}
 
   <p style="text-align: center; color: #00BFFF; page-break-after: always;">
-    <span style="color: #00BFFF; margin-top: 15px; font-size: 50px;" class="OrgBrandColor">Engagement Letter For</span><br><br>
-    <span style="color: black; margin-top: 15px; font-size: 25px;">${clientNameOnFirstPage}</span><br>
+    <span style="color: #00BFFF; margin-top: 15px; font-size: 50px; font-family: ${fontFamily}" class="OrgBrandColor">Engagement Letter For</span><br><br>
+    <span style="color: black; margin-top: 15px; font-size: 25px;font-family: ${fontFamily}">${clientNameOnFirstPage}</span><br>
   </p>
     </div>
     </div>
@@ -1595,14 +1756,14 @@ function AcceptInvitation() {
               "serialNo": null,
               "headings": "",
               "shortDesc": "",
-              "htmlContent": firstPageHTML
+              "htmlContent": setDefaultFontFamily(firstPageHTML, fontFamily)
             };
             AddFirstPageHtmlContent.splice(0, 0, firstPageElement);
           }
-          const GetCommonFontFamily = AddFirstPageHtmlContent.find(item => item.templateElementTypeName === "Text Block").htmlContent
-          const { uniqueFontFamilies, // Unique font families
-            largestFontSize, // Largest font size
-            smallestFontSize } = getFontStylesFromHtml(GetCommonFontFamily)
+          // const GetCommonFontFamily = AddFirstPageHtmlContent.find(item => item.templateElementTypeName === "Text Block").htmlContent
+          // const { uniqueFontFamilies, // Unique font families
+          //   largestFontSize, // Largest font size
+          //   smallestFontSize } = getFontStylesFromHtml(GetCommonFontFamily)
           const ReplaceVariableArray = replaceTemplatePricingVariables(
             AddFirstPageHtmlContent,
             RecurringPricingInfo,
@@ -1615,8 +1776,8 @@ function AcceptInvitation() {
           setBrandColor(
             ModelData.templateElementListWithRequiredData.brandColor
           );
-          setFontFamily(uniqueFontFamilies)
-          setFontSize(smallestFontSize)
+          // setFontFamily(uniqueFontFamilies)
+          // setFontSize(smallestFontSize)
           setWebSite(ModelData.templateElementListWithRequiredData.website);
         }
       } else {
@@ -1803,6 +1964,7 @@ function AcceptInvitation() {
           });
           setChargeTypeId1Array(chargeTypeId1Array);
           setChargeTypeId2Array(chargeTypeId2Array);
+          await GetTemplateLookupListData(ModelData.quoteKeyID);
           GetTemplateModalData(
             ModelData.templateKeyID,
             ModelData.clientID,

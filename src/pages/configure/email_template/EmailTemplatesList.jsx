@@ -10,6 +10,7 @@ import {
   EmailTemplatesChangeStatus,
   GetChangeIsDefaultStatus,
   GetEmailTemplatesModel,
+  CopyEmail,
 } from "../../../redux/Services/Config/EmailTemplateApi";
 import PaginationComponent from "../../../components/PaginationModel";
 import Android12Switch from "../../../components/AndroidSwitch";
@@ -310,7 +311,24 @@ function EmailTemplate() {
       }
     }
   };
-
+    // Copy Email Template Data
+    const CopyEmailTemplateData = async() => {
+      if(!common.organisationKeyID) return;
+      try{
+        const data = await CopyEmail(modelRequestData.templateKeyID,common.userKeyID);
+        if(data?.data?.statusCode === 200) {
+          setOpenSuccessModal(true);
+          GetEmailTemplatesListData(isCurrentPage);
+        }
+        else {
+          setErrorMessage(data?.data?.errorMessage);
+          setOpenErrorModal(true);
+        }
+      }
+      catch(error){
+        console.error(error);
+      }
+    }
   //Add Template Button
   const TemplateAddBtnClicked = () => {
     {
@@ -817,6 +835,30 @@ function EmailTemplate() {
                                   </td>
                                   <td className="table-content-font">
                                     <div class="d-flex gap-2">
+                                    <Tooltip
+                                        title={getCrudButtonToolTipName(
+                                          "Copy",
+                                          moduleName
+                                        )}
+                                      >
+                                        <div class="copy">
+                                          <button
+                                            class="btn btn-sm btn-success edit-item-btn edit"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#ConfirmModel"
+                                            onClick={() =>
+                                              setModelRequestData({
+                                                ...modelRequestData,
+                                                Action: "Copy",
+                                                templateKeyID: Template.templateKeyID,
+                                                userKeyID: common.userKeyID
+                                              })
+                                            }
+                                          >
+                                            <i class="fa-solid fa-copy"></i>
+                                          </button>
+                                        </div>
+                                      </Tooltip>
                                       {((userAccessData.Admin_Config_Email_Template_CanEdit &&
                                         common.organisationKeyID !== null) ||
                                         (userAccessData.SuperAdmin_Config_Email_Template_CanEdit &&
@@ -918,7 +960,7 @@ function EmailTemplate() {
           openErrorModal={openErrorModal}
           openSuccessModal={openSuccessModal}
           modelRequestData={modelRequestData}
-          UpdatedStatus={EmailTemplatesChangeStatusDataAndDeleteData}
+          UpdatedStatus = {modelRequestData.Action === "Delete" || modelRequestData.Action === "Status" ? EmailTemplatesChangeStatusDataAndDeleteData : CopyEmailTemplateData}
         />
         <RecordsAvailablePopupModel
           handleClose={handleClose}
@@ -933,10 +975,13 @@ function EmailTemplate() {
           setOpenSuccessModal={setOpenSuccessModal}
           openSuccessModal={openSuccessModal}
           modelAction={modelRequestData.Action}
-          message={`${modelRequestData.Action === "Delete"
-            ? `${moduleName} ${modelRequestData.templateName}`
-            : "Status has been changed successfully!"
-            }`}
+          message={`${
+            modelRequestData.Action === "Delete"
+              ? `${moduleName} ${modelRequestData.templateName}`
+              : modelRequestData.Action === "Copy"
+              ? "Copy of the Email Template has been created successfully!"
+              : "Status has been changed successfully!"
+          }`}
         />
         <Footer />
       </div>

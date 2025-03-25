@@ -10,6 +10,7 @@ import {
   TermsAndConditionsChangeStatus,
   GetChangeIsDefaultStatus,
   GetTermsAndConditionsModel,
+  CopyTermsAndConditions
 } from "../../../redux/Services/Config/TermAndConditionApi";
 import PaginationComponent from "../../../components/PaginationModel";
 import Android12Switch from "../../../components/AndroidSwitch";
@@ -211,7 +212,24 @@ function Term_and_Condition() {
       console.log(error);
     }
   };
-
+ // Copy TnC data
+ const CopyTermsAndConditionsTemplateData = async() => {
+  if(!common.organisationKeyID) return;
+  try {
+    const data = await CopyTermsAndConditions(modelRequestData.templateKeyID,common.userKeyID);
+    if(data?.data?.statusCode === 200) {
+      setOpenSuccessModal(true);
+      GetTermsAndConditionsListData(currentPage);
+    }
+    else {
+      setErrorMessage(data?.data?.errorMessage);
+      setOpenErrorModal(true);
+    }
+  }
+  catch(error) {
+    console.error(error);
+  }
+}
   // Update Function Modal
   // 2) On Click Template Status Button
   const TermsAndConditionsChangeStatusDataAndDeleteData = async () => {
@@ -976,6 +994,34 @@ function Term_and_Condition() {
                                   </td>
                                   <td>
                                     <div class="d-flex gap-2">
+                                    <Tooltip
+                                        title={getCrudButtonToolTipName(
+                                          "Copy",
+                                          moduleName
+                                        )}
+                                      >
+                                        <div class="copy">
+                                          <button
+                                            class="btn btn-md btn-success create-item-btn"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#ConfirmModel"
+                                            onClick={() =>
+                                              setModelRequestData({
+                                                ...modelRequestData,
+                                                Action: "Copy",
+                                                templateKeyID: Template.templateKeyID,
+                                                userKeyID: common.userKeyID
+                                              })
+                                            }
+                                          >
+                                            <span
+                                              style={{ marginRight: "4px" }}
+                                            >
+                                            <i class="fa-solid fa-copy"></i>
+                                            </span>
+                                          </button>
+                                        </div>
+                                      </Tooltip>
                                       {((userAccessData.Admin_Config_TnC_CanEdit &&
                                         common.organisationKeyID !== null) ||
                                         (userAccessData.SuperAdmin_Config_TnC_CanEdit &&
@@ -1077,7 +1123,7 @@ function Term_and_Condition() {
           openErrorModal={openErrorModal}
           openSuccessModal={openSuccessModal}
           modelRequestData={modelRequestData}
-          UpdatedStatus={TermsAndConditionsChangeStatusDataAndDeleteData}
+          UpdatedStatus = {modelRequestData.Action === "Delete" || modelRequestData.Action === "Status" ? TermsAndConditionsChangeStatusDataAndDeleteData : CopyTermsAndConditionsTemplateData}
         />
         <RecordsAvailablePopupModel
           handleClose={handleClose}
@@ -1093,10 +1139,13 @@ function Term_and_Condition() {
           setOpenSuccessModal={setOpenSuccessModal}
           openSuccessModal={openSuccessModal}
           modelAction={modelRequestData.Action}
-          message={`${modelRequestData.Action === "Delete"
-            ? `${moduleName} ${modelRequestData.templateName}`
-            : "Status has been changed successfully!"
-            }`}
+          message={`${
+            modelRequestData.Action === "Delete"
+              ? `${moduleName} ${modelRequestData.templateName}`
+              : modelRequestData.Action === "Copy"
+              ? "Copy of the Template has been created successfully!"
+              : "Status has been changed successfully!"
+          }`}
         />
         {/* End Page-content */}
 

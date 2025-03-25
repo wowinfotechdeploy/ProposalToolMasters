@@ -9,6 +9,7 @@ import {
   DeleteGlobalConstant,
   GlobalConstantChangeStatus,
   GetGlobalConstantModel,
+  CopyGlobalConstant,
 } from "../../../redux/Services/Config/GlobalConstantApi";
 import PaginationComponent from "../../../components/PaginationModel";
 import { useSelector } from "react-redux";
@@ -309,6 +310,24 @@ function Global_Constants() {
     }
   };
 
+  // Copy Record
+  const CopyGlobalConstantData = async() => {
+    if(!common.organisationKeyID) return;
+    try {
+      const data = await CopyGlobalConstant(modelRequestData.globalPricingDriverKeyID,common.userKeyID);
+      if(data?.data?.statusCode === 200) {
+        setOpenSuccessModal(true);
+        GetGlobalConstantListData(currentPage);
+      }
+      else {
+        setErrorMessage(data?.data?.errorMessage);
+        setOpenErrorModal(true);
+      }
+    }
+    catch(error) {
+      console.error(error);
+    }
+  }
   // F] Pagination :
   const HandlePageChange = async (pageNumber) => {
     setCurrentPage(pageNumber);
@@ -670,6 +689,30 @@ function Global_Constants() {
                                     </td>
                                     <td className="table-content-font">
                                       <div class="d-flex gap-2 ">
+                                      <Tooltip
+                                          title={getCrudButtonToolTipName(
+                                            "Copy",
+                                            moduleName
+                                          )}
+                                        >
+                                          <div class="copy">
+                                            <button
+                                              class="btn btn-sm btn-success edit-item-btn edit"
+                                              data-bs-toggle="modal"
+                                              data-bs-target="#ConfirmModel"
+                                              onClick={() =>
+                                                setModelRequestData({
+                                                  ...modelRequestData,
+                                                  Action: "Copy",
+                                                  globalPricingDriverKeyID: GlobalConstant.globalPricingDriverKeyID,
+                                                  userKeyID: common.userKeyID
+                                                })
+                                              }
+                                            >
+                                              <i class="fa-solid fa-copy"></i>
+                                            </button>
+                                          </div>
+                                        </Tooltip>
                                         {((userAccessData.Admin_Config_Global_Constant_CanEdit &&
                                           common.organisationKeyID !== null) ||
                                           (userAccessData.SuperAdmin_Config_Global_Constant_CanEdit &&
@@ -774,7 +817,7 @@ function Global_Constants() {
               openErrorModal={openErrorModal}
               openSuccessModal={openSuccessModal}
               modelRequestData={modelRequestData}
-              UpdatedStatus={GlobalConstantChangeStatusDataAndDeleteData}
+              UpdatedStatus={modelRequestData.Action === "Delete" || modelRequestData.Action === "Status" ? GlobalConstantChangeStatusDataAndDeleteData : CopyGlobalConstantData}
             />
             <RecordsAvailablePopupModel
               handleClose={handleClose}
@@ -790,10 +833,13 @@ function Global_Constants() {
               setOpenSuccessModal={setOpenSuccessModal}
               openSuccessModal={openSuccessModal}
               modelAction={modelRequestData.Action}
-              message={`${modelRequestData.Action === "Delete"
-                ? `${moduleName} ${modelRequestData.driverName}`
-                : "Status has been changed successfully!"
-                }`}
+              message={`${
+                modelRequestData.Action === "Delete"
+                  ? `${moduleName} ${modelRequestData.driverName}`
+                  : modelRequestData.Action === "Copy"
+                  ? "Copy of the Global Constant has been created successfully!"
+                  : "Status has been changed successfully!"
+              }`}
             />
             {/* Model */}
             <GlobalConstantModal

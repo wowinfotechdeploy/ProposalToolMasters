@@ -743,6 +743,16 @@ export const AdditionalInformation = (props) => {
                                 <span>Next</span>
                             </button>
                         )}
+                        {props?.ProposalObject?.selectedProposalTypeValue === 4 && (
+                            <button
+                                className="btn btn-md btn-success create-item-btn"
+                                onClick={async () => {
+                                    await props.HandleTabChange(4);
+                                }}
+                            >
+                                <span>Next</span>
+                            </button>
+                        )}
                         {(props.moduleName == "Contract" || props.moduleName === "Package") && (
                             <button
                                 className="btn btn-md btn-success create-item-btn"

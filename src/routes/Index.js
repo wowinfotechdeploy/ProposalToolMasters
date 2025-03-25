@@ -158,6 +158,9 @@ const Add_New_Templates = Loadable(
 const Add_New_Templates_Pdf = Loadable(
   lazy(() => import("../pages/configure/template/AddNewTemplatePdf"))
 );
+const Add_New_Templates_HeaderFooter = Loadable(
+  lazy(() => import("../pages/configure/template/AddNewTemplateHeaderFooter"))
+);
 const Predefined_Email_templates = Loadable(
   lazy(() => import("../pages/configure/email_template/EmailTemplatesList"))
 );
@@ -1059,6 +1062,10 @@ function Index() {
                       <Route
                         path="/add-template"
                         element={<Add_New_Templates />}
+                      />
+                      <Route
+                        path="/add-template-header-footer"
+                        element={<Add_New_Templates_HeaderFooter />}
                       />
                       <Route
                         path="/email-template"

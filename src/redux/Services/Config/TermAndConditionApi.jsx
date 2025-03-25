@@ -79,3 +79,11 @@ export const GetTermsAndConditionsLookupList = async (OrganisationKeyID) => {
     );
     return res;
 };
+
+// Copy Terms and Condition Template
+export const CopyTermsAndConditions = async (TemplateKeyID,UserKeyID) => {
+    const res = await postApiWithAuthenticated(
+        `${TermAndConditionBaseUrl}/CopyTermsAndConditionsTemplate?TemplateKeyID=${TemplateKeyID}&UserKeyID=${UserKeyID}`
+    );
+    return res;
+};

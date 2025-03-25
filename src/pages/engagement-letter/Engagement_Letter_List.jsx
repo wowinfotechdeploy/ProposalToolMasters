@@ -23,6 +23,7 @@ import {
   CopyContract,
   GetEngagementList,
   GetOldEngagementList,
+  VoidContract,
 } from "../../redux/Services/EngagementLetter/EngagementLetterApi";
 import PaginationComponent from "../../components/PaginationModel";
 import { CalenderFilterEnum, statusID, statusNames } from "../../Middleware/enums";
@@ -625,7 +626,7 @@ const Engagement_Letter = () => {
       }
     }
   };
-// el seacrh function
+  // el seacrh function
   const handleSearch = (e) => {
     const searchKeywordValue = e.target.value;
     setSearchKeyword(searchKeywordValue);
@@ -710,7 +711,23 @@ const Engagement_Letter = () => {
       setErrorMessage(error)
     }
   };
-
+  // Void Contract
+  const VoidContractData = async() => {
+    try{
+      const data = await VoidContract(modelRequestData.contractKeyID,common.userKeyID);
+      if(data?.data?.statusCode === 200) {
+        setOpenSuccessModal(true);
+      }
+      else {
+        $("#" + "ConfirmModel").modal("hide");
+        setErrorMessage(data?.data?.errorMessage);
+        setOpenErrorModal(true);
+      }
+    }
+    catch(error){
+      console.error(error);
+    }
+  }
   // const handleViewPdf = (item) => {
   //   setModelRequestData({
   //     ...modelRequestData,
@@ -1662,6 +1679,21 @@ const Engagement_Letter = () => {
                                                 </td>
                                               </>
                                             )}
+                                            {engagement.statusID ===
+                                            statusID.Void && (
+                                              <>
+                                                <td class="table-content-font">
+                                                  <p
+                                                    style={{
+                                                      background: "#1897ad",
+                                                    }}
+                                                    className="p-1 text-center text-white rounded"
+                                                  >
+                                                    {engagement.statusName}
+                                                  </p>
+                                                </td>
+                                              </>
+                                            )}
                                           <td style={{ padding: "6px" }}>
                                             {engagement.statusID !==
                                               statusID.Draft && (
@@ -1693,7 +1725,7 @@ const Engagement_Letter = () => {
                                       {EngagementName} PDF
                                     </a> */}
                                             {engagement.statusID !==
-                                              statusID.Draft &&
+                                              statusID.Draft && engagement.statusID !== statusID.Void &&
                                               engagement.documents &&
                                               engagement.statusID !==
                                               statusID.Signed && (
@@ -1711,10 +1743,10 @@ const Engagement_Letter = () => {
                                                 </p>
                                               )}
                                             {engagement.statusID !==
-                                              statusID.Draft &&
+                                              statusID.Draft && engagement.statusID !== statusID.Void &&
                                               engagement.documents &&
                                               engagement.statusID ===
-                                              statusID.Signed && (
+                                              statusID.Signed &&  (
                                                 <p
                                                   onClick={() => {
                                                     handleDownload(engagement);
@@ -1730,7 +1762,7 @@ const Engagement_Letter = () => {
                                           </td>
 
                                           <td className="table-content-font">
-                                            {engagement.statusID !== statusID.Draft &&
+                                            {(engagement.statusID !== statusID.Draft && engagement.statusID !== statusID.Void)  &&
 
                                               <div
                                                 style={{ alignItems: "none" }}
@@ -1840,7 +1872,7 @@ const Engagement_Letter = () => {
                                                   )}
 
                                                   {/* Copy button */}
-                                                  {engagement.statusID !== statusID.Draft && (
+                                                  {engagement.statusID !== statusID.Draft && engagement.statusID !== statusID.Void && (
                                                     <li>
 
                                                       <a class="dropdown-item" data-bs-toggle="modal"
@@ -1862,6 +1894,7 @@ const Engagement_Letter = () => {
                                                   {/* Resend button*/}
                                                   {(engagement.statusID === statusID.Sent || engagement.statusID === statusID.Awaiting_Signature
                                                   ) && userAccessData.Admin_Engagement_Latter_CanEdit && (
+                                                    <>
                                                       <li>
                                                         <a class="dropdown-item" data-bs-toggle="modal"
                                                           data-bs-target="#ConfirmModel" onClick={() => {
@@ -1876,6 +1909,21 @@ const Engagement_Letter = () => {
                                                           <i class="fas fa-redo"></i> Re-send {EngagementName}
                                                         </a>
                                                       </li>
+                                                      {/* Void button */}
+                                                      <li>
+                                                      <a class="dropdown-item" data-bs-toggle="modal"
+                                                        data-bs-target="#ConfirmModel" onClick={() => {
+                                                          setModelRequestData({
+                                                            ...modelRequestData,
+                                                            contractKeyID: engagement.contractKeyID,
+                                                            message: `Are you sure you want to void ${EngagementName}`,
+                                                            Action: "Void",
+                                                          })
+                                                        }}>
+                                                          <i class="fa fa-ban"></i> Void {EngagementName}
+                                                        </a>
+                                                      </li>
+                                                      </>
                                                     )}
                                                 </ul>
                                               </div>
@@ -2564,8 +2612,8 @@ const Engagement_Letter = () => {
         <ConfirmModel
           openSuccessModal={openSuccessModal}
           modelRequestData={modelRequestData}
-          UpdatedStatus={modelRequestData.Action === "ReminderStatus" ? ChangeContractStatusData : modelRequestData.Action === "Resend" ? handleResend : CopyContractData}
-        />
+          UpdatedStatus={modelRequestData.Action === "ReminderStatus" ? ChangeContractStatusData : modelRequestData.Action === "Resend" ? handleResend 
+            : modelRequestData.Action === "Void" ? VoidContractData : CopyContractData}        />
         <SuccessModal
           handleClose={handleClose}
           setOpenSuccessModal={setOpenSuccessModal}
@@ -2575,7 +2623,7 @@ const Engagement_Letter = () => {
             modelRequestData.Action === "Copy"
               ? `The Copy of  ${modelRequestData.refId} has been created successfully! `
               : modelRequestData.Action === "ReminderStatus" ? "Status has been changed successfully!" :
-                modelRequestData.Action === "Resend" ? EngagementName : ""
+                modelRequestData.Action === "Resend" ? EngagementName : modelRequestData.Action === "Void" ? `Contract ${modelRequestData.refId} has been voided!` : ""
           }
           refIdStore={modelRequestData.refId}
         />

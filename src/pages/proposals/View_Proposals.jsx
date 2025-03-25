@@ -67,6 +67,7 @@ const View_Proposals = () => {
     quoteFormatID: null,
     statusID: null,
     templateName: null,
+    quoteTypeID: null,
     quoteTypeName: null,
     Payment_Frequency: null,
     feeTypeId: null,
@@ -293,6 +294,7 @@ const View_Proposals = () => {
             quotationName: ModelData.quotationName,
             clientName: ModelData.clientName,
             templateName: ModelData.templateName,
+            quoteTypeID: ModelData.quoteTypeID,
             quoteTypeName: ModelData.quoteTypeName,
             feesInQuoteName: ModelData.feesInQuoteName,
             Payment_Frequency: ModelData.paymentFrequencyID,
@@ -2214,7 +2216,8 @@ const View_Proposals = () => {
                                               <div className="separator mb-2"></div>
                                               <h6>Recurring Services</h6>
                                               <div className="separator mb-3"></div>
-
+                                              {ProposalObject.quoteTypeID !== 4 && (
+                                                <>
                                               <div className="row fieldset">
                                                 <div className="col-md-2 col-sm-12  text-md-end">
                                                   <label className="fieldset-label">
@@ -2292,6 +2295,8 @@ const View_Proposals = () => {
                                                   />
                                                 </div>
                                               </div>
+                                              </>
+                                              )}
                                               <div className="mb-3"></div>
                                               <div style={{ marginTop: "0px" }} className="table-responsive">
                                                 <table className="table align-middle table-nowrap">
@@ -2300,9 +2305,11 @@ const View_Proposals = () => {
                                                       <th className="tr-table-class text-white">
                                                         Services
                                                       </th>
+                                                      {ProposalObject.quoteTypeID !== 4 &&
                                                       <th className="tr-table-class text-white text-right">
                                                         Fees (£)
                                                       </th>
+                                                      }
                                                     </tr>
                                                   </thead>
                                                   <tbody>
@@ -2335,6 +2342,7 @@ const View_Proposals = () => {
                                                                       </div>
                                                                       <div class="package-variables"></div>
                                                                     </td>
+                                                                    {ProposalObject.quoteTypeID !== 4 && 
                                                                     <td className="text-right">
                                                                       {ProposalObject.feeTypeId ===
                                                                         1 && (
@@ -2351,6 +2359,7 @@ const View_Proposals = () => {
                                                                           <span className="fa fa-check"></span>
                                                                         )}
                                                                     </td>
+                                                                    }
                                                                   </tr>
                                                                 );
                                                               }
@@ -2359,6 +2368,7 @@ const View_Proposals = () => {
                                                         );
                                                       }
                                                     )}
+                                                    {ProposalObject.quoteTypeID !== 4 &&
                                                     <tr className="head-row">
                                                       <td className="tr-table-class text-white">
                                                         Net Total
@@ -2391,6 +2401,7 @@ const View_Proposals = () => {
                                                         }
                                                       </td>
                                                     </tr>
+                                                    }
                                                     {(Number(
                                                       RecurringPricingInfo.Discount
                                                     ) > 0 &&
@@ -2490,82 +2501,85 @@ const View_Proposals = () => {
                                             <div className="separator mb-2"></div>
                                             <h6>One-Off Services</h6>
                                             <div className="separator mb-3"></div>
+                                            {ProposalObject.quoteTypeID !== 4 && (
+                                                <>
+                                                  <div className="row fieldset">
+                                                    <div className="col-md-2 col-sm-12  text-md-end">
+                                                      <label className="fieldset-label">
+                                                        Original Price (£)
+                                                      </label>
+                                                    </div>
+                                                    <div className="col-md-10 col-sm-12">
+                                                      <input
+                                                        readonly=""
+                                                        type="text"
+                                                        class="input-text"
+                                                        value={
+                                                          Number(Math.floor(OneOffPricingInfo.OriginalPrice * 100) / 100).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")
 
-                                            <div className="row fieldset">
-                                              <div className="col-md-2 col-sm-12  text-md-end">
-                                                <label className="fieldset-label">
-                                                  Original Price (£)
-                                                </label>
-                                              </div>
-                                              <div className="col-md-10 col-sm-12">
-                                                <input
-                                                  readonly=""
-                                                  type="text"
-                                                  class="input-text"
-                                                  value={
-                                                    Number(Math.floor(OneOffPricingInfo.OriginalPrice * 100) / 100).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                                          // formatValue(
+                                                          //   OneOffPricingInfo.OriginalPrice
+                                                          // )
+                                                          //   OneOffPricingInfo.OriginalPrice.toString().replace(
+                                                          //   /\B(?=(\d{3})+(?!\d))/g,
+                                                          //   ","
+                                                          // )
+                                                        }
+                                                      />
+                                                    </div>
+                                                  </div>
+                                                  <div
+                                                    class="row"
+                                                    id="OneOff_Default"
+                                                  >
+                                                    <div class="col-lg-2 mb-1 col-md-2 col-sm-12 mt-2 text-md-end">
+                                                      <div class="mb-1 text-md-end">
+                                                        <label class="form-label">
+                                                          Discount (%)
+                                                        </label>
+                                                      </div>
+                                                    </div>
+                                                    <div class="col-lg-4 col-md-4 col-sm-12">
+                                                      <input
+                                                        readonly=""
+                                                        class="input-text"
+                                                        type="text"
+                                                        placeholder="Discount (%)"
+                                                        value={
+                                                          Number(Math.floor(OneOffPricingInfo.DefaultDiscount * 100) / 100).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")
 
-                                                    // formatValue(
-                                                    //   OneOffPricingInfo.OriginalPrice
-                                                    // )
-                                                    //   OneOffPricingInfo.OriginalPrice.toString().replace(
-                                                    //   /\B(?=(\d{3})+(?!\d))/g,
-                                                    //   ","
-                                                    // )
-                                                  }
-                                                />
-                                              </div>
-                                            </div>
-                                            <div
-                                              class="row"
-                                              id="OneOff_Default"
-                                            >
-                                              <div class="col-lg-2 mb-1 col-md-2 col-sm-12 mt-2 text-md-end">
-                                                <div class="mb-1 text-md-end">
-                                                  <label class="form-label">
-                                                    Discount (%)
-                                                  </label>
-                                                </div>
-                                              </div>
-                                              <div class="col-lg-4 col-md-4 col-sm-12">
-                                                <input
-                                                  readonly=""
-                                                  class="input-text"
-                                                  type="text"
-                                                  placeholder="Discount (%)"
-                                                  value={
-                                                    Number(Math.floor(OneOffPricingInfo.DefaultDiscount * 100) / 100).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                                          // OneOffPricingInfo.DefaultDiscount
+                                                        }
+                                                      />
+                                                    </div>
+                                                    <div
+                                                      style={{ padding: "0px" }}
+                                                      class="col-lg-2 col-md-2 mt-2 col-sm-12"
+                                                    >
+                                                      <div class="mb-1  text-md-end">
+                                                        <label class="form-label">
+                                                          Discounted Price (£)
+                                                        </label>
+                                                      </div>
+                                                    </div>
+                                                    <div class="col-lg-4 col-md-4 col-sm-12">
+                                                      <input
+                                                        readonly=""
+                                                        class="input-text"
+                                                        type="text"
+                                                        placeholder="Discounted Price (£)"
+                                                        value={
+                                                          Number(Math.floor(OneOffPricingInfo.DiscountedPrice * 100) / 100).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")
 
-                                                    // OneOffPricingInfo.DefaultDiscount
-                                                  }
-                                                />
-                                              </div>
-                                              <div
-                                                style={{ padding: "0px" }}
-                                                class="col-lg-2 col-md-2 mt-2 col-sm-12"
-                                              >
-                                                <div class="mb-1  text-md-end">
-                                                  <label class="form-label">
-                                                    Discounted Price (£)
-                                                  </label>
-                                                </div>
-                                              </div>
-                                              <div class="col-lg-4 col-md-4 col-sm-12">
-                                                <input
-                                                  readonly=""
-                                                  class="input-text"
-                                                  type="text"
-                                                  placeholder="Discounted Price (£)"
-                                                  value={
-                                                    Number(Math.floor(OneOffPricingInfo.DiscountedPrice * 100) / 100).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-
-                                                    //     formatValue(
-                                                    //   OneOffPricingInfo.DiscountedPrice
-                                                    // )
-                                                  }
-                                                />
-                                              </div>
-                                            </div>
+                                                          //     formatValue(
+                                                          //   OneOffPricingInfo.DiscountedPrice
+                                                          // )
+                                                        }
+                                                      />
+                                                    </div>
+                                                  </div>
+                                                </>
+                                              )}
                                             <div className="mb-3"></div>
                                             <div style={{ marginTop: "0px" }} className="table-responsive">
                                               <table className="table align-middle table-nowrap">
@@ -2574,9 +2588,11 @@ const View_Proposals = () => {
                                                     <th className="tr-table-class text-white">
                                                       Services
                                                     </th>
+                                                    {ProposalObject.quoteTypeID !== 4 &&
                                                     <th className="tr-table-class text-white text-right">
                                                       Fees (£)
                                                     </th>
+                                                    }
                                                   </tr>
                                                 </thead>
                                                 <tbody>
@@ -2609,6 +2625,7 @@ const View_Proposals = () => {
                                                                     </div>
                                                                     <div class="package-variables"></div>
                                                                   </td>
+                                                                  {ProposalObject.quoteTypeID !== 4 &&
                                                                   <td className="text-right">
                                                                     {ProposalObject.feeTypeId ===
                                                                       1 && (
@@ -2625,6 +2642,7 @@ const View_Proposals = () => {
                                                                         <span className="fa fa-check"></span>
                                                                       )}
                                                                   </td>
+                                                                  }
                                                                 </tr>
                                                               );
                                                             }
@@ -2633,6 +2651,7 @@ const View_Proposals = () => {
                                                       );
                                                     }
                                                   )}
+                                                  {ProposalObject.quoteTypeID !== 4 &&
                                                   <tr className="head-row">
                                                     <td className="tr-table-class text-white">
                                                       Net Total
@@ -2665,6 +2684,7 @@ const View_Proposals = () => {
                                                       }
                                                     </td>
                                                   </tr>
+                                                  }
                                                   {(Number(
                                                     OneOffPricingInfo.Discount
                                                   ) > 0 &&

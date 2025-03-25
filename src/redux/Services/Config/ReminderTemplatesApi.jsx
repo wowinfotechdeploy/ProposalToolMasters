@@ -68,3 +68,11 @@ export const GetChangeIsDefaultStatus = async (OrganisationKeyID, templateKeyID,
     }
     return res;
 };
+
+// Copy Reminder Email Template
+export const CopyReminderEmailTemplate = async (TemplateKeyID,UserKeyID) => {
+    const res = await postApiWithAuthenticated(
+        `${ReminderTemplateBaseUrl}/CopyReminderEmailTemplate?TemplateKeyID=${TemplateKeyID}&UserKeyID=${UserKeyID}`
+    );
+    return res;
+};

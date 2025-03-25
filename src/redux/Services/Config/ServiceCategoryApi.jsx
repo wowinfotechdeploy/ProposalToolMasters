@@ -61,3 +61,10 @@ export const DeclineSuperAdminChanges = async (params) => {
     );
     return res;
 };
+
+export const CopyServiceCategory = async(ServiceCatKeyID, UserKeyID) => {
+    const res= await postApiWithAuthenticated(
+        `${ServiceCategoryBaseUrl}/CopyServiceCategory?ServiceCatKeyID=${ServiceCatKeyID}&UserKeyID=${UserKeyID}`,
+    );
+    return res;
+}

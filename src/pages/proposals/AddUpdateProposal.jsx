@@ -1063,17 +1063,19 @@ const ReviewServicesComponent = (props) => {
             >
               Services
             </th>
-            <th
-              style={{
-                border: "1px solid #DDDDDD",
-                textAlign: "right",
-                padding: "8px",
-                color: "white",
-                fontSize: "18px",
-              }}
-            >
-              Fees (£)
-            </th>
+            {props.ProposalObject.selectedProposalTypeValue !== 4 &&
+              <th
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "right",
+                  padding: "8px",
+                  color: "white",
+                  fontSize: "18px",
+                }}
+              >
+                Fees (£)
+              </th>
+            }
           </tr>
           {props.selectedRecurringServiceList.map((serviceCat) => (
             <React.Fragment key={serviceCat.serviceCatID}>
@@ -1175,7 +1177,7 @@ const ReviewServicesComponent = (props) => {
             </td>
           </tr>
           {Number(props.RecurringPricingInfo.Discount) > 0 &&
-            props.ProposalObject &&
+            props.ProposalObject && props.ProposalObject.selectedProposalTypeValue !== 4 &&
             props.ProposalObject.DiscountLines && (
               <>
                 <tr style={{ backgroundColor: "#DCDCDC" }}>
@@ -1253,6 +1255,7 @@ const ReviewServicesComponent = (props) => {
                   {props.formatValue(props.RecurringPricingInfo.VATPrice)}
                 </td>
               </tr>
+              {props.ProposalObject.selectedProposalTypeValue !== 4 &&
               <tr style={{ backgroundColor: "#808080" }}>
                 <td
                   style={{
@@ -1276,6 +1279,7 @@ const ReviewServicesComponent = (props) => {
                   {props.formatValue(props.RecurringPricingInfo.GrandTotal)}
                 </td>
               </tr>
+              }
             </>
           )}
 
@@ -1392,17 +1396,19 @@ const ReviewServicesComponent = (props) => {
             >
               Services
             </th>
-            <th
-              style={{
-                border: "1px solid #DDDDDD",
-                textAlign: "right",
-                padding: "8px",
-                color: "white",
-                fontSize: "18px",
-              }}
-            >
-              Fees (£)
-            </th>
+            {props.ProposalObject.selectedProposalTypeValue !== 4 &&
+              <th
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "right",
+                  padding: "8px",
+                  color: "white",
+                  fontSize: "18px",
+                }}
+              >
+                Fees (£)
+              </th>
+            }
           </tr>
           {props.selectedOneOffServiceList.map((serviceCat) => (
             <React.Fragment key={serviceCat.serviceCatID}>
@@ -10403,6 +10409,12 @@ const Add_Update_Proposal = (props) => {
   const [DocumentCode, setDocumentCode] = useState("");
   const [BrandColor, setBrandColor] = useState("");
   const [fontFamily, setFontFamily] = useState("");
+  const [headerHeight, setHeaderHeight] = useState(null);
+  const [footerHeight, setFooterHeight] = useState(null);
+  const [headerImage, setHeaderImage] = useState(null);
+  const [footerImage,setFooterImage] = useState(null);
+  const [headerContent,setHeaderContent] = useState(null);
+  const [footerContent,setFooterContent] = useState(null);
   const [fontSize, setFontSize] = useState("");
   const [CompanyLogo, setCompanyLogo] = useState(null);
 
@@ -10584,6 +10596,7 @@ const Add_Update_Proposal = (props) => {
     paymentGatewayID: null,
     recurringHtmlContent: null,
     oneOffHtmlContent: null,
+    customizedEmailContent: null,
     DiscountLines: true,
   });
   const [isAdditionalServiceCheck, setIsAdditionalServiceCheck] =
@@ -10741,6 +10754,10 @@ const Add_Update_Proposal = (props) => {
     computeOneOffTotalPackageValues();
   }, []);
 
+  function getFontNameById(id) {
+    const font = Utils.FontFamily.find(f => f.value === id);
+    return font ? font.label : null;
+  };
   // Function to compute the sum of package values
   const computeRecurringTotalPackageValues = () => {
     let totalOne = 0;
@@ -11245,7 +11262,8 @@ const Add_Update_Proposal = (props) => {
           if (
             ProposalObject.selectedProposalTypeValue === 1 ||
             ProposalObject.selectedProposalTypeValue === 2 ||
-            ProposalObject.selectedProposalTypeValue === 3
+            ProposalObject.selectedProposalTypeValue === 3 ||
+            ProposalObject.selectedProposalTypeValue === 4
           ) {
             const RecurringServicePrices = {};
             const OneOffServicePrices = {};
@@ -11345,7 +11363,8 @@ const Add_Update_Proposal = (props) => {
             }
             if (
               ProposalObject.selectedProposalTypeValue === 1 ||
-              ProposalObject.selectedProposalTypeValue === 3
+              ProposalObject.selectedProposalTypeValue === 3 ||
+              ProposalObject.selectedProposalTypeValue === 4
             ) {
               recArray = recurringServiceList
                 .filter((category) =>
@@ -14575,6 +14594,13 @@ const Add_Update_Proposal = (props) => {
           label: item.templateName,
           templateID: item.templateID,
           isDefault: item.isDefault,
+          fontFamilyID: item.fontFamilyID,
+          headerContent: item.headerContent,
+          footerContent: item.footerContent,
+          headerImage: item.headerImage,
+          footerImage: item.footerImage,
+          headerHeight: item.headerHeight,
+          footerHeight: item.footerHeight
         }));
         setTemplateLookUpOptions(mappedOptions);
         // const defaultTemplateOptions = mappedOptions.filter(
@@ -14603,24 +14629,47 @@ const Add_Update_Proposal = (props) => {
             defaultTemplateObject = {
               selectTemplateTypeId: filteredRecords[0].value,
               templateID: filteredRecords[0].templateID,
+              fontFamilyID: filteredRecords[0].fontFamilyID,
+              headerContent: filteredRecords[0].headerContent,
+              footerContent: filteredRecords[0].footerContent,
+              headerImage: filteredRecords[0].headerImage,
+              footerImage: filteredRecords[0].footerImage,
+              headerHeight: filteredRecords[0].headerHeight,
+              footerHeight: filteredRecords[0].footerHeight
             };
+            setFontFamily(getFontNameById(defaultTemplateObject?.fontFamilyID));
+            setHeaderContent(defaultTemplateObject?.headerContent);
+            setFooterContent(defaultTemplateObject?.footerContent);
+            setHeaderImage(defaultTemplateObject?.headerImage);
+            setFooterImage(defaultTemplateObject?.footerImage);
+            setHeaderHeight(defaultTemplateObject?.headerHeight);
+            setFooterHeight(defaultTemplateObject?.footerHeight);
           } else {
             // If filteredRecords is empty, set defaultTemplateOptions
             defaultTemplateOptions = mappedOptions.filter(
               (option) => option.isDefault === true
             );
+            setFontFamily(getFontNameById(defaultTemplateOptions[0]?.fontFamilyID));
+            setHeaderContent(defaultTemplateOptions[0]?.headerContent);
+            setFooterContent(defaultTemplateOptions[0]?.footerContent);
+            setHeaderImage(defaultTemplateOptions[0]?.headerImage);
+            setFooterImage(defaultTemplateOptions[0]?.footerImage);
+            setHeaderHeight(defaultTemplateOptions[0]?.headerHeight);
+            setFooterHeight(defaultTemplateOptions[0]?.footerHeight);
           }
         } else {
           // If templateID is not present, set defaultTemplateOptions
           defaultTemplateOptions = mappedOptions.filter(
             (option) => option.isDefault === true
           );
+          setFontFamily(getFontNameById(defaultTemplateOptions[0]?.fontFamilyID));
         }
         // If defaultTemplateObject is not constructed from filteredRecords, construct it from defaultTemplateOptions
         if (!defaultTemplateObject && defaultTemplateOptions.length > 0) {
           defaultTemplateObject = {
             selectTemplateTypeId: defaultTemplateOptions[0].value,
             templateID: defaultTemplateOptions[0].templateID,
+            fontFamilyID: defaultTemplateOptions[0]?.fontFamilyID,
           };
         }
         else if (!defaultTemplateObject) {
@@ -14629,6 +14678,14 @@ const Add_Update_Proposal = (props) => {
             templateID: "",
           };
         }
+        setFontFamily(getFontNameById(defaultTemplateObject?.fontFamilyID));
+        setHeaderContent(defaultTemplateOptions[0]?.headerContent);
+        setFooterContent(defaultTemplateOptions[0]?.footerContent);
+        setHeaderImage(defaultTemplateOptions[0]?.headerImage);
+        setFooterImage(defaultTemplateOptions[0]?.footerImage);
+        setHeaderHeight(defaultTemplateOptions[0]?.headerHeight);
+        setFooterHeight(defaultTemplateOptions[0]?.footerHeight);
+        // console.log(getFontNameById(defaultTemplateObject?.fontFamilyID));
         // Set the state with the default template object
         setProposalObject((prevState) => ({
           ...prevState,
@@ -14712,6 +14769,13 @@ const Add_Update_Proposal = (props) => {
     if (!ProposalObject.selectTemplateTypeId) {
       return;
     }
+    if (ProposalObject.selectedProposalTypeValue === 4) {
+        setProposalObject(prev => ({
+        ...prev,
+        recurringHtmlContent: null,
+        oneOffHtmlContent: null
+      }));
+    }
     try {
       const data = await GetTemplateModelData({
         TemplateKeyID: ProposalObject.selectTemplateTypeId,
@@ -14748,8 +14812,8 @@ const Add_Update_Proposal = (props) => {
             }
  
   <p style="text-align: center; color: #00BFFF; page-break-after: always;">
-    <span style="color: #00BFFF; margin-top: 15px; font-size: 50px;font-family;${uniqueFontFamilies};" class="OrgBrandColor">Proposal For</span><br><br>
-    <span style="color: black; margin-top: 15px; font-size: 25px;font-family;${uniqueFontFamilies};">${clientNameOnFirstPage}</span><br>
+    <span style="color: #00BFFF; margin-top: 15px; font-size: 50px;font-family:${fontFamily};" class="OrgBrandColor">Proposal For</span><br><br>
+    <span style="color: black; margin-top: 15px; font-size: 25px;font-family:${fontFamily};">${clientNameOnFirstPage}</span><br>
   </p>
   </div>
   </div>
@@ -14808,7 +14872,7 @@ const Add_Update_Proposal = (props) => {
           setTemplateElementList(newArray);
           //setTemplateElementList(ModelData.templateElementList);
           setFontSize(smallFontSizes)
-          setFontFamily(uniqueFontFamilies)
+          // setFontFamily(uniqueFontFamilies)
           setBrandColor(
             ModelData.templateElementListWithRequiredData.brandColor
           );
@@ -15628,7 +15692,7 @@ const Add_Update_Proposal = (props) => {
             serviceChargeTypeID:
               service.serviceChargeTypeName === "One Off" ? 2 : 1,
             servicePackageID: null,
-            finalCalculatedServicePrice: service.originalServicePrice === undefined ? null : service.originalServicePrice,
+            finalCalculatedServicePrice: service.originalServicePrice === undefined || ProposalObject.selectedProposalTypeValue === 4 ? null : service.originalServicePrice,
             moduleServicesGPDList:
               moduleServicesGPDList.length === 0 ? null : moduleServicesGPDList,
           };
@@ -15846,19 +15910,20 @@ const Add_Update_Proposal = (props) => {
         quotationFinalAmountList.push({
           moduleKeyID: "Temp Key Id", // proposalModelObj.quoteKeyID || null,
           serviceChargeTypeID: 1, // Recurring
-          discountPercentageWithAllDecimal:
+          discountPercentageWithAllDecimal: ProposalObject.selectedProposalTypeValue === 4 ? null :
             RecurringFrequencyPricingInfo.DefaultDiscount?.toString(),
           servicePackageID: null,
-          netTotal:
+          netTotal: ProposalObject.selectedProposalTypeValue === 4 ?
             Number(RecurringPricingInfo.DefaultDiscount) <
               Number(RecurringPricingInfo.OriginalPrice)
               ? RecurringPricingInfo.OriginalPrice
-              : RecurringPricingInfo.DiscountedPrice,
-          discounted: RecurringPricingInfo.Discount,
-          discountedTotal: RecurringPricingInfo.DiscountedTotal,
+              : RecurringPricingInfo.DiscountedPrice
+            : null,
+          discounted: ProposalObject.selectedProposalTypeValue === 4 ? null : RecurringPricingInfo.Discount,
+          discountedTotal: ProposalObject.selectedProposalTypeValue === 4 ? null : RecurringPricingInfo.DiscountedTotal,
           vatPercentage: vatPercentage ? vatPercentage : null,
           vat: vatPercentage == null ? null : RecurringPricingInfo.VATPrice,
-          grandTotal:
+          grandTotal: ProposalObject.selectedProposalTypeValue === 4 ? null :
             vatPercentage == null ? null : RecurringPricingInfo.GrandTotal,
         });
       }
@@ -15866,19 +15931,19 @@ const Add_Update_Proposal = (props) => {
         quotationFinalAmountList.push({
           moduleKeyID: "Temp Key Id", // proposalModelObj.quoteKeyID || null,
           serviceChargeTypeID: 2, // OneOff
-          discountPercentageWithAllDecimal:
+          discountPercentageWithAllDecimal: ProposalObject.selectedProposalTypeValue === 4 ? null :
             OneOffPricingInfoCopy.DefaultDiscount?.toString(),
           servicePackageID: null,
-          netTotal:
+          netTotal: ProposalObject.selectedProposalTypeValue === 4 ? null :
             Number(OneOffPricingInfo.DefaultDiscount) <
               Number(OneOffPricingInfo.OriginalPrice)
               ? OneOffPricingInfo.OriginalPrice
               : OneOffPricingInfo.DiscountedPrice,
-          discounted: OneOffPricingInfo.Discount,
-          discountedTotal: OneOffPricingInfo.DiscountedTotal,
+          discounted: ProposalObject.selectedProposalTypeValue === 4 ? null : OneOffPricingInfo.Discount,
+          discountedTotal: ProposalObject.selectedProposalTypeValue === 4 ? null : OneOffPricingInfo.DiscountedTotal,
           vatPercentage: vatPercentage ? vatPercentage : null,
           vat: vatPercentage == null ? null : OneOffPricingInfo.VATPrice,
-          grandTotal:
+          grandTotal: ProposalObject.selectedProposalTypeValue === 4 ? null :
             vatPercentage == null ? null : OneOffPricingInfo.GrandTotal,
         });
       }
@@ -15950,32 +16015,41 @@ const Add_Update_Proposal = (props) => {
 
       recurringOriginalPrice:
         selectedRecurringServiceList.length !== 0
-          ? RecurringPricingInfo.OriginalPrice
+          ? ProposalObject.selectedProposalTypeValue !== 4 ? RecurringPricingInfo.OriginalPrice
+          : null
           : null,
       recurringDiscountedPrice:
+      ProposalObject.selectedProposalTypeValue !== 4 ?
         selectedRecurringServiceList.length !== 0
           ? RecurringPricingInfo.DiscountedPrice
-          : null,
+          : null
+        : null,
       recurringDiscountPercentage:
+      ProposalObject.selectedProposalTypeValue !== 4 ?
         selectedRecurringServiceList.length !== 0
           ? RecurringFrequencyPricingInfo.DefaultDiscount === ""
             ? null
             : RecurringFrequencyPricingInfo.DefaultDiscount
-          : null,
+          : null
+        : null,
       oneOffOriginalPrice:
         selectedOneOffServiceList.length !== 0
-          ? OneOffPricingInfo.OriginalPrice
+          ? ProposalObject.selectedProposalTypeValue !== 4 ? OneOffPricingInfo.OriginalPrice : null
           : null,
       oneOffDiscountedPrice:
+      ProposalObject.selectedProposalTypeValue !== 4 ?
         selectedOneOffServiceList.length !== 0
           ? OneOffPricingInfo.DiscountedPrice
-          : null,
+          : null
+        : null,
       oneOffDiscountPercentage:
+      ProposalObject.selectedProposalTypeValue !== 4 ?
         selectedOneOffServiceList.length !== 0
           ? OneOffPricingInfoCopy.DefaultDiscount === null
             ? OneOffPricingInfo.DefaultDiscount
             : OneOffPricingInfoCopy.DefaultDiscount
-          : null,
+          : null
+        : null,
       statusID: StatusId || null,
       TabName: moduleName,
       quotePDFUrl: MergePdfUrl || null,
@@ -15983,6 +16057,7 @@ const Add_Update_Proposal = (props) => {
       quoteFormatID: ProposalObject.ProposalFormate || null,
       recurringHtmlContent: ProposalObject.recurringHtmlContent || null,
       oneOffHtmlContent: ProposalObject.oneOffHtmlContent || null,
+      customizedEmailContent: ProposalObject.customizedEmailContent || null,
       servicePackageID: selectedPackages || null,
       selectedServicesList: modifiedDraftArray.selectedServicesList || null,
       additionalInformationList: modifiedAdditionalServiceArray || null,
@@ -16030,7 +16105,6 @@ const Add_Update_Proposal = (props) => {
 
   // Handle save As A Draft And Send Proposal
   const AddUpdateQuat = async (params, StatusId) => {
-
     if (ProposalObject.paymentGatewayID === ChangeDefaultPaymentGatewaysTypes.Stripe && ProposalObject?.ProposalFormate === 1) {
       if (isValueGreaterThan20000(RecurringPricingInfo, OneOffPricingInfo, vatPercentage, selectedPackages)) {
         setLoader(false)
@@ -16367,6 +16441,15 @@ const Add_Update_Proposal = (props) => {
         });
         setRequireMessage(false);
         await GetAdditionalInformationListData(ServicesIDsElement);
+        if (ProposalObject.selectedProposalTypeValue === 4 && NextTab === 4) {
+            setProposalObject((prevState) => ({
+              ...prevState,
+              recurringHtmlContent: null,
+              oneOffHtmlContent: null,
+          }));
+          setMergePdfUrl("");  
+      }
+      setActiveTab(NextTab);
       } else {
         setIsValidForm({
           ...isValidForm,
@@ -16403,8 +16486,17 @@ const Add_Update_Proposal = (props) => {
         return;
       } else {
         setRequireMessage(false);
-        const ServicePricing = await handleSetCalculatedPackageData();
-        GetCalculatedServicesPriceData(ServicePricing, NextTab);
+    const ServicePricing = await handleSetCalculatedPackageData();
+
+    // ======== PROPOSALTYPE 4 HANDLING ======== //
+    if (ProposalObject.selectedProposalTypeValue === 4 && !MergePdfUrl) {
+      GetCalculatedServicesPriceData(ServicePricing,4);
+      console.log("Hii");
+      await GetTemplateModalData(4); //  Fetch AFTER additional info is valid
+      setActiveTab(ProposalHeader.Preview);
+    } else {
+      await GetCalculatedServicesPriceData(ServicePricing, NextTab);
+    }
       }
     } else if (activeTab === ProposalHeader.SelectPackages) {
 
@@ -17030,6 +17122,16 @@ const Add_Update_Proposal = (props) => {
                 });
                 setTabHide(false);
                 GetCalculatedServicesPriceByPackagesData(ServicePricing, 7);
+              } else if (ProposalObject.selectedProposalTypeValue === 4) {
+                setIsValidForm({
+                  ...isValidForm,
+                  AdditionalInfo: false,
+                });
+                setTabHide(false);
+                await GetCalculatedServicesPriceData(ServicePricing, 4);
+                await GetTemplateModalData(ProposalHeader.Preview);
+                setActiveTab(ProposalHeader.Preview);
+                console.log("hii, additional info");
               } else {
                 setIsValidForm({
                   ...isValidForm,
@@ -17040,13 +17142,24 @@ const Add_Update_Proposal = (props) => {
                 GetCalculatedServicesPriceData(ServicePricing, 6);
               }
             } else {
-              setActiveTab(3);
-              setTabHide(true);
-              setIsValidForm({
+              if (ProposalObject.selectedProposalTypeValue === 4) {
+                setActiveTab(3);
+                setTabHide(true);
+                setIsValidForm({
                 ...isValidForm,
                 AdditionalInfo: true,
-                SelectService: true,
+                SelectService: true
               });
+              }
+              else {
+                setActiveTab(3);
+                setTabHide(true);
+                setIsValidForm({
+                  ...isValidForm,
+                  AdditionalInfo: true,
+                  SelectService: true,
+                });
+              }
             }
           }
         } else {
@@ -17412,7 +17525,31 @@ const Add_Update_Proposal = (props) => {
                         </div>
                       </li>
                     )}
-
+                  {(ProposalObject.selectedProposalTypeValue === 4 ||
+                    ProposalObject.selectedProposalTypeValue === null) && (
+                      <li>
+                        <div
+                          id="PackageSelectService4"
+                          onClick={() => HandleBack(2, "PackageSelectService4")}
+                          class={`${activeTab === ProposalHeader.SelectServices
+                            ? "step tab-field-center"
+                            : isValidForm.SelectService === true
+                              ? "step tab-field-center"
+                              : "step disabled cursor-not-allowed tab-field-center"
+                            } w-90`}
+                        >
+                          <span class="stepCount">2</span>
+                          <span class="stepTitle">Select Service</span>
+                          &nbsp;
+                          {activeTab == ProposalHeader.SelectServices &&
+                            requireMessage && (
+                              <span className="validation">
+                                <InvalidFormIcon />
+                              </span>
+                            )}
+                        </div>
+                      </li>
+                    )}
                   {ProposalObject.selectedProposalTypeValue === 3 && (
                     // <li style={{ display: TabHide ? "list-item" : "none" }}>
                     //   <div
@@ -17457,7 +17594,50 @@ const Add_Update_Proposal = (props) => {
                       </div>
                     </li>
                   )}
-
+                  {ProposalObject.selectedProposalTypeValue === 4 && (
+                    // <li style={{ display: TabHide ? "list-item" : "none" }}>
+                    //   <div
+                    //     // id="PackageAdditionalInfo"
+                    //     // onClick={() =>
+                    //     //   handleChangeTab(3, "PackageAdditionalInfo")
+                    //     // }
+                    //     className={`${
+                    //       activeTab === ProposalHeader.AdditionalInformation
+                    //         ? "step tab-field-center"
+                    //         : isValidForm.SelectService === true
+                    //         ? "step tab-field-center"
+                    //         : "step disabled cursor-not-allowed tab-field-center"
+                    //     } w-90`}
+                    //   >
+                    //     <span className="stepCount">3</span>
+                    //     <span className="stepTitle">
+                    //       Additional Information
+                    //     </span>
+                    //   </div>
+                    // </li>
+                    <li style={{ display: TabHide ? "list-item" : "none" }}>
+                      <div
+                        id="AdditionalInfo4"
+                        onClick={() => HandleBack(3, "AdditionalInfo4")}
+                        className={`${activeTab === ProposalHeader.AdditionalInformation
+                          ? "step tab-field-center"
+                          : isValidForm.AdditionalInfo === true
+                            ? "step tab-field-center"
+                            : "step disabled cursor-not-allowed tab-field-center"
+                          } w-90`}
+                      >
+                        <span class="stepCount">3</span>
+                        <span class="stepTitle"> Additional Information</span>
+                        &nbsp;
+                        {activeTab == ProposalHeader.AdditionalInformation &&
+                          requireMessage && (
+                            <span className="validation">
+                              <InvalidFormIcon />
+                            </span>
+                          )}
+                      </div>
+                    </li>
+                  )}
                   {(ProposalObject.selectedProposalTypeValue === 3 ||
                     ProposalObject.selectedProposalTypeValue === null) && (
                       <li>
@@ -17617,6 +17797,30 @@ const Add_Update_Proposal = (props) => {
                           } w-90`}
                       >
                         <span class="stepCount">{TabHide ? 5 : 4}</span>
+                        <span class="stepTitle">Preview</span>
+                        &nbsp;
+                        {activeTab == ProposalHeader.Preview &&
+                          requireMessage && (
+                            <span className="validation">
+                              <InvalidFormIcon />
+                            </span>
+                          )}
+                      </div>
+                    </li>
+                  )}
+                  {ProposalObject.selectedProposalTypeValue === 4 && (
+                    <li>
+                      <div
+                        id="Preview4"
+                        onClick={() => HandleBack(4, "Preview4")}
+                        class={`${activeTab === ProposalHeader.Preview
+                          ? "step tab-field-center"
+                          : isValidForm.Preview === true
+                            ? "step tab-field-center"
+                            : "step disabled cursor-not-allowed tab-field-center"
+                          } w-90`}
+                      >
+                        <span class="stepCount">{TabHide ? 4 : 3}</span>
                         <span class="stepTitle">Preview</span>
                         &nbsp;
                         {activeTab == ProposalHeader.Preview &&
@@ -17950,6 +18154,7 @@ const Add_Update_Proposal = (props) => {
                   isAddUpdatePricingActionDone={isAddUpdatePricingActionDone}
                   paymentGatewayObj={paymentGatewayObj}
                   BrandColor={BrandColor}
+                  common = {common}
                   Logo={CompanyLogo}
                   fontFamily={fontFamily}
                   fontSize={fontSize}
@@ -17997,6 +18202,12 @@ const Add_Update_Proposal = (props) => {
                     lastPaymentFrequencyAndDiscountedPriceForPreviewForOneOff
                   }
                   proposalName={proposalName}
+                  headerContent={headerContent}
+                  footerContent={footerContent}
+                  headerImage={headerImage}
+                  footerImage={footerImage}
+                  headerHeight={headerHeight}
+                  footerHeight={footerHeight}
                 />
               )}
             </div>

@@ -189,3 +189,12 @@ export const ResendProposal = async (QuoteKeyID, UserKeyID) => {
     );
     return res;
 };
+
+export const DeleteQuotation = async (QuoteKeyID, UserKeyID) => {
+
+    const res = await postApiWithAuthenticated(
+        // `${TemplateBaseUrl}/GetMasterTemplateDetailsWithVariableValues?TemplateKeyID=${params.TemplateKeyID}&ClientKeyID=${params.clientID}`
+        `${ProposalBaseUrlQuote}/DeleteQuotation?QuoteKeyID=${QuoteKeyID}&UserKeyID=${UserKeyID}`
+    );
+    return res;
+};

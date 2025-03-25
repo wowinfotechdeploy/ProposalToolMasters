@@ -68,6 +68,17 @@ const BasicInformationComponent = (props) => {
   const handleAddClient = () => {
     navigate("/create-new-client", { state: { ModuleName: "EL" } });
   };
+  useEffect(() => {
+    if (props.engagementObj.QuoteKeyID) {
+      const defaultProposal = props.proposalLookUpOptions.find(
+        (item) => item.value === props.engagementObj.QuoteKeyID
+      );
+      if (defaultProposal) {
+        props.handleChangeProposal(defaultProposal);
+      }
+    }
+  }, [props.engagementObj.QuoteKeyID, props.proposalLookUpOptions]);
+  
   return (
     <>
       <div className="create-practice-height scrollbar">
@@ -5338,6 +5349,12 @@ const Add_Update_Engagement_Letter = () => {
   const [isTypeChange, setIsTypeChange] = useState(false);
   const [BrandColor, setBrandColor] = useState(false);
   const [fontFamily, setFontFamily] = useState("");
+  const [headerHeight, setHeaderHeight] = useState(null);
+  const [footerHeight, setFooterHeight] = useState(null);
+  const [headerImage, setHeaderImage] = useState(null);
+  const [footerImage,setFooterImage] = useState(null);
+  const [headerContent,setHeaderContent] = useState(null);
+  const [footerContent,setFooterContent] = useState(null);
   const [fontSize, setFontSize] = useState("");
   const [CompanyLogo, setCompanyLogo] = useState(false);
   const [requireMessage, setRequireMessage] = useState(false);
@@ -5565,9 +5582,11 @@ const Add_Update_Engagement_Letter = () => {
     contractKeyID: null,
     QuoteKeyID: null,
     quoteID: null,
+    quoteTypeID: null,
     pdf: null,
     selectSourceId: modelAction == "Draft" ? null : 1,
     tnCTemplateContent: null,
+    customizedEmailContent: null,
     ClientID: null,
     clientKeyID: null,
     templateKeyID: null,
@@ -5598,11 +5617,13 @@ const Add_Update_Engagement_Letter = () => {
   useEffect(() => {
     // GetRecurringServiceListData();
     // GetOneOffServiceListData();
+    // GetTemplateLookupListData(null,location?.state?.QuoteKeyID);
     GetClientLookupListData();
     GetOrganisationInformationModelData();
   }, [common.organisationKeyID]);
 
   useEffect(() => {
+    console.log("Contract Model API", location);
     setModelAction(
       location?.state?.Action === undefined || location?.state?.Action === null
         ? "Send"
@@ -5611,7 +5632,7 @@ const Add_Update_Engagement_Letter = () => {
     GetContractModelData(location?.state?.contractKeyID);
     setEngagementObj({
       ...engagementObj,
-      contractKeyID: location?.state?.contractKeyID,
+      contractKeyID: location?.state?.contractKeyID
     });
 
     setTopbar("none");
@@ -5663,6 +5684,11 @@ const Add_Update_Engagement_Letter = () => {
       setIsAddUpdatePricingActionDone(false);
     }
   }, [isAddUpdatePricingActionDone]);
+
+  function getFontNameById(id){
+    const font = Utils.FontFamily.find(f => f.value === id);
+    return font? font.label : null;
+  };
 
   const updatedData = Utils.source.map((item) => {
     if (item.label && item.label.includes("Contract")) {
@@ -5775,8 +5801,8 @@ const Add_Update_Engagement_Letter = () => {
             }
   
   <p style="text-align: center; color: #00BFFF; page-break-after: always;">
-    <span style="color: #00BFFF; margin-top: 15px;font-family;${uniqueFontFamilies};font-size: 50px;" class="OrgBrandColor">Engagement Letter For</span><br><br>
-    <span style="color: black; margin-top: 15px;font-family;${uniqueFontFamilies}; font-size: 25px;">${clientNameOnFirstPage}</span><br>
+    <span style="color: #00BFFF; margin-top: 15px;font-family:${fontFamily};font-size: 50px;" class="OrgBrandColor">Engagement Letter For</span><br><br>
+    <span style="color: black; margin-top: 15px;font-family:${fontFamily}; font-size: 25px;">${clientNameOnFirstPage}</span><br>
   </p>
   </div>
   </div>
@@ -5853,7 +5879,7 @@ const Add_Update_Engagement_Letter = () => {
             );
             setCompanyLogo(Logo);
             setFontSize(smallFontSizes);
-            setFontFamily(uniqueFontFamilies);
+            // setFontFamily(uniqueFontFamilies);
             setDocumentCode(
               ModelData.templateElementListWithRequiredData.documentCode
             );
@@ -6278,6 +6304,7 @@ const Add_Update_Engagement_Letter = () => {
   //6) Get Template lookup list api  call
   const GetTemplateLookupListData = async (ClientId, QuoteId) => {
     setLoader(true);
+    console.log("Hii");
     try {
       const response = await GetTemplateListLookupList({
         TemplateTypeID: 2,
@@ -6293,6 +6320,13 @@ const Add_Update_Engagement_Letter = () => {
           value: item.templateKeyID,
           label: item.templateName,
           templateID: item.templateID,
+          fontFamilyID: item.fontFamilyID,
+          headerContent: item.headerContent,
+          footerContent: item.footerContent,
+          headerImage: item.headerImage,
+          footerImage: item.footerImage,
+          headerHeight: item.headerHeight,
+          footerHeight: item.footerHeight
         }));
         setTemplateLookUpOptions(mappedOptions);
         const isSelectedDefault = data.responseData.data.filter(
@@ -6309,6 +6343,7 @@ const Add_Update_Engagement_Letter = () => {
               ClientId?.clientKeyID == undefined ? null : ClientId?.clientKeyID,
             QuoteKeyID: QuoteId?.value == undefined ? QuoteId : QuoteId?.value,
             quoteID: QuoteId?.quoteID == undefined ? QuoteId : QuoteId?.quoteID,
+            quoteTypeID: isSelectedDefault[0]?.quoteTypeID,
             templateKeyID: isSelectedDefault[0]?.templateKeyID,
             templateID: isSelectedDefault[0]?.templateID,
           });
@@ -6331,6 +6366,14 @@ const Add_Update_Engagement_Letter = () => {
             templateID: isSelectedDefault[0]?.templateID,
           });
         }
+        console.log(getFontNameById(isSelectedDefault[0].fontFamilyID));
+        setFontFamily(getFontNameById(isSelectedDefault[0].fontFamilyID));
+        setHeaderContent(isSelectedDefault[0].headerContent);
+        setFooterContent(isSelectedDefault[0].footerContent);
+        setHeaderImage(isSelectedDefault[0].headerImage);
+        setFooterImage(isSelectedDefault[0].footerImage);
+        setHeaderHeight(isSelectedDefault[0].headerHeight);
+        setFooterHeight(isSelectedDefault[0].footerHeight);
       } else {
         setLoader(false);
         console.error("Error fetching data from the API");
@@ -9621,6 +9664,9 @@ const Add_Update_Engagement_Letter = () => {
               SelectedRecurringService,
               SelectedOneOffService
             );
+          } else if(engagementObj.selectSourceId === 2 && engagementObj.quoteTypeID === 4) {
+            await GetSelectedServicePackageAcceptData(5);
+            await GetTemplateModalData(EngagementLetterHeader.Preview);
           } else {
             setIsValidForm({
               ...isValidForm,
@@ -10481,6 +10527,7 @@ const Add_Update_Engagement_Letter = () => {
       quoteID: engagementObj.quoteID,
       contractPDFUrl: MergePdfUrl,
       templateID: engagementObj.templateID,
+      customizedEmailContent: engagementObj.customizedEmailContent,
       tnCTemplateID:
         engagementObj.tnCTemplateID == "" ? null : engagementObj.tnCTemplateID,
       tnCTemplateContent:
@@ -10556,6 +10603,7 @@ const Add_Update_Engagement_Letter = () => {
               moduleName: "Contract",
               contractKeyID: response.data.responseData.data,
               contractPDFUrl: MergePdfUrl,
+              customizedEmailContent: Api_ObjectParam.customizedEmailContent
             });
           } else {
             setOpenSuccessModal(true);
@@ -11259,7 +11307,7 @@ const Add_Update_Engagement_Letter = () => {
   });
 
   const ClientValue = clientLookUpOptions.find(
-    (item) => engagementObj.ClientID == item.value
+    (item) => engagementObj.ClientID === item.value
   );
   // const ClientValue = clientLookUpOptions.find(
   //   (item) => engagementObj.ClientID == item.value
@@ -11431,6 +11479,13 @@ const Add_Update_Engagement_Letter = () => {
                 value: item.templateKeyID,
                 label: item.templateName,
                 templateID: item.templateID,
+                fontFamilyID: item.fontFamilyID,
+                headerContent: item.headerContent,
+                footerContent: item.footerContent,
+                headerImage: item.headerImage,
+                footerImage: item.footerImage,
+                headerHeight: item.headerHeight,
+                footerHeight: item.footerHeight
               }));
               setTemplateLookUpOptions(TemplateOption);
             }
@@ -11450,6 +11505,13 @@ const Add_Update_Engagement_Letter = () => {
                 value: item.templateKeyID,
                 label: item.templateName,
                 templateID: item.templateID,
+                fontFamilyID: item.fontFamilyID,
+                headerContent: item.headerContent,
+                footerContent: item.footerContent,
+                headerImage: item.headerImage,
+                footerImage: item.footerImage,
+                headerHeight: item.headerHeight,
+                footerHeight: item.footerHeight
               }));
               setTemplateLookUpOptions(TemplateOption);
             }
@@ -11458,6 +11520,13 @@ const Add_Update_Engagement_Letter = () => {
           const TemplateValue = TemplateOption.find((item) => {
             return ModelData.templateID === item.templateID;
           });
+          setFontFamily(getFontNameById(TemplateValue.fontFamilyID));
+          setHeaderContent(TemplateValue.headerContent);
+          setFooterContent(TemplateValue.footerContent);
+          setHeaderImage(TemplateValue.headerImage);
+          setFooterImage(TemplateValue.footerImage);
+          setHeaderHeight(TemplateValue.headerHeight);
+          setFooterHeight(TemplateValue.footerHeight);
           setLoader(true);
           setContractFinalPackageAmountList(ModelData.contractFinalAmountList);
           setEngagementObj({
@@ -11473,6 +11542,7 @@ const Add_Update_Engagement_Letter = () => {
             contractKeyID: ModelData.contractKeyID,
             QuoteKeyID: ModelData?.quoteKeyID,
             quoteID: ModelData.quoteID,
+            quoteTypeID: ModelData.quoteTypeID,
             pdf: ModelData.tnCTemplatePdfUrl,
             selectSourceId: ModelData.sourceID,
             tnCTemplateContent: ModelData.tnCTemplateContent,
@@ -12533,7 +12603,8 @@ const Add_Update_Engagement_Letter = () => {
                         )}
                     </div>
                   </li>
-                  {engagementObj.selectSourceId !== 3 && (
+                  {engagementObj.selectSourceId !== 3 && 
+                  !(engagementObj.selectSourceId === 2 && engagementObj.quoteTypeID === 4) &&(
                     <li>
                       <div
                         id="ELReviewServiceDiv"
@@ -12832,6 +12903,8 @@ const Add_Update_Engagement_Letter = () => {
               )}
               {activeTab === EngagementLetterHeader.Preview && (
                 <PreviewComponentPdf
+                  common = {common}
+                  setRequireMessage = {setRequireMessage}
                   DocumentCode={DocumentCode}
                   BrandColor={BrandColor}
                   Logo={CompanyLogo}
@@ -12889,6 +12962,12 @@ const Add_Update_Engagement_Letter = () => {
                   handleCancelBtn={handleCancel}
                   requireMessage={requireMessage}
                   contractSignatoriesList={contractSignatoriesList}
+                  headerContent={headerContent}
+                  footerContent={footerContent}
+                  headerImage={headerImage}
+                  footerImage={footerImage}
+                  headerHeight={headerHeight}
+                  footerHeight={footerHeight}
                 />
               )}
             </div>

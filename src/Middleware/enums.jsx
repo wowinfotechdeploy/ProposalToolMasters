@@ -131,7 +131,8 @@ export const statusID = {
   Signed: 5,
   Accepted: 6,
   Declined: 7,
-  All: 8,
+  Void: 8,
+  All: 9
 };
 export const statusNames = {
   Draft: "draft",
@@ -161,7 +162,15 @@ export const CalenderFilterEnum = {
   Custom_Date_Range: 11,
 };
 
-
+export const ActiveDateFilterEnum = {
+  Active_In_Last_1_Day: 0,
+  Active_In_Last_7_Days: 1,
+  Active_In_Last_30_Days: 2,
+  Active_In_Last_60_Days: 3,
+  Active_In_Last_90_Days: 4,
+  Active_In_Last_6_Months: 5,
+  Active_In_Last_1_Year: 6,
+};
 
 
 // src/emailTemplates.js

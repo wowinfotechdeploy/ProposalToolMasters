@@ -9,7 +9,7 @@ import {
 const TemplateBaseUrl = `${Base_Url}/Template`;
 const TemplateBaseUrlForPdf = `${Base_Url}/ImportTemplatePDF`;
 const TemplatePDFBaseUrl = `${Base_Url}/AwsS3`;
-
+const TemplateHeaderFooterBaseUrl = `${Base_Url}/TemplateHeaderFooter`;
 // Arrow function as a method
 //Get Template List Data Services Callback function
 export const GetTemplateList = async (params) => {
@@ -26,6 +26,23 @@ export const GetTemplateModelData = async (params) => {
         `${TemplateBaseUrl}/GetMasterTemplateDetailsWithVariableValues?TemplateKeyID=${params.TemplateKeyID}&clientID=${params.clientID}&TemplateTypeID=${params.TemplateTypeID}`
         : `${TemplateBaseUrl}/GetMasterTemplateDetailsWithVariableValues?TemplateKeyID=${params.TemplateKeyID}&clientID=${params.clientID}&TemplateTypeID=${params.TemplateTypeID}&ModuleKeyID=${params.ModuleKeyID}`;
     const res = await getListWithAuthenticated(url);//{ data: Template }
+    return res;
+};
+
+export const GetFontFamilyList = async (OrganisationKeyID, UserKeyID) => {
+    const res = await postApiWithAuthenticated(
+      `${TemplateBaseUrl}/GetFontFamilyList?OrganisationKeyID=${OrganisationKeyID}&UserKeyID=${UserKeyID}`
+    );
+    return res;
+  }
+export const GetEmailContent = async (organisationKeyID, TemplateTypeID) => {
+    const res = await getListWithAuthenticated(`${TemplateBaseUrl}/GetEmailTemplateContentToCustomize?OrganisationKeyID=${organisationKeyID}&TemplateTypeID=${TemplateTypeID}`);
+    return res;
+};
+  export const GetAllTemplatesList = async (TemplateTypeCatID,OrganisationKeyID) => {
+    const res = await postApiWithAuthenticated(
+        `${TemplateHeaderFooterBaseUrl}/GetAllTemplatesList?TemplateTypeCatID=${TemplateTypeCatID}&OrganisationKeyID=${OrganisationKeyID}`,
+    );
     return res;
 };
 // export const GetTemplateModelData = async (params) => {
@@ -79,6 +96,13 @@ export const GetTemplatePdfList = async (params) => {
     return res;
 };
 
+export const GetTemplateHeaderFooterList = async(params) => {
+    const res = await postApiWithAuthenticated(
+        TemplateHeaderFooterBaseUrl + "/GetTemplateHeaderFooterList",
+        params
+    );
+    return res;
+}
 //Get Template Model Data Services Callback function
 export const GetTemplateModel = async (KeyID, GetSAChanges) => {
     // const res = await getListWithAuthenticated(
@@ -89,6 +113,16 @@ export const GetTemplateModel = async (KeyID, GetSAChanges) => {
     if (GetSAChanges) {
         url = `${TemplateBaseUrl}/GetTemplateModel?TemplateKeyID=${KeyID}&GetSAChanges=${GetSAChanges}`
     }
+    const res = await getListWithAuthenticated(url);
+    return res;
+};
+// Get Template Header Footer Model Callback Function
+export const GetTemplateHeaderFooterModel = async (KeyID) => {
+    // const res = await getListWithAuthenticated(
+    //     `${TemplateBaseUrlForPdf}/GetImportTemplatePDFModel?TemplatePdfKeyID=${id}`
+    // );
+    // return res;
+    let url = `${TemplateHeaderFooterBaseUrl}/GetTemplateHeaderFooterModel?HFTemplateKeyID=${KeyID}`
     const res = await getListWithAuthenticated(url);
     return res;
 };
@@ -132,7 +166,31 @@ export const AddUpdateTemplatePDF = async (size, TemplatePdfKeyID, params) => {
 
     return res;
 };
+//AddUpdate Template Callback function
+export const AddUpdateTemplateHeaderFooter = async (params) => {
+    const res = await postApiWithAuthenticated(
+        `${TemplateHeaderFooterBaseUrl}/AddUpdateTemplateHeaderFooter`,
+        params
+    );
 
+    return res;
+};
+export const AddUpdateTemplateHeaderPdf = async (size, ModuleKeyID, params) => {
+    const res = await postApiWithAuthenticated(
+        `${TemplatePDFBaseUrl}/UploadFileTemplateHeader?ModuleKeyID=${ModuleKeyID}`,
+        params
+    );
+
+    return res;
+};
+export const AddUpdateTemplateFooterPdf = async (size, ModuleKeyID, params) => {
+    const res = await postApiWithAuthenticated(
+        `${TemplatePDFBaseUrl}/UploadFileTemplateFooter?ModuleKeyID=${ModuleKeyID}`,
+        params
+    );
+
+    return res;
+};
 //AddUpdate Template Callback function
 export const AddUpdateTemplateDataWithPdf = async (size, ModuleKeyID, params) => {
     const res = await postApiWithAuthenticated(
@@ -157,7 +215,21 @@ export const DeleteTemplatePdf = async (templatePdfKeyID, Action, userKeyID) => 
     );
     return res;
 };
+// Delete Header Footer Callback Function
+export const DeleteTemplateHeaderFooter = async (HFTemplateKeyID, userKeyID) => {
+    const res = await getListWithAuthenticated(
+      `${TemplateHeaderFooterBaseUrl}/DeleteTemplateHeaderFooter?HFTemplateKeyID=${HFTemplateKeyID}&userKeyID=${userKeyID}`
+    );
+    return res;
+  };
 
+  //Change Status for Template HeaderFooter
+export const TemplateHeaderFooterChangeStatus = async (HFTemplateKeyID, userKeyID) => {
+    const res = await getListWithAuthenticated(
+      `${TemplateHeaderFooterBaseUrl}/ChangeStatusTemplateHeaderFooter?HFTemplateKeyID=${HFTemplateKeyID}&userKeyID=${userKeyID}`
+    );
+    return res;
+  };
 //Delete Template Callback function
 export const EmailTemplatesChangeStatus = async (templateKeyID, userKeyID) => {
     const res = await getListWithAuthenticated(
@@ -275,3 +347,17 @@ export const GetSingleApiSettingTemplateLookupList = async (organisationKeyID, u
 
     return res;
 };
+// Copy Template data
+export const CopyTemplate = async (TemplateKeyID,UserKeyID) => {
+    const res = await postApiWithAuthenticated(
+        `${TemplateBaseUrl}/CopyTemplateData?TemplateKeyID=${TemplateKeyID}&UserKeyID=${UserKeyID}`
+    );
+    return res;
+};
+// Copy Template Pdf
+export const CopyTemplatePdf = async(TemplatePdfKeyID,UserKeyID) => {
+    const res = await postApiWithAuthenticated(
+        `${TemplateBaseUrlForPdf}/CopyImportTemplatePdf?TemplatePdfKeyID=${TemplatePdfKeyID}&UserKeyID=${UserKeyID}`
+    );
+    return res;
+}

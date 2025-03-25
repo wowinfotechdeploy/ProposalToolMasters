@@ -75,3 +75,10 @@ export const GetApplicationSettingList = async (userKeyID) => {
     );
     return res;
 };
+
+export const CopyReminder = async (ReminderKeyID,UserKeyID) => {
+    const res = await postApiWithAuthenticated(
+        `${ReminderBaseUrl}/CopyReminder?ReminderKeyID=${ReminderKeyID}&UserKeyID=${UserKeyID}`
+    );
+    return res;
+};

@@ -4,6 +4,7 @@ import "./template.css";
 import { Row, Col, Card, Alert } from "reactstrap";
 import Select from "react-select";
 import { AuthContextProvider } from "../../../AuthContext/AuthContext";
+
 import { useNavigate } from "react-router-dom";
 import IndividualVariable from "../../../components/Variables/IndividualVariables";
 import SoleTraderVariable from "../../../components/Variables/SoleTraderVariable";
@@ -29,8 +30,10 @@ import {
   AddUpdateTemplate,
   GetTemplatePdfList,
   GetTemplateLookupPDFList,
+  GetFontFamilyList
 } from "../../../redux/Services/Config/TemplateApi";
 import { useDispatch, useSelector } from "react-redux";
+
 import SuccessModal from "../../../components/SuccessModal";
 import { ERROR_MESSAGES } from "../../../components/GlobalMessage";
 import Utils from "../../../Middleware/Utils";
@@ -76,6 +79,7 @@ function Add_New_Templates(props) {
   });
   const [openErrorModal, setOpenErrorModal] = React.useState(false);
   const [professionTypeLookupList, setProfessionTypeLookupList] = useState([]);
+  const [fontFamilyList,setFontFamilyList] = useState([]);
   const [BusinessTypeLookupList, setBusinessTypeLookupList] = useState([]);
   const [ProspectTypeVariation, setProspectTypeVariationLookupList] = useState([]);
   const [TemplateTypeLookupList, setTemplateTypeLookupList] = useState([]);
@@ -118,6 +122,7 @@ function Add_New_Templates(props) {
     clientBusinessTypeIDs: [],
     orgBusinessTypeID: common.businessTypeID,
     isPredefined: null,
+    fontFamilyID: null,
     professionTypeList: [],
   });
   const [dismissModal, setDismissModal] = useState(null);
@@ -131,7 +136,7 @@ function Add_New_Templates(props) {
     GetBusinessTypeLookupListData();
     GetProspectTypeVariationLookupListData()
     GetTemplateTypeLookupListData();
-
+    // GetFontFamilyListData();
     GetTemplateElementTypeLookUpListData();
     setTopbar("none");
     if (location.state?.templateKeyID !== null) {
@@ -158,12 +163,36 @@ function Add_New_Templates(props) {
       clientBusinessTypeIDs: null,
       orgBusinessTypeID: null,
       isPredefined: null,
+      fontFamilyID: null,
       professionTypeList: [],
     });
 
     setErrorMessage("");
   };
 
+  // Get Font Family List
+  // const GetFontFamilyListData = async () => {
+  //   try {
+  //     const data = await GetFontFamilyList(common.organisationKeyID, common.userKeyID);
+  //     if (data?.data?.statusCode === 200) {
+  //       if (data?.data?.responseData?.data) {
+  //         const FontFamilyList = data?.data?.responseData?.data;
+  //         setFontFamilyList(FontFamilyList);
+  //       }
+  //     }
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+  // }
+  const FontFamilyLookupList = Utils.FontFamily.map(
+    (font) => ({
+      value: font.value,
+      label: font.label
+    })
+  );
+  const FontFamilyValue = FontFamilyLookupList?.find (
+    (font) => font.value === TemplateObj.fontFamilyID || null
+  );
   // D] Calling All Api's like Lookup List and other Here :
   // 1) Profession Type Lookup List Api
   const GetProfessionTypeLookupListData = async () => {
@@ -382,6 +411,7 @@ function Add_New_Templates(props) {
             clientBusinessTypeIDs: ModelData.clientBusinessTypeIDs,
             orgBusinessTypeID: ModelData.orgBusinessTypeID,
             isPredefined: ModelData.isPredefined,
+            fontFamilyID: ModelData.fontFamilyID,
             professionTypeList: ModelData.professionTypeList,
             originalBusinessTypeID: ModelData.originalBusinessTypeID,
             originalBusinessTypeIDs: ModelData.originalBusinessTypeIDs
@@ -780,6 +810,7 @@ function Add_New_Templates(props) {
       //form level params : will change according to module
       templateName: TemplateObj.templateName,
       templateElementList: templateElementList,
+      fontFamilyID: TemplateObj.fontFamilyID,
       professionTypeList:
         common.professionTypeLists?.length > 1 ||
           common.organisationKeyID === null
@@ -989,13 +1020,13 @@ function Add_New_Templates(props) {
       setFirstPageHeading(null);
     }
   }, [templateTypeFilter]);
-  const businessTypeFilter = ProspectTypeVariation?.filter(
-    (businessType) => TemplateObj.clientBusinessTypeIDs?.includes(businessType.value)
-  );
   // const businessTypeFilter = ProspectTypeVariation?.filter(
-  //   (businessType) => TemplateObj.clientBusinessTypeID?.includes(businessType.value)
+  //   (businessType) => businessType.value == TemplateObj.clientBusinessTypeIDs
   // );
-
+  const businessTypeFilter = ProspectTypeVariation?.filter((businessType) =>
+    TemplateObj.clientBusinessTypeIDs?.includes(businessType.value)
+  );
+  
   const orgBusinessTypeFilter = BusinessTypeLookupList?.filter(
     (businessType) => businessType.value == TemplateObj.orgBusinessTypeID
   );
@@ -1365,6 +1396,43 @@ function Add_New_Templates(props) {
                       </div>
                     }
 
+                  </div>
+                </div>
+                <div className="row mb-2" id="FontFamily">
+                  <div
+                    style={{ padding: "10px" }}
+                    className="col-lg-3  text-left"
+                  >
+                    <div className="mb-1">
+                      <label className="form-label">
+                        Font Family
+                      </label>
+                    </div>
+                  </div>
+                  <div className="col-lg-9">
+                    <div className="mb-2 input-group">
+                      <Select
+                        className="user-role-select"
+                        options={FontFamilyLookupList}
+                        value={FontFamilyValue}
+                        getOptionLabel={(e) => (
+                          <span style={{ fontFamily: e.label }}>{e.label}</span>
+                        )}
+                        onChange={(e) =>
+                          setTemplateObj({
+                            ...TemplateObj,
+                            fontFamilyID: e.value,
+                          })
+                        }
+                        styles={{
+                          option: (provided, state) => ({
+                            ...provided,
+                            cursor: 'pointer'
+                          }),
+                        }}
+                      />
+                      
+                    </div>
                   </div>
                 </div>
                 {TemplateObj.templateTypeID !== null && (

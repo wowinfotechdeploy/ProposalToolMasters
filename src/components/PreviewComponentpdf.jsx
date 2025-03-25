@@ -1,15 +1,23 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
-import { ElementType, statusID } from "../Middleware/enums";
+import { ElementType, EMAIL_TEMPLATE, statusID } from "../Middleware/enums";
 import { useSelector } from "react-redux";
 import { GetOrganisationInformationModel } from "../redux/Services/Setting/Organisation";
 import Select from "react-select";
+import "../pages/configure/email_template/EmailTemplate.css";
 import Utils from "../Middleware/Utils";
 import { ERROR_MESSAGES } from "./GlobalMessage";
 import { AuthContextProvider } from "../AuthContext/AuthContext";
 import { generatePdfUrl, mergePdfApiUrl } from "../Base-Url/Base_Url";
 import PdfViewer from "./PdfViewers";
 import PaymentGatewayModel from "./PaymentGatewayModel";
+import ReactDOMServer from "react-dom/server";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ViewPlan from "./ViewPlan";
+import AccountantVariables from "./Variables/AccountantVariables";
+import Text_Editor from "./Text_Editor";
+import { Tooltip } from "reactstrap";
+import { ServiceChargeTypeEnum } from "../Middleware/enums";
+import { GetEmailContent } from "../redux/Services/Config/TemplateApi";
 export default function PreviewComponentPdf(props) {
   const moduleNameForSaveAsDraft = "Preview";
   const statusIDForSaveAsDraft = 1;
@@ -34,7 +42,94 @@ export default function PreviewComponentPdf(props) {
     useState(0);
   const [totalThreePackageValueOneOff, setTotalThreePackageValueOneOff] =
     useState(0);
+  const [isPdfAlreadyGenerated, setIsPdfAlreadyGenerated] = useState(false);
+    const [initialContent,setInitialContent] = useState("");
+    const [isContentChanged,setIsContentChanged] = useState(false);
+    const [editorState,setEditorState] = useState("");
+    const [isPopUpVisible, setIsPopUpVisible] = useState(false);
+    const openPopup =() => {
+      setIsPopUpVisible(true);
+    }
+    const closePopup = () => {
+      setIsPopUpVisible(false);
+      setEditorState("");
+      if(props.moduleName == "Quote") {
+        props?.setProposalObject(prevState => ({
+          ...prevState,
+          customizedEmailContent: null
+        }));
+      }
+      else if (props.moduleName == "Contract") {
+        props?.setEngagementObj(prevState => ({
+          ...prevState,
+          customizedEmailContent: null
+        }))
+      }
+    }
+    const GetEmailTemplateContent = async (organisationKeyID, TemplateTypeID) => {
+      if(!organisationKeyID) {
+        return;
+      }
+      try {
+        const data = await GetEmailContent(common.organisationKeyID,TemplateTypeID)
+        if(data?.data?.statusCode === 200) {
+          if(data?.data?.responseData?.data){
+            const htmlContent = data?.data?.responseData?.data;
+            setEditorState(htmlContent);
+            setInitialContent(htmlContent);
+          }
+        }
+        else{
+          // console.error(error);
+          setLoader(false);
+        }
+      }
+      catch(error) {
+        console.error(error);
+      }
+    }
+    const isMeaningfulChanges = (currentContent,initialContent) => {
+      const trimmedCurrent = currentContent.replace(/\s+/g, "").trim();
+      const trimmedInitial = initialContent.replace(/\s+/g,"").trim();
+      console.log("meaningfulChanges: ",trimmedCurrent !== trimmedInitial);
+      return trimmedCurrent !== trimmedInitial;
+    };
+    const handleContentChange = (newContent) => {
+      setEditorState(newContent);
+      const contentChanged = isMeaningfulChanges(newContent,initialContent);
+      if(contentChanged) {
+        if(props.moduleName == "Quote") {
+        props.setProposalObject({
+          ...props.ProposalObject,
+          customizedEmailContent: newContent
+        })
+      } else if (props.moduleName == "Contract") {
+        props.setEngagementObj({
+          ...props.engagementObj,
+          customizedEmailContent: newContent
+        })
+      }
+      }
+      props.setRequireMessage(false);
+    }
+    // if(props.moduleName == 'Quote' && isPopUpVisible)  {
+    //   if(props.ProposalObject.ProposalFormate === 2) {
+    //     GetEmailTemplateContent(common.organisationKeyID,8);
+    //   } else {
+    //       GetEmailTemplateContent(common.organisationKeyID,5);
+    //     }
+    // }
+    useEffect(() => {
+      if (isPopUpVisible && props.moduleName === "Quote") {
+        const templateType = props.ProposalObject.ProposalFormate === 2 ? 8 : 5;
+        GetEmailTemplateContent(common.organisationKeyID, templateType);
+      }
+      else if (isPopUpVisible && props.moduleName === "Contract") {
+        GetEmailTemplateContent(common.organisationKeyID, 6);
+      }
+    }, [isPopUpVisible, props?.ProposalObject?.ProposalFormate]);
 
+  
   const handleFormate = (selectedOption) => {
     props.setProposalObject({
       ...props.ProposalObject,
@@ -46,7 +141,18 @@ export default function PreviewComponentPdf(props) {
   const ProposalFormatValue = Utils?.PreviewSelection.find(
     (item) => props?.ProposalObject?.ProposalFormate == item.value
   );
-
+  // useEffect(() => {
+  //   return () => {
+  //       // Cleanup: Reset HTML content when unmounting (e.g., navigating back)
+  //       props.setProposalObject((prev) => ({
+  //         ...prev,
+  //         recurringHtmlContent: null,
+  //         oneOffHtmlContent: null,
+  //       }));
+  //   };
+  // }, []);
+  
+  
   useEffect(() => {
     // Function to compute the sum of package values
     const computeTotalPackageValues = () => {
@@ -131,8 +237,34 @@ export default function PreviewComponentPdf(props) {
   // const fontSizeContent = "0.20in";
   const fontSizeHeading = "0.2in";
   const fontFamily = props?.fontFamily;
+  const HeaderContent = props.headerContent;
+  const FooterContent = props.footerContent;
+  const HeaderImage = props.headerImage;
+  const FooterImage = props.footerImage;
+  const HeaderHeight = props.headerHeight;
+  const FooterHeight = props.footerHeight;
+  console.log(props.selectedOneOffServiceList);
+  console.log(props.selectedRecurringServiceList);
+  console.log(fontFamily);
   const CommonFontFamily = "Roboto Mono;sans-serif";
   const imgTag = `<img src="${props.Logo}" alt="Logo" style="display: none; margin: 0 auto 15px;">`;
+  let url = `accept-decline-proposal`;
+  if (props.common.enableEL === 1) {
+    url = `generate-contract`;
+  }
+  const AcceptRecurringUrlButton1 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.Recurring}&Action=Accepted&ServicePackageKeyID=${props.selectedPackagesList[0]?.servicePackageKeyID}&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
+  const AcceptRecurringUrlButton2 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.Recurring}&Action=Accepted&ServicePackageKeyID=${props.selectedPackagesList[1]?.servicePackageKeyID}&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
+  const AcceptRecurringUrlButton3 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.Recurring}&Action=Accepted&ServicePackageKeyID=${props.selectedPackagesList[2]?.servicePackageKeyID}&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
+
+
+  // const AcceptOneOffELOffUrlButton1 = `https://$AppUrl$/accept-decline-proposal?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Accepted&ServicePackageKeyID=${props.selectedPackagesList[0]?.servicePackageKeyID}`;
+  // const AcceptOneOffELOffUrlButton2 = `https://$AppUrl$/accept-decline-proposal?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Accepted&ServicePackageKeyID=${props.selectedPackagesList[1]?.servicePackageKeyID}`;
+  // const AcceptOneOffELOffUrlButton3 = `https://$AppUrl$/accept-decline-proposal?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Accepted&ServicePackageKeyID=${props.selectedPackagesList[2]?.servicePackageKeyID}`;
+
+  const AcceptOneOffUrlButton1 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Accepted&ServicePackageKeyID=${props.selectedPackagesList[0]?.servicePackageKeyID}&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
+  const AcceptOneOffUrlButton2 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Accepted&ServicePackageKeyID=${props.selectedPackagesList[1]?.servicePackageKeyID}&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
+  const AcceptOneOffUrlButton3 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Accepted&ServicePackageKeyID=${props.selectedPackagesList[2]?.servicePackageKeyID}&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
+
   const getPaymentFrequencyLabel = () => {
     const Payment_Frequency = {
       Yearly: 1,
@@ -140,7 +272,7 @@ export default function PreviewComponentPdf(props) {
       Quarterly: 3,
       Monthly: 4,
     };
-
+    
     const frequencyValue =
       props.ProposalObject?.Payment_Frequency ||
       props.engagementObj?.Payment_Frequency;
@@ -157,6 +289,1682 @@ export default function PreviewComponentPdf(props) {
         return "Unknown";
     }
   };
+  
+  useEffect(() => {
+    if (props?.ProposalObject?.selectedProposalTypeValue === 4) {
+        // Clear old PDF content when navigating to Preview
+        props.setProposalObject((prevState) => ({
+            ...prevState,
+            recurringHtmlContent: null,
+            oneOffHtmlContent: null,
+        }));
+        props.setMergePdfUrl("");  // Reset PDF merge URL if applicable
+    }
+}, [props?.ProposalObject?.selectedProposalTypeValue]);
+
+
+
+  useEffect(() => {
+    if (props?.moduleName === "Contract") {
+      props.setEngagementObj((prevState) => ({
+        ...prevState,
+        pdf: null,
+      }));
+    }
+  }, [props?.engagementObj]);
+  const AcceptRecurringUrl = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.Recurring}&Action=Accepted&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
+  // const AcceptRecurringELOffUrl = `https://$AppUrl$/accept-decline-proposal?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.Recurring}&Action=Accepted`;
+
+  const DeclineRecurringUrl = `https://$AppUrl$/accept-decline-proposal?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.Recurring}&Action=Declined&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
+
+  const AcceptOneOffUrl = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Accepted&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
+  // const AcceptOneOffELOffUrl = `https://$AppUrl$/accept-decline-proposal?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Accepted`;
+
+  const DeclineOneOffUrl = `https://$AppUrl$/accept-decline-proposal?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Declined&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
+
+
+  const [RecurringPackagesTable, setRecurringPackagesTable] = useState(
+    <div
+      style={{
+        paddingLeft: "40px",
+        paddingRight: "40px",
+        fontFamily: "'Times New Roman', Times, serif",
+      }}
+    >
+      <p
+        style={{
+          fontFamily: "arial, sans-serif",
+          color: "#00BFFF",
+          fontSize: "20px",
+          marginTop: "15px",
+        }}
+      >
+        Recurring Services
+      </p>
+      <table
+        style={{
+          fontFamily: "arial, sans-serif",
+          borderCollapse: "collapse",
+          width: "100%",
+          marginTop: "15px",
+        }}
+      >
+        <tr style={{ backgroundColor: "#00BFFF" }}>
+          <th
+            style={{
+              border: "1px solid #DDDDDD",
+              textAlign: "left",
+              padding: "8px",
+              color: "white",
+              fontSize: "18px",
+            }}
+          >
+            Services
+          </th>
+          <th
+            style={{
+              border: "1px solid #DDDDDD",
+              textAlign: "right",
+              padding: "8px",
+              color: "white",
+              fontSize: "18px",
+            }}
+          >
+          </th>
+        </tr>
+        {props.moduleName === "Quote" && props.selectedRecurringServiceList.map((serviceCat, index) => (
+          <React.Fragment key={index}>
+            <tr style={{ backgroundColor: "#DCDCDC" }}>
+              <td
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "left",
+                  padding: "8px",
+                  fontWeight: "bold",
+                  fontSize: "18px",
+                }}
+              >
+                {serviceCat.serviceCatName}
+              </td>
+              <td
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "left",
+                  padding: "8px",
+                }}
+              ></td>
+              {props?.selectedPackagesList.length >= 2 ? (
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "left",
+                    padding: "8px",
+                  }}
+                ></td>
+              ) : null}
+              {props?.selectedPackagesList.length === 3 ? (
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "left",
+                    padding: "8px",
+                  }}
+                ></td>
+              ) : null}
+            </tr>
+            {serviceCat.servicesList.map((subService, subIndex) => (
+              <tr key={subIndex}>
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "left",
+                    padding: "8px",
+                  }}
+                >
+                  {subService.serviceName.length > 45 ? (
+                    <Tooltip title={subService.serviceName}>
+                      {subService.serviceName
+                        .substring(0, 45)
+                        .toLowerCase()
+                        .replace(/\b\w/g, (l) => l.toUpperCase()) + "..."}
+                    </Tooltip>
+                  ) : (
+                    subService.serviceName
+                  )}
+                </td>
+                {props.moduleName === "Quote" && props.ProposalObject?.feeTypeId == 1 ? (
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                    }}
+                  >
+                    {(
+                      subService.packageOneValue === null) &&
+                      !subService.servicePackageIDs.some(
+                        (item) =>
+                          item == props.selectedPackagesList[0]?.servicePackageID
+                      ) ? (
+                      <span>&#10007;</span>
+                    ) : !subService?.servicePackageIDs.includes(
+                      subService.packageOneID
+                    ) ? (
+                      <span>&#10007;</span>
+                    ) : (
+                      `${props?.formatValue(subService.packageOneValue)}`
+                    )}
+                  </td>
+                ) : subService.packageOneValue !== null &&
+                  !subService?.servicePackageIDs.includes(
+                    subService.packageOneID
+                  ) ? (
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                    }}
+                  >
+                    &#10007;
+                  </td>
+                ) : (
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                    }}
+                  >
+                    &#10003;
+                  </td>
+                )}
+
+                {props?.selectedPackagesList.length >= 2 ? (
+                  props.ProposalObject?.feeTypeId == 1 ? (
+                    <td
+                      style={{
+                        border: "1px solid #DDDDDD",
+                        textAlign: "right",
+                        padding: "8px",
+                      }}
+                    >
+                      {(subService.packageTwoValue === null) &&
+                        !subService.servicePackageIDs.some(
+                          (item) =>
+                            item ==
+                            props.selectedPackagesList[1]?.servicePackageID
+                        ) ? (
+                        <span>&#10007;</span>
+                      ) : !subService?.servicePackageIDs.includes(
+                        subService.packageTwoID
+                      ) ? (
+                        <span>&#10007;</span>
+                      ) : (
+                        ` ${props.formatValue(subService.packageTwoValue)}`
+                      )}
+                    </td>
+                  ) : subService.packageTwoValue !== null &&
+                    !subService?.servicePackageIDs.includes(
+                      subService.packageTwoID
+                    ) ? (
+                    <td
+                      style={{
+                        border: "1px solid #DDDDDD",
+                        textAlign: "right",
+                        padding: "8px",
+                      }}
+                    >
+                      &#10007;
+                    </td>
+                  ) : (
+                    <td
+                      style={{
+                        border: "1px solid #DDDDDD",
+                        textAlign: "right",
+                        padding: "8px",
+                      }}
+                    >
+                      &#10003;
+                    </td>
+                  )
+                ) : null}
+                {props?.selectedPackagesList.length === 3 ? (
+                  props.ProposalObject?.feeTypeId == 1 ? (
+                    <td
+                      style={{
+                        border: "1px solid #DDDDDD",
+                        textAlign: "right",
+                        padding: "8px",
+                      }}
+                    >
+                      {(subService.packageThreeValue === null) &&
+                        !subService.servicePackageIDs.some(
+                          (item) =>
+                            item ==
+                            props.selectedPackagesList[2]?.servicePackageID
+                        ) ? (
+                        <span>&#10007;</span>
+                      ) : !subService?.servicePackageIDs.includes(
+                        subService.packageThreeID
+                      ) ? (
+                        <span>&#10007;</span>
+                      ) : (
+                        `${props.formatValue(subService.packageThreeValue)}`
+                      )}
+                    </td>
+                  ) : subService.packageThreeValue !== null &&
+                    !subService?.servicePackageIDs.includes(
+                      subService.packageThreeID
+                    ) ? (
+                    <td
+                      style={{
+                        border: "1px solid #DDDDDD",
+                        textAlign: "right",
+                        padding: "8px",
+                      }}
+                    >
+                      &#10007;
+                    </td>
+                  ) : (
+                    <td
+                      style={{
+                        border: "1px solid #DDDDDD",
+                        textAlign: "right",
+                        padding: "8px",
+                      }}
+                    >
+                      &#10003;
+                    </td>
+                  )
+                ) : null}
+              </tr>
+            ))}
+          </React.Fragment>
+        ))}
+        {/* <tr style={{ backgroundColor: "#808080" }}>
+            <td
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "left",
+                padding: "8px",
+                color: "white",
+              }}
+            >
+              Net Total
+            </td>
+            <td
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "right",
+                padding: "8px",
+                color: "white",
+              }}
+            >
+              {" "}
+              {
+                totalOnePackageValue >
+                  Number(props.RecurringPricingInfo.packageOneNetTotal) ||
+                  (Number(props.RecurringPricingInfo.packageOneDisCount) > 0 &&
+                    !props.ProposalObject.DiscountLines)
+                  ? // ||
+                  // Number(
+                  //   props.RecurringPricingInfo
+                  //     .packageOneDisCountedTotal
+                  // ) === 0
+                  Number(props.RecurringPricingInfo.packageOneDisCount) > 0 &&
+                    !props.ProposalObject.DiscountLines
+                    ? props.formatValue(
+                      props.RecurringPricingInfo.packageOneDisCountedTotal
+                    )
+                    : props.formatValue(totalOnePackageValue)
+                  : //  Number(totalOnePackageValue)
+                  //     .toFixed(2)
+                  //     .toString()
+                  //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                  props.formatValue(
+                    props.RecurringPricingInfo.packageOneNetTotal
+                  )
+                // Number(
+                //     props.RecurringPricingInfo
+                //       .packageOneDisCountedTotal
+                //   )
+                //     .toFixed(2)
+                //     .toString()
+                //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+              }
+              {/* Rs.{CalculateRecurringPackageNetTotal()} */}
+        {/* </td> */}
+
+        {props?.selectedPackagesList.length >= 2 && (
+          <td
+            style={{
+              border: "1px solid #DDDDDD",
+              textAlign: "right",
+              padding: "8px",
+              color: "white",
+            }}
+          >
+            {" "}
+            {
+              totalTwoPackageValue >
+                Number(props.RecurringPricingInfo.packageTwoNetTotal) ||
+                (Number(props.RecurringPricingInfo.packageTwoDisCount) > 0 &&
+                  !props.ProposalObject.DiscountLines)
+                ? // ||
+                // Number(
+                //   props.RecurringPricingInfo
+                //     .packageOneDisCountedTotal
+                // ) === 0
+                Number(props.RecurringPricingInfo.packageTwoDisCount) > 0 &&
+                  !props.ProposalObject.DiscountLines
+                  ? props.formatValue(
+                    props.RecurringPricingInfo.packageTwoDisCountedTotal
+                  )
+                  : props.formatValue(totalOnePackageValue)
+                : //  Number(totalOnePackageValue)
+                //     .toFixed(2)
+                //     .toString()
+                //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                props.formatValue(
+                  props.RecurringPricingInfo.packageTwoNetTotal
+                )
+              // Number(
+              //     props.RecurringPricingInfo
+              //       .packageOneDisCountedTotal
+              //   )
+              //     .toFixed(2)
+              //     .toString()
+              //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+            }
+          </td>
+        )}
+        {props?.selectedPackagesList.length === 3 && (
+          <td
+            style={{
+              border: "1px solid #DDDDDD",
+              textAlign: "right",
+              padding: "8px",
+              color: "white",
+            }}
+          >
+            {" "}
+            {
+              totalThreePackageValue >
+                Number(props.RecurringPricingInfo.packageThreeNetTotal) ||
+                (Number(props.RecurringPricingInfo.packageThreeDisCount) > 0 &&
+                  !props.ProposalObject.DiscountLines)
+                ? // ||
+                // Number(
+                //   props.RecurringPricingInfo
+                //     .packageOneDisCountedTotal
+                // ) === 0
+                Number(props.RecurringPricingInfo.packageThreeDisCount) >
+                  0 && !props.ProposalObject.DiscountLines
+                  ? props.formatValue(
+                    props.RecurringPricingInfo.packageThreeDisCountedTotal
+                  )
+                  : props.formatValue(totalOnePackageValue)
+                : //  Number(totalOnePackageValue)
+                //     .toFixed(2)
+                //     .toString()
+                //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                props.formatValue(
+                  props.RecurringPricingInfo.packageThreeNetTotal
+                )
+              // Number(
+              //     props.RecurringPricingInfo
+              //       .packageOneDisCountedTotal
+              //   )
+              //     .toFixed(2)
+              //     .toString()
+              //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+            }
+          </td>
+        )}
+        {/* </tr> */}
+
+        {(Number(props.RecurringPricingInfo.packageThreeDisCount) > 0 ||
+          Number(props.RecurringPricingInfo.packageOneDisCount) > 0 ||
+          Number(props.RecurringPricingInfo.packageTwoDisCount) > 0) &&
+          props.ProposalObject.DiscountLines && (
+            <>
+              <tr style={{ backgroundColor: "#DCDCDC" }}>
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "left",
+                    padding: "8px",
+                    color: "black",
+                  }}
+                >
+                  Discount
+                </td>
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "right",
+                    padding: "8px",
+                    color: "black",
+                  }}
+                >
+                  (-)
+                  {props.formatValue(
+                    props.RecurringPricingInfo.packageOneDisCount
+                  )}
+                  {/* NewDiscount Rs.{RecurringPackageCalculation.PackageOneDiscountAmount} */}
+                </td>
+                {props?.selectedPackagesList.length >= 2 ? (
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                      color: "black",
+                    }}
+                  >
+                    (-)
+                    {props.formatValue(
+                      props.RecurringPricingInfo.packageTwoDisCount
+                    )}
+                    {/* NewDiscount Rs.{RecurringPackageCalculation.PackageOneDiscountAmount} */}
+                  </td>
+                ) : null}
+                {props?.selectedPackagesList.length === 3 ? (
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                      color: "black",
+                    }}
+                  >
+                    (-)
+                    {props.formatValue(
+                      props.RecurringPricingInfo.packageThreeDisCount
+                    )}
+                    {/* NewDiscount Rs.{RecurringPackageCalculation.PackageOneDiscountAmount} */}
+                  </td>
+                ) : null}
+              </tr>
+              <tr style={{ backgroundColor: "#808080", color: "white" }}>
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "left",
+                    padding: "8px",
+                    color: "white",
+                  }}
+                >
+                  Discounted Total
+                </td>
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "right",
+                    padding: "8px",
+                    color: "white",
+                  }}
+                >
+                  {" "}
+                  {props.formatValue(
+                    props.RecurringPricingInfo.packageOneDisCountedTotal
+                  )}
+                  {/* New Rs.{RecurringPackageCalculation.PackageOneDiscountedTotalAmount} */}
+                </td>
+                {props?.selectedPackagesList.length >= 2 ? (
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                      color: "white",
+                    }}
+                  >
+                    {" "}
+                    {props.formatValue(
+                      props.RecurringPricingInfo.packageTwoDisCountedTotal
+                    )}
+                  </td>
+                ) : null}
+                {props?.selectedPackagesList.length === 3 ? (
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                      color: "white",
+                    }}
+                  >
+                    {" "}
+                    {props.formatValue(
+                      props.RecurringPricingInfo.packageThreeDisCountedTotal
+                    )}
+                  </td>
+                ) : null}
+              </tr>
+            </>
+          )}
+        {props.vatPercentage && (
+          <>
+            <tr style={{ backgroundColor: "#DCDCDC" }}>
+              <td
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "left",
+                  padding: "8px",
+                  color: "Black",
+                }}
+              >
+                VAT
+              </td>
+              <td
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "right",
+                  padding: "8px",
+                  color: "Black",
+                }}
+              >
+                {" "}
+                {props.formatValue(
+                  props.RecurringPricingInfo.PackageOneVaTPrice
+                )}
+                {/* VATNew Rs{RecurringPackageCalculation.PackageOneVatTotalAmount} */}
+              </td>
+              {props?.selectedPackagesList.length >= 2 ? (
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "right",
+                    padding: "8px",
+                    color: "Black",
+                  }}
+                >
+                  {" "}
+                  {props.formatValue(
+                    props.RecurringPricingInfo.PackageTwoVaTPrice
+                  )}
+                </td>
+              ) : null}
+              {props?.selectedPackagesList.length === 3 ? (
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "right",
+                    padding: "8px",
+                    color: "Black",
+                  }}
+                >
+                  {" "}
+                  {props.formatValue(
+                    props.RecurringPricingInfo.PackageThreeVaTPrice
+                  )}
+                </td>
+              ) : null}
+            </tr>
+            <tr style={{ backgroundColor: "#808080" }}>
+              <td
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "left",
+                  padding: "8px",
+                  color: "white",
+                }}
+              >
+                Grand Total
+              </td>
+              <td
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "right",
+                  padding: "8px",
+                  color: "white",
+                }}
+              >
+                {" "}
+                {props.formatValue(
+                  props.RecurringPricingInfo.PackageOneGrandTotal
+                )}
+              </td>
+              {props?.selectedPackagesList.length >= 2 ? (
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "right",
+                    padding: "8px",
+                    color: "white",
+                  }}
+                >
+                  {" "}
+                  {props.formatValue(
+                    props.RecurringPricingInfo.PackageTwoGrandTotal
+                  )}
+                </td>
+              ) : null}
+              {props?.selectedPackagesList.length === 3 ? (
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "right",
+                    padding: "8px",
+                    color: "white",
+                  }}
+                >
+                  {" "}
+                  {props.formatValue(
+                    props.RecurringPricingInfo.PackageThreeGrandTotal
+                  )}
+                </td>
+              ) : null}
+            </tr>
+          </>
+        )}
+
+        <tr style={{ backgroundColor: "#DCDCDC" }}>
+          <td
+            style={{
+              border: "1px solid #DDDDDD",
+              textAlign: "left",
+              padding: "8px",
+            }}
+          >
+            If you are happy with this proposal please click Accept to Accept
+            the Proposal.
+          </td>
+          <td
+            style={{
+              border: "1px solid #DDDDDD",
+              textAlign: "right",
+              padding: "8px",
+              color: "black",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                width: "100%",
+              }}
+            >
+              <a
+                href={AcceptRecurringUrlButton1}
+                style={{
+                  display: "inline-block",
+                  padding: "5px 15px",
+                  backgroundColor: "green",
+                  color: "white",
+                  textDecoration: "none",
+                  border: "none",
+                  borderRadius: "100px",
+                  transition:
+                    "background-color 0.3s ease, box-shadow 0.3s ease",
+                  whiteSpace: "nowrap",
+                  flex: 1,
+                  textAlign: "center",
+                }}
+              >
+                Accept
+              </a>
+            </div>
+          </td>
+          {props?.selectedPackagesList.length >= 2 ? (
+            <td
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "right",
+                padding: "8px",
+                color: "black",
+              }}
+            >
+              {" "}
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  width: "100%",
+                }}
+              >
+                <a
+                  href={AcceptRecurringUrlButton2}
+                  style={{
+                    display: "inline-block",
+                    padding: "5px 15px",
+                    backgroundColor: "green",
+                    color: "white",
+                    textDecoration: "none",
+                    border: "none",
+                    borderRadius: "100px",
+                    transition:
+                      "background-color 0.3s ease, box-shadow 0.3s ease",
+                    whiteSpace: "nowrap",
+                    flex: 1,
+                    textAlign: "center",
+                  }}
+                >
+                  Accept
+                </a>
+              </div>
+            </td>
+          ) : null}
+          {props?.selectedPackagesList.length === 3 ? (
+            <td
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "right",
+                padding: "8px",
+                color: "black",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  width: "100%",
+                }}
+              >
+                {" "}
+                <a
+                  href={AcceptRecurringUrlButton3}
+                  style={{
+                    display: "inline-block",
+                    padding: "5px 15px",
+                    backgroundColor: "green",
+                    color: "white",
+                    textDecoration: "none",
+                    border: "none",
+                    borderRadius: "100px",
+                    transition:
+                      "background-color 0.3s ease, box-shadow 0.3s ease",
+                    whiteSpace: "nowrap",
+                    flex: 1,
+                    textAlign: "center",
+                  }}
+                >
+                  Accept
+                </a>
+              </div>
+            </td>
+          ) : null}
+        </tr>
+        {props.common.enableEL == 0 && (
+          <tr style={{ backgroundColor: "#DCDCDC" }}>
+            <td
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "left",
+                padding: "8px",
+              }}
+            >
+              If you are not happy with this proposal please click Decline to
+              Decline the Proposal.
+            </td>
+            <td
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "right",
+                padding: "8px",
+                color: "black",
+              }}
+            >
+              {" "}
+              <a
+                href={DeclineRecurringUrl}
+                style={{
+                  display: "inline-block",
+                  padding: "5px 15px",
+                  backgroundColor: "red",
+                  color: "white",
+                  textDecoration: "none",
+                  border: "none",
+                  borderRadius: "100px",
+                  transition:
+                    "background-color 0.3s ease, box-shadow 0.3s ease",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                Decline
+              </a>
+            </td>
+
+            {props?.selectedPackagesList.length >= 2 ? (
+              <td
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "right",
+                  padding: "8px",
+                  color: "white",
+                }}
+              ></td>
+            ) : null}
+            {props?.selectedPackagesList.length === 3 ? (
+              <td
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "right",
+                  padding: "8px",
+                  color: "white",
+                }}
+              ></td>
+            ) : null}
+          </tr>
+        )}
+      </table>
+    </div>
+  );
+  // one-Off Service-Pricing Table Formate For E-mail.
+  const [OneOffPackagesTable, setOneOffPackagesTable] = useState(
+    <div
+      style={{
+        paddingLeft: "40px",
+        paddingRight: "40px",
+        fontFamily: "'Times New Roman', Times, serif",
+      }}
+    >
+      <p
+        style={{
+          fontFamily: "arial, sans-serif",
+          color: "#00BFFF",
+          fontSize: "20px",
+          marginTop: "15px",
+        }}
+      >
+        One-Off Services
+      </p>
+      <table
+        style={{
+          fontFamily: "arial, sans-serif",
+          borderCollapse: "collapse",
+          width: "100%",
+          marginTop: "15px",
+        }}
+      >
+        <tr style={{ backgroundColor: "#00BFFF" }}>
+          <th
+            style={{
+              border: "1px solid #DDDDDD",
+              textAlign: "left",
+              padding: "8px",
+              color: "white",
+              fontSize: "18px",
+            }}
+          >
+            Services
+          </th>
+          <th
+            style={{
+              border: "1px solid #DDDDDD",
+              textAlign: "right",
+              padding: "8px",
+              color: "white",
+              fontSize: "18px",
+            }}
+          >
+          </th>
+          {props.moduleName === "Quote" && props?.selectedPackagesList?.map((selectedPackages) => (
+            <th
+              key={selectedPackages.servicePackageName}
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "left",
+                padding: "8px",
+                color: "white",
+                fontSize: "18px",
+              }}
+            >
+              {/* {
+                  props?.selectedPackagesList.length === 1
+                    ? selectedPackages.servicePackageName.length > 20
+                      ? selectedPackages.servicePackageName.substring(0, 20) + "..."
+                      : selectedPackages.servicePackageName
+                    : selectedPackages.servicePackageName.length > 10
+                      ? selectedPackages.servicePackageName.substring(0, 10) + "..."
+                      : selectedPackages.servicePackageName
+                } */}
+              {selectedPackages.servicePackageName}
+            </th>
+          ))}
+        </tr>
+        {props.moduleName === "Quote" && props.selectedOneOffServiceList.map((serviceCat, index) => (
+          <React.Fragment key={index}>
+            <tr style={{ backgroundColor: "#DCDCDC" }}>
+              <td
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "left",
+                  padding: "8px",
+                  fontWeight: "bold",
+                  fontSize: "18px",
+                }}
+              >
+                {serviceCat.serviceCatName}
+              </td>
+              <td
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "left",
+                  padding: "8px",
+                }}
+              >
+              </td>
+              {props?.selectedPackagesList.length >= 2 ? (
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "left",
+                    padding: "8px",
+                  }}
+                ></td>
+              ) : null}
+              {props?.selectedPackagesList.length === 3 ? (
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "left",
+                    padding: "8px",
+                  }}
+                ></td>
+              ) : null}
+            </tr>
+            {serviceCat.servicesList.map((subService, subIndex) => (
+              <tr>
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "left",
+                    padding: "8px",
+                  }}
+                >
+                  {subService.serviceName.length > 45 ? (
+                    subService.serviceName
+                      .substring(0, 45)
+                      .toLowerCase()
+                      .replace(/\b\w/g, (l) => l.toUpperCase()) + "..."
+                  ) : (
+                    subService.serviceName
+                  )}
+
+                </td>
+                {props.ProposalObject?.feeTypeId == 1 ? (
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                    }}
+                  >
+                    {(subService.packageOneValue === null) &&
+                      !subService.servicePackageIDs.some(
+                        (item) =>
+                          item == props.selectedPackagesList[0]?.servicePackageID
+                      ) ? (
+                      <span>&#10007;</span>
+                    ) : !subService?.servicePackageIDs.includes(
+                      subService.packageOneID
+                    ) ? (
+                      <span>&#10007;</span>
+                    ) : (
+                      `${props.formatValue(subService.packageOneValue)}`
+                    )}
+                  </td>
+                ) : subService.packageOneValue !== null &&
+                  !subService?.servicePackageIDs.includes(
+                    subService.packageOneID
+                  ) ? (
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                    }}
+                  >
+                    &#10007;
+                  </td>
+                ) : (
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                    }}
+                  >
+                    &#10003;
+                  </td>
+                )}
+
+                {props?.selectedPackagesList.length >= 2 ? (
+                  props.ProposalObject?.feeTypeId == 1 ? (
+                    <td
+                      style={{
+                        border: "1px solid #DDDDDD",
+                        textAlign: "right",
+                        padding: "8px",
+                      }}
+                    >
+                      {(subService.packageTwoValue === null) &&
+                        !subService.servicePackageIDs.some(
+                          (item) =>
+                            item ==
+                            props.selectedPackagesList[1]?.servicePackageID
+                        ) ? (
+                        <span>&#10007;</span>
+                      ) : !subService?.servicePackageIDs.includes(
+                        subService.packageTwoID
+                      ) ? (
+                        <span>&#10007;</span>
+                      ) : (
+                        `${props.formatValue(subService.packageTwoValue)}`
+                      )}
+                    </td>
+                  ) : subService.packageTwoValue !== null &&
+                    !subService?.servicePackageIDs.includes(
+                      subService.packageTwoID
+                    ) ? (
+                    <td
+                      style={{
+                        border: "1px solid #DDDDDD",
+                        textAlign: "right",
+                        padding: "8px",
+                      }}
+                    >
+                      &#10007;
+                    </td>
+                  ) : (
+                    <td
+                      style={{
+                        border: "1px solid #DDDDDD",
+                        textAlign: "right",
+                        padding: "8px",
+                      }}
+                    >
+                      &#10003;
+                    </td>
+                  )
+                ) : null}
+                {props?.selectedPackagesList.length === 3 ? (
+                  props.ProposalObject?.feeTypeId == 1 ? (
+                    <td
+                      style={{
+                        border: "1px solid #DDDDDD",
+                        textAlign: "right",
+                        padding: "8px",
+                      }}
+                    >
+                      {(subService.packageThreeValue === null) &&
+                        !subService.servicePackageIDs.some(
+                          (item) =>
+                            item ==
+                            props.selectedPackagesList[2]?.servicePackageID
+                        ) ? (
+                        <span>&#10007;</span>
+                      ) : !subService?.servicePackageIDs.includes(
+                        subService.packageThreeID
+                      ) ? (
+                        <span>&#10007;</span>
+                      ) : (
+                        `${props.formatValue(subService.packageThreeValue)}`
+                      )}
+                    </td>
+                  ) : subService.packageThreeValue !== null &&
+                    !subService?.servicePackageIDs.includes(
+                      subService.packageThreeID
+                    ) ? (
+                    <td
+                      style={{
+                        border: "1px solid #DDDDDD",
+                        textAlign: "right",
+                        padding: "8px",
+                      }}
+                    >
+                      &#10007;
+                    </td>
+                  ) : (
+                    <td
+                      style={{
+                        border: "1px solid #DDDDDD",
+                        textAlign: "right",
+                        padding: "8px",
+                      }}
+                    >
+                      &#10003;
+                    </td>
+                  )
+                ) : null}
+              </tr>
+            ))}
+          </React.Fragment>
+        ))}
+        {/* <tr style={{ backgroundColor: "#808080" }}>
+            <td
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "left",
+                padding: "8px",
+                color: "white",
+              }}
+            >
+              Net Total
+            </td>
+            <td
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "right",
+                padding: "8px",
+                color: "white",
+              }}
+            >
+              {" "}
+              {
+                totalOnePackageValueOneOff <
+                  Number(props.OneOffPricingInfo.packageOneDisCountedTotal) ||
+                  (Number(props.OneOffPricingInfo.packageOneDisCount) > 0 &&
+                    !props.ProposalObject.DiscountLines)
+                  ? props.formatValue(
+                    props.OneOffPricingInfo.packageOneDisCountedTotal
+                  )
+                  : // Number(totalOnePackageValueOneOff)
+                  //     .toFixed(2)
+                  //     .toString()
+                  //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                  props.formatValue(totalOnePackageValueOneOff)
+                // Number(
+                //     props.OneOffPricingInfo
+                //       .packageOneDisCountedTotal
+                //   )
+                //     .toFixed(2)
+                //     .toString()
+                //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+              }
+            </td>
+            {props?.selectedPackagesList.length >= 2 && (
+              <td
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "right",
+                  padding: "8px",
+                  color: "white",
+                }}
+              >
+                {" "}
+                {
+                  totalTwoPackageValueOneOff <
+                    Number(props.OneOffPricingInfo.packageTwoDisCountedTotal) ||
+                    (Number(props.OneOffPricingInfo.packageTwoDisCount) > 0 &&
+                      !props.ProposalObject.DiscountLines)
+                    ? props.formatValue(
+                      props.OneOffPricingInfo.packageTwoDisCountedTotal
+                    )
+                    : // Number(totalOnePackageValueOneOff)
+                    //     .toFixed(2)
+                    //     .toString()
+                    //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                    props.formatValue(totalTwoPackageValueOneOff)
+                  // Number(
+                  //     props.OneOffPricingInfo
+                  //       .packageOneDisCountedTotal
+                  //   )
+                  //     .toFixed(2)
+                  //     .toString()
+                  //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                }
+              </td>
+            )}
+            {props?.selectedPackagesList.length === 3 && (
+              <td
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "right",
+                  padding: "8px",
+                  color: "white",
+                }}
+              >
+                {" "}
+                {
+                  totalThreePackageValueOneOff <
+                    Number(props.OneOffPricingInfo.packageThreeDisCountedTotal) ||
+                    (Number(props.OneOffPricingInfo.packageThreeDisCount) > 0 &&
+                      !props.ProposalObject.DiscountLines)
+                    ? props.formatValue(
+                      props.OneOffPricingInfo.packageThreeDisCountedTotal
+                    )
+                    : // Number(totalOnePackageValueOneOff)
+                    //     .toFixed(2)
+                    //     .toString()
+                    //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                    props.formatValue(totalThreePackageValueOneOff)
+                  // Number(
+                  //     props.OneOffPricingInfo
+                  //       .packageOneDisCountedTotal
+                  //   )
+                  //     .toFixed(2)
+                  //     .toString()
+                  //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                }
+              </td>
+            )}
+          </tr> */}
+
+        {(Number(props.OneOffPricingInfo.packageThreeDisCount) > 0 ||
+          Number(props.OneOffPricingInfo.packageOneDisCount) > 0 ||
+          Number(props.OneOffPricingInfo.packageTwoDisCount) > 0) &&
+          props.ProposalObject.DiscountLines && (
+            <>
+              {/* <tr style={{ backgroundColor: "#DCDCDC" }}>
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "left",
+                      padding: "8px",
+                      color: "black",
+                    }}
+                  >
+                    Discount
+                  </td>
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                      color: "black",
+                    }}
+                  >
+                    (-)
+                    {props.formatValue(
+                      props.OneOffPricingInfo.packageOneDisCount
+                    )}
+                  </td>
+                  {props?.selectedPackagesList.length >= 2 ? (
+                    <td
+                      style={{
+                        border: "1px solid #DDDDDD",
+                        textAlign: "right",
+                        padding: "8px",
+                        color: "black",
+                      }}
+                    >
+                      (-){" "}
+                      {props.formatValue(
+                        props.OneOffPricingInfo.packageTwoDisCount
+                      )}
+                    </td>
+                  ) : null}
+                  {props?.selectedPackagesList.length === 3 ? (
+                    <td
+                      style={{
+                        border: "1px solid #DDDDDD",
+                        textAlign: "right",
+                        padding: "8px",
+                        color: "black",
+                      }}
+                    >
+                      (-){" "}
+                      {props.formatValue(
+                        props.OneOffPricingInfo.packageThreeDisCount
+                      )}
+                    </td>
+                  ) : null}
+                </tr> */}
+              <tr style={{ backgroundColor: "#808080", color: "white" }}>
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "left",
+                    padding: "8px",
+                    color: "white",
+                  }}
+                >
+                  Discounted Total
+                </td>
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "right",
+                    padding: "8px",
+                    color: "white",
+                  }}
+                >
+                  {" "}
+                  {props.formatValue(
+                    props.OneOffPricingInfo.packageOneDisCountedTotal
+                  )}
+                </td>
+                {props?.selectedPackagesList.length >= 2 ? (
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                      color: "white",
+                    }}
+                  >
+                    {" "}
+                    {props.formatValue(
+                      props.OneOffPricingInfo.packageTwoDisCountedTotal
+                    )}
+                  </td>
+                ) : null}
+                {props?.selectedPackagesList.length === 3 ? (
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                      color: "white",
+                    }}
+                  >
+                    {" "}
+                    {props.formatValue(
+                      props.OneOffPricingInfo.packageThreeDisCountedTotal
+                    )}
+                  </td>
+                ) : null}
+              </tr>
+            </>
+          )}
+        {props.vatPercentage && (
+          <>
+            {/* <tr style={{ backgroundColor: "#DCDCDC" }}>
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "left",
+                    padding: "8px",
+                    color: "Black",
+                  }}
+                >
+                  VAT
+                </td>
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "right",
+                    padding: "8px",
+                    color: "Black",
+                  }}
+                >
+                  {props.formatValue(props.OneOffPricingInfo.PackageOneVaTPrice)}
+                </td>
+                {props?.selectedPackagesList.length >= 2 ? (
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                      color: "Black",
+                    }}
+                  >
+                    {props.formatValue(
+                      props.OneOffPricingInfo.PackageTwoVaTPrice
+                    )}
+                  </td>
+                ) : null}
+                {props?.selectedPackagesList.length === 3 ? (
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                      color: "Black",
+                    }}
+                  >
+                    {props.formatValue(
+                      props.OneOffPricingInfo.PackageThreeVaTPrice
+                    )}
+                  </td>
+                ) : null}
+              </tr> */}
+
+            {/* <tr style={{ backgroundColor: "#808080" }}>
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "left",
+                    padding: "8px",
+                    color: "white",
+                  }}
+                >
+                  Grand Total
+                </td>
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "right",
+                    padding: "8px",
+                    color: "white",
+                  }}
+                >
+                  {props.formatValue(
+                    props.OneOffPricingInfo.PackageOneGrandTotal
+                  )}
+                </td>
+                {props?.selectedPackagesList.length >= 2 ? (
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                      color: "white",
+                    }}
+                  >
+                    {props.formatValue(
+                      props.OneOffPricingInfo.PackageTwoGrandTotal
+                    )}
+                  </td>
+                ) : null}
+                {props?.selectedPackagesList.length === 3 ? (
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                      color: "white",
+                    }}
+                  >
+                    {props.formatValue(
+                      props.OneOffPricingInfo.PackageThreeGrandTotal
+                    )}
+                  </td>
+                ) : null}
+              </tr> */}
+          </>
+        )}
+
+        <tr style={{ backgroundColor: "#DCDCDC" }}>
+          <td
+            style={{
+              border: "1px solid #DDDDDD",
+              textAlign: "left",
+              padding: "8px",
+            }}
+          >
+            If you are happy with this proposal please click Accept to Accept
+            the Proposal.
+          </td>
+          <td
+            style={{
+              border: "1px solid #DDDDDD",
+              textAlign: "right",
+              padding: "8px",
+              color: "black",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                width: "100%",
+              }}
+            >
+              {" "}
+              <a
+                href={AcceptOneOffUrlButton1}
+                style={{
+                  display: "inline-block",
+                  padding: "5px 15px",
+                  backgroundColor: "green",
+                  color: "white",
+                  textDecoration: "none",
+                  border: "none",
+                  borderRadius: "100px",
+                  transition:
+                    "background-color 0.3s ease, box-shadow 0.3s ease",
+                  whiteSpace: "nowrap",
+                  flex: 1,
+                  textAlign: "center",
+                }}
+              >
+                Accept
+              </a>
+            </div>
+          </td>
+          {props?.selectedPackagesList.length >= 2 ? (
+            <td
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "right",
+                padding: "8px",
+                color: "black",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  width: "100%",
+                }}
+              >
+                <a
+                  href={AcceptOneOffUrlButton2}
+                  style={{
+                    display: "inline-block",
+                    padding: "5px 15px",
+                    backgroundColor: "green",
+                    color: "white",
+                    textDecoration: "none",
+                    border: "none",
+                    borderRadius: "100px",
+                    transition:
+                      "background-color 0.3s ease, box-shadow 0.3s ease",
+                    whiteSpace: "nowrap",
+                    flex: 1,
+                    textAlign: "center",
+                  }}
+                >
+                  Accept
+                </a>
+              </div>
+            </td>
+          ) : null}
+          {props?.selectedPackagesList.length === 3 ? (
+            <td
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "right",
+                padding: "8px",
+                color: "black",
+              }}
+            >
+              {" "}
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  width: "100%",
+                }}
+              >
+                <a
+                  href={AcceptOneOffUrlButton3}
+                  style={{
+                    display: "inline-block",
+                    padding: "5px 15px",
+                    backgroundColor: "green",
+                    color: "white",
+                    textDecoration: "none",
+                    border: "none",
+                    borderRadius: "100px",
+                    transition:
+                      "background-color 0.3s ease, box-shadow 0.3s ease",
+                    whiteSpace: "nowrap",
+                    flex: 1,
+                    textAlign: "center",
+                  }}
+                >
+                  Accept
+                </a>
+              </div>
+            </td>
+          ) : null}
+        </tr>
+        {props.common.enableEL == 0 && (
+          <tr style={{ backgroundColor: "#DCDCDC" }}>
+            <td
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "left",
+                padding: "8px",
+              }}
+            >
+              If you are not happy with this proposal please click Decline to
+              Decline the Proposal.
+            </td>
+            <td
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "right",
+                padding: "8px",
+                color: "black",
+              }}
+            >
+              {" "}
+              <a
+                href={DeclineOneOffUrl}
+                style={{
+                  display: "inline-block",
+                  padding: "5px 15px",
+                  backgroundColor: "red",
+                  color: "white",
+                  textDecoration: "none",
+                  border: "none",
+                  borderRadius: "100px",
+                  transition:
+                    "background-color 0.3s ease, box-shadow 0.3s ease",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                Decline
+              </a>
+            </td>
+            {props?.selectedPackagesList.length >= 2 ? (
+              <td
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "right",
+                  padding: "8px",
+                  color: "white",
+                }}
+              ></td>
+            ) : null}
+            {props?.selectedPackagesList.length === 3 ? (
+              <td
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "right",
+                  padding: "8px",
+                  color: "white",
+                }}
+              ></td>
+            ) : null}
+          </tr>
+        )}
+      </table>
+    </div>
+  );
+  const oneOffTableString = ReactDOMServer.renderToString(OneOffPackagesTable);
+  const RecurringTableString = ReactDOMServer.renderToString(
+    RecurringPackagesTable
+  );
+ 
+  
   useEffect(() => {
     const HeadingValue =
       props.ProposalObject?.moduleName || props.engagementObj?.moduleName;
@@ -172,7 +1980,8 @@ export default function PreviewComponentPdf(props) {
     phone,
     fullAddress,
     color,
-    BrandLogo
+    BrandLogo,
+    fontFamily
   ) => {
     const postData = {
       userId: common.userKeyID,
@@ -188,7 +1997,12 @@ export default function PreviewComponentPdf(props) {
       BrandLogo: BrandLogo,
       fontSizeContent: fontSizeContent,
       fontFamily: fontFamily,
-
+      HeaderContent: HeaderContent,
+      FooterContent: FooterContent,
+      HeaderImage: HeaderImage,
+      FooterImage: FooterImage,
+      HeaderHeight: HeaderHeight,
+      FooterHeight: FooterHeight
     };
 
     try {
@@ -263,7 +2077,8 @@ export default function PreviewComponentPdf(props) {
             phone,
             fullAddress,
             newColorCode,
-            BrandLogo
+            BrandLogo,
+            fontFamily
           )
         );
         await Promise.all(promises);
@@ -275,13 +2090,22 @@ export default function PreviewComponentPdf(props) {
       }
     }
   };
+  // useEffect(() => {
+
+  //   if (generatePdfData.length !== 0) {
+  //     generatePdf();
+  //   }
+  // }, [generatePdfData]);
   useEffect(() => {
 
     if (generatePdfData.length !== 0) {
-      generatePdf();
+      if (!isPdfAlreadyGenerated) {  
+        setIsPdfAlreadyGenerated(true); 
+        generatePdf();
+      }
     }
   }, [generatePdfData]);
-
+  
   function getPackageName(id, name) {
     const packages = props.lastPaymentFrequencyAndDiscountedPriceForPreview;
     let packageName = "";
@@ -313,7 +2137,119 @@ export default function PreviewComponentPdf(props) {
     }
   }
 
+//   function setDefaultFontFamily(htmlContent, fontFamily) {
+//     const parser = new DOMParser();
+//     const doc = parser.parseFromString(htmlContent, "text/html");
 
+//     // Detect browser's default font
+//     const tempElement = document.createElement("div");
+//     document.body.appendChild(tempElement);
+//     const defaultFontFamily = window.getComputedStyle(tempElement).fontFamily.toLowerCase();
+//     document.body.removeChild(tempElement);
+
+//     const elements = doc.querySelectorAll('*');
+
+//     elements.forEach((el) => {
+//         const computedFont = window.getComputedStyle(el).fontFamily?.toLowerCase().trim();
+//         const hasInlineFont = el.style.fontFamily?.toLowerCase().trim();
+
+//         if (
+//             !hasInlineFont || 
+//             computedFont === defaultFontFamily || 
+//             hasInlineFont === 'inherit' || 
+//             hasInlineFont === 'initial' || 
+//             hasInlineFont === 'default'
+//         ) {
+//             el.style.setProperty("font-family", fontFamily, "important");
+//         }
+//     });
+
+//     return doc.body.innerHTML;
+// }
+
+// function setDefaultFontFamily(htmlContent, fontFamily) {
+//   if (!fontFamily) return htmlContent;
+
+//   const parser = new DOMParser();
+//   const doc = parser.parseFromString(htmlContent, "text/html");
+
+//   const elements = doc.querySelectorAll('*');
+
+//   elements.forEach((el) => {
+//       // Remove any existing font-family styles
+//       el.style.removeProperty("font-family");
+
+//       // Apply the new font-family with !important
+//       el.style.setProperty("font-family", fontFamily, "important");
+//   });
+
+//   return doc.body.innerHTML;
+// }
+
+// function setDefaultFontFamily(htmlContent, fontFamily) {
+//   if (!fontFamily) return htmlContent;
+
+//   const parser = new DOMParser();
+//   const doc = parser.parseFromString(htmlContent, "text/html");
+
+//   const elements = doc.querySelectorAll('*');
+
+//   elements.forEach((el) => {
+//       // Get existing font-family from inline style
+//       const inlineStyle = el.getAttribute("style") || "";
+//       const hasFontFamily = inlineStyle.match(/font-family:\s*([^;]+)/i);
+
+//       if (hasFontFamily) {
+//           const existingFont = hasFontFamily[1].toLowerCase();
+
+//           // If "Roboto" is found, replace it with the new font
+//           if (existingFont.includes("roboto") || existingFont === "") {
+//               el.style.setProperty("font-family", fontFamily, "important");
+//           }
+//       }
+//       else {
+//         // If no font-family exists, apply the new font
+//         el.style.setProperty("font-family", fontFamily, "important");
+//       }
+//   });
+
+//   return doc.body.innerHTML;
+// }
+function setDefaultFontFamily(htmlContent, fontFamily) {
+  if (!fontFamily) return htmlContent;
+
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(htmlContent, "text/html");
+
+  const elements = doc.querySelectorAll('*');
+
+  elements.forEach((el) => {
+    const inlineStyle = el.getAttribute("style") || "";
+    const fontFamilyMatch = inlineStyle.match(/font-family:\s*([^;]*)/i);
+    
+    if (fontFamilyMatch) {
+      const existingFonts = fontFamilyMatch[1]
+        .replace(/['"]/g, '') // Remove quotes
+        .split(/\s*,\s*/)
+        .map(f => f.toLowerCase());
+
+      // Check if Roboto is the first font in the list
+      const hasRobotoPrimary = existingFonts[0] === 'roboto';
+      
+      // Check if no font family is actually set (empty value)
+      const isEmptyFontFamily = existingFonts[0] === '';
+
+      if (hasRobotoPrimary || isEmptyFontFamily) {
+        el.style.setProperty("font-family", fontFamily, "important");
+      }
+    } else {
+      // If no font-family exists at all, apply the new font
+      el.style.setProperty("font-family", fontFamily, "important");
+    }
+  });
+
+  return doc.body.innerHTML;
+}
   function changeSpanColor(htmlContent, newColorCode) {
     const parser = new DOMParser();
     const doc = parser.parseFromString(htmlContent, "text/html");
@@ -364,18 +2300,21 @@ export default function PreviewComponentPdf(props) {
             }
             break;
           case ElementType.TEXT_BLOCK:
+            const appliedFontContent = setDefaultFontFamily(element.htmlContent,fontFamily);
             if (
               prevElementType !== ElementType.PAGE_BREAK &&
               prevElementType !== ElementType.AWS_PDF_LINK
             ) {
               currentArray.push({
-                textbox: ` ${imgTag}<div style="padding-left: 40px; padding-right: 40px;">${replaceUrlInHtml(element.htmlContent)}</div>`,
+                // textbox: ` ${imgTag}<div style="padding-left: 40px; padding-right: 40px;">${replaceUrlInHtml(element.htmlContent)}</div>`,
+                textbox: ` ${imgTag}<div style="padding-left: 40px; padding-right: 40px;">${replaceUrlInHtml(appliedFontContent)}</div>`,
               });
             } else {
               pdfDataArray.push(currentArray);
               currentArray = [
                 {
-                  textbox: ` ${imgTag}<div style="padding-left: 40px; padding-right: 40px;">${replaceUrlInHtml(element.htmlContent)}</div>`,
+                  // textbox: ` ${imgTag}<div style="padding-left: 40px; padding-right: 40px;">${replaceUrlInHtml(element.htmlContent)}</div>`,
+                  textbox: ` ${imgTag}<div style="padding-left: 40px; padding-right: 40px;">${replaceUrlInHtml(appliedFontContent)}</div>`,
                 },
               ];
             }
@@ -2218,7 +4157,7 @@ export default function PreviewComponentPdf(props) {
                 });
               }
             } else {
-              if (props?.selectedRecurringServiceList.length > 0) {
+              if (props?.selectedRecurringServiceList.length > 0 && (props?.ProposalObject?.selectedProposalTypeValue !== 4 || props?.engagementObj?.quoteTypeID !== 4)) {
                 currentArray.push({
                   table: `
                     <div style="padding-left: 40px; padding-right: 40px; font-family:${fontFamily};page-break-inside: avoid; break-inside: avoid;">
@@ -2352,7 +4291,7 @@ export default function PreviewComponentPdf(props) {
                 });
               }
               // Check if selectedOneOffServiceList has items
-              if (props?.selectedOneOffServiceList.length > 0) {
+              if (props?.selectedOneOffServiceList.length > 0 && (props?.ProposalObject?.selectedProposalTypeValue !== 4 || props?.engagementObj.quoteTypeID !== 4)) {
                 // Append the table for selectedOneOffServiceList
                 currentArray.push({
                   table: `
@@ -2549,13 +4488,13 @@ export default function PreviewComponentPdf(props) {
                 props?.updatedTnCData !== null &&
                 props?.updatedTnCData !== undefined
               ) {
-
+                const appliedFontContent = setDefaultFontFamily(props.updatedTnCData,fontFamily);
                 pdfDataArray.push(currentArray);
                 currentArray = [
                   {
                     textbox: `<div style="padding-left: 40px; padding-right: 40px; color:${newColorCode}; font-size: ${fontSizeHeading}; font-family:${fontFamily}" >TERMS & CONDITIONS<br>
                     <hr style="padding-left: 40px; padding-right: 40px; color: black;"></hr></div>
-                      <div style="padding-left: 40px; padding-right: 40px;">${props.updatedTnCData}</div><br>
+                      <div style="padding-left: 40px; padding-right: 40px;">${appliedFontContent}</div><br>
             ${(() => {
                         htmlContentForSignatories =
                           "<div id='SignatoryBlock' style='width: 95%; padding-left: 0px; padding-right: 0px; page-break-inside: avoid; break-inside: avoid;'>";
@@ -2873,7 +4812,8 @@ export default function PreviewComponentPdf(props) {
 
       <div class="row fieldset">
         <div class="col-lg-12 hstack gap-1 justify-content-end text-right mt-3">
-          <div class="d-flex" style={{ overflowX: "auto" }}>
+          {/* <div class="d-flex" style={{ overflowX: "auto" }}> */}
+          <div className="d-flex flex-wrap" style={{ gap: "4px" }}>
             {/* <div class="d-flex flex-row justify-content-end align-items-center overflow-auto custom-scroll"> */}
             <button
               class="btn btn-md btn-light mr-1 text-nowrap"
@@ -2894,7 +4834,7 @@ export default function PreviewComponentPdf(props) {
               <button
                 style={{ paddingTop: "5px", marginRight: "4px" }}
                 class="btn btn-md btn-success create-item-btn  text-nowrap"
-                onClick={() => props?.HandleBack(props.engagementObj.selectSourceId === 3 ? 7 : 4)}
+                onClick={() => props?.HandleBack(props.engagementObj.selectSourceId === 3 ? 7 : props.engagementObj.selectSourceId === 2 && props.engagementObj.quoteTypeID === 4 ? 3 : 4)}
               >
                 <span>Back</span>
               </button>
@@ -2913,6 +4853,21 @@ export default function PreviewComponentPdf(props) {
                 style={{ paddingTop: "5px", marginRight: "4px" }}
                 class="btn btn-md btn-success create-item-btn text-nowrap"
                 onClick={() => props.HandleTabChange(6)}
+              >
+                <span>Back</span>
+              </button>
+            )}
+            {props?.ProposalObject?.selectedProposalTypeValue === 4 && (
+              <button
+                style={{ paddingTop: "5px", marginRight: "4px" }}
+                className="btn btn-md btn-success create-item-btn text-nowrap"
+                onClick={() => {
+                  const shouldGoToAdditionalInfo = 
+                    props.additionalInformationList?.length > 0 
+                    // props.isValidForm?.AdditionalInfo;
+                    
+                  props.HandleTabChange(shouldGoToAdditionalInfo ? 3 : 2);
+                }}
               >
                 <span>Back</span>
               </button>
@@ -2943,28 +4898,134 @@ export default function PreviewComponentPdf(props) {
             )}
 
             {props.moduleName == "Quote" && (
-              <button
+              <div className="dropdown" style={{display: "inline-block", marginRight: "4px", overflow: "visible"}}>
+                <div className="btn-group">
+                <div className="d-flex align-items-center">
+                  <button
+                    class="btn btn-md btn-success create-item-btn"
+                    type="button"
+                    id="dropdownMenuButton"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                    style={{ 
+                      borderTopRightRadius: 0,
+                      borderBottomRightRadius: 0,
+                      borderRight: "none"
+                    }}
+                onClick={() =>
+                  props.handleSaveAsDraft(
+                  4,
+                  moduleNameForSaveAsDraft,
+                  statusIDForSendProposal
+                  )}
+                >
+                  <span className="d-inline-flex align-items-center">
+                    <span className="me-2">Send {proposalName}</span>
+                    <i className="bi bi-send"></i>
+                  </span>
+                </button>
+                  <button
+                    class="btn btn-md btn-success create-item-btn d-flex"
+                    type="button"
+                    id="dropdownMenuButton"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                    style={{ 
+                      borderTopLeftRadius: 0,
+                      borderBottomLeftRadius: 0,
+                      borderLeft: "none",
+                      padding: "0.375rem 0.75rem",
+                      display: "flex",
+                      alignItems: "center"
+                    }}
+                  >
+                      <ExpandMoreIcon />
+                </button>
+                <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                  <li>
+                    <a className="dropdown-item"
+                     onClick={() =>
+                      props.handleSaveAsDraft(
+                      4,
+                      moduleNameForSaveAsDraft,
+                      statusIDForSendProposal
+                      )}
+                      >
+                      <span style={{fontSize: "0.75rem"}}>
+                        Send {proposalName}
+                        <i className="bi bi-send" style={{paddingLeft: "4px"}}></i>
+                      </span>
+                    </a>
+                  </li>
+                  <li>
+                    <a className="dropdown-item"
+                      onClick={openPopup}
+                      >
+                        <span style={{fontSize: "0.75rem"}}>Customize Email and Send</span>
+                    </a>
+                  </li>
+                </ul>
+                </div>
+                </div>
+              </div>
+            )}
+            
+            {(isPopUpVisible && props.moduleName == "Quote") && (
+              <div className="popup-overlay" onClick={closePopup}>
+               <div className="popup-content" onClick={(e) => e.stopPropagation()}>
+                 <button className="close-button" onClick={closePopup}>
+                   &times;
+                 </button>
+                 <div>
+                  <h6 className="mt-2">Email Template Content</h6>
+                  <div className="separator mb-3" />
+                  <div className="fieldset-group helper-variables-div">
+                    <label className="fieldset-group-label">Variables</label>
+                    <AccountantVariables
+                      ModuleName="EmailTemplate"
+                      TemplateType={
+                        // TemplateObj.templateTypeID === null
+                        //   ? null
+                        //   : 
+                          "EmailTemplate"
+                      }
+                      ClintType={null}
+                      businessTypeId={EMAIL_TEMPLATE.Quote_PDF}
+                    />
+                  </div>
+                  <div>
+                    <Text_Editor
+                      editorState={editorState}
+                      handleContentChange={handleContentChange}
+                      // modelAction={modelAction}
+                    />
+                  </div>
+                </div>
+                <div className="d-flex justify-content-end mt-5">
+                <button
+                  class="btn btn-md btn-light mr-1 text-nowrap ms-auto me-2"
+                  onClick={closePopup}
+                >
+                  <span>Cancel</span>
+                </button>
+                <button
                 style={{ paddingTop: "5px", marginRight: "4px" }}
                 class="btn btn-md btn-success create-item-btn  text-nowrap"
-
-                onClick={() => {
-                  if (!activeOrganizationSubscriptionPlan.sendQuote) {
-                    setShowModal(true)
-                    return
-                  };
+                onClick={() =>
                   props.handleSaveAsDraft(
                     4,
                     moduleNameForSaveAsDraft,
                     statusIDForSendProposal
-                  );
-                }}
-
+                  )
+                }
               >
-                <span className="d-inline-flex align-items-center">
-                  <span className="me-2">Send {proposalName}</span>
-                  <i className="bi bi-send"></i>
+                <span>Send {proposalName}
+                <i className="bi bi-send"></i>
                 </span>
               </button>
+              </div>
+               </div>
+             </div>
             )}
             {common.enableEL == 1 &&
               userAccessData.Admin_Engagement_Latter_CanAdd &&
@@ -2990,7 +5051,135 @@ export default function PreviewComponentPdf(props) {
                   <span>Skip To {EngagementName}</span>
                 </button>
               )}
-            {props.moduleName == "Contract" && (
+              {props.moduleName == "Contract" && (
+              <div className="dropdown" style={{display: "inline-block", marginRight: "4px"}}>
+              <div className="btn-group">
+              <div className="d-flex align-items-center">
+            <button
+              style={{ 
+                borderTopRightRadius: 0,
+                borderBottomRightRadius: 0,
+                borderRight: "none"
+              }}
+              className="btn btn-md btn-success create-item-btn text-nowrap"
+              id = "dropdownMenuButton"
+              onClick={() => {
+                if (!activeOrganizationSubscriptionPlan.sendContract) {
+                  setShowModal(true)
+                  return
+                };
+                props.HandleTabChange(5, statusIDForSendProposal);
+              }}
+              >
+                <span className="d-inline-flex align-items-center">
+                  <span className="me-2">Send {EngagementName}</span>
+                  <i className="bi bi-send" style={{paddingLeft: "4px"}}></i>
+                </span>
+              </button>
+                  <button
+                    class="btn btn-md btn-success create-item-btn"
+                    type="button"
+                    id="dropdownMenuButton"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                    style={{ 
+                      borderTopLeftRadius: 0,
+                      borderBottomLeftRadius: 0,
+                      borderLeft: "none",
+                      padding: "0.375rem 0.75rem",
+                      display: "flex",
+                      alignItems: "center"
+                    }}
+                  >
+                      <ExpandMoreIcon />
+              </button>
+              <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <li>
+                  <button className="dropdown-item"
+                   onClick={() => {
+                    if (!activeOrganizationSubscriptionPlan.sendContract) {
+                      setShowModal(true)
+                      return
+                    };
+                    props.HandleTabChange(5, statusIDForSendProposal);
+                  }}
+                    >
+                    <span style={{fontSize: "0.75rem"}}>
+                      Send {EngagementName}
+                      <i className="bi bi-send"></i>
+                    </span>
+                  </button>
+                </li>
+                <li>
+                  <button className="dropdown-item"
+                    onClick={openPopup}
+                    >
+                      <span style={{fontSize: "0.75rem"}}>Customize Email and Send</span>
+                  </button>
+                </li>
+              </ul>
+              </div>
+              </div>
+            </div>
+            )}
+            {(isPopUpVisible && props.moduleName == "Contract") && (
+              <div className="popup-overlay" onClick={closePopup}>
+               <div className="popup-content" onClick={(e) => e.stopPropagation()}>
+                 <button className="close-button" onClick={closePopup}>
+                   &times;
+                 </button>
+                 <div>
+                  <h6 className="mt-2">Email Template Content</h6>
+                  <div className="separator mb-3" />
+                  <div className="fieldset-group helper-variables-div">
+                    <label className="fieldset-group-label">Variables</label>
+                    <AccountantVariables
+                      ModuleName="EmailTemplate"
+                      TemplateType={
+                        // TemplateObj.templateTypeID === null
+                        //   ? null
+                        //   : 
+                          "EmailTemplate"
+                      }
+                      ClintType={null}
+                      businessTypeId={EMAIL_TEMPLATE.Contract}
+                    />
+                  </div>
+                  <div>
+                    <Text_Editor
+                      editorState={editorState}
+                      handleContentChange={handleContentChange}
+                      // modelAction={modelAction}
+                    />
+                  </div>
+                </div>
+                <div className="d-flex justify-content-end mt-5">
+                <button
+                  class="btn btn-md btn-light mr-1 text-nowrap ms-auto me-2"
+                  onClick={closePopup}
+                >
+                  <span>Cancel</span>
+                </button>
+                <button
+                style={{ paddingTop: "5px", marginRight: "4px" }}
+                class="btn btn-md btn-success create-item-btn  text-nowrap"
+                onClick={() => {
+                  if (!activeOrganizationSubscriptionPlan.sendContract) {
+                    setShowModal(true)
+                    return
+                  };
+                  props.HandleTabChange(5, statusIDForSendProposal);
+                }}
+              >
+                <span>Send {EngagementName}
+                <i className="bi bi-send"></i>
+                </span>
+              </button>
+              </div>
+               </div>
+             </div>
+            )}
+            {/* {props.moduleName == "Contract" && (
               <button
                 style={{ paddingTop: "5px", marginRight: "4px" }}
                 class="btn btn-md btn-success create-item-btn text-nowrap"
@@ -3006,7 +5195,7 @@ export default function PreviewComponentPdf(props) {
                 <span className="me-2">Send {EngagementName}</span>
                 <i className="bi bi-send"></i>
               </button>
-            )}
+            )} */}
           </div>
         </div>
         <ViewPlan

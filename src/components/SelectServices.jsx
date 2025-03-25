@@ -1821,7 +1821,15 @@ export const SelectServices = (props) => {
                 <span>Back</span>
               </button>
             )}
-
+            {props?.ProposalObject?.selectedProposalTypeValue === 4 && (
+              <button
+                onClick={() => props.HandleBack(1)}
+                style={{ marginRight: "5px" }}
+                className="btn btn-md btn-success create-item-btn"
+              >
+                <span>Back</span>
+              </button>
+            )}
             {(props?.moduleName == "Contract" ||
               props.moduleName === "Package") && (
                 <>
@@ -1859,6 +1867,17 @@ export const SelectServices = (props) => {
                   className="btn btn-md btn-success create-item-btn"
                   onClick={async () => {
                     await props.HandleTabChange(6);
+                  }}
+                >
+                  <span>Next</span>
+                </button>
+              )}
+            {props?.ProposalObject &&
+              props?.ProposalObject?.selectedProposalTypeValue === 4 && (
+                <button
+                  className="btn btn-md btn-success create-item-btn"
+                  onClick={async () => {
+                    await props.HandleTabChange(4);
                   }}
                 >
                   <span>Next</span>

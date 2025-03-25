@@ -70,3 +70,10 @@ export const GetChangeIsDefaultStatus = async (OrganisationKeyID, templateKeyID,
     }
     return res;
 };
+
+export const CopyEmail = async (TemplateKeyID,UserKeyID) => {
+    const res = await postApiWithAuthenticated(
+        `${EmailTemplateBaseUrl}/CopyEmailTemplate?TemplateKeyID=${TemplateKeyID}&UserKeyID=${UserKeyID}`
+    );
+    return res;
+};
