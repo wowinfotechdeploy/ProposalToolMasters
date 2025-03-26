@@ -4291,7 +4291,7 @@ function setDefaultFontFamily(htmlContent, fontFamily) {
                 });
               }
               // Check if selectedOneOffServiceList has items
-              if (props?.selectedOneOffServiceList.length > 0 && (props?.ProposalObject?.selectedProposalTypeValue !== 4 || props?.engagementObj.quoteTypeID !== 4)) {
+              if (props?.selectedOneOffServiceList.length > 0 && (props?.ProposalObject?.selectedProposalTypeValue !== 4 || props?.engagementObj?.quoteTypeID !== 4)) {
                 // Append the table for selectedOneOffServiceList
                 currentArray.push({
                   table: `

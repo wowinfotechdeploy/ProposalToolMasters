@@ -16440,15 +16440,15 @@ const Add_Update_Proposal = (props) => {
           PricingInfo: true,
         });
         setRequireMessage(false);
-        await GetAdditionalInformationListData(ServicesIDsElement);
-        if (ProposalObject.selectedProposalTypeValue === 4 && NextTab === 4) {
-            setProposalObject((prevState) => ({
-              ...prevState,
-              recurringHtmlContent: null,
-              oneOffHtmlContent: null,
-          }));
-          setMergePdfUrl("");  
-      }
+        GetAdditionalInformationListData(ServicesIDsElement);
+      //   if (ProposalObject.selectedProposalTypeValue === 4 && NextTab === 4) {
+      //       setProposalObject((prevState) => ({
+      //         ...prevState,
+      //         recurringHtmlContent: null,
+      //         oneOffHtmlContent: null,
+      //     }));
+      //     setMergePdfUrl("");  
+      // }
       setActiveTab(NextTab);
       } else {
         setIsValidForm({
@@ -17142,24 +17142,25 @@ const Add_Update_Proposal = (props) => {
                 GetCalculatedServicesPriceData(ServicePricing, 6);
               }
             } else {
-              if (ProposalObject.selectedProposalTypeValue === 4) {
-                setActiveTab(3);
-                setTabHide(true);
-                setIsValidForm({
-                ...isValidForm,
-                AdditionalInfo: true,
-                SelectService: true
-              });
-              }
-              else {
-                setActiveTab(3);
+              // if (ProposalObject.selectedProposalTypeValue === 4) {
+              //   setActiveTab(3);
+              //   setTabHide(true);
+              //   setIsValidForm({
+              //   ...isValidForm,
+              //   AdditionalInfo: true,
+              //   SelectService: true
+              // });
+              // }
+                // setActiveTab(3);
+                setActiveTab(ProposalHeader.AdditionalInformation);
+                console.log("additional info not empty");
                 setTabHide(true);
                 setIsValidForm({
                   ...isValidForm,
                   AdditionalInfo: true,
                   SelectService: true,
                 });
-              }
+              
             }
           }
         } else {
