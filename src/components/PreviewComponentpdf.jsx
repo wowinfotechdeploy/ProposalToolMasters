@@ -245,25 +245,26 @@ export default function PreviewComponentPdf(props) {
   const FooterHeight = props.footerHeight;
   console.log(props.selectedOneOffServiceList);
   console.log(props.selectedRecurringServiceList);
-  console.log(fontFamily);
+  console.log(props?.ProposalObject?.selectedProposalTypeValue);
+  console.log(props?.engagementObj?.quoteTypeID);
   const CommonFontFamily = "Roboto Mono;sans-serif";
   const imgTag = `<img src="${props.Logo}" alt="Logo" style="display: none; margin: 0 auto 15px;">`;
   let url = `accept-decline-proposal`;
   if (props.common.enableEL === 1) {
     url = `generate-contract`;
   }
-  const AcceptRecurringUrlButton1 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.Recurring}&Action=Accepted&ServicePackageKeyID=${props.selectedPackagesList[0]?.servicePackageKeyID}&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
-  const AcceptRecurringUrlButton2 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.Recurring}&Action=Accepted&ServicePackageKeyID=${props.selectedPackagesList[1]?.servicePackageKeyID}&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
-  const AcceptRecurringUrlButton3 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.Recurring}&Action=Accepted&ServicePackageKeyID=${props.selectedPackagesList[2]?.servicePackageKeyID}&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
+  const AcceptRecurringUrlButton1 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.Recurring}&Action=Accepted&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
+  const AcceptRecurringUrlButton2 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.Recurring}&Action=Accepted&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
+  const AcceptRecurringUrlButton3 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.Recurring}&Action=Accepted&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
 
 
   // const AcceptOneOffELOffUrlButton1 = `https://$AppUrl$/accept-decline-proposal?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Accepted&ServicePackageKeyID=${props.selectedPackagesList[0]?.servicePackageKeyID}`;
   // const AcceptOneOffELOffUrlButton2 = `https://$AppUrl$/accept-decline-proposal?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Accepted&ServicePackageKeyID=${props.selectedPackagesList[1]?.servicePackageKeyID}`;
   // const AcceptOneOffELOffUrlButton3 = `https://$AppUrl$/accept-decline-proposal?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Accepted&ServicePackageKeyID=${props.selectedPackagesList[2]?.servicePackageKeyID}`;
 
-  const AcceptOneOffUrlButton1 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Accepted&ServicePackageKeyID=${props.selectedPackagesList[0]?.servicePackageKeyID}&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
-  const AcceptOneOffUrlButton2 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Accepted&ServicePackageKeyID=${props.selectedPackagesList[1]?.servicePackageKeyID}&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
-  const AcceptOneOffUrlButton3 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Accepted&ServicePackageKeyID=${props.selectedPackagesList[2]?.servicePackageKeyID}&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
+  const AcceptOneOffUrlButton1 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Accepted&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
+  const AcceptOneOffUrlButton2 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Accepted&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
+  const AcceptOneOffUrlButton3 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Accepted&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
 
   const getPaymentFrequencyLabel = () => {
     const Payment_Frequency = {
@@ -289,18 +290,7 @@ export default function PreviewComponentPdf(props) {
         return "Unknown";
     }
   };
-  
-  useEffect(() => {
-    if (props?.ProposalObject?.selectedProposalTypeValue === 4) {
-        // Clear old PDF content when navigating to Preview
-        props.setProposalObject((prevState) => ({
-            ...prevState,
-            recurringHtmlContent: null,
-            oneOffHtmlContent: null,
-        }));
-        props.setMergePdfUrl("");  // Reset PDF merge URL if applicable
-    }
-}, [props?.ProposalObject?.selectedProposalTypeValue]);
+
 
 
 
@@ -372,7 +362,7 @@ export default function PreviewComponentPdf(props) {
           >
           </th>
         </tr>
-        {props.moduleName === "Quote" && props.selectedRecurringServiceList.map((serviceCat, index) => (
+        {props.moduleName === "Quote" && props.selectedRecurringServiceList?.map((serviceCat, index) => (
           <React.Fragment key={index}>
             <tr style={{ backgroundColor: "#DCDCDC" }}>
               <td
@@ -393,24 +383,6 @@ export default function PreviewComponentPdf(props) {
                   padding: "8px",
                 }}
               ></td>
-              {props?.selectedPackagesList.length >= 2 ? (
-                <td
-                  style={{
-                    border: "1px solid #DDDDDD",
-                    textAlign: "left",
-                    padding: "8px",
-                  }}
-                ></td>
-              ) : null}
-              {props?.selectedPackagesList.length === 3 ? (
-                <td
-                  style={{
-                    border: "1px solid #DDDDDD",
-                    textAlign: "left",
-                    padding: "8px",
-                  }}
-                ></td>
-              ) : null}
             </tr>
             {serviceCat.servicesList.map((subService, subIndex) => (
               <tr key={subIndex}>
@@ -432,42 +404,16 @@ export default function PreviewComponentPdf(props) {
                     subService.serviceName
                   )}
                 </td>
-                {props.moduleName === "Quote" && props.ProposalObject?.feeTypeId == 1 ? (
+                {props?.moduleName == "Quote" && props.ProposalObject?.feeTypeId == 1 ? (
                   <td
-                    style={{
-                      border: "1px solid #DDDDDD",
-                      textAlign: "right",
-                      padding: "8px",
-                    }}
-                  >
-                    {(
-                      subService.packageOneValue === null) &&
-                      !subService.servicePackageIDs.some(
-                        (item) =>
-                          item == props.selectedPackagesList[0]?.servicePackageID
-                      ) ? (
-                      <span>&#10007;</span>
-                    ) : !subService?.servicePackageIDs.includes(
-                      subService.packageOneID
-                    ) ? (
-                      <span>&#10007;</span>
-                    ) : (
-                      `${props?.formatValue(subService.packageOneValue)}`
-                    )}
-                  </td>
-                ) : subService.packageOneValue !== null &&
-                  !subService?.servicePackageIDs.includes(
-                    subService.packageOneID
-                  ) ? (
-                  <td
-                    style={{
-                      border: "1px solid #DDDDDD",
-                      textAlign: "right",
-                      padding: "8px",
-                    }}
-                  >
-                    &#10007;
-                  </td>
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "right",
+                    padding: "8px",
+                  }}
+                >
+                  &#10003;
+                </td>
                 ) : (
                   <td
                     style={{
@@ -1201,31 +1147,9 @@ export default function PreviewComponentPdf(props) {
             }}
           >
           </th>
-          {props.moduleName === "Quote" && props?.selectedPackagesList?.map((selectedPackages) => (
-            <th
-              key={selectedPackages.servicePackageName}
-              style={{
-                border: "1px solid #DDDDDD",
-                textAlign: "left",
-                padding: "8px",
-                color: "white",
-                fontSize: "18px",
-              }}
-            >
-              {/* {
-                  props?.selectedPackagesList.length === 1
-                    ? selectedPackages.servicePackageName.length > 20
-                      ? selectedPackages.servicePackageName.substring(0, 20) + "..."
-                      : selectedPackages.servicePackageName
-                    : selectedPackages.servicePackageName.length > 10
-                      ? selectedPackages.servicePackageName.substring(0, 10) + "..."
-                      : selectedPackages.servicePackageName
-                } */}
-              {selectedPackages.servicePackageName}
-            </th>
-          ))}
+          
         </tr>
-        {props.moduleName === "Quote" && props.selectedOneOffServiceList.map((serviceCat, index) => (
+        {props.moduleName == "Quote" && props.selectedOneOffServiceList.map((serviceCat, index) => (
           <React.Fragment key={index}>
             <tr style={{ backgroundColor: "#DCDCDC" }}>
               <td
@@ -1287,39 +1211,14 @@ export default function PreviewComponentPdf(props) {
                 </td>
                 {props.ProposalObject?.feeTypeId == 1 ? (
                   <td
-                    style={{
-                      border: "1px solid #DDDDDD",
-                      textAlign: "right",
-                      padding: "8px",
-                    }}
-                  >
-                    {(subService.packageOneValue === null) &&
-                      !subService.servicePackageIDs.some(
-                        (item) =>
-                          item == props.selectedPackagesList[0]?.servicePackageID
-                      ) ? (
-                      <span>&#10007;</span>
-                    ) : !subService?.servicePackageIDs.includes(
-                      subService.packageOneID
-                    ) ? (
-                      <span>&#10007;</span>
-                    ) : (
-                      `${props.formatValue(subService.packageOneValue)}`
-                    )}
-                  </td>
-                ) : subService.packageOneValue !== null &&
-                  !subService?.servicePackageIDs.includes(
-                    subService.packageOneID
-                  ) ? (
-                  <td
-                    style={{
-                      border: "1px solid #DDDDDD",
-                      textAlign: "right",
-                      padding: "8px",
-                    }}
-                  >
-                    &#10007;
-                  </td>
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "right",
+                    padding: "8px",
+                  }}
+                >
+                  &#10003;
+                </td>
                 ) : (
                   <td
                     style={{
@@ -1964,7 +1863,19 @@ export default function PreviewComponentPdf(props) {
     RecurringPackagesTable
   );
  
-  
+  useEffect(() => {
+    if (props.moduleName == "Quote" && props?.ProposalObject?.selectedProposalTypeValue === 4) {
+        // Clear old PDF content when navigating to Preview
+        props.setProposalObject((prevState) => ({
+            ...prevState,
+            recurringHtmlContent: props.selectedRecurringServiceList.length > 0
+            ? RecurringTableString
+            : null,
+            oneOffHtmlContent: props.selectedOneOffServiceList.length > 0 ? oneOffTableString : null,
+        }));
+    }
+}, [props?.ProposalObject,props?.selectedOneOffServiceList,props?.selectedRecurringServiceList]);
+
   useEffect(() => {
     const HeadingValue =
       props.ProposalObject?.moduleName || props.engagementObj?.moduleName;
@@ -4157,7 +4068,7 @@ function setDefaultFontFamily(htmlContent, fontFamily) {
                 });
               }
             } else {
-              if (props?.selectedRecurringServiceList.length > 0 && (props?.ProposalObject?.selectedProposalTypeValue !== 4 || props?.engagementObj?.quoteTypeID !== 4)) {
+              if (props?.selectedRecurringServiceList.length > 0 && (props?.ProposalObject?.selectedProposalTypeValue !== 4 || (props?.engagementObj?.quoteTypeID === undefined ? 4 : props?.engagementObj?.quoteTypeID) !== 4)) {
                 currentArray.push({
                   table: `
                     <div style="padding-left: 40px; padding-right: 40px; font-family:${fontFamily};page-break-inside: avoid; break-inside: avoid;">
@@ -4291,7 +4202,7 @@ function setDefaultFontFamily(htmlContent, fontFamily) {
                 });
               }
               // Check if selectedOneOffServiceList has items
-              if (props?.selectedOneOffServiceList.length > 0 && (props?.ProposalObject?.selectedProposalTypeValue !== 4 || props?.engagementObj?.quoteTypeID !== 4)) {
+              if (props?.selectedOneOffServiceList.length > 0 && (props?.ProposalObject?.selectedProposalTypeValue !== 4 || (props?.engagementObj?.quoteTypeID === undefined ? 4 : props?.engagementObj?.quoteTypeID) !== 4)) {
                 // Append the table for selectedOneOffServiceList
                 currentArray.push({
                   table: `

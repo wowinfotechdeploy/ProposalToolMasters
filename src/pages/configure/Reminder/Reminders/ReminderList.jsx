@@ -853,7 +853,7 @@ function ReminderList() {
                                       >
                                         <div class="copy">
                                           <button
-                                            class="btn btn-md btn-success create-item-btn"
+                                            class="btn btn-sm btn-success edit-item-btn edit"
                                             data-bs-toggle="modal"
                                             data-bs-target="#ConfirmModel"
                                             onClick={() =>
@@ -865,11 +865,9 @@ function ReminderList() {
                                               })
                                             }
                                           >
-                                            <span
-                                              style={{ marginRight: "4px" }}
-                                            >
+
                                             <i class="fa-solid fa-copy"></i>
-                                            </span>
+
                                           </button>
                                         </div>
                                       </Tooltip>

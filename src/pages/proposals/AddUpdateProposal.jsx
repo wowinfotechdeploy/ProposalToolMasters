@@ -16440,7 +16440,7 @@ const Add_Update_Proposal = (props) => {
           PricingInfo: true,
         });
         setRequireMessage(false);
-        GetAdditionalInformationListData(ServicesIDsElement);
+          GetAdditionalInformationListData(ServicesIDsElement);
       //   if (ProposalObject.selectedProposalTypeValue === 4 && NextTab === 4) {
       //       setProposalObject((prevState) => ({
       //         ...prevState,
@@ -16489,11 +16489,11 @@ const Add_Update_Proposal = (props) => {
     const ServicePricing = await handleSetCalculatedPackageData();
 
     // ======== PROPOSALTYPE 4 HANDLING ======== //
-    if (ProposalObject.selectedProposalTypeValue === 4 && !MergePdfUrl) {
-      GetCalculatedServicesPriceData(ServicePricing,4);
+    if (ProposalObject.selectedProposalTypeValue === 4) {
+      await GetCalculatedServicesPriceData(ServicePricing,4);
       console.log("Hii");
-      await GetTemplateModalData(4); //  Fetch AFTER additional info is valid
       setActiveTab(ProposalHeader.Preview);
+      await GetTemplateModalData(4); //  Fetch AFTER additional info is valid
     } else {
       await GetCalculatedServicesPriceData(ServicePricing, NextTab);
     }
@@ -17126,11 +17126,12 @@ const Add_Update_Proposal = (props) => {
                 setIsValidForm({
                   ...isValidForm,
                   AdditionalInfo: false,
+                  SelectService: true,
                 });
                 setTabHide(false);
                 await GetCalculatedServicesPriceData(ServicePricing, 4);
-                await GetTemplateModalData(ProposalHeader.Preview);
                 setActiveTab(ProposalHeader.Preview);
+                GetTemplateModalData(ProposalHeader.Preview);
                 console.log("hii, additional info");
               } else {
                 setIsValidForm({
