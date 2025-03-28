@@ -1,49 +1,28 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { Modal, Button } from "react-bootstrap";
 import errorImage from "../assets/images/gif/wired-outline-1140-error.gif";
-import { ChoosePlanApi } from "../redux/Services/Setting/PaymentGatewayApi";
-
 import { useNavigate } from "react-router-dom";
+import { AuthContextProvider } from "../AuthContext/AuthContext";
 function ViewPlan(props) {
   const navigate = useNavigate();
-  const [openPurchaseModal, setOpenPurchaseModal] = useState(false);
-  const [chooseApiData, setChooseApiData] = useState([]);
-  // const handleRedirectSubscription = async () => {
-  //   props.setShowModal(false);
-  //   await ChoosePlanApiModelData();
-  //   setOpenPurchaseModal(true);
-  // };
+
+  const {
+
+    activeOrganizationSubscriptionPlan,
+
+  } = useContext(AuthContextProvider);
   const handleRedirectSubscription = async () => {
     props.setShowModal(false);
-    await ChoosePlanApiModelData();
+    // await ChoosePlanApiModelData();
     navigate("/ChoosePlan", {
       state: { organizationKeyId: props.activeOrganizationKeyId },
     });
   };
-  const handleClosePurchaseModel = () => {
-    setOpenPurchaseModal(false);
-  };
+
   const handleCloseModel = () => {
     props.setShowModal(false);
   };
-  const ChoosePlanApiModelData = async () => {
-    try {
-      const data = await ChoosePlanApi();
-      if (data?.data?.statusCode === 200) {
-        if (data?.data?.responseData?.data) {
-          const ModelData = data?.data?.responseData?.data;
-          setChooseApiData(ModelData);
-        }
-      } else {
-        // setErrorMessage(data?.data?.errorMessage);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  const GetPlanList = () => {
-    // Functionality to get plan list
-  };
+
   return (
     <>
       <Modal
@@ -68,9 +47,18 @@ function ViewPlan(props) {
           <div className="text-center mb-3">
             <img src={errorImage} alt="error_Img" height="70px" width="70px" />
           </div>
-          <p className="text-center mb-3">
-            This feature is not available with your current subscription. Please upgrade to access it.
-          </p>
+          {activeOrganizationSubscriptionPlan?.prepareContract && activeOrganizationSubscriptionPlan?.remainingESignatures < 0 && props?.moduleName !== undefined ? (
+            <p className="text-center mb-3">
+              You have reached the monthly e-signature limit for your current plan. To increase your monthly e-signature quota, please upgrade your plan.
+            </p>
+
+          ) : (
+            <p className="text-center mb-3">
+              This feature is not available with your current subscription. Please upgrade to access it.
+            </p>
+          )}
+
+
         </Modal.Body>
         <Modal.Footer>
           <button

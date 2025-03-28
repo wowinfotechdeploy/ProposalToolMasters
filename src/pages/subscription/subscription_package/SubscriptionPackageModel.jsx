@@ -213,6 +213,36 @@ function SubscriptionPackageModel(props) {
         return false;
       }
     }
+    const {
+      yearlyValuePlan,
+      discountPriceMonth,
+      discountPriceYear
+    } = subscriptionPackageObj;
+
+    if (
+      Number(yearlyValuePlan) > 20000 ||
+      Number(discountPriceMonth) > 20000 ||
+      Number(discountPriceYear) > 20000
+    ) {
+      let exceededValue = '';
+
+      if (Number(yearlyValuePlan) > 20000) {
+        exceededValue = `The Yearly Plan Value (${yearlyValuePlan})`;
+      } else if (Number(discountPriceMonth) > 20000) {
+        exceededValue = `The Monthly Discount Price (${discountPriceMonth})`;
+      } else if (Number(discountPriceYear) > 20000) {
+        exceededValue = `The Yearly Discount Price (${discountPriceYear})`;
+      }
+
+      setErrorMessage(
+        `${exceededValue?.toString()
+          .replace(/\B(?=(\d{3})+(?!\d))/g, ",")} exceeds Stripe's transaction limit of £ 20,000. Please enter a lower amount.`
+      );
+
+      scrollUpDownByElementID("ErrorMessage");
+      return false;
+    }
+
     scrollUpDownByElementID("ErrorMessage");
     // Clear the error message and set close to true if there are no errors.
     setErrorMessage("");
@@ -715,6 +745,7 @@ function SubscriptionPackageModel(props) {
                                 .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
                           }
                           onChange={(e) => {
+                            setErrorMessage("");
                             let inputValue = e.target.value;
                             // Remove leading zeros
                             inputValue = inputValue.replace(/^0+/, "");
@@ -873,6 +904,7 @@ function SubscriptionPackageModel(props) {
                                     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
                               }
                               onChange={(e) => {
+                                setErrorMessage("");
                                 let inputValue = e.target.value;
                                 // Remove leading zeros
                                 inputValue = inputValue.replace(/^0+/, "");
@@ -1237,6 +1269,7 @@ function SubscriptionPackageModel(props) {
                                     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
                               }
                               onChange={(e) => {
+                                setErrorMessage("");
                                 let inputValue = e.target.value;
                                 // Remove leading zeros
                                 inputValue = inputValue.replace(/^0+/, "");
@@ -1478,18 +1511,15 @@ function SubscriptionPackageModel(props) {
                       </div>
                     </div>
                   </>}
-
                 </div>
-
-                <label
-                  style={{ display: "flex", justifyContent: "center" }}
-                  className="validation"
-                  id="ErrorMessage"
-                >
-                  {errorMessage}
-                </label>
               </div>
-
+              <label
+                style={{ display: "flex", justifyContent: "center" }}
+                className="validation mt-2"
+                id="ErrorMessage"
+              >
+                {errorMessage}
+              </label>
               <hr />
               <Row class="modal-footer">
                 <Col
