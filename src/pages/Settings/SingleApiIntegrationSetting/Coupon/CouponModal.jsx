@@ -73,6 +73,7 @@ const AccesskeyModal = (props) => {
   // 2) Add Update Button Click Function
   const CouponAddUpdateBtnClicked = () => {
     //Check Validations will be done here
+    debugger
     if (couponObj.couponCode === "" ||
       couponObj.couponCode === undefined ||
       couponObj.couponCode === null ||
@@ -97,7 +98,8 @@ const AccesskeyModal = (props) => {
       couponObj.description === "" ||
       couponObj.description === undefined ||
       couponObj.description === null ||
-      (couponObj.couponTypeID==2&&couponObj.couponAmt>100)
+      (couponObj.couponTypeID == 1 && Number(couponObj.minELValue) < Number(couponObj.couponAmt)) ||
+      (couponObj.couponTypeID == 2 && Number(couponObj.couponAmt) > 100)
     ) {
       setRequireErrorMessage(true);
 
@@ -120,9 +122,6 @@ const AccesskeyModal = (props) => {
       toDate: couponObj.endDate,
       description: couponObj.description
     };
-
-
-
     AddUpdateCouponData(ApiRequest_ParamsObj);
   };
 
@@ -268,6 +267,82 @@ const AccesskeyModal = (props) => {
               <div class="row fieldset">
                 <div class="col-lg-4 col-md-4 col-sm-12 text-start text-md-end">
                   <label htmlFor="customerName-field">
+                    Coupon Type
+                    <span className="text-danger">*</span>
+                  </label>
+                </div>
+                <div class="col-lg-8 col-md-8 col-sm-12">
+                  <div class="input-group">
+                    <Select
+                      className=" selectDropDown Drop-down-width"
+                      value={CouponTypeValue}
+                      onChange={(e) => {
+
+                        setCouponObj({
+                          ...couponObj,
+                          couponTypeID: e.value,
+                        });
+                      }}
+                      options={Utils.CouponTypeIDs}
+                      aria-label="Select Payment Gateway"
+                    />
+                    {RequireErrorMessage && (couponObj.couponTypeID === "" || couponObj.couponTypeID === undefined || couponObj.couponTypeID === null) ? (
+                      <label className="validation">{ERROR_MESSAGES}</label>
+                    ) : (
+                      ""
+                    )}
+                  </div>
+                </div>
+              </div>
+              <div class="row fieldset">
+                <div class="col-lg-4 col-md-4 col-sm-12 text-start text-md-end">
+                  <label htmlFor="customerName-field">
+                    Min. {EngagementName} Value
+                    <span className="text-danger">*</span>
+                  </label>
+                </div>
+                <div class="col-lg-8 col-md-8 col-sm-12">
+                  <input
+                    type="text"
+                    id="customerName-field"
+                    class="input-text"
+                    placeholder={`Min. ${EngagementName} Value`}
+                    value={couponObj.minELValue?.toString()
+                      ?.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                    onChange={(e) => {
+                      const sanitizedInput = e.target.value
+                        .replace(/[^0-9.]/g, "") // Allow only numeric and dot characters
+                        .slice(0, 16); // Limit to 7 characters (5 digits + 1 dot + 1 decimal)
+
+                      // Split the input into integer and decimal parts
+                      const [integerPart, decimalPart] =
+                        sanitizedInput.split(".");
+
+                      // Combine integer and decimal parts with appropriate precision
+                      const formattedInput =
+                        decimalPart !== undefined
+                          ? `${integerPart.slice(
+                            0,
+                            12
+                          )}.${decimalPart.slice(0, 2)}`
+                          : integerPart.slice(0, 12);
+                      setCouponObj({
+                        ...couponObj,
+                        minELValue: formattedInput,
+                      });
+                    }}
+                    maxLength={50}
+                  />
+                  {RequireErrorMessage && (couponObj.minELValue === "" || couponObj.minELValue === undefined || couponObj.minELValue === null) ? (
+                    <label className="validation">{ERROR_MESSAGES}</label>
+                  ) : (
+                    ""
+                  )}
+                </div>
+              </div>
+              <div class="row fieldset">
+                <div class="col-lg-4 col-md-4 col-sm-12 text-start text-md-end">
+                  <label htmlFor="customerName-field">
                     Coupon Amount
                     <span className="text-danger">*</span>
                   </label>
@@ -308,86 +383,10 @@ const AccesskeyModal = (props) => {
                   {RequireErrorMessage && (couponObj.couponAmt === "" || couponObj.couponAmt === undefined || couponObj.couponAmt === null) ? (
                     <label className="validation">{ERROR_MESSAGES}</label>
                   ) : (
-                      (RequireErrorMessage && couponObj.couponTypeID == 2 && couponObj.couponAmt > 100) ?
-                      <label className="validation">Please set the coupon amount between 1% and 100%.</label>:
-                    ""
+                    (RequireErrorMessage && couponObj.couponTypeID == 2 && Number(couponObj.couponAmt) > 100) ?
+                      <label className="validation">Please set the coupon amount between 1% and 100%.</label> :
+                      (couponObj.couponTypeID == 1 && Number(couponObj.minELValue) < Number(couponObj.couponAmt)) ? <label className="validation">Please set the coupon amount less than Min. {EngagementName} Value({couponObj.minELValue})</label> : ""
                   )}
-                </div>
-              </div>
-              <div class="row fieldset">
-                <div class="col-lg-4 col-md-4 col-sm-12 text-start text-md-end">
-                  <label htmlFor="customerName-field">
-                    min. {EngagementName} Value
-                    <span className="text-danger">*</span>
-                  </label>
-                </div>
-                <div class="col-lg-8 col-md-8 col-sm-12">
-                  <input
-                    type="text"
-                    id="customerName-field"
-                    class="input-text"
-                    placeholder="Coupon Count"
-                    value={couponObj.minELValue?.toString()
-                      ?.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-                    onChange={(e) => {
-                      const sanitizedInput = e.target.value
-                        .replace(/[^0-9.]/g, "") // Allow only numeric and dot characters
-                        .slice(0, 16); // Limit to 7 characters (5 digits + 1 dot + 1 decimal)
-
-                      // Split the input into integer and decimal parts
-                      const [integerPart, decimalPart] =
-                        sanitizedInput.split(".");
-
-                      // Combine integer and decimal parts with appropriate precision
-                      const formattedInput =
-                        decimalPart !== undefined
-                          ? `${integerPart.slice(
-                            0,
-                            12
-                          )}.${decimalPart.slice(0, 2)}`
-                          : integerPart.slice(0, 12);
-                      setCouponObj({
-                        ...couponObj,
-                        minELValue: formattedInput,
-                      });
-                    }}
-                    maxLength={50}
-                  />
-                  {RequireErrorMessage && (couponObj.minELValue === "" || couponObj.minELValue === undefined || couponObj.minELValue === null) ? (
-                    <label className="validation">{ERROR_MESSAGES}</label>
-                  ) : (
-                    ""
-                  )}
-                </div>
-              </div>
-              <div class="row fieldset">
-                <div class="col-lg-4 col-md-4 col-sm-12 text-start text-md-end">
-                  <label htmlFor="customerName-field">
-                    Coupon Type
-                    <span className="text-danger">*</span>
-                  </label>
-                </div>
-                <div class="col-lg-8 col-md-8 col-sm-12">
-                  <div class="input-group">
-                    <Select
-                      className=" selectDropDown Drop-down-width"
-                      value={CouponTypeValue}
-                      onChange={(e) => {
-
-                        setCouponObj({
-                          ...couponObj,
-                          couponTypeID: e.value,
-                        });
-                      }}
-                      options={Utils.CouponTypeIDs}
-                      aria-label="Select Payment Gateway"
-                    />
-                    {RequireErrorMessage && (couponObj.couponTypeID === "" || couponObj.couponTypeID === undefined || couponObj.couponTypeID === null) ? (
-                      <label className="validation">{ERROR_MESSAGES}</label>
-                    ) : (
-                      ""
-                    )}
-                  </div>
                 </div>
               </div>
               <div class="row fieldset">
@@ -403,7 +402,7 @@ const AccesskeyModal = (props) => {
                     type="text"
                     id="customerName-field"
                     class="input-text"
-                    placeholder="Coupon Count"
+                    placeholder="Validity Count"
                     value={couponObj.validityCount?.toString()
                       ?.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
                     onChange={(e) => {

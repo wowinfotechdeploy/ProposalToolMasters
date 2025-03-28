@@ -167,6 +167,7 @@ const OrganisationViewDetails = () => {
   });
   const [subscriptionPackageObj, setSubscriptionPackageObj] = useState({
     ospKeyID: null,
+    remainingESignatures: null,
     apiIntegration: null,
     subscriptionPackageKeyID: null,
     packageName: "",
@@ -292,6 +293,7 @@ const OrganisationViewDetails = () => {
             ...subscriptionPackageObj,
             ospKeyID: ModelData.ospKeyID,
             apiIntegration: ModelData.apiIntegration,
+            remainingESignatures: ModelData.remainingESignatures,
             subscriptionPackageKeyID: ModelData.subscriptionPackageKeyID,
             packageName: ModelData.packageName,
             prepareQuote: ModelData.prepareQuote,
@@ -1548,14 +1550,16 @@ const OrganisationViewDetails = () => {
                                                               )}
                                                             {subScriptionActiveList.paymentStatus ===
                                                               "Paid" && (
-                                                                <a
-                                                                  href={
-                                                                    subScriptionActiveList.hostedInvoiceUrl
-                                                                  }
-                                                                  className="btn btn-secondary btn-xs"
-                                                                >
-                                                                  <i className="fa fa-download"></i>
-                                                                </a>
+                                                                <Tooltip title={`Download`}>
+                                                                  <a
+                                                                    href={
+                                                                      subScriptionActiveList.hostedInvoiceUrl
+                                                                    }
+                                                                    className="btn btn-secondary btn-xs"
+                                                                  >
+                                                                    <i className="fa fa-download"></i>
+                                                                  </a>
+                                                                </Tooltip>
                                                               )}
                                                             {subScriptionActiveList.paymentStatus ===
                                                               "Free" && (
@@ -1605,19 +1609,19 @@ const OrganisationViewDetails = () => {
                                                         : subScriptionActiveList.paymentFrequencyID ===
                                                           4
                                                           ? "30 Days"
-                                                          : ""}
+                                                          : "-"}
                                                     </p>
 
                                                     <p className="mt-0 mb-1 text-dark">
                                                       <b>Subscription Date</b>:{" "}
                                                       {
-                                                        subScriptionActiveList.subscriptionStartDate
+                                                        subScriptionActiveList.subscriptionStartDate === null ? "-" : subScriptionActiveList.subscriptionStartDate
                                                       }
                                                     </p>
                                                     <p className="mt-0 mb-1 text-dark">
                                                       <b> Next Renewal Date</b>:{" "}
                                                       {
-                                                        subScriptionActiveList.renewDate
+                                                        subScriptionActiveList.renewDate === null ? "-" : subScriptionActiveList.renewDate
                                                       }
                                                     </p>
                                                     <p className="mt-0 mb-1 text-dark">
@@ -1631,6 +1635,12 @@ const OrganisationViewDetails = () => {
                                                       :{" "}
                                                       {
                                                         subScriptionActiveList.paymentStatus
+                                                      }
+                                                    </p>
+                                                    <p className="mt-0 mb-1 text-dark">
+                                                      <b>Remaining E-Signatures</b>:{" "}
+                                                      {
+                                                        subScriptionActiveList.remainingESignatures < 0 ? 0 : subScriptionActiveList.remainingESignatures
                                                       }
                                                     </p>
                                                   </div>
@@ -1952,14 +1962,16 @@ const OrganisationViewDetails = () => {
                                                 )}
                                               {subscription.paymentStatus ===
                                                 "Paid" && (
-                                                  <a
-                                                    href={
-                                                      subscription.hostedInvoiceUrl
-                                                    }
-                                                    className="btn btn-secondary btn-xs"
-                                                  >
-                                                    <i className="fa fa-download"></i>
-                                                  </a>
+                                                  <Tooltip title={`Download`}>
+                                                    <a
+                                                      href={
+                                                        subscription.hostedInvoiceUrl
+                                                      }
+                                                      className="btn btn-secondary btn-xs"
+                                                    >
+                                                      <i className="fa fa-download"></i>
+                                                    </a>
+                                                  </Tooltip>
                                                 )}
                                               {/* {subscription.paymentStatus ===
                                                 "Free" && <p>Free</p>} */}

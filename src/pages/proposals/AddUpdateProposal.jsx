@@ -1256,29 +1256,29 @@ const ReviewServicesComponent = (props) => {
                 </td>
               </tr>
               {props.ProposalObject.selectedProposalTypeValue !== 4 &&
-              <tr style={{ backgroundColor: "#808080" }}>
-                <td
-                  style={{
-                    border: "1px solid #DDDDDD",
-                    textAlign: "left",
-                    padding: "8px",
-                    color: "white",
-                  }}
-                >
-                  Grand Total
-                </td>
-                <td
-                  style={{
-                    border: "1px solid #DDDDDD",
-                    textAlign: "right",
-                    padding: "8px",
-                    color: "white",
-                  }}
-                >
-                  {" "}
-                  {props.formatValue(props.RecurringPricingInfo.GrandTotal)}
-                </td>
-              </tr>
+                <tr style={{ backgroundColor: "#808080" }}>
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "left",
+                      padding: "8px",
+                      color: "white",
+                    }}
+                  >
+                    Grand Total
+                  </td>
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                      color: "white",
+                    }}
+                  >
+                    {" "}
+                    {props.formatValue(props.RecurringPricingInfo.GrandTotal)}
+                  </td>
+                </tr>
               }
             </>
           )}
@@ -10412,9 +10412,9 @@ const Add_Update_Proposal = (props) => {
   const [headerHeight, setHeaderHeight] = useState(null);
   const [footerHeight, setFooterHeight] = useState(null);
   const [headerImage, setHeaderImage] = useState(null);
-  const [footerImage,setFooterImage] = useState(null);
-  const [headerContent,setHeaderContent] = useState(null);
-  const [footerContent,setFooterContent] = useState(null);
+  const [footerImage, setFooterImage] = useState(null);
+  const [headerContent, setHeaderContent] = useState(null);
+  const [footerContent, setFooterContent] = useState(null);
   const [fontSize, setFontSize] = useState("");
   const [CompanyLogo, setCompanyLogo] = useState(null);
 
@@ -14770,7 +14770,7 @@ const Add_Update_Proposal = (props) => {
       return;
     }
     if (ProposalObject.selectedProposalTypeValue === 4) {
-        setProposalObject(prev => ({
+      setProposalObject(prev => ({
         ...prev,
         recurringHtmlContent: null,
         oneOffHtmlContent: null
@@ -16016,40 +16016,40 @@ const Add_Update_Proposal = (props) => {
       recurringOriginalPrice:
         selectedRecurringServiceList.length !== 0
           ? ProposalObject.selectedProposalTypeValue !== 4 ? RecurringPricingInfo.OriginalPrice
-          : null
+            : null
           : null,
       recurringDiscountedPrice:
-      ProposalObject.selectedProposalTypeValue !== 4 ?
-        selectedRecurringServiceList.length !== 0
-          ? RecurringPricingInfo.DiscountedPrice
-          : null
-        : null,
+        ProposalObject.selectedProposalTypeValue !== 4 ?
+          selectedRecurringServiceList.length !== 0
+            ? RecurringPricingInfo.DiscountedPrice
+            : null
+          : null,
       recurringDiscountPercentage:
-      ProposalObject.selectedProposalTypeValue !== 4 ?
-        selectedRecurringServiceList.length !== 0
-          ? RecurringFrequencyPricingInfo.DefaultDiscount === ""
-            ? null
-            : RecurringFrequencyPricingInfo.DefaultDiscount
-          : null
-        : null,
+        ProposalObject.selectedProposalTypeValue !== 4 ?
+          selectedRecurringServiceList.length !== 0
+            ? RecurringFrequencyPricingInfo.DefaultDiscount === ""
+              ? null
+              : RecurringFrequencyPricingInfo.DefaultDiscount
+            : null
+          : null,
       oneOffOriginalPrice:
         selectedOneOffServiceList.length !== 0
           ? ProposalObject.selectedProposalTypeValue !== 4 ? OneOffPricingInfo.OriginalPrice : null
           : null,
       oneOffDiscountedPrice:
-      ProposalObject.selectedProposalTypeValue !== 4 ?
-        selectedOneOffServiceList.length !== 0
-          ? OneOffPricingInfo.DiscountedPrice
-          : null
-        : null,
+        ProposalObject.selectedProposalTypeValue !== 4 ?
+          selectedOneOffServiceList.length !== 0
+            ? OneOffPricingInfo.DiscountedPrice
+            : null
+          : null,
       oneOffDiscountPercentage:
-      ProposalObject.selectedProposalTypeValue !== 4 ?
-        selectedOneOffServiceList.length !== 0
-          ? OneOffPricingInfoCopy.DefaultDiscount === null
-            ? OneOffPricingInfo.DefaultDiscount
-            : OneOffPricingInfoCopy.DefaultDiscount
-          : null
-        : null,
+        ProposalObject.selectedProposalTypeValue !== 4 ?
+          selectedOneOffServiceList.length !== 0
+            ? OneOffPricingInfoCopy.DefaultDiscount === null
+              ? OneOffPricingInfo.DefaultDiscount
+              : OneOffPricingInfoCopy.DefaultDiscount
+            : null
+          : null,
       statusID: StatusId || null,
       TabName: moduleName,
       quotePDFUrl: MergePdfUrl || null,
@@ -16440,16 +16440,16 @@ const Add_Update_Proposal = (props) => {
           PricingInfo: true,
         });
         setRequireMessage(false);
-          GetAdditionalInformationListData(ServicesIDsElement);
-      //   if (ProposalObject.selectedProposalTypeValue === 4 && NextTab === 4) {
-      //       setProposalObject((prevState) => ({
-      //         ...prevState,
-      //         recurringHtmlContent: null,
-      //         oneOffHtmlContent: null,
-      //     }));
-      //     setMergePdfUrl("");  
-      // }
-      setActiveTab(NextTab);
+        GetAdditionalInformationListData(ServicesIDsElement);
+        //   if (ProposalObject.selectedProposalTypeValue === 4 && NextTab === 4) {
+        //       setProposalObject((prevState) => ({
+        //         ...prevState,
+        //         recurringHtmlContent: null,
+        //         oneOffHtmlContent: null,
+        //     }));
+        //     setMergePdfUrl("");  
+        // }
+        setActiveTab(NextTab);
       } else {
         setIsValidForm({
           ...isValidForm,
@@ -16486,17 +16486,17 @@ const Add_Update_Proposal = (props) => {
         return;
       } else {
         setRequireMessage(false);
-    const ServicePricing = await handleSetCalculatedPackageData();
+        const ServicePricing = await handleSetCalculatedPackageData();
 
-    // ======== PROPOSALTYPE 4 HANDLING ======== //
-    if (ProposalObject.selectedProposalTypeValue === 4) {
-      await GetCalculatedServicesPriceData(ServicePricing,4);
-      console.log("Hii");
-      setActiveTab(ProposalHeader.Preview);
-      await GetTemplateModalData(4); //  Fetch AFTER additional info is valid
-    } else {
-      await GetCalculatedServicesPriceData(ServicePricing, NextTab);
-    }
+        // ======== PROPOSALTYPE 4 HANDLING ======== //
+        if (ProposalObject.selectedProposalTypeValue === 4 && !MergePdfUrl) {
+          GetCalculatedServicesPriceData(ServicePricing, 4);
+          console.log("Hii");
+          await GetTemplateModalData(4); //  Fetch AFTER additional info is valid
+          setActiveTab(ProposalHeader.Preview);
+        } else {
+          await GetCalculatedServicesPriceData(ServicePricing, NextTab);
+        }
       }
     } else if (activeTab === ProposalHeader.SelectPackages) {
 
@@ -17152,16 +17152,16 @@ const Add_Update_Proposal = (props) => {
               //   SelectService: true
               // });
               // }
-                // setActiveTab(3);
-                setActiveTab(ProposalHeader.AdditionalInformation);
-                console.log("additional info not empty");
-                setTabHide(true);
-                setIsValidForm({
-                  ...isValidForm,
-                  AdditionalInfo: true,
-                  SelectService: true,
-                });
-              
+              // setActiveTab(3);
+              setActiveTab(ProposalHeader.AdditionalInformation);
+              console.log("additional info not empty");
+              setTabHide(true);
+              setIsValidForm({
+                ...isValidForm,
+                AdditionalInfo: true,
+                SelectService: true,
+              });
+
             }
           }
         } else {
@@ -18156,7 +18156,7 @@ const Add_Update_Proposal = (props) => {
                   isAddUpdatePricingActionDone={isAddUpdatePricingActionDone}
                   paymentGatewayObj={paymentGatewayObj}
                   BrandColor={BrandColor}
-                  common = {common}
+                  common={common}
                   Logo={CompanyLogo}
                   fontFamily={fontFamily}
                   fontSize={fontSize}
@@ -18216,6 +18216,7 @@ const Add_Update_Proposal = (props) => {
           </div>
         </div>
         <ViewPlan
+          moduleName={"Contract"}
           showModal={showModal}
           handleCloseModel={handleCloseModel}
           setShowModal={setShowModal}

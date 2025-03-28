@@ -831,23 +831,23 @@ const Proposals = () => {
 
     }
   };
-    // Delete Draft Quotation
-    const DeleteQuotationData = async() => {
-      try{
-        const data = await DeleteQuotation(modelRequestData.quoteKeyID,common.userKeyID);
-        if(data?.data?.statusCode === 200) {
-          setOpenSuccessModal(true);
-          // GetProposalListData(currentPage);
-        }
-        else {
-          setErrorMessage(data?.data?.errorMessage);
-          setOpenErrorModal(true);
-        }
+  // Delete Draft Quotation
+  const DeleteQuotationData = async () => {
+    try {
+      const data = await DeleteQuotation(modelRequestData.quoteKeyID, common.userKeyID);
+      if (data?.data?.statusCode === 200) {
+        setOpenSuccessModal(true);
+        // GetProposalListData(currentPage);
       }
-      catch(error){
-        console.error(error);
+      else {
+        setErrorMessage(data?.data?.errorMessage);
+        setOpenErrorModal(true);
       }
     }
+    catch (error) {
+      console.error(error);
+    }
+  }
   const ApplyFilter = () => {
     if (
       (businessNatureID !== null && businessNatureID !== "") ||
@@ -1776,24 +1776,24 @@ const Proposals = () => {
                                               {/* Draft button */}
                                               {item.statusID === statusID.Draft && userAccessData.Admin_Proposal_CanEdit && (
                                                 <>
-                                                <li>
-                                                  {/* <Tooltip title={`Edit ${proposalName}`} placement="right"> */}
-                                                  <a
-                                                    className="dropdown-item"
-                                                    onClick={() => {
-                                                      handleEditProposal(item);
-                                                      setTitle("Edit proposals");
-                                                    }}
-                                                  >
-                                                    <i
-                                                      className="ri-pencil-fill custom-pencil-icon"
-                                                      style={{ marginRight: "2px" }}
-                                                    ></i>{" "}
-                                                    Edit {proposalName}
-                                                  </a>
-                                                  {/* </Tooltip> */}
-                                                </li>
-                                                <li>
+                                                  <li>
+                                                    {/* <Tooltip title={`Edit ${proposalName}`} placement="right"> */}
+                                                    <a
+                                                      className="dropdown-item"
+                                                      onClick={() => {
+                                                        handleEditProposal(item);
+                                                        setTitle("Edit proposals");
+                                                      }}
+                                                    >
+                                                      <i
+                                                        className="ri-pencil-fill custom-pencil-icon"
+                                                        style={{ marginRight: "2px" }}
+                                                      ></i>{" "}
+                                                      Edit {proposalName}
+                                                    </a>
+                                                    {/* </Tooltip> */}
+                                                  </li>
+                                                  <li>
                                                     {/* <Tooltip title={`Delete ${proposalName}`} placement="right"> */}
                                                     <a
                                                       class="dropdown-item"
@@ -1805,9 +1805,9 @@ const Proposals = () => {
                                                           Action: "Delete",
                                                           quoteKeyID: item.quoteKeyID,
                                                           userKeyID: common.userKeyID,
-                                                          message : "Are you sure you want to delete this quote?",
+                                                          message: "Are you sure you want to delete this quote?",
                                                         }
-                                                      )
+                                                        )
                                                       }}
                                                     >
                                                       <i
@@ -1818,7 +1818,7 @@ const Proposals = () => {
                                                     </a>
                                                     {/* </Tooltip> */}
                                                   </li>
-                                                  </>
+                                                </>
                                               )}
 
                                               {/* View button */}
@@ -2421,6 +2421,7 @@ const Proposals = () => {
         {/* End Page-content */}
       </div>
       <ViewPlan
+        moduleName={"Contract"}
         showModal={showModal}
         handleCloseModel={handleCloseModel}
         setShowModal={setShowModal}
@@ -2443,9 +2444,9 @@ const Proposals = () => {
         modelAction={modelRequestData.Action}
         message={
           modelRequestData.Action === "Delete" ? "Record has been deleted!" :
-          modelRequestData.Action === "Copy"
-            ? `The Copy of ${modelRequestData.RefId} has been created successfully! `
-            : modelRequestData.Action === "ReminderStatus" ? "Status has been changed successfully!" : modelRequestData.Action === "Resend" ? proposalName : ""
+            modelRequestData.Action === "Copy"
+              ? `The Copy of ${modelRequestData.RefId} has been created successfully! `
+              : modelRequestData.Action === "ReminderStatus" ? "Status has been changed successfully!" : modelRequestData.Action === "Resend" ? proposalName : ""
         }
         refIdStore={modelRequestData.RefId}
       />
