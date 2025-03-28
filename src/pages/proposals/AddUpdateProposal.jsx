@@ -16440,7 +16440,7 @@ const Add_Update_Proposal = (props) => {
           PricingInfo: true,
         });
         setRequireMessage(false);
-          GetAdditionalInformationListData(ServicesIDsElement);
+        await GetAdditionalInformationListData(ServicesIDsElement);
       //   if (ProposalObject.selectedProposalTypeValue === 4 && NextTab === 4) {
       //       setProposalObject((prevState) => ({
       //         ...prevState,
@@ -16449,7 +16449,7 @@ const Add_Update_Proposal = (props) => {
       //     }));
       //     setMergePdfUrl("");  
       // }
-      setActiveTab(NextTab);
+      // setActiveTab(NextTab);
       } else {
         setIsValidForm({
           ...isValidForm,
@@ -16486,17 +16486,17 @@ const Add_Update_Proposal = (props) => {
         return;
       } else {
         setRequireMessage(false);
-    const ServicePricing = await handleSetCalculatedPackageData();
+        const ServicePricing = await handleSetCalculatedPackageData();
 
-    // ======== PROPOSALTYPE 4 HANDLING ======== //
-    if (ProposalObject.selectedProposalTypeValue === 4) {
-      await GetCalculatedServicesPriceData(ServicePricing,4);
-      console.log("Hii");
-      setActiveTab(ProposalHeader.Preview);
-      await GetTemplateModalData(4); //  Fetch AFTER additional info is valid
-    } else {
-      await GetCalculatedServicesPriceData(ServicePricing, NextTab);
-    }
+        // ======== PROPOSALTYPE 4 HANDLING ======== //
+        if (ProposalObject.selectedProposalTypeValue === 4) {
+          await GetCalculatedServicesPriceData(ServicePricing, 4);
+          console.log("Hii");
+          setActiveTab(ProposalHeader.Preview);
+          await GetTemplateModalData(4); //  Fetch AFTER additional info is valid
+        } else {
+          GetCalculatedServicesPriceData(ServicePricing, NextTab);
+        }
       }
     } else if (activeTab === ProposalHeader.SelectPackages) {
 

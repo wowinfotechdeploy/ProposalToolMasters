@@ -583,10 +583,12 @@ const Dashboard = () => {
         getWeekDateRange();
       const StartDate = startDate
         ? startDate.format("YYYY-MM-DD")
-        : defaultStartDate.format("YYYY-MM-DD");
+        // : defaultStartDate.format("YYYY-MM-DD");
+        : null;
       const EndDate = endDate
         ? endDate.format("YYYY-MM-DD")
-        : defaultEndDate.format("YYYY-MM-DD");
+        // : defaultEndDate.format("YYYY-MM-DD");
+        : null;
 
       const response = await DashboardCountList({
         organisationKeyID: common?.organisationKeyID,

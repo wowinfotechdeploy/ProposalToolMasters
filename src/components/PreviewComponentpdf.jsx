@@ -3513,7 +3513,7 @@ function setDefaultFontFamily(htmlContent, fontFamily) {
                 });
               }
             } else {
-              if (props?.selectedRecurringServiceList.length > 0 && (props?.ProposalObject?.selectedProposalTypeValue !== 4 || (props?.engagementObj?.quoteTypeID === undefined ? 4 : props?.engagementObj?.quoteTypeID) !== 4)) {
+              if (props?.selectedRecurringServiceList.length > 0 && props?.ProposalObject?.selectedProposalTypeValue !== 4 && props?.engagementObj?.quoteTypeID !== 4) {
                 currentArray.push({
                   table: `
                     <div style="padding-left: 40px; padding-right: 40px; font-family:${fontFamily};page-break-inside: avoid; break-inside: avoid;">
@@ -3647,7 +3647,7 @@ function setDefaultFontFamily(htmlContent, fontFamily) {
                 });
               }
               // Check if selectedOneOffServiceList has items
-              if (props?.selectedOneOffServiceList.length > 0 && (props?.ProposalObject?.selectedProposalTypeValue !== 4 || (props?.engagementObj?.quoteTypeID === undefined ? 4 : props?.engagementObj?.quoteTypeID) !== 4)) {
+              if (props?.selectedOneOffServiceList.length > 0 && props?.ProposalObject?.selectedProposalTypeValue !== 4 && props?.engagementObj?.quoteTypeID !== 4) {
                 // Append the table for selectedOneOffServiceList
                 currentArray.push({
                   table: `

@@ -9666,7 +9666,7 @@ const Add_Update_Engagement_Letter = () => {
             );
           } else if(engagementObj.selectSourceId === 2 && engagementObj.quoteTypeID === 4) {
             await GetSelectedServicePackageAcceptData(5);
-            await GetTemplateModalData(EngagementLetterHeader.Preview);
+            GetTemplateModalData(EngagementLetterHeader.Preview);
           } else {
             setIsValidForm({
               ...isValidForm,
