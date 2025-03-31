@@ -16449,8 +16449,8 @@ const Add_Update_Proposal = (props) => {
         //     }));
         //     setMergePdfUrl("");  
         // }
-        setActiveTab(NextTab);
-        await GetAdditionalInformationListData(ServicesIDsElement);
+        // setActiveTab(NextTab);
+        // await GetAdditionalInformationListData(ServicesIDsElement);
         //   if (ProposalObject.selectedProposalTypeValue === 4 && NextTab === 4) {
         //       setProposalObject((prevState) => ({
         //         ...prevState,
