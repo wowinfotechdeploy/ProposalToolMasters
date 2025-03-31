@@ -4254,7 +4254,7 @@ function setDefaultFontFamily(htmlContent, fontFamily) {
             )}
 
             {props.moduleName == "Quote" && (
-              <div className="dropdown" style={{display: "inline-block", marginRight: "4px", overflow: "visible"}}>
+              <div className="dropdown" style={{display: "inline-block", marginRight: "4px"}}>
                 <div className="btn-group">
                 <div className="d-flex align-items-center">
                   <button
@@ -4376,7 +4376,7 @@ function setDefaultFontFamily(htmlContent, fontFamily) {
                 }
               >
                 <span>Send {proposalName}
-                <i className="bi bi-send"></i>
+                <i className="bi bi-send" style={{paddingLeft: "4px"}}></i>
                 </span>
               </button>
               </div>
@@ -4528,7 +4528,7 @@ function setDefaultFontFamily(htmlContent, fontFamily) {
                 }}
               >
                 <span>Send {EngagementName}
-                <i className="bi bi-send"></i>
+                <i className="bi bi-send"  style={{paddingLeft: "4px"}}></i>
                 </span>
               </button>
               </div>
