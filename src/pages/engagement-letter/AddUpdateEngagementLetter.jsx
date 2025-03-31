@@ -78,7 +78,7 @@ const BasicInformationComponent = (props) => {
       }
     }
   }, [props.engagementObj.QuoteKeyID, props.proposalLookUpOptions]);
-  
+
   return (
     <>
       <div className="create-practice-height scrollbar">
@@ -5352,9 +5352,9 @@ const Add_Update_Engagement_Letter = () => {
   const [headerHeight, setHeaderHeight] = useState(null);
   const [footerHeight, setFooterHeight] = useState(null);
   const [headerImage, setHeaderImage] = useState(null);
-  const [footerImage,setFooterImage] = useState(null);
-  const [headerContent,setHeaderContent] = useState(null);
-  const [footerContent,setFooterContent] = useState(null);
+  const [footerImage, setFooterImage] = useState(null);
+  const [headerContent, setHeaderContent] = useState(null);
+  const [footerContent, setFooterContent] = useState(null);
   const [fontSize, setFontSize] = useState("");
   const [CompanyLogo, setCompanyLogo] = useState(false);
   const [requireMessage, setRequireMessage] = useState(false);
@@ -5685,9 +5685,9 @@ const Add_Update_Engagement_Letter = () => {
     }
   }, [isAddUpdatePricingActionDone]);
 
-  function getFontNameById(id){
+  function getFontNameById(id) {
     const font = Utils.FontFamily.find(f => f.value === id);
-    return font? font.label : null;
+    return font ? font.label : null;
   };
 
   const updatedData = Utils.source.map((item) => {
@@ -9664,7 +9664,7 @@ const Add_Update_Engagement_Letter = () => {
               SelectedRecurringService,
               SelectedOneOffService
             );
-          } else if(engagementObj.selectSourceId === 2 && engagementObj.quoteTypeID === 4) {
+          } else if (engagementObj.selectSourceId === 2 && engagementObj.quoteTypeID === 4) {
             await GetSelectedServicePackageAcceptData(5);
             GetTemplateModalData(EngagementLetterHeader.Preview);
           } else {
@@ -12603,34 +12603,34 @@ const Add_Update_Engagement_Letter = () => {
                         )}
                     </div>
                   </li>
-                  {engagementObj.selectSourceId !== 3 && 
-                  !(engagementObj.selectSourceId === 2 && engagementObj.quoteTypeID === 4) &&(
-                    <li>
-                      <div
-                        id="ELReviewServiceDiv"
-                        onClick={() =>
-                          handleClickOnTabChange(4, "ELReviewServiceDiv")
-                        }
-                        class={`${activeTab === EngagementLetterHeader.ReviewServices
-                          ? "step tab-field-center"
-                          : isValidForm.AdditionalInfo === true
+                  {engagementObj.selectSourceId !== 3 &&
+                    !(engagementObj.selectSourceId === 2 && engagementObj.quoteTypeID === 4) && (
+                      <li>
+                        <div
+                          id="ELReviewServiceDiv"
+                          onClick={() =>
+                            handleClickOnTabChange(4, "ELReviewServiceDiv")
+                          }
+                          class={`${activeTab === EngagementLetterHeader.ReviewServices
                             ? "step tab-field-center"
-                            : "step disabled cursor-not-allowed tab-field-center"
-                          } w-90`}
-                      >
-                        <span class="stepCount">
-                          {engagementObj.selectSourceId === 1 ? "4" : "3"}
-                        </span>
-                        <span class="stepTitle">Review Services</span>
-                        {activeTab == EngagementLetterHeader.ReviewServices &&
-                          requireMessage && (
-                            <span className="validation">
-                              <InvalidFormIcon />
-                            </span>
-                          )}
-                      </div>
-                    </li>
-                  )}
+                            : isValidForm.AdditionalInfo === true
+                              ? "step tab-field-center"
+                              : "step disabled cursor-not-allowed tab-field-center"
+                            } w-90`}
+                        >
+                          <span class="stepCount">
+                            {engagementObj.selectSourceId === 1 ? "4" : "3"}
+                          </span>
+                          <span class="stepTitle">Review Services</span>
+                          {activeTab == EngagementLetterHeader.ReviewServices &&
+                            requireMessage && (
+                              <span className="validation">
+                                <InvalidFormIcon />
+                              </span>
+                            )}
+                        </div>
+                      </li>
+                    )}
                   {engagementObj.selectSourceId === 3 && (
                     <li>
                       <div
@@ -12903,8 +12903,8 @@ const Add_Update_Engagement_Letter = () => {
               )}
               {activeTab === EngagementLetterHeader.Preview && (
                 <PreviewComponentPdf
-                  common = {common}
-                  setRequireMessage = {setRequireMessage}
+                  common={common}
+                  setRequireMessage={setRequireMessage}
                   DocumentCode={DocumentCode}
                   BrandColor={BrandColor}
                   Logo={CompanyLogo}
@@ -12975,6 +12975,7 @@ const Add_Update_Engagement_Letter = () => {
         </div>
       </div>
       <ViewPlan
+        moduleName={"Contract"}
         showModal={showModal}
         handleCloseModel={handleCloseModel}
         setShowModal={setShowModal}
