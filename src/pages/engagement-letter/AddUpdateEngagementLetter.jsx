@@ -10459,11 +10459,16 @@ const Add_Update_Engagement_Letter = () => {
           serviceChargeTypeID: 1, // Recurring
           discountPercentageWithAllDecimal: RecurringFrequencyPricingInfo.DefaultDiscount?.toString(),
           servicePackageID: engagementObj.acceptedServicePackageID,
+          // netTotal:
+          //   Number(RecurringPricingInfo.DefaultDiscount) <
+          //     Number(RecurringPricingInfo.OriginalPrice)
+          //     ? RecurringPricingInfo.OriginalPrice
+          //     : RecurringPricingInfo.DiscountedPrice,
           netTotal:
-            Number(RecurringPricingInfo.DefaultDiscount) <
-              Number(RecurringPricingInfo.OriginalPrice)
-              ? RecurringPricingInfo.OriginalPrice
-              : RecurringPricingInfo.DiscountedPrice,
+            Number(RecurringPricingInfo?.DefaultDiscount ?? 0) <
+              Number(RecurringPricingInfo?.OriginalPrice ?? 0)
+              ? Number(RecurringPricingInfo?.OriginalPrice ?? 0)
+              : Number(RecurringPricingInfo?.DiscountedPrice ?? 0),
           discounted: RecurringPricingInfo.Discount,
           discountedTotal: RecurringPricingInfo.DiscountedTotal,
           vatPercentage:
@@ -10487,11 +10492,16 @@ const Add_Update_Engagement_Letter = () => {
           serviceChargeTypeID: 2, // OneOff
           discountPercentageWithAllDecimal: OneOffPricingInfo.DefaultDiscount?.toString(),
           servicePackageID: engagementObj.acceptedServicePackageID,
+          // netTotal:
+          //   Number(OneOffPricingInfo.DefaultDiscount) <
+          //     Number(OneOffPricingInfo.OriginalPrice)
+          //     ? OneOffPricingInfo.OriginalPrice
+          //     : OneOffPricingInfo.DiscountedPrice,
           netTotal:
-            Number(OneOffPricingInfo.DefaultDiscount) <
-              Number(OneOffPricingInfo.OriginalPrice)
-              ? OneOffPricingInfo.OriginalPrice
-              : OneOffPricingInfo.DiscountedPrice,
+            Number(OneOffPricingInfo?.DefaultDiscount ?? 0) <
+              Number(OneOffPricingInfo?.OriginalPrice ?? 0)
+              ? Number(OneOffPricingInfo?.OriginalPrice ?? 0)
+              : Number(OneOffPricingInfo?.DiscountedPrice ?? 0),
           discounted: OneOffPricingInfo.Discount,
           discountedTotal: OneOffPricingInfo.DiscountedTotal,
           vatPercentage:
