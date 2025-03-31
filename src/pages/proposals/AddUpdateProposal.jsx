@@ -16440,7 +16440,7 @@ const Add_Update_Proposal = (props) => {
           PricingInfo: true,
         });
         setRequireMessage(false);
-        GetAdditionalInformationListData(ServicesIDsElement);
+        await GetAdditionalInformationListData(ServicesIDsElement);
         //   if (ProposalObject.selectedProposalTypeValue === 4 && NextTab === 4) {
         //       setProposalObject((prevState) => ({
         //         ...prevState,
