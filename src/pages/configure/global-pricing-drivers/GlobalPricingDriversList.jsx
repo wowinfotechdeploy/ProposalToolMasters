@@ -750,6 +750,7 @@ function Predefined_Global_Pricing_Drivers() {
                                                 setModelRequestData({
                                                   ...modelRequestData,
                                                   Action: "Copy",
+                                                  driverName: PricingDriver.driverName,
                                                   globalPricingDriverKeyID: PricingDriver.globalPricingDriverKeyID,
                                                   userKeyID: common.userKeyID
                                                 })
@@ -887,7 +888,7 @@ function Predefined_Global_Pricing_Drivers() {
                 modelRequestData.Action === "Delete"
                   ? `${moduleName} ${modelRequestData.driverName}`
                   : modelRequestData.Action === "Copy"
-                  ? "Copy of the Global Pricing Driver has been created successfully!"
+                  ? `Copy of ${modelRequestData.driverName} has been created successfully!`
                   : "Status has been changed successfully!"
               }`}
             />

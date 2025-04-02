@@ -335,7 +335,7 @@ const View_Proposals = () => {
 
             setRecurringPricingInfo({
               ...RecurringPricingInfo,
-              DefaultDiscount: ModelData.quoteTypeID == 1 ?
+              DefaultDiscount: ModelData.quoteTypeID == 1 || ModelData.quoteTypeID == 2 ?
                 RecurringDetails[0]?.discountPercentageWithAllDecimal :
                 ModelData.recurringDiscountPercentage == null
                   ? 0

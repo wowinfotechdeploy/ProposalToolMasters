@@ -703,6 +703,7 @@ const Service_Categories = () => {
                                             onClick={() =>
                                               setModelRequestData({
                                                 ...modelRequestData,
+                                                serviceCatName: serviceCategory.serviceCatName,
                                                 Action: "Copy",
                                                 serviceCatKeyID: serviceCategory.serviceCatKeyID,
                                                 userKeyID: common.userKeyID
@@ -832,7 +833,7 @@ const Service_Categories = () => {
                 modelRequestData.Action === "Delete"
                   ? `${moduleName} ${modelRequestData.serviceCatName}`
                   : modelRequestData.Action === "Copy"
-                  ? "Copy of the Service Category has been created successfully!"
+                  ? `Copy of ${modelRequestData.serviceCatName} has been created successfully!`
                   : "Status has been changed successfully!"
               }`}
             />

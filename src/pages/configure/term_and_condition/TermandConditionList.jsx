@@ -1009,6 +1009,7 @@ function Term_and_Condition() {
                                               setModelRequestData({
                                                 ...modelRequestData,
                                                 Action: "Copy",
+                                                templateName: Template.templateName,
                                                 templateKeyID: Template.templateKeyID,
                                                 userKeyID: common.userKeyID
                                               })
@@ -1141,7 +1142,7 @@ function Term_and_Condition() {
             modelRequestData.Action === "Delete"
               ? `${moduleName} ${modelRequestData.templateName}`
               : modelRequestData.Action === "Copy"
-              ? "Copy of the Template has been created successfully!"
+              ? `Copy of ${modelRequestData.templateName} has been created successfully!`
               : "Status has been changed successfully!"
           }`}
         />

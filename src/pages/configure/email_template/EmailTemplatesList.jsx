@@ -850,6 +850,7 @@ function EmailTemplate() {
                                               setModelRequestData({
                                                 ...modelRequestData,
                                                 Action: "Copy",
+                                                templateName: Template.templateName,
                                                 templateKeyID: Template.templateKeyID,
                                                 userKeyID: common.userKeyID
                                               })
@@ -979,7 +980,7 @@ function EmailTemplate() {
             modelRequestData.Action === "Delete"
               ? `${moduleName} ${modelRequestData.templateName}`
               : modelRequestData.Action === "Copy"
-              ? "Copy of the Email Template has been created successfully!"
+              ? `Copy of ${modelRequestData.templateName} has been created successfully!`
               : "Status has been changed successfully!"
           }`}
         />

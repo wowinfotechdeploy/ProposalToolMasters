@@ -860,6 +860,7 @@ function ReminderList() {
                                               setModelRequestData({
                                                 ...modelRequestData,
                                                 Action: "Copy",
+                                                reminderName: Template.reminderName,
                                                 reminderKeyID: Template.reminderKeyID,
                                                 userKeyID: common.userKeyID
                                               })
@@ -992,7 +993,7 @@ function ReminderList() {
             modelRequestData.Action === "Delete"
               ? `${moduleName} ${modelRequestData.templateName}`
               : modelRequestData.Action === "Copy"
-              ? "Copy of the Reminder has been created successfully!"
+              ? `Copy of ${modelRequestData.reminderName} has been created successfully!`
               : "Status has been changed successfully!"
           }`}
         />

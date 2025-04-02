@@ -1803,6 +1803,7 @@ const Proposals = () => {
                                                         setModelRequestData({
                                                           ...modelRequestData,
                                                           Action: "Delete",
+                                                          RefId: item.prefix,
                                                           quoteKeyID: item.quoteKeyID,
                                                           userKeyID: common.userKeyID,
                                                           message: "Are you sure you want to delete this quote?",
@@ -2443,7 +2444,7 @@ const Proposals = () => {
         openSuccessModal={openSuccessModal}
         modelAction={modelRequestData.Action}
         message={
-          modelRequestData.Action === "Delete" ? "Record has been deleted!" :
+          modelRequestData.Action === "Delete" ? `${modelRequestData.RefId}` :
             modelRequestData.Action === "Copy"
               ? `The Copy of ${modelRequestData.RefId} has been created successfully! `
               : modelRequestData.Action === "ReminderStatus" ? "Status has been changed successfully!" : modelRequestData.Action === "Resend" ? proposalName : ""

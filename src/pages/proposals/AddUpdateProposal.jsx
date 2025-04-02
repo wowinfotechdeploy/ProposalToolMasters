@@ -71,8 +71,9 @@ const BasicInformationComponent = (props) => {
     (item) => props.ProposalObject.clientID == item.value
   );
   const selectedTemplateValue = props.templateLookUpOptions.filter(
-    (item) => props.ProposalObject.selectTemplateTypeId == item.value
+    (item) => item.templateID === props.ProposalObject.templateID 
   );
+  console.log(selectedTemplateValue);
   const selectedProposalValue = props.proposalLookUpOptions.filter(
     (item) => props.ProposalObject.selectedProposalTypeValue == item.value
   );
@@ -193,14 +194,18 @@ const BasicInformationComponent = (props) => {
                     onChange={handleTemplateSelectChange}
                   />
                   {/* Validation error message for Template */}
-                  {props.requireMessage &&
+                  {/* {props.requireMessage &&
                     (props.ProposalObject.selectTemplateTypeId === undefined ||
                       props.ProposalObject.selectTemplateTypeId === null ||
                       props.ProposalObject.selectTemplateTypeId === "") ? (
                     <span className="validation">{ERROR_MESSAGES}</span>
                   ) : (
                     ""
-                  )}
+                  )} */}
+                  {props.requireMessage &&
+                    (!props.ProposalObject.templateID || props.ProposalObject.templateID === "") ? (
+                    <span className="validation">{ERROR_MESSAGES}</span>
+                  ) : null}
                 </div>
               </div>
             </div>
@@ -14678,6 +14683,7 @@ const Add_Update_Proposal = (props) => {
             templateID: "",
           };
         }
+        console.log(defaultTemplateObject);
         setFontFamily(getFontNameById(defaultTemplateObject?.fontFamilyID));
         setHeaderContent(defaultTemplateOptions[0]?.headerContent);
         setFooterContent(defaultTemplateOptions[0]?.footerContent);
@@ -15913,12 +15919,12 @@ const Add_Update_Proposal = (props) => {
           discountPercentageWithAllDecimal: ProposalObject.selectedProposalTypeValue === 4 ? null :
             RecurringFrequencyPricingInfo.DefaultDiscount?.toString(),
           servicePackageID: null,
-          netTotal: ProposalObject.selectedProposalTypeValue === 4 ?
+          netTotal: ProposalObject.selectedProposalTypeValue === 4 ? null :
             Number(RecurringPricingInfo.DefaultDiscount) <
               Number(RecurringPricingInfo.OriginalPrice)
               ? RecurringPricingInfo.OriginalPrice
               : RecurringPricingInfo.DiscountedPrice
-            : null,
+            ,
           discounted: ProposalObject.selectedProposalTypeValue === 4 ? null : RecurringPricingInfo.Discount,
           discountedTotal: ProposalObject.selectedProposalTypeValue === 4 ? null : RecurringPricingInfo.DiscountedTotal,
           vatPercentage: vatPercentage ? vatPercentage : null,
@@ -16302,9 +16308,12 @@ const Add_Update_Proposal = (props) => {
         ProposalObject.clientID === undefined ||
         ProposalObject.clientID === null ||
         ProposalObject.clientID === "" ||
-        ProposalObject.selectTemplateTypeId === undefined ||
-        ProposalObject.selectTemplateTypeId === null ||
-        ProposalObject.selectTemplateTypeId === ""
+        // ProposalObject.selectTemplateTypeId === undefined ||
+        // ProposalObject.selectTemplateTypeId === null ||
+        // ProposalObject.selectTemplateTypeId === ""
+        ProposalObject.templateID === undefined ||
+        ProposalObject.templateID === null ||
+        ProposalObject.templateID === ""
       ) {
         setIsValidForm({
           ...isValidForm,

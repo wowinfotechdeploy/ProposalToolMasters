@@ -703,6 +703,7 @@ function Global_Constants() {
                                               onClick={() =>
                                                 setModelRequestData({
                                                   ...modelRequestData,
+                                                  driverName: GlobalConstant.driverName,
                                                   Action: "Copy",
                                                   globalPricingDriverKeyID: GlobalConstant.globalPricingDriverKeyID,
                                                   userKeyID: common.userKeyID
@@ -837,7 +838,7 @@ function Global_Constants() {
                 modelRequestData.Action === "Delete"
                   ? `${moduleName} ${modelRequestData.driverName}`
                   : modelRequestData.Action === "Copy"
-                  ? "Copy of the Global Constant has been created successfully!"
+                  ? `Copy of ${modelRequestData.driverName} has been created successfully!`
                   : "Status has been changed successfully!"
               }`}
             />

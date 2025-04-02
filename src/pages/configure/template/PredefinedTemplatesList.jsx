@@ -1655,6 +1655,7 @@ function Predefined_Templates() {
                                                   setModelRequestData({
                                                     ...modelRequestData,
                                                     Action: "Copy",
+                                                    templatePdfTitle: Template.templatePdfTitle,
                                                     templatePdfKeyID: Template.templatePdfKeyID,
                                                     userKeyID: common.userKeyID
                                                   })
@@ -2225,6 +2226,7 @@ function Predefined_Templates() {
                                                   setModelRequestData({
                                                     ...modelRequestData,
                                                     Action: "Copy",
+                                                    templateName: Template.templateName,
                                                     templateKeyID: Template.templateKeyID,
                                                     userKeyID: common.userKeyID
                                                   })
@@ -3041,7 +3043,7 @@ function Predefined_Templates() {
                 modelRequestData.Action === "Delete"
                   ? `${moduleNameForTemplatePdf} ${modelRequestData.templatePdfTitle}`
                   : modelRequestData.Action === "Copy"
-                  ? "Copy of the Template PDF has been created successfully!"
+                  ? `Copy of ${modelRequestData.templatePdfTitle} has been created successfully!`
                   : "Status has been changed successfully!"
               }`}
             />
@@ -3058,7 +3060,7 @@ function Predefined_Templates() {
                 modelRequestData.Action === "Delete"
                   ? `${moduleName} ${modelRequestData.templateName}`
                   : modelRequestData.Action === "Copy"
-                  ? "Copy of the Template has been created successfully!"
+                  ? `Copy of ${modelRequestData.templateName} has been created successfully!`
                   : "Status has been changed successfully!"
               }`}
             />

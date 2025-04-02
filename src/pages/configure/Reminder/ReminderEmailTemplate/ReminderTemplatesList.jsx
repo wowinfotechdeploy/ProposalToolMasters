@@ -897,6 +897,7 @@ function ReminderTemplateList() {
                                               setModelRequestData({
                                                 ...modelRequestData,
                                                 Action: "Copy",
+                                                templateName: Template.templateName,
                                                 templateKeyID: Template.templateKeyID,
                                                 userKeyID: common.userKeyID
                                               })
@@ -1025,7 +1026,7 @@ function ReminderTemplateList() {
             modelRequestData.Action === "Delete"
               ? `${moduleName} ${modelRequestData.templateName}`
               : modelRequestData.Action === "Copy"
-              ? "Copy of the Workflow Reminder Email has been created successfully!"
+              ? `Copy of ${modelRequestData.templateName}l has been created successfully!`
               : "Status has been changed successfully!"
           }`}
         />

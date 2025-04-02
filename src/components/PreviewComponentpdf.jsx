@@ -4261,7 +4261,7 @@ function setDefaultFontFamily(htmlContent, fontFamily) {
                     class="btn btn-md btn-success create-item-btn"
                     type="button"
                     id="dropdownMenuButton"
-                    data-bs-toggle="dropdown"
+                    // data-bs-toggle="dropdown"
                     aria-expanded="false"
                     style={{ 
                       borderTopRightRadius: 0,

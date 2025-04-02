@@ -1915,8 +1915,9 @@ const Engagement_Letter = () => {
                                                             data-bs-target="#ConfirmModel" onClick={() => {
                                                               setModelRequestData({
                                                                 ...modelRequestData,
+                                                                refId: engagement.prefix,
                                                                 contractKeyID: engagement.contractKeyID,
-                                                                message: `Are you sure you want to void ${EngagementName}`,
+                                                                message: `Are you sure you want to void ${modelRequestData.refId}`,
                                                                 Action: "Void",
                                                               })
                                                             }}>
@@ -2624,7 +2625,7 @@ const Engagement_Letter = () => {
             modelRequestData.Action === "Copy"
               ? `The Copy of  ${modelRequestData.refId} has been created successfully! `
               : modelRequestData.Action === "ReminderStatus" ? "Status has been changed successfully!" :
-                modelRequestData.Action === "Resend" ? EngagementName : modelRequestData.Action === "Void" ? `Contract has been voided successfully!` : ""
+                modelRequestData.Action === "Resend" ? EngagementName : modelRequestData.Action === "Void" ? `${modelRequestData.refId} has been voided successfully!` : ""
           }
           refIdStore={modelRequestData.refId}
         />
