@@ -971,7 +971,7 @@ function Add_New_Templates(props) {
         isDefault: false,
         // templateName: "",
         clientBusinessTypeID: null,
-        clientBusinessTypeIDs: [],
+        // clientBusinessTypeIDs: [],
         orgBusinessTypeID: common.businessTypeID,
         isPredefined: null,
       });

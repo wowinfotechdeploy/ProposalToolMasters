@@ -354,6 +354,10 @@ const EngagementLetterStatus = [
     value: 7,
     label: "Declined",
   },
+  {
+    value: 8,
+    label: "Voided",
+  },
   // {
   //   value: 3,
   //   label: "Skipped",

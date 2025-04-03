@@ -14632,7 +14632,7 @@ const Add_Update_Proposal = (props) => {
           // Use filteredRecords to construct defaultTemplateObject if available
           if (filteredRecords.length > 0) {
             defaultTemplateObject = {
-              selectTemplateTypeId: filteredRecords[0].value,
+              selectTemplateTypeId: filteredRecords[0]?.value,
               templateID: filteredRecords[0].templateID,
               fontFamilyID: filteredRecords[0].fontFamilyID,
               headerContent: filteredRecords[0].headerContent,
@@ -14649,6 +14649,7 @@ const Add_Update_Proposal = (props) => {
             setFooterImage(defaultTemplateObject?.footerImage);
             setHeaderHeight(defaultTemplateObject?.headerHeight);
             setFooterHeight(defaultTemplateObject?.footerHeight);
+
           } else {
             // If filteredRecords is empty, set defaultTemplateOptions
             defaultTemplateOptions = mappedOptions.filter(
@@ -14672,17 +14673,17 @@ const Add_Update_Proposal = (props) => {
         // If defaultTemplateObject is not constructed from filteredRecords, construct it from defaultTemplateOptions
         if (!defaultTemplateObject && defaultTemplateOptions.length > 0) {
           defaultTemplateObject = {
-            selectTemplateTypeId: defaultTemplateOptions[0].value,
+            selectTemplateTypeId: defaultTemplateOptions[0]?.value,
             templateID: defaultTemplateOptions[0].templateID,
             fontFamilyID: defaultTemplateOptions[0]?.fontFamilyID,
           };
         }
-        else if (!defaultTemplateObject) {
-          defaultTemplateObject = {
-            selectTemplateTypeId: "",
-            templateID: "",
-          };
-        }
+        // else if (!defaultTemplateObject) {
+        //   defaultTemplateObject = {
+        //     selectTemplateTypeId: "",
+        //     templateID: "",
+        //   };
+        // }
         console.log(defaultTemplateObject);
         setFontFamily(getFontNameById(defaultTemplateObject?.fontFamilyID));
         setHeaderContent(defaultTemplateOptions[0]?.headerContent);
@@ -14771,17 +14772,18 @@ const Add_Update_Proposal = (props) => {
 
   //Get template Model Data
   const GetTemplateModalData = async (activeTab) => {
+    console.log(ProposalObject.selectTemplateTypeId);
     setLoader(true);
-    if (!ProposalObject.selectTemplateTypeId) {
+    if (!ProposalObject.templateID) {
       return;
     }
-    if (ProposalObject.selectedProposalTypeValue === 4) {
-      setProposalObject(prev => ({
-        ...prev,
-        recurringHtmlContent: null,
-        oneOffHtmlContent: null
-      }));
-    }
+    // if (ProposalObject.selectedProposalTypeValue === 4) {
+    //   setProposalObject(prev => ({
+    //     ...prev,
+    //     recurringHtmlContent: null,
+    //     oneOffHtmlContent: null
+    //   }));
+    // }
     try {
       const data = await GetTemplateModelData({
         TemplateKeyID: ProposalObject.selectTemplateTypeId,
@@ -14963,6 +14965,7 @@ const Add_Update_Proposal = (props) => {
             quoteKeyID: ModelData.quoteKeyID,
             clientID: ModelData.clientID,
             templateID: ModelData.templateID,
+            selectTemplateTypeId: ModelData.templateKeyID,
             quoteTypeID: ModelData.quoteTypeID,
             feesInQuoteID: ModelData.feesInQuoteID,
             paymentFrequencyID: ModelData.paymentFrequencyID,
@@ -15045,7 +15048,7 @@ const Add_Update_Proposal = (props) => {
             ...prevState,
             clientID: ModelData.clientID,
             templateID: ModelData.templateID,
-            // selectTemplateTypeId: ModelData.quoteKeyID,
+            selectTemplateTypeId: ModelData.templateKeyID,
             selectedProposalTypeValue: ModelData.quoteTypeID,
             Payment_Frequency: ModelData.paymentFrequencyID,
             feeTypeId: ModelData.feesInQuoteID,
@@ -15332,7 +15335,7 @@ const Add_Update_Proposal = (props) => {
     if (activeTab === ProposalHeader.BasicInformation) {
       if (
         ProposalObject.clientID === null ||
-        ProposalObject.selectTemplateTypeId === null ||
+        ProposalObject.templateID === null ||
         ProposalObject.selectedProposalTypeValue === null
       ) {
         setIsValidForm({
@@ -16509,10 +16512,10 @@ const Add_Update_Proposal = (props) => {
 
         // ======== PROPOSALTYPE 4 HANDLING ======== //
         if (ProposalObject.selectedProposalTypeValue === 4 && !MergePdfUrl) {
-          GetCalculatedServicesPriceData(ServicePricing, 4);
+          await GetCalculatedServicesPriceData(ServicePricing, 4);
           console.log("Hii");
-          await GetTemplateModalData(4); //  Fetch AFTER additional info is valid
           setActiveTab(ProposalHeader.Preview);
+          await GetTemplateModalData(4); //  Fetch AFTER additional info is valid
         } else {
           await GetCalculatedServicesPriceData(ServicePricing, NextTab);
         }
@@ -17148,9 +17151,8 @@ const Add_Update_Proposal = (props) => {
                   SelectService: true,
                 });
                 setTabHide(false);
-                await GetCalculatedServicesPriceData(ServicePricing, 4);
-                setActiveTab(ProposalHeader.Preview);
-                GetTemplateModalData(ProposalHeader.Preview);
+                GetCalculatedServicesPriceData(ServicePricing, 4);
+                await GetTemplateModalData(ProposalHeader.Preview);
                 console.log("hii, additional info");
               } else {
                 setIsValidForm({

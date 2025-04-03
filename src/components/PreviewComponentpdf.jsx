@@ -313,7 +313,7 @@ export default function PreviewComponentPdf(props) {
   const DeclineOneOffUrl = `https://$AppUrl$/accept-decline-proposal?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Declined&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
 
 
-  const [RecurringPackagesTable, setRecurringPackagesTable] = useState(
+  const RecurringPackagesTable = 
     <div
       style={{
         paddingLeft: "40px",
@@ -404,7 +404,7 @@ export default function PreviewComponentPdf(props) {
                     subService.serviceName
                   )}
                 </td>
-                {props?.moduleName == "Quote" && props.ProposalObject?.feeTypeId == 1 ? (
+                {props.moduleName == "Quote" && props.ProposalObject?.feeTypeId == 1 ? (
                   <td
                   style={{
                     border: "1px solid #DDDDDD",
@@ -528,148 +528,6 @@ export default function PreviewComponentPdf(props) {
             ))}
           </React.Fragment>
         ))}
-        {/* <tr style={{ backgroundColor: "#808080" }}>
-            <td
-              style={{
-                border: "1px solid #DDDDDD",
-                textAlign: "left",
-                padding: "8px",
-                color: "white",
-              }}
-            >
-              Net Total
-            </td>
-            <td
-              style={{
-                border: "1px solid #DDDDDD",
-                textAlign: "right",
-                padding: "8px",
-                color: "white",
-              }}
-            >
-              {" "}
-              {
-                totalOnePackageValue >
-                  Number(props.RecurringPricingInfo.packageOneNetTotal) ||
-                  (Number(props.RecurringPricingInfo.packageOneDisCount) > 0 &&
-                    !props.ProposalObject.DiscountLines)
-                  ? // ||
-                  // Number(
-                  //   props.RecurringPricingInfo
-                  //     .packageOneDisCountedTotal
-                  // ) === 0
-                  Number(props.RecurringPricingInfo.packageOneDisCount) > 0 &&
-                    !props.ProposalObject.DiscountLines
-                    ? props.formatValue(
-                      props.RecurringPricingInfo.packageOneDisCountedTotal
-                    )
-                    : props.formatValue(totalOnePackageValue)
-                  : //  Number(totalOnePackageValue)
-                  //     .toFixed(2)
-                  //     .toString()
-                  //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                  props.formatValue(
-                    props.RecurringPricingInfo.packageOneNetTotal
-                  )
-                // Number(
-                //     props.RecurringPricingInfo
-                //       .packageOneDisCountedTotal
-                //   )
-                //     .toFixed(2)
-                //     .toString()
-                //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-              }
-              {/* Rs.{CalculateRecurringPackageNetTotal()} */}
-        {/* </td> */}
-
-        {/* {props?.selectedPackagesList.length >= 2 && (
-          <td
-            style={{
-              border: "1px solid #DDDDDD",
-              textAlign: "right",
-              padding: "8px",
-              color: "white",
-            }}
-          >
-            {" "}
-            {
-              totalTwoPackageValue >
-                Number(props.RecurringPricingInfo.packageTwoNetTotal) ||
-                (Number(props.RecurringPricingInfo.packageTwoDisCount) > 0 &&
-                  !props.ProposalObject.DiscountLines)
-                ? // ||
-                // Number(
-                //   props.RecurringPricingInfo
-                //     .packageOneDisCountedTotal
-                // ) === 0
-                Number(props.RecurringPricingInfo.packageTwoDisCount) > 0 &&
-                  !props.ProposalObject.DiscountLines
-                  ? props.formatValue(
-                    props.RecurringPricingInfo.packageTwoDisCountedTotal
-                  )
-                  : props.formatValue(totalOnePackageValue)
-                : //  Number(totalOnePackageValue)
-                //     .toFixed(2)
-                //     .toString()
-                //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                props.formatValue(
-                  props.RecurringPricingInfo.packageTwoNetTotal
-                )
-              // Number(
-              //     props.RecurringPricingInfo
-              //       .packageOneDisCountedTotal
-              //   )
-              //     .toFixed(2)
-              //     .toString()
-              //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-            }
-          </td>
-        )}
-        {props?.selectedPackagesList.length === 3 && (
-          <td
-            style={{
-              border: "1px solid #DDDDDD",
-              textAlign: "right",
-              padding: "8px",
-              color: "white",
-            }}
-          >
-            {" "}
-            {
-              totalThreePackageValue >
-                Number(props.RecurringPricingInfo.packageThreeNetTotal) ||
-                (Number(props.RecurringPricingInfo.packageThreeDisCount) > 0 &&
-                  !props.ProposalObject.DiscountLines)
-                ? // ||
-                // Number(
-                //   props.RecurringPricingInfo
-                //     .packageOneDisCountedTotal
-                // ) === 0
-                Number(props.RecurringPricingInfo.packageThreeDisCount) >
-                  0 && !props.ProposalObject.DiscountLines
-                  ? props.formatValue(
-                    props.RecurringPricingInfo.packageThreeDisCountedTotal
-                  )
-                  : props.formatValue(totalOnePackageValue)
-                : //  Number(totalOnePackageValue)
-                //     .toFixed(2)
-                //     .toString()
-                //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                props.formatValue(
-                  props.RecurringPricingInfo.packageThreeNetTotal
-                )
-              // Number(
-              //     props.RecurringPricingInfo
-              //       .packageOneDisCountedTotal
-              //   )
-              //     .toFixed(2)
-              //     .toString()
-              //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-            }
-          </td>
-        )} */}
-        {/* </tr> */}
-
 
 
         <tr style={{ backgroundColor: "#DCDCDC" }}>
@@ -862,9 +720,9 @@ export default function PreviewComponentPdf(props) {
         )}
       </table>
     </div>
-  );
+
   // one-Off Service-Pricing Table Formate For E-mail.
-  const [OneOffPackagesTable, setOneOffPackagesTable] = useState(
+  const OneOffPackagesTable =
     <div
       style={{
         paddingLeft: "40px",
@@ -1302,7 +1160,7 @@ export default function PreviewComponentPdf(props) {
         )}
       </table>
     </div>
-  );
+  
   const oneOffTableString = ReactDOMServer.renderToString(OneOffPackagesTable);
   const RecurringTableString = ReactDOMServer.renderToString(
     RecurringPackagesTable
