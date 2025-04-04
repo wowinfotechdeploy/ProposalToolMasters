@@ -407,12 +407,15 @@ function ReminderList() {
   const CopyReminderData = async() => {
     if(!common.organisationKeyID) return;
     try{
+      setLoader(true);
       const data = await CopyReminder(modelRequestData.reminderKeyID,common.userKeyID);
       if(data?.data?.statusCode === 200) {
+        setLoader(false);
         setOpenSuccessModal(true);
         GetEmailTemplatesListData(isCurrentPage);
       }
       else {
+        setLoader(false);
         setErrorMessage(data?.data?.errorMessage);
         setOpenErrorModal(true);
       }

@@ -216,12 +216,15 @@ function Term_and_Condition() {
  const CopyTermsAndConditionsTemplateData = async() => {
   if(!common.organisationKeyID) return;
   try {
+    setLoader(true);
     const data = await CopyTermsAndConditions(modelRequestData.templateKeyID,common.userKeyID);
     if(data?.data?.statusCode === 200) {
+      setLoader(false);
       setOpenSuccessModal(true);
       GetTermsAndConditionsListData(currentPage);
     }
     else {
+      setLoader(false);
       setErrorMessage(data?.data?.errorMessage);
       setOpenErrorModal(true);
     }

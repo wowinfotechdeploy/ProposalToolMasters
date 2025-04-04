@@ -834,12 +834,15 @@ const Proposals = () => {
   // Delete Draft Quotation
   const DeleteQuotationData = async () => {
     try {
+      setLoader(true);
       const data = await DeleteQuotation(modelRequestData.quoteKeyID, common.userKeyID);
       if (data?.data?.statusCode === 200) {
+        setLoader(false);
         setOpenSuccessModal(true);
         // GetProposalListData(currentPage);
       }
       else {
+        setLoader(false);
         setErrorMessage(data?.data?.errorMessage);
         setOpenErrorModal(true);
       }

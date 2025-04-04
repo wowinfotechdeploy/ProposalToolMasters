@@ -314,12 +314,15 @@ function Global_Constants() {
   const CopyGlobalConstantData = async() => {
     if(!common.organisationKeyID) return;
     try {
+      setLoader(true);
       const data = await CopyGlobalConstant(modelRequestData.globalPricingDriverKeyID,common.userKeyID);
       if(data?.data?.statusCode === 200) {
+        setLoader(false);
         setOpenSuccessModal(true);
         GetGlobalConstantListData(currentPage);
       }
       else {
+        setLoader(false);
         setErrorMessage(data?.data?.errorMessage);
         setOpenErrorModal(true);
       }

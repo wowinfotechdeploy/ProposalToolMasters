@@ -714,17 +714,21 @@ const Engagement_Letter = () => {
   // Void Contract
   const VoidContractData = async () => {
     try {
+      setLoader(true)
       const data = await VoidContract(modelRequestData.contractKeyID, common.userKeyID);
       if (data?.data?.statusCode === 200) {
+        setLoader(false);
         setOpenSuccessModal(true);
       }
       else {
         $("#" + "ConfirmModel").modal("hide");
+        setLoader(false)
         setErrorMessage(data?.data?.errorMessage);
         setOpenErrorModal(true);
       }
     }
     catch (error) {
+      setLoader(false)
       console.error(error);
     }
   }

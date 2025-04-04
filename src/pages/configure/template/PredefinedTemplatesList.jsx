@@ -296,12 +296,15 @@ function Predefined_Templates() {
   const CopyTemplateData = async() => {
     if(!common.organisationKeyID) return;
     try{
+      setLoader(true);
       const data = await CopyTemplate(modelRequestData.templateKeyID,common.userKeyID);
       if(data?.data?.statusCode) {
+        setLoader(false);
         setOpenSuccessModal(true);
         GetTemplateListData(isCurrentPage);
       }
       else {
+        setLoader(false);
         setErrorMessage(data?.data?.errorMessage);
         setOpenErrorModal(true);
       }
@@ -314,12 +317,15 @@ function Predefined_Templates() {
     const CopyTemplatePdfData = async() => {
       if(!common.organisationKeyID) return;
       try{
+        setLoader(true);
         const data = await CopyTemplatePdf(modelRequestData.templatePdfKeyID,common.userKeyID);
         if(data?.data?.statusCode) {
+          setLoader(false);
           setOpenSuccessModal(true);
           GetTemplatePdfListData(isCurrentPage);
         }
         else {
+          setLoader(false);
           setErrorMessage(data?.data?.errorMessage);
           setOpenErrorModal(true);
         }

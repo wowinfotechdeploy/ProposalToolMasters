@@ -220,12 +220,15 @@ const Service_Categories = () => {
   const CopyServiceCategoryData = async() => {
     if(!common.organisationKeyID) return;
     try {
+      setLoader(true);
       const data = await CopyServiceCategory(modelRequestData.serviceCatKeyID,common.userKeyID);
       if(data?.data?.statusCode === 200) {
+        setLoader(false);
         setOpenSuccessModal(true);
         GetServiceCategoryListData(currentPage);
       }
       else {
+        setLoader(false);
         setErrorMessage(data?.data?.errorMessage);
         setOpenErrorModal(true);
       }

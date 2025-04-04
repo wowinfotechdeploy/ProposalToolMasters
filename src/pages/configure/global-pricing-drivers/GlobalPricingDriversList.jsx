@@ -306,12 +306,15 @@ function Predefined_Global_Pricing_Drivers() {
   const CopyGlobalPricingDriverData = async() => {
     if(!common.organisationKeyID) return;
     try{
+      setLoader(true);
       const data = await CopyGlobalPricingDriver(modelRequestData.globalPricingDriverKeyID,common.userKeyID);
       if(data?.data?.statusCode === 200) {
+        setLoader(false);
         setOpenSuccessModal(true);
         GetGlobalPricingDriverListData(currentPage);
       }
       else {
+        setLoader(false);
         setErrorMessage(data?.data?.errorMessage);
         setOpenErrorModal(true);
       }

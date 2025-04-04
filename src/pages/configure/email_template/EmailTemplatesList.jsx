@@ -315,12 +315,15 @@ function EmailTemplate() {
     const CopyEmailTemplateData = async() => {
       if(!common.organisationKeyID) return;
       try{
+        setLoader(true);
         const data = await CopyEmail(modelRequestData.templateKeyID,common.userKeyID);
         if(data?.data?.statusCode === 200) {
+          setLoader(false);
           setOpenSuccessModal(true);
           GetEmailTemplatesListData(isCurrentPage);
         }
         else {
+          setLoader(false);
           setErrorMessage(data?.data?.errorMessage);
           setOpenErrorModal(true);
         }
