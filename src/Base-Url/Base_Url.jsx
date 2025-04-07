@@ -33,17 +33,17 @@ export const redirectUri = "https://master.proposal.outbooks.com";
 
 //Production redirect
 // export const redirectUri =  "https://app.proposal.outbooks.com";
-// export const mergePdfApiUrl = "http://localhost:3001/mergeUserPdfs";
-// export const generatePdfUrl = "http://localhost:3001/generatePdf";
-// export const saveImage = "http://localhost:3001/save-image";
+// export const mergePdfApiUrl = "http://localhost:8080/mergeUserPdfs";
+// export const generatePdfUrl = "http://localhost:8080/generatePdf";
+// export const saveImage = "http://localhost:8080/save-image";
 //new Dev Link
 
 // export const mergePdfApiUrl = "https://multipurpose.mkisan.com/mergeUserPdfs";
 // export const generatePdfUrl = "https://multipurpose.mkisan.com/generatePdf";
 // export const saveImage = "https://multipurpose.mkisan.com/save-image";
-export const mergePdfApiUrl = "https://nodejs-multipurpose-api.onrender.com/mergeUserPdfs";
-export const generatePdfUrl = "https://nodejs-multipurpose-api.onrender.com/generatePdf";
-export const saveImage = "https://nodejs-multipurpose-api.onrender.com/save-image"
+export const mergePdfApiUrl = "https://proposal.pdfgenration.wayofworshipinfotech.in/mergeUserPdfs";
+export const generatePdfUrl = "https://proposal.pdfgenration.wayofworshipinfotech.in/generatePdf";
+export const saveImage = "https://proposal.pdfgenration.wayofworshipinfotech.in/save-image"
 //Production Link 
 // export const mergePdfApiUrl = "https://api.pdfgenration.proposal.ust.outbooks.com/mergeUserPdfs";
 // export const generatePdfUrl = "https://api.pdfgenration.proposal.ust.outbooks.com/generatePdf";

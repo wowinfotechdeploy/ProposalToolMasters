@@ -1531,7 +1531,7 @@ const ReviewServicesComponent = (props) => {
                           </div>
                         </div>
                       </div>
-                        <div class="row" id="recurring_Default">
+                      <div class="row" id="recurring_Default">
                         <div class="col-lg-2 mb-1 col-md-2 col-sm-12 mt-2 text-md-end">
                           <label class="form-label">Discount (%)</label>
                         </div>
@@ -2144,31 +2144,31 @@ const ReviewServicesComponent = (props) => {
                                   </div>
                                 )}
                               {props.requireMessage &&
-                                        (props.pricingSettingObj.maxDiscountForQC ==
-                                          "" ||
-                                          props.pricingSettingObj.maxDiscountForQC ==
-                                          null ||
-                                          props.pricingSettingObj.maxDiscountForQC ==
-                                          undefined) &&
-                                        props.OneOffPricingInfo.DefaultDiscount !==
-                                        "" &&
-                                        props.OneOffPricingInfo.DefaultDiscount !==
-                                        null &&
-                                        props.OneOffPricingInfo.DefaultDiscount !==
-                                        undefined &&
-                                        (Number(
-                                          props.OneOffPricingInfo.DefaultDiscount
-                                        ) < -999.0 ||
-                                          Number(
-                                            props.OneOffPricingInfo.DefaultDiscount
-                                          ) > 100) && (
-                                          <>
-                                            <span className="validation">
-                                              The discount (%) should be between -999.00%
-                                              and 100%.
-                                            </span>
-                                          </>
-                                        )}
+                                (props.pricingSettingObj.maxDiscountForQC ==
+                                  "" ||
+                                  props.pricingSettingObj.maxDiscountForQC ==
+                                  null ||
+                                  props.pricingSettingObj.maxDiscountForQC ==
+                                  undefined) &&
+                                props.OneOffPricingInfo.DefaultDiscount !==
+                                "" &&
+                                props.OneOffPricingInfo.DefaultDiscount !==
+                                null &&
+                                props.OneOffPricingInfo.DefaultDiscount !==
+                                undefined &&
+                                (Number(
+                                  props.OneOffPricingInfo.DefaultDiscount
+                                ) < -999.0 ||
+                                  Number(
+                                    props.OneOffPricingInfo.DefaultDiscount
+                                  ) > 100) && (
+                                  <>
+                                    <span className="validation">
+                                      The discount (%) should be between -999.00%
+                                      and 100%.
+                                    </span>
+                                  </>
+                                )}
                             </div>
                           </div>
                         </div>
@@ -5323,7 +5323,8 @@ const Add_Update_Engagement_Letter = () => {
     getFontStylesFromHtml,
     isValidNumber,
     replaceTemplatePricingVariables,
-    isValueGreaterThan20000
+    isValueGreaterThan20000,
+    updateTemplateList
   } = useContext(AuthContextProvider);
   const [recurringObj, setRecurringObj] = useState([]);
   const [recurringError, setRecurringError] = useState(false);
@@ -10521,6 +10522,7 @@ const Add_Update_Engagement_Letter = () => {
         });
       }
     }
+    const updatedTemplateList = await updateTemplateList(engagementObj.customizedEmailContent, "CustomizeTemplate");
     let Api_ObjectParam = {
       organisationKeyID: common.organisationKeyID,
       userKeyID: common.userKeyID,
@@ -10537,7 +10539,7 @@ const Add_Update_Engagement_Letter = () => {
       quoteID: engagementObj.quoteID,
       contractPDFUrl: MergePdfUrl,
       templateID: engagementObj.templateID,
-      customizedEmailContent: engagementObj.customizedEmailContent,
+      customizedEmailContent: updatedTemplateList,
       tnCTemplateID:
         engagementObj.tnCTemplateID == "" ? null : engagementObj.tnCTemplateID,
       tnCTemplateContent:
@@ -12680,7 +12682,7 @@ const Add_Update_Engagement_Letter = () => {
                         {engagementObj.selectSourceId === 1 ||
                           engagementObj.selectSourceId === 3
                           ? "5" : (engagementObj.selectSourceId === 2 && engagementObj.quoteTypeID === 4) ? "3"
-                          : "4"}
+                            : "4"}
                       </span>
                       <span class="stepTitle">Preview</span>
                       {activeTab == EngagementLetterHeader.Preview &&

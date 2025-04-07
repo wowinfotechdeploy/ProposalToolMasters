@@ -472,7 +472,14 @@ const AuthContext = ({ children }) => {
         console.error('Error updating template list:', error);
       }
     }
-
+    if (ModuleName === "CustomizeTemplate") {
+      try {
+        const updatedTemplate = await updateImageUrlsInHtml(ListArray)
+        return updatedTemplate;
+      } catch (error) {
+        console.error('Error updating template list:', error);
+      }
+    }
   };
 
   const CheckUsersIdleStateAfterSessionTimeoutPopUpOpen = () => {
@@ -635,22 +642,22 @@ const AuthContext = ({ children }) => {
     let _fromDate = null;
 
     if (dateType === ActiveDateFilterEnum.Active_In_Last_1_Day) {
-        _fromDate = today.clone().subtract(1, "day");
+      _fromDate = today.clone().subtract(1, "day");
     } else if (dateType === ActiveDateFilterEnum.Active_In_Last_7_Days) {
-        _fromDate = today.clone().subtract(7, "days");
+      _fromDate = today.clone().subtract(7, "days");
     } else if (dateType === ActiveDateFilterEnum.Active_In_Last_30_Days) {
-        _fromDate = today.clone().subtract(30, "days");
+      _fromDate = today.clone().subtract(30, "days");
     } else if (dateType === ActiveDateFilterEnum.Active_In_Last_60_Days) {
-        _fromDate = today.clone().subtract(60, "days");
+      _fromDate = today.clone().subtract(60, "days");
     } else if (dateType === ActiveDateFilterEnum.Active_In_Last_90_Days) {
-        _fromDate = today.clone().subtract(90, "days");
+      _fromDate = today.clone().subtract(90, "days");
     } else if (dateType === ActiveDateFilterEnum.Active_In_Last_6_Months) {
-        _fromDate = today.clone().subtract(6, "months");
+      _fromDate = today.clone().subtract(6, "months");
     } else if (dateType === ActiveDateFilterEnum.Active_In_Last_1_Year) {
-        _fromDate = today.clone().subtract(1, "year");
+      _fromDate = today.clone().subtract(1, "year");
     }
     return { fromDate: _fromDate, toDate: today };
-};
+  };
   const hasActionAccess = (moduleId, mActionId) => {
     let userAccess = localStorage.getItem("userAccess");
     userAccess = JSON.parse(userAccess);

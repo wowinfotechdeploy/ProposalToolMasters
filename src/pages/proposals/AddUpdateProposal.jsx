@@ -71,7 +71,7 @@ const BasicInformationComponent = (props) => {
     (item) => props.ProposalObject.clientID == item.value
   );
   const selectedTemplateValue = props.templateLookUpOptions.filter(
-    (item) => item.templateID === props.ProposalObject.templateID 
+    (item) => item.templateID === props.ProposalObject.templateID
   );
   console.log(selectedTemplateValue);
   const selectedProposalValue = props.proposalLookUpOptions.filter(
@@ -10375,7 +10375,8 @@ const Add_Update_Proposal = (props) => {
     getFontStylesFromHtml,
     isValidNumber,
     replaceTemplatePricingVariables,
-    isValueGreaterThan20000
+    isValueGreaterThan20000,
+    updateTemplateList
   } = useContext(AuthContextProvider);
   const [openErrorModal, setOpenErrorModal] = useState(false);
   // const [updatePackage, setIsUpdatePackage] = useState(true);
@@ -15927,7 +15928,7 @@ const Add_Update_Proposal = (props) => {
               Number(RecurringPricingInfo.OriginalPrice)
               ? RecurringPricingInfo.OriginalPrice
               : RecurringPricingInfo.DiscountedPrice
-            ,
+          ,
           discounted: ProposalObject.selectedProposalTypeValue === 4 ? null : RecurringPricingInfo.Discount,
           discountedTotal: ProposalObject.selectedProposalTypeValue === 4 ? null : RecurringPricingInfo.DiscountedTotal,
           vatPercentage: vatPercentage ? vatPercentage : null,
@@ -16008,7 +16009,7 @@ const Add_Update_Proposal = (props) => {
         })
         .filter((item) => item.driverTypeID !== 1)
         .flat();
-
+    const updatedTemplateList = await updateTemplateList(ProposalObject.customizedEmailContent, "CustomizeTemplate");
     const ApiRequest_ParamsObj = {
       organisationKeyID: common.organisationKeyID,
       userKeyID: common.userKeyID,
@@ -16066,7 +16067,7 @@ const Add_Update_Proposal = (props) => {
       quoteFormatID: ProposalObject.ProposalFormate || null,
       recurringHtmlContent: ProposalObject.recurringHtmlContent || null,
       oneOffHtmlContent: ProposalObject.oneOffHtmlContent || null,
-      customizedEmailContent: ProposalObject.customizedEmailContent || null,
+      customizedEmailContent: updatedTemplateList || null,
       servicePackageID: selectedPackages || null,
       selectedServicesList: modifiedDraftArray.selectedServicesList || null,
       additionalInformationList: modifiedAdditionalServiceArray || null,
