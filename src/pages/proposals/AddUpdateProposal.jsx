@@ -14609,6 +14609,10 @@ const Add_Update_Proposal = (props) => {
           footerHeight: item.footerHeight
         }));
         setTemplateLookUpOptions(mappedOptions);
+        setProposalObject((prev) => ({
+          ...prev,
+          selectTemplateTypeId: mappedOptions[0]?.value,
+        }))
         // const defaultTemplateOptions = mappedOptions.filter(
         //   (option) => option.isDefault === true
         // );
@@ -15049,7 +15053,7 @@ const Add_Update_Proposal = (props) => {
             ...prevState,
             clientID: ModelData.clientID,
             templateID: ModelData.templateID,
-            selectTemplateTypeId: ModelData.templateKeyID,
+            // selectTemplateTypeId: ModelData.templateKeyID,
             selectedProposalTypeValue: ModelData.quoteTypeID,
             Payment_Frequency: ModelData.paymentFrequencyID,
             feeTypeId: ModelData.feesInQuoteID,
