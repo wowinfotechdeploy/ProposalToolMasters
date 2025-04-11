@@ -3607,17 +3607,19 @@ const Create_practice_details = () => {
           const professionTypeIDs = basicInfo.professionTypeList.map(
             (item) => item.professionTypeId
           );
+          setActiveTab(nextTab)
+          ChoosePlanApiModelData()
           localStorage.removeItem("OrganisationLocalList");
           if (common.organisationCount == 0) {
-            dispatch(
-              updateState({
-                businessTypeID: basicInfo.businessTypeID,
-                organisationCount: Number(common.organisationCount) + 1,
-                organisationKeyID: ModuleKeyID,
-                professionTypeLists: professionTypeIDs,
-                enableEL: 1,
-              })
-            );
+            // dispatch(
+            //   updateState({
+            //     businessTypeID: basicInfo.businessTypeID,
+            //     organisationCount: Number(common.organisationCount) + 1,
+            //     organisationKeyID: ModuleKeyID,
+            //     professionTypeLists: professionTypeIDs,
+            //     enableEL: 1,
+            //   })
+            // );
           } else {
             dispatch(
               updateState({

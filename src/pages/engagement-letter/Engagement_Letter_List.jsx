@@ -123,6 +123,7 @@ const Engagement_Letter = () => {
     setTopbar("block");
     // GetEngagementListData(isCurrentPage);
     GetOldEngagementListData(1)
+    GetEngagementListForSingleApiData(1)
   }, []);
 
   useEffect(() => {
@@ -965,19 +966,22 @@ const Engagement_Letter = () => {
                         <b>{EngagementName}</b>
                       </a>
                     </li>
-                    <li className="nav-item">
-                      <a
-                        className={`nav-link tab_nav ${activeTab === "WebEL" ? "active" : ""
-                          }`}
-                        data-bs-toggle="tab"
-                        href="#WebEL"
-                        role="tab"
-                        aria-selected={activeTab === "WebEL"}
-                        onClick={() => handleTabClick("WebEL")}
-                      >
-                        <b>API {EngagementName}</b>
-                      </a>
-                    </li>
+
+                    {SingleEngagementList?.length > 0 &&
+                      <li className="nav-item">
+                        <a
+                          className={`nav-link tab_nav ${activeTab === "WebEL" ? "active" : ""
+                            }`}
+                          data-bs-toggle="tab"
+                          href="#WebEL"
+                          role="tab"
+                          aria-selected={activeTab === "WebEL"}
+                          onClick={() => handleTabClick("WebEL")}
+                        >
+                          <b>API {EngagementName}</b>
+                        </a>
+                      </li>
+                    }
                     {OldEngagementList?.length > 0 &&
                       <li className="nav-item">
                         <a

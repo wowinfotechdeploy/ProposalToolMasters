@@ -30,6 +30,7 @@ const Prospects = () => {
   const navigate = useNavigate();
   const common = useSelector((state) => state.Storage);
   const [clientList, setClientList] = useState([]);
+  const [singleclientList, setSingleClientList] = useState([]);
   const [isAddUpdateActionDone, setIsAddUpdateActionDone] = useState(false);
   const [primarySortDirection, setPrimarySortDirection] = useState(null);
   const [primarySortDirectionObj, setPrimarySortDirectionObj] = useState({
@@ -55,10 +56,13 @@ const Prospects = () => {
     getCrudButtonToolTipName,
     userAccessData,
     handleErrorMessage,
+    activeOrganizationSubscriptionPlan
   } = useContext(AuthContextProvider);
   const moduleName = `${prospectName}`;
   const [currentPage, setCurrentPage] = useState(1);
+  const [SingleCurrentPage, setSingleCurrentPage] = useState(1);
   const [searchKeyword, setSearchKeyword] = useState("");
+  const [SingleSearchKeyword, setSingleSearchKeyword] = useState("");
   const [businessNatureID, setBusinessNatureID] = useState(null);
   const [prospectType, setProspectType] = useState(null);
   const [openSuccessModal, setOpenSuccessModal] = React.useState(false);
@@ -248,18 +252,18 @@ const Prospects = () => {
                 sortValue,
                 ProspectSortType
               );
-              setCurrentPage(pageNoList);
+              setSingleCurrentPage(pageNoList);
               return;
             }
             setListCount(totalCount);
-            setClientList(clientList);
+            setSingleClientList(clientList);
             setTotalRecords(clientList.length);
           }
         } else {
           if (getClientsListApiCallCount < maxCountToRecallApi) {
             getClientsListApiCallCount += 1;
             setTimeout(function () {
-              getClientsListData(
+              getClientsListSingleApiData(
                 i,
                 searchKeywordValue,
                 sortValue,
@@ -386,11 +390,18 @@ const Prospects = () => {
     setOpenSuccessModal(false);
     setOpenErrorModal(false);
   };
-  const handleSearch = (e) => {
+  const handleSearch = (e, tab) => {
     const searchKeywordValue = e.target.value;
-    setSearchKeyword(searchKeywordValue);
-    setCurrentPage(1);
-    getClientsListData(1, searchKeywordValue);
+    if (tab === "Prospect") {
+      setSearchKeyword(searchKeywordValue);
+      setCurrentPage(1);
+      getClientsListData(1, searchKeywordValue);
+    } else {
+      setSingleSearchKeyword(searchKeywordValue);
+      setSingleCurrentPage(1);
+      getClientsListSingleApiData(1, searchKeywordValue);
+    }
+
   };
 
   // F] Pagination :
@@ -434,7 +445,7 @@ const Prospects = () => {
     setProspectType(null);
     setShouldFetch(true);
   };
-  console.log(clientList, "clientList")
+
   return (
     <div className="container">
       <div class="main-content">
@@ -460,21 +471,21 @@ const Prospects = () => {
                         <b>{moduleName} </b>
                       </a>
                     </li>
-
-                    <li className="nav-item">
-                      <a
-                        className={`nav-link tab_nav ${activeTab === "Web Prospect" ? "active" : ""
-                          }`}
-                        data-bs-toggle="tab"
-                        href="#Web Prospect"
-                        role="tab"
-                        aria-selected={activeTab === "Web Prospect"}
-                        onClick={() => TabHandle("Web Prospect")}
-                      >
-                        <b>API {moduleName}</b>
-                      </a>
-                    </li>
-
+                    {singleclientList?.length > 0 &&
+                      <li className="nav-item">
+                        <a
+                          className={`nav-link tab_nav ${activeTab === "Web Prospect" ? "active" : ""
+                            }`}
+                          data-bs-toggle="tab"
+                          href="#Web Prospect"
+                          role="tab"
+                          aria-selected={activeTab === "Web Prospect"}
+                          onClick={() => TabHandle("Web Prospect")}
+                        >
+                          <b>API {moduleName}</b>
+                        </a>
+                      </li>
+                    }
                   </ul>
                 </div>
               </div>
@@ -500,9 +511,9 @@ const Prospects = () => {
                                 <input
                                   type="text"
                                   class="form-control search"
-                                  value={searchKeyword}
+                                  value={SingleSearchKeyword}
                                   onChange={(e) => {
-                                    handleSearch(e);
+                                    handleSearch(e, "Web");
                                   }}
                                   placeholder={
                                     isMobile
@@ -529,7 +540,7 @@ const Prospects = () => {
                                     class="form-control search"
                                     value={searchKeyword}
                                     onChange={(e) => {
-                                      handleSearch(e);
+                                      handleSearch(e, "Prospect");
                                     }}
                                     placeholder={
                                       isMobile
@@ -720,7 +731,7 @@ const Prospects = () => {
                                 </tr>
                               </thead>
                               <tbody class="list form-check-all">
-                                {clientList
+                                {singleclientList
                                   .slice(
                                     0,
                                     isMobile ? isMobileRecords : desktopRecords
@@ -771,7 +782,7 @@ const Prospects = () => {
                                                 {" "}
                                                 {Prospect.statusName}
                                               </div>
-                                              {userAccessData.Admin_Prospect_CanDelete && (
+                                              {userAccessData.Admin_Prospect_CanDelete && activeOrganizationSubscriptionPlan.apiIntegration && (
                                                 <Tooltip
                                                   title={getCrudButtonToolTipName(
                                                     "Change Status"
@@ -836,7 +847,7 @@ const Prospects = () => {
                                                 </div>
                                               </Tooltip>
 
-                                              {userAccessData.Admin_Prospect_CanEdit && (
+                                              {userAccessData.Admin_Prospect_CanEdit && activeOrganizationSubscriptionPlan.apiIntegration && (
                                                 <Tooltip
                                                   title={getCrudButtonToolTipName(
                                                     "Update",
@@ -857,7 +868,7 @@ const Prospects = () => {
                                                   </div>
                                                 </Tooltip>
                                               )}
-                                              {userAccessData.Admin_Prospect_CanDelete && (
+                                              {userAccessData.Admin_Prospect_CanDelete && activeOrganizationSubscriptionPlan.apiIntegration && (
                                                 <Tooltip
                                                   title={getCrudButtonToolTipName(
                                                     "Delete",

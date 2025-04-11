@@ -125,6 +125,7 @@ const Proposals = () => {
   useEffect(() => {
     setTopbar("block");
     GetOldProposalListData(1)
+    GetProposalListSingleApiData(1)
   }, []);
 
   useEffect(() => {
@@ -934,22 +935,24 @@ const Proposals = () => {
                         </a>
                       </li>
                     }
-                    <li className="nav-item">
-                      <a
-                        className={`nav-link tab_nav ${activeTab === "Web Proposal" ? "active" : ""
-                          }`}
-                        data-bs-toggle="tab"
-                        href="#Web Proposal"
-                        role="tab"
-                        aria-selected={activeTab === "Web Proposal"}
-                        onClick={() => {
-                          setActiveTab("Web Proposal");
-                          TabHandle("Web Proposal");
-                        }}
-                      >
-                        <b>API {proposalName} </b>
-                      </a>
-                    </li>
+                    {SingleProposalList?.length > 0 &&
+                      <li className="nav-item">
+                        <a
+                          className={`nav-link tab_nav ${activeTab === "Web Proposal" ? "active" : ""
+                            }`}
+                          data-bs-toggle="tab"
+                          href="#Web Proposal"
+                          role="tab"
+                          aria-selected={activeTab === "Web Proposal"}
+                          onClick={() => {
+                            setActiveTab("Web Proposal");
+                            TabHandle("Web Proposal");
+                          }}
+                        >
+                          <b>API {proposalName} </b>
+                        </a>
+                      </li>
+                    }
                   </ul>
                 </div>
               </div>
