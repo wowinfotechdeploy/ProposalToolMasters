@@ -313,7 +313,7 @@ function EmailTemplate() {
   };
     // Copy Email Template Data
     const CopyEmailTemplateData = async() => {
-      if(!common.organisationKeyID) return;
+      if(!common.userKeyID) return;
       try{
         setLoader(true);
         const data = await CopyEmail(modelRequestData.templateKeyID,common.userKeyID);

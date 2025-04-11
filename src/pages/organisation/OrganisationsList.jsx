@@ -322,9 +322,9 @@ const Organisation = () => {
               });
               $("#" + "ConfirmModel").modal("hide");
               $("#" + "RecordsAvailablePopupModel").modal("show");
-              GetOrganisationListData(currentPage);
+              GetOrganisationListData(currentPage,searchKeyword,primarySortDirectionUsers,UserSortType,businessTypeID,professionTypeID,fromDate,toDate);
             } else {
-              GetOrganisationListData(currentPage);
+              GetOrganisationListData(currentPage,searchKeyword,primarySortDirectionUsers,UserSortType,businessTypeID,professionTypeID,fromDate,toDate);
 
               setOpenSuccessModal(true);
             }
@@ -332,7 +332,7 @@ const Organisation = () => {
             setErrorMessage(Data?.response?.data?.errorMessage);
             setOpenErrorModal(true);
           }
-          GetOrganisationListData(currentPage);
+          GetOrganisationListData(currentPage,searchKeyword,primarySortDirectionUsers,UserSortType,businessTypeID,professionTypeID,fromDate,toDate);
         }
       } catch (error) {
         console.log(error);
@@ -352,7 +352,7 @@ const Organisation = () => {
             setOpenErrorModal(true);
           }
         }
-        GetOrganisationListData(currentPage);
+        GetOrganisationListData(currentPage,searchKeyword,primarySortDirectionUsers,UserSortType,businessTypeID,professionTypeID,fromDate,toDate);
       } catch (error) {
         console.log(error);
       }
@@ -418,6 +418,7 @@ const Organisation = () => {
       setCurrentPage(1);
       GetOrganisationListData(1, searchKeywordUsers, sortValue, UserSort, businessTypeID,professionTypeID,fromDate,toDate);
     }
+    setUserSortType(UserSort);
   };
      // Filter
      const ApplyFilter = () => {
@@ -456,6 +457,8 @@ const Organisation = () => {
       setProfessionTypeID(null);
       setFromDate(null);
       setToDate(null);
+      setPrimarySortDirectionUsers(null);
+      setUserSortType(null);
       GetOrganisationListData(1, searchKeyword, null, null, null, null,null,null);
       // console.log(fromDate,toDate);
     };
@@ -495,7 +498,7 @@ const Organisation = () => {
                       <div className="search-box col-md-3 col-sm-4 width-searchbox mb-2">
                           <div>
                             <div>
-                              <i class="ri-search-line search-icon"></i>
+                              <i class="ri-search-line search-icon ps-2"></i>
                               <input
                                 type="text"
                                 class="form-control search"

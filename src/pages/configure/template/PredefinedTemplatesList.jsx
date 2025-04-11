@@ -294,7 +294,7 @@ function Predefined_Templates() {
   };
 
   const CopyTemplateData = async() => {
-    if(!common.organisationKeyID) return;
+    if(!common.userKeyID) return;
     try{
       setLoader(true);
       const data = await CopyTemplate(modelRequestData.templateKeyID,common.userKeyID);
@@ -315,7 +315,7 @@ function Predefined_Templates() {
   }
     // Copy Template Data
     const CopyTemplatePdfData = async() => {
-      if(!common.organisationKeyID) return;
+      if(!common.userKeyID) return;
       try{
         setLoader(true);
         const data = await CopyTemplatePdf(modelRequestData.templatePdfKeyID,common.userKeyID);
@@ -1175,19 +1175,21 @@ function Predefined_Templates() {
                         <b>Templates PDF</b>
                       </a>
                     </li>
-                    <li className="nav-item">
-                      <a
-                        className={`nav-link tab_nav ${activeTab === "Header and Footer" ? "active" : ""
-                          }`}
-                        data-bs-toggle="tab"
-                        href="#Header and Footer"
-                        role="tab"
-                        aria-selected={activeTab === "Header and Footer"}
-                        onClick={() => OnHeaderFooterTabClicked()}
-                      >
-                        <b>Header and Footer</b>
-                      </a>
-                    </li>
+                    {common.organisationKeyID && (
+                      <li className="nav-item">
+                        <a
+                          className={`nav-link tab_nav ${activeTab === "Header and Footer" ? "active" : ""
+                            }`}
+                          data-bs-toggle="tab"
+                          href="#Header and Footer"
+                          role="tab"
+                          aria-selected={activeTab === "Header and Footer"}
+                          onClick={() => OnHeaderFooterTabClicked()}
+                        >
+                          <b>Header and Footer</b>
+                        </a>
+                      </li>
+                    )}
                   </ul>
                 </div>
               </div>
@@ -1202,7 +1204,7 @@ function Predefined_Templates() {
                     <div id="customerList">
                       <div class="row g-4 mb-3"></div>
                       <div class="table-responsive table-card  mb-3 table-padding">
-                        <div className="row">
+                        <div className="row pt-3 pb-2">
                           <div class="col-md-6 col-lg-6 col-7  mb-2">
                             {activeTab === "Templates PDF" && (
                               <div

@@ -214,7 +214,7 @@ function Term_and_Condition() {
   };
  // Copy TnC data
  const CopyTermsAndConditionsTemplateData = async() => {
-  if(!common.organisationKeyID) return;
+  if(!common.userKeyID) return;
   try {
     setLoader(true);
     const data = await CopyTermsAndConditions(modelRequestData.templateKeyID,common.userKeyID);

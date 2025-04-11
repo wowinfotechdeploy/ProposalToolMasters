@@ -372,7 +372,7 @@ function ReminderTemplateList() {
   };
   // Copy Reminder Email Record
   const CopyReminderEmailTemplateData = async() => {
-    if(!common.organisationKeyID) return;
+    if(!common.userKeyID) return;
     try{
       setLoader(true);
       const data = await CopyReminderEmailTemplate(modelRequestData.templateKeyID,common.userKeyID);

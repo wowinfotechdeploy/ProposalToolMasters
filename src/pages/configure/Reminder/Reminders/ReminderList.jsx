@@ -405,7 +405,7 @@ function ReminderList() {
 
   // Copy Record
   const CopyReminderData = async() => {
-    if(!common.organisationKeyID) return;
+    if(!common.userKeyID) return;
     try{
       setLoader(true);
       const data = await CopyReminder(modelRequestData.reminderKeyID,common.userKeyID);

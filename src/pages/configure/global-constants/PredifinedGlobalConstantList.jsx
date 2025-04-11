@@ -312,7 +312,7 @@ function Global_Constants() {
 
   // Copy Record
   const CopyGlobalConstantData = async() => {
-    if(!common.organisationKeyID) return;
+    if(!common.userKeyID) return;
     try {
       setLoader(true);
       const data = await CopyGlobalConstant(modelRequestData.globalPricingDriverKeyID,common.userKeyID);

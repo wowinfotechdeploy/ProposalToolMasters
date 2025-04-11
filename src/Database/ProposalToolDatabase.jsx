@@ -271,6 +271,10 @@ export const SuperAdminRoleTypeLookupList = {
           roleTypeId: 2,
           roleName: "Admin",
         },
+        {
+          roleTypeId: 3,
+          roleName: "Support",
+        },
       ],
     },
   },

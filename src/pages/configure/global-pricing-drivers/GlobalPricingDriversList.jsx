@@ -304,7 +304,7 @@ function Predefined_Global_Pricing_Drivers() {
   };
   // Copy
   const CopyGlobalPricingDriverData = async() => {
-    if(!common.organisationKeyID) return;
+    if(!common.userKeyID) return;
     try{
       setLoader(true);
       const data = await CopyGlobalPricingDriver(modelRequestData.globalPricingDriverKeyID,common.userKeyID);

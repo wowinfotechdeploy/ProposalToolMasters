@@ -10615,7 +10615,7 @@ const Add_Update_Engagement_Letter = () => {
               moduleName: "Contract",
               contractKeyID: response.data.responseData.data,
               contractPDFUrl: MergePdfUrl,
-              customizedEmailContent: Api_ObjectParam.customizedEmailContent
+              customizedEmailContent: updatedTemplateList
             });
           } else {
             setOpenSuccessModal(true);

@@ -218,7 +218,7 @@ const Service_Categories = () => {
 
   // Copy Service Category
   const CopyServiceCategoryData = async() => {
-    if(!common.organisationKeyID) return;
+    if(!common.userKeyID) return;
     try {
       setLoader(true);
       const data = await CopyServiceCategory(modelRequestData.serviceCatKeyID,common.userKeyID);

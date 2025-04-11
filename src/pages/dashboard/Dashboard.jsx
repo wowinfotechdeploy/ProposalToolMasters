@@ -371,8 +371,8 @@ const Dashboard = () => {
             contractVoid: `${EngagementName} Void`,
           };
   
-          const columnsToShow =
-            {...defaultColumns, ...engagementColumns};
+          const columnsToShow = common.enableEL == 1 ?
+            {...defaultColumns, ...engagementColumns} : {...defaultColumns};
   
           // Map data to rows dynamically
           const baseRows = [];
@@ -442,67 +442,66 @@ const Dashboard = () => {
                 });
               }
 
-          const baseRowsContract = [];
-          const contractHeader = [
-            "Ref Id",
-            "Prospect Name",
-            "Prospect Type",
-            "Nature Of Business",
-            "Recurring Price",
-            "One Off Price",
-            "Status",
-            "Last Updated On",
-            "Sent On Date",
-            "Viewed On Date",
-            "Signed On Date",
-            "Declined On Date",
-          ];
-          baseRowsContract.push(contractHeader);
-          baseRowsContract.push([]);
-
-          const contractDataResponse = await GetEngagementList({
-            organisationKeyID: common.organisationKeyID,
-            pageSize: 30,
-            pageNo: 0,
-            userKeyID: common.userKeyID || null,
-            fromDate: fromDateForExport === "" ? null : fromDateForExport,
-            toDate: toDateForExport === "" ? null : toDateForExport,
-          });
-          if (contractDataResponse?.data?.statusCode === 200) {
-            const contractData = contractDataResponse.data.responseData.data || [];
-            console.log(contractData);
-            // status mappings
-            const statusMappings = [
-              { id: 1, label: "Draft" },
-              { id: 2, label: "Sent" },
-              { id: 4, label: "Awaiting Response" },
-              { id: 5, label: "Signed" },
-              { id: 7, label: "Declined" },
-              { id: 8, label: "Void" },
-            ];
-        
-            // Filter and process data for each status
-            statusMappings.forEach(({ id, label }) => {
-              const filteredData = contractData.filter(item => item.statusID === id);
-              const dataRows = filteredData.map(item => [
-                item.prefix,
-                item.clientName,
-                item.businessTypeName,
-                item.businessNatureName,
-                // new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(item.recurringPrice || 0),
-                formatValue(item.recurringPrice,1),
-                // new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(item.oneOffPrice || 0),
-                formatValue(item.oneOffPrice,1),
-                label,
-                item.lastUpdatedOn || "-",
-                item.sentOn || "-",
-                item.viewedOn || "-",
-                item.signedOn || "-",
-                item.declinedOn || "-",
-              ]);
-              baseRowsContract.push(...dataRows);
-            });
-          }
+              let baseRowsContract = [];
+              let contractHeader = [];
+              if (common.enableEL === 1) {
+                baseRowsContract = [];
+                contractHeader = [
+                  "Ref Id",
+                  "Prospect Name",
+                  "Prospect Type",
+                  "Nature Of Business",
+                  "Recurring Price",
+                  "One Off Price",
+                  "Status",
+                  "Last Updated On",
+                  "Sent On Date",
+                  "Viewed On Date",
+                  "Signed On Date",
+                  "Declined On Date",
+                ];
+                baseRowsContract.push(contractHeader);
+                baseRowsContract.push([]);
+              
+                const contractDataResponse = await GetEngagementList({
+                  organisationKeyID: common.organisationKeyID,
+                  pageSize: 30,
+                  pageNo: 0,
+                  userKeyID: common.userKeyID || null,
+                  fromDate: fromDateForExport === "" ? null : fromDateForExport,
+                  toDate: toDateForExport === "" ? null : toDateForExport,
+                });
+                if (contractDataResponse?.data?.statusCode === 200) {
+                  const contractData = contractDataResponse.data.responseData.data || [];
+                  console.log(contractData);
+                  const statusMappings = [
+                    { id: 1, label: "Draft" },
+                    { id: 2, label: "Sent" },
+                    { id: 4, label: "Awaiting Response" },
+                    { id: 5, label: "Signed" },
+                    { id: 7, label: "Declined" },
+                    { id: 8, label: "Void" },
+                  ];
+                  statusMappings.forEach(({ id, label }) => {
+                    const filteredData = contractData.filter(item => item.statusID === id);
+                    const dataRows = filteredData.map(item => [
+                      item.prefix,
+                      item.clientName,
+                      item.businessTypeName,
+                      item.businessNatureName,
+                      formatValue(item.recurringPrice, 1),
+                      formatValue(item.oneOffPrice, 1),
+                      label,
+                      item.lastUpdatedOn || "-",
+                      item.sentOn || "-",
+                      item.viewedOn || "-",
+                      item.signedOn || "-",
+                      item.declinedOn || "-",
+                    ]);
+                    baseRowsContract.push(...dataRows);
+                  });
+                }
+              }
           // const rowsArray = rows.map((row) => [row["Column Name"], row.Value]);  
           const worksheetData = [...headersArray, ...baseRows];
           const worksheetProposalData = [...headersArray, ...baseRowsProposal];
@@ -545,7 +544,9 @@ const Dashboard = () => {
           XLSX.utils.book_append_sheet(workbook, worksheet, "Summary");
           if(common.organisationKeyID) {
             XLSX.utils.book_append_sheet(workbook, worksheetProposal, "Proposal");
-            XLSX.utils.book_append_sheet(workbook, worksheetContract, "Engagement Letter");
+            if (common.enableEL === 1) {
+              XLSX.utils.book_append_sheet(workbook, worksheetContract, "Engagement Letter");
+            }            
           }
   
           // Generate file name
@@ -1849,7 +1850,7 @@ const Dashboard = () => {
                         {(userAccessData.Admin_Activity_Log_CanView ||
                           common.organisationKeyID == null) && (
                             <>
-                              <div class="col-xl-4 col-lg-4">
+                              <div class="col-xl-4 col-lg-4 pb-2">
                                 <div class="card activity-section-cls">
                                   <div class="card-body dashboard-body">
                                     <h5 className="activity-cls">Activity</h5>

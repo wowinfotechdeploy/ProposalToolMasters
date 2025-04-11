@@ -111,11 +111,12 @@ const InviteUser = () => {
   const [selectedOption,setSelectedOption] = useState(null);
   const [countryId,setCountryId] = useState(null);
   const [roleType,setRoleType] = useState(null);
+  // const [primarySortColumnName,setPrimarySortColumnName] = useState(null);
   const [isFilterApply, setIsFilterApply] = useState(null);
   const [orgCount,setOrgCount] = useState(null);
   const [toDate,setToDate] = useState(null);
   const [fromDate,setFromDate] = useState(null);
-  const [usersPage,setUsersPage] = useState(true);
+  const [tabSelected, setTabSelected] = useState("users");
 
   // B] Initial useEffect :
   // 1) Will Call Initial Api Like List Api
@@ -132,11 +133,11 @@ const InviteUser = () => {
         setSearchKeyword("");
         setPrimarySortDirection(null);
         setCurrentPage(1);
-        GetInviteUsersListData(1, null, null, null);
         GetUsersListData(1, null, null, null);
+        GetInviteUsersListData(1, null, null, null);
       } else {
+        GetUsersListData(currentPageUsers,searchKeyword,countryId,roleType,fromDate,toDate,primarySortDirectionUsers,UserSortType);
         GetInviteUsersListData(currentPage);
-        GetUsersListData(currentPageUsers);
       }
       setIsAddUpdateActionDone(false);
     }
@@ -157,7 +158,7 @@ const InviteUser = () => {
     InviteUserSort
   ) => {
     setLoader(true);
-    setUsersPage(false);
+    // setUsersPage(false);
     try {
       const data = await GetInviteUsersList({
         pageSize: pageSize,
@@ -218,6 +219,7 @@ const InviteUser = () => {
     sortValue,
     UserSort
   ) => {
+    // setUsersPage(true);
     setLoader(true);
     try {
       const data = await GetUsersList({
@@ -405,7 +407,7 @@ const InviteUser = () => {
               setOpenErrorModal(true);
             }
           }
-          GetUsersListData(currentPageUsers);
+          GetUsersListData(currentPageUsers,searchKeyword,countryId,roleType,fromDate,toDate,primarySortDirectionUsers,UserSortType);
         } catch (error) {
           console.log(error);
         }
@@ -460,7 +462,7 @@ const InviteUser = () => {
 
   const HandlePageChangeUsers = async (pageNumber) => {
     setCurrentPageUsers(pageNumber);
-    await GetUsersListData(pageNumber,searchKeyword,countryId,roleType,fromDate,toDate,primarySortDirection);
+    await GetUsersListData(pageNumber,searchKeyword,countryId,roleType,fromDate,toDate,primarySortDirectionUsers,UserSortType);
     // await GetUsersListData(pageNumber); // Call your function with the selected page number
   };
 
@@ -584,7 +586,7 @@ const InviteUser = () => {
 
   const userFun = () => {
     GetUsersListData(currentPageUsers);
-    setUsersPage(true);
+    // setUsersPage(true);
   };
   //Filters
   const ApplyFilter = () => {
@@ -623,6 +625,8 @@ const InviteUser = () => {
     setRoleType(null);
     setFromDate(null);
     setToDate(null);
+    setPrimarySortDirectionUsers(null);
+    setUserSortType(null);
     GetUsersListData(1, searchKeyword, null, null, null, null, null,null);
     // console.log(fromDate,toDate);
   };
@@ -644,14 +648,20 @@ const InviteUser = () => {
                         href="#base-justified-home"
                         role="tab"
                         aria-selected="false"
-                        onClick={() => userFun()}
+                        onClick={() => {
+                          userFun();
+                          setTabSelected("users");
+                        }}
                       >
                         <b>Users</b>
                       </a>
                     </li>
                     <li class="nav-item">
                       <a
-                        onClick={() => GetInviteUsersListData(1)}
+                        onClick={() => {
+                          GetInviteUsersListData(1);
+                          setTabSelected("invite");
+                        }}
                         class="nav-link tab_nav"
                         data-bs-toggle="tab"
                         href="#product"
@@ -665,17 +675,17 @@ const InviteUser = () => {
                 </div>
                 <div className="col d-flex align-items-center justify-content-end ms-auto">
                 <div className="count-card">
-                  {usersPage ? (
+                  {tabSelected === "users" ? (
                     <>
-                      Total Users: {UserListCount > 0 ? UserListCount : <span style={{ fontSize: "12px" }}>Loading...</span>}
+                      Total Users: {UserListCount > 0 ? UserListCount : <span style={{ fontSize: "12px" }}> 0</span>}
                     </>
-                  ) : (
+                  ) :
                     <>
-                      Total Users: {listCount > 0 ? listCount : <span style={{ fontSize: "12px" }}>Loading...</span>}
+                      Total Users: {listCount > 0 ? listCount : <span style={{ fontSize: "12px" }}> 0</span>}
                     </>
-                  )}
+                  }
                 </div>
-                {usersPage && (
+                {tabSelected === "users" && (
                   <div className="count-card">
                     Total Organisations: {orgCount > 0 ? orgCount : (<span style={{ fontSize: "12px" }}> 0</span>)}
                   </div>
@@ -702,7 +712,7 @@ const InviteUser = () => {
                             <div className="row align-items-center justify-content">
                             
                               <div className="search-box col-md-3 col-sm-4 width-searchbox mb-2">
-                                <i class="ri-search-line search-icon"></i>
+                                <i class="ri-search-line search-icon ps-2"></i>
                                 <input
                                   type="text"
                                   value={searchKeywordUsers}
@@ -790,6 +800,7 @@ const InviteUser = () => {
                                         <i
                                           onClick={() => {
                                             setUserSortType("RoleName");
+                                            setPrimaryInviteUserSortDirectionObj("asc");
                                             handleUserSort("asc", "RoleName");
                                           }}
                                           style={{ cursor: "pointer" }}
@@ -1270,10 +1281,10 @@ const InviteUser = () => {
 
                         <div class="tab-pane" id="product" role="tabpanel">
                           <div class="table-responsive table-card  mb-3 table-padding">
-                            <div className="row">
+                            <div className="row align-items-center justify-content">
                               <div class="col-md-6 col-6">
-                                <div className="search-box  col-md-5 col-12 width-searchbox mb-2">
-                                  <i class="ri-search-line search-icon"></i>
+                                <div className="search-box col-md-6 col-sm-4 width-searchbox mb-2">
+                                  <i class="ri-search-line search-icon pe-5"style={{ marginLeft: '-5px' }}></i>
                                   <input
                                     type="text"
                                     value={searchKeyword}
