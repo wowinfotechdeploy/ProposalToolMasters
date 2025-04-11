@@ -79,6 +79,7 @@ const Prospects = () => {
   useEffect(() => {
     setTopbar("block");
     getClientsListData(1, null, null, null);
+    getClientsListSingleApiData(1, null, null, null);
   }, []);
 
   useEffect(() => {
@@ -723,11 +724,11 @@ const Prospects = () => {
                                   <td className="tr-table-class text-white">
                                     Status
                                   </td>
-                                  <td className="tr-table-class text-white">
+                                  {/* <td className="tr-table-class text-white">
                                     {userAccessData.Admin_Prospect_CanView && (
                                       <>Action</>
                                     )}
-                                  </td>
+                                  </td> */}
                                 </tr>
                               </thead>
                               <tbody class="list form-check-all">
@@ -820,7 +821,7 @@ const Prospects = () => {
                                               )}
                                             </div>
                                           </td>
-                                          <td>
+                                          {/* <td>
                                             <div class="d-flex gap-2">
                                               <Tooltip
                                                 title={getCrudButtonToolTipName(
@@ -899,7 +900,7 @@ const Prospects = () => {
                                                 </Tooltip>
                                               )}
                                             </div>
-                                          </td>
+                                          </td> */}
                                         </tr>
                                       </>
                                     );

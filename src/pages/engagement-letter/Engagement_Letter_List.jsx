@@ -2076,9 +2076,7 @@ const Engagement_Letter = () => {
                                   <td className="tr-table-class text-white">
                                     Documents
                                   </td>
-                                  <td className="tr-table-class text-white">
-                                    Send Reminder
-                                  </td>
+
                                   {/* <td className="tr-table-class text-white">
                                     {(userAccessData.Admin_Engagement_Latter_CanEdit ||
                                       userAccessData.Admin_Engagement_Latter_CanView) && (
@@ -2275,64 +2273,7 @@ const Engagement_Letter = () => {
                                               )}
                                           </td>
 
-                                          <td className="table-content-font">
-                                            {engagement.statusID !== statusID.Draft &&
 
-                                              <div
-                                                style={{ alignItems: "none" }}
-                                                class="d-flex gap-2 "
-                                              >
-                                                <Tooltip
-                                                  title={
-                                                    engagement.enableReminder
-                                                      ? engagement.reminderName
-                                                        ? getCrudButtonToolTipName(engagement.reminderName)
-                                                        : "No reminder found"
-                                                      : ""
-                                                  }
-                                                >
-                                                  <div style={{ width: "40px" }}>
-                                                    {engagement.enableReminder ? "Enable" : "Disable"}
-                                                  </div>
-                                                </Tooltip>
-
-                                                <Tooltip
-                                                  title={getCrudButtonToolTipName(
-                                                    "Change Status"
-                                                  )}
-                                                >
-                                                  <FormGroup>
-                                                    <FormControlLabel
-                                                      control={
-                                                        <Android12Switch
-                                                          onClick={() =>
-                                                            setModelRequestData({
-                                                              ...modelRequestData,
-                                                              status:
-                                                                engagement.enableReminder ?
-                                                                  "Enable" :
-                                                                  "Disable",
-                                                              contractKeyID:
-                                                                engagement?.contractKeyID,
-                                                              userKeyID:
-                                                                common.userKeyID,
-                                                              StatusType: null,
-                                                              Action: "ReminderStatus",
-                                                            })
-                                                          }
-                                                          checked={
-                                                            engagement.enableReminder
-                                                          }
-                                                          data-bs-toggle="modal"
-                                                          data-bs-target="#ConfirmModel"
-                                                        />
-                                                      }
-                                                    />
-                                                  </FormGroup>
-                                                </Tooltip>
-                                              </div>
-                                            }
-                                          </td>
                                           {/* <td className="table-content-font">
                                             <div class="d-flex gap-2">
                                              
