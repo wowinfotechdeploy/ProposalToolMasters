@@ -724,11 +724,11 @@ const Prospects = () => {
                                   <td className="tr-table-class text-white">
                                     Status
                                   </td>
-                                  {/* <td className="tr-table-class text-white">
+                                  <td className="tr-table-class text-white">
                                     {userAccessData.Admin_Prospect_CanView && (
                                       <>Action</>
                                     )}
-                                  </td> */}
+                                  </td>
                                 </tr>
                               </thead>
                               <tbody class="list form-check-all">
@@ -821,7 +821,7 @@ const Prospects = () => {
                                               )}
                                             </div>
                                           </td>
-                                          {/* <td>
+                                          <td>
                                             <div class="d-flex gap-2">
                                               <Tooltip
                                                 title={getCrudButtonToolTipName(
@@ -848,7 +848,7 @@ const Prospects = () => {
                                                 </div>
                                               </Tooltip>
 
-                                              {userAccessData.Admin_Prospect_CanEdit && activeOrganizationSubscriptionPlan.apiIntegration && (
+                                              {/* {userAccessData.Admin_Prospect_CanEdit && activeOrganizationSubscriptionPlan.apiIntegration && (
                                                 <Tooltip
                                                   title={getCrudButtonToolTipName(
                                                     "Update",
@@ -868,8 +868,8 @@ const Prospects = () => {
                                                     </button>
                                                   </div>
                                                 </Tooltip>
-                                              )}
-                                              {userAccessData.Admin_Prospect_CanDelete && activeOrganizationSubscriptionPlan.apiIntegration && (
+                                              )} */}
+                                              {/* {userAccessData.Admin_Prospect_CanDelete && activeOrganizationSubscriptionPlan.apiIntegration && (
                                                 <Tooltip
                                                   title={getCrudButtonToolTipName(
                                                     "Delete",
@@ -898,9 +898,9 @@ const Prospects = () => {
                                                     </button>
                                                   </div>
                                                 </Tooltip>
-                                              )}
+                                              )} */}
                                             </div>
-                                          </td> */}
+                                          </td>
                                         </tr>
                                       </>
                                     );

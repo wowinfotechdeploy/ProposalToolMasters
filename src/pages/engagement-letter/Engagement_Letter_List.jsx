@@ -2077,12 +2077,12 @@ const Engagement_Letter = () => {
                                     Documents
                                   </td>
 
-                                  {/* <td className="tr-table-class text-white">
+                                  <td className="tr-table-class text-white">
                                     {(userAccessData.Admin_Engagement_Latter_CanEdit ||
                                       userAccessData.Admin_Engagement_Latter_CanView) && (
                                         <>Action</>
                                       )}
-                                  </td> */}
+                                  </td>
                                 </tr>
                               </thead>
                               <tbody class="list form-check-all">
@@ -2274,9 +2274,9 @@ const Engagement_Letter = () => {
                                           </td>
 
 
-                                          {/* <td className="table-content-font">
+                                          <td className="table-content-font">
                                             <div class="d-flex gap-2">
-                                             
+
                                               <div class="dropdown">
                                                 <button
                                                   class="btn btn-md btn-success create-item-btn"
@@ -2293,10 +2293,10 @@ const Engagement_Letter = () => {
                                                 <ul style={{
                                                   padding: `${engagement.statusID === statusID.Draft ? "2px 0px 2px 0px" : "6px 8px"}`
                                                 }} class="dropdown-menu" aria-labelledby="dropdownElMenuButton">
-                                               
-                                                  {engagement.statusID === statusID.Draft && userAccessData.Admin_Engagement_Latter_CanEdit && (
+
+                                                  {/* {engagement.statusID === statusID.Draft && userAccessData.Admin_Engagement_Latter_CanEdit && (
                                                     <li>
-                                                     
+
                                                       <a class="dropdown-item" onClick={() =>
                                                         EngagementEditBtnClicked(
                                                           engagement
@@ -2307,11 +2307,11 @@ const Engagement_Letter = () => {
                                                           style={{ marginRight: "2px" }}
                                                         ></i> Edit {EngagementName}
                                                       </a>
-                                                     
-                                                    </li>
-                                                  )}
 
-                                                
+                                                    </li>
+                                                  )} */}
+
+
                                                   {(engagement.statusID !== statusID.Draft) && userAccessData.Admin_Engagement_Latter_CanView && (
                                                     <li>
 
@@ -2326,8 +2326,8 @@ const Engagement_Letter = () => {
                                                     </li>
                                                   )}
 
-                                                
-                                                  {engagement.statusID !== statusID.Draft && (
+
+                                                  {/* {engagement.statusID !== statusID.Draft && (
                                                     <li>
 
                                                       <a class="dropdown-item" data-bs-toggle="modal"
@@ -2345,9 +2345,9 @@ const Engagement_Letter = () => {
                                                       </a>
 
                                                     </li>
-                                                  )}
-                                                 
-                                                  {(engagement.statusID === statusID.Sent || engagement.statusID === statusID.Awaiting_Signature
+                                                  )} */}
+
+                                                  {/* {(engagement.statusID === statusID.Sent || engagement.statusID === statusID.Awaiting_Signature
                                                   ) && userAccessData.Admin_Engagement_Latter_CanEdit && (
                                                       <li>
                                                         <a class="dropdown-item" data-bs-toggle="modal"
@@ -2363,12 +2363,12 @@ const Engagement_Letter = () => {
                                                           <i class="fas fa-redo"></i> Re-send {EngagementName}
                                                         </a>
                                                       </li>
-                                                    )}
+                                                    )} */}
                                                 </ul>
                                               </div>
                                             </div>
 
-                                          </td> */}
+                                          </td>
                                           {/* <td>
                                             <div class="d-flex gap-2">
                                               {userAccessData.Admin_Engagement_Latter_CanView && (

@@ -1245,11 +1245,11 @@ const Proposals = () => {
                                   <td className="tr-table-class text-white">
                                     Documents
                                   </td>
-                                  {/* <td className="tr-table-class text-white text-center">
-                                  {userAccessData.Admin_Proposal_CanView && (
-                                    <>Action</>
-                                  )}
-                                </td> */}
+                                  <td className="tr-table-class text-white text-center">
+                                    {userAccessData.Admin_Proposal_CanView && (
+                                      <>Action</>
+                                    )}
+                                  </td>
                                 </tr>
                               </thead>
                               <tbody class="list form-check-all">
@@ -1950,14 +1950,14 @@ const Proposals = () => {
                                   <td className="tr-table-class text-white">
                                     Documents
                                   </td>
-                                  <td className="tr-table-class text-white">
-                                    Send Reminder
-                                  </td>
                                   {/* <td className="tr-table-class text-white">
+                                    Send Reminder
+                                  </td> */}
+                                  <td className="tr-table-class text-white">
                                     {userAccessData.Admin_Proposal_CanView && (
                                       <>Action</>
                                     )}
-                                  </td> */}
+                                  </td>
                                 </tr>
                               </thead>
                               <tbody class="list form-check-all">
@@ -2157,7 +2157,7 @@ const Proposals = () => {
                                         {/* </a> */}
                                       </td>
 
-                                      <td className="table-content-font">
+                                      {/* <td className="table-content-font">
                                         {item.statusID !== statusID.Draft &&
                                           <div
                                             style={{ alignItems: "none" }}
@@ -2212,11 +2212,11 @@ const Proposals = () => {
                                             </Tooltip>
                                           </div>
                                         }
-                                      </td>
+                                      </td> */}
                                       {/*buttons */}
-                                      {/* <td className="table-content-font">
+                                      <td className="table-content-font">
                                         <div class="d-flex gap-2">
-                                         
+
                                           <div class="dropdown">
                                             <button
                                               class="btn btn-md btn-success create-item-btn"
@@ -2239,8 +2239,8 @@ const Proposals = () => {
                                               class="dropdown-menu"
                                               aria-labelledby="dropdownMenuButton"
                                             >
-                                             
-                                              {item.statusID === statusID.Draft && userAccessData.Admin_Proposal_CanEdit && (
+
+                                              {/* {item.statusID === statusID.Draft && userAccessData.Admin_Proposal_CanEdit && (
                                                 <li>
                                                 
                                                   <a
@@ -2259,9 +2259,9 @@ const Proposals = () => {
                                                
                                                 </li>
 
-                                              )}
+                                              )} */}
 
-                                              
+
                                               {(item.statusID === statusID.Accepted ||
                                                 item.statusID === statusID.Declined ||
                                                 item.statusID === statusID.Sent ||
@@ -2276,8 +2276,8 @@ const Proposals = () => {
                                                   </li>
                                                 )}
 
-                                             
-                                              {(item.statusID === statusID.Sent || item.statusID === statusID.Skipped) &&
+
+                                              {/* {(item.statusID === statusID.Sent || item.statusID === statusID.Skipped) &&
                                                 common.enableEL == 1 &&
                                                 userAccessData.Admin_Engagement_Latter_CanAdd &&
                                                 userAccessData.Admin_Engagement_Latter_CanView && (
@@ -2294,9 +2294,9 @@ const Proposals = () => {
                                                     </a>
 
                                                   </li>
-                                                )}
+                                                )} */}
 
-                                              {item.statusID !== statusID.Draft && (
+                                              {/* {item.statusID !== statusID.Draft && (
                                                 <li>
 
                                                   <a
@@ -2316,9 +2316,9 @@ const Proposals = () => {
                                                   </a>
 
                                                 </li>
-                                              )}
+                                              )} */}
 
-                                              {item.statusID === statusID.Sent && userAccessData.Admin_Proposal_CanEdit && (
+                                              {/* {item.statusID === statusID.Sent && userAccessData.Admin_Proposal_CanEdit && (
                                                 <li>
                                                   <a
                                                     class="dropdown-item"
@@ -2337,11 +2337,11 @@ const Proposals = () => {
                                                     <i class="fas fa-redo"></i> Re-send {proposalName}
                                                   </a>
                                                 </li>
-                                              )}
+                                              )} */}
                                             </ul>
                                           </div>
                                         </div>
-                                      </td> */}
+                                      </td>
 
                                     </tr>
                                   );
