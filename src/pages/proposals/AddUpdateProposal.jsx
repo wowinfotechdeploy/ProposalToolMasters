@@ -14609,10 +14609,10 @@ const Add_Update_Proposal = (props) => {
           footerHeight: item.footerHeight
         }));
         setTemplateLookUpOptions(mappedOptions);
-        setProposalObject((prev) => ({
-          ...prev,
-          selectTemplateTypeId: mappedOptions[0]?.value,
-        }))
+        // setProposalObject((prev) => ({
+        //   ...prev,
+        //   selectTemplateTypeId: mappedOptions[0]?.value,
+        // }))
         // const defaultTemplateOptions = mappedOptions.filter(
         //   (option) => option.isDefault === true
         // );
@@ -14647,6 +14647,10 @@ const Add_Update_Proposal = (props) => {
               headerHeight: filteredRecords[0].headerHeight,
               footerHeight: filteredRecords[0].footerHeight
             };
+            setProposalObject((prev) => ({
+              ...prev,
+              selectTemplateTypeId: filteredRecords[0]?.value,
+            }))
             setFontFamily(getFontNameById(defaultTemplateObject?.fontFamilyID));
             setHeaderContent(defaultTemplateObject?.headerContent);
             setFooterContent(defaultTemplateObject?.footerContent);

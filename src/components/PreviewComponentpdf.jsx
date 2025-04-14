@@ -4186,7 +4186,7 @@ function setDefaultFontFamily(htmlContent, fontFamily) {
             
             {(isPopUpVisible && props.moduleName == "Quote") && (
               <div className="popup-overlay" onClick={closePopup}>
-               <div className="popup-content" onClick={(e) => e.stopPropagation()}>
+               <div className="popup-content" style={{maxWidth: "700px",width: "90%",margin: "5% auto",}} onClick={(e) => e.stopPropagation()}>
                  <button className="close-button" onClick={closePopup}>
                    &times;
                  </button>
@@ -4215,16 +4215,16 @@ function setDefaultFontFamily(htmlContent, fontFamily) {
                     />
                   </div>
                 </div>
-                <div className="d-flex justify-content-end mt-5">
+                <div className="d-flex justify-content-end flex-wrap mt-5">
                 <button
-                  class="btn btn-md btn-light mr-1 text-nowrap ms-auto me-2"
+                  class="btn btn-md btn-light mr-1 ms-auto me-2"
                   onClick={closePopup}
                 >
                   <span>Cancel</span>
                 </button>
                 <button
                 style={{ paddingTop: "5px", marginRight: "4px" }}
-                class="btn btn-md btn-success create-item-btn  text-nowrap"
+                class="btn btn-md btn-success create-item-btn text-nowrap mb-2"
                 onClick={() =>
                   props.handleSaveAsDraft(
                     4,
@@ -4338,7 +4338,7 @@ function setDefaultFontFamily(htmlContent, fontFamily) {
             )}
             {(isPopUpVisible && props.moduleName == "Contract") && (
               <div className="popup-overlay" onClick={closePopup}>
-               <div className="popup-content" onClick={(e) => e.stopPropagation()}>
+               <div className="popup-content" style={{maxWidth: "700px",width: "90%",margin: "5% auto",}} onClick={(e) => e.stopPropagation()}>
                  <button className="close-button" onClick={closePopup}>
                    &times;
                  </button>
@@ -4367,16 +4367,16 @@ function setDefaultFontFamily(htmlContent, fontFamily) {
                     />
                   </div>
                 </div>
-                <div className="d-flex justify-content-end mt-5">
+                <div className="d-flex justify-content-end flex-wrap mt-5">
                 <button
-                  class="btn btn-md btn-light mr-1 text-nowrap ms-auto me-2"
+                  class="btn btn-md btn-light mr-1 ms-auto me-2"
                   onClick={closePopup}
                 >
                   <span>Cancel</span>
                 </button>
                 <button
                 style={{ paddingTop: "5px", marginRight: "4px" }}
-                class="btn btn-md btn-success create-item-btn  text-nowrap"
+                class="btn btn-md btn-success create-item-btn text-nowrap mb-2"
                 onClick={() => {
                   if (!activeOrganizationSubscriptionPlan.sendContract) {
                     setShowModal(true)
