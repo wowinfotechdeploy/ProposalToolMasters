@@ -163,6 +163,9 @@ const TncCustomBusinessCompanyVariables = [
 const commonVariablesForOrganisation = [
   "$Accountant.FirstName$",
   "$Accountant.LastName$",
+  "$Accountant.CompanyName$",
+  "$Accountant.CompanyNumber$",
+  "$Accountant.FullName$",
   "$Accountant.Email$",
   "$Accountant.Phone$",
   "$Accountant.TradingName$",

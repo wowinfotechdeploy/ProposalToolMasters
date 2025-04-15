@@ -71,6 +71,7 @@ const ClientCompanyVariables = [
 const CommonClientVariables = [
     "$Client.FirstName$",
     "$Client.LastName$",
+    "$Client.FullName$",
     "$Client.Email$",
     "$Client.Phone$",
     "$Client.Address$",
