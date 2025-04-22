@@ -388,15 +388,17 @@ const NewResetPage = () => {
                                                                         <br />
                                                                         <label
                                                                             className={
-                                                                                /[-@$!%*#?&]/.test(CreateNewPassword.Password)
+                                                                                /[-@$!%*#?&]/.test(CreateNewPassword.Password) &&
+                                                                                    !/[^A-Za-z0-9\-@$!%*#?&]/.test(CreateNewPassword.Password)
                                                                                     ? "text-success"
-                                                                                    : "validation "
+                                                                                    : "validation"
                                                                             }
                                                                         >
-                                                                            Include at least one special character -@$!%*#?&{" "}
-                                                                            {/[-@$!%*#?&]/.test(CreateNewPassword.Password) && (
-                                                                                <span>&#10004;</span>
-                                                                            )}
+                                                                            Include at least one special character, and only from the following set (others not allowed): - @ $ ! % * # ? &{" "}
+                                                                            {/[-@$!%*#?&]/.test(CreateNewPassword.Password) &&
+                                                                                !/[^A-Za-z0-9\-@$!%*#?&]/.test(CreateNewPassword.Password) && (
+                                                                                    <span>&#10004;</span>
+                                                                                )}
                                                                         </label>
 
                                                                     </span>

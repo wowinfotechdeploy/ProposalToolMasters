@@ -566,15 +566,17 @@ const CreateNewPassword = () => {
                             <br />
                             <label
                               className={
-                                /[-@$!%*#?&]/.test(createNewPassword?.Password)
+                                /[-@$!%*#?&]/.test(createNewPassword.Password) &&
+                                  !/[^A-Za-z0-9\-@$!%*#?&]/.test(createNewPassword.Password)
                                   ? "text-success"
                                   : "validation"
                               }
                             >
-                              Include at least one special character -@$!%*#?&{" "}
-                              {/[-@$!%*#?&]/.test(
-                                createNewPassword.Password
-                              ) && <span>&#10004;</span>}
+                              Include at least one special character, and only from the following set (others not allowed): - @ $ ! % * # ? &{" "}
+                              {/[-@$!%*#?&]/.test(createNewPassword.Password) &&
+                                !/[^A-Za-z0-9\-@$!%*#?&]/.test(createNewPassword.Password) && (
+                                  <span>&#10004;</span>
+                                )}
                             </label>
                             <br />
                           </div>
@@ -714,7 +716,7 @@ const CreateNewPassword = () => {
       <SuccessModal
         openSuccessModal={openSuccessModal}
         handleClose={handleCloseModal}
-        isBackDropDisplay={true} 
+        isBackDropDisplay={true}
         message="Your account has been activated successfully."
         modelAction="ShowMessage"
       />
