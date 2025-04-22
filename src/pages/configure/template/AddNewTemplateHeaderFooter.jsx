@@ -640,35 +640,53 @@ function Add_New_Header_And_Footer(props) {
       isValid = false;
     }
   
-    if (!TemplateObj.templateTypeID) {
+    if (!TemplateObj.templateTypeID ||
+      TemplateObj.templateTypeID === null ||
+      TemplateObj.templateTypeID === ""
+    ) {
       scrollUpDownByElementID("TemplateTypeDiv");
       setRequireErrorMessage(true);
       isValid = false;
     } 
-    if (
+    // if (
+    //   !TemplateObj.templateContentForHeader ||
+    //   TemplateObj.templateContentForHeader.trim() === "" ||
+    //   TemplateObj.templateContentForHeader === "<p><br></p>" ||
+    //   TemplateObj.templateContentForHeader === "<p></p>"
+    // ) {
+    //   scrollUpDownByElementID("HeaderContentDiv");
+    //   setRequireErrorMessage(false);
+    //   isValid = true;
+    // }
+  
+    // if (
+    //   !TemplateObj.templateContentForFooter ||
+    //   TemplateObj.templateContentForFooter.trim() === "" ||
+    //   TemplateObj.templateContentForFooter === "<p><br></p>" ||
+    //   TemplateObj.templateContentForFooter === "<p></p>"
+    // ) {
+    //   scrollUpDownByElementID("FooterContentDiv");
+    //   setRequireErrorMessage(false);
+    //   isValid = true;
+    // }
+    const isHeaderEmpty =
       !TemplateObj.templateContentForHeader ||
       TemplateObj.templateContentForHeader.trim() === "" ||
       TemplateObj.templateContentForHeader === "<p><br></p>" ||
-      TemplateObj.templateContentForHeader === "<p></p>"
-    ) {
-      scrollUpDownByElementID("HeaderContentDiv");
-      setRequireErrorMessage(false);
-      isValid = true;
-    }
-  
-    if (
+      TemplateObj.templateContentForHeader === "<p></p>";
+
+    const isFooterEmpty =
       !TemplateObj.templateContentForFooter ||
       TemplateObj.templateContentForFooter.trim() === "" ||
       TemplateObj.templateContentForFooter === "<p><br></p>" ||
-      TemplateObj.templateContentForFooter === "<p></p>"
-    ) {
+      TemplateObj.templateContentForFooter === "<p></p>";
+    // if (TemplateObj.templateTypeID === 42 && (!selectedHeaderFile.fileName && !selectedFooterFile.fileName)) {
+    //   // Check if PDF file is not selected
+    //   setRequireErrorMessage(true);
+    //   isValid = false;
+    // }
+    if (isHeaderEmpty && isFooterEmpty) {
       scrollUpDownByElementID("FooterContentDiv");
-      setRequireErrorMessage(false);
-      isValid = true;
-    }
-    if (TemplateObj.templateTypeID === 42 && (!selectedHeaderFile.fileName && !selectedFooterFile.fileName)) {
-      // Check if PDF file is not selected
-      setRequireErrorMessage(true);
       isValid = false;
     }
   
@@ -1573,7 +1591,7 @@ function Add_New_Header_And_Footer(props) {
                       <div className="fieldset-group helper-variables-div">
                         <label className="fieldset-group-label">Variables</label>
                         <AccountantVariables
-                          ModuleName="Template"
+                          ModuleName="HeaderFooterTemplate"
                           ClintType={null}
                           businessTypeId={
                             common.organisationKeyID === null
@@ -1617,7 +1635,7 @@ function Add_New_Header_And_Footer(props) {
                       <div className="fieldset-group helper-variables-div">
                         <label className="fieldset-group-label">Variables</label>
                         <AccountantVariables
-                          ModuleName="Template"
+                          ModuleName="HeaderFooterTemplate"
                           ClintType={null}
                           businessTypeId={
                             common.organisationKeyID === null

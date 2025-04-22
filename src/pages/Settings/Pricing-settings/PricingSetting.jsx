@@ -21,12 +21,14 @@ const Pricing_Settings = () => {
   const [prevError, SetPrevError] = useState("");
   const [openSuccessModal, setOpenSuccessModal] = React.useState(false);
   const [selectedFrequency, setSelectedFrequency] = useState(Utils.Payment_Frequency[0]);
+  const masterProposalType = Utils.select_Quote_Type.find((item) => item.value === 4)?.label;
   const [pricingSettingObj, setPricingSettingObj] = useState({
     userKeyID: null,
     minOneOffPriceForQC: "",
     minMonthlyPriceForQC: "",
     maxDiscountForQC: null,
-    paymentFrequencyID:null
+    paymentFrequencyID:null,
+    enableMasterProposalType: false
   });
 // const ProposalObject = {
   //   Payment_Frequency: 2 // Example initial value, adjust as needed
@@ -45,7 +47,8 @@ const Pricing_Settings = () => {
     minOneOffPriceForQC: "",
     minMonthlyPriceForQC: "",
     maxDiscountForQC: "",
-    paymentFrequencyID:null
+    paymentFrequencyID:null,
+    enableMasterProposalType: false
   });
   const [errorMessage, setErrorMessage] = useState("");
   const {
@@ -89,6 +92,7 @@ const Pricing_Settings = () => {
             maxDiscountForQC: ModelData.maxDiscountForQC,
             organisationKeyID: ModelData.organisationKeyID,
             paymentFrequencyID: ModelData.paymentFrequencyID,
+            enableMasterProposalType: ModelData.enableMasterProposalType,
           });
           setPrevPricingSettingObj({
             ...pricingSettingObj,
@@ -98,6 +102,7 @@ const Pricing_Settings = () => {
             maxDiscountForQC: ModelData.maxDiscountForQC,
             organisationKeyID: ModelData.organisationKeyID,
             paymentFrequencyID: ModelData.paymentFrequencyID,
+            enableMasterProposalType: ModelData.enableMasterProposalType,
           });
         }
       } else {
@@ -118,7 +123,9 @@ const Pricing_Settings = () => {
       pricingSettingObj.minOneOffPriceForQC ==
         PrevPricingSettingObj.minOneOffPriceForQC &&
       pricingSettingObj.paymentFrequencyID ==
-        PrevPricingSettingObj.paymentFrequencyID
+        PrevPricingSettingObj.paymentFrequencyID &&
+      pricingSettingObj.enableMasterProposalType ==
+        PrevPricingSettingObj.enableMasterProposalType
         
     ) {
       SetPrevError(true);
@@ -134,6 +141,7 @@ const Pricing_Settings = () => {
       minMonthlyPriceForQC: pricingSettingObj.minMonthlyPriceForQC || null,
       maxDiscountForQC: pricingSettingObj.maxDiscountForQC || null,
       paymentFrequencyID: pricingSettingObj.paymentFrequencyID || null,
+      enableMasterProposalType: pricingSettingObj.enableMasterProposalType || false,
     };
 
     setErrorMessage("");
@@ -357,7 +365,21 @@ const Pricing_Settings = () => {
                           <div class="col-lg-2 col-md-4 col-sm-12"></div>
                         </div>
                       </div>
-                      
+                      <div class="fieldset col-12">
+                            <label class=" fieldset-label pe-2">Enable {masterProposalType}</label>
+                            <input
+                              type="checkbox"
+                              className="check check_tick"
+                              style={{ verticalAlign: "middle" }}
+                              checked={pricingSettingObj.enableMasterProposalType}
+                              onChange={(e) => {
+                                setPricingSettingObj({
+                                  ...pricingSettingObj,
+                                  enableMasterProposalType: e.target.checked
+                                })
+                              }}
+                            />
+                      </div>
                       <div className="text-center">
                         {prevError && (
                           <label className="validation">

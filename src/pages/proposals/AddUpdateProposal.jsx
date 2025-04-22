@@ -59,10 +59,15 @@ import RecordsAvailablePopupModel from "../../components/RecordsAvailablePopupMo
 
 const BasicInformationComponent = (props) => {
   const navigate = useNavigate();
-  const modifiedProposalType = Utils.select_Quote_Type.map((option) =>
-    option
-    // option.value === 2 ? { ...option, isDisabled: true } : option
-  );
+  const isEnabledMasterProposalType = props?.isEnabledMasterProposal;
+  console.log(isEnabledMasterProposalType);
+  // const modifiedProposalType = isEnabledMasterProposalType ? Utils.select_Quote_Type.map((option) =>
+  //   option
+  //   // option.value === 2 ? { ...option, isDisabled: true } : option
+  // ) : Utils.select_Quote_Type.filter((option) => option.value !== 4);
+  const modifiedProposalType = isEnabledMasterProposalType
+  ? [...Utils.select_Quote_Type] 
+  : Utils.select_Quote_Type.filter(option => option.value !== 4);
 
   const moduleNameForSaveAsDraft = "BasicInformation";
   const StatusId = 1;
@@ -91,11 +96,25 @@ const BasicInformationComponent = (props) => {
   // Template Select Function
   const handleTemplateSelectChange = (selectedOption) => {
     props.DisableTabOnChange();
+    props.setTemplateElementList([]);
     props.setProposalObject({
       ...props.ProposalObject,
       selectTemplateTypeId: selectedOption.value,
       templateID: selectedOption.templateID,
     });
+    const selectedTemplate = props.templateLookUpOptions.find(
+      (item) => item.templateID === selectedOption.templateID
+    );
+    if (selectedTemplate) {
+      props.setHeaderContent(selectedTemplate.headerContent);
+      props.setFooterContent(selectedTemplate.footerContent);
+      props.setHeaderImage(selectedTemplate.headerImage);
+      props.setFooterImage(selectedTemplate.footerImage);
+      props.setHeaderHeight(selectedTemplate.headerHeight);
+      props.setFooterHeight(selectedTemplate.footerHeight);
+      props.setFontFamily(props.getFontNameById(selectedTemplate.fontFamilyID)
+      );
+    }
   };
 
   //Select Proposal Type
@@ -10411,6 +10430,7 @@ const Add_Update_Proposal = (props) => {
   const [quotationFinalPackageAmountList, setQuotationFinalPackageAmountList] =
     useState([]);
   const [templateElementList, setTemplateElementList] = useState([]);
+  const [isEnabledMasterProposal,setIsEnabledMasterProposal] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [DocumentCode, setDocumentCode] = useState("");
   const [BrandColor, setBrandColor] = useState("");
@@ -10581,6 +10601,7 @@ const Add_Update_Proposal = (props) => {
     minMonthlyPriceForQC: null,
     maxDiscountForQC: null,
     PaymentFrequency: null,
+    enableMasterProposalType: null
   });
   const [modelRequestData, setModelRequestData] = useState({
     Action: null,
@@ -10619,6 +10640,7 @@ const Add_Update_Proposal = (props) => {
   useEffect(() => {
     setTopbar("none");
     GetClientLookupListData();
+    GetPricingSettingModelData();
     // GetTemplateLookupListData();
     GetOrganisationInformationModelData();
     GetProposalLookupListData();
@@ -17183,7 +17205,7 @@ const Add_Update_Proposal = (props) => {
               // });
               // }
               // setActiveTab(3);
-              setActiveTab(ProposalHeader.AdditionalInformation);
+              setActiveTab(3);
               console.log("additional info not empty");
               setTabHide(true);
               setIsValidForm({
@@ -17231,6 +17253,7 @@ const Add_Update_Proposal = (props) => {
             maxDiscountForQC: ModelData.maxDiscountForQC,
             organisationKeyID: ModelData.organisationKeyID,
             PaymentFrequency: ModelData.paymentFrequencyID,
+            enableMasterProposalType: ModelData.enableMasterProposalType
           });
 
           if (
@@ -17245,6 +17268,7 @@ const Add_Update_Proposal = (props) => {
                   : ModelData.paymentFrequencyID,
             });
           }
+          setIsEnabledMasterProposal(ModelData.enableMasterProposalType);
         }
       } else {
         setErrorMessage(data?.data?.errorMessage);
@@ -17906,6 +17930,17 @@ const Add_Update_Proposal = (props) => {
                   }
                   setIsValidForm={setIsValidForm}
                   isValidForm={isValidForm}
+                  isEnabledMasterProposal = {isEnabledMasterProposal}
+                  setIsEnabledMasterProposal = {setIsEnabledMasterProposal}
+                  setTemplateElementList = {setTemplateElementList}
+		              setHeaderContent={setHeaderContent}
+                  setFooterContent={setFooterContent}
+                  setHeaderImage={setHeaderImage}
+                  setFooterImage={setFooterImage}
+                  setHeaderHeight={setHeaderHeight}
+                  setFooterHeight={setFooterHeight}
+                  setFontFamily={setFontFamily}
+                  getFontNameById={getFontNameById}
                 // ProposalTypeUpdate={ProposalTypeUpdate}
                 />
               )}

@@ -393,16 +393,7 @@ export default function PreviewComponentPdf(props) {
                     padding: "8px",
                   }}
                 >
-                  {subService.serviceName.length > 45 ? (
-                    <Tooltip title={subService.serviceName}>
-                      {subService.serviceName
-                        .substring(0, 45)
-                        .toLowerCase()
-                        .replace(/\b\w/g, (l) => l.toUpperCase()) + "..."}
-                    </Tooltip>
-                  ) : (
-                    subService.serviceName
-                  )}
+                  {subService.serviceName}
                 </td>
                 {props.moduleName == "Quote" && props.ProposalObject?.feeTypeId == 1 ? (
                   <td
@@ -425,6 +416,58 @@ export default function PreviewComponentPdf(props) {
                     &#10003;
                   </td>
                 )}
+                {subService.pricingDriverList?.length > 0 &&
+                  subService.pricingDriverList.map((driver, driverIndex) => {
+                    const isVariation = driver.driverTypeID === 3;
+                    const isSlab = driver.driverTypeID === 4;
+                    const isQuantity = driver.driverTypeID === 2;
+                    const matchedQuantity = driver.driverValue;
+                    const isVisible = driver.driverVisibility === true;
+
+                    const matchedVariation = isVariation
+                      ? driver.variation?.find((item) => item.variationID === driver.variationID)
+                      : null;
+
+                    const matchedSlab = isSlab
+                      ? driver.slab?.find((item) => item.slabID === driver.slabID)
+                      : null;
+
+                    return (
+                      <>
+                      <tr>
+                        {isVisible && (
+                          <>
+                          <td
+                          key={`driver-${driverIndex}`}
+                          style={{
+                            border: "1px solid #DDDDDD",
+                            textAlign: "left",
+                            padding: "8px",
+                            fontWeight: "normal"
+                          }}
+                        >
+                          • {driver.driverName}
+                        </td>
+                        <td
+                          style={{
+                            border: "1px solid #DDDDDD",
+                            textAlign: "right",
+                            padding: "8px",
+                            fontWeight: "normal"
+                          }}
+                        >
+                          {isVariation && matchedVariation
+                            ? matchedVariation.variationName
+                            : isSlab && matchedSlab
+                              ? `${matchedSlab.slabFrom} - ${matchedSlab.slabTo}`
+                              : isQuantity ? matchedQuantity : ""}
+                        </td>
+                          </>
+                        )}
+                        </tr>
+                      </>
+                    );
+                  })}
 
                 {props?.selectedPackagesList.length >= 2 ? (
                   props.ProposalObject?.feeTypeId == 1 ? (
@@ -545,6 +588,7 @@ export default function PreviewComponentPdf(props) {
             style={{
               border: "1px solid #DDDDDD",
               textAlign: "right",
+              float: "right",
               padding: "8px",
               color: "black",
             }}
@@ -822,15 +866,16 @@ export default function PreviewComponentPdf(props) {
                     padding: "8px",
                   }}
                 >
-                  {subService.serviceName.length > 45 ? (
-                    subService.serviceName
-                      .substring(0, 45)
-                      .toLowerCase()
-                      .replace(/\b\w/g, (l) => l.toUpperCase()) + "..."
-                  ) : (
-                    subService.serviceName
-                  )}
-
+                  {subService.serviceName
+                  // .length > 45 ? (
+                  //   subService.serviceName
+                  //     .substring(0, 45)
+                  //     .toLowerCase()
+                  //     .replace(/\b\w/g, (l) => l.toUpperCase()) + "..."
+                  // ) : (
+                  //   subService.serviceName
+                  // )
+                  }
                 </td>
                 {props.ProposalObject?.feeTypeId == 1 ? (
                   <td
@@ -854,6 +899,58 @@ export default function PreviewComponentPdf(props) {
                   </td>
                 )}
 
+                {subService.pricingDriverList?.length > 0 &&
+                  subService.pricingDriverList.map((driver, driverIndex) => {
+                    const isVariation = driver.driverTypeID === 3;
+                    const isSlab = driver.driverTypeID === 4;
+                    const isQuantity = driver.driverTypeID === 2;
+                    const matchedQuantity = driver.driverValue;
+                    const isVisible = driver.driverVisibility === true;
+
+                    const matchedVariation = isVariation
+                      ? driver.variation?.find((item) => item.variationID === driver.variationID)
+                      : null;
+
+                    const matchedSlab = isSlab
+                      ? driver.slab?.find((item) => item.slabID === driver.slabID)
+                      : null;
+
+                    return (
+                      <>
+                        <tr>
+                          {isVisible && (
+                            <>
+                              <td
+                                key={`driver-${driverIndex}`}
+                                style={{
+                                  border: "1px solid #DDDDDD",
+                                  textAlign: "left",
+                                  padding: "8px",
+                                  fontWeight: "normal"
+                                }}
+                              >
+                                • {driver.driverName}
+                              </td>
+                              <td
+                                style={{
+                                  border: "1px solid #DDDDDD",
+                                  textAlign: "right",
+                                  padding: "8px",
+                                  fontWeight: "normal"
+                                }}
+                              >
+                                {isVariation && matchedVariation
+                                  ? matchedVariation.variationName
+                                  : isSlab && matchedSlab
+                                    ? `${matchedSlab.slabFrom} - ${matchedSlab.slabTo}`
+                                    : isQuantity ? matchedQuantity : ""}
+                              </td>
+                            </>
+                          )}
+                        </tr>
+                      </>
+                    );
+                  })}
 
               </tr>
             ))}
@@ -986,6 +1083,7 @@ export default function PreviewComponentPdf(props) {
             style={{
               border: "1px solid #DDDDDD",
               textAlign: "right",
+              float: "right",
               padding: "8px",
               color: "black",
             }}

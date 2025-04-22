@@ -2658,7 +2658,7 @@ function Predefined_Templates() {
                                       <td className="table-content-font">
                                         {/* {showProfessionType &&
                                           Template.professionTypeNames} */}
-                                      <td>{Template.templateTypeID === 41 ? 'Custom Template' : 'Image'}</td>
+                                      <td>{Template.templateTypeID === 41 ? 'Custom Template' : ''}</td>
                                       </td>
                                       {/* {common.roleTypeId ===
                                         USER_ROLE_TYPE.SuperAdmin &&

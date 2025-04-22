@@ -82,7 +82,7 @@ export const SelectedProposalCustomize = (props) => {
                             />
                             {
                               servicePackage.needToUpdate && (
-                                <span class="text-danger">*</span>
+                                <span class="text-danger pe-1">*</span>
                               )}
                             <label
                               htmlFor={`packageCheckbox_${servicePackage.servicePackageID}`}

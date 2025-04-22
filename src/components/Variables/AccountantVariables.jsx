@@ -582,6 +582,40 @@ const AccountantVariables = ({
         />
       </div>
     );
+  } else if (
+    ModuleName === "HeaderFooterTemplate"
+  ) {
+    return (
+      <div>
+        <span className="variableHeading">Common Variables :</span>
+        <CopyToClipboard
+          texts={BusinessTypeVariables.commonVariablesForOrganisation}
+          heading="Organisation:"
+        />
+        {ClintTypeID !== 1 && (
+          <>
+            <CopyToClipboard
+              texts={ProspectTypeVariables.CommonClientVariables}
+              heading={`${prospectName}:`}
+            />
+          </>
+        )}
+        <hr />
+        <span className="variableHeading">Organisation Variables :</span>
+        {businessTypeId === CLIENT_TYPES.Sole_Trader && (
+          <CopyToClipboard texts={BusinessTypeVariables.BusinessSoleTraderVariables} />
+        )}
+        {businessTypeId === CLIENT_TYPES.Partnership && (
+          <CopyToClipboard texts={BusinessTypeVariables.BusinessPartnerShipVariables} />
+        )}
+        {businessTypeId === CLIENT_TYPES.Company && (
+          <CopyToClipboard texts={BusinessTypeVariables.BusinessCompanyVariables} />
+        )}
+        {businessTypeId === CLIENT_TYPES.LLP && (
+          <CopyToClipboard texts={BusinessTypeVariables.BusinessLLpVariables} />
+        )}
+      </div>
+    );
   }
 
   return null;

@@ -260,11 +260,26 @@ const BasicInformationComponent = (props) => {
                       }
                       onChange={(e) => {
                         props.DisableTabOnChange();
+                        props.setTemplateElementList([]);
                         props.setEngagementObj({
                           ...props.engagementObj,
                           templateKeyID: e.value,
                           templateID: e.templateID,
                         });
+                        const selectedTemplate = props.templateLookUpOptions.find(
+                          (item) => item.templateID === e.templateID
+                        );
+                        if (selectedTemplate) {
+                          props.setHeaderContent(selectedTemplate.headerContent);
+                          props.setFooterContent(selectedTemplate.footerContent);
+                          props.setHeaderImage(selectedTemplate.headerImage);
+                          props.setFooterImage(selectedTemplate.footerImage);
+                          props.setHeaderHeight(selectedTemplate.headerHeight);
+                          props.setFooterHeight(selectedTemplate.footerHeight);
+                          props.setFontFamily(props.getFontNameById(selectedTemplate.fontFamilyID)
+                          );
+                        }
+                        props.setIsTemplateManuallySelected(true);
                       }}
                     />
                     {props.requireMessage &&
@@ -5346,6 +5361,7 @@ const Add_Update_Engagement_Letter = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [getServicePackageLookupList, setGetServicePackageLookupList] =
     useState([]);
+  const [isTemplateManuallySelected, setIsTemplateManuallySelected] = useState(false);
   const [DocumentCode, setDocumentCode] = useState(false);
   const [isTypeChange, setIsTypeChange] = useState(false);
   const [BrandColor, setBrandColor] = useState(false);
@@ -6303,6 +6319,87 @@ const Add_Update_Engagement_Letter = () => {
   };
 
   //6) Get Template lookup list api  call
+  // const GetTemplateLookupListData = async (ClientId, QuoteId) => {
+  //   setLoader(true);
+  //   console.log("Hii");
+  //   try {
+  //     const response = await GetTemplateListLookupList({
+  //       TemplateTypeID: 2,
+  //       organisationKeyID: common.organisationKeyID,
+  //       clientID: ClientId?.value == undefined ? ClientId : ClientId?.value,
+  //       QuoteKeyID: QuoteId?.value == undefined ? QuoteId : QuoteId?.value,
+  //     });
+  //     const data = response.data;
+
+  //     if (data.statusCode === 200) {
+  //       setLoader(false);
+  //       const mappedOptions = data.responseData.data.map((item) => ({
+  //         value: item.templateKeyID,
+  //         label: item.templateName,
+  //         templateID: item.templateID,
+  //         fontFamilyID: item.fontFamilyID,
+  //         headerContent: item.headerContent,
+  //         footerContent: item.footerContent,
+  //         headerImage: item.headerImage,
+  //         footerImage: item.footerImage,
+  //         headerHeight: item.headerHeight,
+  //         footerHeight: item.footerHeight
+  //       }));
+  //       setTemplateLookUpOptions(mappedOptions);
+  //       const isSelectedDefault = data.responseData.data.filter(
+  //         (item) => item.isDefault === true
+  //       );
+
+  //       if (QuoteId !== null) {
+  //         setEngagementObj({
+  //           ...engagementObj,
+  //           acceptedServicePackageID: null,
+  //           servicePackageKeyID: null,
+  //           ClientID: QuoteId.clientID,
+  //           clientKeyID:
+  //             ClientId?.clientKeyID == undefined ? null : ClientId?.clientKeyID,
+  //           QuoteKeyID: QuoteId?.value == undefined ? QuoteId : QuoteId?.value,
+  //           quoteID: QuoteId?.quoteID == undefined ? QuoteId : QuoteId?.quoteID,
+  //           quoteTypeID: isSelectedDefault[0]?.quoteTypeID,
+  //           templateKeyID: isSelectedDefault[0]?.templateKeyID,
+  //           templateID: isSelectedDefault[0]?.templateID,
+  //         });
+  //       } else {
+  //         setEngagementObj({
+  //           ...engagementObj,
+  //           acceptedServicePackageID: null,
+  //           servicePackageKeyID: null,
+  //           ClientID:
+  //             ClientId?.value == undefined
+  //               ? ClientId
+  //               : ClientId?.value == null
+  //                 ? null
+  //                 : ClientId?.value,
+  //           clientKeyID:
+  //             ClientId?.clientKeyID == undefined ? null : ClientId?.clientKeyID,
+  //           QuoteKeyID: QuoteId?.value == undefined ? QuoteId : QuoteId?.value,
+  //           quoteID: QuoteId?.quoteID == undefined ? QuoteId : QuoteId?.quoteID,
+  //           templateKeyID: isSelectedDefault[0]?.templateKeyID,
+  //           templateID: isSelectedDefault[0]?.templateID,
+  //         });
+  //       }
+  //       console.log(getFontNameById(isSelectedDefault[0].fontFamilyID));
+  //       setFontFamily(getFontNameById(isSelectedDefault[0].fontFamilyID));
+  //       setHeaderContent(isSelectedDefault[0].headerContent);
+  //       setFooterContent(isSelectedDefault[0].footerContent);
+  //       setHeaderImage(isSelectedDefault[0].headerImage);
+  //       setFooterImage(isSelectedDefault[0].footerImage);
+  //       setHeaderHeight(isSelectedDefault[0].headerHeight);
+  //       setFooterHeight(isSelectedDefault[0].footerHeight);
+  //     } else {
+  //       setLoader(false);
+  //       console.error("Error fetching data from the API");
+  //     }
+  //   } catch (error) {
+  //     setLoader(false);
+  //     console.error("Error fetching data from the API", error);
+  //   }
+  // };
   const GetTemplateLookupListData = async (ClientId, QuoteId) => {
     setLoader(true);
     console.log("Hii");
@@ -6314,7 +6411,7 @@ const Add_Update_Engagement_Letter = () => {
         QuoteKeyID: QuoteId?.value == undefined ? QuoteId : QuoteId?.value,
       });
       const data = response.data;
-
+  
       if (data.statusCode === 200) {
         setLoader(false);
         const mappedOptions = data.responseData.data.map((item) => ({
@@ -6327,54 +6424,88 @@ const Add_Update_Engagement_Letter = () => {
           headerImage: item.headerImage,
           footerImage: item.footerImage,
           headerHeight: item.headerHeight,
-          footerHeight: item.footerHeight
+          footerHeight: item.footerHeight,
         }));
         setTemplateLookUpOptions(mappedOptions);
         const isSelectedDefault = data.responseData.data.filter(
           (item) => item.isDefault === true
         );
-
-        if (QuoteId !== null) {
-          setEngagementObj({
-            ...engagementObj,
-            acceptedServicePackageID: null,
-            servicePackageKeyID: null,
-            ClientID: QuoteId.clientID,
-            clientKeyID:
-              ClientId?.clientKeyID == undefined ? null : ClientId?.clientKeyID,
-            QuoteKeyID: QuoteId?.value == undefined ? QuoteId : QuoteId?.value,
-            quoteID: QuoteId?.quoteID == undefined ? QuoteId : QuoteId?.quoteID,
-            quoteTypeID: isSelectedDefault[0]?.quoteTypeID,
-            templateKeyID: isSelectedDefault[0]?.templateKeyID,
-            templateID: isSelectedDefault[0]?.templateID,
-          });
-        } else {
-          setEngagementObj({
-            ...engagementObj,
-            acceptedServicePackageID: null,
-            servicePackageKeyID: null,
-            ClientID:
-              ClientId?.value == undefined
-                ? ClientId
-                : ClientId?.value == null
+  
+        // Only update template-related fields if no manual selection has occurred
+        if (!isTemplateManuallySelected) {
+          if (QuoteId !== null) {
+            setEngagementObj({
+              ...engagementObj,
+              acceptedServicePackageID: null,
+              servicePackageKeyID: null,
+              ClientID: QuoteId.clientID,
+              clientKeyID:
+                ClientId?.clientKeyID == undefined ? null : ClientId?.clientKeyID,
+              QuoteKeyID: QuoteId?.value == undefined ? QuoteId : QuoteId?.value,
+              quoteID: QuoteId?.quoteID == undefined ? QuoteId : QuoteId?.quoteID,
+              quoteTypeID: isSelectedDefault[0]?.quoteTypeID,
+              templateKeyID: isSelectedDefault[0]?.templateKeyID,
+              templateID: isSelectedDefault[0]?.templateID,
+            });
+          } else {
+            setEngagementObj({
+              ...engagementObj,
+              acceptedServicePackageID: null,
+              servicePackageKeyID: null,
+              ClientID:
+                ClientId?.value == undefined
+                  ? ClientId
+                  : ClientId?.value == null
                   ? null
                   : ClientId?.value,
-            clientKeyID:
-              ClientId?.clientKeyID == undefined ? null : ClientId?.clientKeyID,
-            QuoteKeyID: QuoteId?.value == undefined ? QuoteId : QuoteId?.value,
-            quoteID: QuoteId?.quoteID == undefined ? QuoteId : QuoteId?.quoteID,
-            templateKeyID: isSelectedDefault[0]?.templateKeyID,
-            templateID: isSelectedDefault[0]?.templateID,
-          });
+              clientKeyID:
+                ClientId?.clientKeyID == undefined ? null : ClientId?.clientKeyID,
+              QuoteKeyID: QuoteId?.value == undefined ? QuoteId : QuoteId?.value,
+              quoteID: QuoteId?.quoteID == undefined ? QuoteId : QuoteId?.quoteID,
+              templateKeyID: isSelectedDefault[0]?.templateKeyID,
+              templateID: isSelectedDefault[0]?.templateID,
+            });
+          }
+          console.log(getFontNameById(isSelectedDefault[0].fontFamilyID));
+          setFontFamily(getFontNameById(isSelectedDefault[0].fontFamilyID));
+          setHeaderContent(isSelectedDefault[0].headerContent);
+          setFooterContent(isSelectedDefault[0].footerContent);
+          setHeaderImage(isSelectedDefault[0].headerImage);
+          setFooterImage(isSelectedDefault[0].footerImage);
+          setHeaderHeight(isSelectedDefault[0].headerHeight);
+          setFooterHeight(isSelectedDefault[0].footerHeight);
+        } else {
+          // Update non-template fields only
+          if (QuoteId !== null) {
+            setEngagementObj({
+              ...engagementObj,
+              acceptedServicePackageID: null,
+              servicePackageKeyID: null,
+              ClientID: QuoteId.clientID,
+              clientKeyID:
+                ClientId?.clientKeyID == undefined ? null : ClientId?.clientKeyID,
+              QuoteKeyID: QuoteId?.value == undefined ? QuoteId : QuoteId?.value,
+              quoteID: QuoteId?.quoteID == undefined ? QuoteId : QuoteId?.quoteID,
+              quoteTypeID: isSelectedDefault[0]?.quoteTypeID,
+            });
+          } else {
+            setEngagementObj({
+              ...engagementObj,
+              acceptedServicePackageID: null,
+              servicePackageKeyID: null,
+              ClientID:
+                ClientId?.value == undefined
+                  ? ClientId
+                  : ClientId?.value == null
+                  ? null
+                  : ClientId?.value,
+              clientKeyID:
+                ClientId?.clientKeyID == undefined ? null : ClientId?.clientKeyID,
+              QuoteKeyID: QuoteId?.value == undefined ? QuoteId : QuoteId?.value,
+              quoteID: QuoteId?.quoteID == undefined ? QuoteId : QuoteId?.quoteID,
+            });
+          }
         }
-        console.log(getFontNameById(isSelectedDefault[0].fontFamilyID));
-        setFontFamily(getFontNameById(isSelectedDefault[0].fontFamilyID));
-        setHeaderContent(isSelectedDefault[0].headerContent);
-        setFooterContent(isSelectedDefault[0].footerContent);
-        setHeaderImage(isSelectedDefault[0].headerImage);
-        setFooterImage(isSelectedDefault[0].footerImage);
-        setHeaderHeight(isSelectedDefault[0].headerHeight);
-        setFooterHeight(isSelectedDefault[0].footerHeight);
       } else {
         setLoader(false);
         console.error("Error fetching data from the API");
@@ -12728,6 +12859,18 @@ const Add_Update_Engagement_Letter = () => {
                   setIsValidForm={setIsValidForm}
                   setValidation={setValidation}
                   prospectName={prospectName}
+                  GetTemplateLookupListData={GetTemplateLookupListData}
+                  setTemplateElementList = {setTemplateElementList}
+                  setIsTemplateManuallySelected = {setIsTemplateManuallySelected}
+                  setHeaderContent={setHeaderContent}
+                  setFooterContent={setFooterContent}
+                  setHeaderImage={setHeaderImage}
+                  setFooterImage={setFooterImage}
+                  setHeaderHeight={setHeaderHeight}
+                  setFooterHeight={setFooterHeight}
+                  setFontFamily={setFontFamily}
+                  getFontNameById={getFontNameById}
+
                 />
               )}
               {activeTab === EngagementLetterHeader.SelectServices && (
