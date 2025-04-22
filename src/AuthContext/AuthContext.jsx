@@ -3163,11 +3163,36 @@ const AuthContext = ({ children }) => {
     }
     return false;
   };
+  const formatUKPhoneNumberLocal = (number, countryCode) => {
+    if (!number) return '';
+
+    // If it's not +44, return the number as-is
+    if (countryCode !== '+44') {
+      return number;
+    }
+
+    // Remove all spaces just in case
+    const cleaned = number.replace(/\s+/g, '');
+
+    // If number is less than or equal to 4 digits, return as is
+    if (cleaned.length <= 4) {
+      return cleaned;
+    }
+
+    // Split first 4 digits and the rest
+    const firstFour = cleaned.substring(0, 4);
+    const rest = cleaned.substring(4);
+
+    return `${firstFour} ${rest}`;
+  };
+
+
 
   /* -------------- Set All Function Used Globally Throughout The Project ------------ */
   return (
     <AuthContextProvider.Provider
       value={{
+        formatUKPhoneNumberLocal,
         isValueGreaterThan20000,
         replaceUrlInHtml,
         replaceTemplatePricingVariables,

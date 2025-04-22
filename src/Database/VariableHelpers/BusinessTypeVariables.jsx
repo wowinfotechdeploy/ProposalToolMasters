@@ -13,14 +13,13 @@ const BusinessSoleTraderVariables = [
   // "$CurrentDate$",
   "$DocumentId$",
   "$DocumentCreationDate$",
-  "$DocumentSentDate$",
+  // "$DocumentSentDate$",
   // "$Accountant.SignatoryName$",
   // "$Accountant.SignatureImageUrl$",
   // "$Accountant.BusinessTagline$",
   // // "$Affiliated.Accounting.Body.Name$",
   // "$Accountant.WebsiteOfAffiliatedAccountingBodyName$",
   // "$Accountant.LogoUrl$"
-
 ];
 
 const TncCustomBusinessSoleTraderVariables = [
@@ -53,7 +52,7 @@ const BusinessPartnerShipVariables = [
   // "$CurrentDate$",
   "$DocumentId$",
   "$DocumentCreationDate$",
-  "$DocumentSentDate$",
+  // "$DocumentSentDate$",
   // "$Accountant.SignatoryName$",
   // "$Accountant.SignatureImageUrl$",
   // "$Accountant.BusinessTagline$",
@@ -66,6 +65,9 @@ const TncCustomBusinessPartnerShipVariables = [
   "$Accountant.Partner.LastName$",
   "$Accountant.Partner.Email$",
   "$Accountant.Partner.Phone$",
+  "$Accountant.CompanyName$",
+  "$Accountant.CompanyNumber$",
+  "$Accountant.FullName$",
   // "$Accountant.TradingName$",
   // "$Accountant.TradingAddress$",
   // "$Accountant.TradingAddressWithLineBreak$",
@@ -93,7 +95,7 @@ const BusinessLLpVariables = [
   // "$CurrentDate$",
   "$DocumentId$",
   "$DocumentCreationDate$",
-  "$DocumentSentDate$",
+  // "$DocumentSentDate$",
   // "$Accountant.SignatoryName$",
   // "$Accountant.SignatureImageUrl$",
   // "$Accountant.BusinessTagline$",
@@ -135,7 +137,7 @@ const BusinessCompanyVariables = [
   // "$CurrentDate$",
   "$DocumentId$",
   "$DocumentCreationDate$",
-  "$DocumentSentDate$",
+  // "$DocumentSentDate$",
   // "$Accountant.SignatoryName$",
   // "$Accountant.SignatureImageUrl$",
   // "$Accountant.BusinessTagline$",
@@ -161,11 +163,9 @@ const TncCustomBusinessCompanyVariables = [
 ];
 
 const commonVariablesForOrganisation = [
+  "$Accountant.FullName$",
   "$Accountant.FirstName$",
   "$Accountant.LastName$",
-  "$Accountant.CompanyName$",
-  "$Accountant.CompanyNumber$",
-  "$Accountant.FullName$",
   "$Accountant.Email$",
   "$Accountant.Phone$",
   "$Accountant.TradingName$",
@@ -184,7 +184,10 @@ const commonVariablesForOrganisation = [
   // "$Affiliated.Accounting.Body.Name$",
   "$Accountant.WebsiteOfAffiliatedAccountingBodyName$",
   "$Accountant.LogoUrl$",
-  "$appUrl$"
+  "$appUrl$",
+  "$Accountant.CompanyName$",
+  "$Accountant.CompanyNumber$",
+  "$DocumentSentDate$",
 ];
 export default {
   BusinessSoleTraderVariables,
@@ -195,5 +198,5 @@ export default {
   TncCustomBusinessPartnerShipVariables,
   TncCustomBusinessCompanyVariables,
   TncCustomBusinessLLpVariables,
-  commonVariablesForOrganisation
+  commonVariablesForOrganisation,
 };

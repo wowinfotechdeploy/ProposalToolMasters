@@ -37,7 +37,7 @@ const UserList = () => {
   const [showButton, setShowButton] = useState(false);
   const [primarySortDirection, setPrimarySortDirection] = useState(null);
   const [searchKeyword, setSearchKeyword] = useState("");
-  const { setLoader, setTopbar } = useContext(AuthContextProvider);
+  const { setLoader, setTopbar, formatUKPhoneNumberLocal } = useContext(AuthContextProvider);
   const [totalRecords, setTotalRecords] = useState(-1);
 
   // B] Initial useEffect :
@@ -190,16 +190,16 @@ const UserList = () => {
                   )}
                   {(primarySortDirection === null ||
                     primarySortDirection === "asc") && (
-                    <i
-                      onClick={() => {
-                        HandleSort(
-                          primarySortDirection === null ? "asc" : "desc"
-                        );
-                      }}
-                      style={{ cursor: "pointer" }}
-                      class="fas fa-sort-alpha-down ml-1"
-                    ></i>
-                  )}
+                      <i
+                        onClick={() => {
+                          HandleSort(
+                            primarySortDirection === null ? "asc" : "desc"
+                          );
+                        }}
+                        style={{ cursor: "pointer" }}
+                        class="fas fa-sort-alpha-down ml-1"
+                      ></i>
+                    )}
                 </td>
                 <td className="tr-table-class text-white">Last Name</td>
                 <td className="tr-table-class text-white">Email</td>
@@ -216,7 +216,7 @@ const UserList = () => {
                     <td>{users.firstName}</td>
                     <td>{users.lastName}</td>
                     <td>{users.email}</td>
-                    <td>{users.phoneNumber}</td>
+                    <td>{formatUKPhoneNumberLocal(users.phoneNumber, users.countryCode)}</td>
                     <td>{users.countryName}</td>
                     <td>{users.roleName}</td>
                     <td className="Switch">

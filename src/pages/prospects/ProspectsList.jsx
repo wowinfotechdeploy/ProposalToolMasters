@@ -60,6 +60,7 @@ const Prospects = () => {
   } = useContext(AuthContextProvider);
   const moduleName = `${prospectName}`;
   const [currentPage, setCurrentPage] = useState(1);
+  const [listSingleCount, setSingleListCount] = useState(0);
   const [SingleCurrentPage, setSingleCurrentPage] = useState(1);
   const [searchKeyword, setSearchKeyword] = useState("");
   const [SingleSearchKeyword, setSingleSearchKeyword] = useState("");
@@ -224,7 +225,7 @@ const Prospects = () => {
         pageNo: pageNoList,
         organisationKeyID: common.organisationKeyID,
         searchKeyword:
-          searchKeywordValue === undefined ? searchKeyword : searchKeywordValue,
+          searchKeywordValue === undefined ? SingleSearchKeyword : searchKeywordValue,
         primarySortDirection:
           sortValue === undefined ? primarySortDirection : sortValue,
         PrimarySortColumnName: sortType == "" ? ProspectSortType : sortType,
@@ -247,7 +248,7 @@ const Prospects = () => {
               if (newPaneNo > 1) {
                 newPaneNo = newPaneNo - 1;
               }
-              getClientsListData(
+              getClientsListSingleApiData(
                 newPaneNo,
                 searchKeywordValue,
                 sortValue,
@@ -256,7 +257,7 @@ const Prospects = () => {
               setSingleCurrentPage(pageNoList);
               return;
             }
-            setListCount(totalCount);
+            setSingleListCount(totalCount);
             setSingleClientList(clientList);
             setTotalRecords(clientList.length);
           }
@@ -407,8 +408,14 @@ const Prospects = () => {
 
   // F] Pagination :
   const handlePageChange = async (pageNumber) => {
-    setCurrentPage(pageNumber);
-    await getClientsListData(pageNumber); // Call your function with the selected page number
+    if (activeTab === "Web Prospect") {
+      setSingleCurrentPage(pageNumber);
+      await getClientsListSingleApiData(pageNumber); // Call your function with the selected page number
+    } else {
+      setCurrentPage(pageNumber);
+      await getClientsListData(pageNumber); // Call your function with the selected page number
+    }
+
   };
 
 
@@ -1212,14 +1219,28 @@ const Prospects = () => {
                       )}
                     </div>
                   )} */}
-                  {listCount > pageSize && (
-                    <PaginationComponent
-                      totalCount={listCount}
-                      totalPages={totalPage}
-                      currentPage={currentPage}
-                      onPageChange={handlePageChange}
-                    />
-                  )}
+                  {activeTab === "Prospect" &&
+                    listCount > pageSize && (
+                      <PaginationComponent
+                        totalCount={listCount}
+                        totalPages={totalPage}
+                        currentPage={currentPage}
+                        onPageChange={handlePageChange}
+                      />
+                    )
+                  }
+                  {activeTab === "Web Prospect" &&
+                    listSingleCount > pageSize && (
+                      <PaginationComponent
+                        totalCount={listSingleCount}
+                        totalPages={isMobile
+                          ? Math.ceil(listSingleCount / isMobileRecords)
+                          : Math.ceil(listSingleCount / desktopRecords)}
+                        currentPage={SingleCurrentPage}
+                        onPageChange={handlePageChange}
+                      />
+                    )
+                  }
                   {/* */}
 
                   {/* end card  */}
