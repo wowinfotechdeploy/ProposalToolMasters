@@ -4544,6 +4544,20 @@ const Create_practice_details = () => {
       const data = response.data;
 
       if (data.statusCode === 200) {
+        if (common.organisationCount == 0) {
+          const professionTypeIDs = basicInfo.professionTypeList.map(
+            (item) => item.professionTypeId
+          );
+          dispatch(
+            updateState({
+              businessTypeID: basicInfo.businessTypeID,
+              organisationCount: Number(common.organisationCount) + 1,
+              organisationKeyID: OrganisationKeyId,
+              professionTypeLists: professionTypeIDs,
+              enableEL: 1,
+            })
+          );
+        }
         const sessionURL = data.responseData.sessionURL;
         setLoader(false);
 
