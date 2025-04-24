@@ -4211,8 +4211,8 @@ function setDefaultFontFamily(htmlContent, fontFamily) {
 
             {props.moduleName == "Quote" && (
               <div className="dropdown" style={{display: "inline-block", marginRight: "4px"}}>
-                <div className="btn-group">
-                <div className="d-flex align-items-center">
+                <div className="btn-group d-flex align-items-stretch">
+                
                   <button
                     class="btn btn-md btn-success create-item-btn"
                     type="button"
@@ -4237,7 +4237,7 @@ function setDefaultFontFamily(htmlContent, fontFamily) {
                   </span>
                 </button>
                   <button
-                    class="btn btn-md btn-success create-item-btn d-flex"
+                    class="btn btn-md btn-success create-item-btn d-flex rounded-end-2"
                     type="button"
                     id="dropdownMenuButton"
                     data-bs-toggle="dropdown"
@@ -4277,7 +4277,7 @@ function setDefaultFontFamily(htmlContent, fontFamily) {
                     </a>
                   </li>
                 </ul>
-                </div>
+
                 </div>
               </div>
             )}
@@ -4315,7 +4315,7 @@ function setDefaultFontFamily(htmlContent, fontFamily) {
                 </div>
                 <div className="d-flex justify-content-end flex-wrap mt-5">
                 <button
-                  class="btn btn-md btn-light mr-1 ms-auto me-2"
+                  class="btn btn-md btn-light mr-1 ms-auto me-2 mb-2"
                   onClick={closePopup}
                 >
                   <span>Cancel</span>
@@ -4365,8 +4365,8 @@ function setDefaultFontFamily(htmlContent, fontFamily) {
               )}
               {props.moduleName == "Contract" && (
               <div className="dropdown" style={{display: "inline-block", marginRight: "4px"}}>
-              <div className="btn-group">
-              <div className="d-flex align-items-center">
+              <div className="btn-group d-flex align-items-stretch">
+
             <button
               style={{ 
                 borderTopRightRadius: 0,
@@ -4389,7 +4389,7 @@ function setDefaultFontFamily(htmlContent, fontFamily) {
                 </span>
               </button>
                   <button
-                    class="btn btn-md btn-success create-item-btn"
+                    class="btn btn-md btn-success create-item-btn d-flex rounded-end-2"
                     type="button"
                     id="dropdownMenuButton"
                     data-bs-toggle="dropdown"
@@ -4430,7 +4430,7 @@ function setDefaultFontFamily(htmlContent, fontFamily) {
                   </button>
                 </li>
               </ul>
-              </div>
+
               </div>
             </div>
             )}
@@ -4467,7 +4467,7 @@ function setDefaultFontFamily(htmlContent, fontFamily) {
                 </div>
                 <div className="d-flex justify-content-end flex-wrap mt-5">
                 <button
-                  class="btn btn-md btn-light mr-1 ms-auto me-2"
+                  class="btn btn-md btn-light mr-1 ms-auto me-2 mb-2"
                   onClick={closePopup}
                 >
                   <span>Cancel</span>

@@ -407,7 +407,7 @@ const InviteUser = () => {
               setOpenErrorModal(true);
             }
           }
-          GetUsersListData(currentPageUsers,searchKeyword,countryId,roleType,fromDate,toDate,primarySortDirectionUsers,UserSortType);
+          GetUsersListData(currentPageUsers,searchKeywordUsers,countryId,roleType,fromDate,toDate,primarySortDirectionUsers,UserSortType);
         } catch (error) {
           console.log(error);
         }
@@ -462,7 +462,7 @@ const InviteUser = () => {
 
   const HandlePageChangeUsers = async (pageNumber) => {
     setCurrentPageUsers(pageNumber);
-    await GetUsersListData(pageNumber,searchKeyword,countryId,roleType,fromDate,toDate,primarySortDirectionUsers,UserSortType);
+    await GetUsersListData(pageNumber,searchKeywordUsers,countryId,roleType,fromDate,toDate,primarySortDirectionUsers,UserSortType);
     // await GetUsersListData(pageNumber); // Call your function with the selected page number
   };
 
@@ -520,7 +520,7 @@ const InviteUser = () => {
       });
       setCurrentPage(1);
       // GetUsersListData(1, searchKeyword, sortValue, UserSort);
-      GetUsersListData(1, searchKeyword,countryId,roleType,fromDate,toDate, sortValue, UserSort);
+      GetUsersListData(1, searchKeywordUsers,countryId,roleType,fromDate,toDate, sortValue, UserSort);
     } else if (UserSort == "RoleName") {
       setPrimarySortDirectionUsers(sortValue);
       setPrimaryUserSortDirectionObj({
@@ -529,7 +529,7 @@ const InviteUser = () => {
       });
       setCurrentPage(1);
       // GetUsersListData(1, searchKeyword, sortValue, UserSort);
-      GetUsersListData(1, searchKeyword,countryId,roleType,fromDate,toDate, sortValue, UserSort);
+      GetUsersListData(1, searchKeywordUsers,countryId,roleType,fromDate,toDate, sortValue, UserSort);
     } else if (UserSort == "Email") {
       setPrimarySortDirectionUsers(sortValue);
       setPrimaryUserSortDirectionObj({
@@ -538,7 +538,7 @@ const InviteUser = () => {
       });
       setCurrentPage(1);
       // GetUsersListData(1, searchKeyword, sortValue, UserSort);
-      GetUsersListData(1, searchKeyword,countryId,roleType,fromDate,toDate, sortValue, UserSort);
+      GetUsersListData(1, searchKeywordUsers,countryId,roleType,fromDate,toDate, sortValue, UserSort);
     } else if (UserSort == "LastName") {
       setPrimarySortDirectionUsers(sortValue);
       setPrimaryUserSortDirectionObj({
@@ -547,7 +547,7 @@ const InviteUser = () => {
       });
       setCurrentPage(1);
       // GetUsersListData(1, searchKeyword, sortValue, UserSort);
-      GetUsersListData(1, searchKeyword,countryId,roleType,fromDate,toDate, sortValue, UserSort);
+      GetUsersListData(1, searchKeywordUsers,countryId,roleType,fromDate,toDate, sortValue, UserSort);
     }
   };
 
@@ -627,7 +627,7 @@ const InviteUser = () => {
     setToDate(null);
     setPrimarySortDirectionUsers(null);
     setUserSortType(null);
-    GetUsersListData(1, searchKeyword, null, null, null, null, null,null);
+    GetUsersListData(1, searchKeywordUsers, null, null, null, null, null,null);
     // console.log(fromDate,toDate);
   };
   //Design part :
