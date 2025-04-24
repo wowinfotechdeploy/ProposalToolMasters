@@ -75,6 +75,9 @@ function Setting() {
         fontFamilyID: null,
         backgroundServiceCategoryColor: "#00AFEF",
         buttonColor: "#00AFEF",
+        cancelButtonColor: "#d3d4d5",
+        bodyBackGroundColor: "#d3d4d5",
+        formBackGroundColor: "#d3d4d5",
         proposalForLabel: null,
         proposalTypeLabel: null,
         customSingleLabel: null,
@@ -168,6 +171,9 @@ function Setting() {
                     fontFamilyID: ModalData.fontFamilyID,
                     backgroundServiceCategoryColor: ModalData.backgroundServiceCategoryColor,
                     buttonColor: ModalData.buttonColor,
+                    cancelButtonColor: ModalData.cancelButtonColor,
+                    bodyBackGroundColor: ModalData.bodyBackGroundColor,
+                    formBackGroundColor: ModalData.formBackGroundColor,
                     proposalForLabel: ModalData.proposalForLabel,
                     proposalTypeLabel: ModalData.proposalTypeLabel,
                     customSingleLabel: ModalData.customSingleLabel,
@@ -966,6 +972,21 @@ function Setting() {
             setRequireErrorMessage(true);
             return;
         }
+        if (setting.cancelButtonColor === "" || setting.cancelButtonColor === null || setting.cancelButtonColor === undefined) {
+            scrollUpDownByElementID("CancelButtonColor");
+            setRequireErrorMessage(true);
+            return;
+        }
+        if (setting.bodyBackGroundColor === "" || setting.bodyBackGroundColor === null || setting.bodyBackGroundColor === undefined) {
+            scrollUpDownByElementID("BackgroundColor");
+            setRequireErrorMessage(true);
+            return;
+        }
+        if (setting.formBackGroundColor === "" || setting.formBackGroundColor === null || setting.formBackGroundColor === undefined) {
+            scrollUpDownByElementID("FormBackgroundColor");
+            setRequireErrorMessage(true);
+            return;
+        }
         if (setting.backgroundServiceCategoryColor === "" || setting.backgroundServiceCategoryColor === null || setting.backgroundServiceCategoryColor === undefined) {
             scrollUpDownByElementID("BackGroundServiceColor");
             setRequireErrorMessage(true);
@@ -1028,6 +1049,9 @@ function Setting() {
             fontSizeHeading: setting.fontSizeHeading,
             fontSizeText: setting.fontSizeText,
             buttonColor: setting.buttonColor,
+            cancelButtonColor: setting.cancelButtonColor,
+            bodyBackGroundColor: setting.bodyBackGroundColor,
+            formBackGroundColor: setting.formBackGroundColor,
             backgroundServiceCategoryColor: setting.backgroundServiceCategoryColor,
             proposalForLabel: setting.proposalForLabel,
             proposalTypeLabel: setting.proposalTypeLabel,
@@ -1855,7 +1879,115 @@ function Setting() {
                                                                                 </div>
                                                                             </div>
                                                                         </div>
-                                                                        {/*Email Template */}
+                                                                        {/*Cancel Button Color */}
+                                                                        <div class="col-lg-12">
+                                                                            <div class="row mb-3" id="CancelButtonColor">
+                                                                                <div class="col-md-3 col-sm-12 text-start text-md-end">
+                                                                                    <label class="form-label">
+                                                                                        Cancel Button Color
+                                                                                        <span className="text-danger">*</span>
+                                                                                    </label>
+                                                                                </div>
+                                                                                <div class="col-md-9 col-sm-12">
+                                                                                    <div className="input-group">
+                                                                                        <input
+                                                                                            type="color"
+                                                                                            class="form-control height"
+                                                                                            id="exampleColorInput contactNumber"
+                                                                                            title="Choose your color"
+                                                                                            value={setting.cancelButtonColor}
+                                                                                            onChange={(e) => {
+                                                                                                setSetting({
+                                                                                                    ...setting,
+                                                                                                    cancelButtonColor: e.target.value
+                                                                                                })
+                                                                                            }}
+                                                                                        />
+                                                                                        {requireErrorMessage &&
+                                                                                            (setting.cancelButtonColor === "" ||
+                                                                                                setting.cancelButtonColor === null ||
+                                                                                                setting.cancelButtonColor === undefined) ? (
+                                                                                            <label className="validation">{ERROR_MESSAGES}</label>
+                                                                                        ) : (
+                                                                                            ""
+                                                                                        )}
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        {/*Background Color*/}
+                                                                        <div class="col-lg-12">
+                                                                            <div class="row mb-3" id="BackgroundColor">
+                                                                                <div class="col-md-3 col-sm-12 text-start text-md-end">
+                                                                                    <label class="form-label">
+                                                                                        Backgound Color
+                                                                                        <span className="text-danger">*</span>
+                                                                                    </label>
+                                                                                </div>
+                                                                                <div class="col-md-9 col-sm-12">
+                                                                                    <div className="input-group">
+                                                                                        <input
+                                                                                            type="color"
+                                                                                            class="form-control height"
+                                                                                            id="exampleColorInput contactNumber"
+                                                                                            title="Choose your color"
+                                                                                            value={setting.bodyBackGroundColor}
+                                                                                            onChange={(e) => {
+                                                                                                setSetting({
+                                                                                                    ...setting,
+                                                                                                    bodyBackGroundColor: e.target.value
+                                                                                                })
+                                                                                            }}
+                                                                                        />
+                                                                                        {requireErrorMessage &&
+                                                                                            (setting.bodyBackGroundColor === "" ||
+                                                                                                setting.bodyBackGroundColor === null ||
+                                                                                                setting.bodyBackGroundColor === undefined) ? (
+                                                                                            <label className="validation">{ERROR_MESSAGES}</label>
+                                                                                        ) : (
+                                                                                            ""
+                                                                                        )}
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        {/*Background Color*/}
+                                                                        <div class="col-lg-12">
+                                                                            <div class="row mb-3" id="FromBackgroundColor">
+                                                                                <div class="col-md-3 col-sm-12 text-start text-md-end">
+                                                                                    <label class="form-label">
+                                                                                        Form Backgound Color
+                                                                                        <span className="text-danger">*</span>
+                                                                                    </label>
+                                                                                </div>
+                                                                                <div class="col-md-9 col-sm-12">
+                                                                                    <div className="input-group">
+                                                                                        <input
+                                                                                            type="color"
+                                                                                            class="form-control height"
+                                                                                            id="exampleColorInput contactNumber"
+                                                                                            title="Choose your color"
+                                                                                            value={setting.formBackGroundColor}
+                                                                                            onChange={(e) => {
+                                                                                                setSetting({
+                                                                                                    ...setting,
+                                                                                                    formBackGroundColor: e.target.value
+                                                                                                })
+                                                                                            }}
+                                                                                        />
+                                                                                        {requireErrorMessage &&
+                                                                                            (setting.formBackGroundColor === "" ||
+                                                                                                setting.formBackGroundColor === null ||
+                                                                                                setting.formBackGroundColor === undefined) ? (
+                                                                                            <label className="validation">{ERROR_MESSAGES}</label>
+                                                                                        ) : (
+                                                                                            ""
+                                                                                        )}
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        {/*Background Service Category Colore */}
                                                                         <div class="col-lg-12">
                                                                             <div class="row mb-3" id="BackGroundServiceColor">
                                                                                 <div class="col-md-3 col-sm-12 text-start text-md-end">
