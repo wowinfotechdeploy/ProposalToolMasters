@@ -669,26 +669,41 @@ function Add_New_Header_And_Footer(props) {
     //   setRequireErrorMessage(false);
     //   isValid = true;
     // }
-    const isHeaderEmpty =
-      !TemplateObj.templateContentForHeader ||
-      TemplateObj.templateContentForHeader.trim() === "" ||
-      TemplateObj.templateContentForHeader === "<p><br></p>" ||
-      TemplateObj.templateContentForHeader === "<p></p>";
 
-    const isFooterEmpty =
-      !TemplateObj.templateContentForFooter ||
-      TemplateObj.templateContentForFooter.trim() === "" ||
-      TemplateObj.templateContentForFooter === "<p><br></p>" ||
-      TemplateObj.templateContentForFooter === "<p></p>";
+  //   const isHeaderEmpty =
+  //   TemplateObj.templateContentForHeader === null ||
+  //   TemplateObj.templateContentForHeader === undefined ||
+  //   TemplateObj.templateContentForHeader === "<p><br></p>" ||
+  //   TemplateObj.templateContentForHeader === "<p></p>";
+
+  // const isFooterEmpty =
+  //   TemplateObj.templateContentForFooter === null ||
+  //   TemplateObj.templateContentForFooter === undefined ||
+  //   TemplateObj.templateContentForFooter === "<p><br></p>" ||
+  //   TemplateObj.templateContentForFooter === "<p></p>";
+  const isHeaderEmpty =
+  TemplateObj.templateContentForHeader === null ||
+  TemplateObj.templateContentForHeader === undefined;
+
+const isFooterEmpty =
+  TemplateObj.templateContentForFooter === null ||
+  TemplateObj.templateContentForFooter === undefined;
+
+if (isHeaderEmpty && isFooterEmpty) {
+  scrollUpDownByElementID("FooterContentDiv");
+  isValid = false;
+}
     // if (TemplateObj.templateTypeID === 42 && (!selectedHeaderFile.fileName && !selectedFooterFile.fileName)) {
     //   // Check if PDF file is not selected
     //   setRequireErrorMessage(true);
     //   isValid = false;
     // }
     if (isHeaderEmpty && isFooterEmpty) {
-      scrollUpDownByElementID("FooterContentDiv");
+      scrollUpDownByElementID("FooterContentDiv"); // or HeaderContentDiv depending on UX
+      setRequireErrorMessage(true);
+      setErrorMessage("Either header or footer content must be provided.");
       isValid = false;
-    }
+    }    
   
     if (!isValid) {
       // Stop further processing if validation fails
@@ -1609,7 +1624,7 @@ function Add_New_Header_And_Footer(props) {
                       </div>
                     </div>
                   )} 
-                {requireErrorMessage &&
+                {/* {requireErrorMessage &&
                   (TemplateObj.templateContentForHeader === null ||
                     TemplateObj.templateContentForHeader === "" ||
                     TemplateObj.templateContentForHeader === undefined ||
@@ -1620,7 +1635,7 @@ function Add_New_Header_And_Footer(props) {
                   <label className="validation">{ERROR_MESSAGES}</label>
                 ) : (
                   ""
-                )}
+                )} */}
                 {requireErrorMessage && errorEditorMessage ? (
                   <label className="validation">{errorEditorMessage}</label>
                 ) : (
@@ -1653,7 +1668,7 @@ function Add_New_Header_And_Footer(props) {
                       </div>
                     </div>
                   )}
-                {requireErrorMessage &&
+                {/* {requireErrorMessage &&
                   (TemplateObj.templateContentForFooter === null ||
                     TemplateObj.templateContentForFooter === "" ||
                     TemplateObj.templateContentForFooter === undefined ||
@@ -1664,7 +1679,7 @@ function Add_New_Header_And_Footer(props) {
                   <label className="validation">{ERROR_MESSAGES}</label>
                 ) : (
                   ""
-                )}
+                )} */}
                 {requireErrorMessage && errorEditorMessage ? (
                   <label className="validation">{errorEditorMessage}</label>
                 ) : (
