@@ -243,6 +243,7 @@ export default function PreviewComponentPdf(props) {
   const FooterImage = props.footerImage;
   const HeaderHeight = props.headerHeight;
   const FooterHeight = props.footerHeight;
+  const showSeparatorLines = props.showSeparatorLines;
   console.log(props.selectedOneOffServiceList);
   console.log(props.selectedRecurringServiceList);
   console.log(props?.ProposalObject?.selectedProposalTypeValue);
@@ -1314,7 +1315,8 @@ export default function PreviewComponentPdf(props) {
       HeaderImage: HeaderImage,
       FooterImage: FooterImage,
       HeaderHeight: HeaderHeight,
-      FooterHeight: FooterHeight
+      FooterHeight: FooterHeight,
+      showSeparatorLines: showSeparatorLines,
     };
 
     try {
@@ -1390,7 +1392,8 @@ export default function PreviewComponentPdf(props) {
             fullAddress,
             newColorCode,
             BrandLogo,
-            fontFamily
+            fontFamily,
+            showSeparatorLines
           )
         );
         await Promise.all(promises);

@@ -4,6 +4,7 @@ import "../configure/packages/Package.css";
 import "./Proposals.css";
 import Select from "react-select";
 import SuccessModal from "../../components/SuccessModal";
+import PricingModel from "../../components/PricingModel";
 import Utils from "../../Middleware/Utils";
 import Tooltip from "@mui/material/Tooltip";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -112,8 +113,8 @@ const BasicInformationComponent = (props) => {
       props.setFooterImage(selectedTemplate.footerImage);
       props.setHeaderHeight(selectedTemplate.headerHeight);
       props.setFooterHeight(selectedTemplate.footerHeight);
-      props.setFontFamily(props.getFontNameById(selectedTemplate.fontFamilyID)
-      );
+      props.setFontFamily(props.getFontNameById(selectedTemplate.fontFamilyID));
+      props.setShowSeparatorLines(selectedTemplate.showSeparatorLines);
     }
   };
 
@@ -10443,7 +10444,7 @@ const Add_Update_Proposal = (props) => {
   const [footerContent, setFooterContent] = useState(null);
   const [fontSize, setFontSize] = useState("");
   const [CompanyLogo, setCompanyLogo] = useState(null);
-
+  const [showSeparatorLines,setShowSeparatorLines] = useState(null);
   const [MergePdfUrl, setMergePdfUrl] = useState("");
   const [templateObj, setTemplateObj] = useState([]);
   const [QuotationAdditionalServices, setQuotationAdditionalServices] =
@@ -14628,7 +14629,8 @@ const Add_Update_Proposal = (props) => {
           headerImage: item.headerImage,
           footerImage: item.footerImage,
           headerHeight: item.headerHeight,
-          footerHeight: item.footerHeight
+          footerHeight: item.footerHeight,
+          showSeparatorLine: Boolean(item.showSeparatorLines)
         }));
         setTemplateLookUpOptions(mappedOptions);
         // setProposalObject((prev) => ({
@@ -14667,7 +14669,8 @@ const Add_Update_Proposal = (props) => {
               headerImage: filteredRecords[0].headerImage,
               footerImage: filteredRecords[0].footerImage,
               headerHeight: filteredRecords[0].headerHeight,
-              footerHeight: filteredRecords[0].footerHeight
+              footerHeight: filteredRecords[0].footerHeight,
+              showSeparatorLine: filteredRecords[0].showSeparatorLine,
             };
             setProposalObject((prev) => ({
               ...prev,
@@ -14680,6 +14683,7 @@ const Add_Update_Proposal = (props) => {
             setFooterImage(defaultTemplateObject?.footerImage);
             setHeaderHeight(defaultTemplateObject?.headerHeight);
             setFooterHeight(defaultTemplateObject?.footerHeight);
+            setShowSeparatorLines(defaultTemplateObject?.showSeparatorLine);
 
           } else {
             // If filteredRecords is empty, set defaultTemplateOptions
@@ -14693,6 +14697,7 @@ const Add_Update_Proposal = (props) => {
             setFooterImage(defaultTemplateOptions[0]?.footerImage);
             setHeaderHeight(defaultTemplateOptions[0]?.headerHeight);
             setFooterHeight(defaultTemplateOptions[0]?.footerHeight);
+            setShowSeparatorLines(defaultTemplateOptions[0]?.showSeparatorLine);
           }
         } else {
           // If templateID is not present, set defaultTemplateOptions
@@ -14723,6 +14728,7 @@ const Add_Update_Proposal = (props) => {
         setFooterImage(defaultTemplateOptions[0]?.footerImage);
         setHeaderHeight(defaultTemplateOptions[0]?.headerHeight);
         setFooterHeight(defaultTemplateOptions[0]?.footerHeight);
+        setShowSeparatorLines(defaultTemplateOptions[0]?.showSeparatorLine);
         // console.log(getFontNameById(defaultTemplateObject?.fontFamilyID));
         // Set the state with the default template object
         setProposalObject((prevState) => ({
@@ -17941,6 +17947,7 @@ const Add_Update_Proposal = (props) => {
                   setFooterHeight={setFooterHeight}
                   setFontFamily={setFontFamily}
                   getFontNameById={getFontNameById}
+                  setShowSeparatorLines= {setShowSeparatorLines}
                 // ProposalTypeUpdate={ProposalTypeUpdate}
                 />
               )}
@@ -18275,6 +18282,7 @@ const Add_Update_Proposal = (props) => {
                   footerImage={footerImage}
                   headerHeight={headerHeight}
                   footerHeight={footerHeight}
+                  showSeparatorLines = {showSeparatorLines}
                 />
               )}
             </div>
@@ -18286,6 +18294,16 @@ const Add_Update_Proposal = (props) => {
           handleCloseModel={handleCloseModel}
           setShowModal={setShowModal}
           activeOrganizationKeyId={common.organisationKeyID}
+        />
+        <PricingModel
+          class="modal fade"
+          id="pricingModel"
+          tabindex="-1"
+          aria_labelledby="pricingModel"
+          aria_hidden="true"
+          paymentFrequencyID={pricingSettingObj.PaymentFrequency}
+          isAddUpdatePricingActionDone={isAddUpdatePricingActionDone}
+          setIsAddUpdatePricingActionDone={setIsAddUpdatePricingActionDone}
         />
         <ErrorModel
           ErrorModel={openErrorModal}

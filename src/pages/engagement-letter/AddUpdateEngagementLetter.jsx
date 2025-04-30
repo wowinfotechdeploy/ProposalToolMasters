@@ -278,6 +278,7 @@ const BasicInformationComponent = (props) => {
                           props.setFooterHeight(selectedTemplate.footerHeight);
                           props.setFontFamily(props.getFontNameById(selectedTemplate.fontFamilyID)
                           );
+                          props.setShowSeparatorLines(selectedTemplate.showSeparatorLines);
                         }
                         props.setIsTemplateManuallySelected(true);
                       }}
@@ -5372,6 +5373,7 @@ const Add_Update_Engagement_Letter = () => {
   const [footerImage, setFooterImage] = useState(null);
   const [headerContent, setHeaderContent] = useState(null);
   const [footerContent, setFooterContent] = useState(null);
+  const [showSeparatorLines,setShowSeparatorLines] = useState(null);
   const [fontSize, setFontSize] = useState("");
   const [CompanyLogo, setCompanyLogo] = useState(false);
   const [requireMessage, setRequireMessage] = useState(false);
@@ -6425,6 +6427,7 @@ const Add_Update_Engagement_Letter = () => {
           footerImage: item.footerImage,
           headerHeight: item.headerHeight,
           footerHeight: item.footerHeight,
+          showSeparatorLines: Boolean(item.showSeparatorLines)
         }));
         setTemplateLookUpOptions(mappedOptions);
         const isSelectedDefault = data.responseData.data.filter(
@@ -6474,6 +6477,7 @@ const Add_Update_Engagement_Letter = () => {
           setFooterImage(isSelectedDefault[0].footerImage);
           setHeaderHeight(isSelectedDefault[0].headerHeight);
           setFooterHeight(isSelectedDefault[0].footerHeight);
+          setShowSeparatorLines(isSelectedDefault[0]?.showSeparatorLines);
         } else {
           // Update non-template fields only
           if (QuoteId !== null) {
@@ -12870,7 +12874,7 @@ const Add_Update_Engagement_Letter = () => {
                   setFooterHeight={setFooterHeight}
                   setFontFamily={setFontFamily}
                   getFontNameById={getFontNameById}
-
+                  setShowSeparatorLines = {setShowSeparatorLines}
                 />
               )}
               {activeTab === EngagementLetterHeader.SelectServices && (
@@ -13123,6 +13127,7 @@ const Add_Update_Engagement_Letter = () => {
                   footerImage={footerImage}
                   headerHeight={headerHeight}
                   footerHeight={footerHeight}
+                  showSeparatorLines = {showSeparatorLines}
                 />
               )}
             </div>

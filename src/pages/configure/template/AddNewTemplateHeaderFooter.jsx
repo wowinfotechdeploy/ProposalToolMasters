@@ -1,8 +1,10 @@
 /* global $ */
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
-
-
+import Tooltip from "@mui/material/Tooltip";
+import FormGroup from "@mui/material/FormGroup";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Android12Switch from "../../../components/AndroidSwitch";
 import "../email_template/EmailTemplate.css";
 import { Row, Col } from "reactstrap";
 import Select from "react-select";
@@ -43,6 +45,7 @@ function Add_New_Header_And_Footer(props) {
     EngagementName,
     getCrudButtonTextName,
     getCrudPopUpTitleName,
+    getCrudButtonToolTipName,
     scrollUpDownByElementID,
     HtmlToPlainText,
     hasActionAccess,
@@ -128,6 +131,7 @@ function Add_New_Header_And_Footer(props) {
     footerHeight: null,
     templateContentForHeader: null,
     templateContentForFooter: null,
+    showSeparatorLines: false,
     headerImage: null,
     footerImage: null
   });
@@ -169,6 +173,7 @@ function Add_New_Header_And_Footer(props) {
       footerHeight: null,
       templateContentForHeader: null,
       templateContentForFooter: null,
+      showSeparatorLines: false,
       headerImage: null,
       footerImage: null
     });
@@ -683,11 +688,13 @@ function Add_New_Header_And_Footer(props) {
   //   TemplateObj.templateContentForFooter === "<p></p>";
   const isHeaderEmpty =
   TemplateObj.templateContentForHeader === null ||
-  TemplateObj.templateContentForHeader === undefined;
+  TemplateObj.templateContentForHeader === undefined || 
+  TemplateObj.templateContentForHeader === "";
 
 const isFooterEmpty =
   TemplateObj.templateContentForFooter === null ||
-  TemplateObj.templateContentForFooter === undefined;
+  TemplateObj.templateContentForFooter === undefined ||
+  TemplateObj.templateContentForFooter === "";
 
 if (isHeaderEmpty && isFooterEmpty) {
   scrollUpDownByElementID("FooterContentDiv");
@@ -725,6 +732,7 @@ if (isHeaderEmpty && isFooterEmpty) {
       footerHeight: TemplateObj.footerHeight,
       templateContentForHeader: TemplateObj.templateContentForHeader,
       templateContentForFooter: TemplateObj.templateContentForFooter,
+      showSeparatorLines: Boolean(TemplateObj.showSeparatorLines),
       userKeyID: common.userKeyID || null,
       organisationKeyID: common.organisationKeyID || null,
       templateList: TemplateObj.templateList,
@@ -1014,33 +1022,52 @@ if (isHeaderEmpty && isFooterEmpty) {
   };
   const editorRef = useRef(null);
   
+  const htmlHasWhitespace = (htmlContent) => {
+    // Strip HTML tags and check if there is any visible whitespace
+    const textContent = htmlContent.replace(/<[^>]+>/g, "").trim(); // Remove HTML tags and trim spaces
+  
+    return textContent.length > 0; // Returns true if there's visible whitespace or text
+  };
+
   const handleContentForHeader = (newEditorState) => {
     const trimmedContent = HtmlToPlainText(newEditorState,moduleName);
+    const hasWhitespace = htmlHasWhitespace(newEditorState);
     if(trimmedContent.trim().length > 0) {
       setTemplateObj({
         ...TemplateObj,
-        templateContentForHeader : trimmedContent
+        templateContentForHeader : newEditorState
       })
+    } else if (hasWhitespace) {
+      setTemplateObj({
+        ...TemplateObj,
+        templateContentForHeader: " ", // Whitespace is valid
+      });
     }
     else {
       setTemplateObj({
         ...TemplateObj,
-        templateContentForHeader: ""
+        templateContentForHeader: null
       })
     }
   }
   const handleContentForFooter = (newEditorState) => {
     const trimmedContent = HtmlToPlainText(newEditorState,moduleName);
+    const hasWhitespace = htmlHasWhitespace(newEditorState);
     if(trimmedContent.trim().length > 0) {
       setTemplateObj({
         ...TemplateObj,
-        templateContentForFooter : trimmedContent
+        templateContentForFooter : newEditorState
       })
+    }  else if (hasWhitespace) {
+      setTemplateObj({
+        ...TemplateObj,
+        templateContentForFooter: " ", // Whitespace is valid
+      });
     }
     else {
       setTemplateObj({
         ...TemplateObj,
-        templateContentForFooter: ""
+        templateContentForFooter: null
       })
     }
   }
@@ -1298,6 +1325,30 @@ if (isHeaderEmpty && isFooterEmpty) {
                       ) : (
                         ""
                       )} */}
+                    </div>
+                  </div>
+                </div>
+                <div className="row fieldset" id="separatorLine">
+                  <div className="col-lg-3 template-label text-left">
+                    <div className="mb-1">
+                      <label className="form-label">Show Separator Lines</label>
+                    </div>
+                  </div>
+                  <div className="col-lg-9">
+                    <div className="">
+                      <div className="mb-1 " style={{ marginLeft: "-10px" }}>
+                        <div style={{ display: "flex", alignItems: "center" }}>
+                          <Android12Switch
+                            onChange={(e, checked) =>
+                              setTemplateObj(prev => ({
+                                ...prev,
+                                showSeparatorLines: checked ? true : false
+                              }))
+                            }
+                            checked={TemplateObj.showSeparatorLines === true}
+                          />
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
