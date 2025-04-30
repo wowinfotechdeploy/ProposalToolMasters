@@ -41,9 +41,13 @@ export const redirectUri = "https://master.proposal.outbooks.com";
 // export const mergePdfApiUrl = "https://multipurpose.mkisan.com/mergeUserPdfs";
 // export const generatePdfUrl = "https://multipurpose.mkisan.com/generatePdf";
 // export const saveImage = "https://multipurpose.mkisan.com/save-image";
-export const mergePdfApiUrl = "https://proposal.pdfapi.wowinfosolutions.com/mergeUserPdfs";
-export const generatePdfUrl = "https://proposal.pdfapi.wowinfosolutions.com/generatePdf";
-export const saveImage = "https://proposal.pdfapi.wowinfosolutions.com/save-image"
+// export const mergePdfApiUrl = "https://proposal.pdfapi.wowinfosolutions.com/mergeUserPdfs";
+// export const generatePdfUrl = "https://proposal.pdfapi.wowinfosolutions.com/generatePdf";
+// export const saveImage = "https://proposal.pdfapi.wowinfosolutions.com/save-image"
+
+export const mergePdfApiUrl = "https://master.proposal.wowinfosolutions.com/mergeUserPdfs";
+export const generatePdfUrl = "https://master.proposal.wowinfosolutions.com/generatePdf";
+export const saveImage = "https://master.proposal.wowinfosolutions.com/save-image"
 //Production Link 
 // export const mergePdfApiUrl = "https://api.pdfgenration.proposal.ust.outbooks.com/mergeUserPdfs";
 // export const generatePdfUrl = "https://api.pdfgenration.proposal.ust.outbooks.com/generatePdf";
