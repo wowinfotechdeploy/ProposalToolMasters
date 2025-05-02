@@ -45,8 +45,8 @@ const NewRegistration = () => {
     const [checkboxChecked, setCheckboxChecked] = useState(false);
     const state = location.state;
     const [regObj, setRegObj] = useState({
-        firstName: state?.firstName || undefined,
-        lastName: state?.lastName || undefined,
+        firstName: state?.firstName || "",
+        lastName: state?.lastName || "",
         email: state?.email || undefined,
         phone: null,
         phoneCode: { value: 9, label: "+44" },
@@ -419,73 +419,78 @@ const NewRegistration = () => {
                                                         <hr></hr>
                                                         <div className="or-devider">or</div>
                                                     </div>
-                                                    <div className="row-f">
-                                                        <input
-                                                            type="text"
-                                                            className="lninput lntext sign-f small martno"
-                                                            placeholder="First Name*"
-                                                            value={regObj.firstName}
-                                                            onChange={(e) => {
-                                                                const inputValue = e.target.value;
-                                                                const trimmedValue = inputValue
-                                                                    .replace(/\s+/g, "")
-                                                                    .slice(0, 30); // Remove all spaces
-                                                                if (/\d/.test(trimmedValue)) {
-                                                                    return;
-                                                                }
-                                                                const capitalizedValue =
-                                                                    trimmedValue.charAt(0).toUpperCase() +
-                                                                    trimmedValue.slice(1);
-                                                                setRegObj({ ...regObj, firstName: capitalizedValue });
-                                                            }}
-                                                        />
-                                                        <input
-                                                            type="text"
-                                                            className="lninput lntext sign-f small martno"
-                                                            placeholder="Last Name*"
-                                                            value={regObj.lastName}
-                                                            onChange={(e) => {
-                                                                const inputValue = e.target.value;
+                                                    <div className="row">
+                                                        <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                                                            <input
+                                                                type="text"
+                                                                className="lninput lntext sign-f small martno"
+                                                                placeholder="First Name*"
+                                                                style={{ width: "100%" }}
+                                                                value={regObj.firstName}
+                                                                onChange={(e) => {
+                                                                    const inputValue = e.target.value;
+                                                                    const trimmedValue = inputValue.replace(/\s+/g, "").slice(0, 30);
+                                                                    if (/\d/.test(trimmedValue)) return;
+                                                                    const capitalizedValue =
+                                                                        trimmedValue.charAt(0).toUpperCase() + trimmedValue.slice(1);
+                                                                    setRegObj({ ...regObj, firstName: capitalizedValue });
+                                                                }}
+                                                            />
+                                                            {(requireErrorMessage &&
+                                                                (!regObj.firstName || state?.firstName === "" || state?.firstName === null)) && (
+                                                                    <label className="validation registration mt-2">
+                                                                        {ERROR_MESSAGES}
+                                                                    </label>
+                                                                )}
+                                                        </div>
 
-                                                                const trimmedValue = inputValue
-                                                                    .replace(/\s+/g, "")
-                                                                    .slice(0, 30);
-
-                                                                if (/\d/.test(trimmedValue)) {
-                                                                    return;
-                                                                }
-
-                                                                const capitalizedValue =
-                                                                    trimmedValue.charAt(0).toUpperCase() +
-                                                                    trimmedValue.slice(1);
-                                                                setRegObj({ ...regObj, lastName: capitalizedValue });
-                                                            }}
-                                                        />
+                                                        <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                                                            <input
+                                                                type="text"
+                                                                className="lninput lntext sign-f small martno"
+                                                                placeholder="Last Name*"
+                                                                style={{ width: "100%" }}
+                                                                value={regObj.lastName}
+                                                                onChange={(e) => {
+                                                                    const inputValue = e.target.value;
+                                                                    const trimmedValue = inputValue.replace(/\s+/g, "").slice(0, 30);
+                                                                    if (/\d/.test(trimmedValue)) return;
+                                                                    const capitalizedValue =
+                                                                        trimmedValue.charAt(0).toUpperCase() + trimmedValue.slice(1);
+                                                                    setRegObj({ ...regObj, lastName: capitalizedValue });
+                                                                }}
+                                                            />
+                                                            {(requireErrorMessage && !regObj.lastName) && (
+                                                                <label className="validation registration mt-2">
+                                                                    {ERROR_MESSAGES}
+                                                                </label>
+                                                            )}
+                                                        </div>
                                                     </div>
 
-                                                    <div className="row-f">
+
+                                                    {/* <div className="row-f">
                                                         <div className="fname-valid">
-                                                            {requireErrorMessage &&
+                                                            {(requireErrorMessage &&
                                                                 (regObj.firstName === undefined ||
                                                                     regObj.firstName === "" ||
-                                                                    state?.firstName == "" ||
-                                                                    state?.firstName === null) ? (
+                                                                    state?.firstName === "" ||
+                                                                    state?.firstName === null)) ? (
                                                                 <label className="validation registration">{ERROR_MESSAGES}</label>
                                                             ) : (
-                                                                ""
+                                                                <label className="validation registration invisible">&nbsp;</label> // Empty label to reserve space
                                                             )}
-
                                                         </div>
                                                         <div className="lname-valid">
-                                                            {requireErrorMessage &&
-                                                                (regObj.lastName === undefined || regObj.lastName === "") ? (
+                                                            {(requireErrorMessage &&
+                                                                (regObj.lastName === undefined || regObj.lastName === "")) ? (
                                                                 <label className="validation registration">{ERROR_MESSAGES}</label>
                                                             ) : (
-                                                                ""
+                                                                <label className="validation registration invisible">&nbsp;</label> // Same for last name
                                                             )}
-
                                                         </div>
-                                                    </div>
+                                                    </div> */}
+
 
                                                     <div className="row-f">
                                                         {state ? (

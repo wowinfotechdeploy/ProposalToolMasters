@@ -9,6 +9,7 @@ import {
   GetClientList,
   DeleteClient,
   ClientChangeStatus,
+  DeleteSingleApiClient,
 } from "../../redux/Services/client/clientAPI";
 import SuccessModal from "../../components/SuccessModal";
 import ErrorModel from "../../components/ErrorModel";
@@ -60,11 +61,11 @@ const Prospects = () => {
   } = useContext(AuthContextProvider);
   const moduleName = `${prospectName}`;
   const [currentPage, setCurrentPage] = useState(1);
-  const [listSingleCount, setSingleListCount] = useState(0);
   const [SingleCurrentPage, setSingleCurrentPage] = useState(1);
   const [searchKeyword, setSearchKeyword] = useState("");
   const [SingleSearchKeyword, setSingleSearchKeyword] = useState("");
   const [businessNatureID, setBusinessNatureID] = useState(null);
+  const [selectedRows, setSelectedRows] = useState([]);
   const [prospectType, setProspectType] = useState(null);
   const [openSuccessModal, setOpenSuccessModal] = React.useState(false);
   const [modelRequestData, setModelRequestData] = useState({
@@ -225,7 +226,7 @@ const Prospects = () => {
         pageNo: pageNoList,
         organisationKeyID: common.organisationKeyID,
         searchKeyword:
-          searchKeywordValue === undefined ? SingleSearchKeyword : searchKeywordValue,
+          searchKeywordValue === undefined ? searchKeyword : searchKeywordValue,
         primarySortDirection:
           sortValue === undefined ? primarySortDirection : sortValue,
         PrimarySortColumnName: sortType == "" ? ProspectSortType : sortType,
@@ -248,7 +249,7 @@ const Prospects = () => {
               if (newPaneNo > 1) {
                 newPaneNo = newPaneNo - 1;
               }
-              getClientsListSingleApiData(
+              getClientsListData(
                 newPaneNo,
                 searchKeywordValue,
                 sortValue,
@@ -257,9 +258,9 @@ const Prospects = () => {
               setSingleCurrentPage(pageNoList);
               return;
             }
-            setSingleListCount(totalCount);
+            setListCount(totalCount);
             setSingleClientList(clientList);
-            setTotalRecords(clientList.length);
+            // setTotalRecords(clientList.length);
           }
         } else {
           if (getClientsListApiCallCount < maxCountToRecallApi) {
@@ -301,25 +302,43 @@ const Prospects = () => {
 
     if (modelRequestData.Action === "Delete") {
       try {
-        const Data = await DeleteClient(
-          modelRequestData.clientKeyID,
-          modelRequestData.userKeyID
-        );
-        if (Data) {
-          setLoader(false);
-          if (Data?.data?.statusCode === 200) {
+
+        if (selectedRows.length !== 0) {
+          const data = await DeleteSingleApiClient({
+            userKeyID: common.userKeyID,
+            clientKeyIDs: selectedRows
+          });
+          if (data?.data?.statusCode === 200) {
+            setLoader(false);
             setOpenSuccessModal(true);
-          } else {
-            if (Data?.response?.data?.errorMessage.includes("Prospect")) {
-              let ErrorMessage = Data?.response?.data?.errorMessage;
-              ErrorMessage = ErrorMessage.replace("Prospect", prospectName);
-              setErrorMessage(ErrorMessage);
-            } else {
-              setErrorMessage(Data?.response?.data?.errorMessage);
-            }
+            getClientsListSingleApiData(currentPage);
+          }
+          else {
+            setLoader(false);
+            setErrorMessage(data?.data?.errorMessage);
             setOpenErrorModal(true);
           }
-          getClientsListData(currentPage);
+        } else {
+          const Data = await DeleteClient(
+            modelRequestData.clientKeyID,
+            modelRequestData.userKeyID
+          );
+          if (Data) {
+            setLoader(false);
+            if (Data?.data?.statusCode === 200) {
+              setOpenSuccessModal(true);
+            } else {
+              if (Data?.response?.data?.errorMessage.includes("Prospect")) {
+                let ErrorMessage = Data?.response?.data?.errorMessage;
+                ErrorMessage = ErrorMessage.replace("Prospect", prospectName);
+                setErrorMessage(ErrorMessage);
+              } else {
+                setErrorMessage(Data?.response?.data?.errorMessage);
+              }
+              setOpenErrorModal(true);
+            }
+            getClientsListData(currentPage);
+          }
         }
       } catch (error) {
         console.log(error);
@@ -408,14 +427,8 @@ const Prospects = () => {
 
   // F] Pagination :
   const handlePageChange = async (pageNumber) => {
-    if (activeTab === "Web Prospect") {
-      setSingleCurrentPage(pageNumber);
-      await getClientsListSingleApiData(pageNumber); // Call your function with the selected page number
-    } else {
-      setCurrentPage(pageNumber);
-      await getClientsListData(pageNumber); // Call your function with the selected page number
-    }
-
+    setCurrentPage(pageNumber);
+    await getClientsListData(pageNumber); // Call your function with the selected page number
   };
 
 
@@ -452,6 +465,27 @@ const Prospects = () => {
     setBusinessNatureID(null);
     setProspectType(null);
     setShouldFetch(true);
+  };
+
+  const visibleRows = singleclientList.slice(
+    0,
+    isMobile ? isMobileRecords : desktopRecords
+  );
+
+  const handleRowSelect = (clientKeyID) => {
+    setSelectedRows((prevSelected) =>
+      prevSelected.includes(clientKeyID)
+        ? prevSelected.filter((id) => id !== clientKeyID)
+        : [...prevSelected, clientKeyID]
+    );
+  };
+
+  const handleSelectAll = () => {
+    if (selectedRows.length === visibleRows.length) {
+      setSelectedRows([]); // Deselect all
+    } else {
+      setSelectedRows(visibleRows.map((item) => item.clientKeyID)); // Select all
+    }
   };
 
   return (
@@ -509,29 +543,67 @@ const Prospects = () => {
                       <div class="row g-4 mb-3"></div>
                       <div class="table-responsive table-card mb-3 table-padding">
                         <div className="row">
-                          <div class="col-md-6 col-lg-6 col-9  mb-2">
+                          <div class="col-md-3 col-lg-3 col-9  mb-2">
                             {activeTab === "Web Prospect" && (
-                              <div
-                                class="search-box col-md-5 col-8 width-searchbox "
-                                style={{}}
-                              >
-                                <i className="ri-search-line search-icon"></i>
-                                <input
-                                  type="text"
-                                  class="form-control search"
-                                  value={SingleSearchKeyword}
-                                  onChange={(e) => {
-                                    handleSearch(e, "Web");
-                                  }}
-                                  placeholder={
-                                    isMobile
-                                      ? "Search"
-                                      : getPlaceholderTextName(
-                                        "Search",
-                                        moduleName
-                                      )
-                                  }
-                                />
+                              <div className="d-flex justify-content-start">
+                                <div
+                                  class="search-box col-md-3 col-8 width-searchbox me-2"
+                                  style={{}}
+                                >
+                                  <i className="ri-search-line search-icon"></i>
+                                  <input
+                                    type="text"
+                                    class="form-control search"
+                                    value={SingleSearchKeyword}
+                                    onChange={(e) => {
+                                      handleSearch(e, "Web");
+                                    }}
+                                    placeholder={
+                                      isMobile
+                                        ? "Search"
+                                        : getPlaceholderTextName(
+                                          "Search",
+                                          moduleName
+                                        )
+                                    }
+                                  />
+                                </div>
+
+                                <div className=" d-flex align-items-start justify-content-start ">
+                                  <Tooltip
+                                    title={getCrudButtonToolTipName(
+                                      "Delete",
+                                      prospectName
+                                    )}
+                                  >
+                                    <div>
+                                      <button
+                                        className={
+                                          selectedRows.length !== 0
+                                            ? "btn btn-md btn-success create-item-btn filter me-2"
+                                            : "btn btn-md btn-success create-item-btn-apply filter me-2"
+                                        }
+                                        disabled={selectedRows.length === 0}
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#ConfirmModel"
+                                        onClick={() =>
+                                          setModelRequestData({
+                                            ...modelRequestData,
+                                            Action: "Delete",
+                                          })
+                                        }
+                                      >
+                                        <i
+                                          className={
+                                            selectedRows.length !== 0
+                                              ? "ri-delete-bin-5-fill align-bottom "
+                                              : "ri-delete-bin-5-fill align-bottom Filter-apply-color"
+                                          }
+                                        ></i>
+                                      </button>
+                                    </div>
+                                  </Tooltip>
+                                </div>
                               </div>
                             )}
 
@@ -629,6 +701,12 @@ const Prospects = () => {
                                 </div>
                               </div>
                             )}
+                            {activeTab === "Web Prospect" && (
+                              <div className="d-flex justify-content-start">
+
+
+                              </div>
+                            )}
                           </div>
                           {activeTab === "Prospect" && (
                             <div class="col-lg-6 col-md-6 col-3 text-nowrap mb-2">
@@ -660,6 +738,11 @@ const Prospects = () => {
                                     className="tr-table-class text-white"
                                     style={{ width: "30%" }}
                                   >
+                                    <input
+                                      type="checkbox"
+                                      checked={selectedRows.length === visibleRows.length}
+                                      onChange={handleSelectAll}
+                                    />
                                     {prospectName} Name{" "}
                                     {primarySortDirectionObj.ProspectNameSort ===
                                       "desc" && (
@@ -731,11 +814,11 @@ const Prospects = () => {
                                   <td className="tr-table-class text-white">
                                     Status
                                   </td>
-                                  <td className="tr-table-class text-white">
+                                  {/* <td className="tr-table-class text-white">
                                     {userAccessData.Admin_Prospect_CanView && (
                                       <>Action</>
                                     )}
-                                  </td>
+                                  </td> */}
                                 </tr>
                               </thead>
                               <tbody class="list form-check-all">
@@ -758,6 +841,11 @@ const Prospects = () => {
                                           key={Prospect.clientID}
                                         >
                                           <td className="table-content-font">
+                                            <input
+                                              type="checkbox"
+                                              checked={selectedRows.includes(Prospect.clientKeyID)}
+                                              onChange={() => handleRowSelect(Prospect.clientKeyID)}
+                                            />
                                             {Prospect.clientName}
                                           </td>
                                           <td className="table-content-font">
@@ -828,7 +916,7 @@ const Prospects = () => {
                                               )}
                                             </div>
                                           </td>
-                                          <td>
+                                          {/* <td>
                                             <div class="d-flex gap-2">
                                               <Tooltip
                                                 title={getCrudButtonToolTipName(
@@ -855,7 +943,7 @@ const Prospects = () => {
                                                 </div>
                                               </Tooltip>
 
-                                              {/* {userAccessData.Admin_Prospect_CanEdit && activeOrganizationSubscriptionPlan.apiIntegration && (
+                                              {userAccessData.Admin_Prospect_CanEdit && activeOrganizationSubscriptionPlan.apiIntegration && (
                                                 <Tooltip
                                                   title={getCrudButtonToolTipName(
                                                     "Update",
@@ -875,8 +963,8 @@ const Prospects = () => {
                                                     </button>
                                                   </div>
                                                 </Tooltip>
-                                              )} */}
-                                              {/* {userAccessData.Admin_Prospect_CanDelete && activeOrganizationSubscriptionPlan.apiIntegration && (
+                                              )}
+                                              {userAccessData.Admin_Prospect_CanDelete && activeOrganizationSubscriptionPlan.apiIntegration && (
                                                 <Tooltip
                                                   title={getCrudButtonToolTipName(
                                                     "Delete",
@@ -905,9 +993,9 @@ const Prospects = () => {
                                                     </button>
                                                   </div>
                                                 </Tooltip>
-                                              )} */}
+                                              )}
                                             </div>
-                                          </td>
+                                          </td> */}
                                         </tr>
                                       </>
                                     );
@@ -929,10 +1017,12 @@ const Prospects = () => {
                             >
                               <thead class="table-light table-header-font">
                                 <tr className="head-row">
+
                                   <td
                                     className="tr-table-class text-white"
                                     style={{ width: "30%" }}
                                   >
+
                                     {prospectName} Name{" "}
                                     {primarySortDirectionObj.ProspectNameSort ===
                                       "desc" && (
@@ -1219,28 +1309,14 @@ const Prospects = () => {
                       )}
                     </div>
                   )} */}
-                  {activeTab === "Prospect" &&
-                    listCount > pageSize && (
-                      <PaginationComponent
-                        totalCount={listCount}
-                        totalPages={totalPage}
-                        currentPage={currentPage}
-                        onPageChange={handlePageChange}
-                      />
-                    )
-                  }
-                  {activeTab === "Web Prospect" &&
-                    listSingleCount > pageSize && (
-                      <PaginationComponent
-                        totalCount={listSingleCount}
-                        totalPages={isMobile
-                          ? Math.ceil(listSingleCount / isMobileRecords)
-                          : Math.ceil(listSingleCount / desktopRecords)}
-                        currentPage={SingleCurrentPage}
-                        onPageChange={handlePageChange}
-                      />
-                    )
-                  }
+                  {listCount > pageSize && (
+                    <PaginationComponent
+                      totalCount={listCount}
+                      totalPages={totalPage}
+                      currentPage={currentPage}
+                      onPageChange={handlePageChange}
+                    />
+                  )}
                   {/* */}
 
                   {/* end card  */}
@@ -1274,7 +1350,7 @@ const Prospects = () => {
         openSuccessModal={openSuccessModal}
         modelAction={modelRequestData.Action}
         message={`${modelRequestData.Action === "Delete"
-          ? `${moduleName} ${modelRequestData.clientName}`
+          ? selectedRows.length !== 0 ? prospectName : `${moduleName} ${modelRequestData.clientName}`
           : "Status has been changed successfully!"
           }`}
       />

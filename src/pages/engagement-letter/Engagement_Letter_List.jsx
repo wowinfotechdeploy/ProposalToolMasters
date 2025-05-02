@@ -21,6 +21,7 @@ import { useSelector } from "react-redux";
 import {
   ChangeContractStatus,
   CopyContract,
+  DeleteSingleApiContract,
   GetEngagementList,
   GetOldEngagementList,
   VoidContract,
@@ -106,6 +107,7 @@ const Engagement_Letter = () => {
   const [selectedOption, setSelectedOption] = useState("");
   const [fromDate, setFromDate] = useState(null);
   const [openSuccessModal, setOpenSuccessModal] = React.useState(false);
+  const [selectedRows, setSelectedRows] = useState([]);
   const [toDate, setToDate] = useState(null);
   const [status, setStatus] = useState("");
   const [businessNatureID, setBusinessNatureID] = useState(null);
@@ -944,6 +946,53 @@ const Engagement_Letter = () => {
       );
     }
   };
+  const DeleteSingleApiContractData = async () => {
+    try {
+      setLoader(true);
+      if (selectedRows.length !== 0) {
+        const data = await DeleteSingleApiContract({
+          userKeyID: common.userKeyID,
+          contractKeyIDs: selectedRows
+        });
+        if (data?.data?.statusCode === 200) {
+          setLoader(false);
+          setOpenSuccessModal(true);
+          GetEngagementListForSingleApiData(currentPage);
+        }
+        else {
+          setLoader(false);
+          setErrorMessage(data?.data?.errorMessage);
+          setOpenErrorModal(true);
+        }
+      }
+    }
+    catch (error) {
+      console.error(error);
+    }
+  }
+
+
+  const visibleRows = SingleEngagementList.slice(
+    0,
+    isMobile ? isMobileRecords : desktopRecords
+  );
+
+  const handleRowSelect = (contractKeyID) => {
+    setSelectedRows((prevSelected) =>
+      prevSelected.includes(contractKeyID)
+        ? prevSelected.filter((id) => id !== contractKeyID)
+        : [...prevSelected, contractKeyID]
+    );
+  };
+
+  const handleSelectAll = () => {
+    if (selectedRows.length === visibleRows.length) {
+      setSelectedRows([]); // Deselect all
+    } else {
+      setSelectedRows(visibleRows.map((item) => item.contractKeyID)); // Select all
+    }
+  };
+
   return (
     <div className="container">
       <div class="main-content">
@@ -1233,6 +1282,39 @@ const Engagement_Letter = () => {
                                     ) : (
                                       ""
                                     )}
+                                    <Tooltip
+                                      title={getCrudButtonToolTipName(
+                                        "Delete",
+                                        DeleteSingleApiContractData
+                                      )}
+                                    >
+                                      <div>
+                                        <button
+                                          className={
+                                            selectedRows.length !== 0
+                                              ? "btn btn-md btn-success create-item-btn filter me-2"
+                                              : "btn btn-md btn-success create-item-btn-apply filter me-2"
+                                          }
+                                          disabled={selectedRows.length === 0}
+                                          data-bs-toggle="modal"
+                                          data-bs-target="#ConfirmModel"
+                                          onClick={() =>
+                                            setModelRequestData({
+                                              ...modelRequestData,
+                                              Action: "Delete",
+                                            })
+                                          }
+                                        >
+                                          <i
+                                            className={
+                                              selectedRows.length !== 0
+                                                ? "ri-delete-bin-5-fill align-bottom "
+                                                : "ri-delete-bin-5-fill align-bottom Filter-apply-color"
+                                            }
+                                          ></i>
+                                        </button>
+                                      </div>
+                                    </Tooltip>
                                   </div>
                                 </div>
                               </div>
@@ -2062,6 +2144,11 @@ const Engagement_Letter = () => {
                                   <td
                                     className="tr-table-class text-white"
                                   >
+                                    <input
+                                      type="checkbox"
+                                      checked={selectedRows.length === visibleRows.length}
+                                      onChange={handleSelectAll}
+                                    />
                                     Ref ID
                                   </td>
                                   <td className="tr-table-class text-white">
@@ -2096,6 +2183,11 @@ const Engagement_Letter = () => {
                                       <>
                                         <tr class="table_new">
                                           <td className="table-content-font">
+                                            <input
+                                              type="checkbox me-2"
+                                              checked={selectedRows.includes(engagement.contractKeyID)}
+                                              onChange={() => handleRowSelect(engagement.contractKeyID)}
+                                            />
                                             {engagement.prefix}
                                           </td>
                                           <td className="table-content-font">
@@ -2272,11 +2364,43 @@ const Engagement_Letter = () => {
                                                 </p>
                                               )}
                                           </td>
-
-
-                                          <td className="table-content-font">
+                                          <td>
                                             <div class="d-flex gap-2">
+                                              <Tooltip
+                                                title={getCrudButtonToolTipName(
+                                                  "Delete",
+                                                  { EngagementName }
+                                                )}
+                                              >
+                                                <div class="remove">
+                                                  <button
+                                                    class="btn btn-sm btn-danger remove-item-btn actionButtonsStyle"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#ConfirmModel"
+                                                    onClick={() =>
+                                                      setModelRequestData({
+                                                        ...modelRequestData,
+                                                        contractKeyID:
+                                                          engagement.contractKeyID,
+                                                        clientName:
+                                                          engagement.clientName,
+                                                        userKeyID:
+                                                          common.userKeyID,
+                                                        Action: "Delete",
+                                                      })
+                                                    }
+                                                  >
+                                                    <i class="ri-delete-bin-5-fill"></i>
+                                                  </button>
+                                                </div>
+                                              </Tooltip>
 
+                                            </div>
+                                          </td>
+
+                                          {/* <td className="table-content-font">
+                                            <div class="d-flex gap-2">
+                                             
                                               <div class="dropdown">
                                                 <button
                                                   class="btn btn-md btn-success create-item-btn"
@@ -2293,10 +2417,10 @@ const Engagement_Letter = () => {
                                                 <ul style={{
                                                   padding: `${engagement.statusID === statusID.Draft ? "2px 0px 2px 0px" : "6px 8px"}`
                                                 }} class="dropdown-menu" aria-labelledby="dropdownElMenuButton">
-
-                                                  {/* {engagement.statusID === statusID.Draft && userAccessData.Admin_Engagement_Latter_CanEdit && (
+                                               
+                                                  {engagement.statusID === statusID.Draft && userAccessData.Admin_Engagement_Latter_CanEdit && (
                                                     <li>
-
+                                                     
                                                       <a class="dropdown-item" onClick={() =>
                                                         EngagementEditBtnClicked(
                                                           engagement
@@ -2307,11 +2431,11 @@ const Engagement_Letter = () => {
                                                           style={{ marginRight: "2px" }}
                                                         ></i> Edit {EngagementName}
                                                       </a>
-
+                                                     
                                                     </li>
-                                                  )} */}
+                                                  )}
 
-
+                                                
                                                   {(engagement.statusID !== statusID.Draft) && userAccessData.Admin_Engagement_Latter_CanView && (
                                                     <li>
 
@@ -2326,8 +2450,8 @@ const Engagement_Letter = () => {
                                                     </li>
                                                   )}
 
-
-                                                  {/* {engagement.statusID !== statusID.Draft && (
+                                                
+                                                  {engagement.statusID !== statusID.Draft && (
                                                     <li>
 
                                                       <a class="dropdown-item" data-bs-toggle="modal"
@@ -2345,9 +2469,9 @@ const Engagement_Letter = () => {
                                                       </a>
 
                                                     </li>
-                                                  )} */}
-
-                                                  {/* {(engagement.statusID === statusID.Sent || engagement.statusID === statusID.Awaiting_Signature
+                                                  )}
+                                                 
+                                                  {(engagement.statusID === statusID.Sent || engagement.statusID === statusID.Awaiting_Signature
                                                   ) && userAccessData.Admin_Engagement_Latter_CanEdit && (
                                                       <li>
                                                         <a class="dropdown-item" data-bs-toggle="modal"
@@ -2363,12 +2487,12 @@ const Engagement_Letter = () => {
                                                           <i class="fas fa-redo"></i> Re-send {EngagementName}
                                                         </a>
                                                       </li>
-                                                    )} */}
+                                                    )}
                                                 </ul>
                                               </div>
                                             </div>
 
-                                          </td>
+                                          </td> */}
                                           {/* <td>
                                             <div class="d-flex gap-2">
                                               {userAccessData.Admin_Engagement_Latter_CanView && (
@@ -2564,17 +2688,18 @@ const Engagement_Letter = () => {
           openSuccessModal={openSuccessModal}
           modelRequestData={modelRequestData}
           UpdatedStatus={modelRequestData.Action === "ReminderStatus" ? ChangeContractStatusData : modelRequestData.Action === "Resend" ? handleResend
-            : modelRequestData.Action === "Void" ? VoidContractData : CopyContractData} />
+            : modelRequestData.Action === "Void" ? VoidContractData : modelRequestData.Action === "Delete" ? DeleteSingleApiContractData : CopyContractData} />
         <SuccessModal
           handleClose={handleClose}
           setOpenSuccessModal={setOpenSuccessModal}
           openSuccessModal={openSuccessModal}
           modelAction={modelRequestData.Action}
           message={
+
             modelRequestData.Action === "Copy"
               ? `The Copy of  ${modelRequestData.refId} has been created successfully! `
               : modelRequestData.Action === "ReminderStatus" ? "Status has been changed successfully!" :
-                modelRequestData.Action === "Resend" ? EngagementName : modelRequestData.Action === "Void" ? `${modelRequestData.refId} has been voided successfully!` : ""
+                modelRequestData.Action === "Resend" ? EngagementName : modelRequestData.Action === "Void" ? `${modelRequestData.refId} has been voided successfully!` : modelRequestData.Action === "Delete" ? selectedRows.length !== 0 ? EngagementName : "" : ""
           }
           refIdStore={modelRequestData.refId}
         />

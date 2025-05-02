@@ -86,3 +86,11 @@ export const VoidContract = async (ContractKeyID, UserKeyID) => {
     );
     return res;
 };
+export const DeleteSingleApiContract = async (params) => {
+
+    const res = await postApiWithAuthenticated(
+        // `${TemplateBaseUrl}/GetMasterTemplateDetailsWithVariableValues?TemplateKeyID=${params.TemplateKeyID}&ClientKeyID=${params.clientID}`
+        `${Engagement_Letters}/DeleteSingleApiContract`, params
+    );
+    return res;
+};

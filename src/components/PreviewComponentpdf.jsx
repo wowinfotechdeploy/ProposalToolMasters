@@ -43,62 +43,62 @@ export default function PreviewComponentPdf(props) {
   const [totalThreePackageValueOneOff, setTotalThreePackageValueOneOff] =
     useState(0);
   const [isPdfAlreadyGenerated, setIsPdfAlreadyGenerated] = useState(false);
-    const [initialContent,setInitialContent] = useState("");
-    const [isContentChanged,setIsContentChanged] = useState(false);
-    const [editorState,setEditorState] = useState("");
-    const [isPopUpVisible, setIsPopUpVisible] = useState(false);
-    const openPopup =() => {
-      setIsPopUpVisible(true);
+  const [initialContent, setInitialContent] = useState("");
+  const [isContentChanged, setIsContentChanged] = useState(false);
+  const [editorState, setEditorState] = useState("");
+  const [isPopUpVisible, setIsPopUpVisible] = useState(false);
+  const openPopup = () => {
+    setIsPopUpVisible(true);
+  }
+  const closePopup = () => {
+    setIsPopUpVisible(false);
+    setEditorState("");
+    if (props.moduleName == "Quote") {
+      props?.setProposalObject(prevState => ({
+        ...prevState,
+        customizedEmailContent: null
+      }));
     }
-    const closePopup = () => {
-      setIsPopUpVisible(false);
-      setEditorState("");
-      if(props.moduleName == "Quote") {
-        props?.setProposalObject(prevState => ({
-          ...prevState,
-          customizedEmailContent: null
-        }));
-      }
-      else if (props.moduleName == "Contract") {
-        props?.setEngagementObj(prevState => ({
-          ...prevState,
-          customizedEmailContent: null
-        }))
-      }
+    else if (props.moduleName == "Contract") {
+      props?.setEngagementObj(prevState => ({
+        ...prevState,
+        customizedEmailContent: null
+      }))
     }
-    const GetEmailTemplateContent = async (organisationKeyID, TemplateTypeID) => {
-      if(!organisationKeyID) {
-        return;
-      }
-      try {
-        const data = await GetEmailContent(common.organisationKeyID,TemplateTypeID)
-        if(data?.data?.statusCode === 200) {
-          if(data?.data?.responseData?.data){
-            const htmlContent = data?.data?.responseData?.data;
-            setEditorState(htmlContent);
-            setInitialContent(htmlContent);
-          }
-        }
-        else{
-          // console.error(error);
-          setLoader(false);
+  }
+  const GetEmailTemplateContent = async (organisationKeyID, TemplateTypeID) => {
+    if (!organisationKeyID) {
+      return;
+    }
+    try {
+      const data = await GetEmailContent(common.organisationKeyID, TemplateTypeID)
+      if (data?.data?.statusCode === 200) {
+        if (data?.data?.responseData?.data) {
+          const htmlContent = data?.data?.responseData?.data;
+          setEditorState(htmlContent);
+          setInitialContent(htmlContent);
         }
       }
-      catch(error) {
-        console.error(error);
+      else {
+        // console.error(error);
+        setLoader(false);
       }
     }
-    const isMeaningfulChanges = (currentContent,initialContent) => {
-      const trimmedCurrent = currentContent.replace(/\s+/g, "").trim();
-      const trimmedInitial = initialContent.replace(/\s+/g,"").trim();
-      console.log("meaningfulChanges: ",trimmedCurrent !== trimmedInitial);
-      return trimmedCurrent !== trimmedInitial;
-    };
-    const handleContentChange = (newContent) => {
-      setEditorState(newContent);
-      const contentChanged = isMeaningfulChanges(newContent,initialContent);
-      if(contentChanged) {
-        if(props.moduleName == "Quote") {
+    catch (error) {
+      console.error(error);
+    }
+  }
+  const isMeaningfulChanges = (currentContent, initialContent) => {
+    const trimmedCurrent = currentContent.replace(/\s+/g, "").trim();
+    const trimmedInitial = initialContent.replace(/\s+/g, "").trim();
+    console.log("meaningfulChanges: ", trimmedCurrent !== trimmedInitial);
+    return trimmedCurrent !== trimmedInitial;
+  };
+  const handleContentChange = (newContent) => {
+    setEditorState(newContent);
+    const contentChanged = isMeaningfulChanges(newContent, initialContent);
+    if (contentChanged) {
+      if (props.moduleName == "Quote") {
         props.setProposalObject({
           ...props.ProposalObject,
           customizedEmailContent: newContent
@@ -109,27 +109,27 @@ export default function PreviewComponentPdf(props) {
           customizedEmailContent: newContent
         })
       }
-      }
-      props.setRequireMessage(false);
     }
-    // if(props.moduleName == 'Quote' && isPopUpVisible)  {
-    //   if(props.ProposalObject.ProposalFormate === 2) {
-    //     GetEmailTemplateContent(common.organisationKeyID,8);
-    //   } else {
-    //       GetEmailTemplateContent(common.organisationKeyID,5);
-    //     }
-    // }
-    useEffect(() => {
-      if (isPopUpVisible && props.moduleName === "Quote") {
-        const templateType = props.ProposalObject.ProposalFormate === 2 ? 8 : 5;
-        GetEmailTemplateContent(common.organisationKeyID, templateType);
-      }
-      else if (isPopUpVisible && props.moduleName === "Contract") {
-        GetEmailTemplateContent(common.organisationKeyID, 6);
-      }
-    }, [isPopUpVisible, props?.ProposalObject?.ProposalFormate]);
+    props.setRequireMessage(false);
+  }
+  // if(props.moduleName == 'Quote' && isPopUpVisible)  {
+  //   if(props.ProposalObject.ProposalFormate === 2) {
+  //     GetEmailTemplateContent(common.organisationKeyID,8);
+  //   } else {
+  //       GetEmailTemplateContent(common.organisationKeyID,5);
+  //     }
+  // }
+  useEffect(() => {
+    if (isPopUpVisible && props.moduleName === "Quote") {
+      const templateType = props.ProposalObject.ProposalFormate === 2 ? 8 : 5;
+      GetEmailTemplateContent(common.organisationKeyID, templateType);
+    }
+    else if (isPopUpVisible && props.moduleName === "Contract") {
+      GetEmailTemplateContent(common.organisationKeyID, 6);
+    }
+  }, [isPopUpVisible, props?.ProposalObject?.ProposalFormate]);
 
-  
+
   const handleFormate = (selectedOption) => {
     props.setProposalObject({
       ...props.ProposalObject,
@@ -151,8 +151,8 @@ export default function PreviewComponentPdf(props) {
   //       }));
   //   };
   // }, []);
-  
-  
+
+
   useEffect(() => {
     // Function to compute the sum of package values
     const computeTotalPackageValues = () => {
@@ -274,7 +274,7 @@ export default function PreviewComponentPdf(props) {
       Quarterly: 3,
       Monthly: 4,
     };
-    
+
     const frequencyValue =
       props.ProposalObject?.Payment_Frequency ||
       props.engagementObj?.Payment_Frequency;
@@ -314,7 +314,7 @@ export default function PreviewComponentPdf(props) {
   const DeclineOneOffUrl = `https://$AppUrl$/accept-decline-proposal?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Declined&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
 
 
-  const RecurringPackagesTable = 
+  const RecurringPackagesTable =
     <div
       style={{
         paddingLeft: "40px",
@@ -398,14 +398,14 @@ export default function PreviewComponentPdf(props) {
                 </td>
                 {props.moduleName == "Quote" && props.ProposalObject?.feeTypeId == 1 ? (
                   <td
-                  style={{
-                    border: "1px solid #DDDDDD",
-                    textAlign: "right",
-                    padding: "8px",
-                  }}
-                >
-                  &#10003;
-                </td>
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                    }}
+                  >
+                    &#10003;
+                  </td>
                 ) : (
                   <td
                     style={{
@@ -435,36 +435,36 @@ export default function PreviewComponentPdf(props) {
 
                     return (
                       <>
-                      <tr>
-                        {isVisible && (
-                          <>
-                          <td
-                          key={`driver-${driverIndex}`}
-                          style={{
-                            border: "1px solid #DDDDDD",
-                            textAlign: "left",
-                            padding: "8px",
-                            fontWeight: "normal"
-                          }}
-                        >
-                          • {driver.driverName}
-                        </td>
-                        <td
-                          style={{
-                            border: "1px solid #DDDDDD",
-                            textAlign: "right",
-                            padding: "8px",
-                            fontWeight: "normal"
-                          }}
-                        >
-                          {isVariation && matchedVariation
-                            ? matchedVariation.variationName
-                            : isSlab && matchedSlab
-                              ? `${matchedSlab.slabFrom} - ${matchedSlab.slabTo}`
-                              : isQuantity ? matchedQuantity : ""}
-                        </td>
-                          </>
-                        )}
+                        <tr>
+                          {isVisible && (
+                            <>
+                              <td
+                                key={`driver-${driverIndex}`}
+                                style={{
+                                  border: "1px solid #DDDDDD",
+                                  textAlign: "left",
+                                  padding: "8px",
+                                  fontWeight: "normal"
+                                }}
+                              >
+                                • {driver.driverName}
+                              </td>
+                              <td
+                                style={{
+                                  border: "1px solid #DDDDDD",
+                                  textAlign: "right",
+                                  padding: "8px",
+                                  fontWeight: "normal"
+                                }}
+                              >
+                                {isVariation && matchedVariation
+                                  ? matchedVariation.variationName
+                                  : isSlab && matchedSlab
+                                    ? `${matchedSlab.slabFrom} - ${matchedSlab.slabTo}`
+                                    : isQuantity ? matchedQuantity : ""}
+                              </td>
+                            </>
+                          )}
                         </tr>
                       </>
                     );
@@ -815,7 +815,7 @@ export default function PreviewComponentPdf(props) {
             }}
           >
           </th>
-          
+
         </tr>
         {props.moduleName == "Quote" && props.selectedOneOffServiceList?.map((serviceCat, index) => (
           <React.Fragment key={index}>
@@ -868,26 +868,26 @@ export default function PreviewComponentPdf(props) {
                   }}
                 >
                   {subService.serviceName
-                  // .length > 45 ? (
-                  //   subService.serviceName
-                  //     .substring(0, 45)
-                  //     .toLowerCase()
-                  //     .replace(/\b\w/g, (l) => l.toUpperCase()) + "..."
-                  // ) : (
-                  //   subService.serviceName
-                  // )
+                    // .length > 45 ? (
+                    //   subService.serviceName
+                    //     .substring(0, 45)
+                    //     .toLowerCase()
+                    //     .replace(/\b\w/g, (l) => l.toUpperCase()) + "..."
+                    // ) : (
+                    //   subService.serviceName
+                    // )
                   }
                 </td>
                 {props.ProposalObject?.feeTypeId == 1 ? (
                   <td
-                  style={{
-                    border: "1px solid #DDDDDD",
-                    textAlign: "right",
-                    padding: "8px",
-                  }}
-                >
-                  &#10003;
-                </td>
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                    }}
+                  >
+                    &#10003;
+                  </td>
                 ) : (
                   <td
                     style={{
@@ -1067,7 +1067,7 @@ export default function PreviewComponentPdf(props) {
             )}
           </tr> */}
 
-        
+
 
         <tr style={{ backgroundColor: "#DCDCDC" }}>
           <td
@@ -1259,24 +1259,24 @@ export default function PreviewComponentPdf(props) {
         )}
       </table>
     </div>
-  
+
   const oneOffTableString = ReactDOMServer.renderToString(OneOffPackagesTable);
   const RecurringTableString = ReactDOMServer.renderToString(
     RecurringPackagesTable
   );
- 
+
   useEffect(() => {
     if (props.moduleName == "Quote" && props?.ProposalObject?.selectedProposalTypeValue === 4) {
-        // Clear old PDF content when navigating to Preview
-        props.setProposalObject((prevState) => ({
-            ...prevState,
-            recurringHtmlContent: props.selectedRecurringServiceList.length > 0
-            ? RecurringTableString
-            : null,
-            oneOffHtmlContent: props.selectedOneOffServiceList.length > 0 ? oneOffTableString : null,
-        }));
+      // Clear old PDF content when navigating to Preview
+      props.setProposalObject((prevState) => ({
+        ...prevState,
+        recurringHtmlContent: props.selectedRecurringServiceList.length > 0
+          ? RecurringTableString
+          : null,
+        oneOffHtmlContent: props.selectedOneOffServiceList.length > 0 ? oneOffTableString : null,
+      }));
     }
-}, [props?.ProposalObject,props?.selectedOneOffServiceList,props?.selectedRecurringServiceList]);
+  }, [props?.ProposalObject, props?.selectedOneOffServiceList, props?.selectedRecurringServiceList]);
 
   useEffect(() => {
     const HeadingValue =
@@ -1414,13 +1414,13 @@ export default function PreviewComponentPdf(props) {
   useEffect(() => {
 
     if (generatePdfData.length !== 0) {
-      if (!isPdfAlreadyGenerated) {  
-        setIsPdfAlreadyGenerated(true); 
+      if (!isPdfAlreadyGenerated) {
+        setIsPdfAlreadyGenerated(true);
         generatePdf();
       }
     }
   }, [generatePdfData]);
-  
+
   function getPackageName(id, name) {
     const packages = props.lastPaymentFrequencyAndDiscountedPriceForPreview;
     let packageName = "";
@@ -1452,119 +1452,119 @@ export default function PreviewComponentPdf(props) {
     }
   }
 
-//   function setDefaultFontFamily(htmlContent, fontFamily) {
-//     const parser = new DOMParser();
-//     const doc = parser.parseFromString(htmlContent, "text/html");
+  //   function setDefaultFontFamily(htmlContent, fontFamily) {
+  //     const parser = new DOMParser();
+  //     const doc = parser.parseFromString(htmlContent, "text/html");
 
-//     // Detect browser's default font
-//     const tempElement = document.createElement("div");
-//     document.body.appendChild(tempElement);
-//     const defaultFontFamily = window.getComputedStyle(tempElement).fontFamily.toLowerCase();
-//     document.body.removeChild(tempElement);
+  //     // Detect browser's default font
+  //     const tempElement = document.createElement("div");
+  //     document.body.appendChild(tempElement);
+  //     const defaultFontFamily = window.getComputedStyle(tempElement).fontFamily.toLowerCase();
+  //     document.body.removeChild(tempElement);
 
-//     const elements = doc.querySelectorAll('*');
+  //     const elements = doc.querySelectorAll('*');
 
-//     elements.forEach((el) => {
-//         const computedFont = window.getComputedStyle(el).fontFamily?.toLowerCase().trim();
-//         const hasInlineFont = el.style.fontFamily?.toLowerCase().trim();
+  //     elements.forEach((el) => {
+  //         const computedFont = window.getComputedStyle(el).fontFamily?.toLowerCase().trim();
+  //         const hasInlineFont = el.style.fontFamily?.toLowerCase().trim();
 
-//         if (
-//             !hasInlineFont || 
-//             computedFont === defaultFontFamily || 
-//             hasInlineFont === 'inherit' || 
-//             hasInlineFont === 'initial' || 
-//             hasInlineFont === 'default'
-//         ) {
-//             el.style.setProperty("font-family", fontFamily, "important");
-//         }
-//     });
+  //         if (
+  //             !hasInlineFont || 
+  //             computedFont === defaultFontFamily || 
+  //             hasInlineFont === 'inherit' || 
+  //             hasInlineFont === 'initial' || 
+  //             hasInlineFont === 'default'
+  //         ) {
+  //             el.style.setProperty("font-family", fontFamily, "important");
+  //         }
+  //     });
 
-//     return doc.body.innerHTML;
-// }
+  //     return doc.body.innerHTML;
+  // }
 
-// function setDefaultFontFamily(htmlContent, fontFamily) {
-//   if (!fontFamily) return htmlContent;
+  // function setDefaultFontFamily(htmlContent, fontFamily) {
+  //   if (!fontFamily) return htmlContent;
 
-//   const parser = new DOMParser();
-//   const doc = parser.parseFromString(htmlContent, "text/html");
+  //   const parser = new DOMParser();
+  //   const doc = parser.parseFromString(htmlContent, "text/html");
 
-//   const elements = doc.querySelectorAll('*');
+  //   const elements = doc.querySelectorAll('*');
 
-//   elements.forEach((el) => {
-//       // Remove any existing font-family styles
-//       el.style.removeProperty("font-family");
+  //   elements.forEach((el) => {
+  //       // Remove any existing font-family styles
+  //       el.style.removeProperty("font-family");
 
-//       // Apply the new font-family with !important
-//       el.style.setProperty("font-family", fontFamily, "important");
-//   });
+  //       // Apply the new font-family with !important
+  //       el.style.setProperty("font-family", fontFamily, "important");
+  //   });
 
-//   return doc.body.innerHTML;
-// }
+  //   return doc.body.innerHTML;
+  // }
 
-// function setDefaultFontFamily(htmlContent, fontFamily) {
-//   if (!fontFamily) return htmlContent;
+  // function setDefaultFontFamily(htmlContent, fontFamily) {
+  //   if (!fontFamily) return htmlContent;
 
-//   const parser = new DOMParser();
-//   const doc = parser.parseFromString(htmlContent, "text/html");
+  //   const parser = new DOMParser();
+  //   const doc = parser.parseFromString(htmlContent, "text/html");
 
-//   const elements = doc.querySelectorAll('*');
+  //   const elements = doc.querySelectorAll('*');
 
-//   elements.forEach((el) => {
-//       // Get existing font-family from inline style
-//       const inlineStyle = el.getAttribute("style") || "";
-//       const hasFontFamily = inlineStyle.match(/font-family:\s*([^;]+)/i);
+  //   elements.forEach((el) => {
+  //       // Get existing font-family from inline style
+  //       const inlineStyle = el.getAttribute("style") || "";
+  //       const hasFontFamily = inlineStyle.match(/font-family:\s*([^;]+)/i);
 
-//       if (hasFontFamily) {
-//           const existingFont = hasFontFamily[1].toLowerCase();
+  //       if (hasFontFamily) {
+  //           const existingFont = hasFontFamily[1].toLowerCase();
 
-//           // If "Roboto" is found, replace it with the new font
-//           if (existingFont.includes("roboto") || existingFont === "") {
-//               el.style.setProperty("font-family", fontFamily, "important");
-//           }
-//       }
-//       else {
-//         // If no font-family exists, apply the new font
-//         el.style.setProperty("font-family", fontFamily, "important");
-//       }
-//   });
+  //           // If "Roboto" is found, replace it with the new font
+  //           if (existingFont.includes("roboto") || existingFont === "") {
+  //               el.style.setProperty("font-family", fontFamily, "important");
+  //           }
+  //       }
+  //       else {
+  //         // If no font-family exists, apply the new font
+  //         el.style.setProperty("font-family", fontFamily, "important");
+  //       }
+  //   });
 
-//   return doc.body.innerHTML;
-// }
-function setDefaultFontFamily(htmlContent, fontFamily) {
-  if (!fontFamily) return htmlContent;
+  //   return doc.body.innerHTML;
+  // }
+  function setDefaultFontFamily(htmlContent, fontFamily) {
+    if (!fontFamily) return htmlContent;
 
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(htmlContent, "text/html");
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(htmlContent, "text/html");
 
-  const elements = doc.querySelectorAll('*');
+    const elements = doc.querySelectorAll('*');
 
-  elements.forEach((el) => {
-    const inlineStyle = el.getAttribute("style") || "";
-    const fontFamilyMatch = inlineStyle.match(/font-family:\s*([^;]*)/i);
-    
-    if (fontFamilyMatch) {
-      const existingFonts = fontFamilyMatch[1]
-        .replace(/['"]/g, '') // Remove quotes
-        .split(/\s*,\s*/)
-        .map(f => f.toLowerCase());
+    elements.forEach((el) => {
+      const inlineStyle = el.getAttribute("style") || "";
+      const fontFamilyMatch = inlineStyle.match(/font-family:\s*([^;]*)/i);
 
-      // Check if Roboto is the first font in the list
-      const hasRobotoPrimary = existingFonts[0] === 'roboto';
-      
-      // Check if no font family is actually set (empty value)
-      const isEmptyFontFamily = existingFonts[0] === '';
+      if (fontFamilyMatch) {
+        const existingFonts = fontFamilyMatch[1]
+          .replace(/['"]/g, '') // Remove quotes
+          .split(/\s*,\s*/)
+          .map(f => f.toLowerCase());
 
-      if (hasRobotoPrimary || isEmptyFontFamily) {
+        // Check if Roboto is the first font in the list
+        const hasRobotoPrimary = existingFonts[0] === 'roboto';
+
+        // Check if no font family is actually set (empty value)
+        const isEmptyFontFamily = existingFonts[0] === '';
+
+        if (hasRobotoPrimary || isEmptyFontFamily) {
+          el.style.setProperty("font-family", fontFamily, "important");
+        }
+      } else {
+        // If no font-family exists at all, apply the new font
         el.style.setProperty("font-family", fontFamily, "important");
       }
-    } else {
-      // If no font-family exists at all, apply the new font
-      el.style.setProperty("font-family", fontFamily, "important");
-    }
-  });
+    });
 
-  return doc.body.innerHTML;
-}
+    return doc.body.innerHTML;
+  }
   function changeSpanColor(htmlContent, newColorCode) {
     const parser = new DOMParser();
     const doc = parser.parseFromString(htmlContent, "text/html");
@@ -1615,7 +1615,7 @@ function setDefaultFontFamily(htmlContent, fontFamily) {
             }
             break;
           case ElementType.TEXT_BLOCK:
-            const appliedFontContent = setDefaultFontFamily(element.htmlContent,fontFamily);
+            const appliedFontContent = setDefaultFontFamily(element.htmlContent, fontFamily);
             if (
               prevElementType !== ElementType.PAGE_BREAK &&
               prevElementType !== ElementType.AWS_PDF_LINK
@@ -1636,27 +1636,39 @@ function setDefaultFontFamily(htmlContent, fontFamily) {
             console.log(currentArray, "HTMLCONTENT")
             break;
           case ElementType.SIGNATURE_BLOCK:
-            const contractSignatoryRowNo = props.contractSignatoriesList.map(
-              (item, index) => ({
-                ...item,
-                RowNo: index + 1,
-              })
-            );
-            const contractSignatoryRowNoForOfficer = props.organisationData?.officersList !== undefined && props.organisationData?.officersList.filter(item => item.isAuthorisedSignatory).map(
-              (item, index) => ({
-                ...item,
-                RowNo: Number(contractSignatoryRowNo.length) + index + 1,
-              })
-            );
-            // let rightSignatureList = props.contractSignatoriesList.filter(x => x.signaturePositionID === 1)
-            // let leftSignatureList = props.contractSignatoriesList.filter(x => x.signaturePositionID === 2)
+            // Add RowNo to contract signatories
+            const contractSignatoryRowNo = props.contractSignatoriesList.map((item, index) => ({
+              ...item,
+              RowNo: index + 1,
+            }));
 
-            let rightSignatureList = contractSignatoryRowNo.filter(
-              (x) => x.signaturePositionID === 1
-            );
-            let leftSignatureList = contractSignatoryRowNo.filter(
-              (x) => x.signaturePositionID === 2
-            );
+            const contractSignatoryRowNoForOfficer =
+              props.organisationData?.officersList !== undefined &&
+              props.organisationData?.officersList
+                .filter((item) => item.isAuthorisedSignatory)
+                .map((item, index) => ({
+                  ...item,
+                  RowNo: contractSignatoryRowNo.length + index + 1,
+                }));
+
+            // Always include contractSignatories
+            let rightSignatureList = contractSignatoryRowNo.filter(x => x.signaturePositionID === 1);
+            let leftSignatureList = contractSignatoryRowNo.filter(x => x.signaturePositionID === 2);
+
+            // Include officers based on image URL and map to opposite side
+            const signatureImageUrl = props.organisationData?.otherInformation?.[0]?.signatureImageUrl;
+
+            if (!signatureImageUrl && Array.isArray(contractSignatoryRowNoForOfficer)) {
+              // Officers go to the *opposite* side of each signaturePositionID
+              contractSignatoryRowNoForOfficer.forEach(officer => {
+                // If most contract signatories are on the right, place officers on the left, and vice versa
+                if (rightSignatureList.length <= leftSignatureList.length) {
+                  rightSignatureList.push(officer); // balance to right
+                } else {
+                  leftSignatureList.push(officer); // balance to left
+                }
+              });
+            }
 
             let htmlContentForSignatories = "";
             let loopCount = Math.max(
@@ -1664,59 +1676,61 @@ function setDefaultFontFamily(htmlContent, fontFamily) {
               leftSignatureList.length
             );
 
+            let orgSignatureInserted = false;
 
             htmlContentForSignatories += `<div id='SignatoryBlock' style='width: 95%; padding-left: 0px; padding-right: 0px; margin-top: 50px; page-break-inside: avoid; break-inside: avoid;'>`;
-            htmlContentForSignatories += "<table style='width: 100%;'>";
+            htmlContentForSignatories += "<table style='width: 100%; border-collapse: collapse;'>";
 
             for (let i = 0; i < loopCount; i++) {
-              htmlContentForSignatories += `<tr style='width:100%; margin-top:100px;'>
-    <td id="left_${i + 1
-                }"style="padding-top: 60px;width:50%; font-family:${fontFamily}; font-size:0.2in;text-align:left">
-      <span style="color: white;"><^${leftSignatureList[i]?.RowNo}_</span>${leftSignatureList[i]
-                  ? leftSignatureList[i].firstName +
-                  " " +
-                  leftSignatureList[i].lastName
-                  : ""
-                }<span style="color: white;">^></span>
-    </td>
-    <td id="right_${i + 1
-                }" style="padding-top: 60px;width:50%; font-family:${fontFamily}; font-size:0.2in;text-align:right">
-      <span style="color: white;"><^${rightSignatureList[i]?.RowNo}_</span>${rightSignatureList[i]
-                  ? rightSignatureList[i].firstName +
-                  " " +
-                  rightSignatureList[i].lastName
-                  : ""
-                }<span style="color: white;">^></span>
-    </td>
-  </tr>`;
-            }
-            if (props.organisationData.otherInformation[0].signatureImageUrl !== null) {
-              htmlContentForSignatories += `
-  <tr style='width:50%; margin-top:100px;'>   
-    <td id="left" style="padding-top: 60px;padding-left: 45px; width:50%;font-family:${fontFamily}; font-size:0.2in; text-align:left">
-      <div><img src="${props.organisationData.otherInformation[0].signatureImageUrl}" alt="Signature" style="height:100px; width:130px;"></div>
-      <div style="margin-bottom: 20px;margin-top: 30px;">${props.organisationData.otherInformation[0].signatoryName}</div>
-    </td>
-  </tr>`;
-            } else {
-              for (let i = 0; i < Math.max(contractSignatoryRowNoForOfficer?.length); i++) {
-                htmlContentForSignatories += `<tr style='width:100%; margin-top:100px;'>
-    <td id="left_${i + 1
-                  }" style="padding-top: 60px;width:50%; font-family:${fontFamily}; font-size:0.2in;text-align:left">
-      <span style="color: white;"><^${contractSignatoryRowNoForOfficer[i]?.RowNo}_</span>${contractSignatoryRowNoForOfficer[i]
-                    ? contractSignatoryRowNoForOfficer[i].firstName +
-                    " " +
-                    contractSignatoryRowNoForOfficer[i].lastName
-                    : ""
-                  }<span style="color: white;">^></span>
-    </td>
-   
-  </tr>`;
+              htmlContentForSignatories += `<tr style='width:100%; vertical-align: bottom;'>`;
+
+              // --- LEFT SIGNATURE CELL ---
+              const left = leftSignatureList?.[i];
+              htmlContentForSignatories += `<td id="left_${i + 1}" style="padding-top: 60px; width: 50%; font-family: ${fontFamily}; font-size: 0.2in; text-align: left; vertical-align: bottom;">`;
+
+              if (left) {
+                htmlContentForSignatories += `
+                  <span style="color: white;"><^${left.RowNo}_</span>
+                  <div style="display: inline-block;">${left.firstName} ${left.lastName}</div>
+                  <span style="color: white;">^></span>`;
+              } else if (!orgSignatureInserted && signatureImageUrl) {
+                const org = props.organisationData.otherInformation[0];
+                htmlContentForSignatories += `
+                <div style="margin-left: 60px;">
+                  <div><img src="${org.signatureImageUrl}" alt="Signature" style="height:100px; width:130px;"></div>
+                  <div style="margin-top: 10px;">${org.signatoryName || ""}</div>
+                  </div>`;
+                orgSignatureInserted = true;
               }
+
+              htmlContentForSignatories += `</td>`;
+
+              // --- RIGHT SIGNATURE CELL ---
+              const right = rightSignatureList?.[i];
+              htmlContentForSignatories += `<td id="right_${i + 1}" style="padding-top: 60px; width: 50%; font-family: ${fontFamily}; font-size: 0.2in; text-align: right; vertical-align: bottom;">`;
+
+              if (right) {
+                htmlContentForSignatories += `
+                  <span style="color: white;"><^${right.RowNo}_</span>
+                  <div style="display: inline-block;">${right.firstName} ${right.lastName}</div>
+                  <span style="color: white;">^></span>`;
+              } else if (!orgSignatureInserted && signatureImageUrl) {
+                const org = props.organisationData.otherInformation[0];
+                htmlContentForSignatories += `
+                <div style="margin-right: 60px;">
+                  <div><img src="${org.signatureImageUrl}" alt="Signature" style="height:100px; width:130px;"></div>
+                  <div style="margin-top: 10px;">${org.signatoryName || ""}</div>
+                  </div>`;
+                orgSignatureInserted = true;
+              }
+
+              htmlContentForSignatories += `</td>`;
+
+              htmlContentForSignatories += `</tr>`;
             }
+
             htmlContentForSignatories += "</table>";
             htmlContentForSignatories += "</div>";
-
             if (
               prevElementType !== ElementType.PAGE_BREAK &&
               prevElementType !== ElementType.AWS_PDF_LINK
@@ -3771,39 +3785,53 @@ function setDefaultFontFamily(htmlContent, fontFamily) {
           default:
             // pdfDataArray.push([]);
             if (props?.updatedTnCData || props?.engagementObj?.pdf) {
-              const contractSignatoryRowNo = props.contractSignatoriesList.map(
-                (item, index) => ({
-                  ...item,
-                  RowNo: index + 1,
-                })
-              );
+              // Add RowNo to contract signatories
+              const contractSignatoryRowNo = props.contractSignatoriesList.map((item, index) => ({
+                ...item,
+                RowNo: index + 1,
+              }));
 
-              // let rightSignatureList = props.contractSignatoriesList.filter(x => x.signaturePositionID === 1)
-              // let leftSignatureList = props.contractSignatoriesList.filter(x => x.signaturePositionID === 2)
+              const contractSignatoryRowNoForOfficer =
+                props.organisationData?.officersList !== undefined &&
+                props.organisationData?.officersList
+                  .filter((item) => item.isAuthorisedSignatory)
+                  .map((item, index) => ({
+                    ...item,
+                    RowNo: contractSignatoryRowNo.length + index + 1,
+                  }));
 
-              let rightSignatureList = contractSignatoryRowNo.filter(
-                (x) => x.signaturePositionID === 1
-              );
-              let leftSignatureList = contractSignatoryRowNo.filter(
-                (x) => x.signaturePositionID === 2
-              );
-              const contractSignatoryRowNoForOfficer = props.organisationData?.officersList !== undefined && props.organisationData?.officersList.filter(item => item.isAuthorisedSignatory).map(
-                (item, index) => ({
-                  ...item,
-                  RowNo: Number(contractSignatoryRowNo.length) + index + 1,
-                })
-              );
+              // Always include contractSignatories
+              let rightSignatureList = contractSignatoryRowNo.filter(x => x.signaturePositionID === 1);
+              let leftSignatureList = contractSignatoryRowNo.filter(x => x.signaturePositionID === 2);
+
+              // Include officers based on image URL and map to opposite side
+              const signatureImageUrl = props.organisationData?.otherInformation?.[0]?.signatureImageUrl;
+
+              if (!signatureImageUrl && Array.isArray(contractSignatoryRowNoForOfficer)) {
+                // Officers go to the *opposite* side of each signaturePositionID
+                contractSignatoryRowNoForOfficer.forEach(officer => {
+                  // If most contract signatories are on the right, place officers on the left, and vice versa
+                  if (rightSignatureList.length <= leftSignatureList.length) {
+                    rightSignatureList.push(officer); // balance to right
+                  } else {
+                    leftSignatureList.push(officer); // balance to left
+                  }
+                });
+              }
+
               let htmlContentForSignatories = "";
               let loopCount = Math.max(
                 rightSignatureList.length,
                 leftSignatureList.length
               );
 
+              let orgSignatureInserted = false;
+
               if (
                 props?.updatedTnCData !== null &&
                 props?.updatedTnCData !== undefined
               ) {
-                const appliedFontContent = setDefaultFontFamily(props.updatedTnCData,fontFamily);
+                const appliedFontContent = setDefaultFontFamily(props.updatedTnCData, fontFamily);
                 pdfDataArray.push(currentArray);
                 currentArray = [
                   {
@@ -3811,59 +3839,59 @@ function setDefaultFontFamily(htmlContent, fontFamily) {
                     <hr style="padding-left: 40px; padding-right: 40px; color: black;"></hr></div>
                       <div style="padding-left: 40px; padding-right: 40px;">${appliedFontContent}</div><br>
             ${(() => {
-                        htmlContentForSignatories =
-                          "<div id='SignatoryBlock' style='width: 95%; padding-left: 0px; padding-right: 0px; page-break-inside: avoid; break-inside: avoid;'>";
-                        htmlContentForSignatories += "<table style='width: 100%;'>";
+                        htmlContentForSignatories += `<div id='SignatoryBlock' style='width: 95%; padding-left: 0px; padding-right: 0px; margin-top: 50px; page-break-inside: avoid; break-inside: avoid;'>`;
+                        htmlContentForSignatories += "<table style='width: 100%; border-collapse: collapse;'>";
 
                         for (let i = 0; i < loopCount; i++) {
-                          htmlContentForSignatories += `<tr style='width:100%; margin-top:100px;'>
-    <td id="left_${i + 1
-                            }" style="padding-top: 60px;width:50%; font-family:${fontFamily}; font-size:0.2in;text-align:left">
-      <span style="color: white;"><^${leftSignatureList[i]?.RowNo}_</span>${leftSignatureList[i]
-                              ? leftSignatureList[i].firstName +
-                              " " +
-                              leftSignatureList[i].lastName
-                              : ""
-                            }<span style="color: white;">^></span>
-    </td>
-    <td id="right_${i + 1
-                            }" style="padding-top: 60px;width:50%; font-size:0.2in;font-family:${fontFamily}; text-align:right">
-      <span style="color: white;"><^${rightSignatureList[i]?.RowNo}_</span>${rightSignatureList[i]
-                              ? rightSignatureList[i].firstName +
-                              " " +
-                              rightSignatureList[i].lastName
-                              : ""
-                            }<span style="color: white;">^></span>
-    </td>
-  </tr>`;
-                        }
-                        if (props.organisationData.otherInformation[0].signatureImageUrl !== null) {
-                          htmlContentForSignatories += `
-  <tr style='width:50%; margin-top:100px;'>   
-    <td id="left" style="padding-top: 60px;padding-left: 45px; width:50%;font-family:${fontFamily}; font-size:0.2in; text-align:left">
-      <div><img src="${props.organisationData.otherInformation[0].signatureImageUrl}" alt="Signature" style="height:100px;width:130px;"></div>
-      <div style="margin-bottom: 20px;margin-top: 30px;">${props.organisationData.otherInformation[0].signatoryName}</div>
-    </td>
-  </tr>`;
-                        } else {
-                          for (let i = 0; i < Math.max(contractSignatoryRowNoForOfficer?.length); i++) {
-                            htmlContentForSignatories += `<tr style='width:100%; margin-top:100px;'>
-    <td id="left_${i + 1
-                              }" style="padding-top: 60px;width:50%; font-family:${fontFamily}; font-size:0.2in;text-align:left">
-      <span style="color: white;"><^${contractSignatoryRowNoForOfficer[i]?.RowNo}_</span>${contractSignatoryRowNoForOfficer[i]
-                                ? contractSignatoryRowNoForOfficer[i].firstName +
-                                " " +
-                                contractSignatoryRowNoForOfficer[i].lastName
-                                : ""
-                              }<span style="color: white;">^></span>
-    </td>
-   
-  </tr>`;
+                          htmlContentForSignatories += `<tr style='width:100%; vertical-align: bottom;'>`;
+
+                          // --- LEFT SIGNATURE CELL ---
+                          const left = leftSignatureList?.[i];
+                          htmlContentForSignatories += `<td id="left_${i + 1}" style="padding-top: 60px; width: 50%; font-family: ${fontFamily}; font-size: 0.2in; text-align: left; vertical-align: bottom;">`;
+
+                          if (left) {
+                            htmlContentForSignatories += `
+                    <span style="color: white;"><^${left.RowNo}_</span>
+                    <div style="display: inline-block;">${left.firstName} ${left.lastName}</div>
+                    <span style="color: white;">^></span>`;
+                          } else if (!orgSignatureInserted && signatureImageUrl) {
+                            const org = props.organisationData.otherInformation[0];
+                            htmlContentForSignatories += `
+                  <div style="margin-left: 60px;">
+                    <div><img src="${org.signatureImageUrl}" alt="Signature" style="height:100px; width:130px;"></div>
+                    <div style="margin-top: 10px;">${org.signatoryName || ""}</div>
+                    </div>`;
+                            orgSignatureInserted = true;
                           }
+
+                          htmlContentForSignatories += `</td>`;
+
+                          // --- RIGHT SIGNATURE CELL ---
+                          const right = rightSignatureList?.[i];
+                          htmlContentForSignatories += `<td id="right_${i + 1}" style="padding-top: 60px; width: 50%; font-family: ${fontFamily}; font-size: 0.2in; text-align: right; vertical-align: bottom;">`;
+
+                          if (right) {
+                            htmlContentForSignatories += `
+                    <span style="color: white;"><^${right.RowNo}_</span>
+                    <div style="display: inline-block;">${right.firstName} ${right.lastName}</div>
+                    <span style="color: white;">^></span>`;
+                          } else if (!orgSignatureInserted && signatureImageUrl) {
+                            const org = props.organisationData.otherInformation[0];
+                            htmlContentForSignatories += `
+                  <div style="margin-right: 60px;">
+                    <div><img src="${org.signatureImageUrl}" alt="Signature" style="height:100px; width:130px;"></div>
+                    <div style="margin-top: 10px;">${org.signatoryName || ""}</div>
+                    </div>`;
+                            orgSignatureInserted = true;
+                          }
+
+                          htmlContentForSignatories += `</td>`;
+
+                          htmlContentForSignatories += `</tr>`;
                         }
+
                         htmlContentForSignatories += "</table>";
                         htmlContentForSignatories += "</div>";
-
                         return htmlContentForSignatories;
                       })()}`,
                   },
@@ -3878,26 +3906,38 @@ function setDefaultFontFamily(htmlContent, fontFamily) {
                 currentArray.push({
                   ["awsLink"]: props.engagementObj.pdf,
                 });
-                const contractSignatoryRowNo =
-                  props.contractSignatoriesList.map((item, index) => ({
-                    ...item,
-                    RowNo: index + 1,
-                  }));
+                const contractSignatoryRowNo = props.contractSignatoriesList.map((item, index) => ({
+                  ...item,
+                  RowNo: index + 1,
+                }));
 
-                // let rightSignatureList = props.contractSignatoriesList.filter(x => x.signaturePositionID === 1)
-                // let leftSignatureList = props.contractSignatoriesList.filter(x => x.signaturePositionID === 2)
-                const contractSignatoryRowNoForOfficer = props.organisationData?.officersList !== undefined && props.organisationData?.officersList.filter(item => item.isAuthorisedSignatory).map(
-                  (item, index) => ({
-                    ...item,
-                    RowNo: Number(contractSignatoryRowNo.length) + index + 1,
-                  })
-                );
-                let rightSignatureList = contractSignatoryRowNo.filter(
-                  (x) => x.signaturePositionID === 1
-                );
-                let leftSignatureList = contractSignatoryRowNo.filter(
-                  (x) => x.signaturePositionID === 2
-                );
+                const contractSignatoryRowNoForOfficer =
+                  props.organisationData?.officersList !== undefined &&
+                  props.organisationData?.officersList
+                    .filter((item) => item.isAuthorisedSignatory)
+                    .map((item, index) => ({
+                      ...item,
+                      RowNo: contractSignatoryRowNo.length + index + 1,
+                    }));
+
+                // Always include contractSignatories
+                let rightSignatureList = contractSignatoryRowNo.filter(x => x.signaturePositionID === 1);
+                let leftSignatureList = contractSignatoryRowNo.filter(x => x.signaturePositionID === 2);
+
+                // Include officers based on image URL and map to opposite side
+                const signatureImageUrl = props.organisationData?.otherInformation?.[0]?.signatureImageUrl;
+
+                if (!signatureImageUrl && Array.isArray(contractSignatoryRowNoForOfficer)) {
+                  // Officers go to the *opposite* side of each signaturePositionID
+                  contractSignatoryRowNoForOfficer.forEach(officer => {
+                    // If most contract signatories are on the right, place officers on the left, and vice versa
+                    if (rightSignatureList.length <= leftSignatureList.length) {
+                      rightSignatureList.push(officer); // balance to right
+                    } else {
+                      leftSignatureList.push(officer); // balance to left
+                    }
+                  });
+                }
 
                 let htmlContentForSignatories = "";
                 let loopCount = Math.max(
@@ -3905,59 +3945,60 @@ function setDefaultFontFamily(htmlContent, fontFamily) {
                   leftSignatureList.length
                 );
 
+                let orgSignatureInserted = false;
                 htmlContentForSignatories += `<div id='SignatoryBlock' style='width: 95%; padding-left: 0px; padding-right: 0px; margin-top: 50px; page-break-inside: avoid; break-inside: avoid;'>`;
-                htmlContentForSignatories += "<table style='width: 100%;'>";
+                htmlContentForSignatories += "<table style='width: 100%; border-collapse: collapse;'>";
 
                 for (let i = 0; i < loopCount; i++) {
-                  htmlContentForSignatories += `<tr style='width:100%; margin-top:100px;'>
-    <td id="left_${i + 1
-                    }" style="padding-top: 60px;width:50%; font-family:${fontFamily}; font-size:0.2in;text-align:left">
-      <span style="color: white;"><^${leftSignatureList[i]?.RowNo}_</span>${leftSignatureList[i]
-                      ? leftSignatureList[i].firstName +
-                      " " +
-                      leftSignatureList[i].lastName
-                      : ""
-                    }<span style="color: white;">^></span>
-    </td>
-    <td id="right_${i + 1
-                    }" style="padding-top: 60px;width:50%; font-size:0.2in;font-family:${fontFamily}; text-align:right">
-      <span style="color: white;"><^${rightSignatureList[i]?.RowNo}_</span>${rightSignatureList[i]
-                      ? rightSignatureList[i].firstName +
-                      " " +
-                      rightSignatureList[i].lastName
-                      : ""
-                    }<span style="color: white;">^></span>
-    </td>
-  </tr>`;
-                }
-                if (props.organisationData.otherInformation[0].signatureImageUrl !== null) {
-                  htmlContentForSignatories += `
-  <tr style='width:50%; margin-top:100px;'>   
-    <td id="left" style="padding-top: 60px;padding-left: 45px; width:50%;font-family:${fontFamily}; font-size:0.2in; text-align:left">
-      <div><img src="${props.organisationData.otherInformation[0].signatureImageUrl}" alt="Signature" style="height:100px; width:130px;"></div>
-      <div style="margin-bottom: 20px;margin-top: 30px;">${props.organisationData.otherInformation[0].signatoryName}</div>
-    </td>
-  </tr>`;
+                  htmlContentForSignatories += `<tr style='width:100%; vertical-align: bottom;'>`;
 
-                } else {
-                  for (let i = 0; i < Math.max(contractSignatoryRowNoForOfficer?.length); i++) {
-                    htmlContentForSignatories += `<tr style='width:100%; margin-top:100px;'>
-    <td id="left_${i + 1
-                      }" style="padding-top: 60px;width:50%; font-family:${fontFamily}; font-size:0.2in;text-align:left">
-      <span style="color: white;"><^${contractSignatoryRowNoForOfficer[i]?.RowNo}_</span>${contractSignatoryRowNoForOfficer[i]
-                        ? contractSignatoryRowNoForOfficer[i].firstName +
-                        " " +
-                        contractSignatoryRowNoForOfficer[i].lastName
-                        : ""
-                      }<span style="color: white;">^></span>
-    </td>
-   
-  </tr>`;
+                  // --- LEFT SIGNATURE CELL ---
+                  const left = leftSignatureList?.[i];
+                  htmlContentForSignatories += `<td id="left_${i + 1}" style="padding-top: 60px; width: 50%; font-family: ${fontFamily}; font-size: 0.2in; text-align: left; vertical-align: bottom;">`;
+
+                  if (left) {
+                    htmlContentForSignatories += `
+                  <span style="color: white;"><^${left.RowNo}_</span>
+                  <div style="display: inline-block;">${left.firstName} ${left.lastName}</div>
+                  <span style="color: white;">^></span>`;
+                  } else if (!orgSignatureInserted && signatureImageUrl) {
+                    const org = props.organisationData.otherInformation[0];
+                    htmlContentForSignatories += `
+                <div style="margin-left: 60px;">
+                  <div><img src="${org.signatureImageUrl}" alt="Signature" style="height:100px; width:130px;"></div>
+                  <div style="margin-top: 10px;">${org.signatoryName || ""}</div>
+                  </div>`;
+                    orgSignatureInserted = true;
                   }
+
+                  htmlContentForSignatories += `</td>`;
+
+                  // --- RIGHT SIGNATURE CELL ---
+                  const right = rightSignatureList?.[i];
+                  htmlContentForSignatories += `<td id="right_${i + 1}" style="padding-top: 60px; width: 50%; font-family: ${fontFamily}; font-size: 0.2in; text-align: right; vertical-align: bottom;">`;
+
+                  if (right) {
+                    htmlContentForSignatories += `
+                  <span style="color: white;"><^${right.RowNo}_</span>
+                  <div style="display: inline-block;">${right.firstName} ${right.lastName}</div>
+                  <span style="color: white;">^></span>`;
+                  } else if (!orgSignatureInserted && signatureImageUrl) {
+                    const org = props.organisationData.otherInformation[0];
+                    htmlContentForSignatories += `
+                <div style="margin-right: 60px;">
+                  <div><img src="${org.signatureImageUrl}" alt="Signature" style="height:100px; width:130px;"></div>
+                  <div style="margin-top: 10px;">${org.signatoryName || ""}</div>
+                  </div>`;
+                    orgSignatureInserted = true;
+                  }
+
+                  htmlContentForSignatories += `</td>`;
+
+                  htmlContentForSignatories += `</tr>`;
                 }
+
                 htmlContentForSignatories += "</table>";
                 htmlContentForSignatories += "</div>";
-
                 pdfDataArray.push(currentArray);
                 currentArray = [
                   {
@@ -4177,10 +4218,10 @@ function setDefaultFontFamily(htmlContent, fontFamily) {
                 style={{ paddingTop: "5px", marginRight: "4px" }}
                 className="btn btn-md btn-success create-item-btn text-nowrap"
                 onClick={() => {
-                  const shouldGoToAdditionalInfo = 
-                    props.additionalInformationList?.length > 0 
-                    // props.isValidForm?.AdditionalInfo;
-                    
+                  const shouldGoToAdditionalInfo =
+                    props.additionalInformationList?.length > 0
+                  // props.isValidForm?.AdditionalInfo;
+
                   props.HandleTabChange(shouldGoToAdditionalInfo ? 3 : 2);
                 }}
               >
@@ -4213,39 +4254,39 @@ function setDefaultFontFamily(htmlContent, fontFamily) {
             )}
 
             {props.moduleName == "Quote" && (
-              <div className="dropdown" style={{display: "inline-block", marginRight: "4px"}}>
+              <div className="dropdown" style={{ display: "inline-block", marginRight: "4px" }}>
                 <div className="btn-group d-flex align-items-stretch">
-                
+
                   <button
                     class="btn btn-md btn-success create-item-btn"
                     type="button"
                     id="dropdownMenuButton"
                     // data-bs-toggle="dropdown"
                     aria-expanded="false"
-                    style={{ 
+                    style={{
                       borderTopRightRadius: 0,
                       borderBottomRightRadius: 0,
                       borderRight: "none"
                     }}
-                onClick={() =>
-                  props.handleSaveAsDraft(
-                  4,
-                  moduleNameForSaveAsDraft,
-                  statusIDForSendProposal
-                  )}
-                >
-                  <span className="d-inline-flex align-items-center">
-                    <span className="me-2">Send {proposalName}</span>
-                    <i className="bi bi-send"></i>
-                  </span>
-                </button>
+                    onClick={() =>
+                      props.handleSaveAsDraft(
+                        4,
+                        moduleNameForSaveAsDraft,
+                        statusIDForSendProposal
+                      )}
+                  >
+                    <span className="d-inline-flex align-items-center">
+                      <span className="me-2">Send {proposalName}</span>
+                      <i className="bi bi-send"></i>
+                    </span>
+                  </button>
                   <button
                     class="btn btn-md btn-success create-item-btn d-flex rounded-end-2"
                     type="button"
                     id="dropdownMenuButton"
                     data-bs-toggle="dropdown"
                     aria-expanded="false"
-                    style={{ 
+                    style={{
                       borderTopLeftRadius: 0,
                       borderBottomLeftRadius: 0,
                       borderLeft: "none",
@@ -4254,93 +4295,93 @@ function setDefaultFontFamily(htmlContent, fontFamily) {
                       alignItems: "center"
                     }}
                   >
-                      <ExpandMoreIcon />
-                </button>
-                <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                  <li>
-                    <a className="dropdown-item"
-                     onClick={() =>
-                      props.handleSaveAsDraft(
-                      4,
-                      moduleNameForSaveAsDraft,
-                      statusIDForSendProposal
-                      )}
+                    <ExpandMoreIcon />
+                  </button>
+                  <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    <li>
+                      <a className="dropdown-item"
+                        onClick={() =>
+                          props.handleSaveAsDraft(
+                            4,
+                            moduleNameForSaveAsDraft,
+                            statusIDForSendProposal
+                          )}
                       >
-                      <span style={{fontSize: "0.75rem"}}>
-                        Send {proposalName}
-                        <i className="bi bi-send" style={{paddingLeft: "4px"}}></i>
-                      </span>
-                    </a>
-                  </li>
-                  <li>
-                    <a className="dropdown-item"
-                      onClick={openPopup}
+                        <span style={{ fontSize: "0.75rem" }}>
+                          Send {proposalName}
+                          <i className="bi bi-send" style={{ paddingLeft: "4px" }}></i>
+                        </span>
+                      </a>
+                    </li>
+                    <li>
+                      <a className="dropdown-item"
+                        onClick={openPopup}
                       >
-                        <span style={{fontSize: "0.75rem"}}>Customize Email and Send</span>
-                    </a>
-                  </li>
-                </ul>
+                        <span style={{ fontSize: "0.75rem" }}>Customize Email and Send</span>
+                      </a>
+                    </li>
+                  </ul>
 
                 </div>
               </div>
             )}
-            
+
             {(isPopUpVisible && props.moduleName == "Quote") && (
               <div className="popup-overlay" onClick={closePopup}>
-               <div className="popup-content" style={{maxWidth: "700px",width: "90%",margin: "5% auto",}} onClick={(e) => e.stopPropagation()}>
-                 <button className="close-button" onClick={closePopup}>
-                   &times;
-                 </button>
-                 <div>
-                  <h6 className="mt-2">Email Template Content</h6>
-                  <div className="separator mb-3" />
-                  <div className="fieldset-group helper-variables-div">
-                    <label className="fieldset-group-label">Variables</label>
-                    <AccountantVariables
-                      ModuleName="EmailTemplate"
-                      TemplateType={
-                        // TemplateObj.templateTypeID === null
-                        //   ? null
-                        //   : 
-                          "EmailTemplate"
-                      }
-                      ClintType={null}
-                      businessTypeId={EMAIL_TEMPLATE.Quote_PDF}
-                    />
-                  </div>
+                <div className="popup-content" style={{ maxWidth: "700px", width: "90%", margin: "5% auto", }} onClick={(e) => e.stopPropagation()}>
+                  <button className="close-button" onClick={closePopup}>
+                    &times;
+                  </button>
                   <div>
-                    <Text_Editor
-                      editorState={editorState}
-                      handleContentChange={handleContentChange}
+                    <h6 className="mt-2">Email Template Content</h6>
+                    <div className="separator mb-3" />
+                    <div className="fieldset-group helper-variables-div">
+                      <label className="fieldset-group-label">Variables</label>
+                      <AccountantVariables
+                        ModuleName="EmailTemplate"
+                        TemplateType={
+                          // TemplateObj.templateTypeID === null
+                          //   ? null
+                          //   : 
+                          "EmailTemplate"
+                        }
+                        ClintType={null}
+                        businessTypeId={EMAIL_TEMPLATE.Quote_PDF}
+                      />
+                    </div>
+                    <div>
+                      <Text_Editor
+                        editorState={editorState}
+                        handleContentChange={handleContentChange}
                       // modelAction={modelAction}
-                    />
+                      />
+                    </div>
+                  </div>
+                  <div className="d-flex justify-content-end flex-wrap mt-5">
+                    <button
+                      class="btn btn-md btn-light mr-1 ms-auto me-2 mb-2"
+                      onClick={closePopup}
+                    >
+                      <span>Cancel</span>
+                    </button>
+                    <button
+                      style={{ paddingTop: "5px", marginRight: "4px" }}
+                      class="btn btn-md btn-success create-item-btn text-nowrap mb-2"
+                      onClick={() =>
+                        props.handleSaveAsDraft(
+                          4,
+                          moduleNameForSaveAsDraft,
+                          statusIDForSendProposal
+                        )
+                      }
+                    >
+                      <span>Send {proposalName}
+                        <i className="bi bi-send" style={{ paddingLeft: "4px" }}></i>
+                      </span>
+                    </button>
                   </div>
                 </div>
-                <div className="d-flex justify-content-end flex-wrap mt-5">
-                <button
-                  class="btn btn-md btn-light mr-1 ms-auto me-2 mb-2"
-                  onClick={closePopup}
-                >
-                  <span>Cancel</span>
-                </button>
-                <button
-                style={{ paddingTop: "5px", marginRight: "4px" }}
-                class="btn btn-md btn-success create-item-btn text-nowrap mb-2"
-                onClick={() =>
-                  props.handleSaveAsDraft(
-                    4,
-                    moduleNameForSaveAsDraft,
-                    statusIDForSendProposal
-                  )
-                }
-              >
-                <span>Send {proposalName}
-                <i className="bi bi-send" style={{paddingLeft: "4px"}}></i>
-                </span>
-              </button>
               </div>
-               </div>
-             </div>
             )}
             {common.enableEL == 1 &&
               userAccessData.Admin_Engagement_Latter_CanAdd &&
@@ -4366,38 +4407,38 @@ function setDefaultFontFamily(htmlContent, fontFamily) {
                   <span>Skip To {EngagementName}</span>
                 </button>
               )}
-              {props.moduleName == "Contract" && (
-              <div className="dropdown" style={{display: "inline-block", marginRight: "4px"}}>
-              <div className="btn-group d-flex align-items-stretch">
+            {props.moduleName == "Contract" && (
+              <div className="dropdown" style={{ display: "inline-block", marginRight: "4px" }}>
+                <div className="btn-group d-flex align-items-stretch">
 
-            <button
-              style={{ 
-                borderTopRightRadius: 0,
-                borderBottomRightRadius: 0,
-                borderRight: "none"
-              }}
-              className="btn btn-md btn-success create-item-btn text-nowrap"
-              id = "dropdownMenuButton"
-              onClick={() => {
-                if (!activeOrganizationSubscriptionPlan.sendContract) {
-                  setShowModal(true)
-                  return
-                };
-                props.HandleTabChange(5, statusIDForSendProposal);
-              }}
-              >
-                <span className="d-inline-flex align-items-center">
-                  <span className="me-2">Send {EngagementName}</span>
-                  <i className="bi bi-send" style={{paddingLeft: "4px"}}></i>
-                </span>
-              </button>
+                  <button
+                    style={{
+                      borderTopRightRadius: 0,
+                      borderBottomRightRadius: 0,
+                      borderRight: "none"
+                    }}
+                    className="btn btn-md btn-success create-item-btn text-nowrap"
+                    id="dropdownMenuButton"
+                    onClick={() => {
+                      if (!activeOrganizationSubscriptionPlan.sendContract) {
+                        setShowModal(true)
+                        return
+                      };
+                      props.HandleTabChange(5, statusIDForSendProposal);
+                    }}
+                  >
+                    <span className="d-inline-flex align-items-center">
+                      <span className="me-2">Send {EngagementName}</span>
+                      <i className="bi bi-send" style={{ paddingLeft: "4px" }}></i>
+                    </span>
+                  </button>
                   <button
                     class="btn btn-md btn-success create-item-btn d-flex rounded-end-2"
                     type="button"
                     id="dropdownMenuButton"
                     data-bs-toggle="dropdown"
                     aria-expanded="false"
-                    style={{ 
+                    style={{
                       borderTopLeftRadius: 0,
                       borderBottomLeftRadius: 0,
                       borderLeft: "none",
@@ -4406,93 +4447,93 @@ function setDefaultFontFamily(htmlContent, fontFamily) {
                       alignItems: "center"
                     }}
                   >
-                      <ExpandMoreIcon />
-              </button>
-              <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                <li>
-                  <button className="dropdown-item"
-                   onClick={() => {
-                    if (!activeOrganizationSubscriptionPlan.sendContract) {
-                      setShowModal(true)
-                      return
-                    };
-                    props.HandleTabChange(5, statusIDForSendProposal);
-                  }}
-                    >
-                    <span style={{fontSize: "0.75rem"}}>
-                      Send {EngagementName}
-                      <i className="bi bi-send"></i>
-                    </span>
+                    <ExpandMoreIcon />
                   </button>
-                </li>
-                <li>
-                  <button className="dropdown-item"
-                    onClick={openPopup}
-                    >
-                      <span style={{fontSize: "0.75rem"}}>Customize Email and Send</span>
-                  </button>
-                </li>
-              </ul>
+                  <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    <li>
+                      <button className="dropdown-item"
+                        onClick={() => {
+                          if (!activeOrganizationSubscriptionPlan.sendContract) {
+                            setShowModal(true)
+                            return
+                          };
+                          props.HandleTabChange(5, statusIDForSendProposal);
+                        }}
+                      >
+                        <span style={{ fontSize: "0.75rem" }}>
+                          Send {EngagementName}
+                          <i className="bi bi-send"></i>
+                        </span>
+                      </button>
+                    </li>
+                    <li>
+                      <button className="dropdown-item"
+                        onClick={openPopup}
+                      >
+                        <span style={{ fontSize: "0.75rem" }}>Customize Email and Send</span>
+                      </button>
+                    </li>
+                  </ul>
 
+                </div>
               </div>
-            </div>
             )}
             {(isPopUpVisible && props.moduleName == "Contract") && (
               <div className="popup-overlay" onClick={closePopup}>
-               <div className="popup-content" style={{maxWidth: "700px",width: "90%",margin: "5% auto",}} onClick={(e) => e.stopPropagation()}>
-                 <button className="close-button" onClick={closePopup}>
-                   &times;
-                 </button>
-                 <div>
-                  <h6 className="mt-2">Email Template Content</h6>
-                  <div className="separator mb-3" />
-                  <div className="fieldset-group helper-variables-div">
-                    <label className="fieldset-group-label">Variables</label>
-                    <AccountantVariables
-                      ModuleName="EmailTemplate"
-                      TemplateType={
-                        // TemplateObj.templateTypeID === null
-                        //   ? null
-                        //   : 
-                          "EmailTemplate"
-                      }
-                      ClintType={null}
-                      businessTypeId={EMAIL_TEMPLATE.Contract}
-                    />
-                  </div>
+                <div className="popup-content" style={{ maxWidth: "700px", width: "90%", margin: "5% auto", }} onClick={(e) => e.stopPropagation()}>
+                  <button className="close-button" onClick={closePopup}>
+                    &times;
+                  </button>
                   <div>
-                    <Text_Editor
-                      editorState={editorState}
-                      handleContentChange={handleContentChange}
+                    <h6 className="mt-2">Email Template Content</h6>
+                    <div className="separator mb-3" />
+                    <div className="fieldset-group helper-variables-div">
+                      <label className="fieldset-group-label">Variables</label>
+                      <AccountantVariables
+                        ModuleName="EmailTemplate"
+                        TemplateType={
+                          // TemplateObj.templateTypeID === null
+                          //   ? null
+                          //   : 
+                          "EmailTemplate"
+                        }
+                        ClintType={null}
+                        businessTypeId={EMAIL_TEMPLATE.Contract}
+                      />
+                    </div>
+                    <div>
+                      <Text_Editor
+                        editorState={editorState}
+                        handleContentChange={handleContentChange}
                       // modelAction={modelAction}
-                    />
+                      />
+                    </div>
+                  </div>
+                  <div className="d-flex justify-content-end flex-wrap mt-5">
+                    <button
+                      class="btn btn-md btn-light mr-1 ms-auto me-2 mb-2"
+                      onClick={closePopup}
+                    >
+                      <span>Cancel</span>
+                    </button>
+                    <button
+                      style={{ paddingTop: "5px", marginRight: "4px" }}
+                      class="btn btn-md btn-success create-item-btn text-nowrap mb-2"
+                      onClick={() => {
+                        if (!activeOrganizationSubscriptionPlan.sendContract) {
+                          setShowModal(true)
+                          return
+                        };
+                        props.HandleTabChange(5, statusIDForSendProposal);
+                      }}
+                    >
+                      <span>Send {EngagementName}
+                        <i className="bi bi-send" style={{ paddingLeft: "4px" }}></i>
+                      </span>
+                    </button>
                   </div>
                 </div>
-                <div className="d-flex justify-content-end flex-wrap mt-5">
-                <button
-                  class="btn btn-md btn-light mr-1 ms-auto me-2 mb-2"
-                  onClick={closePopup}
-                >
-                  <span>Cancel</span>
-                </button>
-                <button
-                style={{ paddingTop: "5px", marginRight: "4px" }}
-                class="btn btn-md btn-success create-item-btn text-nowrap mb-2"
-                onClick={() => {
-                  if (!activeOrganizationSubscriptionPlan.sendContract) {
-                    setShowModal(true)
-                    return
-                  };
-                  props.HandleTabChange(5, statusIDForSendProposal);
-                }}
-              >
-                <span>Send {EngagementName}
-                <i className="bi bi-send"  style={{paddingLeft: "4px"}}></i>
-                </span>
-              </button>
               </div>
-               </div>
-             </div>
             )}
             {/* {props.moduleName == "Contract" && (
               <button

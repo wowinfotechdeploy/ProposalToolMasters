@@ -2527,7 +2527,7 @@ const Update_Practice_Details = () => {
                                           basicInfo.signatoryName !== "" &&
                                           (signature === "" ||
                                             signature === null)) ? (
-                                            <span className="validation">This field is required if you have entered a value in the above 'Signatory Name' field. To proceed without uploading a signature, please remove the data from 'Signatory Name' above.</span>
+                                        <span className="validation">This field is required if you have entered a value in the above 'Signatory Name' field. To proceed without uploading a signature, please remove the data from 'Signatory Name' above.</span>
                                       ) : (
                                         ""
                                       )}
@@ -3310,7 +3310,7 @@ const Update_Practice_Details = () => {
                                   <div className="col-lg-12 text-right">
                                     <span className="validation">
                                       {" "}
-                                      At least 1 authorized partner is required.{" "}
+                                      At least 1 authorised partner is required.{" "}
                                     </span>
                                   </div>
                                 </div>
@@ -3322,7 +3322,7 @@ const Update_Practice_Details = () => {
                                     <div className="col-lg-12 text-right">
                                       <span className="validation">
                                         {" "}
-                                        At least 1 authorized partner is
+                                        At least 1 authorised partner is
                                         required.{" "}
                                       </span>
                                     </div>
@@ -3658,7 +3658,7 @@ const Update_Practice_Details = () => {
                                     <div className="col-lg-12 text-right">
                                       <span className="validation">
                                         {" "}
-                                        At least 1 authorized officer is required.{" "}
+                                        At least 1 authorised officer is required.{" "}
                                       </span>
                                     </div>
                                   </div>
@@ -3670,7 +3670,7 @@ const Update_Practice_Details = () => {
                                       <div className="col-lg-12 text-right">
                                         <span className="validation">
                                           {" "}
-                                          At least 1 authorized officer is
+                                          At least 1 authorised officer is
                                           required.{" "}
                                         </span>
                                       </div>

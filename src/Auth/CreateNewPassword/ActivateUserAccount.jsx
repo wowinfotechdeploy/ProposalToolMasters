@@ -320,7 +320,7 @@ const CreateNewPassword = () => {
       ? ""
       : /^(?=.*\d)(?=.*[-@$!%*#?&])[A-Za-z\d!@#$%^&*?()_+-]{8,}$/.test(password)
         ? ""
-        : "Password should be minimum 8 characters long. It must contain at least 1 letter, at least 1 number and at least 1 of the following special characters -@$!%*#?&";
+        : "Password should be minimum 8 characters long. It must contain at least 1 letter, at least 1 number and at least one special character, and only from the following set (others not allowed): - @ $ ! % * # ? &";
 
     setValidationErrors({
       ...validationErrors,
@@ -521,7 +521,7 @@ const CreateNewPassword = () => {
                     <CardBody className="p-4">
                       <div className="p-2">
                         <div className=" text-center mt-3" style={{ justifyContent: 'center' }}>
-                          Password should be minimum 8 characters long. It must contain at least 1 letter, at least 1 number and at least 1 of the following special characters -@$!%*#?&
+                          Password should be minimum 8 characters long. It must contain at least 1 letter, at least 1 number and at least one special character, and only from the following set (others not allowed): - @ $ ! % * # ? &
                         </div>
                         {verifyToken !== "Expired" && (
                           <div className="mt-3 " style={{ fontSize: "12px" }}>
@@ -566,18 +566,19 @@ const CreateNewPassword = () => {
                             <br />
                             <label
                               className={
-                                /[-@$!%*#?&]/.test(createNewPassword.Password) &&
-                                  !/[^A-Za-z0-9\-@$!%*#?&]/.test(createNewPassword.Password)
+                                /[-@$!%*#?&]/.test(createNewPassword?.Password) &&
+                                  !/[^A-Za-z0-9\-@$!%*#?&]/.test(createNewPassword?.Password)
                                   ? "text-success"
                                   : "validation"
                               }
                             >
                               Include at least one special character, and only from the following set (others not allowed): - @ $ ! % * # ? &{" "}
-                              {/[-@$!%*#?&]/.test(createNewPassword.Password) &&
-                                !/[^A-Za-z0-9\-@$!%*#?&]/.test(createNewPassword.Password) && (
+                              {/[-@$!%*#?&]/.test(createNewPassword?.Password) &&
+                                !/[^A-Za-z0-9\-@$!%*#?&]/.test(createNewPassword?.Password) && (
                                   <span>&#10004;</span>
                                 )}
                             </label>
+
                             <br />
                           </div>
                         )}

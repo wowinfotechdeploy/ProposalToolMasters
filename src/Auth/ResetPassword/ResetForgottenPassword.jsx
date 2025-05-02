@@ -94,7 +94,7 @@ const ResetPassword = () => {
       const patternError =
         /^(?=.*\d)(?=.*[-@$!%*#?&])[A-Za-z\d!@#$%^&*?()_+-]{8,}$/.test(password)
           ? ""
-          : "Password should be minimum 8 characters long. It must contain at least 1 letter, at least 1 number and at least 1 of the following special characters -@$!%*#?&";
+          : "Password should be minimum 8 characters long. It must contain at least 1 letter, at least 1 number and at least one special character, and only from the following set (others not allowed): - @ $ ! % * # ? &";
 
       setValidationErrors({
         ...validationErrors,
@@ -141,7 +141,7 @@ const ResetPassword = () => {
       setValidationErrors({
         ...validationErrors,
         Password:
-          "Password should be minimum 8 characters long. It must contain at least 1 letter, at least 1 number and at least 1 of the following special characters -@$!%*#?&",
+          "Password should be minimum 8 characters long. It must contain at least 1 letter, at least 1 number and at least one special character, and only from the following set (others not allowed): - @ $ ! % * # ? &",
       });
       hasError = true;
     } else {
@@ -300,17 +300,15 @@ const ResetPassword = () => {
                 <br />
                 <label
                   className={
-                    /[-@$!%*#?&]/.test(CreateNewPassword.Password) &&
-                      !/[^A-Za-z0-9\-@$!%*#?&]/.test(CreateNewPassword.Password)
+                    /[-@$!%*#?&]/.test(CreateNewPassword.Password)
                       ? "text-success"
                       : "validation"
                   }
                 >
                   Include at least one special character, and only from the following set (others not allowed): - @ $ ! % * # ? &{" "}
-                  {/[-@$!%*#?&]/.test(CreateNewPassword.Password) &&
-                    !/[^A-Za-z0-9\-@$!%*#?&]/.test(CreateNewPassword.Password) && (
-                      <span>&#10004;</span>
-                    )}
+                  {/[-@$!%*#?&]/.test(CreateNewPassword.Password) && (
+                    <span>&#10004;</span>
+                  )}
                 </label>
                 <br />
               </label>

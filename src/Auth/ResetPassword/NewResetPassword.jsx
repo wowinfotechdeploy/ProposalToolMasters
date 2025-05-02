@@ -105,7 +105,7 @@ const NewResetPage = () => {
             const patternError =
                 /^(?=.*\d)(?=.*[-@$!%*#?&])[A-Za-z\d!@#$%^&*?()_+-]{8,}$/.test(password)
                     ? ""
-                    : "Password should be minimum 8 characters long. It must contain at least 1 letter, at least 1 number and at least 1 of the following special characters -@$!%*#?&";
+                    : "Password should be minimum 8 characters long. It must contain at least 1 letter, at least 1 number and at least one special character, and only from the following set (others not allowed): - @ $ ! % * # ? &";
 
             setValidationErrors({
                 ...validationErrors,
@@ -152,7 +152,7 @@ const NewResetPage = () => {
             setValidationErrors({
                 ...validationErrors,
                 Password:
-                    "Password should be minimum 8 characters long. It must contain at least 1 letter, at least 1 number and at least 1 of the following special characters -@$!%*#?&",
+                    "Password should be minimum 8 characters long. It must contain at least 1 letter, at least 1 number and at least one special character, and only from the following set (others not allowed): - @ $ ! % * # ? &",
             });
             hasError = true;
         } else {

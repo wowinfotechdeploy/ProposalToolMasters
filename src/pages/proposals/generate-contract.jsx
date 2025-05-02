@@ -38,15 +38,15 @@ function AcceptInvitation() {
   const [feeTypeId, setFeeTypeId] = useState("");
   const [TnCHtmlContent, setTnCHtmlContent] = useState(null);
   const [TnCPdf, setTnCPdf] = useState(null);
-  const [quoteTypeID,setQuoteTypeID] = useState(null);
+  const [quoteTypeID, setQuoteTypeID] = useState(null);
   const [webSite, setWebSite] = useState("");
   const [AdditionalInformation, setAdditionalInformation] = useState([]);
   const [HeaderContent, setHeaderContent] = useState(null);
   const [FooterContent, setFooterContent] = useState(null);
   const [HeaderHeight, setHeaderHeight] = useState(null);
   const [FooterHeight, setFooterHeight] = useState(null);
-  const [HeaderImage,setHeaderImage] = useState(null);
-  const [FooterImage,setFooterImage] = useState(null);
+  const [HeaderImage, setHeaderImage] = useState(null);
+  const [FooterImage, setFooterImage] = useState(null);
   const imgTag = `<img src="${BrandLogo}" alt="Logo" style="display: none; margin: 0 auto 15px;">`;
 
   const [contractSignatoriesList, setContractSignatoriesList] = useState([]);
@@ -180,35 +180,35 @@ function AcceptInvitation() {
     return doc.body.innerHTML;
   }
 
-  function getFontNameById(id){
+  function getFontNameById(id) {
     const font = Utils.FontFamily.find(f => f.value === id);
-    return font? font.label : null;
-  }; 
+    return font ? font.label : null;
+  };
   // Set Default Font 
   function setDefaultFontFamily(htmlContent, fontFamily) {
     if (!fontFamily) return htmlContent;
-  
+
     const parser = new DOMParser();
     const doc = parser.parseFromString(htmlContent, "text/html");
-  
+
     const elements = doc.querySelectorAll('*');
-  
+
     elements.forEach((el) => {
       const inlineStyle = el.getAttribute("style") || "";
       const fontFamilyMatch = inlineStyle.match(/font-family:\s*([^;]*)/i);
-      
+
       if (fontFamilyMatch) {
         const existingFonts = fontFamilyMatch[1]
           .replace(/['"]/g, '') // Remove quotes
           .split(/\s*,\s*/)
           .map(f => f.toLowerCase());
-  
+
         // Check if Roboto is the first font in the list
         const hasRobotoPrimary = existingFonts[0] === 'roboto';
-        
+
         // Check if no font family is actually set (empty value)
         const isEmptyFontFamily = existingFonts[0] === '';
-  
+
         if (hasRobotoPrimary || isEmptyFontFamily) {
           el.style.setProperty("font-family", fontFamily, "important");
         }
@@ -217,25 +217,25 @@ function AcceptInvitation() {
         el.style.setProperty("font-family", fontFamily, "important");
       }
     });
-  
+
     return doc.body.innerHTML;
   }
   // function setDefaultFontFamily(htmlContent, fontFamily) {
   //   if (!fontFamily) return htmlContent;
-  
+
   //   const parser = new DOMParser();
   //   const doc = parser.parseFromString(htmlContent, "text/html");
-  
+
   //   const elements = doc.querySelectorAll('*');
-  
+
   //   elements.forEach((el) => {
   //       // Get existing font-family from inline style
   //       const inlineStyle = el.getAttribute("style") || "";
   //       const hasFontFamily = inlineStyle.match(/font-family:\s*([^;]+)/i);
-  
+
   //       if (hasFontFamily) {
   //           const existingFont = hasFontFamily[1].toLowerCase();
-  
+
   //           // If "Roboto" is found, replace it with the new font
   //           if (existingFont.includes("roboto") || existingFont === "") {
   //               el.style.setProperty("font-family", fontFamily, "important");
@@ -246,38 +246,38 @@ function AcceptInvitation() {
   //         el.style.setProperty("font-family", fontFamily, "important");
   //       }
   //   });
-  
+
   //   return doc.body.innerHTML;
   // }
-//   function setDefaultFontFamily(htmlContent, fontFamily) {
-//     const parser = new DOMParser();
-//     const doc = parser.parseFromString(htmlContent, "text/html");
+  //   function setDefaultFontFamily(htmlContent, fontFamily) {
+  //     const parser = new DOMParser();
+  //     const doc = parser.parseFromString(htmlContent, "text/html");
 
-//     // Detect browser's default font
-//     const tempElement = document.createElement("div");
-//     document.body.appendChild(tempElement);
-//     const defaultFontFamily = window.getComputedStyle(tempElement).fontFamily.toLowerCase();
-//     document.body.removeChild(tempElement);
+  //     // Detect browser's default font
+  //     const tempElement = document.createElement("div");
+  //     document.body.appendChild(tempElement);
+  //     const defaultFontFamily = window.getComputedStyle(tempElement).fontFamily.toLowerCase();
+  //     document.body.removeChild(tempElement);
 
-//     const elements = doc.querySelectorAll('*');
+  //     const elements = doc.querySelectorAll('*');
 
-//     elements.forEach((el) => {
-//         const computedFont = window.getComputedStyle(el).fontFamily?.toLowerCase().trim();
-//         const hasInlineFont = el.style.fontFamily?.toLowerCase().trim();
+  //     elements.forEach((el) => {
+  //         const computedFont = window.getComputedStyle(el).fontFamily?.toLowerCase().trim();
+  //         const hasInlineFont = el.style.fontFamily?.toLowerCase().trim();
 
-//         if (
-//             !hasInlineFont || 
-//             computedFont === defaultFontFamily || 
-//             hasInlineFont === 'inherit' || 
-//             hasInlineFont === 'initial' || 
-//             hasInlineFont === 'default'
-//         ) {
-//             el.style.setProperty("font-family", fontFamily, "important");
-//         }
-//     });
+  //         if (
+  //             !hasInlineFont || 
+  //             computedFont === defaultFontFamily || 
+  //             hasInlineFont === 'inherit' || 
+  //             hasInlineFont === 'initial' || 
+  //             hasInlineFont === 'default'
+  //         ) {
+  //             el.style.setProperty("font-family", fontFamily, "important");
+  //         }
+  //     });
 
-//     return doc.body.innerHTML;
-// }
+  //     return doc.body.innerHTML;
+  // }
   //Generate Pdf Array and objects
   useEffect(() => {
     if (templateElementList) {
@@ -315,95 +315,95 @@ function AcceptInvitation() {
               pdfDataArray.push(currentArray);
               currentArray = [];
             }
-              currentArray.push({
-                textbox: ` ${imgTag}<div style="padding-left: 40px; padding-right: 40px;margin-top: 10px"> 
+            currentArray.push({
+              textbox: ` ${imgTag}<div style="padding-left: 40px; padding-right: 40px;margin-top: 10px"> 
                 ${serviceDescriptionList
-                    .map(
-                      (serviceCat) => `
+                  .map(
+                    (serviceCat) => `
                       <div>
                           <p style="font-family:${fontFamily};color: black; font-size: ${fontSizeHeading}; font-weight: bold;">
                               ${serviceCat.serviceCatName}
                           </p>
                           <hr style="color: gray; margin-top: -15px;">
                           ${serviceCat.servicesList
-                          .map(
-                            (subService) => `
+                        .map(
+                          (subService) => `
                               <p style="font-family:${fontFamily}; color:black; font-size: ${fontSize};">
                                   ${subService.serviceName}
                               </p>
                               ${subService?.gpdList !== null
-                                ? subService?.gpdList.filter(item => item.driverTypeID !== 1)
-                                  ?.map(
-                                    (pricingDriver) => `
+                              ? subService?.gpdList.filter(item => item.driverTypeID !== 1)
+                                ?.map(
+                                  (pricingDriver) => `
                                 <li style="font-family:${fontFamily}; color:black; font-size: ${fontSize}; margin-top:5px;">
                                 ${pricingDriver.driverName}: 
                                 <span style="">
                                      <strong> ${
-                                      //formatValue(pricingDriver.driverValue)
-                                      pricingDriver.driverTypeID === 2
-                                        ? Number(pricingDriver.driverValue)
-                                          .toFixed(2)
-                                          .toString()
-                                          .replace(
-                                            /\B(?=(\d{3})+(?!\d))/g,
-                                            ","
-                                          )
-                                        : pricingDriver.driverTypeID === 3
-                                          ? pricingDriver.variationName
-                                          : pricingDriver.driverTypeID === 4
-                                            ? pricingDriver.slabTypeID === 2 ?
-                                              formatValueWithoutCurrencySymbol(pricingDriver.driverValue) :
-                                              Number(pricingDriver.slabFrom)
-                                                .toFixed(2)
-                                                .toString()
-                                                .replace(
-                                                  /\B(?=(\d{3})+(?!\d))/g,
-                                                  ","
-                                                ) +
-                                              "-" +
-                                              Number(pricingDriver.slabTo)
-                                                .toFixed(2)
-                                                .toString()
-                                                .replace(
-                                                  /\B(?=(\d{3})+(?!\d))/g,
-                                                  ","
-                                                )
-                                            : ""
-                                      }</strong>
+                                    //formatValue(pricingDriver.driverValue)
+                                    pricingDriver.driverTypeID === 2
+                                      ? Number(pricingDriver.driverValue)
+                                        .toFixed(2)
+                                        .toString()
+                                        .replace(
+                                          /\B(?=(\d{3})+(?!\d))/g,
+                                          ","
+                                        )
+                                      : pricingDriver.driverTypeID === 3
+                                        ? pricingDriver.variationName
+                                        : pricingDriver.driverTypeID === 4
+                                          ? pricingDriver.slabTypeID === 2 ?
+                                            formatValueWithoutCurrencySymbol(pricingDriver.driverValue) :
+                                            Number(pricingDriver.slabFrom)
+                                              .toFixed(2)
+                                              .toString()
+                                              .replace(
+                                                /\B(?=(\d{3})+(?!\d))/g,
+                                                ","
+                                              ) +
+                                            "-" +
+                                            Number(pricingDriver.slabTo)
+                                              .toFixed(2)
+                                              .toString()
+                                              .replace(
+                                                /\B(?=(\d{3})+(?!\d))/g,
+                                                ","
+                                              )
+                                          : ""
+                                    }</strong>
                                 </span> 
                             </li>
                               `
-                                  )
-                                  .join("")
-                                : ``
-                              }
+                                )
+                                .join("")
+                              : ``
+                            }
                           `
-                          )
-                          .join("")}
+                        )
+                        .join("")}
                       </div>
                   `
-                    )
-                    .join("")}
+                  )
+                  .join("")}
                                         ${AdditionalInformation?.length > 0 ?
-                    `<p style="font-family:${fontFamily}; color: ${BrandColor}; font-size: ${fontSizeHeading}; font-weight: bold;">
+                  `<p style="font-family:${fontFamily}; color: ${BrandColor}; font-size: ${fontSizeHeading}; font-weight: bold;">
         Additional Information
     </p>
     <hr style="color: gray; margin-top: -15px;" />` +
-                    AdditionalInformation.filter(item => item.driverTypeID !== 1).map(serviceCat => `
+                  AdditionalInformation.filter(item => item.driverTypeID !== 1).map(serviceCat => `
         <div>
             <p style="font-family:${fontFamily}; color:black; font-size: ${fontSize};">
                 ${serviceCat.driverName}: ${serviceCat.driverTypeID === 4 ? serviceCat.slabTypeID === 2 ? `<strong>${formatValueWithoutCurrencySymbol(serviceCat.driverValue)}</strong>` : `<strong>${formatValueWithoutCurrencySymbol(serviceCat.slabFrom)}-${formatValueWithoutCurrencySymbol(serviceCat.slabTo)}</strong>` : serviceCat.driverTypeID === 3 ? `<strong>${serviceCat.variationName}</strong>` : `${serviceCat.driverName}: <strong>${formatValueWithoutCurrencySymbol(serviceCat.driverValue)}</strong>`}
             </p>
         </div>
     `).join("") : ""
-                  }
+                }
 
                   </div>`,
-              });
+            });
 
             break;
           case ElementType.TEXT_BLOCK:
-            const appliedFontContent = setDefaultFontFamily(element.htmlContent,fontFamily);
+            const appliedFontContent = setDefaultFontFamily(element.htmlContent, fontFamily);
             if (
               prevElementType !== ElementType.PAGE_BREAK &&
               prevElementType !== ElementType.AWS_PDF_LINK
@@ -449,15 +449,30 @@ function AcceptInvitation() {
             break;
           case ElementType.SIGNATURE_BLOCK:
             // const signatureObjects = [];
+            // Include officers based on image URL and map to opposite side
+            const signatureImageUrl = organisationData?.otherInformation?.[0]?.signatureImageUrl;
+
             let rightSignatureList = contractSignatoriesList.filter(
               (x) => x.signaturePositionID === 1 && x.officerType === null
             );
             let leftSignatureList = contractSignatoriesList.filter(
               (x) => x.signaturePositionID === 2 && x.officerType === null
             );
-            let leftSignatureOfficerList = contractSignatoriesList.filter(
-              (x) => x.signaturePositionID === 2
+            let contractSignatoryRowNoForOfficer = contractSignatoriesList.filter((x) => x.officerType !== null
             );
+
+
+            if (!signatureImageUrl && Array.isArray(contractSignatoryRowNoForOfficer)) {
+              // Officers go to the *opposite* side of each signaturePositionID
+              contractSignatoryRowNoForOfficer.forEach(officer => {
+                // If most contract signatories are on the right, place officers on the left, and vice versa
+                if (rightSignatureList.length <= leftSignatureList.length) {
+                  rightSignatureList.push(officer); // balance to right
+                } else {
+                  leftSignatureList.push(officer); // balance to left
+                }
+              });
+            }
 
             let htmlContentForSignatories = "";
             let loopCount = Math.max(
@@ -465,59 +480,59 @@ function AcceptInvitation() {
               leftSignatureList.length
             );
 
-            htmlContentForSignatories += `<div id='SignatoryBlock' style='width: 95%; padding-left: 0px; padding-right: 0px; margin-top: 50px; page-break-inside: avoid; break-inside: avoid;'>`
-            {/* "<div style='width: 95%; padding-left: 0px; padding-right: 0px; margin-top: 50px;'>"; */ }
-            htmlContentForSignatories += "<table style='width: 100%;'>";
+            let orgSignatureInserted = false;
+
+            htmlContentForSignatories += `<div id='SignatoryBlock' style='width: 95%; padding-left: 0px; padding-right: 0px; margin-top: 50px; page-break-inside: avoid; break-inside: avoid;'>`;
+            htmlContentForSignatories += "<table style='width: 100%; border-collapse: collapse;'>";
 
             for (let i = 0; i < loopCount; i++) {
-              //                <td id="left_${i + 1}" style="padding-top: 50px;width:50%;font-size: ${fontSize};text-align:left"><span style="color: white;"><^</span>${leftSignatureList[i] ? leftSignatureList[i].firstName + ' ' + leftSignatureList[i].lastName : ''}<span style="color: white;">^></span></td>
-              //  <td id="right_${i + 1}" style="padding-top: 50px;width:50%;font-size: ${fontSize};text-align:right"><span style="color: white;"><^</span>${rightSignatureList[i] ? rightSignatureList[i].firstName + ' ' + rightSignatureList[i].lastName : ''}<span style="color: white;">^></span></td>
-              htmlContentForSignatories += `<tr style='width:100%; margin-top:100px;'>
-              <td id="left_${i + 1
-                }" style="padding-top: 50px;width:50%;font-family:${fontFamily}; font-size:0.2in; text-align:left"><span style="color: white;"><^${leftSignatureList[i]?.RowNo
-                }_</span>${leftSignatureList[i]
-                  ? leftSignatureList[i].firstName +
-                  " " +
-                  leftSignatureList[i].lastName
-                  : ""
-                }<span style="color: white;">^></span></td>
-              <td id="right_${i + 1
-                }" style="padding-top: 50px;width:50%;font-family:${fontFamily}; font-size:0.2in;text-align:right"><span style="color: white;"><^${rightSignatureList[i]?.RowNo
-                }_</span>${rightSignatureList[i]
-                  ? rightSignatureList[i].firstName +
-                  " " +
-                  rightSignatureList[i].lastName
-                  : ""
-                }<span style="color: white;">^></span></td>
+              htmlContentForSignatories += `<tr style='width:100%; vertical-align: bottom;'>`;
 
-              </tr>`;
-            }
-            if (organisationData.otherInformation[0].signatureImageUrl !== null && organisationData.otherInformation[0].signatureImageUrl !== undefined && organisationData.otherInformation[0].signatureImageUrl !== "") {
-              htmlContentForSignatories += `
-  <tr style='width:100%; margin-top:100px;'>   
-    <td id="left" style="padding-top: 60px;padding-left:45px; width:50%;font-family:${fontFamily}; font-size:0.2in; text-align:left">
-      <div><img src="${organisationData.otherInformation[0].signatureImageUrl}" alt="Signature" style="height:100px; width:130px;"></div>
-       <div style="margin-bottom: 20px;margin-top: 30px;">${organisationData.otherInformation[0].signatoryName}</div>
-    </td>
-  </tr>`;
-            } else {
-              for (let i = 0; i < Math.max(leftSignatureOfficerList.length); i++) {
-                //                <td id="left_${i + 1}" style="padding-top: 50px;width:50%;font-size: ${fontSize};text-align:left"><span style="color: white;"><^</span>${leftSignatureList[i] ? leftSignatureList[i].firstName + ' ' + leftSignatureList[i].lastName : ''}<span style="color: white;">^></span></td>
-                //  <td id="right_${i + 1}" style="padding-top: 50px;width:50%;font-size: ${fontSize};text-align:right"><span style="color: white;"><^</span>${rightSignatureList[i] ? rightSignatureList[i].firstName + ' ' + rightSignatureList[i].lastName : ''}<span style="color: white;">^></span></td>
-                htmlContentForSignatories += `<tr style='width:100%; margin-top:100px;'>
-              <td id="left_${i + 1
-                  }" style="padding-top: 50px;width:50%; font-family:${fontFamily};font-size:0.2in; text-align:left"><span style="color: white;"><^${leftSignatureOfficerList[i]?.RowNo
-                  }_</span>${leftSignatureOfficerList[i]
-                    ? leftSignatureOfficerList[i].firstName +
-                    " " +
-                    leftSignatureOfficerList[i].lastName
-                    : ""
-                  }<span style="color: white;">^></span></td>
-              
+              // --- LEFT SIGNATURE CELL ---
+              const left = leftSignatureList?.[i];
+              htmlContentForSignatories += `<td id="left_${i + 1}" style="padding-top: 60px; width: 50%; font-family: ${fontFamily}; font-size: 0.2in; text-align: left; vertical-align: bottom;">`;
 
-              </tr>`;
+              if (left) {
+                htmlContentForSignatories += `
+                  <span style="color: white;"><^${left.RowNo}_</span>
+                  <div style="display: inline-block;">${left.firstName} ${left.lastName}</div>
+                  <span style="color: white;">^></span>`;
+              } else if (!orgSignatureInserted && signatureImageUrl) {
+                const org = organisationData.otherInformation[0];
+                htmlContentForSignatories += `
+                <div style="margin-left: 60px;">
+                  <div><img src="${org.signatureImageUrl}" alt="Signature" style="height:100px; width:130px;"></div>
+                  <div style="margin-top: 10px;">${org.signatoryName || ""}</div>
+                  </div>`;
+                orgSignatureInserted = true;
               }
+
+              htmlContentForSignatories += `</td>`;
+
+              // --- RIGHT SIGNATURE CELL ---
+              const right = rightSignatureList?.[i];
+              htmlContentForSignatories += `<td id="right_${i + 1}" style="padding-top: 60px; width: 50%; font-family: ${fontFamily}; font-size: 0.2in; text-align: right; vertical-align: bottom;">`;
+
+              if (right) {
+                htmlContentForSignatories += `
+                  <span style="color: white;"><^${right.RowNo}_</span>
+                  <div style="display: inline-block;">${right.firstName} ${right.lastName}</div>
+                  <span style="color: white;">^></span>`;
+              } else if (!orgSignatureInserted && signatureImageUrl) {
+                const org = organisationData.otherInformation[0];
+                htmlContentForSignatories += `
+                <div style="margin-right: 60px;">
+                  <div><img src="${org.signatureImageUrl}" alt="Signature" style="height:100px; width:130px;"></div>
+                  <div style="margin-top: 10px;">${org.signatoryName || ""}</div>
+                  </div>`;
+                orgSignatureInserted = true;
+              }
+
+              htmlContentForSignatories += `</td>`;
+
+              htmlContentForSignatories += `</tr>`;
             }
+
             htmlContentForSignatories += "</table>";
             htmlContentForSignatories += "</div>";
             // const signatureObject = {
@@ -565,34 +580,34 @@ function AcceptInvitation() {
               pdfDataArray.push(currentArray);
               currentArray = [];
             }
-              if (packageList.length > 0) {
-                currentArray.push({
-                  table: packageList.map(
-                    (selectedPackagesData) =>
-                      ` ${imgTag}<div style="padding-left: 40px; padding-right: 40px; color:${BrandColor}; font-size: 30px;">Package :${selectedPackagesData.servicePackageName} </div>`
-                  ),
-                });
+            if (packageList.length > 0) {
+              currentArray.push({
+                table: packageList.map(
+                  (selectedPackagesData) =>
+                    ` ${imgTag}<div style="padding-left: 40px; padding-right: 40px; color:${BrandColor}; font-size: 30px;">Package :${selectedPackagesData.servicePackageName} </div>`
+                ),
+              });
 
-                if (recurringServiceCatList.length > 0) {
-                  currentArray.push({
-                    table: `
+              if (recurringServiceCatList.length > 0) {
+                currentArray.push({
+                  table: `
                               <div style="padding-left: 40px; padding-right: 40px; font-family:${fontFamily};page-break-inside: avoid; break-inside: avoid;">
                                 <p style="font-family:${fontFamily}; color: ${BrandColor}; font-size: 20px; margin-top: 15px;">Recurring Fees (${getPaymentFrequencyLabel()})</p>
                                 <table style="font-family:${fontFamily}; border-collapse: collapse; width: 100%; margin-top: -15px;">
                                   <tr style="background-color: ${BrandColor};">
                                     <th style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white; font-size: 18px;">Services</th>
                                     ${packageList
-                        .map(
-                          (selectedPackagesData) => `
+                      .map(
+                        (selectedPackagesData) => `
                                       <th style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; font-size: 18px;">
                                         ${selectedPackagesData.servicePackageName}
                                       </th>`
-                        )
-                        .join("")}
+                      )
+                      .join("")}
                                   </tr>
                                   ${recurringServiceCatList
-                        .map(
-                          (serviceCat) => `
+                      .map(
+                        (serviceCat) => `
                                     <tr style="background-color: #DCDCDC;">
                                       <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; font-weight: bold; font-size: 18px;">
                                         ${serviceCat.serviceCatName}
@@ -600,61 +615,61 @@ function AcceptInvitation() {
                                       <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;"></td>
                                     </tr>
                                     ${serviceCat.servicesList
-                              .map(
-                                (subService) => `
+                            .map(
+                              (subService) => `
                                       <tr>
                                         <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">
                                           ${subService.serviceName}
                                         </td>
                                  ${feeTypeId == 1
-                                    ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;"> ${formatValue(
-                                      subService.quotationPrice
-                                    )}</td>`
-                                    : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
-                                  }
+                                  ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;"> ${formatValue(
+                                    subService.quotationPrice
+                                  )}</td>`
+                                  : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
+                                }
 
                                       </tr>`
-                              )
-                              .join("")}
+                            )
+                            .join("")}
                                   `
-                        )
-                        .join("")}
+                      )
+                      .join("")}
                                   <tr style="background-color:#808080;">
                                     <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white;">
                                       Net Total
                                     </td>
                                     <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
                                         ${finalQuotationAmountList
-                        .filter(
-                          (x) =>
-                            x.serviceChargeTypeID === 1 &&
-                            x.servicePackageID ===
-                            packageList[0]?.servicePackageID
-                        )
-                        .map((x) => (x.netTotal) < (x.discountedTotal) || (x.discounted > 0 && (!ShowDiscountLine)) ? formatValue(x.discountedTotal) : formatValue(x.netTotal))
-                        .join("")}
+                      .filter(
+                        (x) =>
+                          x.serviceChargeTypeID === 1 &&
+                          x.servicePackageID ===
+                          packageList[0]?.servicePackageID
+                      )
+                      .map((x) => (x.netTotal) < (x.discountedTotal) || (x.discounted > 0 && (!ShowDiscountLine)) ? formatValue(x.discountedTotal) : formatValue(x.netTotal))
+                      .join("")}
                                     </td>
                                   </tr>
                                   ${finalQuotationAmountList.some(
-                          (x) =>
-                            x.serviceChargeTypeID === 1 &&
-                            x.discounted > 0
-                        ) && ShowDiscountLine
-                        ? `
+                        (x) =>
+                          x.serviceChargeTypeID === 1 &&
+                          x.discounted > 0
+                      ) && ShowDiscountLine
+                      ? `
                                     <tr style="background-color: #DCDCDC;">
                                       <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: black;">
                                         Discount
                                       </td>
                                       <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: black;">
                                         (-)  ${finalQuotationAmountList
-                          .filter(
-                            (x) =>
-                              x.serviceChargeTypeID === 1 &&
-                              x.servicePackageID ===
-                              packageList[0]?.servicePackageID
-                          )
-                          .map((x) => formatValue(x.discounted))
-                          .join("")}
+                        .filter(
+                          (x) =>
+                            x.serviceChargeTypeID === 1 &&
+                            x.servicePackageID ===
+                            packageList[0]?.servicePackageID
+                        )
+                        .map((x) => formatValue(x.discounted))
+                        .join("")}
                                       </td>
                                     </tr>
                                   <tr style="background-color:#808080;">
@@ -663,40 +678,40 @@ function AcceptInvitation() {
                                     </td>
                                     <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
                                        ${finalQuotationAmountList
-                          .filter(
-                            (x) =>
-                              x.serviceChargeTypeID === 1 &&
-                              x.servicePackageID ===
-                              packageList[0]?.servicePackageID
-                          )
-                          .map((x) =>
-                            formatValue(x.discountedTotal)
-                          )
-                          .join("")}
+                        .filter(
+                          (x) =>
+                            x.serviceChargeTypeID === 1 &&
+                            x.servicePackageID ===
+                            packageList[0]?.servicePackageID
+                        )
+                        .map((x) =>
+                          formatValue(x.discountedTotal)
+                        )
+                        .join("")}
                                     </td>
                                   </tr>`
-                        : ""
-                      }
+                      : ""
+                    }
                                      ${finalQuotationAmountList.some(
-                        (x) =>
-                          x.serviceChargeTypeID === 1 &&
-                          x.vat > 0
-                      )
-                        ? `
+                      (x) =>
+                        x.serviceChargeTypeID === 1 &&
+                        x.vat > 0
+                    )
+                      ? `
                                   <tr style="background-color: #DCDCDC;">
                                     <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: black;">
                                       VAT
                                     </td>
                                     <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: black;">
                                        ${finalQuotationAmountList
-                          .filter(
-                            (x) =>
-                              x.serviceChargeTypeID === 1 &&
-                              x.servicePackageID ===
-                              packageList[0]?.servicePackageID
-                          )
-                          .map((x) => formatValue(x.vat))
-                          .join("")}
+                        .filter(
+                          (x) =>
+                            x.serviceChargeTypeID === 1 &&
+                            x.servicePackageID ===
+                            packageList[0]?.servicePackageID
+                        )
+                        .map((x) => formatValue(x.vat))
+                        .join("")}
                                     </td>
                                   </tr>
                                   <tr style="background-color:#808080;">
@@ -705,27 +720,27 @@ function AcceptInvitation() {
                                     </td>
                                     <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
                                        ${finalQuotationAmountList
-                          .filter(
-                            (x) =>
-                              x.serviceChargeTypeID === 1 &&
-                              x.servicePackageID ===
-                              packageList[0]?.servicePackageID
-                          )
-                          .map((x) => formatValue(x.grandTotal))
-                          .join("")}
+                        .filter(
+                          (x) =>
+                            x.serviceChargeTypeID === 1 &&
+                            x.servicePackageID ===
+                            packageList[0]?.servicePackageID
+                        )
+                        .map((x) => formatValue(x.grandTotal))
+                        .join("")}
                                     </td>
                                   </tr>`
-                        : ""
-                      }
+                      : ""
+                    }
                                 </table>
                               </div>
                             `,
-                  });
-                }
+                });
+              }
 
-                if (oneOffServiceCatList.length > 0) {
-                  currentArray.push({
-                    table: `
+              if (oneOffServiceCatList.length > 0) {
+                currentArray.push({
+                  table: `
                                 <div style="padding-left: 40px; padding-right: 40px; font-family:${fontFamily};page-break-inside: avoid; break-inside: avoid;">
 
                                   <p style="font-family:${fontFamily}; color: ${BrandColor}; font-size: 20px; margin-top: 15px;"> One-Off Fees </p>
@@ -733,17 +748,17 @@ function AcceptInvitation() {
                                   <tr style="background-color: ${BrandColor};">
                                     <th style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white; font-size: 18px;">Services</th>
                                     ${packageList
-                        .map(
-                          (selectedPackagesData) => `
+                      .map(
+                        (selectedPackagesData) => `
                                       <th style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; font-size: 18px;">
                                         ${selectedPackagesData.servicePackageName}
                                       </th>`
-                        )
-                        .join("")}
+                      )
+                      .join("")}
                                   </tr>
                                   ${oneOffServiceCatList
-                        .map(
-                          (serviceCat) => `
+                      .map(
+                        (serviceCat) => `
                                     <tr style="background-color: #DCDCDC;">
                                       <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; font-weight: bold; font-size: 18px;">
                                         ${serviceCat.serviceCatName}
@@ -751,61 +766,61 @@ function AcceptInvitation() {
                                       <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;"></td>
                                     </tr>
                                     ${serviceCat.servicesList
-                              .map(
-                                (subService) => `
+                            .map(
+                              (subService) => `
                                       <tr>
                                         <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">
                                           ${subService.serviceName}
                                         </td>
                                         ${feeTypeId == 1
-                                    ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;"> ${formatValue(
-                                      subService.quotationPrice
-                                    )}</td>`
-                                    : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
-                                  }
+                                  ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;"> ${formatValue(
+                                    subService.quotationPrice
+                                  )}</td>`
+                                  : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
+                                }
 
                                       </tr>`
-                              )
-                              .join("")}
+                            )
+                            .join("")}
                                   `
-                        )
-                        .join("")}
+                      )
+                      .join("")}
                                   <tr style="background-color:#808080;">
                                     <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white;">
                                       Net Total
                                     </td>
                                     <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
                                      ${finalQuotationAmountList
-                        .filter(
-                          (x) =>
-                            x.serviceChargeTypeID === 2 &&
-                            x.servicePackageID ===
-                            packageList[0]?.servicePackageID
-                        )
-                        .map((x) => (x.netTotal) < (x.discountedTotal) || (x.discounted > 0 && (!ShowDiscountLine)) ? formatValue(x.discountedTotal) : formatValue(x.netTotal))
-                        .join("")}
+                      .filter(
+                        (x) =>
+                          x.serviceChargeTypeID === 2 &&
+                          x.servicePackageID ===
+                          packageList[0]?.servicePackageID
+                      )
+                      .map((x) => (x.netTotal) < (x.discountedTotal) || (x.discounted > 0 && (!ShowDiscountLine)) ? formatValue(x.discountedTotal) : formatValue(x.netTotal))
+                      .join("")}
                                     </td>
                                   </tr>
                                    ${finalQuotationAmountList.some(
-                          (x) =>
-                            x.serviceChargeTypeID === 2 &&
-                            x.discounted > 0
-                        ) && ShowDiscountLine
-                        ? `
+                        (x) =>
+                          x.serviceChargeTypeID === 2 &&
+                          x.discounted > 0
+                      ) && ShowDiscountLine
+                      ? `
                                     <tr style="background-color: #DCDCDC;">
                                       <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: black;">
                                         Discount
                                       </td>
                                       <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: black;">
                                         (-)  ${finalQuotationAmountList
-                          .filter(
-                            (x) =>
-                              x.serviceChargeTypeID === 2 &&
-                              x.servicePackageID ===
-                              packageList[0]?.servicePackageID
-                          )
-                          .map((x) => formatValue(x.discounted))
-                          .join("")}
+                        .filter(
+                          (x) =>
+                            x.serviceChargeTypeID === 2 &&
+                            x.servicePackageID ===
+                            packageList[0]?.servicePackageID
+                        )
+                        .map((x) => formatValue(x.discounted))
+                        .join("")}
                                       </td>
                                     </tr>
                                   <tr style="background-color:#808080;">
@@ -814,40 +829,40 @@ function AcceptInvitation() {
                                     </td>
                                     <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
                                        ${finalQuotationAmountList
-                          .filter(
-                            (x) =>
-                              x.serviceChargeTypeID === 2 &&
-                              x.servicePackageID ===
-                              packageList[0]?.servicePackageID
-                          )
-                          .map((x) =>
-                            formatValue(x.discountedTotal)
-                          )
-                          .join("")}
+                        .filter(
+                          (x) =>
+                            x.serviceChargeTypeID === 2 &&
+                            x.servicePackageID ===
+                            packageList[0]?.servicePackageID
+                        )
+                        .map((x) =>
+                          formatValue(x.discountedTotal)
+                        )
+                        .join("")}
                                     </td>
                                   </tr>`
-                        : ""
-                      }
+                      : ""
+                    }
                                      ${finalQuotationAmountList.some(
-                        (x) =>
-                          x.serviceChargeTypeID === 2 &&
-                          x.vat > 0
-                      )
-                        ? `
+                      (x) =>
+                        x.serviceChargeTypeID === 2 &&
+                        x.vat > 0
+                    )
+                      ? `
                                   <tr style="background-color: #DCDCDC;">
                                     <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: black;">
                                       VAT
                                     </td>
                                     <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: black;">
                                        ${finalQuotationAmountList
-                          .filter(
-                            (x) =>
-                              x.serviceChargeTypeID === 2 &&
-                              x.servicePackageID ===
-                              packageList[0]?.servicePackageID
-                          )
-                          .map((x) => formatValue(x.vat))
-                          .join("")}
+                        .filter(
+                          (x) =>
+                            x.serviceChargeTypeID === 2 &&
+                            x.servicePackageID ===
+                            packageList[0]?.servicePackageID
+                        )
+                        .map((x) => formatValue(x.vat))
+                        .join("")}
                                     </td>
                                   </tr>
                                   <tr style="background-color:#808080;">
@@ -856,27 +871,27 @@ function AcceptInvitation() {
                                     </td>
                                     <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
                                        ${finalQuotationAmountList
-                          .filter(
-                            (x) =>
-                              x.serviceChargeTypeID === 2 &&
-                              x.servicePackageID ===
-                              packageList[0]?.servicePackageID
-                          )
-                          .map((x) => formatValue(x.grandTotal))
-                          .join("")}
+                        .filter(
+                          (x) =>
+                            x.serviceChargeTypeID === 2 &&
+                            x.servicePackageID ===
+                            packageList[0]?.servicePackageID
+                        )
+                        .map((x) => formatValue(x.grandTotal))
+                        .join("")}
                                     </td>
                                   </tr>`
-                        : ""
-                      }
+                      : ""
+                    }
                                 </table>
                                 </div>
                               `,
-                  });
-                }
-              } else {
-                if (recurringServiceCatList.length > 0 && quoteTypeID !== 4) {
-                  currentArray.push({
-                    table: ` ${imgTag}
+                });
+              }
+            } else {
+              if (recurringServiceCatList.length > 0 && quoteTypeID !== 4) {
+                currentArray.push({
+                  table: ` ${imgTag}
                           <div style="padding: 40px; padding-top:0px; font-family:${fontFamily};page-break-inside: avoid; break-inside: avoid;">
                             <p style="font-family:${fontFamily}; color: ${BrandColor}; font-size: 20px; margin-top: 0px;">Recurring Fees (${getPaymentFrequencyLabel()})</p>
                             <table style="font-family:${fontFamily}; border-collapse: collapse; width: 100%; margin-top: -15px;">
@@ -885,8 +900,8 @@ function AcceptInvitation() {
                                 <th style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; font-size: 18px;">Fees (£)</th>
                               </tr>
                               ${recurringServiceCatList
-                        .map(
-                          (serviceCat) => `
+                      .map(
+                        (serviceCat) => `
                                 <tr style="background-color: #eee;">
                                   <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; font-weight: bold; font-size: 18px;">
                                     ${serviceCat.serviceCatName}
@@ -894,42 +909,42 @@ function AcceptInvitation() {
                                   <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;"></td>
                                 </tr>
                                 ${serviceCat.servicesList
-                              .map(
-                                (subService) => `
+                            .map(
+                              (subService) => `
                                   <tr>
                                     <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">
                                       ${subService.serviceName}
                                     </td>
                                           ${feeTypeId == 1
-                                    ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;"> ${formatValue(
-                                      subService.quotationPrice
-                                    )}</td>`
-                                    : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
-                                  }
+                                  ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;"> ${formatValue(
+                                    subService.quotationPrice
+                                  )}</td>`
+                                  : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
+                                }
                                   </tr>`
-                              )
-                              .join("")}
+                            )
+                            .join("")}
                               `
-                        )
-                        .join("")}
+                      )
+                      .join("")}
                               ${ChargeTypeId1Array.map(
-                          (value) => `
+                        (value) => `
                                 <tr style="background-color:#808080;">
                                   <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white;">
                                     Net Total
                                   </td>
                                   <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
                                      ${(value.netTotal < value.discountedTotal) ||
-                              (Number(value?.discounted) > 0 && (!ShowDiscountLine))
-                              ? formatValue(value.discountedTotal)
-                              : formatValue(value.netTotal)
-                            }
+                            (Number(value?.discounted) > 0 && (!ShowDiscountLine))
+                            ? formatValue(value.discountedTotal)
+                            : formatValue(value.netTotal)
+                          }
                                   </td>
                                 </tr>
                                 ${(value?.discounted !== null &&
-                              value?.discounted !== 0.0) &&
-                              ShowDiscountLine
-                              ? `
+                            value?.discounted !== 0.0) &&
+                            ShowDiscountLine
+                            ? `
                                   <tr style="background-color: #DCDCDC;">
                                     <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: black;">
                                       Discount
@@ -946,10 +961,10 @@ function AcceptInvitation() {
                                        ${formatValue(value?.discountedTotal)}
                                     </td>
                                   </tr>`
-                              : ""
-                            }
+                            : ""
+                          }
                                 ${value?.vat !== null && value?.vat !== 0.0
-                              ? `
+                            ? `
                                   <tr style="background-color: #DCDCDC;">
                                     <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: black;">
                                       VAT
@@ -966,20 +981,20 @@ function AcceptInvitation() {
                                        ${formatValue(value?.grandTotal)}
                                     </td>
                                   </tr>`
-                              : ""
-                            }
+                            : ""
+                          }
                               `
-                        ).join("")}
+                      ).join("")}
                             </table>
                           </div>
                         `,
-                  });
-                }
-                // Check if selectedOneOffServiceList has items
-                if (oneOffServiceCatList.length > 0 && quoteTypeID !== 4) {
-                  // Append the table for selectedOneOffServiceList
-                  currentArray.push({
-                    table: `
+                });
+              }
+              // Check if selectedOneOffServiceList has items
+              if (oneOffServiceCatList.length > 0 && quoteTypeID !== 4) {
+                // Append the table for selectedOneOffServiceList
+                currentArray.push({
+                  table: `
                                 <div style="padding: 40px; padding-top:0px; font-family:${fontFamily};page-break-inside: avoid; break-inside: avoid;">
                                   <p style="font-family:${fontFamily}; color: ${BrandColor}; font-size: 20px;margin-top: 0px;">One-Off Fees</p>
                                   <table style="font-family:${fontFamily}; border-collapse: collapse; width: 100%; margin-top: -15px;">
@@ -988,8 +1003,8 @@ function AcceptInvitation() {
                                       <th style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; font-size: 18px;">Fees ()</th>
                                     </tr>
                                     ${oneOffServiceCatList
-                        .map(
-                          (serviceCat) => `
+                      .map(
+                        (serviceCat) => `
                                       <tr style="background-color:#eee;">
                                         <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; font-weight: bold; font-size: 18px;">
                                           ${serviceCat.serviceCatName}
@@ -997,50 +1012,50 @@ function AcceptInvitation() {
                                         <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;"></td>
                                       </tr>
                                       ${serviceCat.servicesList
-                              .map(
-                                (subService) => `
+                            .map(
+                              (subService) => `
                                         <tr>
                                     <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">
                                       ${subService.serviceName}
                                     </td>
                                           ${feeTypeId == 1
-                                    ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;"> ${formatValue(
-                                      subService.quotationPrice
-                                    )}</td>`
-                                    : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
-                                  }
+                                  ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;"> ${formatValue(
+                                    subService.quotationPrice
+                                  )}</td>`
+                                  : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
+                                }
                                   </tr>`
-                              )
-                              .join("")}
+                            )
+                            .join("")}
                                     `
-                        )
-                        .join("")}
+                      )
+                      .join("")}
                                     ${ChargeTypeId2Array.map(
-                          (value) => `
+                        (value) => `
                                       <tr style="background-color:#808080;">
                                         <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white;">
                                           Net Total
                                         </td>
                                         <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
                                            ${(value.netTotal < value.discountedTotal) ||
-                              (Number(value?.discounted) > 0 && (!ShowDiscountLine))
-                              ? formatValue(value.discountedTotal)
-                              : formatValue(value.netTotal)
-                            }
+                            (Number(value?.discounted) > 0 && (!ShowDiscountLine))
+                            ? formatValue(value.discountedTotal)
+                            : formatValue(value.netTotal)
+                          }
                                         </td>
                                       </tr>
                                       ${(value?.discounted !== null &&
-                              value?.discounted !== 0.0) &&
-                              ShowDiscountLine
-                              ? `
+                            value?.discounted !== 0.0) &&
+                            ShowDiscountLine
+                            ? `
                                         <tr style="background-color: #DCDCDC;">
                                           <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: black;">
                                             Discount
                                           </td>
                                           <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: black;">
                                             (-)  ${formatValue(
-                                value.discounted
-                              )}
+                              value.discounted
+                            )}
                                           </td>
                                         </tr>
                                         <tr style="background-color:#808080;">
@@ -1049,15 +1064,15 @@ function AcceptInvitation() {
                                           </td>
                                           <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
                                              ${formatValue(
-                                value.discountedTotal
-                              )}
+                              value.discountedTotal
+                            )}
                                           </td>
                                         </tr>`
-                              : ""
-                            }
+                            : ""
+                          }
                                       ${value?.vat !== null &&
-                              value?.vat !== 0.0
-                              ? `
+                            value?.vat !== 0.0
+                            ? `
                                         <tr style="background-color: #DCDCDC;">
                                           <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: black;">
                                             VAT
@@ -1074,16 +1089,16 @@ function AcceptInvitation() {
                                              ${formatValue(value.grandTotal)}
                                           </td>
                                         </tr>`
-                              : ""
-                            }
+                            : ""
+                          }
                                     `
-                        ).join("")}
+                      ).join("")}
                                   </table>
                                 </div>
                               `,
-                  });
-                }
+                });
               }
+            }
 
             break;
           case ElementType.SERVICE_DESCRIPTION:
@@ -1189,23 +1204,20 @@ function AcceptInvitation() {
               // let rightSignatureList = props.contractSignatoriesList.filter(x => x.signaturePositionID === 1)
               // let leftSignatureList = props.contractSignatoriesList.filter(x => x.signaturePositionID === 2)
 
+              // Include officers based on image URL and map to opposite side
+              const signatureImageUrl = organisationData?.otherInformation?.[0]?.signatureImageUrl;
+
               let rightSignatureList = contractSignatoriesList.filter(
                 (x) => x.signaturePositionID === 1 && x.officerType === null
               );
               let leftSignatureList = contractSignatoriesList.filter(
                 (x) => x.signaturePositionID === 2 && x.officerType === null
               );
-              let leftSignatureOfficerList = contractSignatoriesList.filter(
-                (x) => x.signaturePositionID === 2
-              );
-              let htmlContentForSignatories = ''
-              let loopCount = Math.max(
-                rightSignatureList.length,
-                leftSignatureList.length
+              let contractSignatoryRowNoForOfficer = contractSignatoriesList.filter((x) => x.officerType !== null
               );
 
               if ((TnCHtmlContent !== null && TnCHtmlContent !== undefined)) {
-                const appliedFontContent = setDefaultFontFamily(TnCHtmlContent,fontFamily);
+                const appliedFontContent = setDefaultFontFamily(TnCHtmlContent, fontFamily);
                 // Handling Terms and Conditions
                 //     if (
                 //       prevElementType !== ElementType.PAGE_BREAK &&
@@ -1261,59 +1273,77 @@ function AcceptInvitation() {
                     <hr style="padding-left: 40px; padding-right: 40px; color: black;"></hr></div>
                       <div style="padding-left: 40px; padding-right: 40px;">${appliedFontContent}</div><br>
             ${(() => {
-                        htmlContentForSignatories += `<div id='SignatoryBlock' style='width: 95%; padding-left: 0px; padding-right: 0px; margin-top: 30px; page-break-inside: avoid; break-inside: avoid;'>`
-                        {/* "<div style='width: 95%; padding-left: 0px; padding-right: 0px; margin-top: 50px;'>"; */ }
-                        htmlContentForSignatories += "<table style='width: 100%;'>";
+                        if (!signatureImageUrl && Array.isArray(contractSignatoryRowNoForOfficer)) {
+                          // Officers go to the *opposite* side of each signaturePositionID
+                          contractSignatoryRowNoForOfficer.forEach(officer => {
+                            // If most contract signatories are on the right, place officers on the left, and vice versa
+                            if (rightSignatureList.length <= leftSignatureList.length) {
+                              rightSignatureList.push(officer); // balance to right
+                            } else {
+                              leftSignatureList.push(officer); // balance to left
+                            }
+                          });
+                        }
+
+                        let htmlContentForSignatories = "";
+                        let loopCount = Math.max(
+                          rightSignatureList.length,
+                          leftSignatureList.length
+                        );
+
+                        let orgSignatureInserted = false;
+
+                        htmlContentForSignatories += `<div id='SignatoryBlock' style='width: 95%; padding-left: 0px; padding-right: 0px; margin-top: 50px; page-break-inside: avoid; break-inside: avoid;'>`;
+                        htmlContentForSignatories += "<table style='width: 100%; border-collapse: collapse;'>";
 
                         for (let i = 0; i < loopCount; i++) {
-                          //                <td id="left_${i + 1}" style="padding-top: 50px;width:50%;font-size: ${fontSize};text-align:left"><span style="color: white;"><^</span>${leftSignatureList[i] ? leftSignatureList[i].firstName + ' ' + leftSignatureList[i].lastName : ''}<span style="color: white;">^></span></td>
-                          //  <td id="right_${i + 1}" style="padding-top: 50px;width:50%;font-size: ${fontSize};text-align:right"><span style="color: white;"><^</span>${rightSignatureList[i] ? rightSignatureList[i].firstName + ' ' + rightSignatureList[i].lastName : ''}<span style="color: white;">^></span></td>
-                          htmlContentForSignatories += `<tr style='width:100%; margin-top:100px;'>
-              <td id="left_${i + 1
-                            }" style="padding-top: 50px;width:50%; font-family:${fontFamily};font-size:0.2in; text-align:left"><span style="color: white;"><^${leftSignatureList[i]?.RowNo
-                            }_</span>${leftSignatureList[i]
-                              ? leftSignatureList[i].firstName +
-                              " " +
-                              leftSignatureList[i].lastName
-                              : ""
-                            }<span style="color: white;">^></span></td>
-              <td id="right_${i + 1
-                            }" style="padding-top: 50px;width:50%;font-family:${fontFamily}; font-size:0.2in;text-align:right"><span style="color: white;"><^${rightSignatureList[i]?.RowNo
-                            }_</span>${rightSignatureList[i]
-                              ? rightSignatureList[i].firstName +
-                              " " +
-                              rightSignatureList[i].lastName
-                              : ""
-                            }<span style="color: white;">^></span></td>
+                          htmlContentForSignatories += `<tr style='width:100%; vertical-align: bottom;'>`;
 
-              </tr>`;
-                        }
-                        if (organisationData.otherInformation[0].signatureImageUrl !== null && organisationData.otherInformation[0].signatureImageUrl !== undefined && organisationData.otherInformation[0].signatureImageUrl !== "") {
-                          htmlContentForSignatories += `
-  <tr style='width:100%; margin-top:100px;'>   
-    <td id="left" style="padding-top: 60px;padding-left: 45px; width:50%;font-family:${fontFamily}; font-size:0.2in; text-align:left">
-      <div><img src="${organisationData.otherInformation[0].signatureImageUrl}" alt="Signature" style="height:100px; width:130px;"></div>
-       <div style="margin-bottom: 20px;margin-top: 30px;">${organisationData.otherInformation[0].signatoryName}</div>
-    </td>
-  </tr>`;
-                        } else {
-                          for (let i = 0; i < Math.max(leftSignatureOfficerList.length); i++) {
-                            //                <td id="left_${i + 1}" style="padding-top: 50px;width:50%;font-size: ${fontSize};text-align:left"><span style="color: white;"><^</span>${leftSignatureList[i] ? leftSignatureList[i].firstName + ' ' + leftSignatureList[i].lastName : ''}<span style="color: white;">^></span></td>
-                            //  <td id="right_${i + 1}" style="padding-top: 50px;width:50%;font-size: ${fontSize};text-align:right"><span style="color: white;"><^</span>${rightSignatureList[i] ? rightSignatureList[i].firstName + ' ' + rightSignatureList[i].lastName : ''}<span style="color: white;">^></span></td>
-                            htmlContentForSignatories += `<tr style='width:100%; margin-top:100px;'>
-              <td id="left_${i + 1
-                              }" style="padding-top: 50px;width:50%;font-family:${fontFamily}; font-size: font-size:0.2in; text-align:left"><span style="color: white;"><^${leftSignatureOfficerList[i]?.RowNo
-                              }_</span>${leftSignatureOfficerList[i]
-                                ? leftSignatureOfficerList[i].firstName +
-                                " " +
-                                leftSignatureOfficerList[i].lastName
-                                : ""
-                              }<span style="color: white;">^></span></td>
-              
+                          // --- LEFT SIGNATURE CELL ---
+                          const left = leftSignatureList?.[i];
+                          htmlContentForSignatories += `<td id="left_${i + 1}" style="padding-top: 60px; width: 50%; font-family: ${fontFamily}; font-size: 0.2in; text-align: left; vertical-align: bottom;">`;
 
-              </tr>`;
+                          if (left) {
+                            htmlContentForSignatories += `
+                    <span style="color: white;"><^${left.RowNo}_</span>
+                    <div style="display: inline-block;">${left.firstName} ${left.lastName}</div>
+                    <span style="color: white;">^></span>`;
+                          } else if (!orgSignatureInserted && signatureImageUrl) {
+                            const org = organisationData.otherInformation[0];
+                            htmlContentForSignatories += `
+                  <div style="margin-left: 60px;">
+                    <div><img src="${org.signatureImageUrl}" alt="Signature" style="height:100px; width:130px;"></div>
+                    <div style="margin-top: 10px;">${org.signatoryName || ""}</div>
+                    </div>`;
+                            orgSignatureInserted = true;
                           }
+
+                          htmlContentForSignatories += `</td>`;
+
+                          // --- RIGHT SIGNATURE CELL ---
+                          const right = rightSignatureList?.[i];
+                          htmlContentForSignatories += `<td id="right_${i + 1}" style="padding-top: 60px; width: 50%; font-family: ${fontFamily}; font-size: 0.2in; text-align: right; vertical-align: bottom;">`;
+
+                          if (right) {
+                            htmlContentForSignatories += `
+                    <span style="color: white;"><^${right.RowNo}_</span>
+                    <div style="display: inline-block;">${right.firstName} ${right.lastName}</div>
+                    <span style="color: white;">^></span>`;
+                          } else if (!orgSignatureInserted && signatureImageUrl) {
+                            const org = organisationData.otherInformation[0];
+                            htmlContentForSignatories += `
+                  <div style="margin-right: 60px;">
+                    <div><img src="${org.signatureImageUrl}" alt="Signature" style="height:100px; width:130px;"></div>
+                    <div style="margin-top: 10px;">${org.signatoryName || ""}</div>
+                    </div>`;
+                            orgSignatureInserted = true;
+                          }
+
+                          htmlContentForSignatories += `</td>`;
+
+                          htmlContentForSignatories += `</tr>`;
                         }
+
                         htmlContentForSignatories += "</table>";
                         htmlContentForSignatories += "</div>";
 
@@ -1334,9 +1364,7 @@ function AcceptInvitation() {
 
                 });
 
-
-                // let rightSignatureList = props.contractSignatoriesList.filter(x => x.signaturePositionID === 1)
-                // let leftSignatureList = props.contractSignatoriesList.filter(x => x.signaturePositionID === 2)
+                const signatureImageUrl = organisationData?.otherInformation?.[0]?.signatureImageUrl;
 
                 let rightSignatureList = contractSignatoriesList.filter(
                   (x) => x.signaturePositionID === 1 && x.officerType === null
@@ -1344,70 +1372,81 @@ function AcceptInvitation() {
                 let leftSignatureList = contractSignatoriesList.filter(
                   (x) => x.signaturePositionID === 2 && x.officerType === null
                 );
-                let leftSignatureOfficerList = contractSignatoriesList.filter(
-                  (x) => x.signaturePositionID === 2
+                let contractSignatoryRowNoForOfficer = contractSignatoriesList.filter((x) => x.officerType !== null
                 );
 
-                let htmlContentForSignatories = ''
+
+                if (!signatureImageUrl && Array.isArray(contractSignatoryRowNoForOfficer)) {
+                  // Officers go to the *opposite* side of each signaturePositionID
+                  contractSignatoryRowNoForOfficer.forEach(officer => {
+                    // If most contract signatories are on the right, place officers on the left, and vice versa
+                    if (rightSignatureList.length <= leftSignatureList.length) {
+                      rightSignatureList.push(officer); // balance to right
+                    } else {
+                      leftSignatureList.push(officer); // balance to left
+                    }
+                  });
+                }
+
+                let htmlContentForSignatories = "";
                 let loopCount = Math.max(
                   rightSignatureList.length,
                   leftSignatureList.length
                 );
 
+                let orgSignatureInserted = false;
 
-                htmlContentForSignatories += `<div id='SignatoryBlock' style='width: 95%; padding-left: 0px; padding-right: 0px; margin-top: 50px; page-break-inside: avoid; break-inside: avoid;'>`
-                {/* "<div style='width: 95%; padding-left: 0px; padding-right: 0px; margin-top: 50px;'>"; */ }
-                htmlContentForSignatories += "<table style='width: 100%;'>";
+                htmlContentForSignatories += `<div id='SignatoryBlock' style='width: 95%; padding-left: 0px; padding-right: 0px; margin-top: 50px; page-break-inside: avoid; break-inside: avoid;'>`;
+                htmlContentForSignatories += "<table style='width: 100%; border-collapse: collapse;'>";
 
                 for (let i = 0; i < loopCount; i++) {
-                  //                <td id="left_${i + 1}" style="padding-top: 50px;width:50%;font-size: ${fontSize};text-align:left"><span style="color: white;"><^</span>${leftSignatureList[i] ? leftSignatureList[i].firstName + ' ' + leftSignatureList[i].lastName : ''}<span style="color: white;">^></span></td>
-                  //  <td id="right_${i + 1}" style="padding-top: 50px;width:50%;font-size: ${fontSize};text-align:right"><span style="color: white;"><^</span>${rightSignatureList[i] ? rightSignatureList[i].firstName + ' ' + rightSignatureList[i].lastName : ''}<span style="color: white;">^></span></td>
-                  htmlContentForSignatories += `<tr style='width:100%; margin-top:100px;'>
-              <td id="left_${i + 1
-                    }" style="padding-top: 50px;width:50%;font-family:${fontFamily}; font-size:0.2in; text-align:left"><span style="color: white;"><^${leftSignatureList[i]?.RowNo
-                    }_</span>${leftSignatureList[i]
-                      ? leftSignatureList[i].firstName +
-                      " " +
-                      leftSignatureList[i].lastName
-                      : ""
-                    }<span style="color: white;">^></span></td>
-              <td id="right_${i + 1
-                    }" style="padding-top: 50px;width:50%;font-family:${fontFamily}; font-size:0.2in;text-align:right"><span style="color: white;"><^${rightSignatureList[i]?.RowNo
-                    }_</span>${rightSignatureList[i]
-                      ? rightSignatureList[i].firstName +
-                      " " +
-                      rightSignatureList[i].lastName
-                      : ""
-                    }<span style="color: white;">^></span></td>
+                  htmlContentForSignatories += `<tr style='width:100%; vertical-align: bottom;'>`;
 
-              </tr>`;
-                }
-                if (organisationData.otherInformation[0].signatureImageUrl !== null && organisationData.otherInformation[0].signatureImageUrl !== undefined && organisationData.otherInformation[0].signatureImageUrl !== "") {
-                  htmlContentForSignatories += `
-  <tr style='width:100%; margin-top:100px;'>   
-    <td id="left" style="padding-top: 60px;padding-left: 45px; width:50%;font-family:${fontFamily}; font-size:0.2in; text-align:left">
-      <div><img src="${organisationData.otherInformation[0].signatureImageUrl}" alt="Signature" style="height:100px; width:130px;"></div>
-       <div style="margin-bottom: 20px;margin-top: 30px;">${organisationData.otherInformation[0].signatoryName}</div>
-    </td>
-  </tr>`;
-                } else {
-                  for (let i = 0; i < Math.max(leftSignatureOfficerList.length); i++) {
-                    //                <td id="left_${i + 1}" style="padding-top: 50px;width:50%;font-size: ${fontSize};text-align:left"><span style="color: white;"><^</span>${leftSignatureList[i] ? leftSignatureList[i].firstName + ' ' + leftSignatureList[i].lastName : ''}<span style="color: white;">^></span></td>
-                    //  <td id="right_${i + 1}" style="padding-top: 50px;width:50%;font-size: ${fontSize};text-align:right"><span style="color: white;"><^</span>${rightSignatureList[i] ? rightSignatureList[i].firstName + ' ' + rightSignatureList[i].lastName : ''}<span style="color: white;">^></span></td>
-                    htmlContentForSignatories += `<tr style='width:100%; margin-top:100px;'>
-              <td id="left_${i + 1
-                      }" style="padding-top: 50px;width:50%;font-family:${fontFamily}; font-size:0.2in; text-align:left"><span style="color: white;"><^${leftSignatureOfficerList[i]?.RowNo
-                      }_</span>${leftSignatureOfficerList[i]
-                        ? leftSignatureOfficerList[i].firstName +
-                        " " +
-                        leftSignatureOfficerList[i].lastName
-                        : ""
-                      }<span style="color: white;">^></span></td>
-              
+                  // --- LEFT SIGNATURE CELL ---
+                  const left = leftSignatureList?.[i];
+                  htmlContentForSignatories += `<td id="left_${i + 1}" style="padding-top: 60px; width: 50%; font-family: ${fontFamily}; font-size: 0.2in; text-align: left; vertical-align: bottom;">`;
 
-              </tr>`;
+                  if (left) {
+                    htmlContentForSignatories += `
+                      <span style="color: white;"><^${left.RowNo}_</span>
+                      <div style="display: inline-block;">${left.firstName} ${left.lastName}</div>
+                      <span style="color: white;">^></span>`;
+                  } else if (!orgSignatureInserted && signatureImageUrl) {
+                    const org = organisationData.otherInformation[0];
+                    htmlContentForSignatories += `
+                    <div style="margin-left: 60px;">
+                      <div><img src="${org.signatureImageUrl}" alt="Signature" style="height:100px; width:130px;"></div>
+                      <div style="margin-top: 10px;">${org.signatoryName || ""}</div>
+                      </div>`;
+                    orgSignatureInserted = true;
                   }
+
+                  htmlContentForSignatories += `</td>`;
+
+                  // --- RIGHT SIGNATURE CELL ---
+                  const right = rightSignatureList?.[i];
+                  htmlContentForSignatories += `<td id="right_${i + 1}" style="padding-top: 60px; width: 50%; font-family: ${fontFamily}; font-size: 0.2in; text-align: right; vertical-align: bottom;">`;
+
+                  if (right) {
+                    htmlContentForSignatories += `
+                      <span style="color: white;"><^${right.RowNo}_</span>
+                      <div style="display: inline-block;">${right.firstName} ${right.lastName}</div>
+                      <span style="color: white;">^></span>`;
+                  } else if (!orgSignatureInserted && signatureImageUrl) {
+                    const org = organisationData.otherInformation[0];
+                    htmlContentForSignatories += `
+                    <div style="margin-right: 60px;">
+                      <div><img src="${org.signatureImageUrl}" alt="Signature" style="height:100px; width:130px;"></div>
+                      <div style="margin-top: 10px;">${org.signatoryName || ""}</div>
+                      </div>`;
+                    orgSignatureInserted = true;
+                  }
+
+                  htmlContentForSignatories += `</td>`;
+
+                  htmlContentForSignatories += `</tr>`;
                 }
+
                 htmlContentForSignatories += "</table>";
                 htmlContentForSignatories += "</div>";
 
@@ -1592,53 +1631,53 @@ function AcceptInvitation() {
     }
   }, [generatePdfData, organisationData]);
 
-    const GetTemplateLookupListData = async (ClientId, QuoteId) => {
-      setLoader(true);
-      try {
-        const response = await GetTemplateListLookupList({
-          TemplateTypeID: 2,
-          organisationKeyID: common.organisationKeyID,
-          QuoteKeyID: quoteKeyID,
-        });
-        const data = response.data;
-        const isSelectedDefault = data.responseData.data.filter(
-          (item) => item.isDefault === true
-        );
-        if (data.statusCode === 200) {
-          setLoader(false);
-          const mappedOptions = data.responseData.data.map((item) => ({
-            value: item.templateKeyID,
-            label: item.templateName,
-            templateID: item.templateID,
-            fontFamilyID: item.fontFamilyID,
-            headerHeight: item.headerHeight,
-            footerHeight: item.footerHeight,
-            headerImage: item.headerImage,
-            footerImage: item.footerImage,
-            headerContent: item.headerContent,
-            footerContent: item.footerContent
-          }));
-          // setTemplateLookUpOptions(mappedOptions);
-          // const isSelectedDefault = data.responseData.data.filter(
-          //   (item) => item.isDefault === true
-          // );
-          setQuoteTypeID(isSelectedDefault[0]?.quoteTypeID);
-          setFontFamily(getFontNameById(mappedOptions[0].fontFamilyID));
-          setHeaderContent(mappedOptions[0]?.headerContent);
-          setFooterContent(mappedOptions[0]?.footerContent);
-          setHeaderImage(mappedOptions[0]?.headerImage);
-          setFooterImage(mappedOptions[0]?.footerImage)
-          setHeaderHeight(mappedOptions[0]?.headerHeight);
-          setFooterHeight(mappedOptions[0]?.footerHeight);
-        } else {
-          setLoader(false);
-          console.error("Error fetching data from the API");
-        }
-      } catch (error) {
+  const GetTemplateLookupListData = async (ClientId, QuoteId) => {
+    setLoader(true);
+    try {
+      const response = await GetTemplateListLookupList({
+        TemplateTypeID: 2,
+        organisationKeyID: common.organisationKeyID,
+        QuoteKeyID: quoteKeyID,
+      });
+      const data = response.data;
+      const isSelectedDefault = data.responseData.data.filter(
+        (item) => item.isDefault === true
+      );
+      if (data.statusCode === 200) {
         setLoader(false);
-        console.error("Error fetching data from the API", error);
+        const mappedOptions = data.responseData.data.map((item) => ({
+          value: item.templateKeyID,
+          label: item.templateName,
+          templateID: item.templateID,
+          fontFamilyID: item.fontFamilyID,
+          headerHeight: item.headerHeight,
+          footerHeight: item.footerHeight,
+          headerImage: item.headerImage,
+          footerImage: item.footerImage,
+          headerContent: item.headerContent,
+          footerContent: item.footerContent
+        }));
+        // setTemplateLookUpOptions(mappedOptions);
+        // const isSelectedDefault = data.responseData.data.filter(
+        //   (item) => item.isDefault === true
+        // );
+        setQuoteTypeID(isSelectedDefault[0]?.quoteTypeID);
+        setFontFamily(getFontNameById(mappedOptions[0].fontFamilyID));
+        setHeaderContent(mappedOptions[0]?.headerContent);
+        setFooterContent(mappedOptions[0]?.footerContent);
+        setHeaderImage(mappedOptions[0]?.headerImage);
+        setFooterImage(mappedOptions[0]?.footerImage)
+        setHeaderHeight(mappedOptions[0]?.headerHeight);
+        setFooterHeight(mappedOptions[0]?.footerHeight);
+      } else {
+        setLoader(false);
+        console.error("Error fetching data from the API");
       }
-    };
+    } catch (error) {
+      setLoader(false);
+      console.error("Error fetching data from the API", error);
+    }
+  };
   //Get Template Model Data 
   const GetTemplateModalData = async (
     TemplateKeyID,
@@ -1749,16 +1788,16 @@ function AcceptInvitation() {
           let AddFirstPageHtmlContent = [...updatedTemplateElementList]
           if (!isAddedFirstPage) {
 
-            const firstPageElement = {
-              "ttetMapID": null,
-              "templateElementTypeID": 10,
-              "templateElementTypeName": "First Page",
-              "serialNo": null,
-              "headings": "",
-              "shortDesc": "",
-              "htmlContent": setDefaultFontFamily(firstPageHTML, fontFamily)
-            };
-            AddFirstPageHtmlContent.splice(0, 0, firstPageElement);
+            // const firstPageElement = {
+            //   "ttetMapID": null,
+            //   "templateElementTypeID": 10,
+            //   "templateElementTypeName": "First Page",
+            //   "serialNo": null,
+            //   "headings": "",
+            //   "shortDesc": "",
+            //   "htmlContent": setDefaultFontFamily(firstPageHTML, fontFamily)
+            // };
+            // AddFirstPageHtmlContent.splice(0, 0, firstPageElement);
           }
           // const GetCommonFontFamily = AddFirstPageHtmlContent.find(item => item.templateElementTypeName === "Text Block").htmlContent
           // const { uniqueFontFamilies, // Unique font families

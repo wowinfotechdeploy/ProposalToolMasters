@@ -198,3 +198,11 @@ export const DeleteQuotation = async (QuoteKeyID, UserKeyID) => {
     );
     return res;
 };
+export const DeleteSingleApiQuote = async (params) => {
+
+    const res = await postApiWithAuthenticated(
+        // `${TemplateBaseUrl}/GetMasterTemplateDetailsWithVariableValues?TemplateKeyID=${params.TemplateKeyID}&ClientKeyID=${params.clientID}`
+        `${ProposalBaseUrlQuote}/DeleteSingleApiQuote`, params
+    );
+    return res;
+};

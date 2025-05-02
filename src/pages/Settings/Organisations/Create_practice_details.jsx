@@ -1501,7 +1501,7 @@ const OfficerDetails = (props) => {
                             htmlFor={`checkbox${index}`}
                             className="isAuthorized"
                           >
-                            Authorized Signatory
+                            Authorised Signatory
                           </div>
                         </div>
                         {props.officersForm.length === 0 && (
@@ -1509,7 +1509,7 @@ const OfficerDetails = (props) => {
                             <div className="col-lg-12 text-end">
                               <span className="validation">
                                 {" "}
-                                At least 1 authorized partner is required.{" "}
+                                At least 1 authorised partner is required.{" "}
                               </span>
                             </div>
                           </div>
@@ -1521,7 +1521,7 @@ const OfficerDetails = (props) => {
                               <div className="col-lg-12 text-end">
                                 <span className="validation">
                                   {" "}
-                                  At least 1 authorized partner is required.{" "}
+                                  At least 1 authorised partner is required.{" "}
                                 </span>
                               </div>
                             </div>
@@ -1849,7 +1849,7 @@ const OfficerDetails = (props) => {
                               <div className="col-lg-12 text-end">
                                 <span className="validation">
                                   {" "}
-                                  At least 1 authorized officer is required.{" "}
+                                  At least 1 authorised officer is required.{" "}
                                 </span>
                               </div>
                             </div>
@@ -1861,7 +1861,7 @@ const OfficerDetails = (props) => {
                                 <div className="col-lg-12 text-end">
                                   <span className="validation">
                                     {" "}
-                                    At least 1 authorized officer is required.{" "}
+                                    At least 1 authorised officer is required.{" "}
                                   </span>
                                 </div>
                               </div>

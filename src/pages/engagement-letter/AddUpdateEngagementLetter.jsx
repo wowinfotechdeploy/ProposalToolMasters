@@ -5373,7 +5373,7 @@ const Add_Update_Engagement_Letter = () => {
   const [footerImage, setFooterImage] = useState(null);
   const [headerContent, setHeaderContent] = useState(null);
   const [footerContent, setFooterContent] = useState(null);
-  const [showSeparatorLines,setShowSeparatorLines] = useState(null);
+  const [showSeparatorLines, setShowSeparatorLines] = useState(null);
   const [fontSize, setFontSize] = useState("");
   const [CompanyLogo, setCompanyLogo] = useState(false);
   const [requireMessage, setRequireMessage] = useState(false);
@@ -5836,16 +5836,16 @@ const Add_Update_Engagement_Letter = () => {
           let AddFirstPageHtmlContent = [...ModelData.templateElementList];
 
           if (!isAddedFirstPage) {
-            const firstPageElement = {
-              ttetMapID: null,
-              templateElementTypeID: 10,
-              templateElementTypeName: "First Page",
-              serialNo: null,
-              headings: "",
-              shortDesc: "",
-              htmlContent: firstPageHTML,
-            };
-            AddFirstPageHtmlContent.splice(0, 0, firstPageElement);
+            // const firstPageElement = {
+            //   ttetMapID: null,
+            //   templateElementTypeID: 10,
+            //   templateElementTypeName: "First Page",
+            //   serialNo: null,
+            //   headings: "",
+            //   shortDesc: "",
+            //   htmlContent: firstPageHTML,
+            // };
+            // AddFirstPageHtmlContent.splice(0, 0, firstPageElement);
           } else {
             const imgTag = `<img src="${Logo}" alt="Logo" style="display: none; margin: 0 auto 15px;">`;
 
@@ -6413,7 +6413,7 @@ const Add_Update_Engagement_Letter = () => {
         QuoteKeyID: QuoteId?.value == undefined ? QuoteId : QuoteId?.value,
       });
       const data = response.data;
-  
+
       if (data.statusCode === 200) {
         setLoader(false);
         const mappedOptions = data.responseData.data.map((item) => ({
@@ -6433,7 +6433,7 @@ const Add_Update_Engagement_Letter = () => {
         const isSelectedDefault = data.responseData.data.filter(
           (item) => item.isDefault === true
         );
-  
+
         // Only update template-related fields if no manual selection has occurred
         if (!isTemplateManuallySelected) {
           if (QuoteId !== null) {
@@ -6459,8 +6459,8 @@ const Add_Update_Engagement_Letter = () => {
                 ClientId?.value == undefined
                   ? ClientId
                   : ClientId?.value == null
-                  ? null
-                  : ClientId?.value,
+                    ? null
+                    : ClientId?.value,
               clientKeyID:
                 ClientId?.clientKeyID == undefined ? null : ClientId?.clientKeyID,
               QuoteKeyID: QuoteId?.value == undefined ? QuoteId : QuoteId?.value,
@@ -6501,8 +6501,8 @@ const Add_Update_Engagement_Letter = () => {
                 ClientId?.value == undefined
                   ? ClientId
                   : ClientId?.value == null
-                  ? null
-                  : ClientId?.value,
+                    ? null
+                    : ClientId?.value,
               clientKeyID:
                 ClientId?.clientKeyID == undefined ? null : ClientId?.clientKeyID,
               QuoteKeyID: QuoteId?.value == undefined ? QuoteId : QuoteId?.value,
@@ -12864,8 +12864,8 @@ const Add_Update_Engagement_Letter = () => {
                   setValidation={setValidation}
                   prospectName={prospectName}
                   GetTemplateLookupListData={GetTemplateLookupListData}
-                  setTemplateElementList = {setTemplateElementList}
-                  setIsTemplateManuallySelected = {setIsTemplateManuallySelected}
+                  setTemplateElementList={setTemplateElementList}
+                  setIsTemplateManuallySelected={setIsTemplateManuallySelected}
                   setHeaderContent={setHeaderContent}
                   setFooterContent={setFooterContent}
                   setHeaderImage={setHeaderImage}
@@ -12874,7 +12874,7 @@ const Add_Update_Engagement_Letter = () => {
                   setFooterHeight={setFooterHeight}
                   setFontFamily={setFontFamily}
                   getFontNameById={getFontNameById}
-                  setShowSeparatorLines = {setShowSeparatorLines}
+                  setShowSeparatorLines={setShowSeparatorLines}
                 />
               )}
               {activeTab === EngagementLetterHeader.SelectServices && (
@@ -13127,7 +13127,7 @@ const Add_Update_Engagement_Letter = () => {
                   footerImage={footerImage}
                   headerHeight={headerHeight}
                   footerHeight={footerHeight}
-                  showSeparatorLines = {showSeparatorLines}
+                  showSeparatorLines={showSeparatorLines}
                 />
               )}
             </div>

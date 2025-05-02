@@ -574,7 +574,7 @@ const View_Engagement_Latter = () => {
                                 role="tab"
                                 aria-selected="false"
                               >
-                                Authorized Signatories
+                                Authorised Signatories
                               </a>
                             </li>
                             {EngagementObj.declinedReason !== null && (
@@ -1286,7 +1286,7 @@ const View_Engagement_Latter = () => {
                                         <tr>
                                           {(EngagementObj.clientMasterBusinessTypeID === 3 || EngagementObj.clientMasterBusinessTypeID === 4 || EngagementObj.clientMasterBusinessTypeID === 5) &&
                                             <>
-                                              <td>Authorized </td>
+                                              <td>Authorised </td>
                                               <td className="text-end">
                                                 {officersForm[index]
                                                   ?.isAuthorisedSignatory

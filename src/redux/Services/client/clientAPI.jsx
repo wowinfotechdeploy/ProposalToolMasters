@@ -86,3 +86,12 @@ export const GetOfficersForQuoteAndContract = async (id) => {
   );
   return res;
 };
+
+export const DeleteSingleApiClient = async (params) => {
+
+  const res = await postApiWithAuthenticated(
+    // `${TemplateBaseUrl}/GetMasterTemplateDetailsWithVariableValues?TemplateKeyID=${params.TemplateKeyID}&ClientKeyID=${params.clientID}`
+    `${clientsListUrl}/DeleteSingleApiClient`, params
+  );
+  return res;
+};

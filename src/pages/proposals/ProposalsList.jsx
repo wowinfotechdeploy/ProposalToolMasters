@@ -17,6 +17,7 @@ import {
   ChangeQuoteStatus,
   CopyQuotation,
   DeleteQuotation,
+  DeleteSingleApiQuote,
   GetOldProposalList,
   GetProposalList,
   ResendProposal,
@@ -82,8 +83,11 @@ const Proposals = () => {
   const [ProposalSearchKeyword, setSearchOldProposalKeyword] = useState("");
   const [searchKeyword, setSearchKeyword] = useState("");
   const [totalRecords, setTotalRecords] = useState(-1);
+  const [OldtotalRecords, setOldTotalRecords] = useState(-1);
+  const [SingletotalRecords, setSingleTotalRecords] = useState(-1);
   let getTemplateListApiCallCount = 0;
   const [fromDate, setFromDate] = useState(null);
+  const [selectedRows, setSelectedRows] = useState([]);
   const [toDate, setToDate] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [status, setStatus] = useState("");
@@ -517,7 +521,7 @@ const Proposals = () => {
             }
             setSingleProposalListCount(totalCount);
             setSingleProposalList(ProposalListData);
-            setTotalRecords(ProposalListData.length);
+            setSingleTotalRecords(ProposalListData.length);
           }
         } else {
           if (getTemplateListApiCallCount < maxCountToRecallApi) {
@@ -585,7 +589,7 @@ const Proposals = () => {
             }
             setOldProposalListCount(totalCount);
             setOldProposalList(ProposalListData);
-            // setTotalRecords(ProposalListData.length);
+            setOldTotalRecords(ProposalListData.length);
           }
         } else {
           if (getTemplateListApiCallCount < maxCountToRecallApi) {
@@ -836,17 +840,35 @@ const Proposals = () => {
   const DeleteQuotationData = async () => {
     try {
       setLoader(true);
-      const data = await DeleteQuotation(modelRequestData.quoteKeyID, common.userKeyID);
-      if (data?.data?.statusCode === 200) {
-        setLoader(false);
-        setOpenSuccessModal(true);
-        // GetProposalListData(currentPage);
+      if (selectedRows.length !== 0) {
+        const data = await DeleteSingleApiQuote({
+          userKeyID: common.userKeyID,
+          quoteKeyIDs: selectedRows
+        });
+        if (data?.data?.statusCode === 200) {
+          setLoader(false);
+          setOpenSuccessModal(true);
+          GetProposalListSingleApiData(currentPage);
+        }
+        else {
+          setLoader(false);
+          setErrorMessage(data?.data?.errorMessage);
+          setOpenErrorModal(true);
+        }
+      } else {
+        const data = await DeleteQuotation(modelRequestData.quoteKeyID, common.userKeyID);
+        if (data?.data?.statusCode === 200) {
+          setLoader(false);
+          setOpenSuccessModal(true);
+          // GetProposalListData(currentPage);
+        }
+        else {
+          setLoader(false);
+          setErrorMessage(data?.data?.errorMessage);
+          setOpenErrorModal(true);
+        }
       }
-      else {
-        setLoader(false);
-        setErrorMessage(data?.data?.errorMessage);
-        setOpenErrorModal(true);
-      }
+
     }
     catch (error) {
       console.error(error);
@@ -895,6 +917,29 @@ const Proposals = () => {
     GetProposalListData(1, searchKeyword, null, null, null, null, null);
     setCurrentPage(1)
   };
+
+
+  const visibleRows = SingleProposalList.slice(
+    0,
+    isMobile ? isMobileRecords : desktopRecords
+  );
+
+  const handleRowSelect = (quoteKeyID) => {
+    setSelectedRows((prevSelected) =>
+      prevSelected.includes(quoteKeyID)
+        ? prevSelected.filter((id) => id !== quoteKeyID)
+        : [...prevSelected, quoteKeyID]
+    );
+  };
+
+  const handleSelectAll = () => {
+    if (selectedRows.length === visibleRows.length) {
+      setSelectedRows([]); // Deselect all
+    } else {
+      setSelectedRows(visibleRows.map((item) => item.quoteKeyID)); // Select all
+    }
+  };
+
   return (
     <div className="container">
       <div class="main-content">
@@ -914,6 +959,7 @@ const Proposals = () => {
                         aria-selected={activeTab === "Proposal"}
                         onClick={() => {
                           setActiveTab("Proposal");
+                          setSelectedRows([]);
                           TabHandle("Proposal");
                         }}
                       >
@@ -929,7 +975,10 @@ const Proposals = () => {
                           href="#Old Proposal"
                           role="tab"
                           aria-selected={activeTab === "Old Proposal"}
-                          onClick={() => TabHandle("Old Proposal")}
+                          onClick={() => {
+                            setSelectedRows([]);
+                            TabHandle("Old Proposal")
+                          }}
                         >
                           <b>Migrated {proposalName}</b>
                         </a>
@@ -1168,7 +1217,7 @@ const Proposals = () => {
                                     <Tooltip title={"Clear Filter"}>
                                       <div>
                                         <button
-                                          className="btn btn-md btn-success create-Filter-item-btn "
+                                          className="btn btn-md btn-success create-Filter-item-btn me-2"
                                           onClick={ClearFilter} // Corrected from onclick to onClick
                                         >
                                           <span className="text-nowrap">
@@ -1180,6 +1229,39 @@ const Proposals = () => {
                                   ) : (
                                     ""
                                   )}
+                                  <Tooltip
+                                    title={getCrudButtonToolTipName(
+                                      "Delete",
+                                      proposalName
+                                    )}
+                                  >
+                                    <div>
+                                      <button
+                                        className={
+                                          selectedRows.length !== 0
+                                            ? "btn btn-md btn-success create-item-btn filter me-2"
+                                            : "btn btn-md btn-success create-item-btn-apply filter me-2"
+                                        }
+                                        disabled={selectedRows.length === 0}
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#ConfirmModel"
+                                        onClick={() =>
+                                          setModelRequestData({
+                                            ...modelRequestData,
+                                            Action: "Delete",
+                                          })
+                                        }
+                                      >
+                                        <i
+                                          className={
+                                            selectedRows.length !== 0
+                                              ? "ri-delete-bin-5-fill align-bottom "
+                                              : "ri-delete-bin-5-fill align-bottom Filter-apply-color"
+                                          }
+                                        ></i>
+                                      </button>
+                                    </div>
+                                  </Tooltip>
                                 </div>
                               </div>
                             )}
@@ -1245,11 +1327,11 @@ const Proposals = () => {
                                   <td className="tr-table-class text-white">
                                     Documents
                                   </td>
-                                  <td className="tr-table-class text-white text-center">
-                                    {userAccessData.Admin_Proposal_CanView && (
-                                      <>Action</>
-                                    )}
-                                  </td>
+                                  {/* <td className="tr-table-class text-white text-center">
+                                  {userAccessData.Admin_Proposal_CanView && (
+                                    <>Action</>
+                                  )}
+                                </td> */}
                                 </tr>
                               </thead>
                               <tbody class="list form-check-all">
@@ -1933,9 +2015,12 @@ const Proposals = () => {
                             >
                               <thead class="table-light table-header-font">
                                 <tr className="head-row">
-                                  <td
-                                    className="tr-table-class text-white"
-                                  >
+                                  <td className="tr-table-class text-white">
+                                    <input
+                                      type="checkbox"
+                                      checked={selectedRows.length === visibleRows.length}
+                                      onChange={handleSelectAll}
+                                    />{" "}
                                     Ref ID
                                   </td>
                                   <td className="tr-table-class text-white">
@@ -1950,9 +2035,7 @@ const Proposals = () => {
                                   <td className="tr-table-class text-white">
                                     Documents
                                   </td>
-                                  {/* <td className="tr-table-class text-white">
-                                    Send Reminder
-                                  </td> */}
+
                                   <td className="tr-table-class text-white">
                                     {userAccessData.Admin_Proposal_CanView && (
                                       <>Action</>
@@ -1968,6 +2051,11 @@ const Proposals = () => {
                                   return (
                                     <tr class="table_new">
                                       <td className="table-content-font">
+                                        <input
+                                          type="checkbox"
+                                          checked={selectedRows.includes(item.quoteKeyID)}
+                                          onChange={() => handleRowSelect(item.quoteKeyID)}
+                                        />{" "}
                                         {item.prefix}
                                       </td>
                                       <td className="table-content-font">
@@ -2156,193 +2244,40 @@ const Proposals = () => {
                                           )}
                                         {/* </a> */}
                                       </td>
-
-                                      {/* <td className="table-content-font">
-                                        {item.statusID !== statusID.Draft &&
-                                          <div
-                                            style={{ alignItems: "none" }}
-                                            class="d-flex gap-2"
-                                          >
-                                            <Tooltip
-                                              title={
-                                                item.enableReminder
-                                                  ? item.reminderName
-                                                    ? getCrudButtonToolTipName(item.reminderName)
-                                                    : "No reminder found"
-                                                  : ""
-                                              }
-                                            >
-                                              <div style={{ width: "40px" }}>
-                                                {item.enableReminder ? "Enable" : "Disable"}
-                                              </div>
-                                            </Tooltip>
-                                            <Tooltip
-                                              title={getCrudButtonToolTipName(
-                                                "Change Status"
-                                              )}
-                                            >
-                                              <FormGroup>
-                                                <FormControlLabel
-                                                  control={
-                                                    <Android12Switch
-                                                      onClick={() =>
-                                                        setModelRequestData({
-                                                          ...modelRequestData,
-                                                          status:
-                                                            item.enableReminder ?
-                                                              "Enable" :
-                                                              "Disable",
-                                                          quoteKeyID:
-                                                            item?.quoteKeyID,
-                                                          userKeyID:
-                                                            common.userKeyID,
-                                                          StatusType: null,
-                                                          Action: "ReminderStatus",
-                                                        })
-                                                      }
-                                                      checked={
-                                                        item.enableReminder
-                                                      }
-                                                      data-bs-toggle="modal"
-                                                      data-bs-target="#ConfirmModel"
-                                                    />
-                                                  }
-                                                />
-                                              </FormGroup>
-                                            </Tooltip>
-                                          </div>
-                                        }
-                                      </td> */}
                                       {/*buttons */}
-                                      <td className="table-content-font">
+                                      <td>
                                         <div class="d-flex gap-2">
+                                          <Tooltip
+                                            title={getCrudButtonToolTipName(
+                                              "Delete",
+                                              { proposalName }
+                                            )}
+                                          >
+                                            <div class="remove">
+                                              <button
+                                                class="btn btn-sm btn-danger remove-item-btn actionButtonsStyle"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#ConfirmModel"
+                                                onClick={() =>
+                                                  setModelRequestData({
+                                                    ...modelRequestData,
+                                                    quoteKeyID:
+                                                      item.quoteKeyID,
+                                                    clientName:
+                                                      item.clientName,
+                                                    userKeyID:
+                                                      common.userKeyID,
+                                                    Action: "Delete",
+                                                  })
+                                                }
+                                              >
+                                                <i class="ri-delete-bin-5-fill"></i>
+                                              </button>
+                                            </div>
+                                          </Tooltip>
 
-                                          <div class="dropdown">
-                                            <button
-                                              class="btn btn-md btn-success create-item-btn"
-                                              type="button"
-                                              id="dropdownMenuButton"
-                                              data-bs-toggle="dropdown"
-                                              aria-expanded="false"
-                                            >
-                                              <span>
-                                                Actions
-                                                <ExpandMoreIcon />
-                                              </span>
-                                            </button>
-                                            <ul
-                                              style={{
-                                                padding: `${item.statusID === statusID.Draft ? "2px 0px 2px 0px" : "6px 8px"}`,
-                                                inset: "auto 0px 0px auto",
-
-                                              }}
-                                              class="dropdown-menu"
-                                              aria-labelledby="dropdownMenuButton"
-                                            >
-
-                                              {/* {item.statusID === statusID.Draft && userAccessData.Admin_Proposal_CanEdit && (
-                                                <li>
-                                                
-                                                  <a
-                                                    className="dropdown-item"
-                                                    onClick={() => {
-                                                      handleEditProposal(item);
-                                                      setTitle("Edit proposals");
-                                                    }}
-                                                  >
-                                                    <i
-                                                      className="ri-pencil-fill custom-pencil-icon"
-                                                      style={{ marginRight: "2px" }}
-                                                    ></i>{" "}
-                                                    Edit {proposalName}
-                                                  </a>
-                                               
-                                                </li>
-
-                                              )} */}
-
-
-                                              {(item.statusID === statusID.Accepted ||
-                                                item.statusID === statusID.Declined ||
-                                                item.statusID === statusID.Sent ||
-                                                item.statusID === statusID.Skipped) &&
-                                                userAccessData.Admin_Proposal_CanView && (
-                                                  <li>
-
-                                                    <a class="dropdown-item" onClick={() => handleView(item)}>
-                                                      <i class="bi bi-eye"></i> View {proposalName}
-                                                    </a>
-
-                                                  </li>
-                                                )}
-
-
-                                              {/* {(item.statusID === statusID.Sent || item.statusID === statusID.Skipped) &&
-                                                common.enableEL == 1 &&
-                                                userAccessData.Admin_Engagement_Latter_CanAdd &&
-                                                userAccessData.Admin_Engagement_Latter_CanView && (
-                                                  <li>
-
-                                                    <a
-                                                      class="dropdown-item"
-                                                      onClick={() => {
-                                                        HandleSkippedToEL(item);
-                                                        setTitle("Skipped To Engagement_letter");
-                                                      }}
-                                                    >
-                                                      <i class="bi bi-gear-fill"></i> Generate {EngagementName}
-                                                    </a>
-
-                                                  </li>
-                                                )} */}
-
-                                              {/* {item.statusID !== statusID.Draft && (
-                                                <li>
-
-                                                  <a
-                                                    class="dropdown-item"
-                                                    data-bs-toggle="modal"
-                                                    data-bs-target="#ConfirmModel"
-                                                    onClick={() => {
-                                                      setModelRequestData({
-                                                        ...modelRequestData,
-                                                        Action: "Copy",
-                                                        quoteKeyID: item.quoteKeyID,
-                                                        RefId: item.prefix,
-                                                      });
-                                                    }}
-                                                  >
-                                                    <i class="fa-solid fa-copy"></i> Copy {proposalName}
-                                                  </a>
-
-                                                </li>
-                                              )} */}
-
-                                              {/* {item.statusID === statusID.Sent && userAccessData.Admin_Proposal_CanEdit && (
-                                                <li>
-                                                  <a
-                                                    class="dropdown-item"
-                                                    data-bs-toggle="modal"
-                                                    data-bs-target="#ConfirmModel"
-                                                    onClick={() => {
-                                                      setModelRequestData({
-                                                        ...modelRequestData,
-                                                        quoteKeyID: item.quoteKeyID,
-                                                        message: `Are you sure you want to re-send ${proposalName}`,
-                                                        RefId: item.prefix,
-                                                        Action: "Resend",
-                                                      });
-                                                    }}
-                                                  >
-                                                    <i class="fas fa-redo"></i> Re-send {proposalName}
-                                                  </a>
-                                                </li>
-                                              )} */}
-                                            </ul>
-                                          </div>
                                         </div>
                                       </td>
-
                                     </tr>
                                   );
                                 })}
@@ -2360,12 +2295,22 @@ const Proposals = () => {
                             )}
                           </div>
                         )}
-                        {activeTab === "Web Proposal" && (
+                        {activeTab === "old Proposal" && (
                           <div>
-                            {totalRecords <= 0 && (
+                            {OldtotalRecords <= 0 && (
                               <NoResultFoundModel
                                 name={proposalName}
-                                totalRecords={totalRecords}
+                                totalRecords={OldtotalRecords}
+                              />
+                            )}
+                          </div>
+                        )}
+                        {activeTab === "Web Proposal" && (
+                          <div>
+                            {SingletotalRecords <= 0 && (
+                              <NoResultFoundModel
+                                name={proposalName}
+                                totalRecords={SingletotalRecords}
                               />
                             )}
                           </div>
@@ -2450,7 +2395,7 @@ const Proposals = () => {
         openSuccessModal={openSuccessModal}
         modelAction={modelRequestData.Action}
         message={
-          modelRequestData.Action === "Delete" ? `${modelRequestData.RefId}` :
+          modelRequestData.Action === "Delete" ? selectedRows.length !== 0 ? proposalName : `${modelRequestData.RefId}` :
             modelRequestData.Action === "Copy"
               ? `The Copy of ${modelRequestData.RefId} has been created successfully! `
               : modelRequestData.Action === "ReminderStatus" ? "Status has been changed successfully!" : modelRequestData.Action === "Resend" ? proposalName : ""

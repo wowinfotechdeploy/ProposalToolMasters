@@ -67,8 +67,8 @@ const BasicInformationComponent = (props) => {
   //   // option.value === 2 ? { ...option, isDisabled: true } : option
   // ) : Utils.select_Quote_Type.filter((option) => option.value !== 4);
   const modifiedProposalType = isEnabledMasterProposalType
-  ? [...Utils.select_Quote_Type] 
-  : Utils.select_Quote_Type.filter(option => option.value !== 4);
+    ? [...Utils.select_Quote_Type]
+    : Utils.select_Quote_Type.filter(option => option.value !== 4);
 
   const moduleNameForSaveAsDraft = "BasicInformation";
   const StatusId = 1;
@@ -10431,7 +10431,7 @@ const Add_Update_Proposal = (props) => {
   const [quotationFinalPackageAmountList, setQuotationFinalPackageAmountList] =
     useState([]);
   const [templateElementList, setTemplateElementList] = useState([]);
-  const [isEnabledMasterProposal,setIsEnabledMasterProposal] = useState(null);
+  const [isEnabledMasterProposal, setIsEnabledMasterProposal] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [DocumentCode, setDocumentCode] = useState("");
   const [BrandColor, setBrandColor] = useState("");
@@ -10444,7 +10444,7 @@ const Add_Update_Proposal = (props) => {
   const [footerContent, setFooterContent] = useState(null);
   const [fontSize, setFontSize] = useState("");
   const [CompanyLogo, setCompanyLogo] = useState(null);
-  const [showSeparatorLines,setShowSeparatorLines] = useState(null);
+  const [showSeparatorLines, setShowSeparatorLines] = useState(null);
   const [MergePdfUrl, setMergePdfUrl] = useState("");
   const [templateObj, setTemplateObj] = useState([]);
   const [QuotationAdditionalServices, setQuotationAdditionalServices] =
@@ -14873,16 +14873,16 @@ const Add_Update_Proposal = (props) => {
           let AddFirstPageHtmlContent = [...ModelData.templateElementList];
 
           if (!isAddedFirstPage) {
-            const firstPageElement = {
-              ttetMapID: null,
-              templateElementTypeID: 10,
-              templateElementTypeName: "First Page",
-              serialNo: null,
-              headings: "",
-              shortDesc: "",
-              htmlContent: firstPageHTML,
-            };
-            AddFirstPageHtmlContent.splice(0, 0, firstPageElement);
+            // const firstPageElement = {
+            //   ttetMapID: null,
+            //   templateElementTypeID: 10,
+            //   templateElementTypeName: "First Page",
+            //   serialNo: null,
+            //   headings: "",
+            //   shortDesc: "",
+            //   htmlContent: firstPageHTML,
+            // };
+            // AddFirstPageHtmlContent.splice(0, 0, firstPageElement);
           } else {
             const imgTag = `<img src="${Logo}" alt="Logo" style="display: none; margin: 0 auto 15px;">`;
 
@@ -17936,10 +17936,10 @@ const Add_Update_Proposal = (props) => {
                   }
                   setIsValidForm={setIsValidForm}
                   isValidForm={isValidForm}
-                  isEnabledMasterProposal = {isEnabledMasterProposal}
-                  setIsEnabledMasterProposal = {setIsEnabledMasterProposal}
-                  setTemplateElementList = {setTemplateElementList}
-		              setHeaderContent={setHeaderContent}
+                  isEnabledMasterProposal={isEnabledMasterProposal}
+                  setIsEnabledMasterProposal={setIsEnabledMasterProposal}
+                  setTemplateElementList={setTemplateElementList}
+                  setHeaderContent={setHeaderContent}
                   setFooterContent={setFooterContent}
                   setHeaderImage={setHeaderImage}
                   setFooterImage={setFooterImage}
@@ -17947,7 +17947,7 @@ const Add_Update_Proposal = (props) => {
                   setFooterHeight={setFooterHeight}
                   setFontFamily={setFontFamily}
                   getFontNameById={getFontNameById}
-                  setShowSeparatorLines= {setShowSeparatorLines}
+                  setShowSeparatorLines={setShowSeparatorLines}
                 // ProposalTypeUpdate={ProposalTypeUpdate}
                 />
               )}
@@ -18282,7 +18282,7 @@ const Add_Update_Proposal = (props) => {
                   footerImage={footerImage}
                   headerHeight={headerHeight}
                   footerHeight={footerHeight}
-                  showSeparatorLines = {showSeparatorLines}
+                  showSeparatorLines={showSeparatorLines}
                 />
               )}
             </div>

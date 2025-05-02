@@ -23,6 +23,7 @@ function Setting() {
     const common = useSelector((state) => state.Storage);
     const { EngagementName,
         proposalName,
+        prospectName,
         setLoader,
         scrollUpDownByElementID,
         activeOrganizationSubscriptionPlan
@@ -63,6 +64,13 @@ function Setting() {
     const [setting, setSetting] = useState({
         paymentGatewayID: 1,
         isContractEnabled: true,
+        openSuccessUrlInNewTab: true,
+        openCancelUrlInNewTab: true,
+        isDeleteClient: true,
+        isDeleteQuote: true,
+        isDeleteContract: true,
+        deleteQuoteAfterDays: null,
+        deleteContractAfterDays: null,
         tnCTemplateKeyID: null,
         tnCTemplateID: null,
         quoteEmailTemplateKeyID: null,
@@ -125,6 +133,10 @@ function Setting() {
             setIsAddUpdatePricingActionDone(false)
         }
     }, [isAddUpdatePricingActionDone])
+    const isValidWebUrl = (web) => {
+        const urlRegex = /^https:\/\/[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(\/\S*)?$/;
+        return urlRegex.test(web);
+    };
 
     const updateSettingObj = (key, value, operation) => {
         setSetting((prev) => {
@@ -159,6 +171,11 @@ function Setting() {
                     ...setting,
                     paymentGatewayID: ModalData.paymentGatewayID,
                     isContractEnabled: ModalData.isContractEnabled,
+                    openSuccessUrlInNewTab: ModalData.openSuccessUrlInNewTab,
+                    openCancelUrlInNewTab: ModalData.openCancelUrlInNewTab,
+                    isDeleteClient: ModalData.isDeleteClient,
+                    isDeleteQuote: ModalData.isDeleteQuote,
+                    isDeleteContract: ModalData.isDeleteContract,
                     tnCTemplateKeyID: ModalData.tnCTemplateKeyID,
                     tnCTemplateID: ModalData.tnCTemplateID,
                     quoteEmailTemplateKeyID: ModalData.quoteEmailTemplateKeyID,
@@ -183,6 +200,8 @@ function Setting() {
                     signContractLabel: ModalData.signContractLabel,
                     successUrl: ModalData.successUrl,
                     cancelledUrl: ModalData.cancelledUrl,
+                    deleteQuoteAfterDays: ModalData.deleteQuoteAfterDays,
+                    deleteContractAfterDays: ModalData.deleteContractAfterDays,
                 })
             } else {
                 setLoader(false)
@@ -1029,8 +1048,28 @@ function Setting() {
             setRequireErrorMessage(true);
             return;
         }
+        if (setting.successUrl && !isValidWebUrl(setting.successUrl)) {
+            scrollUpDownByElementID("successUrl");
+            setRequireErrorMessage(true);
+            return;
+        }
         if (setting.cancelledUrl === "" || setting.cancelledUrl === null || setting.cancelledUrl === undefined) {
             scrollUpDownByElementID("cancelledUrl");
+            setRequireErrorMessage(true);
+            return;
+        }
+        if (setting.cancelledUrl && !isValidWebUrl(setting.cancelledUrl)) {
+            scrollUpDownByElementID("cancelledUrl");
+            setRequireErrorMessage(true);
+            return;
+        }
+        if (setting.deleteQuoteAfterDays === "" || setting.deleteQuoteAfterDays === null || setting.deleteQuoteAfterDays === undefined) {
+            scrollUpDownByElementID("deleteQuoteAfterDays");
+            setRequireErrorMessage(true);
+            return;
+        }
+        if (setting.deleteContractAfterDays === "" || setting.deleteContractAfterDays === null || setting.deleteContractAfterDays === undefined) {
+            scrollUpDownByElementID("deleteContractAfterDays");
             setRequireErrorMessage(true);
             return;
         }
@@ -1039,6 +1078,11 @@ function Setting() {
             userKeyID: common.userKeyID,
             paymentGatewayID: setting.paymentGatewayID,
             isContractEnabled: setting.isContractEnabled,
+            openCancelUrlInNewTab: setting.openCancelUrlInNewTab,
+            openSuccessUrlInNewTab: setting.openSuccessUrlInNewTab,
+            isDeleteContract: setting.isDeleteContract,
+            isDeleteQuote: setting.isDeleteQuote,
+            isDeleteClient: setting.isDeleteClient,
             tnCTemplateKeyID: setting.tnCTemplateKeyID,
             contractTemplates: setting.contractTemplates,
             contractEmailTemplateKeyID: setting.contractEmailTemplateKeyID,
@@ -1062,6 +1106,8 @@ function Setting() {
             signContractLabel: setting.signContractLabel,
             successUrl: setting.successUrl,
             cancelledUrl: setting.cancelledUrl,
+            deleteContractAfterDays: setting.deleteContractAfterDays,
+            deleteQuoteAfterDays: setting.deleteQuoteAfterDays,
         };
 
         AddUpdateSingleApiSettingsData(Api_Params);
@@ -1796,15 +1842,15 @@ function Setting() {
                                                                                             options={Utils.FontSize}
                                                                                             aria-label="Select Payment Gateway"
                                                                                         />
-                                                                                        {requireErrorMessage &&
-                                                                                            (setting.fontSizeHeading === "" ||
-                                                                                                setting.fontSizeHeading === null ||
-                                                                                                setting.fontSizeHeading === undefined) ? (
-                                                                                            <label className="validation">{ERROR_MESSAGES}</label>
-                                                                                        ) : (
-                                                                                            ""
-                                                                                        )}
                                                                                     </div>
+                                                                                    {requireErrorMessage &&
+                                                                                        (setting.fontSizeHeading === "" ||
+                                                                                            setting.fontSizeHeading === null ||
+                                                                                            setting.fontSizeHeading === undefined) ? (
+                                                                                        <label className="validation">{ERROR_MESSAGES}</label>
+                                                                                    ) : (
+                                                                                        ""
+                                                                                    )}
                                                                                 </div>
                                                                             </div>
                                                                         </div>
@@ -1831,15 +1877,15 @@ function Setting() {
                                                                                             options={Utils.FontSize}
                                                                                             aria-label="Select Payment Gateway"
                                                                                         />
-                                                                                        {requireErrorMessage &&
-                                                                                            (setting.fontSizeText === "" ||
-                                                                                                setting.fontSizeText === null ||
-                                                                                                setting.fontSizeText === undefined) ? (
-                                                                                            <label className="validation">{ERROR_MESSAGES}</label>
-                                                                                        ) : (
-                                                                                            ""
-                                                                                        )}
                                                                                     </div>
+                                                                                    {requireErrorMessage &&
+                                                                                        (setting.fontSizeText === "" ||
+                                                                                            setting.fontSizeText === null ||
+                                                                                            setting.fontSizeText === undefined) ? (
+                                                                                        <label className="validation">{ERROR_MESSAGES}</label>
+                                                                                    ) : (
+                                                                                        ""
+                                                                                    )}
                                                                                 </div>
                                                                             </div>
                                                                         </div>
@@ -1867,15 +1913,15 @@ function Setting() {
                                                                                                 })
                                                                                             }}
                                                                                         />
-                                                                                        {requireErrorMessage &&
-                                                                                            (setting.buttonColor === "" ||
-                                                                                                setting.buttonColor === null ||
-                                                                                                setting.buttonColor === undefined) ? (
-                                                                                            <label className="validation">{ERROR_MESSAGES}</label>
-                                                                                        ) : (
-                                                                                            ""
-                                                                                        )}
                                                                                     </div>
+                                                                                    {requireErrorMessage &&
+                                                                                        (setting.buttonColor === "" ||
+                                                                                            setting.buttonColor === null ||
+                                                                                            setting.buttonColor === undefined) ? (
+                                                                                        <label className="validation">{ERROR_MESSAGES}</label>
+                                                                                    ) : (
+                                                                                        ""
+                                                                                    )}
                                                                                 </div>
                                                                             </div>
                                                                         </div>
@@ -1903,15 +1949,15 @@ function Setting() {
                                                                                                 })
                                                                                             }}
                                                                                         />
-                                                                                        {requireErrorMessage &&
-                                                                                            (setting.cancelButtonColor === "" ||
-                                                                                                setting.cancelButtonColor === null ||
-                                                                                                setting.cancelButtonColor === undefined) ? (
-                                                                                            <label className="validation">{ERROR_MESSAGES}</label>
-                                                                                        ) : (
-                                                                                            ""
-                                                                                        )}
                                                                                     </div>
+                                                                                    {requireErrorMessage &&
+                                                                                        (setting.cancelButtonColor === "" ||
+                                                                                            setting.cancelButtonColor === null ||
+                                                                                            setting.cancelButtonColor === undefined) ? (
+                                                                                        <label className="validation">{ERROR_MESSAGES}</label>
+                                                                                    ) : (
+                                                                                        ""
+                                                                                    )}
                                                                                 </div>
                                                                             </div>
                                                                         </div>
@@ -1939,15 +1985,15 @@ function Setting() {
                                                                                                 })
                                                                                             }}
                                                                                         />
-                                                                                        {requireErrorMessage &&
-                                                                                            (setting.bodyBackGroundColor === "" ||
-                                                                                                setting.bodyBackGroundColor === null ||
-                                                                                                setting.bodyBackGroundColor === undefined) ? (
-                                                                                            <label className="validation">{ERROR_MESSAGES}</label>
-                                                                                        ) : (
-                                                                                            ""
-                                                                                        )}
                                                                                     </div>
+                                                                                    {requireErrorMessage &&
+                                                                                        (setting.bodyBackGroundColor === "" ||
+                                                                                            setting.bodyBackGroundColor === null ||
+                                                                                            setting.bodyBackGroundColor === undefined) ? (
+                                                                                        <label className="validation">{ERROR_MESSAGES}</label>
+                                                                                    ) : (
+                                                                                        ""
+                                                                                    )}
                                                                                 </div>
                                                                             </div>
                                                                         </div>
@@ -1975,15 +2021,15 @@ function Setting() {
                                                                                                 })
                                                                                             }}
                                                                                         />
-                                                                                        {requireErrorMessage &&
-                                                                                            (setting.formBackGroundColor === "" ||
-                                                                                                setting.formBackGroundColor === null ||
-                                                                                                setting.formBackGroundColor === undefined) ? (
-                                                                                            <label className="validation">{ERROR_MESSAGES}</label>
-                                                                                        ) : (
-                                                                                            ""
-                                                                                        )}
                                                                                     </div>
+                                                                                    {requireErrorMessage &&
+                                                                                        (setting.formBackGroundColor === "" ||
+                                                                                            setting.formBackGroundColor === null ||
+                                                                                            setting.formBackGroundColor === undefined) ? (
+                                                                                        <label className="validation">{ERROR_MESSAGES}</label>
+                                                                                    ) : (
+                                                                                        ""
+                                                                                    )}
                                                                                 </div>
                                                                             </div>
                                                                         </div>
@@ -2011,89 +2057,19 @@ function Setting() {
                                                                                                 })
                                                                                             }}
                                                                                         />
-                                                                                        {requireErrorMessage &&
-                                                                                            (setting.backgroundServiceCategoryColor === "" ||
-                                                                                                setting.backgroundServiceCategoryColor === null ||
-                                                                                                setting.backgroundServiceCategoryColor === undefined) ? (
-                                                                                            <label className="validation">{ERROR_MESSAGES}</label>
-                                                                                        ) : (
-                                                                                            ""
-                                                                                        )}
                                                                                     </div>
+                                                                                    {requireErrorMessage &&
+                                                                                        (setting.backgroundServiceCategoryColor === "" ||
+                                                                                            setting.backgroundServiceCategoryColor === null ||
+                                                                                            setting.backgroundServiceCategoryColor === undefined) ? (
+                                                                                        <label className="validation">{ERROR_MESSAGES}</label>
+                                                                                    ) : (
+                                                                                        ""
+                                                                                    )}
                                                                                 </div>
                                                                             </div>
                                                                         </div>
-                                                                        {/* Success Url*/}
-                                                                        <div class="col-lg-12">
-                                                                            <div class="row mb-3" id="successUrl">
-                                                                                <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                                                                    <label class="form-label">
-                                                                                        Success Url
-                                                                                        <span className="text-danger">*</span>
-                                                                                    </label>
-                                                                                </div>
-                                                                                <div class="col-md-9 col-sm-12">
-                                                                                    <div className="input-group">
-                                                                                        <input
-                                                                                            type="text"
-                                                                                            className="input-text"
-                                                                                            placeholder="Success Url"
-                                                                                            value={setting.successUrl}
-                                                                                            onChange={(e) => {
-                                                                                                setSetting({
-                                                                                                    ...setting,
-                                                                                                    successUrl: e.target.value
-                                                                                                })
-                                                                                            }}
-                                                                                        />
-                                                                                        {requireErrorMessage &&
-                                                                                            (setting.successUrl === "" ||
-                                                                                                setting.successUrl === null ||
-                                                                                                setting.successUrl === undefined) ? (
-                                                                                            <label className="validation">{ERROR_MESSAGES}</label>
-                                                                                        ) : (
-                                                                                            ""
-                                                                                        )}
-                                                                                    </div>
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-                                                                        {/* Cancel Url*/}
-                                                                        <div class="col-lg-12">
-                                                                            <div class="row mb-3" id="cancelledUrl">
-                                                                                <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                                                                    <label class="form-label">
-                                                                                        Cancel Url
-                                                                                        <span className="text-danger">*</span>
-                                                                                    </label>
-                                                                                </div>
-                                                                                <div class="col-md-9 col-sm-12">
-                                                                                    <div className="input-group">
-                                                                                        <input
-                                                                                            type="text"
-                                                                                            className="input-text"
-                                                                                            placeholder="Cancel Url"
 
-                                                                                            value={setting.cancelledUrl}
-                                                                                            onChange={(e) => {
-                                                                                                setSetting({
-                                                                                                    ...setting,
-                                                                                                    cancelledUrl: e.target.value
-                                                                                                })
-                                                                                            }}
-                                                                                        />
-                                                                                        {requireErrorMessage &&
-                                                                                            (setting.cancelledUrl === "" ||
-                                                                                                setting.cancelledUrl === null ||
-                                                                                                setting.cancelledUrl === undefined) ? (
-                                                                                            <label className="validation">{ERROR_MESSAGES}</label>
-                                                                                        ) : (
-                                                                                            ""
-                                                                                        )}
-                                                                                    </div>
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -2326,6 +2302,366 @@ function Setting() {
                                                                                     ) : (
                                                                                         ""
                                                                                     )}
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    {/* New success Tab */}
+                                                                    <div className="row">
+                                                                        {/* New Tab */}
+                                                                        <div className="col-lg-12">
+                                                                            <div class="row" >
+                                                                                <div class="mt-2 col-md-3 col-sm-12 text-start text-md-end">
+                                                                                    <label class="form-label" htmlFor="isSuccess">
+                                                                                        Open Success Url In New Tab
+                                                                                    </label>
+                                                                                </div>
+                                                                                <div class="col-md-9 col-sm-9 col-lg-9" style={{ display: 'flex', alignItems: 'center' }} >
+                                                                                    <FormGroup>
+                                                                                        <FormControlLabel
+                                                                                            control={
+                                                                                                <CustomWidthTooltip title={`Enable/Disable Open Success Url In New Tab`}>
+                                                                                                    <Android12Switch
+                                                                                                        id="isSuccess"
+                                                                                                        checked={setting.openSuccessUrlInNewTab}
+                                                                                                        onChange={() => setSetting({
+                                                                                                            ...setting,
+                                                                                                            openSuccessUrlInNewTab: !setting.openSuccessUrlInNewTab
+                                                                                                        })}
+                                                                                                    />
+                                                                                                </CustomWidthTooltip>
+                                                                                            }
+
+                                                                                        />
+                                                                                        <div
+                                                                                            style={{
+                                                                                                marginTop: '-12px', marginBottom: '10px', textAlign: 'justify',
+                                                                                            }}
+                                                                                            className="text-muted helpMessage"
+                                                                                        >
+                                                                                            <b>Note: </b>If enabled, the success URL will open in a new browser tab after completion.
+                                                                                        </div>
+                                                                                    </FormGroup>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    {/* Success Url*/}
+                                                                    <div className="row">
+                                                                        <div class="col-lg-12">
+                                                                            <div class="row mb-3" id="successUrl">
+                                                                                <div class="col-md-3 col-sm-12 text-start text-md-end">
+                                                                                    <label class="form-label">
+                                                                                        Success Url
+                                                                                        <span className="text-danger">*</span>
+                                                                                    </label>
+                                                                                </div>
+                                                                                <div class="col-md-9 col-sm-12">
+                                                                                    <div className="input-group">
+                                                                                        <input
+                                                                                            type="text"
+                                                                                            className="input-text"
+                                                                                            placeholder="Success Url"
+                                                                                            value={setting.successUrl}
+                                                                                            onChange={(e) => {
+                                                                                                setSetting({
+                                                                                                    ...setting,
+                                                                                                    successUrl: e.target.value
+                                                                                                })
+                                                                                            }}
+                                                                                        />
+                                                                                        {requireErrorMessage &&
+                                                                                            (setting.successUrl === "" ||
+                                                                                                setting.successUrl === null ||
+                                                                                                setting.successUrl === undefined) ? (
+                                                                                            <label className="validation">{ERROR_MESSAGES}</label>
+                                                                                        ) : (
+                                                                                            ""
+                                                                                        )}
+                                                                                        {requireErrorMessage &&
+                                                                                            setting.successUrl !== null &&
+                                                                                            setting.successUrl !== "" &&
+                                                                                            setting.successUrl !== undefined &&
+                                                                                            !isValidWebUrl(setting.successUrl) && (
+                                                                                                <span className="validation"> Invalid Url </span>
+                                                                                            )}
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    {/* New cancel Tab */}
+                                                                    <div className="row">
+                                                                        <div className="col-lg-12">
+                                                                            <div class="row" >
+                                                                                <div class="col-md-3 col-sm-12 text-start text-md-end mt-2">
+                                                                                    <label class="form-label" htmlFor="isCancel">
+                                                                                        Open Cancel Url In New Tab
+                                                                                    </label>
+                                                                                </div>
+                                                                                <div class="col-md-9 col-sm-9 col-lg-9" style={{ display: 'flex', alignItems: 'center' }} >
+                                                                                    <FormGroup>
+                                                                                        <FormControlLabel
+                                                                                            control={
+                                                                                                <CustomWidthTooltip title={`Enable/Disable Open Cancel Url In New Tab`}>
+                                                                                                    <Android12Switch
+                                                                                                        id="isCancel"
+                                                                                                        checked={setting.openCancelUrlInNewTab}
+                                                                                                        onChange={() => setSetting({
+                                                                                                            ...setting,
+                                                                                                            openCancelUrlInNewTab: !setting.openCancelUrlInNewTab
+                                                                                                        })}
+                                                                                                    />
+                                                                                                </CustomWidthTooltip>
+                                                                                            }
+
+                                                                                        />
+                                                                                        <div
+                                                                                            style={{
+                                                                                                marginTop: '-12px', marginBottom: '10px', textAlign: 'justify',
+                                                                                            }}
+                                                                                            className="text-muted helpMessage"
+                                                                                        >
+                                                                                            <b>Note: </b>If enabled, the cancel URL will open in a new browser tab when the user cancels.
+                                                                                        </div>
+                                                                                    </FormGroup>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    {/* Cancel Url*/}
+                                                                    <div className="row">
+                                                                        <div class="col-lg-12">
+                                                                            <div class="row mb-3" id="cancelledUrl">
+                                                                                <div class="col-md-3 col-sm-12 text-start text-md-end">
+                                                                                    <label class="form-label">
+                                                                                        Cancel Url
+                                                                                        <span className="text-danger">*</span>
+                                                                                    </label>
+                                                                                </div>
+                                                                                <div class="col-md-9 col-sm-12">
+                                                                                    <div className="input-group">
+                                                                                        <input
+                                                                                            type="text"
+                                                                                            className="input-text"
+                                                                                            placeholder="Cancel Url"
+
+                                                                                            value={setting.cancelledUrl}
+                                                                                            onChange={(e) => {
+                                                                                                setSetting({
+                                                                                                    ...setting,
+                                                                                                    cancelledUrl: e.target.value
+                                                                                                })
+                                                                                            }}
+                                                                                        />
+                                                                                        {requireErrorMessage &&
+                                                                                            (setting.cancelledUrl === "" ||
+                                                                                                setting.cancelledUrl === null ||
+                                                                                                setting.cancelledUrl === undefined) ? (
+                                                                                            <label className="validation">{ERROR_MESSAGES}</label>
+                                                                                        ) : (
+                                                                                            ""
+                                                                                        )}
+                                                                                        {requireErrorMessage &&
+                                                                                            setting.cancelledUrl !== null &&
+                                                                                            setting.cancelledUrl !== "" &&
+                                                                                            setting.cancelledUrl !== undefined &&
+                                                                                            !isValidWebUrl(setting.cancelledUrl) && (
+                                                                                                <span className="validation"> Invalid Url </span>
+                                                                                            )}
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    {/*Delete Prospect */}
+                                                                    <div className="row">
+                                                                        <div className="col-lg-12">
+                                                                            <div class="row" >
+                                                                                <div class="mt-2 col-md-3 col-sm-12 text-start text-md-end">
+                                                                                    <label class="form-label" htmlFor="isDeleteProspect">
+                                                                                        Delete {prospectName}
+                                                                                    </label>
+                                                                                </div>
+                                                                                <div class="col-md-9 col-sm-9 col-lg-9" style={{ display: 'flex', alignItems: 'center' }} >
+                                                                                    <FormGroup>
+                                                                                        <FormControlLabel
+                                                                                            control={
+                                                                                                <CustomWidthTooltip title={`Enable/Disable delete ${prospectName}`}>
+                                                                                                    <Android12Switch
+                                                                                                        id="isDeleteProspect"
+                                                                                                        checked={setting.isDeleteClient}
+                                                                                                        onChange={() => setSetting({
+                                                                                                            ...setting,
+                                                                                                            isDeleteClient: !setting.isDeleteClient
+                                                                                                        })}
+                                                                                                    />
+                                                                                                </CustomWidthTooltip>
+                                                                                            }
+
+                                                                                        />
+                                                                                        <div
+                                                                                            style={{
+                                                                                                marginTop: '-12px', marginBottom: '10px', textAlign: 'justify',
+                                                                                            }}
+                                                                                            className="text-muted helpMessage"
+                                                                                        >
+                                                                                            <b>Note: </b>If enabled, the {prospectName} will be deleted after all related {proposalName} and {EngagementName} are deleted.
+                                                                                        </div>
+                                                                                    </FormGroup>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div className="row">
+                                                                        <div className="col-lg-12">
+                                                                            <div class="row" >
+                                                                                <div class="mt-2 col-md-3 col-sm-12 text-start text-md-end">
+                                                                                    <label class="form-label" htmlFor="isDeleteQuote">
+                                                                                        Delete {proposalName}
+                                                                                    </label>
+                                                                                </div>
+                                                                                <div class="col-md-9 col-sm-9 col-lg-9" style={{ display: 'flex', alignItems: 'center' }} >
+                                                                                    <FormGroup>
+                                                                                        <FormControlLabel
+                                                                                            control={
+                                                                                                <CustomWidthTooltip title={`Enable/Disable delete ${proposalName}`}>
+                                                                                                    <Android12Switch
+                                                                                                        id="isDeleteQuote"
+                                                                                                        checked={setting.isDeleteQuote}
+                                                                                                        onChange={() => setSetting({
+                                                                                                            ...setting,
+                                                                                                            isDeleteQuote: !setting.isDeleteQuote
+                                                                                                        })}
+                                                                                                    />
+                                                                                                </CustomWidthTooltip>
+                                                                                            }
+
+                                                                                        />
+                                                                                        <div
+                                                                                            style={{
+                                                                                                marginTop: '-12px', marginBottom: '10px', textAlign: 'justify',
+                                                                                            }}
+                                                                                            className="text-muted helpMessage"
+                                                                                        >
+                                                                                            <b>Note: </b>If enabled, the {proposalName} will be deleted after {setting.deleteQuoteAfterDays} days.
+                                                                                        </div>
+                                                                                    </FormGroup>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    {/* Delete Proposal*/}
+                                                                    <div className="row">
+                                                                        <div class="col-lg-12">
+                                                                            <div class="row mb-3" id="deleteQuoteAfterDays">
+                                                                                <div class="col-md-3 col-sm-12 text-start text-md-end">
+                                                                                    <label class="form-label">
+                                                                                        Delete {proposalName} After Days
+                                                                                        <span className="text-danger">*</span>
+                                                                                    </label>
+                                                                                </div>
+                                                                                <div class="col-md-9 col-sm-12">
+                                                                                    <div className="input-group">
+                                                                                        <input
+                                                                                            type="text"
+                                                                                            className="input-text"
+                                                                                            placeholder={`Delete ${proposalName} After Days`}
+                                                                                            value={setting.deleteQuoteAfterDays}
+                                                                                            onChange={(e) => {
+                                                                                                setSetting({
+                                                                                                    ...setting,
+                                                                                                    deleteQuoteAfterDays: e.target.value
+                                                                                                })
+                                                                                            }}
+                                                                                        />
+                                                                                        {requireErrorMessage &&
+                                                                                            (setting.deleteQuoteAfterDays === "" ||
+                                                                                                setting.deleteQuoteAfterDays === null ||
+                                                                                                setting.deleteQuoteAfterDays === undefined) ? (
+                                                                                            <label className="validation">{ERROR_MESSAGES}</label>
+                                                                                        ) : (
+                                                                                            ""
+                                                                                        )}
+
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    {/*Delete Contract */}
+                                                                    <div className="row">
+                                                                        <div className="col-lg-12">
+                                                                            <div class="row" >
+                                                                                <div class="mt-2 col-md-3 col-sm-12 text-start text-md-end">
+                                                                                    <label class="form-label" htmlFor="isContractEnabled">
+                                                                                        Delete {EngagementName}
+                                                                                    </label>
+                                                                                </div>
+                                                                                <div class="col-md-9 col-sm-9 col-lg-9" style={{ display: 'flex', alignItems: 'center' }} >
+                                                                                    <FormGroup>
+                                                                                        <FormControlLabel
+                                                                                            control={
+                                                                                                <CustomWidthTooltip title={`Enable/Disable delete ${EngagementName}`}>
+                                                                                                    <Android12Switch
+                                                                                                        id="isContractEnabled"
+                                                                                                        checked={setting.isContractEnabled}
+                                                                                                        onChange={() => setSetting({
+                                                                                                            ...setting,
+                                                                                                            isContractEnabled: !setting.isContractEnabled
+                                                                                                        })}
+                                                                                                    />
+                                                                                                </CustomWidthTooltip>
+                                                                                            }
+
+                                                                                        />
+                                                                                        <div
+                                                                                            style={{
+                                                                                                marginTop: '-12px', marginBottom: '10px', textAlign: 'justify',
+                                                                                            }}
+                                                                                            className="text-muted helpMessage"
+                                                                                        >
+                                                                                            <b>Note: </b>If enabled, the {EngagementName} will be deleted after {setting.deleteContractAfterDays} days.
+                                                                                        </div>
+                                                                                    </FormGroup>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    {/* Delete Proposal*/}
+                                                                    <div className="row">
+                                                                        <div class="col-lg-12">
+                                                                            <div class="row mb-3" id="deleteContractAfterDays">
+                                                                                <div class="col-md-3 col-sm-12 text-start text-md-end">
+                                                                                    <label class="form-label">
+                                                                                        Delete {EngagementName} After Days
+                                                                                        <span className="text-danger">*</span>
+                                                                                    </label>
+                                                                                </div>
+                                                                                <div class="col-md-9 col-sm-12">
+                                                                                    <div className="input-group">
+                                                                                        <input
+                                                                                            type="text"
+                                                                                            className="input-text"
+                                                                                            placeholder={`Delete ${EngagementName} After Days`}
+                                                                                            value={setting.deleteContractAfterDays}
+                                                                                            onChange={(e) => {
+                                                                                                setSetting({
+                                                                                                    ...setting,
+                                                                                                    deleteContractAfterDays: e.target.value
+                                                                                                })
+                                                                                            }}
+                                                                                        />
+                                                                                        {requireErrorMessage &&
+                                                                                            (setting.deleteContractAfterDays === "" ||
+                                                                                                setting.deleteContractAfterDays === null ||
+                                                                                                setting.deleteContractAfterDays === undefined) ? (
+                                                                                            <label className="validation">{ERROR_MESSAGES}</label>
+                                                                                        ) : (
+                                                                                            ""
+                                                                                        )}
+
+                                                                                    </div>
                                                                                 </div>
                                                                             </div>
                                                                         </div>

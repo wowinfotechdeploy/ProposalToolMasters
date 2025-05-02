@@ -648,7 +648,7 @@ const ProspectViewDetails = () => {
                                           basicInfo.originalBusinessTypeID ===
                                           CLIENT_TYPES.Partnership) && (
                                             <tr>
-                                              <td>Authorized </td>
+                                              <td>Authorised </td>
                                               <td className="text-end">
                                                 {officersForm[index]
                                                   ?.isAuthorisedSignatory

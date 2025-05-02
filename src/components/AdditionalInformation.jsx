@@ -11,7 +11,7 @@ export const AdditionalInformation = (props) => {
     const moduleNameForSaveAsDraft = "AdditionalInformation"
     const { isValidEmail, isMobile } =
         useContext(AuthContextProvider);
-
+    const [SignaturePositionValue, setSignaturePositionValue] = useState(props.moduleName == "Contract" && props?.contractSignatoriesList[0]?.signaturePositionID || 1);
     const HandleAdditionalInformation = (
         value,
         globalPricingDriverID,
@@ -457,10 +457,40 @@ export const AdditionalInformation = (props) => {
 
                         {props.moduleName == "Contract" &&
                             (<div id="SignatoryBlockDiv">
-                                <h3 class="modal-title">
-                                    Signatories
-                                </h3>
-                                <div class="separator"></div>
+                                <h3 className="modal-title">Signatories</h3>
+                                <div className="separator"></div>
+
+                                {/* Signature Position (moved to top) */}
+                                <div className="row fieldset mt-3">
+                                    <div className="col-lg-3 col-md-3 col-sm-12 text-start text-md-end">
+                                        <label className="fieldset-label required">
+                                            Signature Position<span style={{ color: "#ec4561" }}>*</span>
+                                        </label>
+                                    </div>
+                                    <div className="col-lg-9 col-md-9 col-sm-12">
+                                        <div className="input-group">
+                                            <Select
+                                                options={Utils.SignaturePosition}
+                                                value={Utils.SignaturePosition.find(item => item.value == SignaturePositionValue)}
+                                                onChange={(e) => {
+                                                    // Apply the selected position to all signatories
+                                                    setSignaturePositionValue(e.value)
+                                                    const updatedList = props.contractSignatoriesList.map((signatory) => ({
+                                                        ...signatory,
+                                                        signaturePositionID: e.value,
+                                                    }));
+                                                    props.setContractSignatoriesList(updatedList);
+                                                }}
+                                            />
+                                        </div>
+                                        {props.requireMessage &&
+                                            (!SignaturePositionValue || SignaturePositionValue === "") && (
+                                                <label className="validation">{ERROR_MESSAGES}</label>
+                                            )}
+                                    </div>
+                                </div>
+
+                                {/* Signatories List */}
                                 {props?.contractSignatoriesList?.map((signatory, index) => {
                                     return (
                                         <div id={`contract-signatory-${index}`} className="fieldset-group mb-4" key={index}>
@@ -469,165 +499,115 @@ export const AdditionalInformation = (props) => {
                                                     {Utils.stringifyNumber(index + 1)} Signatory
                                                 </label>
                                                 <label className="fieldset-group-label-1 required">
-                                                    {props.contractSignatoriesList?.length === 1 ? null : (
-                                                        <button onClick={() => props.deleteSignatory(index)} className="btn btn-sm btn-danger delete-fieldset-group">
-                                                            <i className="bi bi-trash3 margin-right "></i>{' '}
+                                                    {props.contractSignatoriesList.length === 1 ? null : (
+                                                        <button
+                                                            onClick={() => props.deleteSignatory(index)}
+                                                            className="btn btn-sm btn-danger delete-fieldset-group"
+                                                        >
+                                                            <i className="bi bi-trash3 margin-right "></i>
                                                             <span className="d-none d-sm-inline">Delete Signature</span>
                                                         </button>
                                                     )}
                                                 </label>
+
+                                                {/* First Name */}
                                                 <div className="row fieldset">
                                                     <div className="col-lg-3 col-md-3 col-sm-12 text-start text-md-end">
-                                                        <label className="fieldset-label required">First Name <span style={{ color: "#ec4561" }}>*</span></label>
+                                                        <label className="fieldset-label required">
+                                                            First Name <span style={{ color: "#ec4561" }}>*</span>
+                                                        </label>
                                                     </div>
-                                                    <div className="col-lg-9 col-md-9 col-sm-12 ">
+                                                    <div className="col-lg-9 col-md-9 col-sm-12">
                                                         <input
                                                             type="text"
                                                             className="input-text"
                                                             placeholder="First Name"
-                                                            value={props?.contractSignatoriesList[index]?.firstName}
+                                                            value={signatory?.firstName}
                                                             onChange={(e) => {
                                                                 const inputValue = e.target.value.trim();
-                                                                // Reject input if it contains numeric characters
-                                                                // Remove all spaces and dots
-                                                                const cleanedValue = inputValue.replace(
-                                                                    /[.\s]/g,
-                                                                    ""
-                                                                );
-                                                                // Reject input if it starts with a digit
-                                                                if (/\d/.test(cleanedValue)) {
-                                                                    return;
-                                                                }
+                                                                const cleanedValue = inputValue.replace(/[.\s]/g, "");
+                                                                if (/\d/.test(cleanedValue)) return;
                                                                 const capitalizedValue =
-                                                                    cleanedValue.charAt(0).toUpperCase() +
-                                                                    cleanedValue.slice(1);
-                                                                handleSignatoryBlock(index, "firstName", capitalizedValue)
-
+                                                                    cleanedValue.charAt(0).toUpperCase() + cleanedValue.slice(1);
+                                                                handleSignatoryBlock(index, "firstName", capitalizedValue);
                                                             }}
                                                             maxLength={30}
                                                         />
                                                         {props.requireMessage &&
-                                                            (props?.contractSignatoriesList[index]?.firstName === null ||
-                                                                props?.contractSignatoriesList[index]?.firstName === undefined ||
-                                                                props?.contractSignatoriesList[index]?.firstName === "") ? (
-                                                            <label className="validation">
-                                                                {ERROR_MESSAGES}
-                                                            </label>
-                                                        ) : (
-                                                            ""
-                                                        )}
+                                                            (!signatory?.firstName || signatory?.firstName === "") && (
+                                                                <label className="validation">{ERROR_MESSAGES}</label>
+                                                            )}
                                                     </div>
+
+                                                    {/* Last Name */}
                                                     <div className="mb-2"></div>
                                                     <div className="col-lg-3 col-md-3 col-sm-12 text-start text-md-end">
-                                                        <label className="fieldset-label required">Last Name <span style={{ color: "#ec4561" }}>*</span></label>
+                                                        <label className="fieldset-label required">
+                                                            Last Name <span style={{ color: "#ec4561" }}>*</span>
+                                                        </label>
                                                     </div>
-                                                    <div className="col-lg-9 col-md-9 col-sm-12 ">
+                                                    <div className="col-lg-9 col-md-9 col-sm-12">
                                                         <input
                                                             type="text"
                                                             className="input-text"
                                                             placeholder="Last Name"
-                                                            value={props?.contractSignatoriesList[index]?.lastName}
+                                                            value={signatory?.lastName}
                                                             onChange={(e) => {
                                                                 const inputValue = e.target.value.trim();
-                                                                // Reject input if it contains numeric characters
-                                                                // Remove all spaces and dots
-                                                                const cleanedValue = inputValue.replace(
-                                                                    /[.\s]/g,
-                                                                    ""
-                                                                );
-                                                                // Reject input if it starts with a digit
-                                                                if (/\d/.test(cleanedValue)) {
-                                                                    return;
-                                                                }
+                                                                const cleanedValue = inputValue.replace(/[.\s]/g, "");
+                                                                if (/\d/.test(cleanedValue)) return;
                                                                 const capitalizedValue =
-                                                                    cleanedValue.charAt(0).toUpperCase() +
-                                                                    cleanedValue.slice(1);
-                                                                handleSignatoryBlock(index, "lastName", capitalizedValue)
+                                                                    cleanedValue.charAt(0).toUpperCase() + cleanedValue.slice(1);
+                                                                handleSignatoryBlock(index, "lastName", capitalizedValue);
                                                             }}
-                                                            maxLength={30} />
+                                                            maxLength={30}
+                                                        />
                                                         {props.requireMessage &&
-                                                            (props?.contractSignatoriesList[index]?.lastName === null ||
-                                                                props?.contractSignatoriesList[index]?.lastName === undefined ||
-                                                                props?.contractSignatoriesList[index]?.lastName === "") ? (
-                                                            <label className="validation">
-                                                                {ERROR_MESSAGES}
-                                                            </label>
-                                                        ) : (
-                                                            ""
-                                                        )}
+                                                            (!signatory?.lastName || signatory?.lastName === "") && (
+                                                                <label className="validation">{ERROR_MESSAGES}</label>
+                                                            )}
                                                     </div>
                                                 </div>
-                                                <div className="row fieldset ">
+
+                                                {/* Email */}
+                                                <div className="row fieldset">
                                                     <div className="col-md-3 col-sm-12 text-start text-md-end">
-                                                        <label className="fieldset-label required">Email <span style={{ color: "#ec4561" }}>*</span></label>
+                                                        <label className="fieldset-label required">
+                                                            Email <span style={{ color: "#ec4561" }}>*</span>
+                                                        </label>
                                                     </div>
-                                                    <div className="col-md-9 col-sm-12 ">
+                                                    <div className="col-md-9 col-sm-12">
                                                         <input
                                                             type="text"
                                                             className="input-text"
-                                                            value={props?.contractSignatoriesList[index]?.emailID}
+                                                            placeholder="Email"
+                                                            value={signatory?.emailID}
                                                             onChange={(e) => {
-                                                                handleSignatoryBlock(index, "emailID", e.target.value)
+                                                                handleSignatoryBlock(index, "emailID", e.target.value);
                                                             }}
-                                                            placeholder="Email" />
+                                                        />
                                                         {props.requireMessage &&
-                                                            (props?.contractSignatoriesList[index]?.emailID === null ||
-                                                                props?.contractSignatoriesList[index]?.emailID === undefined ||
-                                                                props?.contractSignatoriesList[index]?.emailID === "") ? (
-                                                            <label className="validation">
-                                                                {ERROR_MESSAGES}
-                                                            </label>
-                                                        ) : (props.requireMessage &&
-                                                            !isValidEmail(
-                                                                props?.contractSignatoriesList[index]?.emailID
-                                                            ) && (
-                                                                <label className="validation">
-                                                                    Invalid email pattern
-                                                                </label>
+                                                            (!signatory?.emailID || signatory?.emailID === "") ? (
+                                                            <label className="validation">{ERROR_MESSAGES}</label>
+                                                        ) : (
+                                                            props.requireMessage &&
+                                                            !isValidEmail(signatory?.emailID) && (
+                                                                <label className="validation">Invalid email pattern</label>
                                                             )
                                                         )}
                                                     </div>
                                                 </div>
-                                                <div className="row fieldset">
-                                                    <div className="col-lg-3 col-md-3 col-sm-12 text-start text-md-end ">
-                                                        <label className="fieldset-label required">Signature Position<span style={{ color: "#ec4561" }}>*</span></label>
-                                                    </div>
-                                                    <div className="col-lg-9 col-md-9 col-sm-12">
-                                                        <div className="input-group">
-                                                            <Select
-                                                                options={Utils.SignaturePosition}
-                                                                value={props?.SignaturePositionValue[index]} // Assuming 'index' is defined somewhere
-                                                                onChange={(e) => {
-                                                                    handleSignatoryBlock(index, "signaturePositionID", e)
-                                                                }}
-                                                            />
-                                                        </div>
-                                                        {props.requireMessage &&
-                                                            (props?.contractSignatoriesList[index]?.signaturePositionID === null ||
-                                                                props?.contractSignatoriesList[index]?.signaturePositionID === undefined ||
-                                                                props?.contractSignatoriesList[index]?.signaturePositionID === "") ? (
-                                                            <label className="validation">
-                                                                {ERROR_MESSAGES}
-                                                            </label>
-                                                        ) : (
-                                                            ""
-                                                        )}
-
-                                                    </div>
-                                                </div>
                                             </div>
                                         </div>
-                                    )
+                                    );
                                 })}
-                                {props.requireMessage &&
-                                    (props?.contractSignatoriesList?.length === 0) ? (
-                                    <label className="validation">
-                                        At least 1 Signatory is required.{" "}
-                                    </label>
-                                ) : (
-                                    ""
+
+                                {/* Validation for no signatories */}
+                                {props.requireMessage && props?.contractSignatoriesList?.length === 0 && (
+                                    <label className="validation">At least 1 Signatory is required.</label>
                                 )}
-                            </div>)
+                            </div>
+                            )
                         }
                         {props.moduleName === "Contract" && (
                             <>
