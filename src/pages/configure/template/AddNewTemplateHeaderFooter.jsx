@@ -242,6 +242,7 @@ function Add_New_Header_And_Footer(props) {
             templateList: ModelData.templateList,
             templateContentForHeader: ModelData.templateContentForHeader,
             templateContentForFooter:ModelData.templateContentForFooter,
+            showSeparatorLines: ModelData.showSeparatorLines,
             headerImage: ModelData.headerImage || null,
             footerImage: ModelData.footerImage || null,
           })
