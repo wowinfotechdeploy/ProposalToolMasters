@@ -131,7 +131,7 @@ function Add_New_Header_And_Footer(props) {
     footerHeight: null,
     templateContentForHeader: null,
     templateContentForFooter: null,
-    showSeparatorLines: false,
+    showSeparatorLines: true,
     headerImage: null,
     footerImage: null
   });
@@ -173,7 +173,7 @@ function Add_New_Header_And_Footer(props) {
       footerHeight: null,
       templateContentForHeader: null,
       templateContentForFooter: null,
-      showSeparatorLines: false,
+      showSeparatorLines: true,
       headerImage: null,
       footerImage: null
     });
