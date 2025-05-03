@@ -420,6 +420,10 @@ export const TemplateElementTypeLookupList = {
           templateElementTypeID: 9,
           templateElementTypeName: "PDF",
         },
+        {
+          templateElementTypeID: 11,
+          templateElementTypeName: "Terms & Conditions",
+        },
       ],
     },
   },

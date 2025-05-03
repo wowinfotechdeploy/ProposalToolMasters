@@ -5886,7 +5886,7 @@ const Add_Update_Engagement_Letter = () => {
           ) {
             const pdfObject = {
               ttetMapID: null, //Template's Template Element Type Mapping Id
-              templateElementTypeID: 11,
+              templateElementTypeID: null,
               headings: null,
               shortDesc: null,
               htmlContent: null,

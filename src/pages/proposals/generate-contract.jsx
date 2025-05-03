@@ -1199,12 +1199,61 @@ function AcceptInvitation() {
                 : "awsLink"]: element.htmlContent,
             });
             break;
+          case ElementType.TermsAndCondition:
+            const appliedFontTNCContent = setDefaultFontFamily(TnCHtmlContent, fontFamily);
+            if (prevElementType === ElementType.PAGE_BREAK ||
+              prevElementType === ElementType.AWS_PDF_LINK) {
+              if (TnCHtmlContent || TnCPdf) {
+                if (
+                  TnCHtmlContent !== null &&
+                  TnCHtmlContent !== undefined
+                ) {
+                  currentArray.push({
+                    textbox: `<div style="padding-left: 40px; padding-right: 40px; color:${BrandColor}; font-size: ${fontSizeHeading}; font-family:${fontFamily}" >TERMS & CONDITIONS<br>
+                              <hr style="padding-left: 40px; padding-right: 40px; color: black;"></hr></div>
+                                <div style="padding-left: 40px; padding-right: 40px;">${appliedFontTNCContent}</div>`,
+                  },)
+                } else if (
+                  TnCPdf !== null ||
+                  TnCHtmlContent === null
+                ) {
+                  pdfDataArray.push(currentArray);
+                  currentArray = [];
+                  currentArray.push({
+                    ["awsLink"]: TnCPdf,
+                  });
+
+                }
+              }
+            } else {
+              pdfDataArray.push(currentArray);
+              if (TnCHtmlContent || TnCPdf) {
+                if (
+                  TnCHtmlContent !== null &&
+                  TnCHtmlContent !== undefined
+                ) {
+                  currentArray = [
+                    {
+                      textbox: `<div style="padding-left: 40px; padding-right: 40px; color:${BrandColor}; font-size: ${fontSizeHeading}; font-family:${fontFamily}" >TERMS & CONDITIONS<br>
+                                  <hr style="padding-left: 40px; padding-right: 40px; color: black;"></hr></div>
+                                    <div style="padding-left: 40px; padding-right: 40px;">${appliedFontTNCContent}</div>`
+                    },
+                  ];
+                } else if (
+                  TnCPdf !== null ||
+                  TnCHtmlContent === null
+                ) {
+
+                  currentArray = [{
+                    ["awsLink"]: TnCPdf,
+                  }];
+                }
+              }
+            }
+            break;
           default:
             if (TnCHtmlContent || TnCPdf) {
-              // let rightSignatureList = props.contractSignatoriesList.filter(x => x.signaturePositionID === 1)
-              // let leftSignatureList = props.contractSignatoriesList.filter(x => x.signaturePositionID === 2)
 
-              // Include officers based on image URL and map to opposite side
               const signatureImageUrl = organisationData?.otherInformation?.[0]?.signatureImageUrl;
 
               let rightSignatureList = contractSignatoriesList.filter(
@@ -1216,249 +1265,87 @@ function AcceptInvitation() {
               let contractSignatoryRowNoForOfficer = contractSignatoriesList.filter((x) => x.officerType !== null
               );
 
-              if ((TnCHtmlContent !== null && TnCHtmlContent !== undefined)) {
-                const appliedFontContent = setDefaultFontFamily(TnCHtmlContent, fontFamily);
-                // Handling Terms and Conditions
-                //     if (
-                //       prevElementType !== ElementType.PAGE_BREAK &&
-                //       prevElementType !== ElementType.AWS_PDF_LINK
 
-                //     ) {
-                //       if (TnCHtmlContent) {
-                //         currentArray.push({
-                //           textbox: `<div style="padding-left: 40px; padding-right: 40px; color:${BrandColor}; font-size: ${fontSizeHeading}; font-family:${fontFamily};" >TERMS & CONDITIONS<br>
-                //         <hr style="padding-left: 40px; padding-right: 40px; color: black;"></hr></div>
-                //           <div style="padding-left: 40px; padding-right: 40px; font-family:${fontFamily};">${TnCHtmlContent}</div><br>
-                // ${(() => {
-                //               htmlContentForSignatories += `<div id='SignatoryBlock' style='width: 95%; padding-left: 0px; padding-right: 0px; margin-top: 30px; page-break-inside: avoid; break-inside: avoid;'>`
-                //               {/* "<div style='width: 95%; padding-left: 0px; padding-right: 0px; margin-top: 50px;'>"; */ }
-                //               htmlContentForSignatories += "<table style='width: 100%;'>";
-
-                //               for (let i = 0; i < loopCount; i++) {
-                //                 //                <td id="left_${i + 1}" style="padding-top: 50px;width:50%;font-size: ${fontSize};text-align:left"><span style="color: white;"><^</span>${leftSignatureList[i] ? leftSignatureList[i].firstName + ' ' + leftSignatureList[i].lastName : ''}<span style="color: white;">^></span></td>
-                //                 //  <td id="right_${i + 1}" style="padding-top: 50px;width:50%;font-size: ${fontSize};text-align:right"><span style="color: white;"><^</span>${rightSignatureList[i] ? rightSignatureList[i].firstName + ' ' + rightSignatureList[i].lastName : ''}<span style="color: white;">^></span></td>
-                //                 htmlContentForSignatories += `<tr style='width:100%; margin-top:100px;'>
-                //   <td id="left_${i + 1
-                //                   }" style="padding-top: 50px;width:50%; font-size: ${fontSize}; text-align:left"><span style="color: white;"><^${leftSignatureList[i]?.RowNo
-                //                   }_</span>${leftSignatureList[i]
-                //                     ? leftSignatureList[i].firstName +
-                //                     " " +
-                //                     leftSignatureList[i].lastName
-                //                     : ""
-                //                   }<span style="color: white;">^></span></td>
-                //   <td id="right_${i + 1
-                //                   }" style="padding-top: 50px;width:50%;font-size: ${fontSize};text-align:right"><span style="color: white;"><^${rightSignatureList[i]?.RowNo
-                //                   }_</span>${rightSignatureList[i]
-                //                     ? rightSignatureList[i].firstName +
-                //                     " " +
-                //                     rightSignatureList[i].lastName
-                //                     : ""
-                //                   }<span style="color: white;">^></span></td>
-
-                //   </tr>`;
-                //               }
-
-                //               htmlContentForSignatories += "</table>";
-                //               htmlContentForSignatories += "</div>";
-
-                //               return htmlContentForSignatories;
-                //             })()}`,
-                //         });
-                //       }
-                //     } else {
-                pdfDataArray.push(currentArray);
-                currentArray = [
-                  {
-                    textbox: `<div style="padding-left: 40px; padding-right: 40px; color:${BrandColor}; font-size: ${fontSizeHeading}; font-family:${fontFamily};" >TERMS & CONDITIONS<br>
-                    <hr style="padding-left: 40px; padding-right: 40px; color: black;"></hr></div>
-                      <div style="padding-left: 40px; padding-right: 40px;">${appliedFontContent}</div><br>
-            ${(() => {
-                        if (!signatureImageUrl && Array.isArray(contractSignatoryRowNoForOfficer)) {
-                          // Officers go to the *opposite* side of each signaturePositionID
-                          contractSignatoryRowNoForOfficer.forEach(officer => {
-                            // If most contract signatories are on the right, place officers on the left, and vice versa
-                            if (rightSignatureList.length <= leftSignatureList.length) {
-                              rightSignatureList.push(officer); // balance to right
-                            } else {
-                              leftSignatureList.push(officer); // balance to left
-                            }
-                          });
-                        }
-
-                        let htmlContentForSignatories = "";
-                        let loopCount = Math.max(
-                          rightSignatureList.length,
-                          leftSignatureList.length
-                        );
-
-                        let orgSignatureInserted = false;
-
-                        htmlContentForSignatories += `<div id='SignatoryBlock' style='width: 95%; padding-left: 0px; padding-right: 0px; margin-top: 50px; page-break-inside: avoid; break-inside: avoid;'>`;
-                        htmlContentForSignatories += "<table style='width: 100%; border-collapse: collapse;'>";
-
-                        for (let i = 0; i < loopCount; i++) {
-                          htmlContentForSignatories += `<tr style='width:100%; vertical-align: bottom;'>`;
-
-                          // --- LEFT SIGNATURE CELL ---
-                          const left = leftSignatureList?.[i];
-                          htmlContentForSignatories += `<td id="left_${i + 1}" style="padding-top: 60px; width: 50%; font-family: ${fontFamily}; font-size: 0.2in; text-align: left; vertical-align: bottom;">`;
-
-                          if (left) {
-                            htmlContentForSignatories += `
-                    <span style="color: white;"><^${left.RowNo}_</span>
-                    <div style="display: inline-block;">${left.firstName} ${left.lastName}</div>
-                    <span style="color: white;">^></span>`;
-                          } else if (!orgSignatureInserted && signatureImageUrl) {
-                            const org = organisationData.otherInformation[0];
-                            htmlContentForSignatories += `
-                  <div style="margin-left: 60px;">
-                    <div><img src="${org.signatureImageUrl}" alt="Signature" style="height:100px; width:130px;"></div>
-                    <div style="margin-top: 10px;">${org.signatoryName || ""}</div>
-                    </div>`;
-                            orgSignatureInserted = true;
-                          }
-
-                          htmlContentForSignatories += `</td>`;
-
-                          // --- RIGHT SIGNATURE CELL ---
-                          const right = rightSignatureList?.[i];
-                          htmlContentForSignatories += `<td id="right_${i + 1}" style="padding-top: 60px; width: 50%; font-family: ${fontFamily}; font-size: 0.2in; text-align: right; vertical-align: bottom;">`;
-
-                          if (right) {
-                            htmlContentForSignatories += `
-                    <span style="color: white;"><^${right.RowNo}_</span>
-                    <div style="display: inline-block;">${right.firstName} ${right.lastName}</div>
-                    <span style="color: white;">^></span>`;
-                          } else if (!orgSignatureInserted && signatureImageUrl) {
-                            const org = organisationData.otherInformation[0];
-                            htmlContentForSignatories += `
-                  <div style="margin-right: 60px;">
-                    <div><img src="${org.signatureImageUrl}" alt="Signature" style="height:100px; width:130px;"></div>
-                    <div style="margin-top: 10px;">${org.signatoryName || ""}</div>
-                    </div>`;
-                            orgSignatureInserted = true;
-                          }
-
-                          htmlContentForSignatories += `</td>`;
-
-                          htmlContentForSignatories += `</tr>`;
-                        }
-
-                        htmlContentForSignatories += "</table>";
-                        htmlContentForSignatories += "</div>";
-
-                        return htmlContentForSignatories;
-                      })()}`,
-
-                  },
-                ];
-                // }
-              } else if (
-                TnCPdf !== null ||
-                TnCHtmlContent === null
-              ) {
-                pdfDataArray.push(currentArray);
-                currentArray = [];
-                currentArray.push({
-                  ["awsLink"]: TnCPdf,
-
+              if (!signatureImageUrl && Array.isArray(contractSignatoryRowNoForOfficer)) {
+                // Officers go to the *opposite* side of each signaturePositionID
+                contractSignatoryRowNoForOfficer.forEach(officer => {
+                  // If most contract signatories are on the right, place officers on the left, and vice versa
+                  if (rightSignatureList.length <= leftSignatureList.length) {
+                    rightSignatureList.push(officer); // balance to right
+                  } else {
+                    leftSignatureList.push(officer); // balance to left
+                  }
                 });
+              }
 
-                const signatureImageUrl = organisationData?.otherInformation?.[0]?.signatureImageUrl;
+              let htmlContentForSignatories = "";
+              let loopCount = Math.max(
+                rightSignatureList.length,
+                leftSignatureList.length
+              );
 
-                let rightSignatureList = contractSignatoriesList.filter(
-                  (x) => x.signaturePositionID === 1 && x.officerType === null
-                );
-                let leftSignatureList = contractSignatoriesList.filter(
-                  (x) => x.signaturePositionID === 2 && x.officerType === null
-                );
-                let contractSignatoryRowNoForOfficer = contractSignatoriesList.filter((x) => x.officerType !== null
-                );
+              let orgSignatureInserted = false;
 
+              htmlContentForSignatories += `<div id='SignatoryBlock' style='width: 95%; padding-left: 0px; padding-right: 0px; margin-top: 50px; page-break-inside: avoid; break-inside: avoid;'>`;
+              htmlContentForSignatories += "<table style='width: 100%; border-collapse: collapse;'>";
 
-                if (!signatureImageUrl && Array.isArray(contractSignatoryRowNoForOfficer)) {
-                  // Officers go to the *opposite* side of each signaturePositionID
-                  contractSignatoryRowNoForOfficer.forEach(officer => {
-                    // If most contract signatories are on the right, place officers on the left, and vice versa
-                    if (rightSignatureList.length <= leftSignatureList.length) {
-                      rightSignatureList.push(officer); // balance to right
-                    } else {
-                      leftSignatureList.push(officer); // balance to left
-                    }
-                  });
-                }
+              for (let i = 0; i < loopCount; i++) {
+                htmlContentForSignatories += `<tr style='width:100%; vertical-align: bottom;'>`;
 
-                let htmlContentForSignatories = "";
-                let loopCount = Math.max(
-                  rightSignatureList.length,
-                  leftSignatureList.length
-                );
+                // --- LEFT SIGNATURE CELL ---
+                const left = leftSignatureList?.[i];
+                htmlContentForSignatories += `<td id="left_${i + 1}" style="padding-top: 60px; width: 50%; font-family: ${fontFamily}; font-size: 0.2in; text-align: left; vertical-align: bottom;">`;
 
-                let orgSignatureInserted = false;
-
-                htmlContentForSignatories += `<div id='SignatoryBlock' style='width: 95%; padding-left: 0px; padding-right: 0px; margin-top: 50px; page-break-inside: avoid; break-inside: avoid;'>`;
-                htmlContentForSignatories += "<table style='width: 100%; border-collapse: collapse;'>";
-
-                for (let i = 0; i < loopCount; i++) {
-                  htmlContentForSignatories += `<tr style='width:100%; vertical-align: bottom;'>`;
-
-                  // --- LEFT SIGNATURE CELL ---
-                  const left = leftSignatureList?.[i];
-                  htmlContentForSignatories += `<td id="left_${i + 1}" style="padding-top: 60px; width: 50%; font-family: ${fontFamily}; font-size: 0.2in; text-align: left; vertical-align: bottom;">`;
-
-                  if (left) {
-                    htmlContentForSignatories += `
+                if (left) {
+                  htmlContentForSignatories += `
                       <span style="color: white;"><^${left.RowNo}_</span>
                       <div style="display: inline-block;">${left.firstName} ${left.lastName}</div>
                       <span style="color: white;">^></span>`;
-                  } else if (!orgSignatureInserted && signatureImageUrl) {
-                    const org = organisationData.otherInformation[0];
-                    htmlContentForSignatories += `
+                } else if (!orgSignatureInserted && signatureImageUrl) {
+                  const org = organisationData.otherInformation[0];
+                  htmlContentForSignatories += `
                     <div style="margin-left: 60px;">
                       <div><img src="${org.signatureImageUrl}" alt="Signature" style="height:100px; width:130px;"></div>
                       <div style="margin-top: 10px;">${org.signatoryName || ""}</div>
                       </div>`;
-                    orgSignatureInserted = true;
-                  }
+                  orgSignatureInserted = true;
+                }
 
-                  htmlContentForSignatories += `</td>`;
+                htmlContentForSignatories += `</td>`;
 
-                  // --- RIGHT SIGNATURE CELL ---
-                  const right = rightSignatureList?.[i];
-                  htmlContentForSignatories += `<td id="right_${i + 1}" style="padding-top: 60px; width: 50%; font-family: ${fontFamily}; font-size: 0.2in; text-align: right; vertical-align: bottom;">`;
+                // --- RIGHT SIGNATURE CELL ---
+                const right = rightSignatureList?.[i];
+                htmlContentForSignatories += `<td id="right_${i + 1}" style="padding-top: 60px; width: 50%; font-family: ${fontFamily}; font-size: 0.2in; text-align: right; vertical-align: bottom;">`;
 
-                  if (right) {
-                    htmlContentForSignatories += `
+                if (right) {
+                  htmlContentForSignatories += `
                       <span style="color: white;"><^${right.RowNo}_</span>
                       <div style="display: inline-block;">${right.firstName} ${right.lastName}</div>
                       <span style="color: white;">^></span>`;
-                  } else if (!orgSignatureInserted && signatureImageUrl) {
-                    const org = organisationData.otherInformation[0];
-                    htmlContentForSignatories += `
+                } else if (!orgSignatureInserted && signatureImageUrl) {
+                  const org = organisationData.otherInformation[0];
+                  htmlContentForSignatories += `
                     <div style="margin-right: 60px;">
                       <div><img src="${org.signatureImageUrl}" alt="Signature" style="height:100px; width:130px;"></div>
                       <div style="margin-top: 10px;">${org.signatoryName || ""}</div>
                       </div>`;
-                    orgSignatureInserted = true;
-                  }
-
-                  htmlContentForSignatories += `</td>`;
-
-                  htmlContentForSignatories += `</tr>`;
+                  orgSignatureInserted = true;
                 }
 
-                htmlContentForSignatories += "</table>";
-                htmlContentForSignatories += "</div>";
+                htmlContentForSignatories += `</td>`;
 
-
-                pdfDataArray.push(currentArray);
-                currentArray = [
-                  {
-                    textbox: `${htmlContentForSignatories}`,
-                  },
-                ];
-
+                htmlContentForSignatories += `</tr>`;
               }
+
+              htmlContentForSignatories += "</table>";
+              htmlContentForSignatories += "</div>";
+              currentArray.push(
+                {
+                  textbox: `${htmlContentForSignatories}`,
+                })
+
+
+
             }
             break;
         }
@@ -1759,7 +1646,7 @@ function AcceptInvitation() {
           );
           const pdfObject = {
             ttetMapID: null, //Template's Template Element Type Mapping Id
-            templateElementTypeID: 11,
+            templateElementTypeID: null,
             headings: null,
             shortDesc: null,
             htmlContent: null,

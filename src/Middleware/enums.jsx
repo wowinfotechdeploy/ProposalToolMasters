@@ -103,6 +103,7 @@ export const ElementType = {
   STATEMENT_OF_FACTS: 8,
   AWS_PDF_LINK: 9,
   First_Page: 10,
+  TermsAndCondition: 11,
 };
 
 export const TwoFactor = {
