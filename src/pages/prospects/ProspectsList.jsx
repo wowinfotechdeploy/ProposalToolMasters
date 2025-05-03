@@ -740,6 +740,7 @@ const Prospects = () => {
                                   >
                                     <input
                                       type="checkbox"
+                                      className="me-2"
                                       checked={selectedRows.length === visibleRows.length}
                                       onChange={handleSelectAll}
                                     />
@@ -843,6 +844,7 @@ const Prospects = () => {
                                           <td className="table-content-font">
                                             <input
                                               type="checkbox"
+                                              className="me-2"
                                               checked={selectedRows.includes(Prospect.clientKeyID)}
                                               onChange={() => handleRowSelect(Prospect.clientKeyID)}
                                             />

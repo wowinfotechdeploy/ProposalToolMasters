@@ -2184,7 +2184,7 @@ const Engagement_Letter = () => {
                                         <tr class="table_new">
                                           <td className="table-content-font">
                                             <input
-                                              type="checkbox me-2"
+                                              type="checkbox"
                                               checked={selectedRows.includes(engagement.contractKeyID)}
                                               onChange={() => handleRowSelect(engagement.contractKeyID)}
                                             />
