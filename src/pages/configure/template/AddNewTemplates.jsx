@@ -79,7 +79,7 @@ function Add_New_Templates(props) {
   });
   const [openErrorModal, setOpenErrorModal] = React.useState(false);
   const [professionTypeLookupList, setProfessionTypeLookupList] = useState([]);
-  const [fontFamilyList,setFontFamilyList] = useState([]);
+  const [fontFamilyList, setFontFamilyList] = useState([]);
   const [BusinessTypeLookupList, setBusinessTypeLookupList] = useState([]);
   const [ProspectTypeVariation, setProspectTypeVariationLookupList] = useState([]);
   const [TemplateTypeLookupList, setTemplateTypeLookupList] = useState([]);
@@ -190,7 +190,7 @@ function Add_New_Templates(props) {
       label: font.label
     })
   );
-  const FontFamilyValue = FontFamilyLookupList?.find (
+  const FontFamilyValue = FontFamilyLookupList?.find(
     (font) => font.value === TemplateObj.fontFamilyID || null
   );
   // D] Calling All Api's like Lookup List and other Here :
@@ -353,7 +353,7 @@ function Add_New_Templates(props) {
     (templateElementType) => {
       if (TemplateObj.templateTypeID === 1) {
         // If templateTypeID is 2, you can conditionally hide elements here
-        if (templateElementType.templateElementTypeID === 7) {
+        if (templateElementType.templateElementTypeID === 7 || templateElementType.templateElementTypeID === 11) {
           // Exclude Signature Block (Only for Contract) element
           return null;
         }
@@ -1026,7 +1026,7 @@ function Add_New_Templates(props) {
   const businessTypeFilter = ProspectTypeVariation?.filter((businessType) =>
     TemplateObj.clientBusinessTypeIDs?.includes(businessType.value)
   );
-  
+
   const orgBusinessTypeFilter = BusinessTypeLookupList?.filter(
     (businessType) => businessType.value == TemplateObj.orgBusinessTypeID
   );
@@ -1431,7 +1431,7 @@ function Add_New_Templates(props) {
                           }),
                         }}
                       />
-                      
+
                     </div>
                   </div>
                 </div>
