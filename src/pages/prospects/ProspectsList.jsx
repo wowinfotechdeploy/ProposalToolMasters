@@ -21,6 +21,8 @@ import Android12Switch from "../../components/AndroidSwitch";
 import FormGroup from "@mui/material/FormGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Tooltip from "@mui/material/Tooltip";
+import RecordsAvailablePopupModel from "../../components/RecordsAvailablePopupModel";
+import DeleteDriverModal from "../../components/DeleteDriverModel";
 const Prospects = () => {
   let getClientsListApiCallCount = 0;
 
@@ -68,12 +70,17 @@ const Prospects = () => {
   const [selectedRows, setSelectedRows] = useState([]);
   const [prospectType, setProspectType] = useState(null);
   const [openSuccessModal, setOpenSuccessModal] = React.useState(false);
+  const [openDeleteDriverModel, setOpenDeleteDriverModel] =
+    React.useState(false);
   const [modelRequestData, setModelRequestData] = useState({
     clientKeyID: null,
     status: null,
     Action: "",
     clientName: null,
     userKeyID: null,
+    contractList: [],
+    quoteList: [],
+    message: null
   });
   const pageSize = isMobile ? isMobileRecords : desktopRecords;
   const formattedErrorMessage = handleErrorMessage(errorMessage);
@@ -310,8 +317,25 @@ const Prospects = () => {
           });
           if (data?.data?.statusCode === 200) {
             setLoader(false);
-            setOpenSuccessModal(true);
-            getClientsListSingleApiData(currentPage);
+            debugger
+            let contractList = data.data.responseData.contractList;
+            let quoteList = data.data.responseData.quoteList;
+            if (contractList.length > 0 || quoteList.length > 0) {
+              // moduleList.map()
+              setModelRequestData({
+                ...modelRequestData,
+                Action: "ClientDelete",
+                message: `Cannot delete ${prospectName} already exist in following`,
+                contractList: contractList,
+                quoteList: quoteList,
+              });
+              $("#" + "DeleteDriverModel").modal("show");
+              $("#" + "ConfirmModel").modal("hide");
+            } else {
+              setOpenSuccessModal(true);
+              getClientsListSingleApiData(currentPage);
+            }
+
           }
           else {
             setLoader(false);
@@ -487,7 +511,11 @@ const Prospects = () => {
       setSelectedRows(visibleRows.map((item) => item.clientKeyID)); // Select all
     }
   };
-
+  const handleCloseDeleteProspect = () => {
+    $("#" + "DeleteDriverModel").modal("hide");
+    $("#" + "ConfirmModel").modal("hide");
+    setOpenDeleteDriverModel(false);
+  };
   return (
     <div className="container">
       <div class="main-content">
@@ -709,7 +737,7 @@ const Prospects = () => {
                             )}
                           </div>
                           {activeTab === "Prospect" && (
-                            <div class="col-lg-6 col-md-6 col-3 text-nowrap mb-2">
+                            <div class="col-lg-9 col-md-9 col-3 text-nowrap mb-2">
                               {userAccessData.Admin_Prospect_CanAdd && (
                                 <CommonButtonComponent
                                   title={getCrudButtonToolTipName("Add", moduleName)}
@@ -1245,8 +1273,7 @@ const Prospects = () => {
                                               {userAccessData.Admin_Prospect_CanDelete && (
                                                 <Tooltip
                                                   title={getCrudButtonToolTipName(
-                                                    "Delete",
-                                                    moduleName
+                                                    `Delete ${prospectName}`
                                                   )}
                                                 >
                                                   <div class="remove">
@@ -1345,7 +1372,12 @@ const Prospects = () => {
         handleClose={handleClose}
         ErrorMessage={formattedErrorMessage}
       />
-
+      <DeleteDriverModal
+        handleClose={handleCloseDeleteProspect}
+        setOpenSuccessModal={setOpenDeleteDriverModel}
+        openDeleteDriverModel={openDeleteDriverModel}
+        modelRequestData={modelRequestData}
+      />
       <SuccessModal
         handleClose={handleClose}
         setOpenSuccessModal={setOpenSuccessModal}

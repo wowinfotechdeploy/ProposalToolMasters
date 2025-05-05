@@ -1588,7 +1588,10 @@ export default function PreviewComponentPdf(props) {
     if (props.templateElementList) {
       const pdfDataArray = [];
       let currentArray = [];
-      let pricingTableAdded = false; // Flag to ensure only one pricing table is added
+      let TermAndConditionAddedOrNot = props.templateElementList.some(
+        (item) => item.templateElementTypeID === 11
+      );
+      // Flag to ensure only one pricing table is added
       let prevElementType = null;
       props.templateElementList.forEach((element) => {
 
@@ -3831,7 +3834,61 @@ export default function PreviewComponentPdf(props) {
             // pdfDataArray.push([]);
             if (props.moduleName == "Contract") {
               // Add RowNo to contract signatories
+              const appliedFontTNCContent = setDefaultFontFamily(props.updatedTnCData, fontFamily);
+              if (!TermAndConditionAddedOrNot) {
+                if ((prevElementType === ElementType.PAGE_BREAK ||
+                  prevElementType === ElementType.AWS_PDF_LINK)) {
 
+
+
+                  if (props?.updatedTnCData || props?.engagementObj?.pdf) {
+                    if (
+                      props?.updatedTnCData !== null &&
+                      props?.updatedTnCData !== undefined
+                    ) {
+                      currentArray.push({
+                        textbox: `<div style="padding-left: 40px; padding-right: 40px; color:${newColorCode}; font-size: ${fontSizeHeading}; font-family:${fontFamily}" >TERMS & CONDITIONS<br>
+                      <hr style="padding-left: 40px; padding-right: 40px; color: black;"></hr></div>
+                        <div style="padding-left: 40px; padding-right: 40px;">${appliedFontTNCContent}</div>`,
+                      },)
+                    } else if (
+                      props?.engagementObj?.pdf !== null ||
+                      props?.updatedTnCData === null
+                    ) {
+                      pdfDataArray.push(currentArray);
+                      currentArray = [];
+                      currentArray.push({
+                        ["awsLink"]: props.engagementObj.pdf,
+                      });
+
+                    }
+                  }
+                } else {
+                  pdfDataArray.push(currentArray);
+                  if (props?.updatedTnCData || props?.engagementObj?.pdf) {
+                    if (
+                      props?.updatedTnCData !== null &&
+                      props?.updatedTnCData !== undefined
+                    ) {
+                      currentArray = [
+                        {
+                          textbox: `<div style="padding-left: 40px; padding-right: 40px; color:${newColorCode}; font-size: ${fontSizeHeading}; font-family:${fontFamily}" >TERMS & CONDITIONS<br>
+                          <hr style="padding-left: 40px; padding-right: 40px; color: black;"></hr></div>
+                            <div style="padding-left: 40px; padding-right: 40px;">${appliedFontTNCContent}</div>`
+                        },
+                      ];
+                    } else if (
+                      props?.engagementObj?.pdf !== null ||
+                      props?.updatedTnCData === null
+                    ) {
+
+                      currentArray = [{
+                        ["awsLink"]: props.engagementObj.pdf,
+                      }];
+                    }
+                  }
+                }
+              }
               const contractSignatoryRowNo = props.contractSignatoriesList.map((item, index) => ({
                 ...item,
                 RowNo: index + 1,

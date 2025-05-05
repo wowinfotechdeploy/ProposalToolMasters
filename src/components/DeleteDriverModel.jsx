@@ -119,6 +119,49 @@ const DeleteDriverModal = (props) => {
                       ))}
                     </>
                   )}
+                  {props.modelRequestData.Action === "ClientDelete" && (
+                    <>
+                      <div>{props.modelRequestData.message}</div>
+
+                      {props.modelRequestData.contractList?.length > 0 && (
+                        <>
+                          <div>
+                            <b>{EngagementName}</b>
+                          </div>
+                          {props.modelRequestData.contractList.map((module) => (
+                            <div key={`contract-${module.moduleID}`}>
+                              <div style={{ textAlign: "left" }}>
+                                <ul className="desined-list">
+                                  <li>
+                                    <span>{module.moduleID}</span>
+                                  </li>
+                                </ul>
+                              </div>
+                            </div>
+                          ))}
+                        </>
+                      )}
+
+                      {props.modelRequestData.quoteList?.length > 0 && (
+                        <>
+                          <div>
+                            <b>{proposalName}</b>
+                          </div>
+                          {props.modelRequestData.quoteList.map((module) => (
+                            <div key={`quote-${module.moduleID}`}>
+                              <div style={{ textAlign: "left" }}>
+                                <ul className="desined-list">
+                                  <li>
+                                    <span>{module.moduleID}</span>
+                                  </li>
+                                </ul>
+                              </div>
+                            </div>
+                          ))}
+                        </>
+                      )}
+                    </>
+                  )}
                 </div>
               </div>
             </div>
@@ -127,7 +170,7 @@ const DeleteDriverModal = (props) => {
               style={{ background: "rgb(237 237 237)" }}
             >
               <div class="hstack gap-2 justify-content-end">
-                {props.modelRequestData.Action == "PricingDriverDelete" && (
+                {(props.modelRequestData.Action == "PricingDriverDelete" || props.modelRequestData.Action === "ClientDelete") && (
                   <button
                     type="button"
                     onClick={props.handleClose}
