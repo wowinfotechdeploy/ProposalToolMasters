@@ -11632,7 +11632,8 @@ const Add_Update_Engagement_Letter = () => {
                 headerImage: item.headerImage,
                 footerImage: item.footerImage,
                 headerHeight: item.headerHeight,
-                footerHeight: item.footerHeight
+                footerHeight: item.footerHeight,
+                showSeparatorLines: Boolean(item.showSeparatorLines),
               }));
               setTemplateLookUpOptions(TemplateOption);
             }
@@ -11658,7 +11659,8 @@ const Add_Update_Engagement_Letter = () => {
                 headerImage: item.headerImage,
                 footerImage: item.footerImage,
                 headerHeight: item.headerHeight,
-                footerHeight: item.footerHeight
+                footerHeight: item.footerHeight,
+                showSeparatorLines: Boolean(item.showSeparatorLines),
               }));
               setTemplateLookUpOptions(TemplateOption);
             }
@@ -11674,6 +11676,7 @@ const Add_Update_Engagement_Letter = () => {
           setFooterImage(TemplateValue.footerImage);
           setHeaderHeight(TemplateValue.headerHeight);
           setFooterHeight(TemplateValue.footerHeight);
+          setShowSeparatorLines(TemplateValue.showSeparatorLines);
           setLoader(true);
           setContractFinalPackageAmountList(ModelData.contractFinalAmountList);
           setEngagementObj({

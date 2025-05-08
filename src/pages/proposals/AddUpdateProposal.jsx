@@ -14630,7 +14630,7 @@ const Add_Update_Proposal = (props) => {
           footerImage: item.footerImage,
           headerHeight: item.headerHeight,
           footerHeight: item.footerHeight,
-          showSeparatorLine: Boolean(item.showSeparatorLines)
+          showSeparatorLines: Boolean(item.showSeparatorLines),
         }));
         setTemplateLookUpOptions(mappedOptions);
         // setProposalObject((prev) => ({
@@ -14670,7 +14670,7 @@ const Add_Update_Proposal = (props) => {
               footerImage: filteredRecords[0].footerImage,
               headerHeight: filteredRecords[0].headerHeight,
               footerHeight: filteredRecords[0].footerHeight,
-              showSeparatorLine: filteredRecords[0].showSeparatorLine,
+              showSeparatorLines: filteredRecords[0].showSeparatorLines,
             };
             setProposalObject((prev) => ({
               ...prev,
@@ -14683,7 +14683,7 @@ const Add_Update_Proposal = (props) => {
             setFooterImage(defaultTemplateObject?.footerImage);
             setHeaderHeight(defaultTemplateObject?.headerHeight);
             setFooterHeight(defaultTemplateObject?.footerHeight);
-            setShowSeparatorLines(defaultTemplateObject?.showSeparatorLine);
+            setShowSeparatorLines(defaultTemplateObject?.showSeparatorLines);
 
           } else {
             // If filteredRecords is empty, set defaultTemplateOptions
@@ -14697,7 +14697,7 @@ const Add_Update_Proposal = (props) => {
             setFooterImage(defaultTemplateOptions[0]?.footerImage);
             setHeaderHeight(defaultTemplateOptions[0]?.headerHeight);
             setFooterHeight(defaultTemplateOptions[0]?.footerHeight);
-            setShowSeparatorLines(defaultTemplateOptions[0]?.showSeparatorLine);
+            setShowSeparatorLines(defaultTemplateOptions[0]?.showSeparatorLines);
           }
         } else {
           // If templateID is not present, set defaultTemplateOptions
@@ -14728,7 +14728,7 @@ const Add_Update_Proposal = (props) => {
         setFooterImage(defaultTemplateOptions[0]?.footerImage);
         setHeaderHeight(defaultTemplateOptions[0]?.headerHeight);
         setFooterHeight(defaultTemplateOptions[0]?.footerHeight);
-        setShowSeparatorLines(defaultTemplateOptions[0]?.showSeparatorLine);
+        setShowSeparatorLines(defaultTemplateOptions[0]?.showSeparatorLines);
         // console.log(getFontNameById(defaultTemplateObject?.fontFamilyID));
         // Set the state with the default template object
         setProposalObject((prevState) => ({
