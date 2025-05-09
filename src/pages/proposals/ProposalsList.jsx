@@ -123,15 +123,15 @@ const Proposals = () => {
   const pageSize = isMobile
     ? isMobileRecords
     : desktopRecords > 5 && window.innerHeight == 652
-      ? 5
-      : desktopRecords;
+    ? 5
+    : desktopRecords;
 
   const totalOldProposalPage = isMobile
     ? Math.ceil(oldProposalListCount / isMobileRecords)
     : Math.ceil(
-      oldProposalListCount /
-      (desktopRecords > 5 && window.innerHeight == 652 ? 5 : desktopRecords)
-    );
+        oldProposalListCount /
+          (desktopRecords > 5 && window.innerHeight == 652 ? 5 : desktopRecords)
+      );
   // B] Initial useEffect :
   // 1) Will Call Initial Api Like List Api
   useEffect(() => {
@@ -326,10 +326,12 @@ const Proposals = () => {
           const modifiedProposalListData = ProposalListData.map((item) => ({
             "Ref Id": item.prefix,
             [proposal]: item.clientName,
-            "One Off Price": `£ ${item.oneOffPrice !== null ? item.oneOffPrice : "0.00"
-              }`,
-            "Recurring Price": `£ ${item.recurringPrice !== null ? item.recurringPrice : "0.00"
-              }`,
+            "One Off Price": `£ ${
+              item.oneOffPrice !== null ? item.oneOffPrice : "0.00"
+            }`,
+            "Recurring Price": `£ ${
+              item.recurringPrice !== null ? item.recurringPrice : "0.00"
+            }`,
             "Status Name": item.statusName,
             [proposalPdf]: item.quotePDFUrl,
             "Last Updated On": item.lastUpdatedOn,
@@ -953,8 +955,9 @@ const Proposals = () => {
                   <ul className="nav nav-tabs" role="tablist">
                     <li className="nav-item">
                       <a
-                        className={`nav-link tab_nav ${activeTab === "Proposal" ? "active" : ""
-                          }`}
+                        className={`nav-link tab_nav ${
+                          activeTab === "Proposal" ? "active" : ""
+                        }`}
                         data-bs-toggle="tab"
                         href="#Proposal"
                         role="tab"
@@ -971,8 +974,9 @@ const Proposals = () => {
                     {oldProposalList.length > 0 && (
                       <li className="nav-item">
                         <a
-                          className={`nav-link tab_nav ${activeTab === "Old Proposal" ? "active" : ""
-                            }`}
+                          className={`nav-link tab_nav ${
+                            activeTab === "Old Proposal" ? "active" : ""
+                          }`}
                           data-bs-toggle="tab"
                           href="#Old Proposal"
                           role="tab"
@@ -989,8 +993,9 @@ const Proposals = () => {
                     {SingleProposalList?.length > 0 && (
                       <li className="nav-item">
                         <a
-                          className={`nav-link tab_nav ${activeTab === "Web Proposal" ? "active" : ""
-                            }`}
+                          className={`nav-link tab_nav ${
+                            activeTab === "Web Proposal" ? "active" : ""
+                          }`}
                           data-bs-toggle="tab"
                           href="#Web Proposal"
                           role="tab"
@@ -1019,8 +1024,9 @@ const Proposals = () => {
                       <div class="row g-4 mb-3"></div>
                       <div class="table-responsive table-card mb-3 table-padding">
                         <div className="row">
-                          <div class="col-md-6 col-lg-6 col-9  mb-2">
-                            {activeTab === "Old Proposal" && (
+                          {/* <div class="col-md-6 col-lg-6 col-9  mb-2"> */}
+                          {activeTab === "Old Proposal" && (
+                            <div class="col-md-6 col-lg-6 col-9  mb-2">
                               <div
                                 class="search-box col-md-5 col-8 width-searchbox "
                                 style={{}}
@@ -1037,15 +1043,17 @@ const Proposals = () => {
                                     isMobile
                                       ? "Search"
                                       : getPlaceholderTextName(
-                                        "Search",
-                                        proposalName
-                                      )
+                                          "Search",
+                                          proposalName
+                                        )
                                   }
                                 />
                               </div>
-                            )}
+                            </div>
+                          )}
 
-                            {activeTab === "Proposal" && (
+                          {activeTab === "Proposal" && (
+                            <div class="col-md-6 col-lg-6 col-9  mb-2">
                               <div className="d-flex justify-content-start">
                                 <div
                                   class="search-box  width-searchbox "
@@ -1064,9 +1072,9 @@ const Proposals = () => {
                                       isMobile
                                         ? "Search"
                                         : getPlaceholderTextName(
-                                          "Search",
-                                          proposalName
-                                        )
+                                            "Search",
+                                            proposalName
+                                          )
                                     }
                                   />
                                 </div>
@@ -1138,33 +1146,36 @@ const Proposals = () => {
                                   )}
                                 </div>
                               </div>
-                            )}
-                            {activeTab === "Web Proposal" && (
-                              <div className="d-flex justify-content-start">
-                                <div
-                                  class="search-box  width-searchbox "
-                                  id="w-100"
-                                  style={{ marginRight: "10px" }}
-                                >
-                                  <i className="ri-search-line search-icon"></i>
-                                  <input
-                                    type="text"
-                                    class="form-control search"
-                                    value={searchKeyword}
-                                    onChange={(e) => {
-                                      handleSearch(e);
-                                    }}
-                                    placeholder={
-                                      isMobile
-                                        ? "Search"
-                                        : getPlaceholderTextName(
-                                          "Search",
-                                          proposalName
-                                        )
-                                    }
-                                  />
-                                </div>
-                                <div className=" d-flex align-items-start justify-content-start ">
+                            </div>
+                          )}
+                          {activeTab === "Web Proposal" && (
+                            <div class="col-md-3 col-lg-3 col-12  mb-2">
+                              <div className="d-flex justify-content-between">
+                                <div className="d-flex justify-content-start">
+                                  <div
+                                    class="search-box  width-searchbox "
+                                    id="w-100"
+                                    style={{ marginRight: "10px" }}
+                                  >
+                                    <i className="ri-search-line search-icon"></i>
+                                    <input
+                                      type="text"
+                                      class="form-control search"
+                                      value={searchKeyword}
+                                      onChange={(e) => {
+                                        handleSearch(e);
+                                      }}
+                                      placeholder={
+                                        isMobile
+                                          ? "Search"
+                                          : getPlaceholderTextName(
+                                              "Search",
+                                              proposalName
+                                            )
+                                      }
+                                    />
+                                  </div>
+                                  {/* Export button */}
                                   <Tooltip
                                     title={getCrudButtonToolTipName(
                                       "Export",
@@ -1188,6 +1199,7 @@ const Proposals = () => {
                                       </button>
                                     </div>
                                   </Tooltip>
+                                  {/* Filter button */}
                                   <Tooltip
                                     title={getCrudButtonToolTipName(
                                       "Filter",
@@ -1230,9 +1242,12 @@ const Proposals = () => {
                                   ) : (
                                     ""
                                   )}
+                                </div>
+                                <div className="d-flex justify-content-start">
+                                  {/* Delete button */}
                                   <Tooltip
                                     title={getCrudButtonToolTipName(
-                                      `Delete ${proposalName}`
+                                      `Delete Selected ${proposalName}`
                                     )}
                                   >
                                     <div>
@@ -1264,8 +1279,9 @@ const Proposals = () => {
                                   </Tooltip>
                                 </div>
                               </div>
-                            )}
-                          </div>
+                            </div>
+                          )}
+                          {/* </div> */}
                           {activeTab === "Proposal" && (
                             <div class="col-lg-6 col-md-6 col-3 text-nowrap mb-2">
                               {userAccessData.Admin_Proposal_CanAdd && (
@@ -1284,7 +1300,7 @@ const Proposals = () => {
                                         });
                                         ProposalAddBtnClicked();
                                       }}
-                                    // onclick={() => ProposalAddBtnClicked()}
+                                      // onclick={() => ProposalAddBtnClicked()}
                                     />
                                   )}
 
@@ -1298,8 +1314,9 @@ const Proposals = () => {
                         {/* Table Of Template and Template Pdf */}
 
                         <div
-                          className={`tab-pane ${activeTab === "Old Proposal" ? "active" : ""
-                            }`}
+                          className={`tab-pane ${
+                            activeTab === "Old Proposal" ? "active" : ""
+                          }`}
                           id="base-justified-home"
                         >
                           {activeTab === "Old Proposal" && (
@@ -1383,56 +1400,56 @@ const Proposals = () => {
                                         )}
                                         {item.status ===
                                           statusNames.Accepted && (
-                                            <>
-                                              <td className="table-content-font">
-                                                <p
-                                                  className=" p-1 text-center text-white rounded"
-                                                  style={{
-                                                    background: "#008000",
-                                                  }}
-                                                >
-                                                  {item.status
-                                                    ?.charAt(0)
-                                                    ?.toUpperCase() +
-                                                    item.status?.slice(1)}
-                                                </p>
-                                              </td>
-                                            </>
-                                          )}
+                                          <>
+                                            <td className="table-content-font">
+                                              <p
+                                                className=" p-1 text-center text-white rounded"
+                                                style={{
+                                                  background: "#008000",
+                                                }}
+                                              >
+                                                {item.status
+                                                  ?.charAt(0)
+                                                  ?.toUpperCase() +
+                                                  item.status?.slice(1)}
+                                              </p>
+                                            </td>
+                                          </>
+                                        )}
                                         {item.status ===
                                           statusNames.Awaiting_Signature && (
-                                            <>
-                                              <td className="table-content-font">
-                                                <p
-                                                  className=" p-1 text-center text-white rounded"
-                                                  style={{
-                                                    background: "#626ED4",
-                                                  }}
-                                                >
-                                                  {/* Awaiting Response */}
-                                                  {item.statusName}
-                                                </p>
-                                              </td>
-                                            </>
-                                          )}
+                                          <>
+                                            <td className="table-content-font">
+                                              <p
+                                                className=" p-1 text-center text-white rounded"
+                                                style={{
+                                                  background: "#626ED4",
+                                                }}
+                                              >
+                                                {/* Awaiting Response */}
+                                                {item.statusName}
+                                              </p>
+                                            </td>
+                                          </>
+                                        )}
                                         {item.status ===
                                           statusNames.Declined && (
-                                            <>
-                                              <td className="table-content-font">
-                                                <p
-                                                  className=" p-1 text-center text-white rounded"
-                                                  style={{
-                                                    background: "#FF0000",
-                                                  }}
-                                                >
-                                                  {item.status
-                                                    ?.charAt(0)
-                                                    ?.toUpperCase() +
-                                                    item.status?.slice(1)}
-                                                </p>
-                                              </td>
-                                            </>
-                                          )}
+                                          <>
+                                            <td className="table-content-font">
+                                              <p
+                                                className=" p-1 text-center text-white rounded"
+                                                style={{
+                                                  background: "#FF0000",
+                                                }}
+                                              >
+                                                {item.status
+                                                  ?.charAt(0)
+                                                  ?.toUpperCase() +
+                                                  item.status?.slice(1)}
+                                              </p>
+                                            </td>
+                                          </>
+                                        )}
                                         {item.status === statusNames.Signed && (
                                           <>
                                             <td className="table-content-font">
@@ -1452,22 +1469,22 @@ const Proposals = () => {
                                         )}
                                         {item.status ===
                                           statusNames.Skipped && (
-                                            <>
-                                              <td className="table-content-font">
-                                                <p
-                                                  className=" p-1 text-center text-white rounded"
-                                                  style={{
-                                                    background: "#38A4F8",
-                                                  }}
-                                                >
-                                                  {item.status
-                                                    ?.charAt(0)
-                                                    ?.toUpperCase() +
-                                                    item.status?.slice(1)}
-                                                </p>
-                                              </td>
-                                            </>
-                                          )}
+                                          <>
+                                            <td className="table-content-font">
+                                              <p
+                                                className=" p-1 text-center text-white rounded"
+                                                style={{
+                                                  background: "#38A4F8",
+                                                }}
+                                              >
+                                                {item.status
+                                                  ?.charAt(0)
+                                                  ?.toUpperCase() +
+                                                  item.status?.slice(1)}
+                                              </p>
+                                            </td>
+                                          </>
+                                        )}
                                         {/* {item.packagesNames !== null && (
                                         <td>
                                           <p className="mb-0">
@@ -1502,25 +1519,25 @@ const Proposals = () => {
                                         <td>
                                           {item.status !==
                                             statusNames.Draft && (
-                                              <p className="mb-0">
-                                                Recurring:{" "}
-                                                <b>
-                                                  {formatValue(
-                                                    item.recurringTotal
-                                                  )}
-                                                </b>
-                                              </p>
-                                            )}
+                                            <p className="mb-0">
+                                              Recurring:{" "}
+                                              <b>
+                                                {formatValue(
+                                                  item.recurringTotal
+                                                )}
+                                              </b>
+                                            </p>
+                                          )}
                                           {item.status !==
                                             statusNames.Draft && (
-                                              <p className="mb-0">
-                                                {" "}
-                                                OneOff :{" "}
-                                                <b>
-                                                  {formatValue(item.oneOffTotal)}
-                                                </b>
-                                              </p>
-                                            )}
+                                            <p className="mb-0">
+                                              {" "}
+                                              OneOff :{" "}
+                                              <b>
+                                                {formatValue(item.oneOffTotal)}
+                                              </b>
+                                            </p>
+                                          )}
                                         </td>
 
                                         <td className="table-content-font">
@@ -1532,7 +1549,7 @@ const Proposals = () => {
                                           {item.status !== statusNames.Draft &&
                                             item.pdfUrl &&
                                             item.status !==
-                                            statusNames.Signed && (
+                                              statusNames.Signed && (
                                               <p
                                                 onClick={() => {
                                                   handleViewOldProposalPdf(
@@ -1551,7 +1568,7 @@ const Proposals = () => {
                                           {item.status !== statusNames.Draft &&
                                             item.pdfUrl &&
                                             item.status ===
-                                            statusNames.Signed && (
+                                              statusNames.Signed && (
                                               <p
                                                 onClick={() => {
                                                   handleViewOldProposalPdf(
@@ -1574,8 +1591,9 @@ const Proposals = () => {
                           )}
                         </div>
                         <div
-                          className={`tab-pane ${activeTab === "Proposal" ? "active" : ""
-                            }`}
+                          className={`tab-pane ${
+                            activeTab === "Proposal" ? "active" : ""
+                          }`}
                           id="base-justified-home"
                         >
                           {activeTab === "Proposal" && (
@@ -1664,18 +1682,18 @@ const Proposals = () => {
                                       )}
                                       {item.statusID ===
                                         statusID.Awaiting_Signature && (
-                                          <>
-                                            <td className="table-content-font">
-                                              <p
-                                                className=" p-1 text-center text-white rounded"
-                                                style={{ background: "#626ED4" }}
-                                              >
-                                                {/* Awaiting Response */}
-                                                {item.statusName}
-                                              </p>
-                                            </td>
-                                          </>
-                                        )}
+                                        <>
+                                          <td className="table-content-font">
+                                            <p
+                                              className=" p-1 text-center text-white rounded"
+                                              style={{ background: "#626ED4" }}
+                                            >
+                                              {/* Awaiting Response */}
+                                              {item.statusName}
+                                            </p>
+                                          </td>
+                                        </>
+                                      )}
                                       {item.statusID === statusID.Declined && (
                                         <>
                                           <td className="table-content-font">
@@ -1732,8 +1750,8 @@ const Proposals = () => {
                                                     isSinglePackage
                                                       ? 45
                                                       : isDoublePackage
-                                                        ? 25
-                                                        : 15;
+                                                      ? 25
+                                                      : 15;
 
                                                   return name.length >
                                                     maxLength ? (
@@ -1835,8 +1853,8 @@ const Proposals = () => {
                                                 item.enableReminder
                                                   ? item.reminderName
                                                     ? getCrudButtonToolTipName(
-                                                      item.reminderName
-                                                    )
+                                                        item.reminderName
+                                                      )
                                                     : "No reminder found"
                                                   : ""
                                               }
@@ -1904,11 +1922,12 @@ const Proposals = () => {
                                             </button>
                                             <ul
                                               style={{
-                                                padding: `${item.statusID ===
+                                                padding: `${
+                                                  item.statusID ===
                                                   statusID.Draft
-                                                  ? "2px 0px 2px 0px"
-                                                  : "6px 8px"
-                                                  }`,
+                                                    ? "2px 0px 2px 0px"
+                                                    : "6px 8px"
+                                                }`,
                                                 inset: "auto 0px 0px auto",
                                               }}
                                               class="dropdown-menu"
@@ -1979,11 +1998,11 @@ const Proposals = () => {
                                               {(item.statusID ===
                                                 statusID.Accepted ||
                                                 item.statusID ===
-                                                statusID.Declined ||
+                                                  statusID.Declined ||
                                                 item.statusID ===
-                                                statusID.Sent ||
+                                                  statusID.Sent ||
                                                 item.statusID ===
-                                                statusID.Skipped) &&
+                                                  statusID.Skipped) &&
                                                 userAccessData.Admin_Proposal_CanView && (
                                                   <li>
                                                     <a
@@ -2002,7 +2021,7 @@ const Proposals = () => {
                                               {(item.statusID ===
                                                 statusID.Sent ||
                                                 item.statusID ===
-                                                statusID.Skipped) &&
+                                                  statusID.Skipped) &&
                                                 common.enableEL == 1 &&
                                                 userAccessData.Admin_Engagement_Latter_CanAdd &&
                                                 userAccessData.Admin_Engagement_Latter_CanView && (
@@ -2025,26 +2044,26 @@ const Proposals = () => {
                                               {/* Copy button */}
                                               {item.statusID !==
                                                 statusID.Draft && (
-                                                  <li>
-                                                    <a
-                                                      class="dropdown-item"
-                                                      data-bs-toggle="modal"
-                                                      data-bs-target="#ConfirmModel"
-                                                      onClick={() => {
-                                                        setModelRequestData({
-                                                          ...modelRequestData,
-                                                          Action: "Copy",
-                                                          quoteKeyID:
-                                                            item.quoteKeyID,
-                                                          RefId: item.prefix,
-                                                        });
-                                                      }}
-                                                    >
-                                                      <i class="fa-solid fa-copy"></i>{" "}
-                                                      Copy {proposalName}
-                                                    </a>
-                                                  </li>
-                                                )}
+                                                <li>
+                                                  <a
+                                                    class="dropdown-item"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#ConfirmModel"
+                                                    onClick={() => {
+                                                      setModelRequestData({
+                                                        ...modelRequestData,
+                                                        Action: "Copy",
+                                                        quoteKeyID:
+                                                          item.quoteKeyID,
+                                                        RefId: item.prefix,
+                                                      });
+                                                    }}
+                                                  >
+                                                    <i class="fa-solid fa-copy"></i>{" "}
+                                                    Copy {proposalName}
+                                                  </a>
+                                                </li>
+                                              )}
 
                                               {/* Resend Proposal */}
                                               {item.statusID ===
@@ -2083,8 +2102,9 @@ const Proposals = () => {
                           )}
                         </div>
                         <div
-                          className={`tab-pane ${activeTab === "Web Proposal" ? "active" : ""
-                            }`}
+                          className={`tab-pane ${
+                            activeTab === "Web Proposal" ? "active" : ""
+                          }`}
                           id="base-justified-home"
                         >
                           {activeTab === "Web Proposal" && (
@@ -2096,8 +2116,8 @@ const Proposals = () => {
                                 <tr className="head-row">
                                   <td className="tr-table-class text-white">
                                     <input
-                                      className="me-2"
                                       type="checkbox"
+                                      className="me-2"
                                       checked={
                                         selectedRows.length ===
                                         visibleRows.length
@@ -2119,11 +2139,11 @@ const Proposals = () => {
                                     Documents
                                   </td>
 
-                                  {/* <td className="tr-table-class text-white">
+                                  <td className="tr-table-class text-white">
                                     {userAccessData.Admin_Proposal_CanView && (
                                       <>Action</>
                                     )}
-                                  </td> */}
+                                  </td>
                                 </tr>
                               </thead>
                               <tbody class="list form-check-all">
@@ -2190,18 +2210,18 @@ const Proposals = () => {
                                       )}
                                       {item.statusID ===
                                         statusID.Awaiting_Signature && (
-                                          <>
-                                            <td className="table-content-font">
-                                              <p
-                                                className=" p-1 text-center text-white rounded"
-                                                style={{ background: "#626ED4" }}
-                                              >
-                                                {/* Awaiting Response */}
-                                                {item.statusName}
-                                              </p>
-                                            </td>
-                                          </>
-                                        )}
+                                        <>
+                                          <td className="table-content-font">
+                                            <p
+                                              className=" p-1 text-center text-white rounded"
+                                              style={{ background: "#626ED4" }}
+                                            >
+                                              {/* Awaiting Response */}
+                                              {item.statusName}
+                                            </p>
+                                          </td>
+                                        </>
+                                      )}
                                       {item.statusID === statusID.Declined && (
                                         <>
                                           <td className="table-content-font">
@@ -2258,8 +2278,8 @@ const Proposals = () => {
                                                     isSinglePackage
                                                       ? 45
                                                       : isDoublePackage
-                                                        ? 25
-                                                        : 15;
+                                                      ? 25
+                                                      : 15;
 
                                                   return name.length >
                                                     maxLength ? (
@@ -2351,7 +2371,7 @@ const Proposals = () => {
                                       </td>
                                       {/*Delete buttons */}
 
-                                      {/* <td>
+                                      <td>
                                         <div class="d-flex gap-2">
                                           <Tooltip
                                             title={getCrudButtonToolTipName(
@@ -2379,7 +2399,7 @@ const Proposals = () => {
                                             </div>
                                           </Tooltip>
                                         </div>
-                                      </td> */}
+                                      </td>
                                     </tr>
                                   );
                                 })}
@@ -2429,12 +2449,12 @@ const Proposals = () => {
                             isMobile
                               ? Math.ceil(listCount / isMobileRecords)
                               : Math.ceil(
-                                listCount /
-                                (desktopRecords > 5 &&
-                                  window.innerHeight == 652
-                                  ? 5
-                                  : desktopRecords)
-                              )
+                                  listCount /
+                                    (desktopRecords > 5 &&
+                                    window.innerHeight == 652
+                                      ? 5
+                                      : desktopRecords)
+                                )
                           }
                           currentPage={currentPage}
                           onPageChange={handlePageChange}
@@ -2462,15 +2482,15 @@ const Proposals = () => {
                           totalPages={
                             isMobile
                               ? Math.ceil(
-                                SingleProposalListCount / isMobileRecords
-                              )
+                                  SingleProposalListCount / isMobileRecords
+                                )
                               : Math.ceil(
-                                SingleProposalListCount /
-                                (desktopRecords > 5 &&
-                                  window.innerHeight == 652
-                                  ? 5
-                                  : desktopRecords)
-                              )
+                                  SingleProposalListCount /
+                                    (desktopRecords > 5 &&
+                                    window.innerHeight == 652
+                                      ? 5
+                                      : desktopRecords)
+                                )
                           }
                           currentPage={SingleProposalCurrentPage}
                           onPageChange={handlePageChangeSingleProposal}
@@ -2511,10 +2531,10 @@ const Proposals = () => {
           modelRequestData.Action === "ReminderStatus"
             ? ChangeQuoteStatusData
             : modelRequestData.Action === "Resend"
-              ? handleResend
-              : modelRequestData.Action === "Copy"
-                ? CopyQuotationData
-                : DeleteQuotationData
+            ? handleResend
+            : modelRequestData.Action === "Copy"
+            ? CopyQuotationData
+            : DeleteQuotationData
         }
       />
       <SuccessModal
@@ -2528,12 +2548,12 @@ const Proposals = () => {
               ? proposalName
               : `${modelRequestData.RefId}`
             : modelRequestData.Action === "Copy"
-              ? `The Copy of ${modelRequestData.RefId} has been created successfully! `
-              : modelRequestData.Action === "ReminderStatus"
-                ? "Status has been changed successfully!"
-                : modelRequestData.Action === "Resend"
-                  ? proposalName
-                  : ""
+            ? `The Copy of ${modelRequestData.RefId} has been created successfully! `
+            : modelRequestData.Action === "ReminderStatus"
+            ? "Status has been changed successfully!"
+            : modelRequestData.Action === "Resend"
+            ? proposalName
+            : ""
         }
         refIdStore={modelRequestData.RefId}
       />

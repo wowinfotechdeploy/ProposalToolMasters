@@ -5,7 +5,8 @@ import { AuthContextProvider } from "../AuthContext/AuthContext";
 const DeleteDriverModal = (props) => {
   const {
     proposalName,
-    EngagementName
+    EngagementName,
+    prospectName
   } = useContext(AuthContextProvider);
   return (
     <>
@@ -123,18 +124,35 @@ const DeleteDriverModal = (props) => {
                     <>
                       <div>{props.modelRequestData.message}</div>
 
-                      {props.modelRequestData.contractList?.length > 0 && (
+                      {props.modelRequestData.clientExistsInModule?.length > 0 && (
                         <>
-                          <div>
-                            <b>{EngagementName}</b>
-                          </div>
-                          {props.modelRequestData.contractList.map((module) => (
-                            <div key={`contract-${module.moduleID}`}>
+                          {props.modelRequestData.clientExistsInModule.map((client, i) => (
+                            <div key={i}>
+                              <div>
+                                <b>{prospectName} : {client.clientName}</b>
+                              </div>
                               <div style={{ textAlign: "left" }}>
                                 <ul className="desined-list">
-                                  <li>
-                                    <span>{module.moduleID}</span>
-                                  </li>
+                                  {client.quotes.length > 0 && (
+                                    <>
+                                      <li><b>{proposalName}</b></li>
+                                      {client.quotes.map((quote, index) => (
+                                        <li key={`quote-${index}`}>
+                                          <span>{quote}</span>
+                                        </li>
+                                      ))}
+                                    </>
+                                  )}
+                                  {client.contracts.length > 0 && (
+                                    <>
+                                      <li><b>{EngagementName}</b></li>
+                                      {client.contracts.map((contract, index) => (
+                                        <li key={`contract-${index}`}>
+                                          <span>{contract}</span>
+                                        </li>
+                                      ))}
+                                    </>
+                                  )}
                                 </ul>
                               </div>
                             </div>
@@ -142,24 +160,7 @@ const DeleteDriverModal = (props) => {
                         </>
                       )}
 
-                      {props.modelRequestData.quoteList?.length > 0 && (
-                        <>
-                          <div>
-                            <b>{proposalName}</b>
-                          </div>
-                          {props.modelRequestData.quoteList.map((module) => (
-                            <div key={`quote-${module.moduleID}`}>
-                              <div style={{ textAlign: "left" }}>
-                                <ul className="desined-list">
-                                  <li>
-                                    <span>{module.moduleID}</span>
-                                  </li>
-                                </ul>
-                              </div>
-                            </div>
-                          ))}
-                        </>
-                      )}
+
                     </>
                   )}
                 </div>

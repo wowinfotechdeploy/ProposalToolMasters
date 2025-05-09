@@ -2285,6 +2285,7 @@ const Engagement_Letter = () => {
                                         <td className="table-content-font">
                                           <input
                                             type="checkbox"
+                                            className="me-2"
                                             checked={selectedRows.includes(
                                               engagement.contractKeyID
                                             )}

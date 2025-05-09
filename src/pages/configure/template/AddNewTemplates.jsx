@@ -4,7 +4,11 @@ import "./template.css";
 import { Row, Col, Card, Alert } from "reactstrap";
 import Select from "react-select";
 import { AuthContextProvider } from "../../../AuthContext/AuthContext";
-
+import FormGroup from "@mui/material/FormGroup";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Tooltip, { tooltipClasses } from "@mui/material/Tooltip";
+import Android12Switch from "../../../components/AndroidSwitch";
+import { styled } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
 import IndividualVariable from "../../../components/Variables/IndividualVariables";
 import SoleTraderVariable from "../../../components/Variables/SoleTraderVariable";
@@ -111,6 +115,7 @@ function Add_New_Templates(props) {
   ] = useState(false);
   const [TemplateObj, setTemplateObj] = useState({
     templateKeyID: null,
+    enableFirstPage: false,
     organisationID: null,
     originalBusinessTypeID: [],
     originalBusinessTypeIDs: [],
@@ -156,6 +161,7 @@ function Add_New_Templates(props) {
     setTemplateObj({
       templateKeyID: null,
       organisationID: null,
+      enableFirstPage: false,
       createdByID: null,
       templateName: undefined,
       templateTypeID: null,
@@ -353,7 +359,7 @@ function Add_New_Templates(props) {
     (templateElementType) => {
       if (TemplateObj.templateTypeID === 1) {
         // If templateTypeID is 2, you can conditionally hide elements here
-        if (templateElementType.templateElementTypeID === 7 || templateElementType.templateElementTypeID === 11) {
+        if (templateElementType.templateElementTypeID === 7) {
           // Exclude Signature Block (Only for Contract) element
           return null;
         }
@@ -402,6 +408,7 @@ function Add_New_Templates(props) {
           setTemplateObj({
             ...TemplateObj,
             templateKeyID: ModelData.templateKeyID,
+            enableFirstPage: ModelData.enableFirstPage,
             organisationID: ModelData.organisationID,
             createdByID: ModelData.createdByID,
             templateName: ModelData.templateName,
@@ -801,6 +808,7 @@ function Add_New_Templates(props) {
       //form level params : fixed
       templateTypeID: TemplateObj.templateTypeID, //will change module wise
       templateKeyID: TemplateObj.templateKeyID,
+      enableFirstPage: TemplateObj.enableFirstPage,
       userKeyID: common.userKeyID,
       clientBusinessTypeID: TemplateObj.clientBusinessTypeID,
       clientBusinessTypeIDs: TemplateObj.clientBusinessTypeIDs,
@@ -1135,6 +1143,13 @@ function Add_New_Templates(props) {
       ),
     });
   };
+  const CustomWidthTooltip = styled(({ className, ...props }) => (
+    <Tooltip {...props} classes={{ popper: className }} />
+  ))({
+    [`& .${tooltipClasses.tooltip}`]: {
+      maxWidth: 500,
+    },
+  });
   return (
     <div className="container-fluid new-item-page-container">
       <div
@@ -1431,6 +1446,62 @@ function Add_New_Templates(props) {
                           }),
                         }}
                       />
+
+                    </div>
+                  </div>
+                </div>
+                <div className="row mb-2" id="FontFamily">
+                  <div
+                    style={{ padding: "10px" }}
+                    className="col-lg-3  text-left"
+                  >
+                    <div className="mb-1">
+                      <label className="form-label">Add First Page</label>
+                    </div>
+                  </div>
+                  <div className="col-lg-9">
+                    <div
+                      class="col-md-9 col-sm-9 col-lg-9"
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                      }}
+                    >
+
+                      <FormGroup>
+                        <FormControlLabel
+                          control={
+                            <CustomWidthTooltip
+                              title={`Enable/Disable First Page`}
+                            >
+                              <Android12Switch
+                                id="isEL"
+                                checked={
+                                  TemplateObj.enableFirstPage
+                                }
+                                onChange={() =>
+                                  setTemplateObj({
+                                    ...TemplateObj,
+                                    enableFirstPage:
+                                      !TemplateObj.enableFirstPage,
+                                  })
+                                }
+                              />
+                            </CustomWidthTooltip>
+                          }
+                        />
+                        <div
+                          style={{
+                            marginTop: "-12px",
+                            marginBottom: "10px",
+                            textAlign: "justify",
+                          }}
+                          className="text-muted helpMessage"
+                        >
+                          <b>Note: </b>
+                          If enabled and a customised first page is configured, it will be displayed; if not, the default first page will appear. If disabled, no first page will be displayed.
+                        </div>
+                      </FormGroup>
 
                     </div>
                   </div>
@@ -1736,6 +1807,8 @@ function Add_New_Templates(props) {
                         requireElementTypeErrorMessage={
                           requireElementTypeErrorMessage
                         }
+                        TemplateObj={TemplateObj}
+                        setTemplateObj={setTemplateObj}
                         setRequireElementTypeErrorMessage={
                           setRequireElementTypeErrorMessage
                         }

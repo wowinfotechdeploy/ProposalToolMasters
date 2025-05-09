@@ -20,7 +20,7 @@ function AcceptInvitation() {
   const [errorMessage, setErrorMessage] = useState("");
   const [generatePdfData, setGeneratePdfData] = useState([]);
   const [MergePdfUrl, setMergePdfUrl] = useState("");
-
+  const [isDefaultFirstPage, setIsDefaultFirstPage] = useState(null);
   const [fontFamily, setFontFamily] = useState("");
   const [fontSize, setFontSize] = useState("");
 
@@ -555,21 +555,23 @@ function AcceptInvitation() {
             }
             break;
           case ElementType.First_Page:
-            const coloredHtmlContent = changeSpanColor(element.htmlContent);
-            if (
-              prevElementType !== ElementType.PAGE_BREAK &&
-              prevElementType !== ElementType.AWS_PDF_LINK
-            ) {
-              currentArray.push({
-                textbox: `<div style="padding-left: 40px; padding-right: 40px; font-family: ${fontFamily};">${coloredHtmlContent}</div>`,
-              });
-            } else {
-              pdfDataArray.push(currentArray);
-              currentArray = [
-                {
+            if (isDefaultFirstPage) {
+              const coloredHtmlContent = changeSpanColor(element.htmlContent);
+              if (
+                prevElementType !== ElementType.PAGE_BREAK &&
+                prevElementType !== ElementType.AWS_PDF_LINK
+              ) {
+                currentArray.push({
                   textbox: `<div style="padding-left: 40px; padding-right: 40px; font-family: ${fontFamily};">${coloredHtmlContent}</div>`,
-                },
-              ];
+                });
+              } else {
+                pdfDataArray.push(currentArray);
+                currentArray = [
+                  {
+                    textbox: `<div style="padding-left: 40px; padding-right: 40px; font-family: ${fontFamily};">${coloredHtmlContent}</div>`,
+                  },
+                ];
+              }
             }
             break;
           case ElementType.SERVICE_PRICING_TABLE:
@@ -1743,6 +1745,7 @@ function AcceptInvitation() {
             3,
             packageData
           );
+          setIsDefaultFirstPage(ModelData?.enableFirstPage)
           setTemplateElementList(ReplaceVariableArray);
           setBrandColor(
             ModelData.templateElementListWithRequiredData.brandColor

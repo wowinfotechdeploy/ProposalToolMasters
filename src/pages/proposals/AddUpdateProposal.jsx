@@ -10443,6 +10443,7 @@ const Add_Update_Proposal = (props) => {
   const [headerContent, setHeaderContent] = useState(null);
   const [footerContent, setFooterContent] = useState(null);
   const [fontSize, setFontSize] = useState("");
+  const [isDefaultFirstPage, setIsDefaultFirstPage] = useState(null);
   const [CompanyLogo, setCompanyLogo] = useState(null);
   const [showSeparatorLines, setShowSeparatorLines] = useState(null);
   const [MergePdfUrl, setMergePdfUrl] = useState("");
@@ -14873,16 +14874,16 @@ const Add_Update_Proposal = (props) => {
           let AddFirstPageHtmlContent = [...ModelData.templateElementList];
 
           if (!isAddedFirstPage) {
-            // const firstPageElement = {
-            //   ttetMapID: null,
-            //   templateElementTypeID: 10,
-            //   templateElementTypeName: "First Page",
-            //   serialNo: null,
-            //   headings: "",
-            //   shortDesc: "",
-            //   htmlContent: firstPageHTML,
-            // };
-            // AddFirstPageHtmlContent.splice(0, 0, firstPageElement);
+            const firstPageElement = {
+              ttetMapID: null,
+              templateElementTypeID: 10,
+              templateElementTypeName: "First Page",
+              serialNo: null,
+              headings: "",
+              shortDesc: "",
+              htmlContent: firstPageHTML,
+            };
+            AddFirstPageHtmlContent.splice(0, 0, firstPageElement);
           } else {
             const imgTag = `<img src="${Logo}" alt="Logo" style="display: none; margin: 0 auto 15px;">`;
 
@@ -14915,6 +14916,7 @@ const Add_Update_Proposal = (props) => {
           );
 
           setTemplateElementList(newArray);
+          setIsDefaultFirstPage(ModelData?.enableFirstPage)
           //setTemplateElementList(ModelData.templateElementList);
           setFontSize(smallFontSizes)
           // setFontFamily(uniqueFontFamilies)
@@ -18223,6 +18225,7 @@ const Add_Update_Proposal = (props) => {
               )}
               {activeTab === ProposalHeader.Preview && (
                 <PreviewComponentPdf
+                  isDefaultFirstPage={isDefaultFirstPage}
                   DocumentCode={DocumentCode}
                   setIsAddUpdatePricingActionDone={setIsAddUpdatePricingActionDone}
                   isAddUpdatePricingActionDone={isAddUpdatePricingActionDone}

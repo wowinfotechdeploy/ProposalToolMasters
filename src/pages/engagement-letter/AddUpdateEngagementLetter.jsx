@@ -5376,6 +5376,7 @@ const Add_Update_Engagement_Letter = () => {
   const [showSeparatorLines, setShowSeparatorLines] = useState(null);
   const [fontSize, setFontSize] = useState("");
   const [CompanyLogo, setCompanyLogo] = useState(false);
+  const [isDefaultFirstPage, setIsDefaultFirstPage] = useState(null);
   const [requireMessage, setRequireMessage] = useState(false);
   const [clientLookUpOptions, setClientLookUpOptions] = useState([]);
   const [recurringServiceList, setRecurringServiceList] = useState([]);
@@ -5836,16 +5837,16 @@ const Add_Update_Engagement_Letter = () => {
           let AddFirstPageHtmlContent = [...ModelData.templateElementList];
 
           if (!isAddedFirstPage) {
-            // const firstPageElement = {
-            //   ttetMapID: null,
-            //   templateElementTypeID: 10,
-            //   templateElementTypeName: "First Page",
-            //   serialNo: null,
-            //   headings: "",
-            //   shortDesc: "",
-            //   htmlContent: firstPageHTML,
-            // };
-            // AddFirstPageHtmlContent.splice(0, 0, firstPageElement);
+            const firstPageElement = {
+              ttetMapID: null,
+              templateElementTypeID: 10,
+              templateElementTypeName: "First Page",
+              serialNo: null,
+              headings: "",
+              shortDesc: "",
+              htmlContent: firstPageHTML,
+            };
+            AddFirstPageHtmlContent.splice(0, 0, firstPageElement);
           } else {
             const imgTag = `<img src="${Logo}" alt="Logo" style="display: none; margin: 0 auto 15px;">`;
 
@@ -5892,7 +5893,7 @@ const Add_Update_Engagement_Letter = () => {
               htmlContent: null,
             };
             const updatedTemplateElementList = [...newArray, pdfObject];
-
+            setIsDefaultFirstPage(ModelData?.enableFirstPage)
             setBrandColor(
               ModelData.templateElementListWithRequiredData.brandColor
             );
@@ -13065,6 +13066,7 @@ const Add_Update_Engagement_Letter = () => {
               )}
               {activeTab === EngagementLetterHeader.Preview && (
                 <PreviewComponentPdf
+                  isDefaultFirstPage={isDefaultFirstPage}
                   common={common}
                   setRequireMessage={setRequireMessage}
                   DocumentCode={DocumentCode}

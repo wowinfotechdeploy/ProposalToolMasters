@@ -1907,18 +1907,19 @@ export default function PreviewComponentPdf(props) {
             }
             break;
           case ElementType.First_Page:
-            const coloredHtmlContent = changeSpanColor(
-              element.htmlContent,
-              newColorCode
-            );
-            if (
-              prevElementType !== ElementType.PAGE_BREAK &&
-              prevElementType !== ElementType.AWS_PDF_LINK
-            ) {
-              pdfDataArray.push(currentArray);
-              currentArray = [
-                {
-                  textbox: `
+            if (props?.isDefaultFirstPage) {
+              const coloredHtmlContent = changeSpanColor(
+                element.htmlContent,
+                newColorCode
+              );
+              if (
+                prevElementType !== ElementType.PAGE_BREAK &&
+                prevElementType !== ElementType.AWS_PDF_LINK
+              ) {
+                pdfDataArray.push(currentArray);
+                currentArray = [
+                  {
+                    textbox: `
       <div style="
         padding-left: 40px; 
         padding-right: 40px; 
@@ -1927,13 +1928,13 @@ export default function PreviewComponentPdf(props) {
         ${coloredHtmlContent}
       </div>
     `,
-                },
-              ];
-            } else {
-              pdfDataArray.push(currentArray);
-              currentArray = [
-                {
-                  textbox: `
+                  },
+                ];
+              } else {
+                pdfDataArray.push(currentArray);
+                currentArray = [
+                  {
+                    textbox: `
       <div style="
         padding-left: 40px; 
         padding-right: 40px; 
@@ -1942,8 +1943,9 @@ export default function PreviewComponentPdf(props) {
         ${coloredHtmlContent}
       </div>
     `,
-                },
-              ];
+                  },
+                ];
+              }
             }
             break;
           case ElementType.STATEMENT_OF_FACTS:

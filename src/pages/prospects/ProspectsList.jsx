@@ -59,7 +59,7 @@ const Prospects = () => {
     getCrudButtonToolTipName,
     userAccessData,
     handleErrorMessage,
-    activeOrganizationSubscriptionPlan
+    activeOrganizationSubscriptionPlan,
   } = useContext(AuthContextProvider);
   const moduleName = `${prospectName}`;
   const [currentPage, setCurrentPage] = useState(1);
@@ -78,9 +78,9 @@ const Prospects = () => {
     Action: "",
     clientName: null,
     userKeyID: null,
-    contractList: [],
-    quoteList: [],
-    message: null
+    clientExistsInModule: [],
+    message: null,
+    tabName: null,
   });
   const pageSize = isMobile ? isMobileRecords : desktopRecords;
   const formattedErrorMessage = handleErrorMessage(errorMessage);
@@ -167,7 +167,7 @@ const Prospects = () => {
           businessTypeId == undefined ? prospectType : businessTypeId,
         businessNatureID:
           businessNatureId == undefined ? businessNatureID : businessNatureId,
-        clientFor: "Outbooks"
+        clientFor: "Outbooks",
       });
 
       if (data) {
@@ -241,7 +241,7 @@ const Prospects = () => {
           businessTypeId == undefined ? prospectType : businessTypeId,
         businessNatureID:
           businessNatureId == undefined ? businessNatureID : businessNatureId,
-        clientFor: "SingleApi"
+        clientFor: "SingleApi",
       });
 
       if (data) {
@@ -309,25 +309,23 @@ const Prospects = () => {
 
     if (modelRequestData.Action === "Delete") {
       try {
-
         if (selectedRows.length !== 0) {
           const data = await DeleteSingleApiClient({
             userKeyID: common.userKeyID,
-            clientKeyIDs: selectedRows
+            clientKeyIDs: selectedRows,
           });
           if (data?.data?.statusCode === 200) {
             setLoader(false);
-            debugger
-            let contractList = data.data.responseData.contractList;
-            let quoteList = data.data.responseData.quoteList;
-            if (contractList.length > 0 || quoteList.length > 0) {
+            debugger;
+            let clientExistsInModule = data.data.responseData.clientExistsInModule;
+
+            if (clientExistsInModule.length > 0) {
               // moduleList.map()
               setModelRequestData({
                 ...modelRequestData,
                 Action: "ClientDelete",
-                message: `Cannot delete ${prospectName} already exist in following`,
-                contractList: contractList,
-                quoteList: quoteList,
+                message: `Cannot delete ${prospectName} as it already have linked records.`,
+                clientExistsInModule: clientExistsInModule
               });
               $("#" + "DeleteDriverModel").modal("show");
               $("#" + "ConfirmModel").modal("hide");
@@ -335,9 +333,7 @@ const Prospects = () => {
               setOpenSuccessModal(true);
               getClientsListSingleApiData(currentPage);
             }
-
-          }
-          else {
+          } else {
             setLoader(false);
             setErrorMessage(data?.data?.errorMessage);
             setOpenErrorModal(true);
@@ -382,7 +378,11 @@ const Prospects = () => {
             setOpenErrorModal(true);
           }
         }
-        getClientsListData(currentPage);
+        if (modelRequestData.tabName === "API Prospect") {
+          getClientsListSingleApiData(currentPage);
+        } else {
+          getClientsListData(currentPage);
+        }
       } catch (error) {
         console.log(error);
       }
@@ -446,7 +446,6 @@ const Prospects = () => {
       setSingleCurrentPage(1);
       getClientsListSingleApiData(1, searchKeywordValue);
     }
-
   };
 
   // F] Pagination :
@@ -455,16 +454,14 @@ const Prospects = () => {
     await getClientsListData(pageNumber); // Call your function with the selected page number
   };
 
-
   const TabHandle = (tab) => {
     if (tab === "Web Prospect") {
       setActiveTab(tab);
-      getClientsListSingleApiData(1)
+      getClientsListSingleApiData(1);
     } else {
       setActiveTab(tab);
-      getClientsListData(1)
+      getClientsListData(1);
     }
-
   };
   const ApplyFilter = () => {
     if (
@@ -516,6 +513,7 @@ const Prospects = () => {
     $("#" + "ConfirmModel").modal("hide");
     setOpenDeleteDriverModel(false);
   };
+
   return (
     <div className="container">
       <div class="main-content">
@@ -541,7 +539,7 @@ const Prospects = () => {
                         <b>{moduleName} </b>
                       </a>
                     </li>
-                    {singleclientList?.length > 0 &&
+                    {singleclientList?.length > 0 && (
                       <li className="nav-item">
                         <a
                           className={`nav-link tab_nav ${activeTab === "Web Prospect" ? "active" : ""
@@ -555,7 +553,7 @@ const Prospects = () => {
                           <b>API {moduleName}</b>
                         </a>
                       </li>
-                    }
+                    )}
                   </ul>
                 </div>
               </div>
@@ -571,11 +569,12 @@ const Prospects = () => {
                       <div class="row g-4 mb-3"></div>
                       <div class="table-responsive table-card mb-3 table-padding">
                         <div className="row">
-                          <div class="col-md-3 col-lg-3 col-9  mb-2">
-                            {activeTab === "Web Prospect" && (
-                              <div className="d-flex justify-content-start">
+                          {/* <div class="col-md-3 col-lg-3 col-12  mb-2"> */}
+                          {activeTab === "Web Prospect" && (
+                            <div class="col-md-3 col-lg-3 col-12  mb-2">
+                              <div className="d-flex justify-content-between">
                                 <div
-                                  class="search-box col-md-3 col-8 width-searchbox me-2"
+                                  class="search-box col-md-3 col-3 width-searchbox me-2"
                                   style={{}}
                                 >
                                   <i className="ri-search-line search-icon"></i>
@@ -597,10 +596,10 @@ const Prospects = () => {
                                   />
                                 </div>
 
-                                <div className=" d-flex align-items-start justify-content-start ">
+                                <div className=" ">
                                   <Tooltip
                                     title={getCrudButtonToolTipName(
-                                      "Delete",
+                                      "Delete Selcted",
                                       prospectName
                                     )}
                                   >
@@ -632,10 +631,12 @@ const Prospects = () => {
                                     </div>
                                   </Tooltip>
                                 </div>
-                              </div>
-                            )}
+                              </div>{" "}
+                            </div>
+                          )}
 
-                            {activeTab === "Prospect" && (
+                          {activeTab === "Prospect" && (
+                            <div class="col-md-3 col-lg-3 col-3  mb-2">
                               <div className="d-flex justify-content-start">
                                 <div
                                   class="search-box  width-searchbox "
@@ -728,21 +729,25 @@ const Prospects = () => {
                                   )}
                                 </div>
                               </div>
-                            )}
-                            {activeTab === "Web Prospect" && (
-                              <div className="d-flex justify-content-start">
-
-
-                              </div>
-                            )}
-                          </div>
+                            </div>
+                          )}
+                          {activeTab === "Web Prospect" && (
+                            <div className="d-flex justify-content-start"></div>
+                          )}
+                          {/* </div> */}
                           {activeTab === "Prospect" && (
                             <div class="col-lg-9 col-md-9 col-3 text-nowrap mb-2">
                               {userAccessData.Admin_Prospect_CanAdd && (
                                 <CommonButtonComponent
-                                  title={getCrudButtonToolTipName("Add", moduleName)}
+                                  title={getCrudButtonToolTipName(
+                                    "Add",
+                                    moduleName
+                                  )}
                                   AddBtn={() => AddClientBtn()}
-                                  name={getCrudButtonTextName("Add", moduleName)}
+                                  name={getCrudButtonTextName(
+                                    "Add",
+                                    moduleName
+                                  )}
                                 />
                               )}{" "}
                             </div>
@@ -769,7 +774,10 @@ const Prospects = () => {
                                     <input
                                       type="checkbox"
                                       className="me-2"
-                                      checked={selectedRows.length === visibleRows.length}
+                                      checked={
+                                        selectedRows.length ===
+                                        visibleRows.length
+                                      }
                                       onChange={handleSelectAll}
                                     />
                                     {prospectName} Name{" "}
@@ -843,11 +851,11 @@ const Prospects = () => {
                                   <td className="tr-table-class text-white">
                                     Status
                                   </td>
-                                  {/* <td className="tr-table-class text-white">
+                                  <td className="tr-table-class text-white">
                                     {userAccessData.Admin_Prospect_CanView && (
                                       <>Action</>
                                     )}
-                                  </td> */}
+                                  </td>
                                 </tr>
                               </thead>
                               <tbody class="list form-check-all">
@@ -861,7 +869,9 @@ const Prospects = () => {
                                       ? Prospect.emailID.split(", ")
                                       : [];
                                     const displayEmail =
-                                      emailArray.length > 0 ? emailArray[0] : "";
+                                      emailArray.length > 0
+                                        ? emailArray[0]
+                                        : "";
                                     const hasMoreEmails = emailArray.length > 1;
                                     return (
                                       <>
@@ -872,15 +882,20 @@ const Prospects = () => {
                                           <td className="table-content-font">
                                             <input
                                               type="checkbox"
-                                              className="me-2"
-                                              checked={selectedRows.includes(Prospect.clientKeyID)}
-                                              onChange={() => handleRowSelect(Prospect.clientKeyID)}
+                                              checked={selectedRows.includes(
+                                                Prospect.clientKeyID
+                                              )}
+                                              onChange={() =>
+                                                handleRowSelect(
+                                                  Prospect.clientKeyID
+                                                )
+                                              }
                                             />
                                             {Prospect.clientName}
                                           </td>
                                           <td className="table-content-font">
                                             {/* {Prospect.emailID}
-                                         */}
+                                             */}
 
                                             {hasMoreEmails ? (
                                               <Tooltip
@@ -908,45 +923,51 @@ const Prospects = () => {
                                                 {" "}
                                                 {Prospect.statusName}
                                               </div>
-                                              {userAccessData.Admin_Prospect_CanDelete && activeOrganizationSubscriptionPlan.apiIntegration && (
-                                                <Tooltip
-                                                  title={getCrudButtonToolTipName(
-                                                    "Change Status"
-                                                  )}
-                                                >
-                                                  <FormGroup>
-                                                    <FormControlLabel
-                                                      control={
-                                                        <Android12Switch
-                                                          onClick={() =>
-                                                            setModelRequestData({
-                                                              ...modelRequestData,
-                                                              status:
-                                                                Prospect.statusName,
-                                                              clientKeyID:
-                                                                Prospect.clientKeyID,
-                                                              clientName:
-                                                                Prospect.clientName,
-                                                              userKeyID:
-                                                                common.userKeyID,
-                                                              Action: "Status",
-                                                            })
-                                                          }
-                                                          checked={
-                                                            Prospect.statusName ===
-                                                            "Active"
-                                                          }
-                                                          data-bs-toggle="modal"
-                                                          data-bs-target="#ConfirmModel"
-                                                        />
-                                                      }
-                                                    />
-                                                  </FormGroup>
-                                                </Tooltip>
-                                              )}
+                                              {userAccessData.Admin_Prospect_CanDelete &&
+                                                activeOrganizationSubscriptionPlan.apiIntegration && (
+                                                  <Tooltip
+                                                    title={getCrudButtonToolTipName(
+                                                      "Change Status"
+                                                    )}
+                                                  >
+                                                    <FormGroup>
+                                                      <FormControlLabel
+                                                        control={
+                                                          <Android12Switch
+                                                            onClick={() =>
+                                                              setModelRequestData(
+                                                                {
+                                                                  ...modelRequestData,
+                                                                  status:
+                                                                    Prospect.statusName,
+                                                                  clientKeyID:
+                                                                    Prospect.clientKeyID,
+                                                                  clientName:
+                                                                    Prospect.clientName,
+                                                                  userKeyID:
+                                                                    common.userKeyID,
+                                                                  Action:
+                                                                    "Status",
+                                                                  tabName:
+                                                                    "API Prospect",
+                                                                }
+                                                              )
+                                                            }
+                                                            checked={
+                                                              Prospect.statusName ===
+                                                              "Active"
+                                                            }
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#ConfirmModel"
+                                                          />
+                                                        }
+                                                      />
+                                                    </FormGroup>
+                                                  </Tooltip>
+                                                )}
                                             </div>
                                           </td>
-                                          {/* <td>
+                                          <td>
                                             <div class="d-flex gap-2">
                                               <Tooltip
                                                 title={getCrudButtonToolTipName(
@@ -964,7 +985,9 @@ const Prospects = () => {
                                                     }
                                                   >
                                                     <span
-                                                      style={{ marginRight: "4px" }}
+                                                      style={{
+                                                        marginRight: "4px",
+                                                      }}
                                                     >
                                                       View
                                                     </span>
@@ -973,59 +996,61 @@ const Prospects = () => {
                                                 </div>
                                               </Tooltip>
 
-                                              {userAccessData.Admin_Prospect_CanEdit && activeOrganizationSubscriptionPlan.apiIntegration && (
-                                                <Tooltip
-                                                  title={getCrudButtonToolTipName(
-                                                    "Update",
-                                                    moduleName
-                                                  )}
-                                                >
-                                                  <div class="edit">
-                                                    <button
-                                                      class="btn btn-sm btn-success edit-item-btn actionButtonsStyle"
-                                                      onClick={() =>
-                                                        ClientEditBtnClicked(
-                                                          Prospect
-                                                        )
-                                                      }
-                                                    >
-                                                      <i class="ri-pencil-fill"></i>
-                                                    </button>
-                                                  </div>
-                                                </Tooltip>
-                                              )}
-                                              {userAccessData.Admin_Prospect_CanDelete && activeOrganizationSubscriptionPlan.apiIntegration && (
-                                                <Tooltip
-                                                  title={getCrudButtonToolTipName(
-                                                    "Delete",
-                                                    moduleName
-                                                  )}
-                                                >
-                                                  <div class="remove">
-                                                    <button
-                                                      class="btn btn-sm btn-danger remove-item-btn actionButtonsStyle"
-                                                      data-bs-toggle="modal"
-                                                      data-bs-target="#ConfirmModel"
-                                                      onClick={() =>
-                                                        setModelRequestData({
-                                                          ...modelRequestData,
-                                                          clientKeyID:
-                                                            Prospect.clientKeyID,
-                                                          clientName:
-                                                            Prospect.clientName,
-                                                          userKeyID:
-                                                            common.userKeyID,
-                                                          Action: "Delete",
-                                                        })
-                                                      }
-                                                    >
-                                                      <i class="ri-delete-bin-5-fill"></i>
-                                                    </button>
-                                                  </div>
-                                                </Tooltip>
-                                              )}
+                                              {userAccessData.Admin_Prospect_CanEdit &&
+                                                activeOrganizationSubscriptionPlan.apiIntegration && (
+                                                  <Tooltip
+                                                    title={getCrudButtonToolTipName(
+                                                      "Update",
+                                                      moduleName
+                                                    )}
+                                                  >
+                                                    <div class="edit">
+                                                      <button
+                                                        class="btn btn-sm btn-success edit-item-btn actionButtonsStyle"
+                                                        onClick={() =>
+                                                          ClientEditBtnClicked(
+                                                            Prospect
+                                                          )
+                                                        }
+                                                      >
+                                                        <i class="ri-pencil-fill"></i>
+                                                      </button>
+                                                    </div>
+                                                  </Tooltip>
+                                                )}
+                                              {userAccessData.Admin_Prospect_CanDelete &&
+                                                activeOrganizationSubscriptionPlan.apiIntegration && (
+                                                  <Tooltip
+                                                    title={getCrudButtonToolTipName(
+                                                      "Delete",
+                                                      moduleName
+                                                    )}
+                                                  >
+                                                    <div class="remove">
+                                                      <button
+                                                        class="btn btn-sm btn-danger remove-item-btn actionButtonsStyle"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#ConfirmModel"
+                                                        onClick={() =>
+                                                          setModelRequestData({
+                                                            ...modelRequestData,
+                                                            clientKeyID:
+                                                              Prospect.clientKeyID,
+                                                            clientName:
+                                                              Prospect.clientName,
+                                                            userKeyID:
+                                                              common.userKeyID,
+                                                            Action: "Delete",
+                                                          })
+                                                        }
+                                                      >
+                                                        <i class="ri-delete-bin-5-fill"></i>
+                                                      </button>
+                                                    </div>
+                                                  </Tooltip>
+                                                )}
                                             </div>
-                                          </td> */}
+                                          </td>
                                         </tr>
                                       </>
                                     );
@@ -1037,7 +1062,6 @@ const Prospects = () => {
                         <div
                           className={`tab-pane ${activeTab === "Prospect" ? "active" : ""
                             }`}
-
                           id="base-justified-home"
                         >
                           {activeTab === "Prospect" && (
@@ -1047,12 +1071,10 @@ const Prospects = () => {
                             >
                               <thead class="table-light table-header-font">
                                 <tr className="head-row">
-
                                   <td
                                     className="tr-table-class text-white"
                                     style={{ width: "30%" }}
                                   >
-
                                     {prospectName} Name{" "}
                                     {primarySortDirectionObj.ProspectNameSort ===
                                       "desc" && (
@@ -1142,10 +1164,11 @@ const Prospects = () => {
                                       ? Prospect.emailID.split(", ")
                                       : [];
                                     const displayEmail =
-                                      emailArray.length > 0 ? emailArray[0] : "";
+                                      emailArray.length > 0
+                                        ? emailArray[0]
+                                        : "";
                                     const hasMoreEmails = emailArray.length > 1;
                                     return (
-
                                       <>
                                         <tr
                                           class="table_new"
@@ -1156,7 +1179,7 @@ const Prospects = () => {
                                           </td>
                                           <td className="table-content-font">
                                             {/* {Prospect.emailID}
-                                         */}
+                                             */}
 
                                             {hasMoreEmails ? (
                                               <Tooltip
@@ -1195,18 +1218,21 @@ const Prospects = () => {
                                                       control={
                                                         <Android12Switch
                                                           onClick={() =>
-                                                            setModelRequestData({
-                                                              ...modelRequestData,
-                                                              status:
-                                                                Prospect.statusName,
-                                                              clientKeyID:
-                                                                Prospect.clientKeyID,
-                                                              clientName:
-                                                                Prospect.clientName,
-                                                              userKeyID:
-                                                                common.userKeyID,
-                                                              Action: "Status",
-                                                            })
+                                                            setModelRequestData(
+                                                              {
+                                                                ...modelRequestData,
+                                                                status:
+                                                                  Prospect.statusName,
+                                                                clientKeyID:
+                                                                  Prospect.clientKeyID,
+                                                                clientName:
+                                                                  Prospect.clientName,
+                                                                userKeyID:
+                                                                  common.userKeyID,
+                                                                Action:
+                                                                  "Status",
+                                                              }
+                                                            )
                                                           }
                                                           checked={
                                                             Prospect.statusName ===
@@ -1240,7 +1266,9 @@ const Prospects = () => {
                                                     }
                                                   >
                                                     <span
-                                                      style={{ marginRight: "4px" }}
+                                                      style={{
+                                                        marginRight: "4px",
+                                                      }}
                                                     >
                                                       View
                                                     </span>
@@ -1320,7 +1348,6 @@ const Prospects = () => {
                             )}
                           </div>
                         )}
-
                       </div>
                     </div>
                   </div>
@@ -1384,7 +1411,9 @@ const Prospects = () => {
         openSuccessModal={openSuccessModal}
         modelAction={modelRequestData.Action}
         message={`${modelRequestData.Action === "Delete"
-          ? selectedRows.length !== 0 ? prospectName : `${moduleName} ${modelRequestData.clientName}`
+          ? selectedRows.length !== 0
+            ? prospectName
+            : `${moduleName} ${modelRequestData.clientName}`
           : "Status has been changed successfully!"
           }`}
       />
