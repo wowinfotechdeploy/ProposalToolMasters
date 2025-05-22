@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  CountryName,
-} from "../../redux/Services/CountryApi";
+import { CountryName } from "../../redux/Services/CountryApi";
 import Select from "react-select";
 import { Box, Modal } from "@mui/material";
 import "./AddressModalStyle.css";
@@ -43,7 +41,68 @@ function AddressModalComponent(props) {
   let countryValue;
 
   useEffect(() => {
-    if (props.openAddressPopUp) {
+    if (
+      props.openAddressPopUp &&
+      props.modelRequestData.model === "Registered Office Address"
+    ) {
+      if (
+        props.title !== undefined &&
+        props.title !== null &&
+        props.title !== ""
+      ) {
+        getCountries(props.companyAddress?.country);
+        const selected_Country = countries.filter(
+          (c) => c.countryId == props.companyAddress?.countryId
+        )[0];
+
+        setSelectedCountries({
+          value: selected_Country?.countryId,
+          label: selected_Country?.countryName,
+        });
+
+        setAddress({
+          addressId:
+            props.companyAddress?.addressId === null
+              ? null
+              : props.companyAddress?.addressId,
+          premises:
+            props.companyAddress?.premises === null
+              ? ""
+              : props.companyAddress?.premises,
+          addressLine1:
+            props.companyAddress?.addressLine1 === null
+              ? ""
+              : props.companyAddress?.addressLine1,
+          addressLine2:
+            props.companyAddress?.addressLine2 === null
+              ? ""
+              : props.companyAddress?.addressLine2,
+          locality:
+            props.companyAddress?.locality === null
+              ? ""
+              : props.companyAddress?.locality,
+          region:
+            props.companyAddress?.region === null
+              ? ""
+              : props.companyAddress?.region,
+          country:
+            props.companyAddress?.country === null
+              ? ""
+              : props.companyAddress?.country,
+          countryId:
+            props.companyAddress?.countryId === null
+              ? null
+              : props.companyAddress?.countryId,
+          postcode:
+            props.companyAddress?.postcode === null
+              ? ""
+              : props.companyAddress?.postcode,
+        });
+
+        const fullAddress = concatenateFullAddress(props.companyAddress);
+        setFullAddress(fullAddress);
+      }
+    } else if (props.openAddressPopUp) {
       if (
         props.title !== undefined &&
         props.title !== null &&
@@ -114,21 +173,41 @@ function AddressModalComponent(props) {
   const handleClearAddress = () => {
     setRequireErrorMessage(false);
     // Reset the state values for your input fields
-    setAddress({
-      addressId:
-        props.address?.addressId === null ? null : props.address?.addressId,
-      premises: "",
-      addressLine1: "",
-      addressLine2: "",
-      locality: "",
-      region: "",
-      country: "",
-      countryId: null,
-      postcode: "",
-    });
-    setFullAddress("");
-    setQuery("");
-    setSelectedCountries([]);
+    if (props.modelRequestData.model === "Registered Office Address") {
+      setAddress({
+        addressId:
+          props.companyAddress?.addressId === null
+            ? null
+            : props.companyAddress?.addressId,
+        premises: "",
+        addressLine1: "",
+        addressLine2: "",
+        locality: "",
+        region: "",
+        country: "",
+        countryId: null,
+        postcode: "",
+      });
+      setFullAddress("");
+      setQuery("");
+      setSelectedCountries([]);
+    } else {
+      setAddress({
+        addressId:
+          props.address?.addressId === null ? null : props.address?.addressId,
+        premises: "",
+        addressLine1: "",
+        addressLine2: "",
+        locality: "",
+        region: "",
+        country: "",
+        countryId: null,
+        postcode: "",
+      });
+      setFullAddress("");
+      setQuery("");
+      setSelectedCountries([]);
+    }
   };
 
   const concatenateFullAddress = (address) => {
@@ -138,7 +217,7 @@ function AddressModalComponent(props) {
       address?.addressLine1?.replace(",", " ")
     )}${addPart(address?.addressLine2)}${addPart(address?.locality)}${addPart(
       address?.region
-      )}${addPart(address?.country || address?.countryName)}${address?.postcode || ""
+    )}${addPart(address?.country || address?.countryName)}${address?.postcode || ""
       }`;
 
     // Remove trailing comma, if present
@@ -187,20 +266,38 @@ function AddressModalComponent(props) {
   };
 
   const handleSetAddress = () => {
-    if (
-      address.postcode === null ||
-      address.postcode === "" ||
-      address.postcode === undefined
-    ) {
-      setRequireErrorMessage(true);
-      return false;
+    if (props.modelRequestData?.model === "Registered Office Address") {
+      if (
+        address.postcode === null ||
+        address.postcode === "" ||
+        address.postcode === undefined
+      ) {
+        setRequireErrorMessage(true);
+        return false;
+      }
+      setQuery("");
+      props.setCompanyAddress(address);
+      // props.setCompanyAddress({ ...props.companyAddress, address });
+      const fullAddress = concatenateFullAddress(address);
+      props.setFullAddress(fullAddress.trim());
+      props.setAddressUpdatedDatetime(Date.now());
+      props.setOpenAddressPopUp(false);
+    } else {
+      if (
+        address.postcode === null ||
+        address.postcode === "" ||
+        address.postcode === undefined
+      ) {
+        setRequireErrorMessage(true);
+        return false;
+      }
+      setQuery("");
+      props.setAddress({ ...props.address, address });
+      const fullAddress = concatenateFullAddress(address);
+      props.setFullAddress(fullAddress.trim());
+      props.setAddressUpdatedDatetime(Date.now());
+      props.setOpenAddressPopUp(false);
     }
-    setQuery("");
-    props.setAddress({ ...props.address, address });
-    const fullAddress = concatenateFullAddress(address);
-    props.setFullAddress(fullAddress.trim());
-    props.setAddressUpdatedDatetime(Date.now());
-    props.setOpenAddressPopUp(false);
   };
 
   const handlePlaceSelect = (placeId) => {
@@ -271,23 +368,50 @@ function AddressModalComponent(props) {
           countryId: selectedCountry?.countryId,
         };
 
-        setAddress({
-          addressId:
-            props.address?.addressId === null ? null : props.address?.addressId,
-          premises: updatedAddress.premises,
-          addressLine1:
-            updatedAddress.premises != undefined &&
-              updatedAddress.premises != null &&
-              updatedAddress.premises != ""
-              ? `${updatedAddress.premises},${updatedAddress.addressLine1}`
-              : updatedAddress.addressLine1,
-          addressLine2: updatedAddress.addressLine2,
-          locality: updatedAddress.locality,
-          region: updatedAddress.region,
-          country: updatedAddress.country,
-          countryId: updatedAddress.countryId,
-          postcode: updatedAddress.postcode,
-        });
+        if (props.modelRequestData.model === "Trading Address") {
+          setAddress({
+            addressId:
+              props.address?.addressId === null
+                ? null
+                : props.address?.addressId,
+            premises: updatedAddress.premises,
+            addressLine1:
+              updatedAddress.premises != undefined &&
+                updatedAddress.premises != null &&
+                updatedAddress.premises != ""
+                ? `${updatedAddress.premises},${updatedAddress.addressLine1}`
+                : updatedAddress.addressLine1,
+            addressLine2: updatedAddress.addressLine2,
+            locality: updatedAddress.locality,
+            region: updatedAddress.region,
+            country: updatedAddress.country,
+            countryId: updatedAddress.countryId,
+            postcode: updatedAddress.postcode,
+          });
+        } else if (
+          props.modelRequestData.model === "Registered Office Address"
+        ) {
+          setAddress({
+            addressId:
+              props.companyAddress?.addressId === null
+                ? null
+                : props.companyAddress?.addressId,
+            premises: updatedAddress.premises,
+            addressLine1:
+              updatedAddress.premises != undefined &&
+                updatedAddress.premises != null &&
+                updatedAddress.premises != ""
+                ? `${updatedAddress.premises},${updatedAddress.addressLine1}`
+                : updatedAddress.addressLine1,
+            addressLine2: updatedAddress.addressLine2,
+            locality: updatedAddress.locality,
+            region: updatedAddress.region,
+            country: updatedAddress.country,
+            countryId: updatedAddress.countryId,
+            postcode: updatedAddress.postcode,
+          });
+        }
+
         // setAddress(updatedAddress)
         const fullAddress = concatenateFullAddress(updatedAddress);
         setFullAddress(fullAddress.trim());

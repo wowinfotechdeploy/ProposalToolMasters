@@ -115,10 +115,9 @@ function ResetPasswordModal(props) {
       }
     }
 
-    const pass =
-      /^(?=.*\d)(?=.*[-@$!%*#?&])[A-Za-z\d!@#$%^&*?()_+\-]{8,}$/.test(
-        CreateNewPassword.Password
-      );
+    const pass = /^(?=.*\d)(?=.*[-@$!%*#?&])[A-Za-z\d\-@$!%*#?&]{8,}$/.test(
+      CreateNewPassword.Password
+    );
     if (!pass) {
       hasError = true;
     } else {
@@ -161,8 +160,6 @@ function ResetPasswordModal(props) {
     setErrorMessage("");
     setInitialData();
     setRequireErrorMessage(false);
-
-
   };
   const handleCloseOnSuccess = () => {
     $("#" + props.id).modal("hide");
@@ -177,7 +174,6 @@ function ResetPasswordModal(props) {
       })
     );
   };
-
 
   // Blank All field and there if any validation error occurs.
   const setInitialData = () => {
@@ -221,9 +217,7 @@ function ResetPasswordModal(props) {
     const isFieldEmpty = password.trim() === "";
     const patternError = isFieldEmpty
       ? ""
-      : /^(?=.*\d)(?=.*[-@$!%*#?&])[A-Za-z\d!@#$%^&*?()_+\-]{8,}$/.test(
-        password
-      )
+      : /^(?=.*\d)(?=.*[-@$!%*#?&])[A-Za-z\d\-@$!%*#?&]{8,}$/.test(password)
         ? ""
         : "Password should be minimum 8 characters long. It must contain at least 1 letter, at least 1 number and at least one special character, and only from the following set (others not allowed): - @ $ ! % * # ? &";
 
@@ -436,9 +430,8 @@ function ResetPasswordModal(props) {
                 {errorMessage}
               </label>
             </div>
-            <span
-              style={{ fontSize: "12px" }}
-            >{`Note:Password should be minimum 8 characters long. It must contain at least 1 letter, at least 1 number and at least one special character, and only from the following set (others not allowed): - @ $ ! % * # ? &`}
+            <span style={{ fontSize: "12px" }}>
+              {`Note:Password should be minimum 8 characters long. It must contain at least 1 letter, at least 1 number and at least one special character, and only from the following set (others not allowed): - @ $ ! % * # ? &`}
             </span>
           </div>
 

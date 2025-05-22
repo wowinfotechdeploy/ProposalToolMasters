@@ -40,11 +40,20 @@ import BackButtonSvg from "../../components/BackButtonSvg";
 import InvalidFormIcon from "../../components/InvalidFormIcon";
 import ErrorModel from "../../components/ErrorModel";
 import { Tooltip } from "@mui/material";
+import dayjs from "dayjs";
 // Basic Information component
 const Basic_information = (props) => {
   const [openAddressPopUp, setOpenAddressPopUp] = useState(false);
+  const [modelRequestData, setModelRequestData] = useState({
+    model: null,
+  });
+  console.log("manual company form", props.companyForm.incorporationDate);
 
   const prospectDivContainerRef = useRef(null);
+  const today = new Date();
+  const minDate = new Date(1970, 0, 1);
+  // Set the maximum date to today
+  const maxDate = today;
 
   const handleAddressPopUpClose = () => {
     setOpenAddressPopUp(false);
@@ -95,6 +104,47 @@ const Basic_information = (props) => {
         : "",
     };
     props.setAddress(tradingAddress);
+    setModelRequestData(() => ({
+      ...modelRequestData,
+      model: "Trading Address",
+    }));
+    setOpenAddressPopUp(true);
+  };
+  const handleOpenRegisterAddressPopupCompany = (e) => {
+    let companyAddress = {
+      addressId: props.companyForm.companyAddress?.addressId
+        ? props.companyForm.companyAddress.addressId
+        : null,
+      premises: props.companyForm.companyAddress?.premises
+        ? props.companyForm.companyAddress.premises
+        : "",
+      addressLine1: props.companyForm.companyAddress?.addressLine1
+        ? props.companyForm.companyAddress.addressLine1
+        : "",
+      addressLine2: props.companyForm.companyAddress?.addressLine2
+        ? props.companyForm.companyAddress.addressLine2
+        : "",
+      locality: props.companyForm.companyAddress?.locality
+        ? props.companyForm.companyAddress.locality
+        : "",
+      region: props.companyForm.companyAddress?.region
+        ? props.companyForm.companyAddress.region
+        : "",
+      country: props.companyForm.companyAddress?.country
+        ? props.companyForm.companyAddress.country
+        : "",
+      countryId: props.companyForm.companyAddress?.countryId
+        ? props.companyForm.companyAddress.countryId
+        : null,
+      postcode: props.companyForm.companyAddress?.postcode
+        ? props.companyForm.companyAddress.postcode
+        : "",
+    };
+    props.setCompanyAddress(companyAddress);
+    setModelRequestData(() => ({
+      ...modelRequestData,
+      model: "Registered Office Address",
+    }));
     setOpenAddressPopUp(true);
   };
 
@@ -232,6 +282,40 @@ const Basic_information = (props) => {
     const urlRegex =
       /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/gi;
     return urlRegex.test(web);
+  };
+
+  function isValidDate(dateString) {
+    const parts = dateString.split("/");
+    if (parts.length !== 3) return false;
+
+    const [day, month, year] = parts.map(Number);
+    if (
+      isNaN(day) ||
+      isNaN(month) ||
+      isNaN(year) ||
+      day < 1 ||
+      day > 31 ||
+      month < 1 ||
+      month > 12 ||
+      year < 1970 ||
+      year > new Date().getFullYear()
+    ) {
+      return false;
+    }
+
+    const date = new Date(year, month - 1, day);
+    return (
+      date.getFullYear() === year &&
+      date.getMonth() === month - 1 &&
+      date.getDate() === day
+    );
+  }
+
+  const handleDateChange = (date) => {
+    props.setCompanyForm((prev) => ({
+      ...prev,
+      incorporationDate: date, // store as a Date object
+    }));
   };
 
   // const prospectDivContainerRef = useRef(null);
@@ -842,7 +926,7 @@ const Basic_information = (props) => {
                       </label>
                       {/* <span class="text-danger">*</span> */}
                     </div>
-                    <div className="col-lg-9 col-md-8 col-sm-12">
+                    <div className="col-lg-7 col-md-8 col-sm-12">
                       <div className="">
                         <div className="input-group">
                           <input
@@ -875,6 +959,21 @@ const Basic_information = (props) => {
                         )}
                       </div>
                     </div>
+                    <div className="col-lg-2 col-md-2 col-sm-3">
+                      {(props.basicInfo.originalBusinessTypeID ===
+                        CLIENT_TYPES.LLP ||
+                        props.basicInfo.originalBusinessTypeID ===
+                        CLIENT_TYPES.Company) && (
+                          <button
+                            class="btn btn-sm btn-primary create-item-btn"
+                            onClick={() =>
+                              props.setEnterManually(!props.enterManually)
+                            }
+                          >
+                            <span>Enter manually</span>
+                          </button>
+                        )}
+                    </div>
                   </div>
                   <div className="row fieldset" id="CompanyName">
                     <div class="col-md-3 col-sm-12 text-start text-md-end">
@@ -883,7 +982,8 @@ const Basic_information = (props) => {
                     </div>
                     <div className="col-lg-9 col-md-8 col-sm-12">
                       <input
-                        disabled
+                        disabled={!props.enterManually}
+                        maxLength={100}
                         class="input-text"
                         id="category-description"
                         placeholder="Company Name"
@@ -911,17 +1011,28 @@ const Basic_information = (props) => {
                     </div>
                     <div className="col-lg-9 col-md-8 col-sm-12">
                       <input
-                        disabled
+                        disabled={!props.enterManually}
+                        maxLength={50}
                         class="input-text"
                         id="category-description"
                         placeholder="Entity Type"
                         value={props.companyForm.companyType}
-                        onChange={(e) =>
+                        onChange={(e) => {
+                          let inputVal = e.target.value;
+
+                          // Trim leading spaces
+                          if (inputVal.startsWith(" ")) {
+                            inputVal = inputVal.trimStart();
+                          }
+
+                          // Prevent digits
+                          inputVal = inputVal.replace(/[0-9]/g, "");
+
                           props.setCompanyForm({
                             ...props.companyForm,
-                            companyType: e.target.value,
-                          })
-                        }
+                            companyType: inputVal,
+                          });
+                        }}
                       />
                       {props.requireErrorMessage &&
                         (props.companyForm.companyType === "" ||
@@ -941,17 +1052,28 @@ const Basic_information = (props) => {
                     </div>
                     <div className="col-lg-9 col-md-8 col-sm-12">
                       <input
-                        disabled
+                        disabled={!props.enterManually}
+                        maxLength={12}
                         class="input-text"
                         id="category-description"
                         placeholder="Company Number"
                         value={props.companyForm.companyNumber}
-                        onChange={(e) =>
+                        onChange={(e) => {
+                          let inputVal = e.target.value;
+
+                          // Prevent first character as space
+                          if (inputVal.startsWith(" ")) {
+                            inputVal = inputVal.trimStart();
+                          }
+
+                          // Allow digits only (remove any non-digit characters)
+                          inputVal = inputVal.replace(/\D/g, "");
+
                           props.setCompanyForm({
                             ...props.companyForm,
-                            companyNumber: e.target.value,
-                          })
-                        }
+                            companyNumber: inputVal,
+                          });
+                        }}
                       />
                       {props.requireErrorMessage &&
                         (props.companyForm.companyNumber === "" ||
@@ -972,17 +1094,28 @@ const Basic_information = (props) => {
                       <div className="">
                         <div className="input-group">
                           <input
-                            disabled
+                            disabled={!props.enterManually}
                             class="input-text"
                             id="category-description"
                             placeholder="Registered Office Address"
                             value={props.concatenatedRegisterAddress}
-                            onChange={(e) =>
-                              props.setCompanyForm({
-                                ...props.companyForm,
-                                companyAddress: e.target.value,
-                              })
-                            }
+                            onMouseDown={(e) => {
+                              e.preventDefault();
+                              props.setAddressPopUpTitle(
+                                "Registered Office Address"
+                              );
+                              handleOpenRegisterAddressPopupCompany(e);
+                            }}
+                          // onChange={(e) => {
+                          //   let inputVal = e.target.value;
+                          //   if (inputVal.startsWith(" ")) {
+                          //     inputVal = inputVal.trimStart();
+                          //   }
+                          //   props.setCompanyForm({
+                          //     ...props.companyForm,
+                          //     companyAddress: inputVal,
+                          //   });
+                          // }}
                           />
                         </div>
                       </div>
@@ -995,36 +1128,73 @@ const Basic_information = (props) => {
                       </label>
                       <span class="text-danger">*</span>
                     </div>
-                    <div className="col-lg-9 col-md-8 col-sm-12">
-                      <div className="">
-                        <div className="input-group">
-                          <input
-                            disabled
-                            class="input-text"
-                            id="category-description"
-                            placeholder="Incorporation Date"
-                            value={
-                              props.companyForm.incorporationDate
-                                ? formatDate(props.companyForm.incorporationDate)
-                                : ""
-                            }
-                            onChange={(e) =>
-                              props.setCompanyForm({
-                                ...props.companyForm,
-                                incorporationDate: e.target.value,
-                              })
-                            }
-                          />
-                        </div>
-                        {props.requireErrorMessage &&
-                          (props.companyForm.incorporationDate === "" ||
-                            props.companyForm.incorporationDate === null) ? (
-                          <span className="validation">{ERROR_MESSAGES}</span>
-                        ) : (
-                          ""
-                        )}
-                      </div>
+
+                    <div class="col-lg-9 col-md-8 col-sm-12 ">
+                      <DatePicker
+                        minDate={minDate}
+                        maxDate={maxDate}
+                        disabled={!props.enterManually}
+                        style={{
+                          width: "100%",
+                          opacity: !props.enterManually ? 0.6 : 1,
+                          pointerEvents: !props.enterManually ? "none" : "auto",
+                          cursor: !props.enterManually ? "not-allowed" : "auto",
+                        }}
+                        format="dd/MM/yyyy"
+                        dayPlaceholder="dd"
+                        monthPlaceholder="mm"
+                        yearPlaceholder="yyyy"
+                        value={
+                          props.companyForm.incorporationDate
+                            ? new Date(props.companyForm.incorporationDate)
+                            : null
+                        }
+                        onChange={handleDateChange}
+                      />
+
+                      {/* {props.InvalidAppointedOnDate &&
+                    !isValidDate(props.officersForm[index]?.appointedOn) ? (
+                      <span className="validation">Invalid Date</span>
+                    ) : null} */}
+                      {props.requireErrorMessage &&
+                        (props.companyForm.incorporationDate === "" ||
+                          props.companyForm.incorporationDate === null) ? (
+                        <span className="validation">{ERROR_MESSAGES}</span>
+                      ) : (
+                        ""
+                      )}
                     </div>
+
+                    {/* <div className="col-lg-9 col-md-8 col-sm-12">
+                    <div className="">
+                      <div className="input-group">
+                        <input
+                          disabled={!props.enterManually}
+                          class="input-text"
+                          id="category-description"
+                          placeholder="Incorporation Date"
+                          value={
+                            props.companyForm.incorporationDate
+                              ? formatDate(props.companyForm.incorporationDate)
+                              : ""
+                          }
+                          onChange={(e) =>
+                            props.setCompanyForm({
+                              ...props.companyForm,
+                              incorporationDate: e.target.value,
+                            })
+                          }
+                        />
+                      </div>
+                      {props.requireErrorMessage &&
+                      (props.companyForm.incorporationDate === "" ||
+                        props.companyForm.incorporationDate === null) ? (
+                        <span className="validation">{ERROR_MESSAGES}</span>
+                      ) : (
+                        ""
+                      )}
+                    </div>
+                  </div> */}
                   </div>
                   <div className="row fieldset" id="InCorporateIDDiv">
                     <div class="col-md-3 col-sm-12 text-start text-md-end">
@@ -1279,6 +1449,10 @@ const Basic_information = (props) => {
             openAddressPopUp={openAddressPopUp}
             address={props.address}
             setAddress={props.setAddress}
+            setCompanyAddress={props.setCompanyAddress}
+            companyAddress={props.companyAddress}
+            // setModelRequestData={setModelRequestData}
+            modelRequestData={modelRequestData}
             handleAddressPopUpClose={handleAddressPopUpClose}
             setOpenAddressPopUp={setOpenAddressPopUp}
           />
@@ -1320,6 +1494,7 @@ const Basic_information = (props) => {
                 </span>
               </button>
             )}
+
           {props.basicInfo.originalBusinessTypeID !==
             CLIENT_TYPES.Individual && (
               <button
@@ -1345,6 +1520,9 @@ const OfficerDetails = (props) => {
   const handleAddressPopUpClose = () => {
     setOpenAddressPopUp(false);
   };
+  const [modelRequestData, setModelRequestData] = useState({
+    model: null,
+  });
 
   const handleSwitchToggle = (e, index) => {
     const currentOfficer = props.officersForm[index];
@@ -2392,6 +2570,7 @@ const OfficerDetails = (props) => {
               fullAddress={props.fullAddress}
               setFullAddress={props.setFullAddress}
               openAddressPopUp={openAddressPopUp}
+              modelRequestData={modelRequestData}
               address={props.address}
               setAddress={props.setAddress}
               handleAddressPopUpClose={handleAddressPopUpClose}
@@ -2481,6 +2660,7 @@ const Add_Update_prospect = () => {
   const [isValidForm, setIsValidForm] = useState(false);
   const [AuthorityCount, setAuthorityCount] = useState(0);
   const [companies, setCompanies] = useState([]);
+  const [enterManually, setEnterManually] = useState(null);
   const [countryLookupList, setCountryLookupList] = useState([]);
   const [incorporatedInList, setIncorporatedInList] = useState([]);
   const [countryCodes, setcountryCodes] = useState([]);
@@ -2519,6 +2699,16 @@ const Add_Update_prospect = () => {
     hasActionAccess,
   } = useContext(AuthContextProvider);
   const [address, setAddress] = useState({
+    premises: null,
+    addressLine1: null,
+    addressLine2: null,
+    locality: null,
+    region: null,
+    country: null,
+    countryId: null,
+    postcode: null,
+  });
+  const [companyAddress, setCompanyAddress] = useState({
     premises: null,
     addressLine1: null,
     addressLine2: null,
@@ -2642,12 +2832,31 @@ const Add_Update_prospect = () => {
       postcode: address?.address?.postcode,
       countryName: address?.address?.country,
     };
+    let companyAddressObj = {
+      addressId: companyAddress?.addressId,
+      premises: companyAddress?.premises,
+      addressLine1: companyAddress?.addressLine1,
+      addressLine2: companyAddress?.addressLine2,
+      locality: companyAddress?.locality,
+      region: companyAddress?.region,
+      countryId:
+        companyAddress?.countryId === "" ? null : companyAddress?.countryId,
+      postcode: companyAddress?.postcode,
+      countryName: companyAddress?.country,
+    };
     if (addressPopUpTitle === "Trading Address") {
       setBasicInfo({
         ...basicInfo,
         tradingAddress: tradingAddressObj,
       });
       setConcatenatedTradingAddress(fullAddress);
+    }
+    if (addressPopUpTitle === "Registered Office Address") {
+      setCompanyForm({
+        ...companyForm,
+        companyAddress: companyAddressObj,
+      });
+      setConcatenatedRegisterAddress(fullAddress);
     }
     if (
       addressPopUpTitle === "Residential Address" ||
@@ -2671,7 +2880,7 @@ const Add_Update_prospect = () => {
 
   const addOfficer = async () => {
     setOfficersError(false);
-    setOfficerCount(officerCount + 1)
+    setOfficerCount(officerCount + 1);
     concatenatedResidentialAddress.push({
       officersFullAddress: "",
     });
@@ -3114,12 +3323,16 @@ const Add_Update_prospect = () => {
           regOfficeAddress: fullAddress,
         });
         setConcatenatedTradingAddress(fullAddress);
+        const incorporatedDate = CompanyDetails.date_of_creation
+          ? new Date(CompanyDetails.date_of_creation)
+          : null;
+
         setCompanyForm({
           ...companyForm,
           companyName: CompanyDetails.company_name,
           companyNumber: CompanyDetails.company_number,
           companyType: CompanyDetails.type,
-          incorporationDate: CompanyDetails.date_of_creation,
+          incorporationDate: incorporatedDate, // Store as Date object
           companyAddress: company_Address,
         });
       }
@@ -3146,7 +3359,7 @@ const Add_Update_prospect = () => {
         const CompanyOfficer = data?.data?.responseData;
         const CompOfficers = [];
         let CorrespondenceOrResidentialAddress = [];
-        let officerCount = 0
+        let officerCount = 0;
         if (CompanyOfficer?.length === 0) {
           CompOfficers.push({
             officerID: null,
@@ -3175,7 +3388,7 @@ const Add_Update_prospect = () => {
             let officerName = officer?.name?.split(",");
             let officerFirstName = officerName[1]?.trim()?.split(" ")[0];
             let officerLastName = officerName[0]?.trim()?.split(" ")[0];
-            officerCount = officerCount + 1
+            officerCount = officerCount + 1;
             if (officerFirstName && officerFirstName?.length > 30) {
               officerFirstName = officerFirstName?.substring(0, 29);
             }
@@ -3221,7 +3434,8 @@ const Add_Update_prospect = () => {
               moduleID: 0,
               officersAddress: officerAddress,
             });
-            let fullAddressConcatenation = concatenateFullAddress(officerAddress);
+            let fullAddressConcatenation =
+              concatenateFullAddress(officerAddress);
             let CorrespondenceOrResidentialAddressObj = {
               officersFullAddress: fullAddressConcatenation,
             };
@@ -3822,10 +4036,10 @@ const Add_Update_prospect = () => {
                     }
                     id="Prospect_BasicInformation_Tab"
                     className={`${activeTab === CREATE_PRACTICE_DETAILS.BasicInformation
-                      ? "step tab-field-center"
-                      : isValidForm === true
                         ? "step tab-field-center"
-                        : "step disabled cursor-not-allowed tab-field-center"
+                        : isValidForm === true
+                          ? "step tab-field-center"
+                          : "step disabled cursor-not-allowed tab-field-center"
                       } w-90`}
                   >
                     <span className="stepCount">1</span>
@@ -3848,10 +4062,10 @@ const Add_Update_prospect = () => {
                         }
                         id="Prospect_OfficerDetails_Tab"
                         class={`${activeTab === CREATE_PRACTICE_DETAILS.OfficerDetails
-                          ? "step tab-field-center"
-                          : isValidForm === true
                             ? "step tab-field-center"
-                            : "step disabled cursor-not-allowed tab-field-center"
+                            : isValidForm === true
+                              ? "step tab-field-center"
+                              : "step disabled cursor-not-allowed tab-field-center"
                           } w-90`}
                       >
                         <span className="stepCount">2</span>
@@ -3877,6 +4091,8 @@ const Add_Update_prospect = () => {
                 concatenatedTradingAddress={concatenatedTradingAddress}
                 officersForm={officersForm}
                 setSearchCompany={setSearchCompany}
+                setEnterManually={setEnterManually}
+                enterManually={enterManually}
                 SearchCompany={SearchCompany}
                 InvalidAppointedOnDate={InvalidAppointedOnDate}
                 setOfficers={setOfficers}
@@ -3907,6 +4123,8 @@ const Add_Update_prospect = () => {
                 signature={signature}
                 setSignature={setSignature}
                 setAddress={setAddress}
+                setCompanyAddress={setCompanyAddress}
+                companyAddress={companyAddress}
                 setBasicInfo={setBasicInfo}
                 requireErrorMessage={requireErrorMessage}
                 companies={companies}
@@ -3926,6 +4144,7 @@ const Add_Update_prospect = () => {
                 errorMessage={errorMessage}
                 getCrudButtonTextName={getCrudButtonTextName}
                 handleBackBtnChange={handleBackBtnChange}
+                concatenateFullAddress={concatenateFullAddress}
               />
             )}
             {activeTab === CREATE_PRACTICE_DETAILS.OfficerDetails && (
@@ -3959,6 +4178,8 @@ const Add_Update_prospect = () => {
                 setFullAddress={setFullAddress}
                 address={address}
                 setAddress={setAddress}
+                setCompanyAddress={setCompanyAddress}
+                companyAddress={companyAddress}
                 deleteOfficer={deleteOfficer}
                 countryCodes={countryCodes}
                 formErrors={formErrors}

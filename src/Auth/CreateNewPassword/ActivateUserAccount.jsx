@@ -9,7 +9,8 @@ import { VerifyLoginCredential } from "../../redux/Services/Auth/loginApi";
 import { useDispatch } from "react-redux";
 import { USER_ROLE_TYPE } from "../../Middleware/enums";
 import {
-  ValidateUserToken, ActivateUserAccount,
+  ValidateUserToken,
+  ActivateUserAccount,
 } from "../../redux/Services/Auth/PasswordApi";
 import { AuthContextProvider } from "../../AuthContext/AuthContext";
 import { OutBooksTitle } from "../../components/GlobalMessage";
@@ -20,8 +21,7 @@ import { GetUserPersonalizeSetting } from "../../redux/Services/Personalize/Pers
 const CreateNewPassword = () => {
   // Declare State
   let getUserPersonalizeSettingApiCallCount = 0;
-  const { setTopbar, maxCountToRecallApi } =
-    useContext(AuthContextProvider);
+  const { setTopbar, maxCountToRecallApi } = useContext(AuthContextProvider);
   const [errorMessage, setErrorMessage] = useState();
   const [verifyToken, setVerifyToken] = useState("");
   const { setLoader } = useContext(AuthContextProvider);
@@ -53,7 +53,7 @@ const CreateNewPassword = () => {
     organisationID: null,
     organisationKeyID: null,
     isPasswordSet: null,
-    loginSessionTime: null
+    loginSessionTime: null,
   });
 
   const [createNewPassword, setCreateNewPassword] = useState({
@@ -205,9 +205,12 @@ const CreateNewPassword = () => {
       hasError = false;
       setRequireErrorMessage(""); // Clear the error message if there are no errors.
     }
-    const pass = /^(?=.*\d)(?=.*[-@$!%*#?&])[A-Za-z\d!@#$%^&*?()_+-]{8,}$/.test(
+    const pass = /^(?=.*\d)(?=.*[-@$!%*#?&])[A-Za-z\d\-@$!%*#?&]{8,}$/.test(
       createNewPassword.Password
     );
+    // const pass = /^(?=.*\d)(?=.*[-@$!%*#?&])[A-Za-z\d!@#$%^&*?()_+-]{8,}$/.test(
+    //   createNewPassword.Password
+    // );
     if (!pass) {
       hasError = true;
     } else {
@@ -281,8 +284,8 @@ const CreateNewPassword = () => {
           {
             activateUserAccountResponse?.response?.data.message
               ? setErrorMessage(
-                activateUserAccountResponse?.response?.data.message
-              )
+                  activateUserAccountResponse?.response?.data.message
+                )
               : setErrorMessage("Something went wrong");
           }
         }
@@ -291,7 +294,7 @@ const CreateNewPassword = () => {
       console.log(error);
     }
   };
-  //handle Function Change Password 
+  //handle Function Change Password
   const handlePasswordChange = (e) => {
     const inputValue = e.target.value;
     const passwordWithoutSpaces = inputValue.replace(/\s+/g, ""); // Remove all spaces
@@ -302,7 +305,7 @@ const CreateNewPassword = () => {
     });
     validatePassword(passwordWithoutSpaces);
   };
-  //handle Function Change Password 
+  //handle Function Change Password
   const handleConfirmPasswordChange = (e) => {
     const inputValue = e.target.value;
     const passwordWithoutSpaces = inputValue.replace(/\s+/g, ""); // Remove all spaces
@@ -318,9 +321,9 @@ const CreateNewPassword = () => {
     const isFieldEmpty = password.trim() === "";
     const patternError = isFieldEmpty
       ? ""
-      : /^(?=.*\d)(?=.*[-@$!%*#?&])[A-Za-z\d!@#$%^&*?()_+-]{8,}$/.test(password)
-        ? ""
-        : "Password should be minimum 8 characters long. It must contain at least 1 letter, at least 1 number and at least one special character, and only from the following set (others not allowed): - @ $ ! % * # ? &";
+      : /^(?=.*\d)(?=.*[-@$!%*#?&])[A-Za-z\d\-@$!%*#?&]{8,}$/.test(password)
+      ? ""
+      : "Password should be minimum 8 characters long. It must contain at least 1 letter, at least 1 number and at least one special character, and only from the following set (others not allowed): - @ $ ! % * # ? &";
 
     setValidationErrors({
       ...validationErrors,
@@ -357,7 +360,7 @@ const CreateNewPassword = () => {
     // dispatch(resetState());
     navigate("/login");
   };
-  // close modal and set value local 
+  // close modal and set value local
   const handleCloseModal = () => {
     dispatch(
       updateState({
@@ -416,7 +419,12 @@ const CreateNewPassword = () => {
                 {verifyToken === "Expired" && (
                   <div className="expired">
                     <svg
-                      style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}
+                      style={{
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        height: "100%",
+                      }}
                       version="1.1"
                       id="Layer_1"
                       x="0px"
@@ -520,8 +528,14 @@ const CreateNewPassword = () => {
                     </div>
                     <CardBody className="p-4">
                       <div className="p-2">
-                        <div className=" text-center mt-3" style={{ justifyContent: 'center' }}>
-                          Password should be minimum 8 characters long. It must contain at least 1 letter, at least 1 number and at least one special character, and only from the following set (others not allowed): - @ $ ! % * # ? &
+                        <div
+                          className=" text-center mt-3"
+                          style={{ justifyContent: "center" }}
+                        >
+                          Password should be minimum 8 characters long. It must
+                          contain at least 1 letter, at least 1 number and at
+                          least one special character, and only from the
+                          following set (others not allowed): - @ $ ! % * # ? &
                         </div>
                         {verifyToken !== "Expired" && (
                           <div className="mt-3 " style={{ fontSize: "12px" }}>
@@ -566,17 +580,25 @@ const CreateNewPassword = () => {
                             <br />
                             <label
                               className={
-                                /[-@$!%*#?&]/.test(createNewPassword?.Password) &&
-                                  !/[^A-Za-z0-9\-@$!%*#?&]/.test(createNewPassword?.Password)
+                                /[-@$!%*#?&]/.test(
+                                  createNewPassword?.Password
+                                ) &&
+                                !/[^A-Za-z0-9\-@$!%*#?&]/.test(
+                                  createNewPassword?.Password
+                                )
                                   ? "text-success"
                                   : "validation"
                               }
                             >
-                              Include at least one special character, and only from the following set (others not allowed): - @ $ ! % * # ? &{" "}
-                              {/[-@$!%*#?&]/.test(createNewPassword?.Password) &&
-                                !/[^A-Za-z0-9\-@$!%*#?&]/.test(createNewPassword?.Password) && (
-                                  <span>&#10004;</span>
-                                )}
+                              Include at least one special character, and only
+                              from the following set (others not allowed): - @ $
+                              ! % * # ? &{" "}
+                              {/[-@$!%*#?&]/.test(
+                                createNewPassword?.Password
+                              ) &&
+                                !/[^A-Za-z0-9\-@$!%*#?&]/.test(
+                                  createNewPassword?.Password
+                                ) && <span>&#10004;</span>}
                             </label>
 
                             <br />
@@ -620,8 +642,8 @@ const CreateNewPassword = () => {
                             </label>
                           )}
                           {requireErrorMessage &&
-                            (createNewPassword.Password === undefined ||
-                              createNewPassword.Password === "") ? (
+                          (createNewPassword.Password === undefined ||
+                            createNewPassword.Password === "") ? (
                             <label className="validation">
                               This field is required.
                             </label>
@@ -665,14 +687,14 @@ const CreateNewPassword = () => {
                           {createNewPassword.Password &&
                             createNewPassword.ConfirmPassword &&
                             createNewPassword.Password !==
-                            createNewPassword.ConfirmPassword && (
+                              createNewPassword.ConfirmPassword && (
                               <label className="validation">
                                 Passwords do not match.
                               </label>
                             )}
                           {requireErrorMessage &&
-                            (createNewPassword.ConfirmPassword === undefined ||
-                              createNewPassword.ConfirmPassword === "") ? (
+                          (createNewPassword.ConfirmPassword === undefined ||
+                            createNewPassword.ConfirmPassword === "") ? (
                             <label className="validation">
                               This field is required.
                             </label>

@@ -86,7 +86,7 @@ const Dashboard = () => {
 
     setDashboardCountListLoader,
     setDashboardActivityLogLoader,
-    loader
+    loader,
   } = useContext(AuthContextProvider);
   let getActivityLogListApiCallCount = 0;
   let getOrganisationLookupListApiCallCount = 0;
@@ -300,41 +300,40 @@ const Dashboard = () => {
   const handleExport = async () => {
     try {
       let BusinessTypeListData = [];
-          const ProspectData = await GetProspectTypeVariationLookupList(
-            common.organisationKeyID,
-            common.userKeyID
+      const ProspectData = await GetProspectTypeVariationLookupList(
+        common.organisationKeyID,
+        common.userKeyID
+      );
+      if (ProspectData?.data?.statusCode === 200) {
+        if (ProspectData?.data?.responseData?.data) {
+          BusinessTypeListData = ProspectData.data.responseData.data.map(
+            (BusinessType) => ({
+              value: BusinessType.businessTypeID,
+              label: BusinessType.businessTypeName,
+            })
           );
-          if (ProspectData?.data?.statusCode === 200) {
-            if (ProspectData?.data?.responseData?.data) {
-              BusinessTypeListData = ProspectData.data.responseData.data.map(
-                (BusinessType) => ({
-                  value: BusinessType.businessTypeID,
-                  label: BusinessType.businessTypeName,
-                })
-              );
-            }
-          }
-          let NoBTypeListData = [];
-          const NOBType = await GetNOBTypeLookupList(
-            common.organisationKeyID,
-            common.userKeyID
-          );
-          if (NOBType?.data?.statusCode === 200) {
-            console.log(NOBType?.data?.responseData?.data);
-            if (NOBType?.data?.responseData?.data) {
-              NoBTypeListData = NOBType.data.responseData.data.map((NOB) => ({
-                value: NOB.businessNatureID,
-                label: NOB.businessNatureName,
-              }));
-            }
-          }     
+        }
+      }
+      let NoBTypeListData = [];
+      const NOBType = await GetNOBTypeLookupList(
+        common.organisationKeyID,
+        common.userKeyID
+      );
+      if (NOBType?.data?.statusCode === 200) {
+        console.log(NOBType?.data?.responseData?.data);
+        if (NOBType?.data?.responseData?.data) {
+          NoBTypeListData = NOBType.data.responseData.data.map((NOB) => ({
+            value: NOB.businessNatureID,
+            label: NOB.businessNatureName,
+          }));
+        }
+      }
       // Fetch data for export
       const data = await DashboardCountData(fromDateForExport, toDateForExport);
       if (data && data.data.statusCode === 200) {
-
         if (data?.data?.responseData) {
           const DashboardCountsListData = data?.data?.responseData;
-  
+
           // Define headers dynamically
           const selectedFilterValue = selectedOption;
 
@@ -344,15 +343,16 @@ const Dashboard = () => {
           if (OrganisationList) {
             OrganisationListData = JSON.parse(OrganisationList);
           }
-          const orgName = OrganisationListData.find(
-            (org) => org.organisationKeyID === common.organisationKeyID
-          )?.organisationName || "Unknown";
-  
+          const orgName =
+            OrganisationListData.find(
+              (org) => org.organisationKeyID === common.organisationKeyID
+            )?.organisationName || "Unknown";
+
           const headersArray = [
             ["Practice Name", orgName],
             ["Reporting Period", filterHeading],
           ];
-  
+
           // Define columns dynamically
           const defaultColumns = {
             quotationDraft: `${proposalName} Draft`,
@@ -370,27 +370,87 @@ const Dashboard = () => {
             contractDeclined: `${EngagementName} Declined`,
             contractVoid: `${EngagementName} Void`,
           };
-  
-          const columnsToShow = common.enableEL == 1 ?
-            {...defaultColumns, ...engagementColumns} : {...defaultColumns};
-  
+
+          const columnsToShow =
+            common.enableEL == 1
+              ? { ...defaultColumns, ...engagementColumns }
+              : { ...defaultColumns };
+
           // Map data to rows dynamically
           const baseRows = [];
-        for (const [key, value] of Object.entries(DashboardCountsListData)) {
-          for (const [subKey, val] of Object.entries(value)) {
-            if (subKey in columnsToShow) {  
-              baseRows.push([columnsToShow[subKey], val]);
+          for (const [key, value] of Object.entries(DashboardCountsListData)) {
+            for (const [subKey, val] of Object.entries(value)) {
+              if (subKey in columnsToShow) {
+                baseRows.push([columnsToShow[subKey], val]);
+              }
             }
           }
 
-          }
-          
           // Convert headers and rows into a 2D array
           headersArray.push([]); // Add an empty row before data
-          headersArray.push([]); 
+          headersArray.push([]);
 
           const baseRowsProposal = [];
           const proposalHeader = [
+            "Ref Id",
+            "Prospect Name",
+            "Prospect Type",
+            "Nature Of Business",
+            "Recurring Price",
+            "One Off Price",
+            "Status",
+            "Last Updated On",
+            "Sent On Date",
+          ];
+          baseRowsProposal.push(proposalHeader);
+          baseRowsProposal.push([]);
+
+          const proposalDataResponse = await GetProposalList({
+            organisationKeyID: common.organisationKeyID,
+            pageSize: 30,
+            pageNo: 0,
+            userKeyID: common.userKeyID || null,
+            fromDate: fromDateForExport === "" ? null : fromDateForExport,
+            toDate: toDateForExport === "" ? null : toDateForExport,
+          });
+
+          if (proposalDataResponse?.data?.statusCode === 200) {
+            const proposalData =
+              proposalDataResponse.data.responseData.data || [];
+            console.log(proposalData);
+            // Define status mappings
+            const statusMappings = [
+              { id: 1, label: "Draft" },
+              { id: 2, label: "Sent" },
+            ];
+
+            // Filter and process data for each status
+            statusMappings.forEach(({ id, label }) => {
+              const filteredData = proposalData.filter(
+                (item) => item.statusID === id
+              );
+              const dataRows = filteredData.map((item) => [
+                item.prefix,
+                item.clientName,
+                item.businessTypeName,
+                item.businessNatureName,
+                // new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(item.recurringPrice || 0),
+                formatValue(item.recurringPrice, 1),
+                // new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(item.oneOffPrice || 0),
+                formatValue(item.oneOffPrice, 1),
+                label,
+                item.lastUpdatedOn || "-",
+                item.sentOn || "-",
+              ]);
+              baseRowsProposal.push(...dataRows);
+            });
+          }
+
+          let baseRowsContract = [];
+          let contractHeader = [];
+          if (common.enableEL === 1) {
+            baseRowsContract = [];
+            contractHeader = [
               "Ref Id",
               "Prospect Name",
               "Prospect Type",
@@ -400,119 +460,70 @@ const Dashboard = () => {
               "Status",
               "Last Updated On",
               "Sent On Date",
+              "Viewed On Date",
+              "Signed On Date",
+              "Declined On Date",
             ];
-            baseRowsProposal.push(proposalHeader);
-            baseRowsProposal.push([]);
+            baseRowsContract.push(contractHeader);
+            baseRowsContract.push([]);
 
-          const proposalDataResponse = await GetProposalList({
-                organisationKeyID: common.organisationKeyID,
-                pageSize: 30,
-                pageNo: 0,
-                userKeyID: common.userKeyID || null,
-                fromDate: fromDateForExport === "" ? null : fromDateForExport,
-                toDate: toDateForExport === "" ? null : toDateForExport,
+            const contractDataResponse = await GetEngagementList({
+              organisationKeyID: common.organisationKeyID,
+              pageSize: 30,
+              pageNo: 0,
+              userKeyID: common.userKeyID || null,
+              fromDate: fromDateForExport === "" ? null : fromDateForExport,
+              toDate: toDateForExport === "" ? null : toDateForExport,
+            });
+            if (contractDataResponse?.data?.statusCode === 200) {
+              const contractData =
+                contractDataResponse.data.responseData.data || [];
+              console.log(contractData);
+              const statusMappings = [
+                { id: 1, label: "Draft" },
+                { id: 2, label: "Sent" },
+                { id: 4, label: "Awaiting Response" },
+                { id: 5, label: "Signed" },
+                { id: 7, label: "Declined" },
+                { id: 8, label: "Void" },
+              ];
+              statusMappings.forEach(({ id, label }) => {
+                const filteredData = contractData.filter(
+                  (item) => item.statusID === id
+                );
+                const dataRows = filteredData.map((item) => [
+                  item.prefix,
+                  item.clientName,
+                  item.businessTypeName,
+                  item.businessNatureName,
+                  formatValue(item.recurringPrice, 1),
+                  formatValue(item.oneOffPrice, 1),
+                  label,
+                  item.lastUpdatedOn || "-",
+                  item.sentOn || "-",
+                  item.viewedOn || "-",
+                  item.signedOn || "-",
+                  item.declinedOn || "-",
+                ]);
+                baseRowsContract.push(...dataRows);
               });
-
-              if (proposalDataResponse?.data?.statusCode === 200) {
-                const proposalData = proposalDataResponse.data.responseData.data || [];
-                console.log(proposalData);
-                // Define status mappings
-                const statusMappings = [
-                  { id: 1, label: "Draft" },
-                  { id: 2, label: "Sent" }
-                ];
-            
-                // Filter and process data for each status
-                statusMappings.forEach(({ id, label }) => {
-                  const filteredData = proposalData.filter(item => item.statusID === id);
-                  const dataRows = filteredData.map(item => [
-                    item.prefix,
-                    item.clientName,
-                    item.businessTypeName,
-                    item.businessNatureName,
-                    // new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(item.recurringPrice || 0),
-                    formatValue(item.recurringPrice,1),
-                    // new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(item.oneOffPrice || 0),
-                    formatValue(item.oneOffPrice,1),
-                    label,
-                    item.lastUpdatedOn || "-",
-                    item.sentOn || "-",
-                  ]);
-                  baseRowsProposal.push(...dataRows);
-                });
-              }
-
-              let baseRowsContract = [];
-              let contractHeader = [];
-              if (common.enableEL === 1) {
-                baseRowsContract = [];
-                contractHeader = [
-                  "Ref Id",
-                  "Prospect Name",
-                  "Prospect Type",
-                  "Nature Of Business",
-                  "Recurring Price",
-                  "One Off Price",
-                  "Status",
-                  "Last Updated On",
-                  "Sent On Date",
-                  "Viewed On Date",
-                  "Signed On Date",
-                  "Declined On Date",
-                ];
-                baseRowsContract.push(contractHeader);
-                baseRowsContract.push([]);
-              
-                const contractDataResponse = await GetEngagementList({
-                  organisationKeyID: common.organisationKeyID,
-                  pageSize: 30,
-                  pageNo: 0,
-                  userKeyID: common.userKeyID || null,
-                  fromDate: fromDateForExport === "" ? null : fromDateForExport,
-                  toDate: toDateForExport === "" ? null : toDateForExport,
-                });
-                if (contractDataResponse?.data?.statusCode === 200) {
-                  const contractData = contractDataResponse.data.responseData.data || [];
-                  console.log(contractData);
-                  const statusMappings = [
-                    { id: 1, label: "Draft" },
-                    { id: 2, label: "Sent" },
-                    { id: 4, label: "Awaiting Response" },
-                    { id: 5, label: "Signed" },
-                    { id: 7, label: "Declined" },
-                    { id: 8, label: "Void" },
-                  ];
-                  statusMappings.forEach(({ id, label }) => {
-                    const filteredData = contractData.filter(item => item.statusID === id);
-                    const dataRows = filteredData.map(item => [
-                      item.prefix,
-                      item.clientName,
-                      item.businessTypeName,
-                      item.businessNatureName,
-                      formatValue(item.recurringPrice, 1),
-                      formatValue(item.oneOffPrice, 1),
-                      label,
-                      item.lastUpdatedOn || "-",
-                      item.sentOn || "-",
-                      item.viewedOn || "-",
-                      item.signedOn || "-",
-                      item.declinedOn || "-",
-                    ]);
-                    baseRowsContract.push(...dataRows);
-                  });
-                }
-              }
-          // const rowsArray = rows.map((row) => [row["Column Name"], row.Value]);  
+            }
+          }
+          // const rowsArray = rows.map((row) => [row["Column Name"], row.Value]);
           const worksheetData = [...headersArray, ...baseRows];
           const worksheetProposalData = [...headersArray, ...baseRowsProposal];
-          const worksheetContractData = [...headersArray, ...baseRowsContract];          
-  
+          const worksheetContractData = [...headersArray, ...baseRowsContract];
+
           // Create Excel worksheet and adjust column widths
           const workbook = XLSX.utils.book_new();
           const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
-          const worksheetProposal = XLSX.utils.aoa_to_sheet(worksheetProposalData);
-          const worksheetContract = XLSX.utils.aoa_to_sheet(worksheetContractData);
-  
+          const worksheetProposal = XLSX.utils.aoa_to_sheet(
+            worksheetProposalData
+          );
+          const worksheetContract = XLSX.utils.aoa_to_sheet(
+            worksheetContractData
+          );
+
           const maxWidths = worksheetData.reduce((widths, row) => {
             row.forEach((cell, i) => {
               const cellValue =
@@ -521,38 +532,56 @@ const Dashboard = () => {
             });
             return widths;
           }, []);
-          const maxWidthsProposal = worksheetProposalData.reduce((widths, row) => {
-            row.forEach((cell, i) => {
-              const cellValue =
-                cell !== null && cell !== undefined ? String(cell) : "";
-              widths[i] = Math.max(widths[i] || 0, cellValue.length);
-            });
-            return widths;
-          }, []);
-          const maxWidthsContract = worksheetContractData.reduce((widths, row) => {
-            row.forEach((cell, i) => {
-              const cellValue =
-                cell !== null && cell !== undefined ? String(cell) : "";
-              widths[i] = Math.max(widths[i] || 0, cellValue.length);
-            });
-            return widths;
-          }, []);
+          const maxWidthsProposal = worksheetProposalData.reduce(
+            (widths, row) => {
+              row.forEach((cell, i) => {
+                const cellValue =
+                  cell !== null && cell !== undefined ? String(cell) : "";
+                widths[i] = Math.max(widths[i] || 0, cellValue.length);
+              });
+              return widths;
+            },
+            []
+          );
+          const maxWidthsContract = worksheetContractData.reduce(
+            (widths, row) => {
+              row.forEach((cell, i) => {
+                const cellValue =
+                  cell !== null && cell !== undefined ? String(cell) : "";
+                widths[i] = Math.max(widths[i] || 0, cellValue.length);
+              });
+              return widths;
+            },
+            []
+          );
           worksheet["!cols"] = maxWidths.map((w) => ({ wch: w + 2 }));
-          worksheetProposal["!cols"] = maxWidthsProposal.map((w) => ({ wch: w + 2 }));
-          worksheetContract["!cols"] = maxWidthsContract.map((w) => ({ wch: w + 2 }));
-  
+          worksheetProposal["!cols"] = maxWidthsProposal.map((w) => ({
+            wch: w + 2,
+          }));
+          worksheetContract["!cols"] = maxWidthsContract.map((w) => ({
+            wch: w + 2,
+          }));
+
           XLSX.utils.book_append_sheet(workbook, worksheet, "Summary");
-          if(common.organisationKeyID) {
-            XLSX.utils.book_append_sheet(workbook, worksheetProposal, "Proposal");
+          if (common.organisationKeyID) {
+            XLSX.utils.book_append_sheet(
+              workbook,
+              worksheetProposal,
+              "Proposal"
+            );
             if (common.enableEL === 1) {
-              XLSX.utils.book_append_sheet(workbook, worksheetContract, "Engagement Letter");
-            }            
+              XLSX.utils.book_append_sheet(
+                workbook,
+                worksheetContract,
+                "Engagement Letter"
+              );
+            }
           }
-  
+
           // Generate file name
           const fileName = `Dashboard_Data_${orgName}_${filterHeading}.xlsx`;
           XLSX.writeFile(workbook, fileName);
-  
+
           // Re-fetch data to reset the state
           await DashboardCountData(fromDateForExport, toDateForExport);
         } else {
@@ -561,9 +590,9 @@ const Dashboard = () => {
       } else {
         console.error("Failed to fetch data for export");
       }
-  } catch (error) {
-    console.error("Error during export:", error);
-  }
+    } catch (error) {
+      console.error("Error during export:", error);
+    }
   };
   const DashboardCountData = async (startDate, endDate, i) => {
     if (
@@ -584,12 +613,12 @@ const Dashboard = () => {
         getWeekDateRange();
       const StartDate = startDate
         ? startDate.format("YYYY-MM-DD")
-        // : defaultStartDate.format("YYYY-MM-DD");
-        : null;
+        : // : defaultStartDate.format("YYYY-MM-DD");
+        null;
       const EndDate = endDate
         ? endDate.format("YYYY-MM-DD")
-        // : defaultEndDate.format("YYYY-MM-DD");
-        : null;
+        : // : defaultEndDate.format("YYYY-MM-DD");
+        null;
 
       const response = await DashboardCountList({
         organisationKeyID: common?.organisationKeyID,
@@ -1076,7 +1105,6 @@ const Dashboard = () => {
     }
   };
 
-
   const handleActivityLog = () => {
     navigate("/activity-logs");
   };
@@ -1152,7 +1180,7 @@ const Dashboard = () => {
       }
       DashboardCountData(newFromDate, toDate);
     }
-  }
+  };
   const handleToDateChange = (newValue) => {
     if (dayjs(newValue).isValid()) {
       const newToDate = dayjs(newValue);
@@ -1167,522 +1195,531 @@ const Dashboard = () => {
       }
       DashboardCountData(fromDate, newToDate);
     }
-  }
+  };
 
   return (
     <div class="main-content">
-      <div class="page-content" style={{ height: '90vh' }}>
-        {
-          (accessCount === undefined || loader) ?
-            (<div className="center-screen">
-              <div className="text-center">
-                <h5 className="mt-4">Loading...</h5>
+      <div class="page-content" style={{ height: "90vh" }}>
+        {accessCount === undefined || loader ? (
+          <div className="center-screen">
+            <div className="text-center">
+              <h5 className="mt-4">Loading...</h5>
+            </div>
+          </div>
+        ) : accessCount !== 0 ? (
+          <div class="container">
+            <div class="col-lg-1">
+              <h5 className="page-title-cls mt-2">Dashboard</h5>
+            </div>
+            <div class="row align-items-center  left-margin">
+              <div className="col-lg-6 col-md-8 col-sm-8 ">
+                <div>
+                  <Select
+                    className="user-role-select phone-input-country-code"
+                    options={Utils.CalenderFilter}
+                    value={selectedOption}
+                    onChange={(selectedOption) =>
+                      handleCalenderFilterChange(selectedOption)
+                    }
+                  />
+                </div>
               </div>
-            </div>) :
-            (accessCount !== 0) ? (
-              <div class="container">
-                <div class="col-lg-1">
-                  <h5 className="page-title-cls mt-2">Dashboard</h5>
-                </div>
-                <div class="row align-items-center  left-margin">
-                  <div className="col-lg-6 col-md-8 col-sm-8 ">
-                    <div>
-                      <Select
-                        className="user-role-select phone-input-country-code"
-                        options={Utils.CalenderFilter}
-                        value={selectedOption}
-                        onChange={(selectedOption) =>
-                          handleCalenderFilterChange(selectedOption)
-                        }
-                      />
-                    </div>
+              {showDatePicker && (
+                <>
+                  <div className="col-lg-2 col-md-5 col-sm-5 mt-1">
+                    <DatePicker
+                      label="From Date"
+                      value={fromDate.toDate()} // Convert to JavaScript Date object
+                      maxDate={toDate.subtract(0, "day").toDate()} // Convert to JavaScript Date object
+                      onChange={handleFromDateChange}
+                      renderInput={(params) => <input {...params.inputProps} />}
+                      popperPlacement="bottom-start"
+                    />
                   </div>
-                  {showDatePicker && (
-                    <>
-                      <div className="col-lg-2 col-md-5 col-sm-5 mt-1">
-                        <DatePicker
-                          label="From Date"
-                          value={fromDate.toDate()} // Convert to JavaScript Date object
-                          maxDate={toDate.subtract(0, "day").toDate()} // Convert to JavaScript Date object
-                          onChange={handleFromDateChange}
-                          renderInput={(params) => <input {...params.inputProps} />}
-                          popperPlacement="bottom-start"
-                        />
-                      </div>
-                      <div className="col-lg-2 col-md-5 col-sm-5 mt-1">
-                        <DatePicker
-                          label="To Date"
-                          value={toDate.toDate()} // Convert to JavaScript Date object
-                          minDate={fromDate.toDate()} // Convert to JavaScript Date object
-                          maxDate={dayjs().toDate()} // Convert to JavaScript Date object
-                          onChange={handleToDateChange}
-                          renderInput={(params) => <input {...params.inputProps} />}
-                          popperPlacement="bottom-start"
-                        />
-                      </div>
-                    </>
-                  )}
+                  <div className="col-lg-2 col-md-5 col-sm-5 mt-1">
+                    <DatePicker
+                      label="To Date"
+                      value={toDate.toDate()} // Convert to JavaScript Date object
+                      minDate={fromDate.toDate()} // Convert to JavaScript Date object
+                      maxDate={dayjs().toDate()} // Convert to JavaScript Date object
+                      onChange={handleToDateChange}
+                      renderInput={(params) => <input {...params.inputProps} />}
+                      popperPlacement="bottom-start"
+                    />
+                  </div>
+                </>
+              )}
 
-                  <div className="col-lg-6 col-sm-4 mt-1 ">
-                    <div className="add-new-btn">
-                      <button
-                        onClick={handleExport}
-                        className="btn btn-success create-item-btn add-new"
-                      >
-                        <span>Export</span>
-                      </button>
-                    </div>
-                  </div>
-                  <div className="col-lg-6 col-md-6 col-sm-6">
-                    <div className="date-picker-div"></div>
-                  </div>
+              <div className="col-lg-6 col-sm-4 mt-1 ">
+                <div className="add-new-btn">
+                  <button
+                    onClick={handleExport}
+                    className="btn btn-success create-item-btn add-new"
+                  >
+                    <span>Export</span>
+                  </button>
                 </div>
-                <div class="row dashboard-top-class">
-                  <div class="col">
-                    <div class="h-100">
-                      <div className="dashboard-top" class="row">
-                        <div class="col-xl-8 col-lg-8 col-sm-12 ">
-                          <div class="row">
-                            {/* proposal start */}
+              </div>
+              <div className="col-lg-6 col-md-6 col-sm-6">
+                <div className="date-picker-div"></div>
+              </div>
+            </div>
+            <div class="row dashboard-top-class">
+              <div class="col">
+                <div class="h-100">
+                  <div className="dashboard-top" class="row">
+                    <div class="col-xl-8 col-lg-8 col-sm-12 ">
+                      <div class="row">
+                        {/* proposal start */}
 
-                            {(userAccessData.Admin_Proposal_CanView ||
-                              common.organisationKeyID == null) && (
-                                <>
+                        {(userAccessData.Admin_Proposal_CanView ||
+                          common.organisationKeyID == null) && (
+                            <>
+                              <div
+                                className={`col-xl-4 col-lg-4s col-md-4 dashboard-box col-sm-12  ${common.organisationKeyID !== null
+                                  ? "cursor-pointer"
+                                  : ""
+                                  } `}
+                              >
+                                <div className="dashboard-new-design">
                                   <div
-                                    className={`col-xl-3 col-lg-3 col-md-4 dashboard-box col-sm-12  ${common.organisationKeyID !== null
-                                      ? "cursor-pointer"
-                                      : ""
-                                      } `}
+                                    class="card"
+                                    onClick={() =>
+                                      handleAddData("Draft", statusID.Draft)
+                                    }
                                   >
-                                    <div className="dashboard-new-design">
-                                      <div
-                                        class="card"
-                                        onClick={() =>
-                                          handleAddData("Draft", statusID.Draft)
-                                        }
-                                      >
-                                        <div
-                                          class="card-header p-3 pt-2"
-                                          style={cardStyle}
-                                        >
-                                          <div className="row">
-                                            <div className="col-lg-6">
-                                              <img
-                                                src={DraftProposalPng}
-                                                className="CardImage"
-                                                alt
-                                              />
-                                            </div>
-                                            <div className="col-lg-6">
-                                              <div class="text-end pt-1">
-                                                <h4 class="text-white mb-0">
-                                                  {dashboardCount?.quotationDraft}
-                                                </h4>
-                                              </div>
-                                            </div>
-                                          </div>
-                                          <div class="text-end pt-1"></div>
+                                    <div
+                                      class="card-header p-3 pt-2"
+                                      style={cardStyle}
+                                    >
+                                      <div className="row">
+                                        <div className="col-lg-6">
+                                          <img
+                                            src={DraftProposalPng}
+                                            className="CardImage"
+                                            alt
+                                          />
                                         </div>
-                                        <hr class="dark horizontal my-0" />
-                                        <div
-                                          class="card-footer p-3"
-                                          style={cardStyle}
-                                        >
-                                          <p class="mb-0 font-weight-bolder">
-                                            <span class="text-success  text-white text-sm font-weight-bolder" />
-                                            Draft {proposalName}
-                                          </p>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                  
-                                  <div
-                                    className={`col-xl-3 col-lg-3 col-md-4 dashboard-box col-sm-12  ${common.organisationKeyID !== null
-                                      ? "cursor-pointer"
-                                      : ""
-                                      } `}
-                                  >
-                                    <div className="dashboard-new-design">
-                                      <div
-                                        class="card"
-                                        onClick={() =>
-                                          handleAddData("Sent", statusID.Sent)
-                                        }
-                                      >
-                                        <div
-                                          class="card-header p-3 pt-2"
-                                          style={cardStyle}
-                                        >
-                                          <div className="row">
-                                            <div className="col-lg-6">
-                                              <img
-                                                src={SentProposalPng}
-                                                className="CardImage"
-                                                alt
-                                              />
-                                            </div>
-                                            <div className="col-lg-6">
-                                              <div class="text-end pt-1">
-                                                <h4 class=" text-white  mb-0">
-                                                  {dashboardCount?.quotationSent}{" "}
-                                                </h4>
-                                              </div>
-                                            </div>
-                                          </div>
+                                        <div className="col-lg-6">
                                           <div class="text-end pt-1">
-                                            {/* <p class="text-sm mb-0 text-capitalize">Sent</p> */}
-                                            {/* <h4 class=" text-white  mb-0">44</h4> */}
+                                            <h4 class="text-white mb-0">
+                                              {dashboardCount?.quotationDraft}
+                                            </h4>
                                           </div>
                                         </div>
-                                        <hr class="dark horizontal my-0" />
-                                        <div
-                                          class="card-footer p-3"
-                                          style={cardStyle}
-                                        >
-                                          <p class="mb-0 font-weight-bolder">
-                                            <span class="text-success text-sm font-weight-bolder" />
-                                            {proposalName} Sent
-                                          </p>
-                                        </div>
                                       </div>
+                                      <div class="text-end pt-1"></div>
+                                    </div>
+                                    <hr class="dark horizontal my-0" />
+                                    <div
+                                      class="card-footer p-3"
+                                      style={cardStyle}
+                                    >
+                                      <p class="mb-0 font-weight-bolder">
+                                        <span class="text-success  text-white text-sm font-weight-bolder" />
+                                        Draft {proposalName}
+                                      </p>
                                     </div>
                                   </div>
-                                  {/* proposal start */}
-                                {(common.enableEL == 0 ||
-                                  common.enableEL == null) && (
-                                      <>
+                                </div>
+                              </div>
+
+                              <div
+                                className={`col-xl-4 col-lg-4 col-md-4 dashboard-box col-sm-12  ${common.organisationKeyID !== null
+                                  ? "cursor-pointer"
+                                  : ""
+                                  } `}
+                              >
+                                <div className="dashboard-new-design">
+                                  <div
+                                    class="card"
+                                    onClick={() =>
+                                      handleAddData("Sent", statusID.Sent)
+                                    }
+                                  >
+                                    <div
+                                      class="card-header p-3 pt-2"
+                                      style={cardStyle}
+                                    >
+                                      <div className="row">
+                                        <div className="col-lg-6">
+                                          <img
+                                            src={SentProposalPng}
+                                            className="CardImage"
+                                            alt
+                                          />
+                                        </div>
+                                        <div className="col-lg-6">
+                                          <div class="text-end pt-1">
+                                            <h4 class=" text-white  mb-0">
+                                              {dashboardCount?.quotationSent}{" "}
+                                            </h4>
+                                          </div>
+                                        </div>
+                                      </div>
+                                      <div class="text-end pt-1">
+                                        {/* <p class="text-sm mb-0 text-capitalize">Sent</p> */}
+                                        {/* <h4 class=" text-white  mb-0">44</h4> */}
+                                      </div>
+                                    </div>
+                                    <hr class="dark horizontal my-0" />
+                                    <div
+                                      class="card-footer p-3"
+                                      style={cardStyle}
+                                    >
+                                      <p class="mb-0 font-weight-bolder">
+                                        <span class="text-success text-sm font-weight-bolder" />
+                                        {proposalName} Sent
+                                      </p>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                              {/* proposal start */}
+                              {(common.enableEL == 0 ||
+                                common.enableEL == null) && (
+                                  <>
+                                    <div
+                                      className={`col-xl-4 col-lg-4 col-md-4 dashboard-box col-sm-12  ${common.organisationKeyID !== null
+                                        ? "cursor-pointer"
+                                        : ""
+                                        } `}
+                                    >
+                                      <div className="dashboard-new-design">
                                         <div
-                                          className={`col-xl-3 col-lg-3 col-md-4 dashboard-box col-sm-12  ${common.organisationKeyID !== null
-                                            ? "cursor-pointer"
-                                            : ""
-                                            } `}
+                                          class="card"
+                                          onClick={() =>
+                                            handleAddData(
+                                              "Sent",
+                                              statusID.Awaiting_Signature
+                                            )
+                                          }
                                         >
-                                          <div className="dashboard-new-design">
-                                            <div
-                                              class="card"
-                                              onClick={() =>
-                                                handleAddData("Sent", statusID.Awaiting_Signature)
-                                              }
-                                            >
-                                              <div
-                                                class="card-header p-3 pt-2"
-                                                style={cardStyle}
-                                              >
-                                                <div className="row">
-                                                  <div className="col-lg-6">
-                                                    <img
-                                                      src={DraftEngagementLatterPng}
-                                                      className="CardImage"
-                                                      alt
-                                                    />
-                                                  </div>
-                                                  <div className="col-lg-6">
-                                                    <div class="text-end pt-1">
-                                                      <h4 class="mb-0 text-white ">
-                                                        {
-                                                          dashboardCount?.quotationAwaitingSignature
-                                                        }{" "}
-                                                      </h4>
-                                                    </div>
-                                                  </div>
-                                                </div>
-                                                <div class="text-end pt-1"></div>
+                                          <div
+                                            class="card-header p-3 pt-2"
+                                            style={cardStyle}
+                                          >
+                                            <div className="row">
+                                              <div className="col-lg-6">
+                                                <img
+                                                  src={DraftEngagementLatterPng}
+                                                  className="CardImage"
+                                                  alt
+                                                />
                                               </div>
-                                              <hr class="dark horizontal my-0" />
-                                              <div
-                                                class="card-footer p-3"
-                                                style={cardStyle}
-                                              >
-                                                <p class="mb-0 font-weight-bolder">
-                                                  <span class="text-success text-sm font-weight-bolder" />
+                                              <div className="col-lg-6">
+                                                <div class="text-end pt-1">
+                                                  <h4 class="mb-0 text-white ">
+                                                    {
+                                                      dashboardCount?.quotationAwaitingSignature
+                                                    }{" "}
+                                                  </h4>
+                                                </div>
+                                              </div>
+                                            </div>
+                                            <div class="text-end pt-1"></div>
+                                          </div>
+                                          <hr class="dark horizontal my-0" />
+                                          <div
+                                            class="card-footer p-3"
+                                            style={cardStyle}
+                                          >
+                                            <p class="mb-0 font-weight-bolder">
+                                              <span class="text-success text-sm font-weight-bolder" />
                                               Awaiting Response
-                                                </p>
-                                              </div>
-                                            </div>
+                                            </p>
                                           </div>
                                         </div>
-                                      </>
-                                  )}
-                                  {(common.enableEL == 0 ||
-                                    common.enableEL == null) && (
-                                      <>
+                                      </div>
+                                    </div>
+                                  </>
+                                )}
+                              {(common.enableEL == 0 ||
+                                common.enableEL == null) && (
+                                  <>
+                                    <div
+                                      className={`col-xl-4 col-lg-4 col-md-4 dashboard-box col-sm-12  ${common.organisationKeyID !== null
+                                        ? "cursor-pointer"
+                                        : ""
+                                        } `}
+                                    >
+                                      <div className="dashboard-new-design">
                                         <div
-                                          className={`col-xl-3 col-lg-3 col-md-4 dashboard-box col-sm-12  ${common.organisationKeyID !== null
-                                            ? "cursor-pointer"
-                                            : ""
-                                            } `}
+                                          class="card"
+                                          onClick={() =>
+                                            handleAddData(
+                                              "Accepted",
+                                              statusID.Accepted
+                                            )
+                                          }
                                         >
-                                          <div className="dashboard-new-design">
-                                            <div
-                                              class="card"
-                                              onClick={() =>
-                                                handleAddData(
-                                                  "Accepted",
-                                                  statusID.Accepted
-                                                )
-                                              }
-                                            >
-                                              <div
-                                                class="card-header p-3 pt-2"
-                                                style={cardStyle}
-                                              >
-                                                <div className="row">
-                                                  <div className="col-lg-6">
-                                                    <img
-                                                      src={DraftEngagementLatterPng}
-                                                      className="CardImage"
-                                                      alt
-                                                    />
-                                                  </div>
-                                                  <div className="col-lg-6">
-                                                    <div class="text-end pt-1">
-                                                      <h4 class="mb-0 text-white ">
-                                                        {
-                                                          dashboardCount?.quotationAccepted
-                                                        }{" "}
-                                                      </h4>
-                                                    </div>
-                                                  </div>
+                                          <div
+                                            class="card-header p-3 pt-2"
+                                            style={cardStyle}
+                                          >
+                                            <div className="row">
+                                              <div className="col-lg-6">
+                                                <img
+                                                  src={DraftEngagementLatterPng}
+                                                  className="CardImage"
+                                                  alt
+                                                />
+                                              </div>
+                                              <div className="col-lg-6">
+                                                <div class="text-end pt-1">
+                                                  <h4 class="mb-0 text-white ">
+                                                    {
+                                                      dashboardCount?.quotationAccepted
+                                                    }{" "}
+                                                  </h4>
                                                 </div>
-                                                <div class="text-end pt-1"></div>
-                                              </div>
-                                              <hr class="dark horizontal my-0" />
-                                              <div
-                                                class="card-footer p-3"
-                                                style={cardStyle}
-                                              >
-                                                <p class="mb-0 font-weight-bolder">
-                                                  <span class="text-success text-sm font-weight-bolder" />
-                                                  {proposalName} Accepted
-                                                </p>
                                               </div>
                                             </div>
+                                            <div class="text-end pt-1"></div>
+                                          </div>
+                                          <hr class="dark horizontal my-0" />
+                                          <div
+                                            class="card-footer p-3"
+                                            style={cardStyle}
+                                          >
+                                            <p class="mb-0 font-weight-bolder">
+                                              <span class="text-success text-sm font-weight-bolder" />
+                                              {proposalName} Accepted
+                                            </p>
                                           </div>
                                         </div>
+                                      </div>
+                                    </div>
 
+                                    <div
+                                      className={`col-xl-4 col-lg-4 col-md-4 dashboard-box col-sm-12  ${common.organisationKeyID !== null
+                                        ? "cursor-pointer"
+                                        : ""
+                                        } `}
+                                    >
+                                      <div className="dashboard-new-design">
                                         <div
-                                          className={`col-xl-3 col-lg-3 col-md-4 dashboard-box col-sm-12  ${common.organisationKeyID !== null
-                                            ? "cursor-pointer"
-                                            : ""
-                                            } `}
+                                          class="card"
+                                          onClick={() =>
+                                            handleAddData(
+                                              "Decline",
+                                              statusID.Declined
+                                            )
+                                          }
                                         >
-                                          <div className="dashboard-new-design">
-                                            <div
-                                              class="card"
-                                              onClick={() =>
-                                                handleAddData(
-                                                  "Decline",
-                                                  statusID.Declined
-                                                )
-                                              }
-                                            >
-                                              <div
-                                                class="card-header p-3 pt-2"
-                                                style={cardStyle}
-                                              >
-                                                <div className="row">
-                                                  <div className="col-lg-6">
-                                                    <img
-                                                      src={EngagementLatterSendSvg}
-                                                      className="CardImage"
-                                                      alt
-                                                    />
-                                                  </div>
-                                                  <div className="col-lg-6">
-                                                    <div class="text-end pt-1">
-                                                      <h4 class="mb-0 text-white ">
-                                                        {
-                                                          dashboardCount?.quotationDeclined
-                                                        }
-                                                      </h4>
-                                                    </div>
-                                                  </div>
+                                          <div
+                                            class="card-header p-3 pt-2"
+                                            style={cardStyle}
+                                          >
+                                            <div className="row">
+                                              <div className="col-lg-6">
+                                                <img
+                                                  src={EngagementLatterSendSvg}
+                                                  className="CardImage"
+                                                  alt
+                                                />
+                                              </div>
+                                              <div className="col-lg-6">
+                                                <div class="text-end pt-1">
+                                                  <h4 class="mb-0 text-white ">
+                                                    {
+                                                      dashboardCount?.quotationDeclined
+                                                    }
+                                                  </h4>
                                                 </div>
-                                                <div class="text-end pt-1"></div>
-                                              </div>
-                                              <hr class="dark horizontal my-0" />
-                                              <div
-                                                class="card-footer p-3"
-                                                style={cardStyle}
-                                              >
-                                                <p class="mb-0 font-weight-bolder">
-                                                  <span class="text-success text-sm font-weight-bolder" />
-                                                  {proposalName} Declined
-                                                </p>
                                               </div>
                                             </div>
+                                            <div class="text-end pt-1"></div>
+                                          </div>
+                                          <hr class="dark horizontal my-0" />
+                                          <div
+                                            class="card-footer p-3"
+                                            style={cardStyle}
+                                          >
+                                            <p class="mb-0 font-weight-bolder">
+                                              <span class="text-success text-sm font-weight-bolder" />
+                                              {proposalName} Declined
+                                            </p>
                                           </div>
                                         </div>
-                                      </>
-                                    )}
-                                </>
-                              )}
-                          </div>
-                          {/* proposal end  */}
+                                      </div>
+                                    </div>
+                                  </>
+                                )}
+                            </>
+                          )}
+                      </div>
+                      {/* proposal end  */}
 
-                          {/* engagement start */}
-                          <div className="row">
-                            {(common.enableEL == 1 || common.enableEL == null) &&
-                              (userAccessData.Admin_Engagement_Latter_CanView ||
-                                common.organisationKeyID == null) && (
-                                <>
+                      {/* engagement start */}
+                      <div className="row">
+                        {(common.enableEL == 1 || common.enableEL == null) &&
+                          (userAccessData.Admin_Engagement_Latter_CanView ||
+                            common.organisationKeyID == null) && (
+                            <>
+                              <div
+                                className={`col-xl-4 col-lg-4 col-md-4 dashboard-box col-sm-12  ${common.organisationKeyID !== null
+                                  ? "cursor-pointer"
+                                  : ""
+                                  } `}
+                              >
+                                <div className="dashboard-new-design">
                                   <div
-                                    className={`col-xl-3 col-lg-3 col-md-4 dashboard-box col-sm-12  ${common.organisationKeyID !== null
-                                      ? "cursor-pointer"
-                                      : ""
-                                      } `}
+                                    class="card"
+                                    onClick={() =>
+                                      GetHandleChangeFilter(
+                                        "Draft",
+                                        statusID.Draft
+                                      )
+                                    }
                                   >
-                                    <div className="dashboard-new-design">
-                                      <div
-                                        class="card"
-                                        onClick={() =>
-                                          GetHandleChangeFilter(
-                                            "Draft",
-                                            statusID.Draft
-                                          )
-                                        }
-                                      >
-                                        <div
-                                          class="card-header p-3 pt-2"
-                                          style={cardStyle}
-                                        >
-                                          <div className="row">
-                                            <div className="col-lg-6">
-                                              <img
-                                                src={EngagementLatterSendSvg}
-                                                className="CardImage"
-                                                alt
-                                              />
-                                            </div>
-                                            <div className="col-lg-6">
-                                              <div class="text-end pt-1">
-                                                <h4 class="mb-0 text-white ">
-                                                  {dashboardCount?.contractDraft}
-                                                </h4>
-                                              </div>
-                                            </div>
-                                          </div>
-                                          <div class="text-end pt-1"></div>
+                                    <div
+                                      class="card-header p-3 pt-2"
+                                      style={cardStyle}
+                                    >
+                                      <div className="row">
+                                        <div className="col-lg-6">
+                                          <img
+                                            src={EngagementLatterSendSvg}
+                                            className="CardImage"
+                                            alt
+                                          />
                                         </div>
-                                        <hr class="dark horizontal my-0" />
-                                        <div
-                                          class="card-footer p-3"
-                                          style={cardStyle}
-                                        >
-                                          <p class="mb-0 font-weight-bolder">
-                                            <span class="text-success text-sm font-weight-bolder" />
-                                            Draft {EngagementName}
-                                          </p>
+                                        <div className="col-lg-6">
+                                          <div class="text-end pt-1">
+                                            <h4 class="mb-0 text-white ">
+                                              {dashboardCount?.contractDraft}
+                                            </h4>
+                                          </div>
                                         </div>
                                       </div>
+                                      <div class="text-end pt-1"></div>
+                                    </div>
+                                    <hr class="dark horizontal my-0" />
+                                    <div
+                                      class="card-footer p-3"
+                                      style={cardStyle}
+                                    >
+                                      <p class="mb-0 font-weight-bolder">
+                                        <span class="text-success text-sm font-weight-bolder" />
+                                        Draft {EngagementName}
+                                      </p>
                                     </div>
                                   </div>
-                                  <div
-                                    className={`col-xl-3 col-lg-3 col-md-4 dashboard-box col-sm-12  ${common.organisationKeyID !== null
-                                      ? "cursor-pointer"
-                                      : ""
-                                      } `}
-                                  >
-                                    <div className="dashboard-new-design">
-                                      <div
-                                        class="card"
-                                        onClick={() =>
-                                          GetHandleChangeFilter(
-                                            "Void",
-                                            statusID.Void
-                                          )
-                                        }
-                                      >
-                                        <div
-                                          class="card-header p-3 pt-2"
-                                          style={cardStyle}
-                                        >
-                                          <div className="row">
-                                            <div className="col-lg-6">
-                                              <img
-                                                src={EngagementLatterSignedSvg}
-                                                className="CardImage"
-                                                alt
-                                              />
-                                            </div>
-                                            <div className="col-lg-6">
-                                              <div class="text-end pt-1">
-                                                <h4 class="mb-0 text-white ">
-                                                  {" "}
-                                                  {dashboardCount?.contractVoid}
-                                                </h4>
-                                              </div>
-                                            </div>
-                                          </div>
-                                          <div class="text-end pt-1"></div>
-                                        </div>
-                                        <hr class="dark horizontal my-0" />
-                                        <div
-                                          class="card-footer p-3"
-                                          style={cardStyle}
-                                        >
-                                          <p class="mb-0 font-weight-bolder">
-                                            <span class="text-success text-sm font-weight-bolder" />
-                                              Void {EngagementName}
-                                          </p>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                  <div
-                                    className={`col-xl-3 col-lg-3 col-md-4 dashboard-box col-sm-12  ${common.organisationKeyID !== null
-                                      ? "cursor-pointer"
-                                      : ""
-                                      } `}
-                                  >
-                                    <div className="dashboard-new-design">
-                                      <div
-                                        class="card"
-                                        onClick={() =>
-                                          GetHandleChangeFilter(
-                                            "sent",
-                                            statusID.Sent
-                                          )
-                                        }
-                                      >
-                                        <div
-                                          class="card-header p-3 pt-2"
-                                          style={cardStyle}
-                                        >
-                                          <div className="row">
-                                            <div className="col-lg-6">
-                                              <img
-                                                src={EngagementLatterSendSvg}
-                                                className="CardImage"
-                                                alt
-                                              />
-                                            </div>
-                                            <div className="col-lg-6">
-                                              <div class="text-end pt-1">
-                                                <h4 class="mb-0 text-white ">
-                                                  {dashboardCount?.contractSent}
-                                                </h4>
-                                              </div>
-                                            </div>
-                                          </div>
-                                          <div class="text-end pt-1"></div>
-                                        </div>
-                                        <hr class="dark horizontal my-0" />
-                                        <div
-                                          class="card-footer p-3"
-                                          style={cardStyle}
-                                        >
-                                          <p class="mb-0 font-weight-bolder">
-                                            <span class="text-success text-sm font-weight-bolder" />
-                                            {EngagementName} Sent
-                                          </p>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
+                                </div>
+                              </div>
 
+                              {/* Void EL hidden */}
+
+                              {/* <div
+                                className={`col-xl-3 col-lg-3 col-md-4 dashboard-box col-sm-12  ${
+                                  common.organisationKeyID !== null
+                                    ? "cursor-pointer"
+                                    : ""
+                                } `}
+                              >
+                                <div className="dashboard-new-design">
                                   <div
+                                    class="card"
+                                    onClick={() =>
+                                      GetHandleChangeFilter(
+                                        "Void",
+                                        statusID.Void
+                                      )
+                                    }
+                                  >
+                                    <div
+                                      class="card-header p-3 pt-2"
+                                      style={cardStyle}
+                                    >
+                                      <div className="row">
+                                        <div className="col-lg-6">
+                                          <img
+                                            src={EngagementLatterSignedSvg}
+                                            className="CardImage"
+                                            alt
+                                          />
+                                        </div>
+                                        <div className="col-lg-6">
+                                          <div class="text-end pt-1">
+                                            <h4 class="mb-0 text-white ">
+                                              {" "}
+                                              {dashboardCount?.contractVoid}
+                                            </h4>
+                                          </div>
+                                        </div>
+                                      </div>
+                                      <div class="text-end pt-1"></div>
+                                    </div>
+                                    <hr class="dark horizontal my-0" />
+                                    <div
+                                      class="card-footer p-3"
+                                      style={cardStyle}
+                                    >
+                                      <p class="mb-0 font-weight-bolder">
+                                        <span class="text-success text-sm font-weight-bolder" />
+                                        Void {EngagementName}
+                                      </p>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div> */}
+
+                              <div
+                                className={`col-xl-4 col-lg-4 col-md-4 dashboard-box col-sm-12  ${common.organisationKeyID !== null
+                                  ? "cursor-pointer"
+                                  : ""
+                                  } `}
+                              >
+                                <div className="dashboard-new-design">
+                                  <div
+                                    class="card"
+                                    onClick={() =>
+                                      GetHandleChangeFilter(
+                                        "sent",
+                                        statusID.Sent
+                                      )
+                                    }
+                                  >
+                                    <div
+                                      class="card-header p-3 pt-2"
+                                      style={cardStyle}
+                                    >
+                                      <div className="row">
+                                        <div className="col-lg-6">
+                                          <img
+                                            src={EngagementLatterSendSvg}
+                                            className="CardImage"
+                                            alt
+                                          />
+                                        </div>
+                                        <div className="col-lg-6">
+                                          <div class="text-end pt-1">
+                                            <h4 class="mb-0 text-white ">
+                                              {dashboardCount?.contractSent}
+                                            </h4>
+                                          </div>
+                                        </div>
+                                      </div>
+                                      <div class="text-end pt-1"></div>
+                                    </div>
+                                    <hr class="dark horizontal my-0" />
+                                    <div
+                                      class="card-footer p-3"
+                                      style={cardStyle}
+                                    >
+                                      <p class="mb-0 font-weight-bolder">
+                                        <span class="text-success text-sm font-weight-bolder" />
+                                        {EngagementName} Sent
+                                      </p>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* EL viewed hidden */}
+
+                              {/* <div
                                     className={`col-xl-3 col-lg-3 col-md-4 dashboard-box col-sm-12  ${common.organisationKeyID !== null
                                       ? "cursor-pointer"
                                       : ""
@@ -1737,193 +1774,109 @@ const Dashboard = () => {
                                         </div>
                                       </div>
                                     </div>
-                                  </div>
+                                  </div> */}
 
+                              <div
+                                className={`col-xl-4 col-lg-4 col-md-4 dashboard-box col-sm-12  ${common.organisationKeyID !== null
+                                  ? "cursor-pointer"
+                                  : ""
+                                  } `}
+                              >
+                                <div className="dashboard-new-design">
                                   <div
-                                    className={`col-xl-3 col-lg-3 col-md-4 dashboard-box col-sm-12  ${common.organisationKeyID !== null
-                                      ? "cursor-pointer"
-                                      : ""
-                                      } `}
+                                    class="card"
+                                    onClick={() =>
+                                      GetHandleChangeFilter(
+                                        "Signed",
+                                        statusID.Signed
+                                      )
+                                    }
                                   >
-                                    <div className="dashboard-new-design">
-                                      <div
-                                        class="card"
-                                        onClick={() =>
-                                          GetHandleChangeFilter(
-                                            "Signed",
-                                            statusID.Signed
-                                          )
-                                        }
-                                      >
-                                        <div
-                                          class="card-header p-3 pt-2"
-                                          style={cardStyle}
-                                        >
-                                          <div className="row">
-                                            <div className="col-lg-6">
-                                              <img
-                                                src={EngagementLatterSignedSvg}
-                                                className="CardImage"
-                                                alt
-                                              />
-                                            </div>
-                                            <div className="col-lg-6">
-                                              <div class="text-end pt-1">
-                                                <h4 class="mb-0 text-white ">
-                                                  {" "}
-                                                  {dashboardCount?.contractSigned}
-                                                </h4>
-                                              </div>
-                                            </div>
-                                          </div>
-                                          <div class="text-end pt-1"></div>
+                                    <div
+                                      class="card-header p-3 pt-2"
+                                      style={cardStyle}
+                                    >
+                                      <div className="row">
+                                        <div className="col-lg-6">
+                                          <img
+                                            src={EngagementLatterSignedSvg}
+                                            className="CardImage"
+                                            alt
+                                          />
                                         </div>
-                                        <hr class="dark horizontal my-0" />
-                                        <div
-                                          class="card-footer p-3"
-                                          style={cardStyle}
-                                        >
-                                          <p class="mb-0 font-weight-bolder">
-                                            <span class="text-success text-sm font-weight-bolder" />
-                                            {EngagementName} Signed
-                                          </p>
+                                        <div className="col-lg-6">
+                                          <div class="text-end pt-1">
+                                            <h4 class="mb-0 text-white ">
+                                              {" "}
+                                              {dashboardCount?.contractSigned}
+                                            </h4>
+                                          </div>
                                         </div>
                                       </div>
+                                      <div class="text-end pt-1"></div>
+                                    </div>
+                                    <hr class="dark horizontal my-0" />
+                                    <div
+                                      class="card-footer p-3"
+                                      style={cardStyle}
+                                    >
+                                      <p class="mb-0 font-weight-bolder">
+                                        <span class="text-success text-sm font-weight-bolder" />
+                                        {EngagementName} Signed
+                                      </p>
                                     </div>
                                   </div>
+                                </div>
+                              </div>
 
+                              <div
+                                className={`col-xl-4 col-lg-4 col-md-4 dashboard-box col-sm-12  ${common.organisationKeyID !== null
+                                  ? "cursor-pointer"
+                                  : ""
+                                  } `}
+                              >
+                                <div className="dashboard-new-design">
                                   <div
-                                    className={`col-xl-3 col-lg-3 col-md-4 dashboard-box col-sm-12  ${common.organisationKeyID !== null
-                                      ? "cursor-pointer"
-                                      : ""
-                                      } `}
+                                    class="card"
+                                    onClick={() =>
+                                      GetHandleChangeFilter(
+                                        "Decline",
+                                        statusID.Declined
+                                      )
+                                    }
                                   >
-                                    <div className="dashboard-new-design">
-                                      <div
-                                        class="card"
-                                        onClick={() =>
-                                          GetHandleChangeFilter(
-                                            "Decline",
-                                            statusID.Declined
-                                          )
-                                        }
-                                      >
-                                        <div
-                                          class="card-header p-3 pt-2"
-                                          style={cardStyle}
-                                        >
-                                          <div className="row">
-                                            <div className="col-lg-6">
-                                              <img
-                                                src={EngagementLaterDeclinedSvg}
-                                                className="CardImage"
-                                                alt
-                                              />
-                                            </div>
-                                            <div className="col-lg-6">
-                                              <div class="text-end pt-1">
-                                                <h4 class="mb-0 text-white ">
-                                                  {dashboardCount?.contractDeclined}
-                                                </h4>
-                                              </div>
-                                            </div>
+                                    <div
+                                      class="card-header p-3 pt-2"
+                                      style={cardStyle}
+                                    >
+                                      <div className="row">
+                                        <div className="col-lg-6">
+                                          <img
+                                            src={EngagementLaterDeclinedSvg}
+                                            className="CardImage"
+                                            alt
+                                          />
+                                        </div>
+                                        <div className="col-lg-6">
+                                          <div class="text-end pt-1">
+                                            <h4 class="mb-0 text-white ">
+                                              {dashboardCount?.contractDeclined}
+                                            </h4>
                                           </div>
-                                          <div class="text-end pt-1"></div>
-                                        </div>
-                                        <hr class="dark horizontal my-0" />
-                                        <div
-                                          class="card-footer p-3"
-                                          style={cardStyle}
-                                        >
-                                          <p class="mb-0 font-weight-bolder">
-                                            <span class="text-success text-sm font-weight-bolder" />
-                                            {EngagementName} Declined
-                                          </p>
                                         </div>
                                       </div>
+                                      <div class="text-end pt-1"></div>
                                     </div>
-                                  </div>
-                                </>
-                              )}
-                          </div>
-                        </div>
-                        {(userAccessData.Admin_Activity_Log_CanView ||
-                          common.organisationKeyID == null) && (
-                            <>
-                              <div class="col-xl-4 col-lg-4 pb-2">
-                                <div class="card activity-section-cls">
-                                  <div class="card-body dashboard-body">
-                                    <h5 className="activity-cls">Activity</h5>
-                                    <ol class="activity-feed">
-                                      {activityLogsList.length == 0 ? (
-                                        <>
-                                          <h6 className="activity-cls">
-                                            No Activity Logs Found Today..
-                                          </h6>
-                                        </>
-                                      ) : (
-                                        <>
-                                          {activityLogsList?.map(
-                                            (ActivityLogList) => {
-                                              return (
-                                                <>
-                                                  <li class="feed-item">
-                                                    <div class="feed-item-list">
-                                                      <span
-                                                        style={{ color: "black" }}
-                                                      >
-                                                        {ActivityLogList.logDateTime}
-                                                      </span>
-                                                      <br />
-
-                                                      <span
-                                                        class="activity-text"
-                                                        style={{
-                                                          color: "blue",
-                                                          cursor: "pointer",
-                                                        }}
-                                                        onClick={() => {
-                                                          navigate(
-                                                            `/${ActivityLogList?.moduleURL}`
-                                                          );
-                                                        }}
-                                                      >
-                                                        {ActivityLogList.logMessage
-                                                          ?.replace(
-                                                            /quotation/g,
-                                                            proposalName
-                                                          )
-                                                          ?.replace(
-                                                            /client/g,
-                                                            prospectName
-                                                          )
-                                                          ?.replace(
-                                                            /contract/g,
-                                                            EngagementName
-                                                          )}
-                                                      </span>
-                                                    </div>
-                                                  </li>
-                                                </>
-                                              );
-                                            }
-                                          )}
-                                        </>
-                                      )}
-                                    </ol>
-                                    <>
-                                      {" "}
-                                      <div className="col-lg-12 col-md-12 col-sm-12 text-center">
-                                        <div className="add-new-btn">
-                                          <button
-                                            className="btn btn-success create-item-btn add-new"
-                                            onClick={handleActivityLog}
-                                          >
-                                            <span>View All</span>
-                                          </button>
-                                        </div>
-                                      </div>
-                                    </>
+                                    <hr class="dark horizontal my-0" />
+                                    <div
+                                      class="card-footer p-3"
+                                      style={cardStyle}
+                                    >
+                                      <p class="mb-0 font-weight-bolder">
+                                        <span class="text-success text-sm font-weight-bolder" />
+                                        {EngagementName} Declined
+                                      </p>
+                                    </div>
                                   </div>
                                 </div>
                               </div>
@@ -1931,32 +1884,116 @@ const Dashboard = () => {
                           )}
                       </div>
                     </div>
+                    {(userAccessData.Admin_Activity_Log_CanView ||
+                      common.organisationKeyID == null) && (
+                        <>
+                          <div class="col-xl-4 col-lg-4 pb-2">
+                            <div class="card activity-section-cls">
+                              <div class="card-body dashboard-body">
+                                <h5 className="activity-cls">Activity</h5>
+                                <ol class="activity-feed">
+                                  {activityLogsList.length == 0 ? (
+                                    <>
+                                      <h6 className="activity-cls">
+                                        No Activity Logs Found Today..
+                                      </h6>
+                                    </>
+                                  ) : (
+                                    <>
+                                      {activityLogsList?.map(
+                                        (ActivityLogList) => {
+                                          return (
+                                            <>
+                                              <li class="feed-item">
+                                                <div class="feed-item-list">
+                                                  <span
+                                                    style={{ color: "black" }}
+                                                  >
+                                                    {ActivityLogList.logDateTime}
+                                                  </span>
+                                                  <br />
+
+                                                  <span
+                                                    class="activity-text"
+                                                    style={{
+                                                      color: "blue",
+                                                      cursor: "pointer",
+                                                    }}
+                                                    onClick={() => {
+                                                      navigate(
+                                                        `/${ActivityLogList?.moduleURL}`
+                                                      );
+                                                    }}
+                                                  >
+                                                    {ActivityLogList.logMessage
+                                                      ?.replace(
+                                                        /quotation/g,
+                                                        proposalName
+                                                      )
+                                                      ?.replace(
+                                                        /client/g,
+                                                        prospectName
+                                                      )
+                                                      ?.replace(
+                                                        /contract/g,
+                                                        EngagementName
+                                                      )}
+                                                  </span>
+                                                </div>
+                                              </li>
+                                            </>
+                                          );
+                                        }
+                                      )}
+                                    </>
+                                  )}
+                                </ol>
+                                <>
+                                  {" "}
+                                  <div className="col-lg-12 col-md-12 col-sm-12 text-center">
+                                    <div className="add-new-btn">
+                                      <button
+                                        className="btn btn-success create-item-btn add-new"
+                                        onClick={handleActivityLog}
+                                      >
+                                        <span>View All</span>
+                                      </button>
+                                    </div>
+                                  </div>
+                                </>
+                              </div>
+                            </div>
+                          </div>
+                        </>
+                      )}
                   </div>
                 </div>
               </div>
-            ) : (
-              <>
-                <div class="row dashboard-top-class">
-                  <div class="col">
-                    <div class="h-100">
-                      <div class="container">
-                        <div class="row">
-                          <div class="col-md-12 " style={{ textAlign: "center" }}>
-                            <div class="error-template">
-                              <h1>Oops!</h1>
-                              <h2>No Permission </h2>
-                              <div class="error-details">
-                                Sorry, No Permission , Please Contact Admin!
-                              </div>
-                            </div>
+            </div>
+          </div>
+        ) : (
+          <>
+            <div class="row dashboard-top-class">
+              <div class="col">
+                <div class="h-100">
+                  <div class="container">
+                    <div class="row">
+                      <div class="col-md-12 " style={{ textAlign: "center" }}>
+                        <div class="error-template">
+                          <h1>Oops!</h1>
+                          <h2>No Permission </h2>
+                          <div class="error-details">
+                            Sorry, No Permission , Please Contact Admin!
                           </div>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </>
-            )}
+              </div>
+            </div>
+          </>
+        )}
         {/* <!-- container-fluid --> */}
       </div>
       {/* <!-- End Page-content --> */}
