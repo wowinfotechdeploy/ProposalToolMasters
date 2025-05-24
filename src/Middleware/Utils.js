@@ -282,8 +282,8 @@ const select_Quote_Type = [
   },
   {
     value: 4,
-    label: "Master Agreement- Custom Variable Fee"
-  }
+    label: "Master Agreement- Custom Variable Fee",
+  },
 ];
 
 const ProposalStatus = [
@@ -621,50 +621,39 @@ const repeats = [
 ];
 
 const FontFamily = [
-  {
-    value: null,
-    label: "Select",
-  },
-  {
-    value: 1,
-    label: "Georgia, serif",
-  },
-  {
-    value: 2,
-    label: "Arial, sans-serif",
-  },
-  {
-    value: 3,
-    label: "Verdana, sans-serif",
-  },
-  {
-    value: 4,
-    label: "Times New Roman, serif",
-  },
-  {
-    value: 5,
-    label: "Courier New, monospace",
-  },
-  {
-    value: 6,
-    label: "Roboto, sans-serif",
-  },
-  {
-    value: 7,
-    label: "Open Sans, sans-serif",
-  },
-  {
-    value: 8,
-    label: "Lora, serif",
-  },
-  {
-    value: 9,
-    label: "Montserrat, sans-serif",
-  },
-  {
-    value: 10,
-    label: "Helvetica, sans-serif",
-  },
+  { value: null, label: "Select" },
+  { value: 1, label: "Georgia, serif" },
+  { value: 2, label: "Arial, sans-serif" },
+  { value: 3, label: "Verdana, sans-serif" },
+  { value: 4, label: "Times New Roman, serif" },
+  { value: 5, label: "Courier New, monospace" },
+  { value: 6, label: "Roboto, sans-serif" },
+  { value: 7, label: "Open Sans, sans-serif" },
+  { value: 8, label: "Lora, serif" },
+  { value: 9, label: "Montserrat, sans-serif" },
+  { value: 10, label: "Helvetica, sans-serif" },
+
+  // Additional 20 fonts
+  { value: 11, label: "Nunito, sans-serif" },
+  { value: 12, label: "Poppins, sans-serif" },
+  { value: 13, label: "Raleway, sans-serif" },
+  { value: 14, label: "Inter, sans-serif" },
+  { value: 15, label: "Ubuntu, sans-serif" },
+  { value: 16, label: "Fira Sans, sans-serif" },
+  { value: 17, label: "Work Sans, sans-serif" },
+  { value: 18, label: "Barlow, sans-serif" },
+  { value: 19, label: "Quicksand, sans-serif" },
+  { value: 20, label: "Source Sans, sans-serif" },
+  { value: 21, label: "Merriweather, serif" },
+  { value: 22, label: "Playfair Display, serif" },
+  { value: 23, label: "PT Serif, serif" },
+  { value: 24, label: "Crimson Text, serif" },
+  { value: 25, label: "Fira Code, monospace" },
+  { value: 26, label: "JetBrains Mono, monospace" },
+  { value: 27, label: "Inconsolata, monospace" },
+  { value: 28, label: "Oswald, sans-serif" },
+  { value: 29, label: "Bebas Neue, sans-serif" },
+  { value: 30, label: "Comic Sans MS, cursive, sans-serif" },
 ];
 
 // const FontSize = [
@@ -726,5 +715,5 @@ export default {
   fees,
   DiscountLines,
   dropdownOptions,
-  DateFilter
+  DateFilter,
 };

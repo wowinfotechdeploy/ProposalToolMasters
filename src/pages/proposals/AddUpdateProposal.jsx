@@ -14729,7 +14729,7 @@ const Add_Update_Proposal = (props) => {
         setFooterImage(defaultTemplateOptions[0]?.footerImage);
         setHeaderHeight(defaultTemplateOptions[0]?.headerHeight);
         setFooterHeight(defaultTemplateOptions[0]?.footerHeight);
-        setShowSeparatorLines(defaultTemplateOptions[0]?.showSeparatorLines);
+        setShowSeparatorLines(defaultTemplateOptions[0]?.showSeparatorLine);
         // console.log(getFontNameById(defaultTemplateObject?.fontFamilyID));
         // Set the state with the default template object
         setProposalObject((prevState) => ({

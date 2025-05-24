@@ -31,8 +31,15 @@ export default function PreviewComponentPdf(props) {
   const statusIDForSkipped = 3;
   const [fullAddress, setFullAddress] = useState("");
   const [webSite, setWebSite] = useState("");
-  const { setLoader, proposalName, EngagementName, userAccessData, isMobile, replaceUrlInHtml, activeOrganizationSubscriptionPlan } =
-    useContext(AuthContextProvider);
+  const {
+    setLoader,
+    proposalName,
+    EngagementName,
+    userAccessData,
+    isMobile,
+    replaceUrlInHtml,
+    activeOrganizationSubscriptionPlan,
+  } = useContext(AuthContextProvider);
   const [totalOnePackageValue, setTotalOnePackageValue] = useState(0);
   const [totalTwoPackageValue, setTotalTwoPackageValue] = useState(0);
   const [totalThreePackageValue, setTotalThreePackageValue] = useState(0);
@@ -49,45 +56,45 @@ export default function PreviewComponentPdf(props) {
   const [isPopUpVisible, setIsPopUpVisible] = useState(false);
   const openPopup = () => {
     setIsPopUpVisible(true);
-  }
+  };
   const closePopup = () => {
     setIsPopUpVisible(false);
     setEditorState("");
     if (props.moduleName == "Quote") {
-      props?.setProposalObject(prevState => ({
+      props?.setProposalObject((prevState) => ({
         ...prevState,
-        customizedEmailContent: null
+        customizedEmailContent: null,
+      }));
+    } else if (props.moduleName == "Contract") {
+      props?.setEngagementObj((prevState) => ({
+        ...prevState,
+        customizedEmailContent: null,
       }));
     }
-    else if (props.moduleName == "Contract") {
-      props?.setEngagementObj(prevState => ({
-        ...prevState,
-        customizedEmailContent: null
-      }))
-    }
-  }
+  };
   const GetEmailTemplateContent = async (organisationKeyID, TemplateTypeID) => {
     if (!organisationKeyID) {
       return;
     }
     try {
-      const data = await GetEmailContent(common.organisationKeyID, TemplateTypeID)
+      const data = await GetEmailContent(
+        common.organisationKeyID,
+        TemplateTypeID
+      );
       if (data?.data?.statusCode === 200) {
         if (data?.data?.responseData?.data) {
           const htmlContent = data?.data?.responseData?.data;
           setEditorState(htmlContent);
           setInitialContent(htmlContent);
         }
-      }
-      else {
+      } else {
         // console.error(error);
         setLoader(false);
       }
-    }
-    catch (error) {
+    } catch (error) {
       console.error(error);
     }
-  }
+  };
   const isMeaningfulChanges = (currentContent, initialContent) => {
     const trimmedCurrent = currentContent.replace(/\s+/g, "").trim();
     const trimmedInitial = initialContent.replace(/\s+/g, "").trim();
@@ -101,17 +108,17 @@ export default function PreviewComponentPdf(props) {
       if (props.moduleName == "Quote") {
         props.setProposalObject({
           ...props.ProposalObject,
-          customizedEmailContent: newContent
-        })
+          customizedEmailContent: newContent,
+        });
       } else if (props.moduleName == "Contract") {
         props.setEngagementObj({
           ...props.engagementObj,
-          customizedEmailContent: newContent
-        })
+          customizedEmailContent: newContent,
+        });
       }
     }
     props.setRequireMessage(false);
-  }
+  };
   // if(props.moduleName == 'Quote' && isPopUpVisible)  {
   //   if(props.ProposalObject.ProposalFormate === 2) {
   //     GetEmailTemplateContent(common.organisationKeyID,8);
@@ -123,12 +130,10 @@ export default function PreviewComponentPdf(props) {
     if (isPopUpVisible && props.moduleName === "Quote") {
       const templateType = props.ProposalObject.ProposalFormate === 2 ? 8 : 5;
       GetEmailTemplateContent(common.organisationKeyID, templateType);
-    }
-    else if (isPopUpVisible && props.moduleName === "Contract") {
+    } else if (isPopUpVisible && props.moduleName === "Contract") {
       GetEmailTemplateContent(common.organisationKeyID, 6);
     }
   }, [isPopUpVisible, props?.ProposalObject?.ProposalFormate]);
-
 
   const handleFormate = (selectedOption) => {
     props.setProposalObject({
@@ -151,7 +156,6 @@ export default function PreviewComponentPdf(props) {
   //       }));
   //   };
   // }, []);
-
 
   useEffect(() => {
     // Function to compute the sum of package values
@@ -236,6 +240,7 @@ export default function PreviewComponentPdf(props) {
   const fontSizeContent = props?.fontSize;
   // const fontSizeContent = "0.20in";
   const fontSizeHeading = "0.2in";
+  // const fontFamily = "cursive";
   const fontFamily = props?.fontFamily;
   const HeaderContent = props.headerContent;
   const FooterContent = props.footerContent;
@@ -257,7 +262,6 @@ export default function PreviewComponentPdf(props) {
   const AcceptRecurringUrlButton1 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.Recurring}&Action=Accepted&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
   const AcceptRecurringUrlButton2 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.Recurring}&Action=Accepted&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
   const AcceptRecurringUrlButton3 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.Recurring}&Action=Accepted&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
-
 
   // const AcceptOneOffELOffUrlButton1 = `https://$AppUrl$/accept-decline-proposal?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Accepted&ServicePackageKeyID=${props.selectedPackagesList[0]?.servicePackageKeyID}`;
   // const AcceptOneOffELOffUrlButton2 = `https://$AppUrl$/accept-decline-proposal?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Accepted&ServicePackageKeyID=${props.selectedPackagesList[1]?.servicePackageKeyID}`;
@@ -292,9 +296,6 @@ export default function PreviewComponentPdf(props) {
     }
   };
 
-
-
-
   useEffect(() => {
     if (props?.moduleName === "Contract") {
       props.setEngagementObj((prevState) => ({
@@ -313,8 +314,7 @@ export default function PreviewComponentPdf(props) {
 
   const DeclineOneOffUrl = `https://$AppUrl$/accept-decline-proposal?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Declined&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
 
-
-  const RecurringPackagesTable =
+  const RecurringPackagesTable = (
     <div
       style={{
         paddingLeft: "40px",
@@ -360,117 +360,43 @@ export default function PreviewComponentPdf(props) {
               color: "white",
               fontSize: "18px",
             }}
-          >
-          </th>
+          ></th>
         </tr>
-        {props.moduleName === "Quote" && props.selectedRecurringServiceList?.map((serviceCat, index) => (
-          <React.Fragment key={index}>
-            <tr style={{ backgroundColor: "#DCDCDC" }}>
-              <td
-                style={{
-                  border: "1px solid #DDDDDD",
-                  textAlign: "left",
-                  padding: "8px",
-                  fontWeight: "bold",
-                  fontSize: "18px",
-                }}
-              >
-                {serviceCat.serviceCatName}
-              </td>
-              <td
-                style={{
-                  border: "1px solid #DDDDDD",
-                  textAlign: "left",
-                  padding: "8px",
-                }}
-              ></td>
-            </tr>
-            {serviceCat.servicesList.map((subService, subIndex) => (
-              <tr key={subIndex}>
+        {props.moduleName === "Quote" &&
+          props.selectedRecurringServiceList?.map((serviceCat, index) => (
+            <React.Fragment key={index}>
+              <tr style={{ backgroundColor: "#DCDCDC" }}>
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "left",
+                    padding: "8px",
+                    fontWeight: "bold",
+                    fontSize: "18px",
+                  }}
+                >
+                  {serviceCat.serviceCatName}
+                </td>
                 <td
                   style={{
                     border: "1px solid #DDDDDD",
                     textAlign: "left",
                     padding: "8px",
                   }}
-                >
-                  {subService.serviceName}
-                </td>
-                {props.moduleName == "Quote" && props.ProposalObject?.feeTypeId == 1 ? (
+                ></td>
+              </tr>
+              {serviceCat.servicesList.map((subService, subIndex) => (
+                <tr key={subIndex}>
                   <td
                     style={{
                       border: "1px solid #DDDDDD",
-                      textAlign: "right",
+                      textAlign: "left",
                       padding: "8px",
                     }}
                   >
-                    &#10003;
+                    {subService.serviceName}
                   </td>
-                ) : (
-                  <td
-                    style={{
-                      border: "1px solid #DDDDDD",
-                      textAlign: "right",
-                      padding: "8px",
-                    }}
-                  >
-                    &#10003;
-                  </td>
-                )}
-                {subService.pricingDriverList?.length > 0 &&
-                  subService.pricingDriverList.map((driver, driverIndex) => {
-                    const isVariation = driver.driverTypeID === 3;
-                    const isSlab = driver.driverTypeID === 4;
-                    const isQuantity = driver.driverTypeID === 2;
-                    const matchedQuantity = driver.driverValue;
-                    const isVisible = driver.driverVisibility === true;
-
-                    const matchedVariation = isVariation
-                      ? driver.variation?.find((item) => item.variationID === driver.variationID)
-                      : null;
-
-                    const matchedSlab = isSlab
-                      ? driver.slab?.find((item) => item.slabID === driver.slabID)
-                      : null;
-
-                    return (
-                      <>
-                        <tr>
-                          {isVisible && (
-                            <>
-                              <td
-                                key={`driver-${driverIndex}`}
-                                style={{
-                                  border: "1px solid #DDDDDD",
-                                  textAlign: "left",
-                                  padding: "8px",
-                                  fontWeight: "normal"
-                                }}
-                              >
-                                • {driver.driverName}
-                              </td>
-                              <td
-                                style={{
-                                  border: "1px solid #DDDDDD",
-                                  textAlign: "right",
-                                  padding: "8px",
-                                  fontWeight: "normal"
-                                }}
-                              >
-                                {isVariation && matchedVariation
-                                  ? matchedVariation.variationName
-                                  : isSlab && matchedSlab
-                                    ? `${matchedSlab.slabFrom} - ${matchedSlab.slabTo}`
-                                    : isQuantity ? matchedQuantity : ""}
-                              </td>
-                            </>
-                          )}
-                        </tr>
-                      </>
-                    );
-                  })}
-
-                {props?.selectedPackagesList.length >= 2 ? (
+                  {props.moduleName == "Quote" &&
                   props.ProposalObject?.feeTypeId == 1 ? (
                     <td
                       style={{
@@ -479,100 +405,180 @@ export default function PreviewComponentPdf(props) {
                         padding: "8px",
                       }}
                     >
-                      {(subService.packageTwoValue === null) &&
+                      &#10003;
+                    </td>
+                  ) : (
+                    <td
+                      style={{
+                        border: "1px solid #DDDDDD",
+                        textAlign: "right",
+                        padding: "8px",
+                      }}
+                    >
+                      &#10003;
+                    </td>
+                  )}
+                  {subService.pricingDriverList?.length > 0 &&
+                    subService.pricingDriverList.map((driver, driverIndex) => {
+                      const isVariation = driver.driverTypeID === 3;
+                      const isSlab = driver.driverTypeID === 4;
+                      const isQuantity = driver.driverTypeID === 2;
+                      const matchedQuantity = driver.driverValue;
+                      const isVisible = driver.driverVisibility === true;
+
+                      const matchedVariation = isVariation
+                        ? driver.variation?.find(
+                            (item) => item.variationID === driver.variationID
+                          )
+                        : null;
+
+                      const matchedSlab = isSlab
+                        ? driver.slab?.find(
+                            (item) => item.slabID === driver.slabID
+                          )
+                        : null;
+
+                      return (
+                        <>
+                          <tr>
+                            {isVisible && (
+                              <>
+                                <td
+                                  key={`driver-${driverIndex}`}
+                                  style={{
+                                    border: "1px solid #DDDDDD",
+                                    textAlign: "left",
+                                    padding: "8px",
+                                    fontWeight: "normal",
+                                  }}
+                                >
+                                  • {driver.driverName}
+                                </td>
+                                <td
+                                  style={{
+                                    border: "1px solid #DDDDDD",
+                                    textAlign: "right",
+                                    padding: "8px",
+                                    fontWeight: "normal",
+                                  }}
+                                >
+                                  {isVariation && matchedVariation
+                                    ? matchedVariation.variationName
+                                    : isSlab && matchedSlab
+                                    ? `${matchedSlab.slabFrom} - ${matchedSlab.slabTo}`
+                                    : isQuantity
+                                    ? matchedQuantity
+                                    : ""}
+                                </td>
+                              </>
+                            )}
+                          </tr>
+                        </>
+                      );
+                    })}
+
+                  {props?.selectedPackagesList.length >= 2 ? (
+                    props.ProposalObject?.feeTypeId == 1 ? (
+                      <td
+                        style={{
+                          border: "1px solid #DDDDDD",
+                          textAlign: "right",
+                          padding: "8px",
+                        }}
+                      >
+                        {subService.packageTwoValue === null &&
                         !subService.servicePackageIDs.some(
                           (item) =>
                             item ==
                             props.selectedPackagesList[1]?.servicePackageID
                         ) ? (
-                        <span>&#10007;</span>
-                      ) : !subService?.servicePackageIDs.includes(
+                          <span>&#10007;</span>
+                        ) : !subService?.servicePackageIDs.includes(
+                            subService.packageTwoID
+                          ) ? (
+                          <span>&#10007;</span>
+                        ) : (
+                          ` ${props.formatValue(subService.packageTwoValue)}`
+                        )}
+                      </td>
+                    ) : subService.packageTwoValue !== null &&
+                      !subService?.servicePackageIDs.includes(
                         subService.packageTwoID
                       ) ? (
-                        <span>&#10007;</span>
-                      ) : (
-                        ` ${props.formatValue(subService.packageTwoValue)}`
-                      )}
-                    </td>
-                  ) : subService.packageTwoValue !== null &&
-                    !subService?.servicePackageIDs.includes(
-                      subService.packageTwoID
-                    ) ? (
-                    <td
-                      style={{
-                        border: "1px solid #DDDDDD",
-                        textAlign: "right",
-                        padding: "8px",
-                      }}
-                    >
-                      &#10007;
-                    </td>
-                  ) : (
-                    <td
-                      style={{
-                        border: "1px solid #DDDDDD",
-                        textAlign: "right",
-                        padding: "8px",
-                      }}
-                    >
-                      &#10003;
-                    </td>
-                  )
-                ) : null}
-                {props?.selectedPackagesList.length === 3 ? (
-                  props.ProposalObject?.feeTypeId == 1 ? (
-                    <td
-                      style={{
-                        border: "1px solid #DDDDDD",
-                        textAlign: "right",
-                        padding: "8px",
-                      }}
-                    >
-                      {(subService.packageThreeValue === null) &&
+                      <td
+                        style={{
+                          border: "1px solid #DDDDDD",
+                          textAlign: "right",
+                          padding: "8px",
+                        }}
+                      >
+                        &#10007;
+                      </td>
+                    ) : (
+                      <td
+                        style={{
+                          border: "1px solid #DDDDDD",
+                          textAlign: "right",
+                          padding: "8px",
+                        }}
+                      >
+                        &#10003;
+                      </td>
+                    )
+                  ) : null}
+                  {props?.selectedPackagesList.length === 3 ? (
+                    props.ProposalObject?.feeTypeId == 1 ? (
+                      <td
+                        style={{
+                          border: "1px solid #DDDDDD",
+                          textAlign: "right",
+                          padding: "8px",
+                        }}
+                      >
+                        {subService.packageThreeValue === null &&
                         !subService.servicePackageIDs.some(
                           (item) =>
                             item ==
                             props.selectedPackagesList[2]?.servicePackageID
                         ) ? (
-                        <span>&#10007;</span>
-                      ) : !subService?.servicePackageIDs.includes(
+                          <span>&#10007;</span>
+                        ) : !subService?.servicePackageIDs.includes(
+                            subService.packageThreeID
+                          ) ? (
+                          <span>&#10007;</span>
+                        ) : (
+                          `${props.formatValue(subService.packageThreeValue)}`
+                        )}
+                      </td>
+                    ) : subService.packageThreeValue !== null &&
+                      !subService?.servicePackageIDs.includes(
                         subService.packageThreeID
                       ) ? (
-                        <span>&#10007;</span>
-                      ) : (
-                        `${props.formatValue(subService.packageThreeValue)}`
-                      )}
-                    </td>
-                  ) : subService.packageThreeValue !== null &&
-                    !subService?.servicePackageIDs.includes(
-                      subService.packageThreeID
-                    ) ? (
-                    <td
-                      style={{
-                        border: "1px solid #DDDDDD",
-                        textAlign: "right",
-                        padding: "8px",
-                      }}
-                    >
-                      &#10007;
-                    </td>
-                  ) : (
-                    <td
-                      style={{
-                        border: "1px solid #DDDDDD",
-                        textAlign: "right",
-                        padding: "8px",
-                      }}
-                    >
-                      &#10003;
-                    </td>
-                  )
-                ) : null}
-              </tr>
-            ))}
-          </React.Fragment>
-        ))}
-
+                      <td
+                        style={{
+                          border: "1px solid #DDDDDD",
+                          textAlign: "right",
+                          padding: "8px",
+                        }}
+                      >
+                        &#10007;
+                      </td>
+                    ) : (
+                      <td
+                        style={{
+                          border: "1px solid #DDDDDD",
+                          textAlign: "right",
+                          padding: "8px",
+                        }}
+                      >
+                        &#10003;
+                      </td>
+                    )
+                  ) : null}
+                </tr>
+              ))}
+            </React.Fragment>
+          ))}
 
         <tr style={{ backgroundColor: "#DCDCDC" }}>
           <td
@@ -765,9 +771,10 @@ export default function PreviewComponentPdf(props) {
         )}
       </table>
     </div>
+  );
 
   // one-Off Service-Pricing Table Formate For E-mail.
-  const OneOffPackagesTable =
+  const OneOffPackagesTable = (
     <div
       style={{
         paddingLeft: "40px",
@@ -813,150 +820,154 @@ export default function PreviewComponentPdf(props) {
               color: "white",
               fontSize: "18px",
             }}
-          >
-          </th>
-
+          ></th>
         </tr>
-        {props.moduleName == "Quote" && props.selectedOneOffServiceList?.map((serviceCat, index) => (
-          <React.Fragment key={index}>
-            <tr style={{ backgroundColor: "#DCDCDC" }}>
-              <td
-                style={{
-                  border: "1px solid #DDDDDD",
-                  textAlign: "left",
-                  padding: "8px",
-                  fontWeight: "bold",
-                  fontSize: "18px",
-                }}
-              >
-                {serviceCat.serviceCatName}
-              </td>
-              <td
-                style={{
-                  border: "1px solid #DDDDDD",
-                  textAlign: "left",
-                  padding: "8px",
-                }}
-              >
-              </td>
-              {props?.selectedPackagesList.length >= 2 ? (
+        {props.moduleName == "Quote" &&
+          props.selectedOneOffServiceList?.map((serviceCat, index) => (
+            <React.Fragment key={index}>
+              <tr style={{ backgroundColor: "#DCDCDC" }}>
                 <td
                   style={{
                     border: "1px solid #DDDDDD",
                     textAlign: "left",
                     padding: "8px",
-                  }}
-                ></td>
-              ) : null}
-              {props?.selectedPackagesList.length === 3 ? (
-                <td
-                  style={{
-                    border: "1px solid #DDDDDD",
-                    textAlign: "left",
-                    padding: "8px",
-                  }}
-                ></td>
-              ) : null}
-            </tr>
-            {serviceCat.servicesList.map((subService, subIndex) => (
-              <tr>
-                <td
-                  style={{
-                    border: "1px solid #DDDDDD",
-                    textAlign: "left",
-                    padding: "8px",
+                    fontWeight: "bold",
+                    fontSize: "18px",
                   }}
                 >
-                  {subService.serviceName
-                    // .length > 45 ? (
-                    //   subService.serviceName
-                    //     .substring(0, 45)
-                    //     .toLowerCase()
-                    //     .replace(/\b\w/g, (l) => l.toUpperCase()) + "..."
-                    // ) : (
-                    //   subService.serviceName
-                    // )
-                  }
+                  {serviceCat.serviceCatName}
                 </td>
-                {props.ProposalObject?.feeTypeId == 1 ? (
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "left",
+                    padding: "8px",
+                  }}
+                ></td>
+                {props?.selectedPackagesList.length >= 2 ? (
                   <td
                     style={{
                       border: "1px solid #DDDDDD",
-                      textAlign: "right",
+                      textAlign: "left",
                       padding: "8px",
                     }}
-                  >
-                    &#10003;
-                  </td>
-                ) : (
+                  ></td>
+                ) : null}
+                {props?.selectedPackagesList.length === 3 ? (
                   <td
                     style={{
                       border: "1px solid #DDDDDD",
-                      textAlign: "right",
+                      textAlign: "left",
                       padding: "8px",
                     }}
-                  >
-                    &#10003;
-                  </td>
-                )}
-
-                {subService.pricingDriverList?.length > 0 &&
-                  subService.pricingDriverList.map((driver, driverIndex) => {
-                    const isVariation = driver.driverTypeID === 3;
-                    const isSlab = driver.driverTypeID === 4;
-                    const isQuantity = driver.driverTypeID === 2;
-                    const matchedQuantity = driver.driverValue;
-                    const isVisible = driver.driverVisibility === true;
-
-                    const matchedVariation = isVariation
-                      ? driver.variation?.find((item) => item.variationID === driver.variationID)
-                      : null;
-
-                    const matchedSlab = isSlab
-                      ? driver.slab?.find((item) => item.slabID === driver.slabID)
-                      : null;
-
-                    return (
-                      <>
-                        <tr>
-                          {isVisible && (
-                            <>
-                              <td
-                                key={`driver-${driverIndex}`}
-                                style={{
-                                  border: "1px solid #DDDDDD",
-                                  textAlign: "left",
-                                  padding: "8px",
-                                  fontWeight: "normal"
-                                }}
-                              >
-                                • {driver.driverName}
-                              </td>
-                              <td
-                                style={{
-                                  border: "1px solid #DDDDDD",
-                                  textAlign: "right",
-                                  padding: "8px",
-                                  fontWeight: "normal"
-                                }}
-                              >
-                                {isVariation && matchedVariation
-                                  ? matchedVariation.variationName
-                                  : isSlab && matchedSlab
-                                    ? `${matchedSlab.slabFrom} - ${matchedSlab.slabTo}`
-                                    : isQuantity ? matchedQuantity : ""}
-                              </td>
-                            </>
-                          )}
-                        </tr>
-                      </>
-                    );
-                  })}
-
+                  ></td>
+                ) : null}
               </tr>
-            ))}
-          </React.Fragment>
-        ))}
+              {serviceCat.servicesList.map((subService, subIndex) => (
+                <tr>
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "left",
+                      padding: "8px",
+                    }}
+                  >
+                    {
+                      subService.serviceName
+                      // .length > 45 ? (
+                      //   subService.serviceName
+                      //     .substring(0, 45)
+                      //     .toLowerCase()
+                      //     .replace(/\b\w/g, (l) => l.toUpperCase()) + "..."
+                      // ) : (
+                      //   subService.serviceName
+                      // )
+                    }
+                  </td>
+                  {props.ProposalObject?.feeTypeId == 1 ? (
+                    <td
+                      style={{
+                        border: "1px solid #DDDDDD",
+                        textAlign: "right",
+                        padding: "8px",
+                      }}
+                    >
+                      &#10003;
+                    </td>
+                  ) : (
+                    <td
+                      style={{
+                        border: "1px solid #DDDDDD",
+                        textAlign: "right",
+                        padding: "8px",
+                      }}
+                    >
+                      &#10003;
+                    </td>
+                  )}
+
+                  {subService.pricingDriverList?.length > 0 &&
+                    subService.pricingDriverList.map((driver, driverIndex) => {
+                      const isVariation = driver.driverTypeID === 3;
+                      const isSlab = driver.driverTypeID === 4;
+                      const isQuantity = driver.driverTypeID === 2;
+                      const matchedQuantity = driver.driverValue;
+                      const isVisible = driver.driverVisibility === true;
+
+                      const matchedVariation = isVariation
+                        ? driver.variation?.find(
+                            (item) => item.variationID === driver.variationID
+                          )
+                        : null;
+
+                      const matchedSlab = isSlab
+                        ? driver.slab?.find(
+                            (item) => item.slabID === driver.slabID
+                          )
+                        : null;
+
+                      return (
+                        <>
+                          <tr>
+                            {isVisible && (
+                              <>
+                                <td
+                                  key={`driver-${driverIndex}`}
+                                  style={{
+                                    border: "1px solid #DDDDDD",
+                                    textAlign: "left",
+                                    padding: "8px",
+                                    fontWeight: "normal",
+                                  }}
+                                >
+                                  • {driver.driverName}
+                                </td>
+                                <td
+                                  style={{
+                                    border: "1px solid #DDDDDD",
+                                    textAlign: "right",
+                                    padding: "8px",
+                                    fontWeight: "normal",
+                                  }}
+                                >
+                                  {isVariation && matchedVariation
+                                    ? matchedVariation.variationName
+                                    : isSlab && matchedSlab
+                                    ? `${matchedSlab.slabFrom} - ${matchedSlab.slabTo}`
+                                    : isQuantity
+                                    ? matchedQuantity
+                                    : ""}
+                                </td>
+                              </>
+                            )}
+                          </tr>
+                        </>
+                      );
+                    })}
+                </tr>
+              ))}
+            </React.Fragment>
+          ))}
         {/* <tr style={{ backgroundColor: "#808080" }}>
             <td
               style={{
@@ -1066,8 +1077,6 @@ export default function PreviewComponentPdf(props) {
               </td>
             )}
           </tr> */}
-
-
 
         <tr style={{ backgroundColor: "#DCDCDC" }}>
           <td
@@ -1259,6 +1268,7 @@ export default function PreviewComponentPdf(props) {
         )}
       </table>
     </div>
+  );
 
   const oneOffTableString = ReactDOMServer.renderToString(OneOffPackagesTable);
   const RecurringTableString = ReactDOMServer.renderToString(
@@ -1266,17 +1276,26 @@ export default function PreviewComponentPdf(props) {
   );
 
   useEffect(() => {
-    if (props.moduleName == "Quote" && props?.ProposalObject?.selectedProposalTypeValue === 4) {
+    if (
+      props.moduleName == "Quote" &&
+      props?.ProposalObject?.selectedProposalTypeValue === 4
+    ) {
       // Clear old PDF content when navigating to Preview
       props.setProposalObject((prevState) => ({
         ...prevState,
-        recurringHtmlContent: props.selectedRecurringServiceList.length > 0
-          ? RecurringTableString
-          : null,
-        oneOffHtmlContent: props.selectedOneOffServiceList.length > 0 ? oneOffTableString : null,
+        recurringHtmlContent:
+          props.selectedRecurringServiceList.length > 0
+            ? RecurringTableString
+            : null,
+        oneOffHtmlContent:
+          props.selectedOneOffServiceList.length > 0 ? oneOffTableString : null,
       }));
     }
-  }, [props?.ProposalObject, props?.selectedOneOffServiceList, props?.selectedRecurringServiceList]);
+  }, [
+    props?.ProposalObject,
+    props?.selectedOneOffServiceList,
+    props?.selectedRecurringServiceList,
+  ]);
 
   useEffect(() => {
     const HeadingValue =
@@ -1354,7 +1373,7 @@ export default function PreviewComponentPdf(props) {
 
       body: JSON.stringify({
         userId: common.userKeyID,
-        moduleName: props.moduleName
+        moduleName: props.moduleName,
       }),
     })
       .then((response) => response.json())
@@ -1412,7 +1431,6 @@ export default function PreviewComponentPdf(props) {
   //   }
   // }, [generatePdfData]);
   useEffect(() => {
-
     if (generatePdfData.length !== 0) {
       if (!isPdfAlreadyGenerated) {
         setIsPdfAlreadyGenerated(true);
@@ -1437,18 +1455,17 @@ export default function PreviewComponentPdf(props) {
 
     if (!packageName) return "";
     if (packages?.PackageOneNetValue?.servicePackageID === undefined) {
-      return name
+      return name;
     } else {
-
-
-      return packageName
-        .split(",")
-        .map((pkgName) => pkgName
-        )
-        // .map((pkgName) =>
-        //   pkgName.length > 10 ? pkgName.substring(0, 10) + "..." : pkgName
-        // )
-        .join(", ");
+      return (
+        packageName
+          .split(",")
+          .map((pkgName) => pkgName)
+          // .map((pkgName) =>
+          //   pkgName.length > 10 ? pkgName.substring(0, 10) + "..." : pkgName
+          // )
+          .join(", ")
+      );
     }
   }
 
@@ -1469,10 +1486,10 @@ export default function PreviewComponentPdf(props) {
   //         const hasInlineFont = el.style.fontFamily?.toLowerCase().trim();
 
   //         if (
-  //             !hasInlineFont || 
-  //             computedFont === defaultFontFamily || 
-  //             hasInlineFont === 'inherit' || 
-  //             hasInlineFont === 'initial' || 
+  //             !hasInlineFont ||
+  //             computedFont === defaultFontFamily ||
+  //             hasInlineFont === 'inherit' ||
+  //             hasInlineFont === 'initial' ||
   //             hasInlineFont === 'default'
   //         ) {
   //             el.style.setProperty("font-family", fontFamily, "important");
@@ -1536,7 +1553,7 @@ export default function PreviewComponentPdf(props) {
     const parser = new DOMParser();
     const doc = parser.parseFromString(htmlContent, "text/html");
 
-    const elements = doc.querySelectorAll('*');
+    const elements = doc.querySelectorAll("*");
 
     elements.forEach((el) => {
       const inlineStyle = el.getAttribute("style") || "";
@@ -1544,15 +1561,15 @@ export default function PreviewComponentPdf(props) {
 
       if (fontFamilyMatch) {
         const existingFonts = fontFamilyMatch[1]
-          .replace(/['"]/g, '') // Remove quotes
+          .replace(/['"]/g, "") // Remove quotes
           .split(/\s*,\s*/)
-          .map(f => f.toLowerCase());
+          .map((f) => f.toLowerCase());
 
         // Check if Roboto is the first font in the list
-        const hasRobotoPrimary = existingFonts[0] === 'roboto';
+        const hasRobotoPrimary = existingFonts[0] === "roboto";
 
         // Check if no font family is actually set (empty value)
-        const isEmptyFontFamily = existingFonts[0] === '';
+        const isEmptyFontFamily = existingFonts[0] === "";
 
         if (hasRobotoPrimary || isEmptyFontFamily) {
           el.style.setProperty("font-family", fontFamily, "important");
@@ -1570,7 +1587,6 @@ export default function PreviewComponentPdf(props) {
     const doc = parser.parseFromString(htmlContent, "text/html");
     const elements = doc.getElementsByClassName("OrgnewColorCode");
 
-
     // Check if any elements are found with the class name 'OrgnewColorCode'
     if (elements.length > 0) {
       // Loop through each element and change its color
@@ -1578,7 +1594,7 @@ export default function PreviewComponentPdf(props) {
         elements[i].style.color = newColorCode;
       }
     } else {
-      return htmlContent
+      return htmlContent;
     }
 
     return doc.body.innerHTML;
@@ -1594,7 +1610,6 @@ export default function PreviewComponentPdf(props) {
       // Flag to ensure only one pricing table is added
       let prevElementType = null;
       props.templateElementList.forEach((element) => {
-
         switch (element.templateElementTypeID) {
           case ElementType.HEADING:
             if (
@@ -1617,31 +1632,40 @@ export default function PreviewComponentPdf(props) {
             }
             break;
           case ElementType.TEXT_BLOCK:
-            const appliedFontContent = setDefaultFontFamily(element.htmlContent, fontFamily);
+            const appliedFontContent = setDefaultFontFamily(
+              element.htmlContent,
+              fontFamily
+            );
             if (
               prevElementType !== ElementType.PAGE_BREAK &&
               prevElementType !== ElementType.AWS_PDF_LINK
             ) {
               currentArray.push({
                 // textbox: ` ${imgTag}<div style="padding-left: 40px; padding-right: 40px;">${replaceUrlInHtml(element.htmlContent)}</div>`,
-                textbox: ` ${imgTag}<div style="padding-left: 40px; padding-right: 40px;">${replaceUrlInHtml(appliedFontContent)}</div>`,
+                textbox: ` ${imgTag}<div style="padding-left: 40px; padding-right: 40px;">${replaceUrlInHtml(
+                  appliedFontContent
+                )}</div>`,
               });
             } else {
               pdfDataArray.push(currentArray);
               currentArray = [
                 {
                   // textbox: ` ${imgTag}<div style="padding-left: 40px; padding-right: 40px;">${replaceUrlInHtml(element.htmlContent)}</div>`,
-                  textbox: ` ${imgTag}<div style="padding-left: 40px; padding-right: 40px;">${replaceUrlInHtml(appliedFontContent)}</div>`,
+                  textbox: ` ${imgTag}<div style="padding-left: 40px; padding-right: 40px;">${replaceUrlInHtml(
+                    appliedFontContent
+                  )}</div>`,
                 },
               ];
             }
             break;
           case ElementType.SIGNATURE_BLOCK:
             // Add RowNo to contract signatories
-            const contractSignatoryRowNo = props.contractSignatoriesList.map((item, index) => ({
-              ...item,
-              RowNo: index + 1,
-            }));
+            const contractSignatoryRowNo = props.contractSignatoriesList.map(
+              (item, index) => ({
+                ...item,
+                RowNo: index + 1,
+              })
+            );
 
             const contractSignatoryRowNoForOfficer =
               props.organisationData?.officersList !== undefined &&
@@ -1653,15 +1677,23 @@ export default function PreviewComponentPdf(props) {
                 }));
 
             // Always include contractSignatories
-            let rightSignatureList = contractSignatoryRowNo.filter(x => x.signaturePositionID === 1);
-            let leftSignatureList = contractSignatoryRowNo.filter(x => x.signaturePositionID === 2);
+            let rightSignatureList = contractSignatoryRowNo.filter(
+              (x) => x.signaturePositionID === 1
+            );
+            let leftSignatureList = contractSignatoryRowNo.filter(
+              (x) => x.signaturePositionID === 2
+            );
 
             // Include officers based on image URL and map to opposite side
-            const signatureImageUrl = props.organisationData?.otherInformation?.[0]?.signatureImageUrl;
+            const signatureImageUrl =
+              props.organisationData?.otherInformation?.[0]?.signatureImageUrl;
 
-            if (!signatureImageUrl && Array.isArray(contractSignatoryRowNoForOfficer)) {
+            if (
+              !signatureImageUrl &&
+              Array.isArray(contractSignatoryRowNoForOfficer)
+            ) {
               // Officers go to the *opposite* side of each signaturePositionID
-              contractSignatoryRowNoForOfficer.forEach(officer => {
+              contractSignatoryRowNoForOfficer.forEach((officer) => {
                 // If most contract signatories are on the right, place officers on the left, and vice versa
                 if (rightSignatureList.length <= leftSignatureList.length) {
                   rightSignatureList.push(officer); // balance to right
@@ -1680,14 +1712,17 @@ export default function PreviewComponentPdf(props) {
             let orgSignatureInserted = false;
 
             htmlContentForSignatories += `<div id='SignatoryBlock' style='width: 95%; padding-left: 0px; padding-right: 0px; margin-top: 50px; page-break-inside: avoid; break-inside: avoid;'>`;
-            htmlContentForSignatories += "<table style='width: 100%; border-collapse: collapse;'>";
+            htmlContentForSignatories +=
+              "<table style='width: 100%; border-collapse: collapse;'>";
 
             for (let i = 0; i < loopCount; i++) {
               htmlContentForSignatories += `<tr style='width:100%; vertical-align: bottom;'>`;
 
               // --- LEFT SIGNATURE CELL ---
               const left = leftSignatureList?.[i];
-              htmlContentForSignatories += `<td id="left_${i + 1}" style="padding-top: 60px; width: 50%; font-family: ${fontFamily}; font-size: 0.2in; text-align: left; vertical-align: bottom;">`;
+              htmlContentForSignatories += `<td id="left_${
+                i + 1
+              }" style="padding-top: 60px; width: 50%; font-family: ${fontFamily}; font-size: 0.2in; text-align: left; vertical-align: bottom;">`;
 
               if (left) {
                 htmlContentForSignatories += `
@@ -1696,8 +1731,12 @@ export default function PreviewComponentPdf(props) {
                 const org = props.organisationData.otherInformation[0];
                 htmlContentForSignatories += `
                 <div style="margin-left: 60px;">
-                  <div><img src="${org.signatureImageUrl}" alt="Signature" style="height:100px; width:130px;"></div>
-                  <div style="margin-top: 10px;">${org.signatoryName || ""}</div>
+                  <div><img src="${
+                    org.signatureImageUrl
+                  }" alt="Signature" style="height:100px; width:130px;"></div>
+                  <div style="margin-top: 10px;">${
+                    org.signatoryName || ""
+                  }</div>
                   </div>`;
                 orgSignatureInserted = true;
               }
@@ -1706,7 +1745,9 @@ export default function PreviewComponentPdf(props) {
 
               // --- RIGHT SIGNATURE CELL ---
               const right = rightSignatureList?.[i];
-              htmlContentForSignatories += `<td id="right_${i + 1}" style="padding-top: 60px; width: 50%; font-family: ${fontFamily}; font-size: 0.2in; text-align: right; vertical-align: bottom;">`;
+              htmlContentForSignatories += `<td id="right_${
+                i + 1
+              }" style="padding-top: 60px; width: 50%; font-family: ${fontFamily}; font-size: 0.2in; text-align: right; vertical-align: bottom;">`;
 
               if (right) {
                 htmlContentForSignatories += `
@@ -1715,8 +1756,12 @@ export default function PreviewComponentPdf(props) {
                 const org = props.organisationData.otherInformation[0];
                 htmlContentForSignatories += `
                 <div style="margin-right: 60px;">
-                  <div><img src="${org.signatureImageUrl}" alt="Signature" style="height:100px; width:130px;"></div>
-                  <div style="margin-top: 10px;">${org.signatoryName || ""}</div>
+                  <div><img src="${
+                    org.signatureImageUrl
+                  }" alt="Signature" style="height:100px; width:130px;"></div>
+                  <div style="margin-top: 10px;">${
+                    org.signatoryName || ""
+                  }</div>
                   </div>`;
                 orgSignatureInserted = true;
               }
@@ -1752,75 +1797,81 @@ export default function PreviewComponentPdf(props) {
             ) {
               currentArray.push({
                 textbox: `${imgTag}<div style="padding-left: 40px; padding-right: 40px;">
-                ${props?.selectedRecurringServiceList.length !== 0 ?
-                    `<p style="font-family:${fontFamily};font-size: ${fontSizeHeading};color: ${newColorCode}; font-weight: bold;">
+                ${
+                  props?.selectedRecurringServiceList.length !== 0
+                    ? `<p style="font-family:${fontFamily};font-size: ${fontSizeHeading};color: ${newColorCode}; font-weight: bold;">
                      Ongoing/Recurring Services
                     </p>`
-                    : ""}
+                    : ""
+                }
                    ${props?.selectedRecurringServiceList
-                    .map(
-                      (serviceCat) => `
+                     .map(
+                       (serviceCat) => `
                       <div>
                           <p style="color: black; font-weight: bold;font-family:${fontFamily}; font-size: ${fontSizeHeading};">
                               ${serviceCat.serviceCatName}
                           </p>
                           <hr style="color: gray; margin-top: -15px;">
                           ${serviceCat.servicesList
-                          .map(
-                            (subService) => `
+                            .map(
+                              (subService) => `
                               <p style=" color:black;font-family:${fontFamily}; font-size: ${fontSizeContent};">
                                   ${subService.serviceName}
                               </p>
                               <p style=" color:black;">
-                                ${subService.serviceDescription === null ||
-                                subService.serviceDescription === undefined ||
-                                subService.serviceDescription === ""
-                                ? ""
-                                : subService.serviceDescription
-                              }
+                                ${
+                                  subService.serviceDescription === null ||
+                                  subService.serviceDescription === undefined ||
+                                  subService.serviceDescription === ""
+                                    ? ""
+                                    : subService.serviceDescription
+                                }
                             </p>
                           `
-                          )
-                          .join("")}
+                            )
+                            .join("")}
                       </div>
                   `
-                    )
-                    .join("")}
+                     )
+                     .join("")}
                   
-                 ${props?.selectedOneOffServiceList.length !== 0 ?
-                    `<p style="font-family:${fontFamily}; color: ${newColorCode};font-size: ${fontSizeHeading}; font-weight: bold;">
+                 ${
+                   props?.selectedOneOffServiceList.length !== 0
+                     ? `<p style="font-family:${fontFamily}; color: ${newColorCode};font-size: ${fontSizeHeading}; font-weight: bold;">
                           One-Off/Ad hoc Services
                         </p>`
-                    : ""}
+                     : ""
+                 }
                    ${props?.selectedOneOffServiceList
-                    .map(
-                      (serviceCat) => `
+                     .map(
+                       (serviceCat) => `
                       <div >
                           <p style=" color: black; font-family:${fontFamily}; font-size: ${fontSizeHeading}; font-weight: bold;">
                               ${serviceCat.serviceCatName}
                           </p>
                           <hr style="color: gray; margin-top: -15px;">
                           ${serviceCat.servicesList
-                          .map(
-                            (subService) => `
+                            .map(
+                              (subService) => `
                              <p style=" color:black; font-family:${fontFamily}; font-size: ${fontSizeContent};">
                                   ${subService.serviceName}
                               </p>
                               <p style=" color:black;">
-                                ${subService.serviceDescription === null ||
-                                subService.serviceDescription === undefined ||
-                                subService.serviceDescription === ""
-                                ? ""
-                                : subService.serviceDescription
-                              }
+                                ${
+                                  subService.serviceDescription === null ||
+                                  subService.serviceDescription === undefined ||
+                                  subService.serviceDescription === ""
+                                    ? ""
+                                    : subService.serviceDescription
+                                }
                             </p>
                           `
-                          )
-                          .join("")}
+                            )
+                            .join("")}
                       </div>
                   `
-                    )
-                    .join("")}
+                     )
+                     .join("")}
                 </div>
                 `,
               });
@@ -1832,48 +1883,53 @@ export default function PreviewComponentPdf(props) {
                 ${imgTag}
                 <div style="padding-left: 40px; padding-right: 40px;">
               
-                ${props?.selectedRecurringServiceList.length !== 0 ?
-                      `<p style="font-family:${fontFamily};font-size: ${fontSizeHeading};color: ${newColorCode}; font-weight: bold;">
+                ${
+                  props?.selectedRecurringServiceList.length !== 0
+                    ? `<p style="font-family:${fontFamily};font-size: ${fontSizeHeading};color: ${newColorCode}; font-weight: bold;">
                      Ongoing/Recurring Services
                     </p>`
-                      : ""}
+                    : ""
+                }
               ${props?.selectedRecurringServiceList
-                      .map(
-                        (serviceCat) => `
+                .map(
+                  (serviceCat) => `
                     <div>
                         <p style=" color: black;font-family:${fontFamily}; font-size: ${fontSizeHeading}; font-weight: bold;">
                             ${serviceCat.serviceCatName}
                         </p>
                         <hr style="color: gray; margin-top: -15px;">
                         ${serviceCat.servicesList
-                            .map(
-                              (subService) => `
+                          .map(
+                            (subService) => `
                             <p style=" color:black;font-family:${fontFamily}; font-size: ${fontSizeContent};">
                                 ${subService.serviceName}
                             </p>
                             <p style=" color:black;">
-                               ${subService.serviceDescription === null ||
-                                  subService.serviceDescription === undefined ||
-                                  subService.serviceDescription === ""
-                                  ? ""
-                                  : subService.serviceDescription
-                                }
+                               ${
+                                 subService.serviceDescription === null ||
+                                 subService.serviceDescription === undefined ||
+                                 subService.serviceDescription === ""
+                                   ? ""
+                                   : subService.serviceDescription
+                               }
                             </p>
                         `
-                            )
-                            .join("")}
+                          )
+                          .join("")}
                     </div>
                 `
-                      )
-                      .join("")}
-                       ${props?.selectedOneOffServiceList.length !== 0 ?
-                      `<p style="font-family:${fontFamily}; color: ${newColorCode};font-size: ${fontSizeHeading}; font-weight: bold;">
+                )
+                .join("")}
+                       ${
+                         props?.selectedOneOffServiceList.length !== 0
+                           ? `<p style="font-family:${fontFamily}; color: ${newColorCode};font-size: ${fontSizeHeading}; font-weight: bold;">
                           One-Off/Ad hoc Services
                         </p>`
-                      : ""}
+                           : ""
+                       }
                 ${props?.selectedOneOffServiceList
-                      .map(
-                        (serviceCat) => `
+                  .map(
+                    (serviceCat) => `
                       <div>
                           <p style=" color: black;font-family:${fontFamily}; font-size: ${fontSizeHeading};font-weight: bold;">
                               ${serviceCat.serviceCatName}
@@ -1886,11 +1942,12 @@ export default function PreviewComponentPdf(props) {
                                   ${subService.serviceName}
                               </p>
                               <p style=" color:black;">
-                                ${subService.serviceDescription === null ||
+                                ${
+                                  subService.serviceDescription === null ||
                                   subService.serviceDescription === undefined ||
                                   subService.serviceDescription === ""
-                                  ? ""
-                                  : subService.serviceDescription
+                                    ? ""
+                                    : subService.serviceDescription
                                 }
                             </p>
                           `
@@ -1898,8 +1955,8 @@ export default function PreviewComponentPdf(props) {
                             .join("")}
                       </div>
                   `
-                      )
-                      .join("")}
+                  )
+                  .join("")}
                 </div>
                 `,
                 },
@@ -1953,116 +2010,188 @@ export default function PreviewComponentPdf(props) {
               prevElementType !== ElementType.PAGE_BREAK &&
               prevElementType !== ElementType.AWS_PDF_LINK
             ) {
-              if (props.moduleName === "Quote" && props?.ProposalObject?.selectedProposalTypeValue === 2) {
+              if (
+                props.moduleName === "Quote" &&
+                props?.ProposalObject?.selectedProposalTypeValue === 2
+              ) {
                 currentArray.push({
                   textbox: `
                     ${imgTag}
                     <div style="padding-left: 40px; padding-right: 40px; font-family:${fontFamily};">
                     ${props.StatementOfFact.map(
-                    (SelectedPackage) =>
-                      `<div style="font-family:${fontFamily};">
+                      (SelectedPackage) =>
+                        `<div style="font-family:${fontFamily};">
                           <p style="font-family:${fontFamily}; color: ${newColorCode}; font-size: ${fontSizeHeading}; font-weight: bold;">
                             Package Name:  ${SelectedPackage.servicePackageName}
                           </p>
                           <hr style="color: gray; margin-top: -15px;">
-                           ${SelectedPackage.reccuring.length !== 0 ?
-                        `<p style="font-family:${fontFamily};font-size: ${fontSizeHeading};color: ${newColorCode}; font-weight: bold;">
+                           ${
+                             SelectedPackage.reccuring.length !== 0
+                               ? `<p style="font-family:${fontFamily};font-size: ${fontSizeHeading};color: ${newColorCode}; font-weight: bold;">
                            Ongoing/Recurring Services
                           </p>`
-                        : ""}
-                          ${SelectedPackage.reccuring.map(
-                          (SelectedServiceCat) =>
-                            ` <p style="font-family:${fontFamily}; color: black; font-size: ${fontSizeHeading}; font-weight: bold;">
+                               : ""
+                           }
+                          ${SelectedPackage.reccuring
+                            .map(
+                              (SelectedServiceCat) =>
+                                ` <p style="font-family:${fontFamily}; color: black; font-size: ${fontSizeHeading}; font-weight: bold;">
                               ${SelectedServiceCat.serviceCategoryName}
                           </p>
                          ${SelectedServiceCat.servicesList
-                              .map(
-                                (subService) => `
+                           .map(
+                             (subService) => `
                               <p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent}; ">
                                   ${subService.serviceName}
                               </p>
                               ${(subService?.gpdList)
-                                    .filter(pricingDriver => pricingDriver.driverTypeID !== 1)
-                                    .map(
-                                      (pricingDriver) => `
+                                .filter(
+                                  (pricingDriver) =>
+                                    pricingDriver.driverTypeID !== 1
+                                )
+                                .map(
+                                  (pricingDriver) => `
                                 <li style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent}; margin-top:5px;">
                                 ${pricingDriver.driverName}: 
-                                   <strong> ${pricingDriver.driverTypeID === 2
-                                          ? props.formatValueWithoutCurrencySymbol(pricingDriver.value)
-                                          : pricingDriver.driverTypeID === 3
-                                            ? pricingDriver.variationName
-                                            : pricingDriver.driverTypeID === 4 ?
-                                              pricingDriver.slabTypeID === 2 ? props.formatValueWithoutCurrencySymbol(pricingDriver.value) :
-                                                pricingDriver.slabFrom + "-" + pricingDriver.slabTo : ""
-                                        }</strong>
+                                   <strong> ${
+                                     pricingDriver.driverTypeID === 2
+                                       ? props.formatValueWithoutCurrencySymbol(
+                                           pricingDriver.value
+                                         )
+                                       : pricingDriver.driverTypeID === 3
+                                       ? pricingDriver.variationName
+                                       : pricingDriver.driverTypeID === 4
+                                       ? pricingDriver.slabTypeID === 2
+                                         ? props.formatValueWithoutCurrencySymbol(
+                                             pricingDriver.value
+                                           )
+                                         : pricingDriver.slabFrom +
+                                           "-" +
+                                           pricingDriver.slabTo
+                                       : ""
+                                   }</strong>
                             </li>
-                              `).join("")}
-                          `).join("")}
-                          `).join(" ")}
-                             ${SelectedPackage.oneOff.length !== 0 ?
-                        `<p style="font-family:${fontFamily};font-size: ${fontSizeHeading};color: ${newColorCode}; font-weight: bold;">
+                              `
+                                )
+                                .join("")}
+                          `
+                           )
+                           .join("")}
+                          `
+                            )
+                            .join(" ")}
+                             ${
+                               SelectedPackage.oneOff.length !== 0
+                                 ? `<p style="font-family:${fontFamily};font-size: ${fontSizeHeading};color: ${newColorCode}; font-weight: bold;">
                             One-Off/Ad hoc Services
                           </p>`
-                        : ""}
-                          ${SelectedPackage.oneOff.map(
-                          (SelectedServiceCat) =>
-                            ` <p style="font-family:${fontFamily}; color: black; font-size: ${fontSizeHeading}; font-weight: bold;">
+                                 : ""
+                             }
+                          ${SelectedPackage.oneOff
+                            .map(
+                              (SelectedServiceCat) =>
+                                ` <p style="font-family:${fontFamily}; color: black; font-size: ${fontSizeHeading}; font-weight: bold;">
                               ${SelectedServiceCat.serviceCategoryName}
                           </p>
                          ${SelectedServiceCat.servicesList
-                              .map(
-                                (subService) => `
+                           .map(
+                             (subService) => `
                               <p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent}; ">
                                   ${subService.serviceName}
                               </p>
                               ${(subService?.gpdList)
-                                    .filter(pricingDriver => pricingDriver.driverTypeID !== 1)
-                                    .map(
-                                      (pricingDriver) => `
+                                .filter(
+                                  (pricingDriver) =>
+                                    pricingDriver.driverTypeID !== 1
+                                )
+                                .map(
+                                  (pricingDriver) => `
                                 <li style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent}; margin-top:5px;">
                                 ${pricingDriver.driverName}: 
-                                    <strong> ${pricingDriver.driverTypeID === 2
-                                          ? props.formatValueWithoutCurrencySymbol(pricingDriver.value)
-                                          : pricingDriver.driverTypeID === 3
-                                            ? pricingDriver.variationName
-                                            : pricingDriver.driverTypeID === 4 ?
-                                              pricingDriver.slabTypeID === 2 ? props.formatValueWithoutCurrencySymbol(pricingDriver.value) :
-                                                pricingDriver.slabFrom + "-" + pricingDriver.slabTo : ""
-                                        }</strong>
+                                    <strong> ${
+                                      pricingDriver.driverTypeID === 2
+                                        ? props.formatValueWithoutCurrencySymbol(
+                                            pricingDriver.value
+                                          )
+                                        : pricingDriver.driverTypeID === 3
+                                        ? pricingDriver.variationName
+                                        : pricingDriver.driverTypeID === 4
+                                        ? pricingDriver.slabTypeID === 2
+                                          ? props.formatValueWithoutCurrencySymbol(
+                                              pricingDriver.value
+                                            )
+                                          : pricingDriver.slabFrom +
+                                            "-" +
+                                            pricingDriver.slabTo
+                                        : ""
+                                    }</strong>
                             </li>
-                              `).join("")}
-                          `).join("")}
-                          `).join(" ")}
+                              `
+                                )
+                                .join("")}
+                          `
+                           )
+                           .join("")}
+                          `
+                            )
+                            .join(" ")}
 
-                            ${SelectedPackage.additionalInformationList?.length > 0 ?
-                        `<p style="font-family:${fontFamily}; color: ${newColorCode}; font-size: ${fontSizeHeading}; font-weight: bold;">
+                            ${
+                              SelectedPackage.additionalInformationList
+                                ?.length > 0
+                                ? `<p style="font-family:${fontFamily}; color: ${newColorCode}; font-size: ${fontSizeHeading}; font-weight: bold;">
         Additional Information
     </p>
     <hr style="color: gray; margin-top: -15px;" />` +
-                        SelectedPackage.additionalInformationList.filter(item => item.driverTypeID !== 1).map(serviceCat => `
+                                  SelectedPackage.additionalInformationList
+                                    .filter((item) => item.driverTypeID !== 1)
+                                    .map(
+                                      (serviceCat) => `
         <div>
             <p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
-                ${serviceCat.driverName}: ${serviceCat.driverTypeID === 4 ? serviceCat.slabTypeID === 2 ? `<strong>${props.formatValueWithoutCurrencySymbol(serviceCat.value)}</strong>` : `<strong>${props.formatValueWithoutCurrencySymbol(serviceCat.slabFrom)}-${props.formatValueWithoutCurrencySymbol(serviceCat.slabTo)}</strong>` : serviceCat.driverTypeID === 3 ? `<strong>${serviceCat.variationName}</strong>` : `${serviceCat.driverName}: <strong>${props.formatValueWithoutCurrencySymbol(serviceCat.value)}</strong>`}
+                ${serviceCat.driverName}: ${
+                                        serviceCat.driverTypeID === 4
+                                          ? serviceCat.slabTypeID === 2
+                                            ? `<strong>${props.formatValueWithoutCurrencySymbol(
+                                                serviceCat.value
+                                              )}</strong>`
+                                            : `<strong>${props.formatValueWithoutCurrencySymbol(
+                                                serviceCat.slabFrom
+                                              )}-${props.formatValueWithoutCurrencySymbol(
+                                                serviceCat.slabTo
+                                              )}</strong>`
+                                          : serviceCat.driverTypeID === 3
+                                          ? `<strong>${serviceCat.variationName}</strong>`
+                                          : `${
+                                              serviceCat.driverName
+                                            }: <strong>${props.formatValueWithoutCurrencySymbol(
+                                              serviceCat.value
+                                            )}</strong>`
+                                      }
             </p>
         </div>
-    `).join("") : ""
-                      }
+    `
+                                    )
+                                    .join("")
+                                : ""
+                            }
 
                         </div>`
-                  ).join(" ")}`
+                    ).join(" ")}`,
                 });
-              }
-              else {
+              } else {
                 currentArray.push({
                   textbox: `${imgTag}<div style="padding-left: 40px; padding-right: 40px; font-family:${fontFamily};">
-                  ${props?.selectedRecurringServiceList.length !== 0 ?
-                      `<p style="font-family:${fontFamily};font-size: ${fontSizeHeading};color: ${newColorCode}; font-weight: bold;">
+                  ${
+                    props?.selectedRecurringServiceList.length !== 0
+                      ? `<p style="font-family:${fontFamily};font-size: ${fontSizeHeading};color: ${newColorCode}; font-weight: bold;">
                        Ongoing/Recurring Services
                       </p>`
-                      : ""}
+                      : ""
+                  }
                   ${props?.selectedRecurringServiceList
-                      .map(
-                        (serviceCat) => `
+                    .map(
+                      (serviceCat) => `
                        <div style="font-family:${fontFamily};">
                           <p style="font-family:${fontFamily}; color: black; font-size: ${fontSizeHeading}; font-weight: bold;">
                               ${serviceCat.serviceCatName}
@@ -2074,391 +2203,637 @@ export default function PreviewComponentPdf(props) {
                               <p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent}; ">
                                   ${subService.serviceName}
                               </p>
-                              ${(subService?.pricingDriverList || subService?.gpdList || [])
-                                  .filter(pricingDriver =>
-                                    subService?.pricingDriverList !== undefined
-                                      ? pricingDriver.driverVisibility === true
-                                      : true
-                                  )
-                                  .filter(pricingDriver => pricingDriver.driverTypeID !== 1)
-                                  .map(
-                                    (pricingDriver) => `
+                              ${(
+                                subService?.pricingDriverList ||
+                                subService?.gpdList ||
+                                []
+                              )
+                                .filter((pricingDriver) =>
+                                  subService?.pricingDriverList !== undefined
+                                    ? pricingDriver.driverVisibility === true
+                                    : true
+                                )
+                                .filter(
+                                  (pricingDriver) =>
+                                    pricingDriver.driverTypeID !== 1
+                                )
+                                .map(
+                                  (pricingDriver) => `
                                 <li style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent}; margin-top:5px;">
                                 ${pricingDriver.driverName}: 
-                                    <strong> ${pricingDriver.driverTypeID === 2
+                                    <strong> ${
+                                      pricingDriver.driverTypeID === 2
                                         ? props.formatValueWithoutCurrencySymbol(
-                                          pricingDriver.driverValue
-                                        )
+                                            pricingDriver.driverValue
+                                          )
                                         : // Number(pricingDriver.driverValue).toFixed(2).toString().replace(
                                         //   /\B(?=(\d{3})+(?!\d))/g,
                                         //   ","
                                         // )
                                         pricingDriver.driverTypeID === 3
-                                          ? subService?.pricingDriverList == undefined ? pricingDriver.variationName : pricingDriver.variation.find(
-                                            (item) => item.isDefault
-                                          ).variationName
-                                          : pricingDriver.driverTypeID === 4
-                                            ? subService?.pricingDriverList == undefined ? pricingDriver.slabTypeID === 2 ? props.formatValueWithoutCurrencySymbol(pricingDriver.driverValue) : props.formatValueWithoutCurrencySymbol(pricingDriver.slabFrom) - props.formatValueWithoutCurrencySymbol(pricingDriver.slabTo) : pricingDriver.slab.find((item) => item.isDefault).slabTypeID === 2
-                                              ? Number(pricingDriver.slab.find((item) => item.isDefault).slabValue)
-                                                .toFixed(2)
-                                                .toString()
-                                                .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                                              : Number(pricingDriver.slab.find((item) => item.isDefault).slabFrom)
-                                                .toFixed(2)
-                                                .toString()
-                                                .replace(/\B(?=(\d{3})+(?!\d))/g, ",") +
-                                              "-" +
-                                              Number(pricingDriver.slab.find((item) => item.isDefault).slabTo)
-                                                .toFixed(2)
-                                                .toString()
-                                                .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                                            : ""
-                                      }</strong>
+                                        ? subService?.pricingDriverList ==
+                                          undefined
+                                          ? pricingDriver.variationName
+                                          : pricingDriver.variation.find(
+                                              (item) => item.isDefault
+                                            ).variationName
+                                        : pricingDriver.driverTypeID === 4
+                                        ? subService?.pricingDriverList ==
+                                          undefined
+                                          ? pricingDriver.slabTypeID === 2
+                                            ? props.formatValueWithoutCurrencySymbol(
+                                                pricingDriver.driverValue
+                                              )
+                                            : props.formatValueWithoutCurrencySymbol(
+                                                pricingDriver.slabFrom
+                                              ) -
+                                              props.formatValueWithoutCurrencySymbol(
+                                                pricingDriver.slabTo
+                                              )
+                                          : pricingDriver.slab.find(
+                                              (item) => item.isDefault
+                                            ).slabTypeID === 2
+                                          ? Number(
+                                              pricingDriver.slab.find(
+                                                (item) => item.isDefault
+                                              ).slabValue
+                                            )
+                                              .toFixed(2)
+                                              .toString()
+                                              .replace(
+                                                /\B(?=(\d{3})+(?!\d))/g,
+                                                ","
+                                              )
+                                          : Number(
+                                              pricingDriver.slab.find(
+                                                (item) => item.isDefault
+                                              ).slabFrom
+                                            )
+                                              .toFixed(2)
+                                              .toString()
+                                              .replace(
+                                                /\B(?=(\d{3})+(?!\d))/g,
+                                                ","
+                                              ) +
+                                            "-" +
+                                            Number(
+                                              pricingDriver.slab.find(
+                                                (item) => item.isDefault
+                                              ).slabTo
+                                            )
+                                              .toFixed(2)
+                                              .toString()
+                                              .replace(
+                                                /\B(?=(\d{3})+(?!\d))/g,
+                                                ","
+                                              )
+                                        : ""
+                                    }</strong>
                             </li>
                               `
-                                  )
-                                  .join("")}
+                                )
+                                .join("")}
                           `
                             )
                             .join("")}
                       </div>
                   `
-                      )
-                      .join("")}
-                    ${props?.selectedOneOffServiceList.length !== 0 ?
-                      `<p style="font-family:${fontFamily}; color: ${newColorCode};font-size: ${fontSizeHeading}; font-weight: bold;">
+                    )
+                    .join("")}
+                    ${
+                      props?.selectedOneOffServiceList.length !== 0
+                        ? `<p style="font-family:${fontFamily}; color: ${newColorCode};font-size: ${fontSizeHeading}; font-weight: bold;">
                           One-Off/Ad hoc Services
                         </p>`
-                      : ""}
+                        : ""
+                    }
                   ${props?.selectedOneOffServiceList
-                      .map(
-                        (serviceCat) => `
+                    .map(
+                      (serviceCat) => `
                          <div style="font-family:${fontFamily};">
                             <p style="font-family: ${fontFamily}; color: black; font-size: ${fontSizeHeading}; font-weight: bold;">
                                 ${serviceCat.serviceCatName}
                             </p>
                             <hr style="color: gray; margin-top: -15px;">
                             ${serviceCat.servicesList
-                            .map(
-                              (subService) => `
+                              .map(
+                                (subService) => `
                              <p style="font-family: ${fontFamily}; color:black; font-size: ${fontSizeContent};">
                                   ${subService.serviceName}
                               </p>
-                              ${(subService?.pricingDriverList || subService?.gpdList || [])
-                                  .filter(pricingDriver =>
-                                    subService?.pricingDriverList !== undefined
-                                      ? pricingDriver.driverVisibility === true
-                                      : true
-                                  )
-                                  .filter(pricingDriver => pricingDriver.driverTypeID !== 1)
-                                  .map(
-                                    (pricingDriver) => `
+                              ${(
+                                subService?.pricingDriverList ||
+                                subService?.gpdList ||
+                                []
+                              )
+                                .filter((pricingDriver) =>
+                                  subService?.pricingDriverList !== undefined
+                                    ? pricingDriver.driverVisibility === true
+                                    : true
+                                )
+                                .filter(
+                                  (pricingDriver) =>
+                                    pricingDriver.driverTypeID !== 1
+                                )
+                                .map(
+                                  (pricingDriver) => `
                                 <li style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent}; margin-top:5px;">
                                 ${pricingDriver.driverName}: 
-                                    <strong> ${pricingDriver.driverTypeID === 2
+                                    <strong> ${
+                                      pricingDriver.driverTypeID === 2
                                         ? props.formatValueWithoutCurrencySymbol(
-                                          pricingDriver.driverValue
-                                        )
+                                            pricingDriver.driverValue
+                                          )
                                         : // Number(pricingDriver.driverValue).toFixed(2).toString().replace(
                                         //   /\B(?=(\d{3})+(?!\d))/g,
                                         //   ","
                                         // )
                                         pricingDriver.driverTypeID === 3
-                                          ? subService?.pricingDriverList == undefined ? pricingDriver.variationName : pricingDriver.variation.find(
-                                            (item) => item.isDefault
-                                          ).variationName
-                                          : pricingDriver.driverTypeID === 4
-                                            ? subService?.pricingDriverList == undefined ? pricingDriver.slabTypeID === 2 ? props.formatValueWithoutCurrencySymbol(pricingDriver.driverValue) : props.formatValueWithoutCurrencySymbol(pricingDriver.slabFrom) - props.formatValueWithoutCurrencySymbol(pricingDriver.slabTo) : pricingDriver.slab.find((item) => item.isDefault).slabTypeID === 2
-                                              ? Number(pricingDriver.slab.find((item) => item.isDefault).slabValue)
-                                                .toFixed(2)
-                                                .toString()
-                                                .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                                              : Number(pricingDriver.slab.find((item) => item.isDefault).slabFrom)
-                                                .toFixed(2)
-                                                .toString()
-                                                .replace(/\B(?=(\d{3})+(?!\d))/g, ",") +
-                                              "-" +
-                                              Number(pricingDriver.slab.find((item) => item.isDefault).slabTo)
-                                                .toFixed(2)
-                                                .toString()
-                                                .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                                            : ""
-                                      }</strong>
+                                        ? subService?.pricingDriverList ==
+                                          undefined
+                                          ? pricingDriver.variationName
+                                          : pricingDriver.variation.find(
+                                              (item) => item.isDefault
+                                            ).variationName
+                                        : pricingDriver.driverTypeID === 4
+                                        ? subService?.pricingDriverList ==
+                                          undefined
+                                          ? pricingDriver.slabTypeID === 2
+                                            ? props.formatValueWithoutCurrencySymbol(
+                                                pricingDriver.driverValue
+                                              )
+                                            : props.formatValueWithoutCurrencySymbol(
+                                                pricingDriver.slabFrom
+                                              ) -
+                                              props.formatValueWithoutCurrencySymbol(
+                                                pricingDriver.slabTo
+                                              )
+                                          : pricingDriver.slab.find(
+                                              (item) => item.isDefault
+                                            ).slabTypeID === 2
+                                          ? Number(
+                                              pricingDriver.slab.find(
+                                                (item) => item.isDefault
+                                              ).slabValue
+                                            )
+                                              .toFixed(2)
+                                              .toString()
+                                              .replace(
+                                                /\B(?=(\d{3})+(?!\d))/g,
+                                                ","
+                                              )
+                                          : Number(
+                                              pricingDriver.slab.find(
+                                                (item) => item.isDefault
+                                              ).slabFrom
+                                            )
+                                              .toFixed(2)
+                                              .toString()
+                                              .replace(
+                                                /\B(?=(\d{3})+(?!\d))/g,
+                                                ","
+                                              ) +
+                                            "-" +
+                                            Number(
+                                              pricingDriver.slab.find(
+                                                (item) => item.isDefault
+                                              ).slabTo
+                                            )
+                                              .toFixed(2)
+                                              .toString()
+                                              .replace(
+                                                /\B(?=(\d{3})+(?!\d))/g,
+                                                ","
+                                              )
+                                        : ""
+                                    }</strong>
                             </li>
                               `
-                                  )
-                                  .join("")}
+                                )
+                                .join("")}
                             `
-                            )
-                            .join("")}
+                              )
+                              .join("")}
                         </div>
                     `
-                      )
-                      .join("")}
+                    )
+                    .join("")}
                       
                
-                      ${props?.additionalInformationList?.filter(
-                        (item) => item.driverTypeID !== 1
-                      ).length >
-                      0 >
-                      0
-                      ? `<p style="font-family:${fontFamily}; color: ${newColorCode}; font-size: ${fontSizeHeading}; font-weight: bold;">
+                      ${
+                        props?.additionalInformationList?.filter(
+                          (item) => item.driverTypeID !== 1
+                        ).length >
+                        0 >
+                        0
+                          ? `<p style="font-family:${fontFamily}; color: ${newColorCode}; font-size: ${fontSizeHeading}; font-weight: bold;">
           Additional Information
       </p><hr style="color: gray; margin-top: -15px;" ></hr>` +
-                      props.additionalInformationList
-                        .map(
-                          (serviceCat) => `
+                            props.additionalInformationList
+                              .map(
+                                (serviceCat) => `
           <div>
-              ${serviceCat.driverTypeID === 2 &&
-                              serviceCat.variation === null &&
-                              serviceCat.slab === null
-                              ? `<p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
-                          ${serviceCat.driverName}:  <strong> ${props.formatValueWithoutCurrencySymbol(
-                                serviceCat.driverValue
-                              )} </strong > 
+              ${
+                serviceCat.driverTypeID === 2 &&
+                serviceCat.variation === null &&
+                serviceCat.slab === null
+                  ? `<p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
+                          ${
+                            serviceCat.driverName
+                          }:  <strong> ${props.formatValueWithoutCurrencySymbol(
+                      serviceCat.driverValue
+                    )} </strong > 
                       </p>`
-                              : (serviceCat.driverTypeID === 4
-                                ? serviceCat.slab
-                                : serviceCat.driverTypeID === 3
-                                  ? serviceCat.variation
-                                  : []
-                              )
-                                .filter((item) => item.isDefault)
-                                .map(
-                                  (subService) => `
+                  : (serviceCat.driverTypeID === 4
+                      ? serviceCat.slab
+                      : serviceCat.driverTypeID === 3
+                      ? serviceCat.variation
+                      : []
+                    )
+                      .filter((item) => item.isDefault)
+                      .map(
+                        (subService) => `
   <p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
-      ${serviceCat.driverName}: ${serviceCat.driverTypeID === 4
-                                      ? subService.slabTypeID === 2 ? `<strong>${props.formatValueWithoutCurrencySymbol(subService.slabValue)}</strong>` : `<strong>${props.formatValueWithoutCurrencySymbol(subService.slabFrom)}-${props.formatValueWithoutCurrencySymbol(subService.slabTo)}</strong>`
-                                      : `<strong>${subService.variationName}</strong>`
-                                    }
+      ${serviceCat.driverName}: ${
+                          serviceCat.driverTypeID === 4
+                            ? subService.slabTypeID === 2
+                              ? `<strong>${props.formatValueWithoutCurrencySymbol(
+                                  subService.slabValue
+                                )}</strong>`
+                              : `<strong>${props.formatValueWithoutCurrencySymbol(
+                                  subService.slabFrom
+                                )}-${props.formatValueWithoutCurrencySymbol(
+                                  subService.slabTo
+                                )}</strong>`
+                            : `<strong>${subService.variationName}</strong>`
+                        }
   </p>
   `
-
-                                )
-                                .join("")
-                            }
+                      )
+                      .join("")
+              }
           </div>
       `
-                        )
-                        .join("")
-                      : ""
-                    }
+                              )
+                              .join("")
+                          : ""
+                      }
   
-                  ${props?.quoteAdditionalInfoGlobalPricingDriver?.filter(
+                  ${
+                    props?.quoteAdditionalInfoGlobalPricingDriver?.filter(
                       (item) => item.driverTypeID !== 1
-                    ).length > 0 ?
-                      `<p style="font-family:${fontFamily}; color: ${newColorCode}; font-size: ${fontSizeHeading}; font-weight: bold;">
+                    ).length > 0
+                      ? `<p style="font-family:${fontFamily}; color: ${newColorCode}; font-size: ${fontSizeHeading}; font-weight: bold;">
         Additional Information
     </p>
     <hr style="color: gray; margin-top: -15px;" />` +
-                      props.quoteAdditionalInfoGlobalPricingDriver
-                        .map((serviceCat) => `
+                        props.quoteAdditionalInfoGlobalPricingDriver
+                          .map(
+                            (serviceCat) => `
         <div>
-          ${serviceCat.driverTypeID === 2 ?
-                            `<p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
-                ${serviceCat.driverName}: <strong>${props.formatValueWithoutCurrencySymbol(serviceCat.driverValue)}</strong> 
+          ${
+            serviceCat.driverTypeID === 2
+              ? `<p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
+                ${
+                  serviceCat.driverName
+                }: <strong>${props.formatValueWithoutCurrencySymbol(
+                  serviceCat.driverValue
+                )}</strong> 
             </p>`
-                            : serviceCat.driverTypeID === 3 ?
-                              `<p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
+              : serviceCat.driverTypeID === 3
+              ? `<p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
                 ${serviceCat.driverName}: <strong>${serviceCat.variationName}</strong>
             </p>`
-                              : serviceCat.driverTypeID === 4 ?
-                                `<p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
-                ${serviceCat.driverName}: ${serviceCat.slabTypeID == 2 ? `<strong>${props.formatValueWithoutCurrencySymbol(serviceCat.driverValue)} <strong>` : `<strong>${props.formatValueWithoutCurrencySymbol(serviceCat.slabFrom)}</strong> - <strong>${props.formatValueWithoutCurrencySymbol(serviceCat.slabTo)}</strong>`}
+              : serviceCat.driverTypeID === 4
+              ? `<p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
+                ${serviceCat.driverName}: ${
+                  serviceCat.slabTypeID == 2
+                    ? `<strong>${props.formatValueWithoutCurrencySymbol(
+                        serviceCat.driverValue
+                      )} <strong>`
+                    : `<strong>${props.formatValueWithoutCurrencySymbol(
+                        serviceCat.slabFrom
+                      )}</strong> - <strong>${props.formatValueWithoutCurrencySymbol(
+                        serviceCat.slabTo
+                      )}</strong>`
+                }
             </p>`
-                                : ""}
+              : ""
+          }
         </div>`
-                        ).join("")
-                      : ""}
+                          )
+                          .join("")
+                      : ""
+                  }
   
                   </div>`,
                 });
               }
             } else {
               pdfDataArray.push(currentArray);
-              if (props.moduleName === "Quote" && props?.ProposalObject?.selectedProposalTypeValue === 2) {
+              if (
+                props.moduleName === "Quote" &&
+                props?.ProposalObject?.selectedProposalTypeValue === 2
+              ) {
                 currentArray.push({
                   textbox: `
                     ${imgTag}
                     <div style="padding-left: 40px; padding-right: 40px; font-family:${fontFamily};">
                     ${props.StatementOfFact.map(
-                    (SelectedPackage) =>
-                      `<div style="font-family:${fontFamily};">
+                      (SelectedPackage) =>
+                        `<div style="font-family:${fontFamily};">
                           <p style="font-family:${fontFamily}; color: ${newColorCode}; font-size: ${fontSizeHeading}; font-weight: bold;">
                             Package Name:  ${SelectedPackage.servicePackageName}
                           </p>
                           <hr style="color: gray; margin-top: -15px;">
-                              ${SelectedPackage.reccuring.length !== 0 ?
-                        `<p style="font-family:${fontFamily};font-size: ${fontSizeHeading};color: ${newColorCode}; font-weight: bold;">
+                              ${
+                                SelectedPackage.reccuring.length !== 0
+                                  ? `<p style="font-family:${fontFamily};font-size: ${fontSizeHeading};color: ${newColorCode}; font-weight: bold;">
                            Ongoing/Recurring Services
                           </p>`
-                        : ""}
+                                  : ""
+                              }
 
-                          ${SelectedPackage.reccuring.map(
-                          (SelectedServiceCat) =>
-                            ` <p style="font-family:${fontFamily}; color: black; font-size: ${fontSizeHeading}; font-weight: bold;">
+                          ${SelectedPackage.reccuring
+                            .map(
+                              (SelectedServiceCat) =>
+                                ` <p style="font-family:${fontFamily}; color: black; font-size: ${fontSizeHeading}; font-weight: bold;">
                               ${SelectedServiceCat.serviceCategoryName}
                           </p>
                          ${SelectedServiceCat.servicesList
-                              .map(
-                                (subService) => `
+                           .map(
+                             (subService) => `
                               <p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent}; ">
                                   ${subService.serviceName}
                               </p>
                               ${(subService?.gpdList)
-                                    .filter(pricingDriver => pricingDriver.driverTypeID !== 1)
-                                    .map(
-                                      (pricingDriver) => `
+                                .filter(
+                                  (pricingDriver) =>
+                                    pricingDriver.driverTypeID !== 1
+                                )
+                                .map(
+                                  (pricingDriver) => `
                                 <li style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent}; margin-top:5px;">
                                 ${pricingDriver.driverName}: 
-                                    <strong> ${pricingDriver.driverTypeID === 2
-                                          ? props.formatValueWithoutCurrencySymbol(pricingDriver.value)
-                                          : pricingDriver.driverTypeID === 3
-                                            ? pricingDriver.variationName
-                                            : pricingDriver.driverTypeID === 4 ?
-                                              pricingDriver.slabTypeID === 2 ? props.formatValueWithoutCurrencySymbol(pricingDriver.value) :
-                                                pricingDriver.slabFrom + "-" + pricingDriver.slabTo : ""
-                                        }</strong>
+                                    <strong> ${
+                                      pricingDriver.driverTypeID === 2
+                                        ? props.formatValueWithoutCurrencySymbol(
+                                            pricingDriver.value
+                                          )
+                                        : pricingDriver.driverTypeID === 3
+                                        ? pricingDriver.variationName
+                                        : pricingDriver.driverTypeID === 4
+                                        ? pricingDriver.slabTypeID === 2
+                                          ? props.formatValueWithoutCurrencySymbol(
+                                              pricingDriver.value
+                                            )
+                                          : pricingDriver.slabFrom +
+                                            "-" +
+                                            pricingDriver.slabTo
+                                        : ""
+                                    }</strong>
                             </li>
-                              `).join("")}
-                          `).join("")}
-                          `).join(" ")}
-                             ${SelectedPackage.oneOff.length !== 0 ?
-                        `<p style="font-family:${fontFamily}; color: ${newColorCode};font-size: ${fontSizeHeading}; font-weight: bold;">
+                              `
+                                )
+                                .join("")}
+                          `
+                           )
+                           .join("")}
+                          `
+                            )
+                            .join(" ")}
+                             ${
+                               SelectedPackage.oneOff.length !== 0
+                                 ? `<p style="font-family:${fontFamily}; color: ${newColorCode};font-size: ${fontSizeHeading}; font-weight: bold;">
                             One-Off/Ad hoc Services
                           </p>`
-                        : ""}
+                                 : ""
+                             }
 
-                          ${SelectedPackage.oneOff.map(
-                          (SelectedServiceCat) =>
-                            ` <p style="font-family:${fontFamily}; color: black; font-size: ${fontSizeHeading}; font-weight: bold;">
+                          ${SelectedPackage.oneOff
+                            .map(
+                              (SelectedServiceCat) =>
+                                ` <p style="font-family:${fontFamily}; color: black; font-size: ${fontSizeHeading}; font-weight: bold;">
                               ${SelectedServiceCat.serviceCategoryName}
                           </p>
                          ${SelectedServiceCat.servicesList
-                              .map(
-                                (subService) => `
+                           .map(
+                             (subService) => `
                               <p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent}; ">
                                   ${subService.serviceName}
                               </p>
                               ${(subService?.gpdList)
-                                    .filter(pricingDriver => pricingDriver.driverTypeID !== 1)
-                                    .map(
-                                      (pricingDriver) => `
+                                .filter(
+                                  (pricingDriver) =>
+                                    pricingDriver.driverTypeID !== 1
+                                )
+                                .map(
+                                  (pricingDriver) => `
                                 <li style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent}; margin-top:5px;">
                                 ${pricingDriver.driverName}: 
-                                    <strong> ${pricingDriver.driverTypeID === 2
-                                          ? props.formatValueWithoutCurrencySymbol(pricingDriver.value)
-                                          : pricingDriver.driverTypeID === 3
-                                            ? pricingDriver.variationName
-                                            : pricingDriver.driverTypeID === 4 ?
-                                              pricingDriver.slabTypeID === 2 ? props.formatValueWithoutCurrencySymbol(pricingDriver.value) :
-                                                pricingDriver.slabFrom + "-" + pricingDriver.slabTo : ""
-                                        }</strong>
+                                    <strong> ${
+                                      pricingDriver.driverTypeID === 2
+                                        ? props.formatValueWithoutCurrencySymbol(
+                                            pricingDriver.value
+                                          )
+                                        : pricingDriver.driverTypeID === 3
+                                        ? pricingDriver.variationName
+                                        : pricingDriver.driverTypeID === 4
+                                        ? pricingDriver.slabTypeID === 2
+                                          ? props.formatValueWithoutCurrencySymbol(
+                                              pricingDriver.value
+                                            )
+                                          : pricingDriver.slabFrom +
+                                            "-" +
+                                            pricingDriver.slabTo
+                                        : ""
+                                    }</strong>
                             </li>
-                              `).join("")}
-                          `).join("")}
-                          `).join(" ")}
+                              `
+                                )
+                                .join("")}
+                          `
+                           )
+                           .join("")}
+                          `
+                            )
+                            .join(" ")}
                     
-                            ${SelectedPackage.additionalInformationList?.length > 0 ?
-                        `<p style="font-family:${fontFamily}; color: ${newColorCode}; font-size: ${fontSizeHeading}; font-weight: bold;">
+                            ${
+                              SelectedPackage.additionalInformationList
+                                ?.length > 0
+                                ? `<p style="font-family:${fontFamily}; color: ${newColorCode}; font-size: ${fontSizeHeading}; font-weight: bold;">
         Additional Information
     </p>
     <hr style="color: gray; margin-top: -15px;" />` +
-                        SelectedPackage.additionalInformationList.filter(item => item.driverTypeID !== 1).map(serviceCat => `
+                                  SelectedPackage.additionalInformationList
+                                    .filter((item) => item.driverTypeID !== 1)
+                                    .map(
+                                      (serviceCat) => `
         <div>
             <p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
-                ${serviceCat.driverName}: ${serviceCat.driverTypeID === 4 ? serviceCat.slabTypeID === 2 ? `<strong>${props.formatValueWithoutCurrencySymbol(serviceCat.value)}</strong>` : `<strong>${props.formatValueWithoutCurrencySymbol(serviceCat.slabFrom)}-${props.formatValueWithoutCurrencySymbol(serviceCat.slabTo)}</strong>` : serviceCat.driverTypeID === 3 ? `<strong>${serviceCat.variationName}</strong>` : `${serviceCat.driverName}: <strong>${props.formatValueWithoutCurrencySymbol(serviceCat.value)}</strong>`}
+                ${serviceCat.driverName}: ${
+                                        serviceCat.driverTypeID === 4
+                                          ? serviceCat.slabTypeID === 2
+                                            ? `<strong>${props.formatValueWithoutCurrencySymbol(
+                                                serviceCat.value
+                                              )}</strong>`
+                                            : `<strong>${props.formatValueWithoutCurrencySymbol(
+                                                serviceCat.slabFrom
+                                              )}-${props.formatValueWithoutCurrencySymbol(
+                                                serviceCat.slabTo
+                                              )}</strong>`
+                                          : serviceCat.driverTypeID === 3
+                                          ? `<strong>${serviceCat.variationName}</strong>`
+                                          : `${
+                                              serviceCat.driverName
+                                            }: <strong>${props.formatValueWithoutCurrencySymbol(
+                                              serviceCat.value
+                                            )}</strong>`
+                                      }
             </p>
         </div>
-    `).join("") : ""
-                      }
+    `
+                                    )
+                                    .join("")
+                                : ""
+                            }
 
                         </div>`
-                  ).join(" ")}`
+                    ).join(" ")}`,
                 });
-              }
-              else {
+              } else {
                 currentArray = [
                   {
                     textbox: `${imgTag}<div style="padding-left: 40px; padding-right: 40px; font-family:${fontFamily}">
-                       ${props?.selectedRecurringServiceList.length !== 0 ?
-                        `<p style="font-family:${fontFamily};font-size: ${fontSizeHeading};color: ${newColorCode}; font-weight: bold;">
+                       ${
+                         props?.selectedRecurringServiceList.length !== 0
+                           ? `<p style="font-family:${fontFamily};font-size: ${fontSizeHeading};color: ${newColorCode}; font-weight: bold;">
                            Ongoing/Recurring Services
                           </p>`
-                        : ""}
+                           : ""
+                       }
                     ${props?.selectedRecurringServiceList
-                        .map(
-                          (serviceCat) => `
+                      .map(
+                        (serviceCat) => `
                       <div>
                           <p style="font-family:${fontFamily}; color: black; font-size: ${fontSizeHeading}; font-weight: bold;">
                               ${serviceCat.serviceCatName}
                           </p>
                           <hr style="color: gray; margin-top: -15px;">
                           ${serviceCat.servicesList
-                              .map(
-                                (subService) => `
+                            .map(
+                              (subService) => `
                              <p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent}; ">
                                 ${subService.serviceName}
                             </p>
-                            ${(subService?.pricingDriverList || subService?.gpdList || [])
-                                    .filter(pricingDriver =>
-                                      subService?.pricingDriverList !== undefined
-                                        ? pricingDriver.driverVisibility === true
-                                        : true
-                                    )
-                                    .filter(pricingDriver => pricingDriver.driverTypeID !== 1)
-                                    .map(
-                                      (pricingDriver) => `
+                            ${(
+                              subService?.pricingDriverList ||
+                              subService?.gpdList ||
+                              []
+                            )
+                              .filter((pricingDriver) =>
+                                subService?.pricingDriverList !== undefined
+                                  ? pricingDriver.driverVisibility === true
+                                  : true
+                              )
+                              .filter(
+                                (pricingDriver) =>
+                                  pricingDriver.driverTypeID !== 1
+                              )
+                              .map(
+                                (pricingDriver) => `
                               <li style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent}; margin-top:5px;">
                               ${pricingDriver.driverName}: 
-                                  <strong> ${pricingDriver.driverTypeID === 2
+                                  <strong> ${
+                                    pricingDriver.driverTypeID === 2
+                                      ? props.formatValueWithoutCurrencySymbol(
+                                          pricingDriver.driverValue
+                                        )
+                                      : // Number(pricingDriver.driverValue).toFixed(2).toString().replace(
+                                      //   /\B(?=(\d{3})+(?!\d))/g,
+                                      //   ","
+                                      // )
+                                      pricingDriver.driverTypeID === 3
+                                      ? subService?.pricingDriverList ==
+                                        undefined
+                                        ? pricingDriver.variationName
+                                        : pricingDriver.variation.find(
+                                            (item) => item.isDefault
+                                          ).variationName
+                                      : pricingDriver.driverTypeID === 4
+                                      ? subService?.pricingDriverList ==
+                                        undefined
+                                        ? pricingDriver.slabTypeID === 2
                                           ? props.formatValueWithoutCurrencySymbol(
-                                            pricingDriver.driverValue
-                                          )
-                                          : // Number(pricingDriver.driverValue).toFixed(2).toString().replace(
-                                          //   /\B(?=(\d{3})+(?!\d))/g,
-                                          //   ","
-                                          // )
-                                          pricingDriver.driverTypeID === 3
-                                            ? subService?.pricingDriverList == undefined ? pricingDriver.variationName : pricingDriver.variation.find(
+                                              pricingDriver.driverValue
+                                            )
+                                          : props.formatValueWithoutCurrencySymbol(
+                                              pricingDriver.slabFrom
+                                            ) -
+                                            props.formatValueWithoutCurrencySymbol(
+                                              pricingDriver.slabTo
+                                            )
+                                        : pricingDriver.slab.find(
+                                            (item) => item.isDefault
+                                          ).slabTypeID === 2
+                                        ? Number(
+                                            pricingDriver.slab.find(
                                               (item) => item.isDefault
-                                            ).variationName
-                                            : pricingDriver.driverTypeID === 4
-                                              ? subService?.pricingDriverList == undefined ? pricingDriver.slabTypeID === 2 ? props.formatValueWithoutCurrencySymbol(pricingDriver.driverValue) : props.formatValueWithoutCurrencySymbol(pricingDriver.slabFrom) - props.formatValueWithoutCurrencySymbol(pricingDriver.slabTo) : pricingDriver.slab.find((item) => item.isDefault).slabTypeID === 2
-                                                ? Number(pricingDriver.slab.find((item) => item.isDefault).slabValue)
-                                                  .toFixed(2)
-                                                  .toString()
-                                                  .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                                                : Number(pricingDriver.slab.find((item) => item.isDefault).slabFrom)
-                                                  .toFixed(2)
-                                                  .toString()
-                                                  .replace(/\B(?=(\d{3})+(?!\d))/g, ",") +
-                                                "-" +
-                                                Number(pricingDriver.slab.find((item) => item.isDefault).slabTo)
-                                                  .toFixed(2)
-                                                  .toString()
-                                                  .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                                              : ""
-                                        }</strong>
+                                            ).slabValue
+                                          )
+                                            .toFixed(2)
+                                            .toString()
+                                            .replace(
+                                              /\B(?=(\d{3})+(?!\d))/g,
+                                              ","
+                                            )
+                                        : Number(
+                                            pricingDriver.slab.find(
+                                              (item) => item.isDefault
+                                            ).slabFrom
+                                          )
+                                            .toFixed(2)
+                                            .toString()
+                                            .replace(
+                                              /\B(?=(\d{3})+(?!\d))/g,
+                                              ","
+                                            ) +
+                                          "-" +
+                                          Number(
+                                            pricingDriver.slab.find(
+                                              (item) => item.isDefault
+                                            ).slabTo
+                                          )
+                                            .toFixed(2)
+                                            .toString()
+                                            .replace(
+                                              /\B(?=(\d{3})+(?!\d))/g,
+                                              ","
+                                            )
+                                      : ""
+                                  }</strong>
                           </li>
                             `
-                                    )
-                                    .join("")}
-                          `
                               )
                               .join("")}
+                          `
+                            )
+                            .join("")}
                       </div>
                   `
-                        )
-                        .join("")}
-                      ${props?.selectedOneOffServiceList.length !== 0 ?
-                        `<p style="font-family:${fontFamily}; color: ${newColorCode};font-size: ${fontSizeHeading}; font-weight: bold;">
+                      )
+                      .join("")}
+                      ${
+                        props?.selectedOneOffServiceList.length !== 0
+                          ? `<p style="font-family:${fontFamily}; color: ${newColorCode};font-size: ${fontSizeHeading}; font-weight: bold;">
                             One-Off/Ad hoc Services
                           </p>`
-                        : ""}
+                          : ""
+                      }
                   ${props?.selectedOneOffServiceList
-                        .map(
-                          (serviceCat) => `
+                    .map(
+                      (serviceCat) => `
                         <div>
                             <p style="font-family:${fontFamily}; color: black; font-size: ${fontSizeHeading}; font-weight: bold;">
                                 ${serviceCat.serviceCatName}
@@ -2470,128 +2845,207 @@ export default function PreviewComponentPdf(props) {
                                 <p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent}; ">
                                 ${subService.serviceName}
                             </p>
-                            ${(subService?.pricingDriverList || subService?.gpdList || [])
-                                    .filter(pricingDriver =>
-                                      subService?.pricingDriverList !== undefined
-                                        ? pricingDriver.driverVisibility === true
-                                        : true
-                                    )
-                                    .filter(pricingDriver => pricingDriver.driverTypeID !== 1)
-                                    .map(
-                                      (pricingDriver) => `
+                            ${(
+                              subService?.pricingDriverList ||
+                              subService?.gpdList ||
+                              []
+                            )
+                              .filter((pricingDriver) =>
+                                subService?.pricingDriverList !== undefined
+                                  ? pricingDriver.driverVisibility === true
+                                  : true
+                              )
+                              .filter(
+                                (pricingDriver) =>
+                                  pricingDriver.driverTypeID !== 1
+                              )
+                              .map(
+                                (pricingDriver) => `
                               <li style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent}; margin-top:5px;">
                               ${pricingDriver.driverName}: 
-                                  <strong> ${pricingDriver.driverTypeID === 2
+                                  <strong> ${
+                                    pricingDriver.driverTypeID === 2
+                                      ? props.formatValueWithoutCurrencySymbol(
+                                          pricingDriver.driverValue
+                                        )
+                                      : // Number(pricingDriver.driverValue).toFixed(2).toString().replace(
+                                      //   /\B(?=(\d{3})+(?!\d))/g,
+                                      //   ","
+                                      // )
+                                      pricingDriver.driverTypeID === 3
+                                      ? subService?.pricingDriverList ==
+                                        undefined
+                                        ? pricingDriver.variationName
+                                        : pricingDriver.variation.find(
+                                            (item) => item.isDefault
+                                          ).variationName
+                                      : pricingDriver.driverTypeID === 4
+                                      ? subService?.pricingDriverList ==
+                                        undefined
+                                        ? pricingDriver.slabTypeID === 2
                                           ? props.formatValueWithoutCurrencySymbol(
-                                            pricingDriver.driverValue
-                                          )
-                                          : // Number(pricingDriver.driverValue).toFixed(2).toString().replace(
-                                          //   /\B(?=(\d{3})+(?!\d))/g,
-                                          //   ","
-                                          // )
-                                          pricingDriver.driverTypeID === 3
-                                            ? subService?.pricingDriverList == undefined ? pricingDriver.variationName : pricingDriver.variation.find(
+                                              pricingDriver.driverValue
+                                            )
+                                          : props.formatValueWithoutCurrencySymbol(
+                                              pricingDriver.slabFrom
+                                            ) -
+                                            props.formatValueWithoutCurrencySymbol(
+                                              pricingDriver.slabTo
+                                            )
+                                        : pricingDriver.slab.find(
+                                            (item) => item.isDefault
+                                          ).slabTypeID === 2
+                                        ? Number(
+                                            pricingDriver.slab.find(
                                               (item) => item.isDefault
-                                            ).variationName
-                                            : pricingDriver.driverTypeID === 4
-                                              ? subService?.pricingDriverList == undefined ? pricingDriver.slabTypeID === 2 ? props.formatValueWithoutCurrencySymbol(pricingDriver.driverValue) : props.formatValueWithoutCurrencySymbol(pricingDriver.slabFrom) - props.formatValueWithoutCurrencySymbol(pricingDriver.slabTo) : pricingDriver.slab.find((item) => item.isDefault).slabTypeID === 2
-                                                ? Number(pricingDriver.slab.find((item) => item.isDefault).slabValue)
-                                                  .toFixed(2)
-                                                  .toString()
-                                                  .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                                                : Number(pricingDriver.slab.find((item) => item.isDefault).slabFrom)
-                                                  .toFixed(2)
-                                                  .toString()
-                                                  .replace(/\B(?=(\d{3})+(?!\d))/g, ",") +
-                                                "-" +
-                                                Number(pricingDriver.slab.find((item) => item.isDefault).slabTo)
-                                                  .toFixed(2)
-                                                  .toString()
-                                                  .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                                              : ""
-                                        }</strong>
+                                            ).slabValue
+                                          )
+                                            .toFixed(2)
+                                            .toString()
+                                            .replace(
+                                              /\B(?=(\d{3})+(?!\d))/g,
+                                              ","
+                                            )
+                                        : Number(
+                                            pricingDriver.slab.find(
+                                              (item) => item.isDefault
+                                            ).slabFrom
+                                          )
+                                            .toFixed(2)
+                                            .toString()
+                                            .replace(
+                                              /\B(?=(\d{3})+(?!\d))/g,
+                                              ","
+                                            ) +
+                                          "-" +
+                                          Number(
+                                            pricingDriver.slab.find(
+                                              (item) => item.isDefault
+                                            ).slabTo
+                                          )
+                                            .toFixed(2)
+                                            .toString()
+                                            .replace(
+                                              /\B(?=(\d{3})+(?!\d))/g,
+                                              ","
+                                            )
+                                      : ""
+                                  }</strong>
                           </li>
                             `
-                                    )
-                                    .join("")}
+                              )
+                              .join("")}
                             `
                               )
                               .join("")}
                         </div>
                     `
-                        )
-                        .join("")}
+                    )
+                    .join("")}
 
-                          ${props?.additionalInformationList?.filter(
-                          (item) => item.driverTypeID !== 1
-                        ).length > 0
-                        ? `<p style="font-family:${fontFamily}; color: ${newColorCode}; font-size: ${fontSizeHeading}; font-weight: bold;">
+                          ${
+                            props?.additionalInformationList?.filter(
+                              (item) => item.driverTypeID !== 1
+                            ).length > 0
+                              ? `<p style="font-family:${fontFamily}; color: ${newColorCode}; font-size: ${fontSizeHeading}; font-weight: bold;">
         Additional Information
     </p><hr style="color: gray; margin-top: -15px;" ></hr>` +
-                        props.additionalInformationList
-                          .map(
-                            (serviceCat) => `
-        <div>
-            ${serviceCat.driverTypeID === 2 &&
-                                serviceCat.variation === null &&
-                                serviceCat.slab === null
-                                ? `<p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
-                        ${serviceCat.driverName}:  <strong> ${props.formatValueWithoutCurrencySymbol(
-                                  serviceCat.driverValue
-                                )} </strong > 
-                    </p>`
-                                : (serviceCat.driverTypeID === 4
-                                  ? serviceCat.slab
-                                  : serviceCat.driverTypeID === 3
-                                    ? serviceCat.variation
-                                    : []
-                                )
-                                  .filter((item) => item.isDefault)
+                                props.additionalInformationList
                                   .map(
-                                    (subService) => `
+                                    (serviceCat) => `
+        <div>
+            ${
+              serviceCat.driverTypeID === 2 &&
+              serviceCat.variation === null &&
+              serviceCat.slab === null
+                ? `<p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
+                        ${
+                          serviceCat.driverName
+                        }:  <strong> ${props.formatValueWithoutCurrencySymbol(
+                    serviceCat.driverValue
+                  )} </strong > 
+                    </p>`
+                : (serviceCat.driverTypeID === 4
+                    ? serviceCat.slab
+                    : serviceCat.driverTypeID === 3
+                    ? serviceCat.variation
+                    : []
+                  )
+                    .filter((item) => item.isDefault)
+                    .map(
+                      (subService) => `
 <p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
-    ${serviceCat.driverName}: ${serviceCat.driverTypeID === 4
-                                        ? subService.slabTypeID === 2 ? `<strong>${props.formatValueWithoutCurrencySymbol(subService.slabValue)}</strong>` : `<strong>${props.formatValueWithoutCurrencySymbol(subService.slabFrom)}-${props.formatValueWithoutCurrencySymbol(subService.slabTo)}</strong>`
-                                        : `<strong>${subService.variationName}</strong>`
-                                      }
+    ${serviceCat.driverName}: ${
+                        serviceCat.driverTypeID === 4
+                          ? subService.slabTypeID === 2
+                            ? `<strong>${props.formatValueWithoutCurrencySymbol(
+                                subService.slabValue
+                              )}</strong>`
+                            : `<strong>${props.formatValueWithoutCurrencySymbol(
+                                subService.slabFrom
+                              )}-${props.formatValueWithoutCurrencySymbol(
+                                subService.slabTo
+                              )}</strong>`
+                          : `<strong>${subService.variationName}</strong>`
+                      }
 </p>
 `
-                                  )
-                                  .join("")
-                              }
+                    )
+                    .join("")
+            }
         </div>
     `
-                          )
-                          .join("")
-                        : ""
-                      }
+                                  )
+                                  .join("")
+                              : ""
+                          }
 
-                    ${props?.quoteAdditionalInfoGlobalPricingDriver?.filter(
+                    ${
+                      props?.quoteAdditionalInfoGlobalPricingDriver?.filter(
                         (item) => item.driverTypeID !== 1
-                      ).length > 0 ?
-                        `<p style="font-family:${fontFamily}; color: ${newColorCode}; font-size: ${fontSizeHeading}; font-weight: bold;">
+                      ).length > 0
+                        ? `<p style="font-family:${fontFamily}; color: ${newColorCode}; font-size: ${fontSizeHeading}; font-weight: bold;">
       Additional Information
   </p>
   <hr style="color: gray; margin-top: -15px;" />` +
-                        props.quoteAdditionalInfoGlobalPricingDriver
-                          .map((serviceCat) => `
+                          props.quoteAdditionalInfoGlobalPricingDriver
+                            .map(
+                              (serviceCat) => `
       <div>
-        ${serviceCat.driverTypeID === 2 ?
-                              `<p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
-              ${serviceCat.driverName}: <strong>${props.formatValueWithoutCurrencySymbol(serviceCat.driverValue)}</strong> 
+        ${
+          serviceCat.driverTypeID === 2
+            ? `<p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
+              ${
+                serviceCat.driverName
+              }: <strong>${props.formatValueWithoutCurrencySymbol(
+                serviceCat.driverValue
+              )}</strong> 
           </p>`
-                              : serviceCat.driverTypeID === 3 ?
-                                `<p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
+            : serviceCat.driverTypeID === 3
+            ? `<p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
               ${serviceCat.driverName}: <strong>${serviceCat.variationName}</strong>
           </p>`
-                                : serviceCat.driverTypeID === 4 ?
-                                  `<p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
-                ${serviceCat.driverName}: ${serviceCat.slabTypeID == 2 ? `<strong>${props.formatValueWithoutCurrencySymbol(serviceCat.driverValue)} <strong>` : `<strong>${props.formatValueWithoutCurrencySymbol(serviceCat.slabFrom)}</strong> - <strong>${props.formatValueWithoutCurrencySymbol(serviceCat.slabTo)}</strong>`}
+            : serviceCat.driverTypeID === 4
+            ? `<p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
+                ${serviceCat.driverName}: ${
+                serviceCat.slabTypeID == 2
+                  ? `<strong>${props.formatValueWithoutCurrencySymbol(
+                      serviceCat.driverValue
+                    )} <strong>`
+                  : `<strong>${props.formatValueWithoutCurrencySymbol(
+                      serviceCat.slabFrom
+                    )}</strong> - <strong>${props.formatValueWithoutCurrencySymbol(
+                      serviceCat.slabTo
+                    )}</strong>`
+              }
           </p>`
-                                  : ""}
+            : ""
+        }
       </div>`
-                          ).join("")
-                        : ""}
+                            )
+                            .join("")
+                        : ""
+                    }
                   </div>`,
                   },
                 ];
@@ -2600,16 +3054,16 @@ export default function PreviewComponentPdf(props) {
             break;
           case ElementType.SERVICE_PRICING_TABLE:
             // Append the table for selectedRecurringServiceList
-            if (prevElementType === ElementType.PAGE_BREAK ||
-              prevElementType === ElementType.AWS_PDF_LINK) {
+            if (
+              prevElementType === ElementType.PAGE_BREAK ||
+              prevElementType === ElementType.AWS_PDF_LINK
+            ) {
               pdfDataArray.push(currentArray);
               currentArray = [];
             }
             if (props?.servicePackageName?.length > 0) {
               currentArray.push({
-                table:
-                  `<div style="padding-left: 40px; padding-right: 40px; color:${newColorCode}; font-size: 30px;">Package : ${props?.servicePackageName} </div>`
-
+                table: `<div style="padding-left: 40px; padding-right: 40px; color:${newColorCode}; font-size: 30px;">Package : ${props?.servicePackageName} </div>`,
               });
             }
             if (
@@ -2626,32 +3080,35 @@ export default function PreviewComponentPdf(props) {
                         <tr style="background-color:${newColorCode};">
                           <th style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white; font-size: 18px;">Services</th>
                           ${props?.selectedPackagesList
-                      ?.map(
-                        (selectedPackagesData) => `
+                            ?.map(
+                              (selectedPackagesData) => `
                           <th style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; font-size: 18px;">${getPackageName(
-                          selectedPackagesData.servicePackageID,
-                          selectedPackagesData.servicePackageName
-                        )}</th>
+                            selectedPackagesData.servicePackageID,
+                            selectedPackagesData.servicePackageName
+                          )}</th>
                           `
-                      )
-                      .join("")}
+                            )
+                            .join("")}
                          
                         </tr>
                         ${props.selectedRecurringServiceList
-                      .map(
-                        (serviceCat) => `
+                          .map(
+                            (serviceCat) => `
                                                     <tr style="background-color: #DCDCDC;">
-                            <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; font-weight: bold; font-size: 18px;">${serviceCat.serviceCatName
-                          }</td>
+                            <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; font-weight: bold; font-size: 18px;">${
+                              serviceCat.serviceCatName
+                            }</td>
                             <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;"></td>
-                            ${props?.selectedPackages.length >= 2
-                            ? `<td style="border: 1px solid #dddddd; text-align: left; padding: 8px;"></td>`
-                            : ` `
-                          }
-                            ${props?.selectedPackages.length === 3
-                            ? `<td style="border: 1px solid #dddddd; text-align: left; padding: 8px;"></td>`
-                            : ` `
-                          }
+                            ${
+                              props?.selectedPackages.length >= 2
+                                ? `<td style="border: 1px solid #dddddd; text-align: left; padding: 8px;"></td>`
+                                : ` `
+                            }
+                            ${
+                              props?.selectedPackages.length === 3
+                                ? `<td style="border: 1px solid #dddddd; text-align: left; padding: 8px;"></td>`
+                                : ` `
+                            }
                             
                           </tr>
                           ${serviceCat.servicesList
@@ -2660,212 +3117,247 @@ export default function PreviewComponentPdf(props) {
 
                              
                             <tr>
-                              <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">${subService.serviceName
-                                }</td>
-                                ${props?.feeTypeId == 1
-                                  ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;"> ${subService.packageOneValue !== undefined
-                                    ? (subService.packageOneValue === 0 ||
-                                      subService.packageOneValue ===
-                                      null) &&
-                                      !subService.servicePackageIDs.some(
-                                        (item) =>
-                                          item ==
-                                          props.selectedPackagesList[0]
-                                            ?.servicePackageID
-                                      )
-                                      ? `<span>&#10007;</span>`
-                                      : !(subService?.servicePackageIDs.includes(subService.packageOneID)) ? `<span>&#10007;</span>` : `${props.formatValue(
-                                        subService.packageOneValue
-                                      )}`
-                                    : props.formatValue(subService.price)
-                                  }</td>
+                              <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">${
+                                subService.serviceName
+                              }</td>
+                                ${
+                                  props?.feeTypeId == 1
+                                    ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;"> ${
+                                        subService.packageOneValue !== undefined
+                                          ? (subService.packageOneValue === 0 ||
+                                              subService.packageOneValue ===
+                                                null) &&
+                                            !subService.servicePackageIDs.some(
+                                              (item) =>
+                                                item ==
+                                                props.selectedPackagesList[0]
+                                                  ?.servicePackageID
+                                            )
+                                            ? `<span>&#10007;</span>`
+                                            : !subService?.servicePackageIDs.includes(
+                                                subService.packageOneID
+                                              )
+                                            ? `<span>&#10007;</span>`
+                                            : `${props.formatValue(
+                                                subService.packageOneValue
+                                              )}`
+                                          : props.formatValue(subService.price)
+                                      }</td>
                             `
-                                  : `${subService.packageOneValue == undefined
-                                    ? Number(
-                                      subService.packageOneValue
-                                    ) == 0
-                                      ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10007;</td>`
-                                      : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
-                                    : Number(
-                                      subService.packageOneValue
-                                    ) !== null && !subService?.servicePackageIDs.includes(subService.packageOneID)
-                                      ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10007;</td>`
-                                      : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
-                                  }
+                                    : `${
+                                        subService.packageOneValue == undefined
+                                          ? Number(
+                                              subService.packageOneValue
+                                            ) == 0
+                                            ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10007;</td>`
+                                            : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
+                                          : Number(
+                                              subService.packageOneValue
+                                            ) !== null &&
+                                            !subService?.servicePackageIDs.includes(
+                                              subService.packageOneID
+                                            )
+                                          ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10007;</td>`
+                                          : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
+                                      }
                             `
                                 }
                              
-                              ${props?.selectedPackages.length >= 2
+                              ${
+                                props?.selectedPackages.length >= 2
                                   ? `
-                                  ${props?.feeTypeId == 1
-                                    ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">${subService.packageTwoValue !==
-                                      undefined
-                                      ? (subService.packageTwoValue ===
-                                        0 ||
-                                        subService.packageTwoValue ===
-                                        null) &&
-                                        !subService.servicePackageIDs.some(
-                                          (item) =>
-                                            item ==
-                                            props.selectedPackagesList[1]
-                                              ?.servicePackageID
-                                        )
-                                        ? `<span>&#10007;</span>`
-                                        : !(subService?.servicePackageIDs.includes(subService.packageTwoID)) ? `<span>&#10007;</span>` : `${props.formatValue(
-                                          subService.packageTwoValue
-                                        )}`
-                                      : props.formatValue(
-                                        subService.price
-                                      )
-                                    }</td>
+                                  ${
+                                    props?.feeTypeId == 1
+                                      ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">${
+                                          subService.packageTwoValue !==
+                                          undefined
+                                            ? (subService.packageTwoValue ===
+                                                0 ||
+                                                subService.packageTwoValue ===
+                                                  null) &&
+                                              !subService.servicePackageIDs.some(
+                                                (item) =>
+                                                  item ==
+                                                  props.selectedPackagesList[1]
+                                                    ?.servicePackageID
+                                              )
+                                              ? `<span>&#10007;</span>`
+                                              : !subService?.servicePackageIDs.includes(
+                                                  subService.packageTwoID
+                                                )
+                                              ? `<span>&#10007;</span>`
+                                              : `${props.formatValue(
+                                                  subService.packageTwoValue
+                                                )}`
+                                            : props.formatValue(
+                                                subService.price
+                                              )
+                                        }</td>
                               `
-                                    : `${subService.packageTwoValue ==
-                                      undefined
-                                      ? Number(
-                                        subService.packageTwoValue
-                                      ) == 0
-                                        ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10007;</td>`
-                                        : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
-                                      : Number(
-                                        subService.packageTwoValue
-                                      ) !== null && !subService?.servicePackageIDs.includes(subService.packageTwoID)
-                                        ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10007;</td>`
-                                        : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
-                                    }
+                                      : `${
+                                          subService.packageTwoValue ==
+                                          undefined
+                                            ? Number(
+                                                subService.packageTwoValue
+                                              ) == 0
+                                              ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10007;</td>`
+                                              : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
+                                            : Number(
+                                                subService.packageTwoValue
+                                              ) !== null &&
+                                              !subService?.servicePackageIDs.includes(
+                                                subService.packageTwoID
+                                              )
+                                            ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10007;</td>`
+                                            : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
+                                        }
                               `
                                   }
                                   `
                                   : ` `
-                                }
-                              ${props?.selectedPackages.length === 3
+                              }
+                              ${
+                                props?.selectedPackages.length === 3
                                   ? `
-                                  ${props?.feeTypeId == 1
-                                    ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">${subService.packageThreeValue !==
-                                      undefined
-                                      ? (subService.packageThreeValue ===
-                                        0 ||
-                                        subService.packageThreeValue ===
-                                        null) &&
-                                        !subService.servicePackageIDs.some(
-                                          (item) =>
-                                            item ==
-                                            props.selectedPackagesList[2]
-                                              ?.servicePackageID
-                                        )
-                                        ? `<span>&#10007;</span>`
-                                        : !(subService?.servicePackageIDs.includes(subService.packageThreeID)) ? `<span>&#10007;</span>` : `${props.formatValue(
-                                          subService.packageThreeValue
-                                        )}`
-                                      : props.formatValue(
-                                        subService.price
-                                      )
-                                    }</td>
+                                  ${
+                                    props?.feeTypeId == 1
+                                      ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">${
+                                          subService.packageThreeValue !==
+                                          undefined
+                                            ? (subService.packageThreeValue ===
+                                                0 ||
+                                                subService.packageThreeValue ===
+                                                  null) &&
+                                              !subService.servicePackageIDs.some(
+                                                (item) =>
+                                                  item ==
+                                                  props.selectedPackagesList[2]
+                                                    ?.servicePackageID
+                                              )
+                                              ? `<span>&#10007;</span>`
+                                              : !subService?.servicePackageIDs.includes(
+                                                  subService.packageThreeID
+                                                )
+                                              ? `<span>&#10007;</span>`
+                                              : `${props.formatValue(
+                                                  subService.packageThreeValue
+                                                )}`
+                                            : props.formatValue(
+                                                subService.price
+                                              )
+                                        }</td>
                               `
-                                    : `${subService.packageThreeValue ==
-                                      undefined
-                                      ? Number(
-                                        subService.packageThreeValue
-                                      ) == 0
-                                        ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10007;</td>`
-                                        : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
-                                      : Number(
-                                        subService.packageThreeValue
-                                      ) !== null && !subService?.servicePackageIDs.includes(subService.packageThreeID)
-                                        ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10007;</td>`
-                                        : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
-                                    }
+                                      : `${
+                                          subService.packageThreeValue ==
+                                          undefined
+                                            ? Number(
+                                                subService.packageThreeValue
+                                              ) == 0
+                                              ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10007;</td>`
+                                              : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
+                                            : Number(
+                                                subService.packageThreeValue
+                                              ) !== null &&
+                                              !subService?.servicePackageIDs.includes(
+                                                subService.packageThreeID
+                                              )
+                                            ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10007;</td>`
+                                            : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
+                                        }
                               `
                                   }
                                   
                                   `
                                   : ` `
-                                }
+                              }
                             </tr>`
                             )
                             .join("")}
                         `
-                      )
-                      .join("")}
+                          )
+                          .join("")}
                         <tr style="background-color:#808080;">                         
                         <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white;">Net Total</td>
-                        <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">   ${Number(
-                        props.RecurringPricingInfo.packageOneNetTotal
-                      ) <
-                      Number(
-                        props.RecurringPricingInfo
-                          .packageOneDisCountedTotal
-                      ) ||
-                      (Number(
-                        props.RecurringPricingInfo.packageOneDisCount
-                      ) > 0 &&
-                        !props.DiscountLines)
-                      ? props.formatValue(
-                        props.RecurringPricingInfo
-                          .packageOneDisCountedTotal
-                      )
-                      : props.formatValue(
-                        props.RecurringPricingInfo.packageOneNetTotal
-                      )
-                    }</td >
+                        <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">   ${
+                          Number(
+                            props.RecurringPricingInfo.packageOneNetTotal
+                          ) <
+                            Number(
+                              props.RecurringPricingInfo
+                                .packageOneDisCountedTotal
+                            ) ||
+                          (Number(
+                            props.RecurringPricingInfo.packageOneDisCount
+                          ) > 0 &&
+                            !props.DiscountLines)
+                            ? props.formatValue(
+                                props.RecurringPricingInfo
+                                  .packageOneDisCountedTotal
+                              )
+                            : props.formatValue(
+                                props.RecurringPricingInfo.packageOneNetTotal
+                              )
+                        }</td >
                           
-                           ${props?.selectedPackages.length >= 2
-                      ? `  <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">  
-                      ${Number(props.RecurringPricingInfo.packageTwoNetTotal
-                      ) <
-                        Number(
-                          props.RecurringPricingInfo
-                            .packageTwoDisCountedTotal
-                        ) ||
-                        (Number(
-                          props.RecurringPricingInfo
-                            .packageTwoDisCount
-                        ) > 0 &&
+                           ${
+                             props?.selectedPackages.length >= 2
+                               ? `  <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">  
+                      ${
+                        Number(props.RecurringPricingInfo.packageTwoNetTotal) <
+                          Number(
+                            props.RecurringPricingInfo.packageTwoDisCountedTotal
+                          ) ||
+                        (Number(props.RecurringPricingInfo.packageTwoDisCount) >
+                          0 &&
                           !props.DiscountLines)
-                        ? props.formatValue(
-                          props.RecurringPricingInfo
-                            .packageTwoDisCountedTotal
-                        )
-                        : props.formatValue(
-                          props.RecurringPricingInfo.packageTwoNetTotal
-                        )
+                          ? props.formatValue(
+                              props.RecurringPricingInfo
+                                .packageTwoDisCountedTotal
+                            )
+                          : props.formatValue(
+                              props.RecurringPricingInfo.packageTwoNetTotal
+                            )
                       }</td>`
-                      : ``
-                    }
-                           ${props?.selectedPackages.length === 3
-                      ? ` <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
-                          ${Number(
-                        props.RecurringPricingInfo.packageThreeNetTotal
-                      ) <
-                        Number(
-                          props.RecurringPricingInfo
-                            .packageThreeDisCountedTotal
-                        ) ||
-                        (Number(
-                          props.RecurringPricingInfo
-                            .packageThreeDisCount
-                        ) > 0 &&
-                          !props.DiscountLines)
-                        ? props.formatValue(
-                          props.RecurringPricingInfo
-                            .packageThreeDisCountedTotal
-                        )
-                        : props.formatValue(
-                          props.RecurringPricingInfo.packageThreeNetTotal
-                        )
-                      }</td>`
-                      : ` `
-                    }
-                        ${(Number(
-                      props.RecurringPricingInfo.packageThreeDisCount
-                    ) > 0 ||
-                      Number(
-                        props.RecurringPricingInfo.packageOneDisCount
-                      ) > 0 ||
-                      Number(
-                        props.RecurringPricingInfo.packageTwoDisCount
-                      ) > 0) &&
-                      props?.DiscountLines
-                      ? `
+                               : ``
+                           }
+                           ${
+                             props?.selectedPackages.length === 3
+                               ? ` <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
+                          ${
+                            Number(
+                              props.RecurringPricingInfo.packageThreeNetTotal
+                            ) <
+                              Number(
+                                props.RecurringPricingInfo
+                                  .packageThreeDisCountedTotal
+                              ) ||
+                            (Number(
+                              props.RecurringPricingInfo.packageThreeDisCount
+                            ) > 0 &&
+                              !props.DiscountLines)
+                              ? props.formatValue(
+                                  props.RecurringPricingInfo
+                                    .packageThreeDisCountedTotal
+                                )
+                              : props.formatValue(
+                                  props.RecurringPricingInfo
+                                    .packageThreeNetTotal
+                                )
+                          }</td>`
+                               : ` `
+                           }
+                        ${
+                          (Number(
+                            props.RecurringPricingInfo.packageThreeDisCount
+                          ) > 0 ||
+                            Number(
+                              props.RecurringPricingInfo.packageOneDisCount
+                            ) > 0 ||
+                            Number(
+                              props.RecurringPricingInfo.packageTwoDisCount
+                            ) > 0) &&
+                          props?.DiscountLines
+                            ? `
          <tr style="background-color: #DCDCDC";>
             <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;color: black;">
               Discount
@@ -2873,31 +3365,33 @@ export default function PreviewComponentPdf(props) {
              <td style="border: 1px solid #dddddd; text-align: right; padding: 8px;color: black;">
               (-)    
               ${props.formatValue(
-                        props.RecurringPricingInfo.packageOneDisCount
-                      )}
+                props.RecurringPricingInfo.packageOneDisCount
+              )}
             </td>
-            ${props?.selectedPackagesList?.length >= 2
-                        ? `
+            ${
+              props?.selectedPackagesList?.length >= 2
+                ? `
                <td style="border: 1px solid #dddddd; text-align: right; padding: 8px;color: black;">
                 (-)    
                 ${props.formatValue(
-                          props.RecurringPricingInfo.packageTwoDisCount
-                        )}
+                  props.RecurringPricingInfo.packageTwoDisCount
+                )}
               </td>
             `
-                        : ``
-                      }
-            ${props?.selectedPackagesList?.length === 3
-                        ? `
+                : ``
+            }
+            ${
+              props?.selectedPackagesList?.length === 3
+                ? `
                <td style="border: 1px solid #dddddd; text-align: right; padding: 8px;color: black;">
                 (-)    
                 ${props.formatValue(
-                          props.RecurringPricingInfo.packageThreeDisCount
-                        )}
+                  props.RecurringPricingInfo.packageThreeDisCount
+                )}
               </td>
             `
-                        : ``
-                      }
+                : ``
+            }
           </tr>
           <tr style="background-color:#808080;">
             <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white;">
@@ -2907,86 +3401,94 @@ export default function PreviewComponentPdf(props) {
             
                  
               ${props.formatValue(
-                        props.RecurringPricingInfo.packageOneDisCountedTotal
-                      )}
+                props.RecurringPricingInfo.packageOneDisCountedTotal
+              )}
             </td>
-            ${props?.selectedPackagesList?.length >= 2
-                        ? `
+            ${
+              props?.selectedPackagesList?.length >= 2
+                ? `
               <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
                
                    
                 ${props.formatValue(
-                          props.RecurringPricingInfo.packageTwoDisCountedTotal
-                        )}
+                  props.RecurringPricingInfo.packageTwoDisCountedTotal
+                )}
               </td>
             `
-                        : ``
-                      }
-            ${props?.selectedPackagesList?.length === 3
-                        ? `
+                : ``
+            }
+            ${
+              props?.selectedPackagesList?.length === 3
+                ? `
               <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
                
                    
                 ${props.formatValue(
-                          props.RecurringPricingInfo.packageThreeDisCountedTotal
-                        )}
+                  props.RecurringPricingInfo.packageThreeDisCountedTotal
+                )}
               </td>
             `
-                        : ``
-                      }
+                : ``
+            }
           </tr>
         
       `
-                      : ``
-                    }
+                            : ``
+                        }
 
-       ${props.vatPercentage
-                      ? `
+       ${
+         props.vatPercentage
+           ? `
         <tr style="background-color: #DCDCDC";>
            <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;color: black;">
               VAT
           </td>
            <td style="border: 1px solid #dddddd; text-align: right; padding: 8px;color: black;">
                
-            ${props.formatValue(props.RecurringPricingInfo.PackageOneVaTPrice)
+            ${
+              props.formatValue(props.RecurringPricingInfo.PackageOneVaTPrice)
 
-                      // Number(props.RecurringPricingInfo.PackageOneVaTPrice).toFixed(2).toString().replace(
-                      //           /\B(?=(\d{3})+(?!\d))/g,
-                      //           ","
-                      //         )
-                      }
+              // Number(props.RecurringPricingInfo.PackageOneVaTPrice).toFixed(2).toString().replace(
+              //           /\B(?=(\d{3})+(?!\d))/g,
+              //           ","
+              //         )
+            }
           </td>
-          ${props?.selectedPackagesList?.length >= 2
-                        ? `
+          ${
+            props?.selectedPackagesList?.length >= 2
+              ? `
             <td style="border: 1px solid #dddddd; text-align: right; padding: 8px;color: black;">
                  
-              ${props.formatValue(props.RecurringPricingInfo.PackageTwoVaTPrice)
-                        // Number(props.RecurringPricingInfo.PackageTwoVaTPrice).toFixed(2).toString().replace(
-                        //         /\B(?=(\d{3})+(?!\d))/g,
-                        //         ","
-                        //       )
-                        }
+              ${
+                props.formatValue(props.RecurringPricingInfo.PackageTwoVaTPrice)
+                // Number(props.RecurringPricingInfo.PackageTwoVaTPrice).toFixed(2).toString().replace(
+                //         /\B(?=(\d{3})+(?!\d))/g,
+                //         ","
+                //       )
+              }
             </td>
           `
-                        : ``
-                      }
-          ${props?.selectedPackagesList?.length === 3
-                        ? `
+              : ``
+          }
+          ${
+            props?.selectedPackagesList?.length === 3
+              ? `
             <td style="border: 1px solid #dddddd; text-align: right; padding: 8px;color: black;">
                  
-              ${props.formatValue(
-                          props.RecurringPricingInfo.PackageThreeVaTPrice
-                        )
-                        // Number(props.RecurringPricingInfo.PackageThreeVaTPrice).toFixed(2).toString().replace(
-                        //         /\B(?=(\d{3})+(?!\d))/g,
-                        //         ","
+              ${
+                props.formatValue(
+                  props.RecurringPricingInfo.PackageThreeVaTPrice
+                )
+                // Number(props.RecurringPricingInfo.PackageThreeVaTPrice).toFixed(2).toString().replace(
+                //         /\B(?=(\d{3})+(?!\d))/g,
+                //         ","
 
-                        //       )
-                        }
+                //       )
+              }
             </td>
           `
-                        : ``
-                      }
+              : ``
+          }
         </tr>
 <tr style="background-color:#808080;">
            <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white;">
@@ -2994,50 +3496,55 @@ export default function PreviewComponentPdf(props) {
             </td>
           <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
                
-            ${props.formatValue(props.RecurringPricingInfo.PackageOneGrandTotal)
-                      // Number(props.RecurringPricingInfo.PackageOneGrandTotal).toFixed(2).toString().replace(
-                      //           /\B(?=(\d{3})+(?!\d))/g,
-                      //           ","
-                      //         )
-                      }
+            ${
+              props.formatValue(props.RecurringPricingInfo.PackageOneGrandTotal)
+              // Number(props.RecurringPricingInfo.PackageOneGrandTotal).toFixed(2).toString().replace(
+              //           /\B(?=(\d{3})+(?!\d))/g,
+              //           ","
+              //         )
+            }
           </td>
-          ${props?.selectedPackagesList?.length >= 2
-                        ? `
+          ${
+            props?.selectedPackagesList?.length >= 2
+              ? `
             <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
                  
-              ${props.formatValue(
-                          props.RecurringPricingInfo.PackageTwoGrandTotal
-                        )
-                        // Number(props.RecurringPricingInfo.PackageTwoGrandTotal).toFixed(2).toString().replace(
-                        //         /\B(?=(\d{3})+(?!\d))/g,
-                        //         ","
-                        //       )
-                        }
+              ${
+                props.formatValue(
+                  props.RecurringPricingInfo.PackageTwoGrandTotal
+                )
+                // Number(props.RecurringPricingInfo.PackageTwoGrandTotal).toFixed(2).toString().replace(
+                //         /\B(?=(\d{3})+(?!\d))/g,
+                //         ","
+                //       )
+              }
             </td>
           `
-                        : ``
-                      }
-          ${props?.selectedPackagesList?.length === 3
-                        ? `
+              : ``
+          }
+          ${
+            props?.selectedPackagesList?.length === 3
+              ? `
             <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
                  
-              ${props.formatValue(
-                          props.RecurringPricingInfo.PackageThreeGrandTotal
-                        )
-                        // Number(props.RecurringPricingInfo.PackageThreeGrandTotal).toFixed(2).toString().replace(
-                        //         /\B(?=(\d{3})+(?!\d))/g,
-                        //         ","
-                        //       )
-                        }
+              ${
+                props.formatValue(
+                  props.RecurringPricingInfo.PackageThreeGrandTotal
+                )
+                // Number(props.RecurringPricingInfo.PackageThreeGrandTotal).toFixed(2).toString().replace(
+                //         /\B(?=(\d{3})+(?!\d))/g,
+                //         ","
+                //       )
+              }
             </td>
           `
-                        : ``
-                      }
+              : ``
+          }
         </tr>
       
     `
-                      : ``
-                    }
+           : ``
+       }
                       
                       </table>
                     </div>
@@ -3054,31 +3561,34 @@ export default function PreviewComponentPdf(props) {
                         <tr style="background-color:${newColorCode};">
                           <th style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white; font-size: 18px;">Services</th>
                           ${props?.selectedPackagesList
-                      ?.map(
-                        (selectedPackagesData) => `
+                            ?.map(
+                              (selectedPackagesData) => `
                           <th style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; font-size: 18px;">${getPackageName(
-                          selectedPackagesData.servicePackageID,
-                          selectedPackagesData.servicePackageName
-                        )}</th>
+                            selectedPackagesData.servicePackageID,
+                            selectedPackagesData.servicePackageName
+                          )}</th>
                           `
-                      )
-                      .join("")}                           
+                            )
+                            .join("")}                           
                         </tr>
                         ${props.selectedOneOffServiceList
-                      .map(
-                        (serviceCat) => `
+                          .map(
+                            (serviceCat) => `
                           <tr style="background-color: #DCDCDC;">
-                            <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; font-weight: bold; font-size: 18px;">${serviceCat.serviceCatName
-                          }</td>
+                            <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; font-weight: bold; font-size: 18px;">${
+                              serviceCat.serviceCatName
+                            }</td>
                             <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;"></td>
-                            ${props?.selectedPackages.length >= 2
-                            ? `<td style="border: 1px solid #dddddd; text-align: left; padding: 8px;"></td>`
-                            : ` `
-                          }
-                            ${props?.selectedPackages.length === 3
-                            ? `<td style="border: 1px solid #dddddd; text-align: left; padding: 8px;"></td>`
-                            : ` `
-                          }
+                            ${
+                              props?.selectedPackages.length >= 2
+                                ? `<td style="border: 1px solid #dddddd; text-align: left; padding: 8px;"></td>`
+                                : ` `
+                            }
+                            ${
+                              props?.selectedPackages.length === 3
+                                ? `<td style="border: 1px solid #dddddd; text-align: left; padding: 8px;"></td>`
+                                : ` `
+                            }
                             
                           </tr>
                           ${serviceCat.servicesList
@@ -3090,207 +3600,247 @@ export default function PreviewComponentPdf(props) {
 
                       </tr>
                             <tr>
-                              <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">${subService.serviceName
-                                }</td>
-                                ${props?.feeTypeId == 1
-                                  ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">${subService.packageOneValue !== undefined
-                                    ? (subService.packageOneValue === 0 ||
-                                      subService.packageOneValue ===
-                                      null) &&
-                                      !subService.servicePackageIDs.some(
-                                        (item) =>
-                                          item ==
-                                          props.selectedPackagesList[0]
-                                            ?.servicePackageID
-                                      )
-                                      ? `<span>&#10007;</span>`
-                                      : !(subService?.servicePackageIDs.includes(subService.packageOneID)) ? `<span>&#10007;</span>` : `${props.formatValue(
-                                        subService.packageOneValue
-                                      )}`
-                                    : props.formatValue(subService.price)
-                                  }</td>
+                              <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">${
+                                subService.serviceName
+                              }</td>
+                                ${
+                                  props?.feeTypeId == 1
+                                    ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">${
+                                        subService.packageOneValue !== undefined
+                                          ? (subService.packageOneValue === 0 ||
+                                              subService.packageOneValue ===
+                                                null) &&
+                                            !subService.servicePackageIDs.some(
+                                              (item) =>
+                                                item ==
+                                                props.selectedPackagesList[0]
+                                                  ?.servicePackageID
+                                            )
+                                            ? `<span>&#10007;</span>`
+                                            : !subService?.servicePackageIDs.includes(
+                                                subService.packageOneID
+                                              )
+                                            ? `<span>&#10007;</span>`
+                                            : `${props.formatValue(
+                                                subService.packageOneValue
+                                              )}`
+                                          : props.formatValue(subService.price)
+                                      }</td>
                             `
-                                  : `${subService.packageOneValue == undefined
-                                    ? Number(
-                                      subService.packageOneValue
-                                    ) == 0
-                                      ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10007;</td>`
-                                      : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
-                                    : Number(
-                                      subService.packageOneValue
-                                    ) !== null && !subService?.servicePackageIDs.includes(subService.packageOneID)
-                                      ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10007;</td>`
-                                      : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
-                                  }
+                                    : `${
+                                        subService.packageOneValue == undefined
+                                          ? Number(
+                                              subService.packageOneValue
+                                            ) == 0
+                                            ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10007;</td>`
+                                            : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
+                                          : Number(
+                                              subService.packageOneValue
+                                            ) !== null &&
+                                            !subService?.servicePackageIDs.includes(
+                                              subService.packageOneID
+                                            )
+                                          ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10007;</td>`
+                                          : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
+                                      }
                             `
                                 }
                              
-                              ${props?.selectedPackages.length >= 2
+                              ${
+                                props?.selectedPackages.length >= 2
                                   ? `
-                                  ${props?.feeTypeId == 1
-                                    ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;"> ${subService.packageTwoValue !==
-                                      undefined
-                                      ? (subService.packageTwoValue ===
-                                        0 ||
-                                        subService.packageTwoValue ===
-                                        null) &&
-                                        !subService.servicePackageIDs.some(
-                                          (item) =>
-                                            item ==
-                                            props.selectedPackagesList[1]
-                                              ?.servicePackageID
-                                        )
-                                        ? `<span>&#10007;</span>`
-                                        : !(subService?.servicePackageIDs.includes(subService.packageTwoID)) ? `<span>&#10007;</span>` : `${props.formatValue(
-                                          subService.packageTwoValue
-                                        )}`
-                                      : props.formatValue(
-                                        subService.price
-                                      )
-                                    }</td>
+                                  ${
+                                    props?.feeTypeId == 1
+                                      ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;"> ${
+                                          subService.packageTwoValue !==
+                                          undefined
+                                            ? (subService.packageTwoValue ===
+                                                0 ||
+                                                subService.packageTwoValue ===
+                                                  null) &&
+                                              !subService.servicePackageIDs.some(
+                                                (item) =>
+                                                  item ==
+                                                  props.selectedPackagesList[1]
+                                                    ?.servicePackageID
+                                              )
+                                              ? `<span>&#10007;</span>`
+                                              : !subService?.servicePackageIDs.includes(
+                                                  subService.packageTwoID
+                                                )
+                                              ? `<span>&#10007;</span>`
+                                              : `${props.formatValue(
+                                                  subService.packageTwoValue
+                                                )}`
+                                            : props.formatValue(
+                                                subService.price
+                                              )
+                                        }</td>
                               `
-                                    : `${subService.packageTwoValue ==
-                                      undefined
-                                      ? Number(
-                                        subService.packageTwoValue
-                                      ) == 0
-                                        ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10007;</td>`
-                                        : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
-                                      : Number(
-                                        subService.packageTwoValue
-                                      ) !== null && !subService?.servicePackageIDs.includes(subService.packageTwoID)
-                                        ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10007;</td>`
-                                        : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
-                                    }
+                                      : `${
+                                          subService.packageTwoValue ==
+                                          undefined
+                                            ? Number(
+                                                subService.packageTwoValue
+                                              ) == 0
+                                              ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10007;</td>`
+                                              : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
+                                            : Number(
+                                                subService.packageTwoValue
+                                              ) !== null &&
+                                              !subService?.servicePackageIDs.includes(
+                                                subService.packageTwoID
+                                              )
+                                            ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10007;</td>`
+                                            : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
+                                        }
                               `
                                   }
                                   `
                                   : ` `
-                                }
-                              ${props?.selectedPackages.length === 3
+                              }
+                              ${
+                                props?.selectedPackages.length === 3
                                   ? `
-                                  ${props?.feeTypeId == 1
-                                    ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">${subService.packageThreeValue !==
-                                      undefined ? (
-                                      (subService.packageThreeValue ===
-                                        0 ||
-                                        subService.packageThreeValue ===
-                                        null) &&
-                                        !subService.servicePackageIDs.some(
-                                          (item) =>
-                                            item ==
-                                            props.selectedPackagesList[2]
-                                              ?.servicePackageID
-                                        ) ?
-                                        `<span>&#10007;</span>`
-                                        : !(subService?.servicePackageIDs.includes(subService.packageThreeID)) ? `<span>&#10007;</span>` : `${props.formatValue(subService.packageThreeValue
-                                        )}`
-                                    )
-                                      : (
-                                        props.formatValue(subService.price)
-                                      )
-                                    }</td>
+                                  ${
+                                    props?.feeTypeId == 1
+                                      ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">${
+                                          subService.packageThreeValue !==
+                                          undefined
+                                            ? (subService.packageThreeValue ===
+                                                0 ||
+                                                subService.packageThreeValue ===
+                                                  null) &&
+                                              !subService.servicePackageIDs.some(
+                                                (item) =>
+                                                  item ==
+                                                  props.selectedPackagesList[2]
+                                                    ?.servicePackageID
+                                              )
+                                              ? `<span>&#10007;</span>`
+                                              : !subService?.servicePackageIDs.includes(
+                                                  subService.packageThreeID
+                                                )
+                                              ? `<span>&#10007;</span>`
+                                              : `${props.formatValue(
+                                                  subService.packageThreeValue
+                                                )}`
+                                            : props.formatValue(
+                                                subService.price
+                                              )
+                                        }</td>
                               `
-                                    : `${subService.packageThreeValue ==
-                                      undefined
-                                      ? Number(
-                                        subService.packageThreeValue
-                                      ) == 0
-                                        ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10007;</td>`
-                                        : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
-                                      : Number(
-                                        subService.packageThreeValue
-                                      ) !== null && !subService?.servicePackageIDs.includes(subService.packageThreeID)
-                                        ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10007;</td>`
-                                        : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
-                                    }
+                                      : `${
+                                          subService.packageThreeValue ==
+                                          undefined
+                                            ? Number(
+                                                subService.packageThreeValue
+                                              ) == 0
+                                              ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10007;</td>`
+                                              : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
+                                            : Number(
+                                                subService.packageThreeValue
+                                              ) !== null &&
+                                              !subService?.servicePackageIDs.includes(
+                                                subService.packageThreeID
+                                              )
+                                            ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10007;</td>`
+                                            : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
+                                        }
                               `
                                   }
                                   
                                   `
                                   : ` `
-                                }
+                              }
                             </tr>`
                             )
                             .join("")}
                         `
-                      )
-                      .join("")}
+                          )
+                          .join("")}
                          <tr style="background-color:#808080;">
                         <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white;">Net Total</td>
-                        <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">  ${Number(
-                        props.OneOffPricingInfo.packageOneNetTotal
-                      ) <
-                      Number(
-                        props.OneOffPricingInfo.packageOneDisCountedTotal
-                      ) ||
-                      (Number(props.OneOffPricingInfo.packageOneDisCount) >
-                        0 &&
-                        !props.DiscountLines)
-                      ? props.formatValue(
-                        props.OneOffPricingInfo
-                          .packageOneDisCountedTotal
-                      )
-                      : props.formatValue(
-                        props.OneOffPricingInfo.packageOneNetTotal
-                      )
-                    }</td>
+                        <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">  ${
+                          Number(props.OneOffPricingInfo.packageOneNetTotal) <
+                            Number(
+                              props.OneOffPricingInfo.packageOneDisCountedTotal
+                            ) ||
+                          (Number(props.OneOffPricingInfo.packageOneDisCount) >
+                            0 &&
+                            !props.DiscountLines)
+                            ? props.formatValue(
+                                props.OneOffPricingInfo
+                                  .packageOneDisCountedTotal
+                              )
+                            : props.formatValue(
+                                props.OneOffPricingInfo.packageOneNetTotal
+                              )
+                        }</td>
                           
-                           ${props?.selectedPackages.length >= 2
-                      ? `  <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">   ${Number(
-                        props.OneOffPricingInfo.packageTwoNetTotal
-                      ) <
-                        Number(
-                          props.OneOffPricingInfo
-                            .packageTwoDisCountedTotal
-                        ) ||
-                        (Number(
-                          props.OneOffPricingInfo.packageTwoDisCount
-                        ) > 0 &&
-                          !props.DiscountLines)
-                        ? props.formatValue(
-                          props.OneOffPricingInfo
-                            .packageTwoDisCountedTotal
-                        )
-                        : props.formatValue(
-                          props.OneOffPricingInfo.packageTwoNetTotal
-                        )
-                      }</td>`
-                      : ` `
-                    }
-                           ${props?.selectedPackages.length === 3
-                      ? ` <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">  ${Number(
-                        props.OneOffPricingInfo.packageThreeNetTotal
-                      ) <
-                        Number(
-                          props.OneOffPricingInfo
-                            .packageThreeDisCountedTotal
-                        ) ||
-                        (Number(
-                          props.OneOffPricingInfo
-                            .packageThreeDisCount
-                        ) > 0 &&
-                          !props.DiscountLines)
-                        ? props.formatValue(
-                          props.OneOffPricingInfo
-                            .packageThreeDisCountedTotal
-                        )
-                        : props.formatValue(
-                          props.OneOffPricingInfo.packageThreeNetTotal
-                        )
-                      }
+                           ${
+                             props?.selectedPackages.length >= 2
+                               ? `  <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">   ${
+                                   Number(
+                                     props.OneOffPricingInfo.packageTwoNetTotal
+                                   ) <
+                                     Number(
+                                       props.OneOffPricingInfo
+                                         .packageTwoDisCountedTotal
+                                     ) ||
+                                   (Number(
+                                     props.OneOffPricingInfo.packageTwoDisCount
+                                   ) > 0 &&
+                                     !props.DiscountLines)
+                                     ? props.formatValue(
+                                         props.OneOffPricingInfo
+                                           .packageTwoDisCountedTotal
+                                       )
+                                     : props.formatValue(
+                                         props.OneOffPricingInfo
+                                           .packageTwoNetTotal
+                                       )
+                                 }</td>`
+                               : ` `
+                           }
+                           ${
+                             props?.selectedPackages.length === 3
+                               ? ` <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">  ${
+                                   Number(
+                                     props.OneOffPricingInfo
+                                       .packageThreeNetTotal
+                                   ) <
+                                     Number(
+                                       props.OneOffPricingInfo
+                                         .packageThreeDisCountedTotal
+                                     ) ||
+                                   (Number(
+                                     props.OneOffPricingInfo
+                                       .packageThreeDisCount
+                                   ) > 0 &&
+                                     !props.DiscountLines)
+                                     ? props.formatValue(
+                                         props.OneOffPricingInfo
+                                           .packageThreeDisCountedTotal
+                                       )
+                                     : props.formatValue(
+                                         props.OneOffPricingInfo
+                                           .packageThreeNetTotal
+                                       )
+                                 }
                         </td>`
-                      : ` `
-                    }
-                        ${(Number(
-                      props.OneOffPricingInfo.packageThreeDisCount
-                    ) > 0 ||
-                      Number(props.OneOffPricingInfo.packageOneDisCount) >
-                      0 ||
-                      Number(props.OneOffPricingInfo.packageTwoDisCount) >
-                      0) &&
-                      props?.DiscountLines
-                      ? `
+                               : ` `
+                           }
+                        ${
+                          (Number(
+                            props.OneOffPricingInfo.packageThreeDisCount
+                          ) > 0 ||
+                            Number(props.OneOffPricingInfo.packageOneDisCount) >
+                              0 ||
+                            Number(props.OneOffPricingInfo.packageTwoDisCount) >
+                              0) &&
+                          props?.DiscountLines
+                            ? `
          <tr style="background-color: #DCDCDC";>
             <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;color: Black;">
               Discount
@@ -3299,26 +3849,28 @@ export default function PreviewComponentPdf(props) {
               (-)    
               ${props.formatValue(props.OneOffPricingInfo.packageOneDisCount)}
             </td>
-            ${props?.selectedPackagesList?.length >= 2
-                        ? `
+            ${
+              props?.selectedPackagesList?.length >= 2
+                ? `
                <td style="border: 1px solid #dddddd; text-align: right; padding: 8px;color: Black;">
                 (-)    
                 ${props.formatValue(props.OneOffPricingInfo.packageTwoDisCount)}
               </td>
             `
-                        : ``
-                      }
-            ${props?.selectedPackagesList?.length === 3
-                        ? `
+                : ``
+            }
+            ${
+              props?.selectedPackagesList?.length === 3
+                ? `
                <td style="border: 1px solid #dddddd; text-align: right; padding: 8px;color: Black;"">
                 (-)    
                 ${props.formatValue(
-                          props.OneOffPricingInfo.packageThreeDisCount
-                        )}
+                  props.OneOffPricingInfo.packageThreeDisCount
+                )}
               </td>
             `
-                        : ``
-                      }
+                : ``
+            }
           </tr>
           <tr style="background-color:#808080;">
             <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white;">
@@ -3327,103 +3879,114 @@ export default function PreviewComponentPdf(props) {
             <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
             
                  
-              ${props.formatValue(
-                        props.OneOffPricingInfo.packageOneDisCountedTotal
-                      )
-                      // Number(props.OneOffPricingInfo.packageOneDisCountedTotal)
-                      //           .toFixed(2).toString().replace(
-                      //             /\B(?=(\d{3})+(?!\d))/g,
-                      //             ","
-                      //           )
-                      }
+              ${
+                props.formatValue(
+                  props.OneOffPricingInfo.packageOneDisCountedTotal
+                )
+                // Number(props.OneOffPricingInfo.packageOneDisCountedTotal)
+                //           .toFixed(2).toString().replace(
+                //             /\B(?=(\d{3})+(?!\d))/g,
+                //             ","
+                //           )
+              }
             </td>
-            ${props?.selectedPackagesList?.length >= 2
-                        ? `
+            ${
+              props?.selectedPackagesList?.length >= 2
+                ? `
               <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
    
-                ${props.formatValue(
-                          props.OneOffPricingInfo.packageTwoDisCountedTotal
-                        )
-                        // Number(props.OneOffPricingInfo.packageTwoDisCountedTotal)
-                        //           .toFixed(2).toString().replace(
-                        //             /\B(?=(\d{3})+(?!\d))/g,
-                        //             ","
-                        //           )
-                        }
+                ${
+                  props.formatValue(
+                    props.OneOffPricingInfo.packageTwoDisCountedTotal
+                  )
+                  // Number(props.OneOffPricingInfo.packageTwoDisCountedTotal)
+                  //           .toFixed(2).toString().replace(
+                  //             /\B(?=(\d{3})+(?!\d))/g,
+                  //             ","
+                  //           )
+                }
               </td>
             `
-                        : ``
-                      }
-            ${props?.selectedPackagesList?.length === 3
-                        ? `
+                : ``
+            }
+            ${
+              props?.selectedPackagesList?.length === 3
+                ? `
               <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
                
                    
-                ${props.formatValue(
-                          props.OneOffPricingInfo.packageThreeDisCountedTotal
-                        )
-                        // Number(props.OneOffPricingInfo.packageThreeDisCountedTotal)
-                        //           .toFixed(2).toString().replace(
-                        //             /\B(?=(\d{3})+(?!\d))/g,
-                        //             ","
-                        //           )
-                        }
+                ${
+                  props.formatValue(
+                    props.OneOffPricingInfo.packageThreeDisCountedTotal
+                  )
+                  // Number(props.OneOffPricingInfo.packageThreeDisCountedTotal)
+                  //           .toFixed(2).toString().replace(
+                  //             /\B(?=(\d{3})+(?!\d))/g,
+                  //             ","
+                  //           )
+                }
               </td>
             `
-                        : ``
-                      }
+                : ``
+            }
           </tr>
         </>
       `
-                      : ``
-                    }
+                            : ``
+                        }
 
-       ${props.vatPercentage
-                      ? `
+       ${
+         props.vatPercentage
+           ? `
         <tr style="background-color: #DCDCDC";>
            <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;color: black;">
               VAT
           </td>
            <td style="border: 1px solid #dddddd; text-align: right; padding: 8px;color: black;">
                
-            ${props.formatValue(props.OneOffPricingInfo.PackageOneVaTPrice)
-                      // Number(props.OneOffPricingInfo.PackageOneVaTPrice)
-                      //           .toFixed(2).toString().replace(
-                      //             /\B(?=(\d{3})+(?!\d))/g,
-                      //             ","
-                      //           )
-                      }
+            ${
+              props.formatValue(props.OneOffPricingInfo.PackageOneVaTPrice)
+              // Number(props.OneOffPricingInfo.PackageOneVaTPrice)
+              //           .toFixed(2).toString().replace(
+              //             /\B(?=(\d{3})+(?!\d))/g,
+              //             ","
+              //           )
+            }
           </td>
-          ${props?.selectedPackagesList?.length >= 2
-                        ? `
+          ${
+            props?.selectedPackagesList?.length >= 2
+              ? `
             <td style="border: 1px solid #dddddd; text-align: right; padding: 8px;color: black;">
                  
-              ${props.formatValue(props.OneOffPricingInfo.PackageTwoVaTPrice)
-                        // Number(props.OneOffPricingInfo.PackageTwoVaTPrice)
-                        //           .toFixed(2).toString().replace(
-                        //             /\B(?=(\d{3})+(?!\d))/g,
-                        //             ","
-                        //           )
-                        }
+              ${
+                props.formatValue(props.OneOffPricingInfo.PackageTwoVaTPrice)
+                // Number(props.OneOffPricingInfo.PackageTwoVaTPrice)
+                //           .toFixed(2).toString().replace(
+                //             /\B(?=(\d{3})+(?!\d))/g,
+                //             ","
+                //           )
+              }
             </td>
           `
-                        : ``
-                      }
-          ${props?.selectedPackagesList?.length === 3
-                        ? `
+              : ``
+          }
+          ${
+            props?.selectedPackagesList?.length === 3
+              ? `
             <td style="border: 1px solid #dddddd; text-align: right; padding: 8px;color: black;">
                  
-              ${props.formatValue(props.OneOffPricingInfo.PackageThreeVaTPrice)
-                        // Number(props.OneOffPricingInfo.PackageThreeVaTPrice)
-                        //           .toFixed(2).toString().replace(
-                        //             /\B(?=(\d{3})+(?!\d))/g,
-                        //             ","
-                        //           )
-                        }
+              ${
+                props.formatValue(props.OneOffPricingInfo.PackageThreeVaTPrice)
+                // Number(props.OneOffPricingInfo.PackageThreeVaTPrice)
+                //           .toFixed(2).toString().replace(
+                //             /\B(?=(\d{3})+(?!\d))/g,
+                //             ","
+                //           )
+              }
             </td>
           `
-                        : ``
-                      }
+              : ``
+          }
         </tr>
 <tr style="background-color:#808080;">
            <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white;">
@@ -3431,51 +3994,56 @@ export default function PreviewComponentPdf(props) {
             </td>
           <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
                
-            ${props.formatValue(props.OneOffPricingInfo.PackageOneGrandTotal)
-                      // Number(props.OneOffPricingInfo.PackageOneGrandTotal)
-                      //           .toFixed(2).toString().replace(
-                      //             /\B(?=(\d{3})+(?!\d))/g,
-                      //             ","
-                      //           )
-                      }
+            ${
+              props.formatValue(props.OneOffPricingInfo.PackageOneGrandTotal)
+              // Number(props.OneOffPricingInfo.PackageOneGrandTotal)
+              //           .toFixed(2).toString().replace(
+              //             /\B(?=(\d{3})+(?!\d))/g,
+              //             ","
+              //           )
+            }
           </td>
-          ${props?.selectedPackagesList?.length >= 2
-                        ? `
+          ${
+            props?.selectedPackagesList?.length >= 2
+              ? `
             <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
                  
-              ${props.formatValue(props.OneOffPricingInfo.PackageTwoGrandTotal)
-                        // Number(props.OneOffPricingInfo.PackageTwoGrandTotal)
-                        //           .toFixed(2).toString().replace(
-                        //             /\B(?=(\d{3})+(?!\d))/g,
-                        //             ","
-                        //           )
-                        }
+              ${
+                props.formatValue(props.OneOffPricingInfo.PackageTwoGrandTotal)
+                // Number(props.OneOffPricingInfo.PackageTwoGrandTotal)
+                //           .toFixed(2).toString().replace(
+                //             /\B(?=(\d{3})+(?!\d))/g,
+                //             ","
+                //           )
+              }
             </td>
           `
-                        : ``
-                      }
-          ${props?.selectedPackagesList?.length === 3
-                        ? `
+              : ``
+          }
+          ${
+            props?.selectedPackagesList?.length === 3
+              ? `
             <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
                  
-              ${props.formatValue(
-                          props.OneOffPricingInfo.PackageThreeGrandTotal
-                        )
-                        // Number(props.OneOffPricingInfo.PackageThreeGrandTotal)
-                        //           .toFixed(2).toString().replace(
-                        //             /\B(?=(\d{3})+(?!\d))/g,
-                        //             ","
-                        //           )
-                        }
+              ${
+                props.formatValue(
+                  props.OneOffPricingInfo.PackageThreeGrandTotal
+                )
+                // Number(props.OneOffPricingInfo.PackageThreeGrandTotal)
+                //           .toFixed(2).toString().replace(
+                //             /\B(?=(\d{3})+(?!\d))/g,
+                //             ","
+                //           )
+              }
             </td>
           `
-                        : ``
-                      }
+              : ``
+          }
         </tr>
       </>
     `
-                      : ``
-                    }
+           : ``
+       }
                       
                          
                         </tr>
@@ -3485,7 +4053,11 @@ export default function PreviewComponentPdf(props) {
                 });
               }
             } else {
-              if (props?.selectedRecurringServiceList.length > 0 && props?.ProposalObject?.selectedProposalTypeValue !== 4 && props?.engagementObj?.quoteTypeID !== 4) {
+              if (
+                props?.selectedRecurringServiceList.length > 0 &&
+                props?.ProposalObject?.selectedProposalTypeValue !== 4 &&
+                props?.engagementObj?.quoteTypeID !== 4
+              ) {
                 currentArray.push({
                   table: `
                     <div style="padding-left: 40px; padding-right: 40px; font-family:${fontFamily};page-break-inside: avoid; break-inside: avoid;">
@@ -3497,72 +4069,78 @@ export default function PreviewComponentPdf(props) {
                           <th style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; font-size: 18px;">Fees (£   )</th>
                         </tr>
                         ${props.selectedRecurringServiceList
-                      .map(
-                        (serviceCat) => `
+                          .map(
+                            (serviceCat) => `
                           <tr style="background-color: #eee;">
-                            <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; font-weight: bold; font-size: 18px;">${serviceCat.serviceCatName
-                          }</td>
+                            <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; font-weight: bold; font-size: 18px;">${
+                              serviceCat.serviceCatName
+                            }</td>
                             <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;"></td>
                           </tr>
                           ${serviceCat.servicesList
                             .map(
                               (subService) => `
                             <tr>
-                              <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">${subService.serviceName
-                                }</td>
-                                ${props?.feeTypeId == 1
-                                  ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">   ${subService.price == undefined
-                                    ? props.formatValue(
-                                      subService.quotationPrice
-                                    )
-                                    : props.formatValue(subService.price)
-                                  }</td>
+                              <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">${
+                                subService.serviceName
+                              }</td>
+                                ${
+                                  props?.feeTypeId == 1
+                                    ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">   ${
+                                        subService.price == undefined
+                                          ? props.formatValue(
+                                              subService.quotationPrice
+                                            )
+                                          : props.formatValue(subService.price)
+                                      }</td>
                             `
-                                  : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
+                                    : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
                                 }
                             </tr>
                           `
                             )
                             .join("")}
                         `
-                      )
-                      .join("")}
+                          )
+                          .join("")}
                         <tr style="background-color:#808080;">
                           <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white;">Net Total</td>
-                          <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">   ${Number(props.RecurringPricingInfo.OriginalPrice) <
-                      Number(
-                        props.RecurringPricingInfo.DiscountedPrice
-                      ) ||
-                      (Number(props.RecurringPricingInfo.Discount) > 0 &&
-                        !props.DiscountLines)
-                      ? Number(
-                        props.RecurringPricingInfo.DiscountedPrice
-                      ) === 0
-                        ? props.formatValue(
-                          props.RecurringPricingInfo.OriginalPrice
-                        )
-                        : props.formatValue(
-                          props.RecurringPricingInfo.DiscountedPrice
-                        )
-                      : props.formatValue(
-                        props.RecurringPricingInfo.OriginalPrice
-                      )
-                    }
+                          <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">   ${
+                            Number(props.RecurringPricingInfo.OriginalPrice) <
+                              Number(
+                                props.RecurringPricingInfo.DiscountedPrice
+                              ) ||
+                            (Number(props.RecurringPricingInfo.Discount) > 0 &&
+                              !props.DiscountLines)
+                              ? Number(
+                                  props.RecurringPricingInfo.DiscountedPrice
+                                ) === 0
+                                ? props.formatValue(
+                                    props.RecurringPricingInfo.OriginalPrice
+                                  )
+                                : props.formatValue(
+                                    props.RecurringPricingInfo.DiscountedPrice
+                                  )
+                              : props.formatValue(
+                                  props.RecurringPricingInfo.OriginalPrice
+                                )
+                          }
                     </td>
                     </tr>
-                   ${Number(
-                      props.RecurringPricingInfo.Discount > 0 &&
-                      props?.DiscountLines
-                    )
-                      ? `<tr style="background-color:#DCDCDC ;">
+                   ${
+                     Number(
+                       props.RecurringPricingInfo.Discount > 0 &&
+                         props?.DiscountLines
+                     )
+                       ? `<tr style="background-color:#DCDCDC ;">
                       <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: black;">
                       Discount
                       </td>
                        <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: black;">
                        
                        (-)     ${props.formatValue(
-                        props.RecurringPricingInfo.Discount
-                      )}
+                         props.RecurringPricingInfo.Discount
+                       )}
                       </td>
                     </tr>
           <tr style="background-color:#808080;">
@@ -3577,22 +4155,24 @@ export default function PreviewComponentPdf(props) {
           </tr>
         </>
      `
-                      : ``
-                    }
+                       : ``
+                   }
      
-      ${props.vatPercentage
-                      ? `      
+      ${
+        props.vatPercentage
+          ? `      
           <tr style="background-color: #DCDCDC";>
            <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;color: black;">
               VAT
           </td>
-            <td style="border: 1px solid #dddddd; text-align: right; padding: 8px;">   ${props.formatValue(props.RecurringPricingInfo.VATPrice)
-                      // Number(props.RecurringPricingInfo.VATPrice)
-                      //           .toFixed(2).toString().replace(
-                      //             /\B(?=(\d{3})+(?!\d))/g,
-                      //             ","
-                      //           )
-                      }
+            <td style="border: 1px solid #dddddd; text-align: right; padding: 8px;">   ${
+              props.formatValue(props.RecurringPricingInfo.VATPrice)
+              // Number(props.RecurringPricingInfo.VATPrice)
+              //           .toFixed(2).toString().replace(
+              //             /\B(?=(\d{3})+(?!\d))/g,
+              //             ","
+              //           )
+            }
             </td>
           </tr>
          <tr style="background-color:#808080;">
@@ -3601,17 +4181,18 @@ export default function PreviewComponentPdf(props) {
             </td>
           <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
                   
-              ${props.formatValue(props.RecurringPricingInfo.GrandTotal)
-                      // Number(props.RecurringPricingInfo.GrandTotal)
-                      //         .toFixed(2).toString().replace(
-                      //           /\B(?=(\d{3})+(?!\d))/g,
-                      //           ","
-                      //         )
-                      }
+              ${
+                props.formatValue(props.RecurringPricingInfo.GrandTotal)
+                // Number(props.RecurringPricingInfo.GrandTotal)
+                //         .toFixed(2).toString().replace(
+                //           /\B(?=(\d{3})+(?!\d))/g,
+                //           ","
+                //         )
+              }
             </td>
           </tr> `
-                      : ``
-                    }
+          : ``
+      }
    
                       </table>
                     </div>
@@ -3619,7 +4200,11 @@ export default function PreviewComponentPdf(props) {
                 });
               }
               // Check if selectedOneOffServiceList has items
-              if (props?.selectedOneOffServiceList.length > 0 && props?.ProposalObject?.selectedProposalTypeValue !== 4 && props?.engagementObj?.quoteTypeID !== 4) {
+              if (
+                props?.selectedOneOffServiceList.length > 0 &&
+                props?.ProposalObject?.selectedProposalTypeValue !== 4 &&
+                props?.engagementObj?.quoteTypeID !== 4
+              ) {
                 // Append the table for selectedOneOffServiceList
                 currentArray.push({
                   table: `
@@ -3631,63 +4216,69 @@ export default function PreviewComponentPdf(props) {
                             <th style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; font-size: 18px;">Fees (£)</th>
                           </tr>
                           ${props.selectedOneOffServiceList
-                      .map(
-                        (serviceCat) => `
+                            .map(
+                              (serviceCat) => `
                                 <tr style="background-color: #eee;">
-                                  <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; font-weight: bold; font-size: 18px;">${serviceCat.serviceCatName
-                          }</td>
+                                  <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; font-weight: bold; font-size: 18px;">${
+                                    serviceCat.serviceCatName
+                                  }</td>
                                    <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;"></td>
                                 </tr>
                                 ${serviceCat.servicesList
-                            .map(
-                              (subService) => `
+                                  .map(
+                                    (subService) => `
                                   <tr>
-                                    <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">${subService.serviceName
-                                }</td>
-                                ${props?.feeTypeId == 1
-                                  ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">   ${subService.price == undefined
-                                    ? props.formatValue(
-                                      subService.quotationPrice
-                                    )
-                                    : props.formatValue(subService.price)
-                                  }</td>
+                                    <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">${
+                                      subService.serviceName
+                                    }</td>
+                                ${
+                                  props?.feeTypeId == 1
+                                    ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">   ${
+                                        subService.price == undefined
+                                          ? props.formatValue(
+                                              subService.quotationPrice
+                                            )
+                                          : props.formatValue(subService.price)
+                                      }</td>
                             `
-                                  : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
+                                    : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
                                 }
                                   </tr>
                                 `
+                                  )
+                                  .join("")}
+                              `
                             )
                             .join("")}
-                              `
-                      )
-                      .join("")}
                           <tr style="background-color:#808080;">
                             <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white;">Net Total</td>
                             <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">   
                     
-                    ${Number(props.OneOffPricingInfo.OriginalPrice) <
-                      Number(props.OneOffPricingInfo.DiscountedPrice) ||
+                    ${
+                      Number(props.OneOffPricingInfo.OriginalPrice) <
+                        Number(props.OneOffPricingInfo.DiscountedPrice) ||
                       (Number(props.OneOffPricingInfo.Discount) > 0 &&
                         !props.DiscountLines)
-                      ? Number(props.OneOffPricingInfo.DiscountedPrice) === 0
-                        ? props.formatValue(
-                          props.OneOffPricingInfo.OriginalPrice
-                        )
+                        ? Number(props.OneOffPricingInfo.DiscountedPrice) === 0
+                          ? props.formatValue(
+                              props.OneOffPricingInfo.OriginalPrice
+                            )
+                          : props.formatValue(
+                              props.OneOffPricingInfo.DiscountedPrice
+                            )
                         : props.formatValue(
-                          props.OneOffPricingInfo.DiscountedPrice
-                        )
-                      : props.formatValue(
-                        props.OneOffPricingInfo.OriginalPrice
-                      )
+                            props.OneOffPricingInfo.OriginalPrice
+                          )
                     }
                     </td>
                     </tr>
                     
-                      ${Number(
-                      props.OneOffPricingInfo.Discount > 0 &&
-                      props?.DiscountLines
-                    )
-                      ? `
+                      ${
+                        Number(
+                          props.OneOffPricingInfo.Discount > 0 &&
+                            props?.DiscountLines
+                        )
+                          ? `
       
           <tr style="background-color:#DCDCDC ;">
                       <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: black;">
@@ -3696,8 +4287,8 @@ export default function PreviewComponentPdf(props) {
                        <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: black;">
                        
                        (-)      ${props.formatValue(
-                        props.OneOffPricingInfo.Discount
-                      )}
+                         props.OneOffPricingInfo.Discount
+                       )}
                       </td>
                     </tr>
           <tr style="background-color:#808080;">
@@ -3711,22 +4302,24 @@ export default function PreviewComponentPdf(props) {
           </tr>
        
      `
-                      : ``
-                    }
-      ${props.vatPercentage
-                      ? `
+                          : ``
+                      }
+      ${
+        props.vatPercentage
+          ? `
        
           <tr style="background-color: #DCDCDC";>
            <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;color: black;">
               VAT
           </td>
-            <td style="border: 1px solid #dddddd; text-align: right; padding: 8px;">   ${props.formatValue(props.OneOffPricingInfo.VATPrice)
-                      // Number(props.OneOffPricingInfo.VATPrice)
-                      //           .toFixed(2).toString().replace(
-                      //             /\B(?=(\d{3})+(?!\d))/g,
-                      //             ","
-                      //           )
-                      }
+            <td style="border: 1px solid #dddddd; text-align: right; padding: 8px;">   ${
+              props.formatValue(props.OneOffPricingInfo.VATPrice)
+              // Number(props.OneOffPricingInfo.VATPrice)
+              //           .toFixed(2).toString().replace(
+              //             /\B(?=(\d{3})+(?!\d))/g,
+              //             ","
+              //           )
+            }
             </td>
           </tr>
          <tr style="background-color:#808080;">
@@ -3736,19 +4329,20 @@ export default function PreviewComponentPdf(props) {
           <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
               
                   
-              ${props.formatValue(props.OneOffPricingInfo.GrandTotal)
-                      // Number(props.OneOffPricingInfo.GrandTotal)
-                      //         .toFixed(2).toString().replace(
-                      //           /\B(?=(\d{3})+(?!\d))/g,
-                      //           ","
-                      //         )
-                      }
+              ${
+                props.formatValue(props.OneOffPricingInfo.GrandTotal)
+                // Number(props.OneOffPricingInfo.GrandTotal)
+                //         .toFixed(2).toString().replace(
+                //           /\B(?=(\d{3})+(?!\d))/g,
+                //           ","
+                //         )
+              }
             </td>
           </tr>
      
               `
-                      : ``
-                    }
+          : ``
+      }
                           </tr>
                         </table>
                       </div>
@@ -3757,7 +4351,8 @@ export default function PreviewComponentPdf(props) {
               }
             }
             break;
-          case ElementType.PAGE_BREAK: break;
+          case ElementType.PAGE_BREAK:
+            break;
           case ElementType.FULL_PAGE_HEADING:
             pdfDataArray.push(currentArray);
             currentArray = [
@@ -3771,7 +4366,6 @@ export default function PreviewComponentPdf(props) {
             ];
             break;
           case ElementType.AWS_PDF_LINK:
-
             pdfDataArray.push(currentArray);
             currentArray = [];
             currentArray.push({
@@ -3781,9 +4375,14 @@ export default function PreviewComponentPdf(props) {
             });
             break;
           case ElementType.TermsAndCondition:
-            const appliedFontTNCContent = setDefaultFontFamily(props.updatedTnCData, fontFamily);
-            if (prevElementType === ElementType.PAGE_BREAK ||
-              prevElementType === ElementType.AWS_PDF_LINK) {
+            const appliedFontTNCContent = setDefaultFontFamily(
+              props.updatedTnCData,
+              fontFamily
+            );
+            if (
+              prevElementType === ElementType.PAGE_BREAK ||
+              prevElementType === ElementType.AWS_PDF_LINK
+            ) {
               if (props?.updatedTnCData || props?.engagementObj?.pdf) {
                 if (
                   props?.updatedTnCData !== null &&
@@ -3793,7 +4392,7 @@ export default function PreviewComponentPdf(props) {
                     textbox: `<div style="padding-left: 40px; padding-right: 40px; color:${newColorCode}; font-size: ${fontSizeHeading}; font-family:${fontFamily}" >TERMS & CONDITIONS<br>
                     <hr style="padding-left: 40px; padding-right: 40px; color: black;"></hr></div>
                       <div style="padding-left: 40px; padding-right: 40px;">${appliedFontTNCContent}</div>`,
-                  },)
+                  });
                 } else if (
                   props?.engagementObj?.pdf !== null ||
                   props?.updatedTnCData === null
@@ -3803,7 +4402,6 @@ export default function PreviewComponentPdf(props) {
                   currentArray.push({
                     ["awsLink"]: props.engagementObj.pdf,
                   });
-
                 }
               }
             } else {
@@ -3817,17 +4415,18 @@ export default function PreviewComponentPdf(props) {
                     {
                       textbox: `<div style="padding-left: 40px; padding-right: 40px; color:${newColorCode}; font-size: ${fontSizeHeading}; font-family:${fontFamily}" >TERMS & CONDITIONS<br>
                         <hr style="padding-left: 40px; padding-right: 40px; color: black;"></hr></div>
-                          <div style="padding-left: 40px; padding-right: 40px;">${appliedFontTNCContent}</div>`
+                          <div style="padding-left: 40px; padding-right: 40px;">${appliedFontTNCContent}</div>`,
                     },
                   ];
                 } else if (
                   props?.engagementObj?.pdf !== null ||
                   props?.updatedTnCData === null
                 ) {
-
-                  currentArray = [{
-                    ["awsLink"]: props.engagementObj.pdf,
-                  }];
+                  currentArray = [
+                    {
+                      ["awsLink"]: props.engagementObj.pdf,
+                    },
+                  ];
                 }
               }
             }
@@ -3836,13 +4435,15 @@ export default function PreviewComponentPdf(props) {
             // pdfDataArray.push([]);
             if (props.moduleName == "Contract") {
               // Add RowNo to contract signatories
-              const appliedFontTNCContent = setDefaultFontFamily(props.updatedTnCData, fontFamily);
+              const appliedFontTNCContent = setDefaultFontFamily(
+                props.updatedTnCData,
+                fontFamily
+              );
               if (!TermAndConditionAddedOrNot) {
-                if ((prevElementType === ElementType.PAGE_BREAK ||
-                  prevElementType === ElementType.AWS_PDF_LINK)) {
-
-
-
+                if (
+                  prevElementType === ElementType.PAGE_BREAK ||
+                  prevElementType === ElementType.AWS_PDF_LINK
+                ) {
                   if (props?.updatedTnCData || props?.engagementObj?.pdf) {
                     if (
                       props?.updatedTnCData !== null &&
@@ -3852,7 +4453,7 @@ export default function PreviewComponentPdf(props) {
                         textbox: `<div style="padding-left: 40px; padding-right: 40px; color:${newColorCode}; font-size: ${fontSizeHeading}; font-family:${fontFamily}" >TERMS & CONDITIONS<br>
                       <hr style="padding-left: 40px; padding-right: 40px; color: black;"></hr></div>
                         <div style="padding-left: 40px; padding-right: 40px;">${appliedFontTNCContent}</div>`,
-                      },)
+                      });
                     } else if (
                       props?.engagementObj?.pdf !== null ||
                       props?.updatedTnCData === null
@@ -3862,7 +4463,6 @@ export default function PreviewComponentPdf(props) {
                       currentArray.push({
                         ["awsLink"]: props.engagementObj.pdf,
                       });
-
                     }
                   }
                 } else {
@@ -3876,25 +4476,28 @@ export default function PreviewComponentPdf(props) {
                         {
                           textbox: `<div style="padding-left: 40px; padding-right: 40px; color:${newColorCode}; font-size: ${fontSizeHeading}; font-family:${fontFamily}" >TERMS & CONDITIONS<br>
                           <hr style="padding-left: 40px; padding-right: 40px; color: black;"></hr></div>
-                            <div style="padding-left: 40px; padding-right: 40px;">${appliedFontTNCContent}</div>`
+                            <div style="padding-left: 40px; padding-right: 40px;">${appliedFontTNCContent}</div>`,
                         },
                       ];
                     } else if (
                       props?.engagementObj?.pdf !== null ||
                       props?.updatedTnCData === null
                     ) {
-
-                      currentArray = [{
-                        ["awsLink"]: props.engagementObj.pdf,
-                      }];
+                      currentArray = [
+                        {
+                          ["awsLink"]: props.engagementObj.pdf,
+                        },
+                      ];
                     }
                   }
                 }
               }
-              const contractSignatoryRowNo = props.contractSignatoriesList.map((item, index) => ({
-                ...item,
-                RowNo: index + 1,
-              }));
+              const contractSignatoryRowNo = props.contractSignatoriesList.map(
+                (item, index) => ({
+                  ...item,
+                  RowNo: index + 1,
+                })
+              );
 
               const contractSignatoryRowNoForOfficer =
                 props.organisationData?.officersList !== undefined &&
@@ -3906,15 +4509,24 @@ export default function PreviewComponentPdf(props) {
                   }));
 
               // Always include contractSignatories
-              let rightSignatureList = contractSignatoryRowNo.filter(x => x.signaturePositionID === 1);
-              let leftSignatureList = contractSignatoryRowNo.filter(x => x.signaturePositionID === 2);
+              let rightSignatureList = contractSignatoryRowNo.filter(
+                (x) => x.signaturePositionID === 1
+              );
+              let leftSignatureList = contractSignatoryRowNo.filter(
+                (x) => x.signaturePositionID === 2
+              );
 
               // Include officers based on image URL and map to opposite side
-              const signatureImageUrl = props.organisationData?.otherInformation?.[0]?.signatureImageUrl;
+              const signatureImageUrl =
+                props.organisationData?.otherInformation?.[0]
+                  ?.signatureImageUrl;
 
-              if (!signatureImageUrl && Array.isArray(contractSignatoryRowNoForOfficer)) {
+              if (
+                !signatureImageUrl &&
+                Array.isArray(contractSignatoryRowNoForOfficer)
+              ) {
                 // Officers go to the *opposite* side of each signaturePositionID
-                contractSignatoryRowNoForOfficer.forEach(officer => {
+                contractSignatoryRowNoForOfficer.forEach((officer) => {
                   // If most contract signatories are on the right, place officers on the left, and vice versa
                   if (rightSignatureList.length <= leftSignatureList.length) {
                     rightSignatureList.push(officer); // balance to right
@@ -3932,14 +4544,17 @@ export default function PreviewComponentPdf(props) {
 
               let orgSignatureInserted = false;
               htmlContentForSignatories += `<div id='SignatoryBlock' style='width: 95%; padding-left: 0px; padding-right: 0px; margin-top: 50px; page-break-inside: avoid; break-inside: avoid;'>`;
-              htmlContentForSignatories += "<table style='width: 100%; border-collapse: collapse;'>";
+              htmlContentForSignatories +=
+                "<table style='width: 100%; border-collapse: collapse;'>";
 
               for (let i = 0; i < loopCount; i++) {
                 htmlContentForSignatories += `<tr style='width:100%; vertical-align: bottom;'>`;
 
                 // --- LEFT SIGNATURE CELL ---
                 const left = leftSignatureList?.[i];
-                htmlContentForSignatories += `<td id="left_${i + 1}" style="padding-top: 60px; width: 50%; font-family: ${fontFamily}; font-size: 0.2in; text-align: left; vertical-align: bottom;">`;
+                htmlContentForSignatories += `<td id="left_${
+                  i + 1
+                }" style="padding-top: 60px; width: 50%; font-family: ${fontFamily}; font-size: 0.2in; text-align: left; vertical-align: bottom;">`;
 
                 if (left) {
                   htmlContentForSignatories += `
@@ -3948,8 +4563,12 @@ export default function PreviewComponentPdf(props) {
                   const org = props.organisationData.otherInformation[0];
                   htmlContentForSignatories += `
                 <div style="margin-left: 60px;">
-                  <div><img src="${org.signatureImageUrl}" alt="Signature" style="height:100px; width:130px;"></div>
-                  <div style="margin-top: 10px;">${org.signatoryName || ""}</div>
+                  <div><img src="${
+                    org.signatureImageUrl
+                  }" alt="Signature" style="height:100px; width:130px;"></div>
+                  <div style="margin-top: 10px;">${
+                    org.signatoryName || ""
+                  }</div>
                   </div>`;
                   orgSignatureInserted = true;
                 }
@@ -3958,7 +4577,9 @@ export default function PreviewComponentPdf(props) {
 
                 // --- RIGHT SIGNATURE CELL ---
                 const right = rightSignatureList?.[i];
-                htmlContentForSignatories += `<td id="right_${i + 1}" style="padding-top: 60px; width: 50%; font-family: ${fontFamily}; font-size: 0.2in; text-align: right; vertical-align: bottom;">`;
+                htmlContentForSignatories += `<td id="right_${
+                  i + 1
+                }" style="padding-top: 60px; width: 50%; font-family: ${fontFamily}; font-size: 0.2in; text-align: right; vertical-align: bottom;">`;
 
                 if (right) {
                   htmlContentForSignatories += `
@@ -3967,8 +4588,12 @@ export default function PreviewComponentPdf(props) {
                   const org = props.organisationData.otherInformation[0];
                   htmlContentForSignatories += `
                 <div style="margin-right: 60px;">
-                  <div><img src="${org.signatureImageUrl}" alt="Signature" style="height:100px; width:130px;"></div>
-                  <div style="margin-top: 10px;">${org.signatoryName || ""}</div>
+                  <div><img src="${
+                    org.signatureImageUrl
+                  }" alt="Signature" style="height:100px; width:130px;"></div>
+                  <div style="margin-top: 10px;">${
+                    org.signatoryName || ""
+                  }</div>
                   </div>`;
                   orgSignatureInserted = true;
                 }
@@ -3980,12 +4605,9 @@ export default function PreviewComponentPdf(props) {
 
               htmlContentForSignatories += "</table>";
               htmlContentForSignatories += "</div>";
-              currentArray.push(
-                {
-                  textbox: `${htmlContentForSignatories}`,
-                },
-              )
-
+              currentArray.push({
+                textbox: `${htmlContentForSignatories}`,
+              });
             }
 
             break;
@@ -4003,47 +4625,47 @@ export default function PreviewComponentPdf(props) {
     }
   }, [props.templateElementList]);
 
+  const modifiedPaymentGatewayType =
+    props.paymentGatewayObj !== undefined &&
+    Utils.payment_gateway.map((option) => {
+      // Check if GoCardless access token is invalid
+      const isGoCardlessTokenInvalid =
+        props.paymentGatewayObj.goCardlessAccessToken === null ||
+        props.paymentGatewayObj.goCardlessAccessToken === undefined ||
+        props.paymentGatewayObj.goCardlessAccessToken === "";
 
-  const modifiedPaymentGatewayType = props.paymentGatewayObj !== undefined && Utils.payment_gateway.map((option) => {
-    // Check if GoCardless access token is invalid
-    const isGoCardlessTokenInvalid =
-      props.paymentGatewayObj.goCardlessAccessToken === null ||
-      props.paymentGatewayObj.goCardlessAccessToken === undefined ||
-      props.paymentGatewayObj.goCardlessAccessToken === "";
+      // Check if Stripe keys are invalid
+      const isStripeKeysInvalid =
+        (props.paymentGatewayObj.stripePublishableKey === null ||
+          props.paymentGatewayObj.stripePublishableKey === undefined ||
+          props.paymentGatewayObj.stripePublishableKey === "") &&
+        (props.paymentGatewayObj.stripeSecretKey === null ||
+          props.paymentGatewayObj.stripeSecretKey === undefined ||
+          props.paymentGatewayObj.stripeSecretKey === "");
 
-    // Check if Stripe keys are invalid
-    const isStripeKeysInvalid =
-      (props.paymentGatewayObj.stripePublishableKey === null ||
-        props.paymentGatewayObj.stripePublishableKey === undefined ||
-        props.paymentGatewayObj.stripePublishableKey === "") &&
-      (props.paymentGatewayObj.stripeSecretKey === null ||
-        props.paymentGatewayObj.stripeSecretKey === undefined ||
-        props.paymentGatewayObj.stripeSecretKey === "");
+      // Check if Bank Transfer details are invalid
+      const isBankTransferInvalid =
+        (props.paymentGatewayObj.AccountNumber === null ||
+          props.paymentGatewayObj.AccountNumber === undefined ||
+          props.paymentGatewayObj.AccountNumber === "") &&
+        (props.paymentGatewayObj.bankTransferName === null ||
+          props.paymentGatewayObj.bankTransferName === undefined ||
+          props.paymentGatewayObj.bankTransferName === "") &&
+        (props.paymentGatewayObj.sortCode === null ||
+          props.paymentGatewayObj.sortCode === undefined ||
+          props.paymentGatewayObj.sortCode === "");
 
-    // Check if Bank Transfer details are invalid
-    const isBankTransferInvalid =
-      (props.paymentGatewayObj.AccountNumber === null ||
-        props.paymentGatewayObj.AccountNumber === undefined ||
-        props.paymentGatewayObj.AccountNumber === "") &&
-      (props.paymentGatewayObj.bankTransferName === null ||
-        props.paymentGatewayObj.bankTransferName === undefined ||
-        props.paymentGatewayObj.bankTransferName === "") &&
-      (props.paymentGatewayObj.sortCode === null ||
-        props.paymentGatewayObj.sortCode === undefined ||
-        props.paymentGatewayObj.sortCode === "");
-
-    // Return the modified option based on conditions
-    if (option.value === 3 && isGoCardlessTokenInvalid) {
-      return { ...option, isDisabled: true }; // Disable GoCardless option
-    } else if (option.value === 2 && isStripeKeysInvalid) {
-      return { ...option, isDisabled: true }; // Disable Stripe option
-    } else if (option.value === 4 && isBankTransferInvalid) {
-      return { ...option, isDisabled: true }; // Disable Bank Transfer option
-    } else {
-      return { ...option, isDisabled: false }; // Otherwise, leave it enabled (false is default)
-    }
-  });
-
+      // Return the modified option based on conditions
+      if (option.value === 3 && isGoCardlessTokenInvalid) {
+        return { ...option, isDisabled: true }; // Disable GoCardless option
+      } else if (option.value === 2 && isStripeKeysInvalid) {
+        return { ...option, isDisabled: true }; // Disable Stripe option
+      } else if (option.value === 4 && isBankTransferInvalid) {
+        return { ...option, isDisabled: true }; // Disable Bank Transfer option
+      } else {
+        return { ...option, isDisabled: false }; // Otherwise, leave it enabled (false is default)
+      }
+    });
 
   return (
     <>
@@ -4052,19 +4674,22 @@ export default function PreviewComponentPdf(props) {
         className="create-practice-height "
       >
         {/* <div className="tab-content"> */}
-        <div style={{ height: isMobile ? "" : "54vh" }} className="tab-pane active">
-          {MergePdfUrl && (
-            isMobile ?
+        <div
+          style={{ height: isMobile ? "" : "54vh" }}
+          className="tab-pane active"
+        >
+          {MergePdfUrl &&
+            (isMobile ? (
               <PdfViewer isVisible={false} pdfFile={MergePdfUrl} />
-              :
+            ) : (
               <iframe
                 title="PDF Viewer"
                 src={MergePdfUrl}
                 // width="100%"
                 // height="700px"
-                style={{ width: '100%', height: '100vh', border: 'none' }}
+                style={{ width: "100%", height: "100vh", border: "none" }}
               ></iframe>
-          )}
+            ))}
 
           {/* </div> */}
         </div>
@@ -4118,7 +4743,8 @@ export default function PreviewComponentPdf(props) {
                     <Select
                       className="phone-input-country-code selectDropDown"
                       value={Utils.payment_gateway.find(
-                        (item) => props.ProposalObject.paymentGatewayID === item.value
+                        (item) =>
+                          props.ProposalObject.paymentGatewayID === item.value
                       )}
                       onChange={(e) => {
                         props.setProposalObject({
@@ -4138,7 +4764,6 @@ export default function PreviewComponentPdf(props) {
                 </div>
               </>
             )}
-
           </div>
         </>
       )}
@@ -4170,12 +4795,21 @@ export default function PreviewComponentPdf(props) {
               <button
                 style={{ paddingTop: "5px", marginRight: "4px" }}
                 class="btn btn-md btn-success create-item-btn  text-nowrap"
-                onClick={() => props?.HandleBack(props.engagementObj.selectSourceId === 3 ? 7 : props.engagementObj.selectSourceId === 2 && props.engagementObj.quoteTypeID === 4 ? 3 : 4)}
+                onClick={() =>
+                  props?.HandleBack(
+                    props.engagementObj.selectSourceId === 3
+                      ? 7
+                      : props.engagementObj.selectSourceId === 2 &&
+                        props.engagementObj.quoteTypeID === 4
+                      ? 3
+                      : 4
+                  )
+                }
               >
                 <span>Back</span>
               </button>
             )}
-            {(props?.ProposalObject?.selectedProposalTypeValue === 2) && (
+            {props?.ProposalObject?.selectedProposalTypeValue === 2 && (
               <button
                 style={{ paddingTop: "5px", marginRight: "4px" }}
                 class="btn btn-md btn-success create-item-btn  text-nowrap"
@@ -4199,7 +4833,7 @@ export default function PreviewComponentPdf(props) {
                 className="btn btn-md btn-success create-item-btn text-nowrap"
                 onClick={() => {
                   const shouldGoToAdditionalInfo =
-                    props.additionalInformationList?.length > 0
+                    props.additionalInformationList?.length > 0;
                   // props.isValidForm?.AdditionalInfo;
 
                   props.HandleTabChange(shouldGoToAdditionalInfo ? 3 : 2);
@@ -4234,9 +4868,11 @@ export default function PreviewComponentPdf(props) {
             )}
 
             {props.moduleName == "Quote" && (
-              <div className="dropdown" style={{ display: "inline-block", marginRight: "4px" }}>
+              <div
+                className="dropdown"
+                style={{ display: "inline-block", marginRight: "4px" }}
+              >
                 <div className="btn-group d-flex align-items-stretch">
-
                   <button
                     class="btn btn-md btn-success create-item-btn"
                     type="button"
@@ -4246,14 +4882,15 @@ export default function PreviewComponentPdf(props) {
                     style={{
                       borderTopRightRadius: 0,
                       borderBottomRightRadius: 0,
-                      borderRight: "none"
+                      borderRight: "none",
                     }}
                     onClick={() =>
                       props.handleSaveAsDraft(
                         4,
                         moduleNameForSaveAsDraft,
                         statusIDForSendProposal
-                      )}
+                      )
+                    }
                   >
                     <span className="d-inline-flex align-items-center">
                       <span className="me-2">Send {proposalName}</span>
@@ -4272,43 +4909,54 @@ export default function PreviewComponentPdf(props) {
                       borderLeft: "none",
                       padding: "0.375rem 0.75rem",
                       display: "flex",
-                      alignItems: "center"
+                      alignItems: "center",
                     }}
                   >
                     <ExpandMoreIcon />
                   </button>
-                  <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                  <ul
+                    className="dropdown-menu"
+                    aria-labelledby="dropdownMenuButton"
+                  >
                     <li>
-                      <a className="dropdown-item"
+                      <a
+                        className="dropdown-item"
                         onClick={() =>
                           props.handleSaveAsDraft(
                             4,
                             moduleNameForSaveAsDraft,
                             statusIDForSendProposal
-                          )}
+                          )
+                        }
                       >
                         <span style={{ fontSize: "0.75rem" }}>
                           Send {proposalName}
-                          <i className="bi bi-send" style={{ paddingLeft: "4px" }}></i>
+                          <i
+                            className="bi bi-send"
+                            style={{ paddingLeft: "4px" }}
+                          ></i>
                         </span>
                       </a>
                     </li>
                     <li>
-                      <a className="dropdown-item"
-                        onClick={openPopup}
-                      >
-                        <span style={{ fontSize: "0.75rem" }}>Customize Email and Send</span>
+                      <a className="dropdown-item" onClick={openPopup}>
+                        <span style={{ fontSize: "0.75rem" }}>
+                          Customize Email and Send
+                        </span>
                       </a>
                     </li>
                   </ul>
-
                 </div>
               </div>
             )}
 
-            {(isPopUpVisible && props.moduleName == "Quote") && (
+            {isPopUpVisible && props.moduleName == "Quote" && (
               <div className="popup-overlay" onClick={closePopup}>
-                <div className="popup-content" style={{ maxWidth: "700px", width: "90%", margin: "5% auto", }} onClick={(e) => e.stopPropagation()}>
+                <div
+                  className="popup-content"
+                  style={{ maxWidth: "700px", width: "90%", margin: "5% auto" }}
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <button className="close-button" onClick={closePopup}>
                     &times;
                   </button>
@@ -4322,7 +4970,7 @@ export default function PreviewComponentPdf(props) {
                         TemplateType={
                           // TemplateObj.templateTypeID === null
                           //   ? null
-                          //   : 
+                          //   :
                           "EmailTemplate"
                         }
                         ClintType={null}
@@ -4333,7 +4981,7 @@ export default function PreviewComponentPdf(props) {
                       <Text_Editor
                         editorState={editorState}
                         handleContentChange={handleContentChange}
-                      // modelAction={modelAction}
+                        // modelAction={modelAction}
                       />
                     </div>
                   </div>
@@ -4355,8 +5003,12 @@ export default function PreviewComponentPdf(props) {
                         )
                       }
                     >
-                      <span>Send {proposalName}
-                        <i className="bi bi-send" style={{ paddingLeft: "4px" }}></i>
+                      <span>
+                        Send {proposalName}
+                        <i
+                          className="bi bi-send"
+                          style={{ paddingLeft: "4px" }}
+                        ></i>
                       </span>
                     </button>
                   </div>
@@ -4370,46 +5022,49 @@ export default function PreviewComponentPdf(props) {
                 <button
                   style={{ paddingTop: "5px", marginRight: "4px" }}
                   class="btn btn-md btn-success create-item-btn text-nowrap"
-
                   onClick={() => {
                     if (!activeOrganizationSubscriptionPlan.prepareContract) {
-                      setShowModal(true)
-                      return
-                    };
+                      setShowModal(true);
+                      return;
+                    }
                     props.handleSaveAsDraft(
                       4,
                       moduleNameForSaveAsDraft,
                       statusIDForSkipped
                     );
                   }}
-
                 >
                   <span>Skip To {EngagementName}</span>
                 </button>
               )}
             {props.moduleName == "Contract" && (
-              <div className="dropdown" style={{ display: "inline-block", marginRight: "4px" }}>
+              <div
+                className="dropdown"
+                style={{ display: "inline-block", marginRight: "4px" }}
+              >
                 <div className="btn-group d-flex align-items-stretch">
-
                   <button
                     style={{
                       borderTopRightRadius: 0,
                       borderBottomRightRadius: 0,
-                      borderRight: "none"
+                      borderRight: "none",
                     }}
                     className="btn btn-md btn-success create-item-btn text-nowrap"
                     id="dropdownMenuButton"
                     onClick={() => {
                       if (!activeOrganizationSubscriptionPlan.sendContract) {
-                        setShowModal(true)
-                        return
-                      };
+                        setShowModal(true);
+                        return;
+                      }
                       props.HandleTabChange(5, statusIDForSendProposal);
                     }}
                   >
                     <span className="d-inline-flex align-items-center">
                       <span className="me-2">Send {EngagementName}</span>
-                      <i className="bi bi-send" style={{ paddingLeft: "4px" }}></i>
+                      <i
+                        className="bi bi-send"
+                        style={{ paddingLeft: "4px" }}
+                      ></i>
                     </span>
                   </button>
                   <button
@@ -4424,19 +5079,25 @@ export default function PreviewComponentPdf(props) {
                       borderLeft: "none",
                       padding: "0.375rem 0.75rem",
                       display: "flex",
-                      alignItems: "center"
+                      alignItems: "center",
                     }}
                   >
                     <ExpandMoreIcon />
                   </button>
-                  <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                  <ul
+                    className="dropdown-menu"
+                    aria-labelledby="dropdownMenuButton"
+                  >
                     <li>
-                      <button className="dropdown-item"
+                      <button
+                        className="dropdown-item"
                         onClick={() => {
-                          if (!activeOrganizationSubscriptionPlan.sendContract) {
-                            setShowModal(true)
-                            return
-                          };
+                          if (
+                            !activeOrganizationSubscriptionPlan.sendContract
+                          ) {
+                            setShowModal(true);
+                            return;
+                          }
                           props.HandleTabChange(5, statusIDForSendProposal);
                         }}
                       >
@@ -4447,20 +5108,23 @@ export default function PreviewComponentPdf(props) {
                       </button>
                     </li>
                     <li>
-                      <button className="dropdown-item"
-                        onClick={openPopup}
-                      >
-                        <span style={{ fontSize: "0.75rem" }}>Customize Email and Send</span>
+                      <button className="dropdown-item" onClick={openPopup}>
+                        <span style={{ fontSize: "0.75rem" }}>
+                          Customize Email and Send
+                        </span>
                       </button>
                     </li>
                   </ul>
-
                 </div>
               </div>
             )}
-            {(isPopUpVisible && props.moduleName == "Contract") && (
+            {isPopUpVisible && props.moduleName == "Contract" && (
               <div className="popup-overlay" onClick={closePopup}>
-                <div className="popup-content" style={{ maxWidth: "700px", width: "90%", margin: "5% auto", }} onClick={(e) => e.stopPropagation()}>
+                <div
+                  className="popup-content"
+                  style={{ maxWidth: "700px", width: "90%", margin: "5% auto" }}
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <button className="close-button" onClick={closePopup}>
                     &times;
                   </button>
@@ -4474,7 +5138,7 @@ export default function PreviewComponentPdf(props) {
                         TemplateType={
                           // TemplateObj.templateTypeID === null
                           //   ? null
-                          //   : 
+                          //   :
                           "EmailTemplate"
                         }
                         ClintType={null}
@@ -4485,7 +5149,7 @@ export default function PreviewComponentPdf(props) {
                       <Text_Editor
                         editorState={editorState}
                         handleContentChange={handleContentChange}
-                      // modelAction={modelAction}
+                        // modelAction={modelAction}
                       />
                     </div>
                   </div>
@@ -4501,14 +5165,18 @@ export default function PreviewComponentPdf(props) {
                       class="btn btn-md btn-success create-item-btn text-nowrap mb-2"
                       onClick={() => {
                         if (!activeOrganizationSubscriptionPlan.sendContract) {
-                          setShowModal(true)
-                          return
-                        };
+                          setShowModal(true);
+                          return;
+                        }
                         props.HandleTabChange(5, statusIDForSendProposal);
                       }}
                     >
-                      <span>Send {EngagementName}
-                        <i className="bi bi-send" style={{ paddingLeft: "4px" }}></i>
+                      <span>
+                        Send {EngagementName}
+                        <i
+                          className="bi bi-send"
+                          style={{ paddingLeft: "4px" }}
+                        ></i>
                       </span>
                     </button>
                   </div>
@@ -4549,7 +5217,9 @@ export default function PreviewComponentPdf(props) {
           isModalOpen={isModalOpen}
           setISModalOpen={setISModalOpen}
           isAddUpdatePricingActionDone={props.isAddUpdatePricingActionDone}
-          setIsAddUpdatePricingActionDone={props.setIsAddUpdatePricingActionDone}
+          setIsAddUpdatePricingActionDone={
+            props.setIsAddUpdatePricingActionDone
+          }
         />
       </div>
     </>
