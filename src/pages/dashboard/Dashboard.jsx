@@ -614,11 +614,11 @@ const Dashboard = () => {
       const StartDate = startDate
         ? startDate.format("YYYY-MM-DD")
         : // : defaultStartDate.format("YYYY-MM-DD");
-          null;
+        null;
       const EndDate = endDate
         ? endDate.format("YYYY-MM-DD")
         : // : defaultEndDate.format("YYYY-MM-DD");
-          null;
+        null;
 
       const response = await DashboardCountList({
         organisationKeyID: common?.organisationKeyID,
@@ -1274,173 +1274,222 @@ const Dashboard = () => {
 
                         {(userAccessData.Admin_Proposal_CanView ||
                           common.organisationKeyID == null) && (
-                          <>
-                            <div
-                              className={`col-xl-4 col-lg-4s col-md-4 dashboard-box col-sm-12  ${
-                                common.organisationKeyID !== null
-                                  ? "cursor-pointer"
-                                  : ""
-                              } `}
-                            >
-                              <div className="dashboard-new-design">
-                                <div
-                                  class="card"
-                                  onClick={() =>
-                                    handleAddData("Draft", statusID.Draft)
-                                  }
-                                >
-                                  <div
-                                    class="card-header p-3 pt-2"
-                                    style={cardStyle}
-                                  >
-                                    <div className="row">
-                                      <div className="col-lg-6">
-                                        <img
-                                          src={DraftProposalPng}
-                                          className="CardImage"
-                                          alt
-                                        />
-                                      </div>
-                                      <div className="col-lg-6">
-                                        <div class="text-end pt-1">
-                                          <h4 class="text-white mb-0">
-                                            {dashboardCount?.quotationDraft}
-                                          </h4>
-                                        </div>
-                                      </div>
-                                    </div>
-                                    <div class="text-end pt-1"></div>
-                                  </div>
-                                  <hr class="dark horizontal my-0" />
-                                  <div
-                                    class="card-footer p-3"
-                                    style={cardStyle}
-                                  >
-                                    <p class="mb-0 font-weight-bolder">
-                                      <span class="text-success  text-white text-sm font-weight-bolder" />
-                                      Draft {proposalName}
-                                    </p>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-
-                            <div
-                              className={`col-xl-4 col-lg-4 col-md-4 dashboard-box col-sm-12  ${
-                                common.organisationKeyID !== null
-                                  ? "cursor-pointer"
-                                  : ""
-                              } `}
-                            >
-                              <div className="dashboard-new-design">
-                                <div
-                                  class="card"
-                                  onClick={() =>
-                                    handleAddData("Sent", statusID.Sent)
-                                  }
-                                >
-                                  <div
-                                    class="card-header p-3 pt-2"
-                                    style={cardStyle}
-                                  >
-                                    <div className="row">
-                                      <div className="col-lg-6">
-                                        <img
-                                          src={SentProposalPng}
-                                          className="CardImage"
-                                          alt
-                                        />
-                                      </div>
-                                      <div className="col-lg-6">
-                                        <div class="text-end pt-1">
-                                          <h4 class=" text-white  mb-0">
-                                            {dashboardCount?.quotationSent}{" "}
-                                          </h4>
-                                        </div>
-                                      </div>
-                                    </div>
-                                    <div class="text-end pt-1">
-                                      {/* <p class="text-sm mb-0 text-capitalize">Sent</p> */}
-                                      {/* <h4 class=" text-white  mb-0">44</h4> */}
-                                    </div>
-                                  </div>
-                                  <hr class="dark horizontal my-0" />
-                                  <div
-                                    class="card-footer p-3"
-                                    style={cardStyle}
-                                  >
-                                    <p class="mb-0 font-weight-bolder">
-                                      <span class="text-success text-sm font-weight-bolder" />
-                                      {proposalName} Sent
-                                    </p>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                            {/* proposal start */}
-                            {(common.enableEL == 0 ||
-                              common.enableEL == null) && (
-                              <>
-                                <div
-                                  className={`col-xl-4 col-lg-4 col-md-4 dashboard-box col-sm-12  ${
-                                    common.organisationKeyID !== null
-                                      ? "cursor-pointer"
-                                      : ""
+                            <>
+                              <div
+                                className={`col-xl-4 col-lg-4s col-md-4 dashboard-box col-sm-12  ${common.organisationKeyID !== null
+                                    ? "cursor-pointer"
+                                    : ""
                                   } `}
-                                >
-                                  <div className="dashboard-new-design">
+                              >
+                                <div className="dashboard-new-design">
+                                  <div
+                                    class="card"
+                                    onClick={() =>
+                                      handleAddData("Draft", statusID.Draft)
+                                    }
+                                  >
                                     <div
-                                      class="card"
-                                      onClick={() =>
-                                        handleAddData(
-                                          "Sent",
-                                          statusID.Awaiting_Signature
-                                        )
-                                      }
+                                      class="card-header p-3 pt-2"
+                                      style={cardStyle}
                                     >
-                                      <div
-                                        class="card-header p-3 pt-2"
-                                        style={cardStyle}
-                                      >
-                                        <div className="row">
-                                          <div className="col-lg-6">
-                                            <img
-                                              src={DraftEngagementLatterPng}
-                                              className="CardImage"
-                                              alt
-                                            />
-                                          </div>
-                                          <div className="col-lg-6">
-                                            <div class="text-end pt-1">
-                                              <h4 class="mb-0 text-white ">
-                                                {
-                                                  dashboardCount?.quotationAwaitingSignature
-                                                }{" "}
-                                              </h4>
-                                            </div>
+                                      <div className="row">
+                                        <div className="col-lg-6">
+                                          <img
+                                            src={DraftProposalPng}
+                                            className="CardImage"
+                                            alt
+                                          />
+                                        </div>
+                                        <div className="col-lg-6">
+                                          <div class="text-end pt-1">
+                                            <h4 class="text-white mb-0">
+                                              {dashboardCount?.quotationDraft}
+                                            </h4>
                                           </div>
                                         </div>
-                                        <div class="text-end pt-1"></div>
                                       </div>
-                                      <hr class="dark horizontal my-0" />
-                                      <div
-                                        class="card-footer p-3"
-                                        style={cardStyle}
-                                      >
-                                        <p class="mb-0 font-weight-bolder">
-                                          <span class="text-success text-sm font-weight-bolder" />
-                                          Awaiting Response
-                                        </p>
-                                      </div>
+                                      <div class="text-end pt-1"></div>
+                                    </div>
+                                    <hr class="dark horizontal my-0" />
+                                    <div
+                                      class="card-footer p-3"
+                                      style={cardStyle}
+                                    >
+                                      <p class="mb-0 font-weight-bolder">
+                                        <span class="text-success  text-white text-sm font-weight-bolder" />
+                                        Draft {proposalName}
+                                      </p>
                                     </div>
                                   </div>
                                 </div>
-                              </>
-                            )}
-                            {(common.enableEL == 0 ||
-                              common.enableEL == null) && (
-                              <>
-                                <div
+                              </div>
+
+                              <div
+                                className={`col-xl-4 col-lg-4 col-md-4 dashboard-box col-sm-12  ${common.organisationKeyID !== null
+                                    ? "cursor-pointer"
+                                    : ""
+                                  } `}
+                              >
+                                <div className="dashboard-new-design">
+                                  <div
+                                    class="card"
+                                    onClick={() =>
+                                      handleAddData("Sent", statusID.Sent)
+                                    }
+                                  >
+                                    <div
+                                      class="card-header p-3 pt-2"
+                                      style={cardStyle}
+                                    >
+                                      <div className="row">
+                                        <div className="col-lg-6">
+                                          <img
+                                            src={SentProposalPng}
+                                            className="CardImage"
+                                            alt
+                                          />
+                                        </div>
+                                        <div className="col-lg-6">
+                                          <div class="text-end pt-1">
+                                            <h4 class=" text-white  mb-0">
+                                              {dashboardCount?.quotationSent}{" "}
+                                            </h4>
+                                          </div>
+                                        </div>
+                                      </div>
+                                      <div class="text-end pt-1">
+                                        {/* <p class="text-sm mb-0 text-capitalize">Sent</p> */}
+                                        {/* <h4 class=" text-white  mb-0">44</h4> */}
+                                      </div>
+                                    </div>
+                                    <hr class="dark horizontal my-0" />
+                                    <div
+                                      class="card-footer p-3"
+                                      style={cardStyle}
+                                    >
+                                      <p class="mb-0 font-weight-bolder">
+                                        <span class="text-success text-sm font-weight-bolder" />
+                                        {proposalName} Sent
+                                      </p>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Proposal Accepted */}
+
+                              <div
+                                className={`col-xl-4 col-lg-4 col-md-4 dashboard-box col-sm-12  ${common.organisationKeyID !== null
+                                    ? "cursor-pointer"
+                                    : ""
+                                  } `}
+                              >
+                                <div className="dashboard-new-design">
+                                  <div
+                                    class="card"
+                                    onClick={() =>
+                                      handleAddData("Accepted", statusID.Accepted)
+                                    }
+                                  >
+                                    <div
+                                      class="card-header p-3 pt-2"
+                                      style={cardStyle}
+                                    >
+                                      <div className="row">
+                                        <div className="col-lg-6">
+                                          <img
+                                            src={DraftEngagementLatterPng}
+                                            className="CardImage"
+                                            alt
+                                          />
+                                        </div>
+                                        <div className="col-lg-6">
+                                          <div class="text-end pt-1">
+                                            <h4 class="mb-0 text-white ">
+                                              {dashboardCount?.quotationAccepted}{" "}
+                                            </h4>
+                                          </div>
+                                        </div>
+                                      </div>
+                                      <div class="text-end pt-1"></div>
+                                    </div>
+                                    <hr class="dark horizontal my-0" />
+                                    <div
+                                      class="card-footer p-3"
+                                      style={cardStyle}
+                                    >
+                                      <p class="mb-0 font-weight-bolder">
+                                        <span class="text-success text-sm font-weight-bolder" />
+                                        {proposalName} Accepted
+                                      </p>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* proposal start */}
+                              {(common.enableEL == 0 ||
+                                common.enableEL == null) && (
+                                  <>
+                                    <div
+                                      className={`col-xl-4 col-lg-4 col-md-4 dashboard-box col-sm-12  ${common.organisationKeyID !== null
+                                          ? "cursor-pointer"
+                                          : ""
+                                        } `}
+                                    >
+                                      <div className="dashboard-new-design">
+                                        <div
+                                          class="card"
+                                          onClick={() =>
+                                            handleAddData(
+                                              "Sent",
+                                              statusID.Awaiting_Signature
+                                            )
+                                          }
+                                        >
+                                          <div
+                                            class="card-header p-3 pt-2"
+                                            style={cardStyle}
+                                          >
+                                            <div className="row">
+                                              <div className="col-lg-6">
+                                                <img
+                                                  src={DraftEngagementLatterPng}
+                                                  className="CardImage"
+                                                  alt
+                                                />
+                                              </div>
+                                              <div className="col-lg-6">
+                                                <div class="text-end pt-1">
+                                                  <h4 class="mb-0 text-white ">
+                                                    {
+                                                      dashboardCount?.quotationAwaitingSignature
+                                                    }{" "}
+                                                  </h4>
+                                                </div>
+                                              </div>
+                                            </div>
+                                            <div class="text-end pt-1"></div>
+                                          </div>
+                                          <hr class="dark horizontal my-0" />
+                                          <div
+                                            class="card-footer p-3"
+                                            style={cardStyle}
+                                          >
+                                            <p class="mb-0 font-weight-bolder">
+                                              <span class="text-success text-sm font-weight-bolder" />
+                                              Awaiting Response
+                                            </p>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </>
+                                )}
+                              {(common.enableEL == 0 ||
+                                common.enableEL == null) && (
+                                  <>
+                                    {/* <div
                                   className={`col-xl-4 col-lg-4 col-md-4 dashboard-box col-sm-12  ${
                                     common.organisationKeyID !== null
                                       ? "cursor-pointer"
@@ -1493,66 +1542,65 @@ const Dashboard = () => {
                                       </div>
                                     </div>
                                   </div>
-                                </div>
+                                </div> */}
 
-                                <div
-                                  className={`col-xl-4 col-lg-4 col-md-4 dashboard-box col-sm-12  ${
-                                    common.organisationKeyID !== null
-                                      ? "cursor-pointer"
-                                      : ""
-                                  } `}
-                                >
-                                  <div className="dashboard-new-design">
                                     <div
-                                      class="card"
-                                      onClick={() =>
-                                        handleAddData(
-                                          "Decline",
-                                          statusID.Declined
-                                        )
-                                      }
+                                      className={`col-xl-4 col-lg-4 col-md-4 dashboard-box col-sm-12  ${common.organisationKeyID !== null
+                                          ? "cursor-pointer"
+                                          : ""
+                                        } `}
                                     >
-                                      <div
-                                        class="card-header p-3 pt-2"
-                                        style={cardStyle}
-                                      >
-                                        <div className="row">
-                                          <div className="col-lg-6">
-                                            <img
-                                              src={EngagementLatterSendSvg}
-                                              className="CardImage"
-                                              alt
-                                            />
-                                          </div>
-                                          <div className="col-lg-6">
-                                            <div class="text-end pt-1">
-                                              <h4 class="mb-0 text-white ">
-                                                {
-                                                  dashboardCount?.quotationDeclined
-                                                }
-                                              </h4>
+                                      <div className="dashboard-new-design">
+                                        <div
+                                          class="card"
+                                          onClick={() =>
+                                            handleAddData(
+                                              "Decline",
+                                              statusID.Declined
+                                            )
+                                          }
+                                        >
+                                          <div
+                                            class="card-header p-3 pt-2"
+                                            style={cardStyle}
+                                          >
+                                            <div className="row">
+                                              <div className="col-lg-6">
+                                                <img
+                                                  src={EngagementLatterSendSvg}
+                                                  className="CardImage"
+                                                  alt
+                                                />
+                                              </div>
+                                              <div className="col-lg-6">
+                                                <div class="text-end pt-1">
+                                                  <h4 class="mb-0 text-white ">
+                                                    {
+                                                      dashboardCount?.quotationDeclined
+                                                    }
+                                                  </h4>
+                                                </div>
+                                              </div>
                                             </div>
+                                            <div class="text-end pt-1"></div>
+                                          </div>
+                                          <hr class="dark horizontal my-0" />
+                                          <div
+                                            class="card-footer p-3"
+                                            style={cardStyle}
+                                          >
+                                            <p class="mb-0 font-weight-bolder">
+                                              <span class="text-success text-sm font-weight-bolder" />
+                                              {proposalName} Declined
+                                            </p>
                                           </div>
                                         </div>
-                                        <div class="text-end pt-1"></div>
-                                      </div>
-                                      <hr class="dark horizontal my-0" />
-                                      <div
-                                        class="card-footer p-3"
-                                        style={cardStyle}
-                                      >
-                                        <p class="mb-0 font-weight-bolder">
-                                          <span class="text-success text-sm font-weight-bolder" />
-                                          {proposalName} Declined
-                                        </p>
                                       </div>
                                     </div>
-                                  </div>
-                                </div>
-                              </>
-                            )}
-                          </>
-                        )}
+                                  </>
+                                )}
+                            </>
+                          )}
                       </div>
                       {/* proposal end  */}
 
@@ -1563,11 +1611,10 @@ const Dashboard = () => {
                             common.organisationKeyID == null) && (
                             <>
                               <div
-                                className={`col-xl-4 col-lg-4 col-md-4 dashboard-box col-sm-12  ${
-                                  common.organisationKeyID !== null
+                                className={`col-xl-4 col-lg-4 col-md-4 dashboard-box col-sm-12  ${common.organisationKeyID !== null
                                     ? "cursor-pointer"
                                     : ""
-                                } `}
+                                  } `}
                               >
                                 <div className="dashboard-new-design">
                                   <div
@@ -1672,11 +1719,10 @@ const Dashboard = () => {
                               </div> */}
 
                               <div
-                                className={`col-xl-4 col-lg-4 col-md-4 dashboard-box col-sm-12  ${
-                                  common.organisationKeyID !== null
+                                className={`col-xl-4 col-lg-4 col-md-4 dashboard-box col-sm-12  ${common.organisationKeyID !== null
                                     ? "cursor-pointer"
                                     : ""
-                                } `}
+                                  } `}
                               >
                                 <div className="dashboard-new-design">
                                   <div
@@ -1784,11 +1830,10 @@ const Dashboard = () => {
                                   </div> */}
 
                               <div
-                                className={`col-xl-4 col-lg-4 col-md-4 dashboard-box col-sm-12  ${
-                                  common.organisationKeyID !== null
+                                className={`col-xl-4 col-lg-4 col-md-4 dashboard-box col-sm-12  ${common.organisationKeyID !== null
                                     ? "cursor-pointer"
                                     : ""
-                                } `}
+                                  } `}
                               >
                                 <div className="dashboard-new-design">
                                   <div
@@ -1838,11 +1883,10 @@ const Dashboard = () => {
                               </div>
 
                               <div
-                                className={`col-xl-4 col-lg-4 col-md-4 dashboard-box col-sm-12  ${
-                                  common.organisationKeyID !== null
+                                className={`col-xl-4 col-lg-4 col-md-4 dashboard-box col-sm-12  ${common.organisationKeyID !== null
                                     ? "cursor-pointer"
                                     : ""
-                                } `}
+                                  } `}
                               >
                                 <div className="dashboard-new-design">
                                   <div
@@ -1895,86 +1939,86 @@ const Dashboard = () => {
                     </div>
                     {(userAccessData.Admin_Activity_Log_CanView ||
                       common.organisationKeyID == null) && (
-                      <>
-                        <div class="col-xl-4 col-lg-4 pb-2">
-                          <div class="card activity-section-cls">
-                            <div class="card-body dashboard-body">
-                              <h5 className="activity-cls">Activity</h5>
-                              <ol class="activity-feed">
-                                {activityLogsList.length == 0 ? (
-                                  <>
-                                    <h6 className="activity-cls">
-                                      No Activity Logs Found Today..
-                                    </h6>
-                                  </>
-                                ) : (
-                                  <>
-                                    {activityLogsList?.map(
-                                      (ActivityLogList) => {
-                                        return (
-                                          <>
-                                            <li class="feed-item">
-                                              <div class="feed-item-list">
-                                                <span
-                                                  style={{ color: "black" }}
-                                                >
-                                                  {ActivityLogList.logDateTime}
-                                                </span>
-                                                <br />
+                        <>
+                          <div class="col-xl-4 col-lg-4 pb-2">
+                            <div class="card activity-section-cls">
+                              <div class="card-body dashboard-body">
+                                <h5 className="activity-cls">Activity</h5>
+                                <ol class="activity-feed">
+                                  {activityLogsList.length == 0 ? (
+                                    <>
+                                      <h6 className="activity-cls">
+                                        No Activity Logs Found Today..
+                                      </h6>
+                                    </>
+                                  ) : (
+                                    <>
+                                      {activityLogsList?.map(
+                                        (ActivityLogList) => {
+                                          return (
+                                            <>
+                                              <li class="feed-item">
+                                                <div class="feed-item-list">
+                                                  <span
+                                                    style={{ color: "black" }}
+                                                  >
+                                                    {ActivityLogList.logDateTime}
+                                                  </span>
+                                                  <br />
 
-                                                <span
-                                                  class="activity-text"
-                                                  style={{
-                                                    color: "blue",
-                                                    cursor: "pointer",
-                                                  }}
-                                                  onClick={() => {
-                                                    navigate(
-                                                      `/${ActivityLogList?.moduleURL}`
-                                                    );
-                                                  }}
-                                                >
-                                                  {ActivityLogList.logMessage
-                                                    ?.replace(
-                                                      /quotation/g,
-                                                      proposalName
-                                                    )
-                                                    ?.replace(
-                                                      /client/g,
-                                                      prospectName
-                                                    )
-                                                    ?.replace(
-                                                      /contract/g,
-                                                      EngagementName
-                                                    )}
-                                                </span>
-                                              </div>
-                                            </li>
-                                          </>
-                                        );
-                                      }
-                                    )}
-                                  </>
-                                )}
-                              </ol>
-                              <>
-                                {" "}
-                                <div className="col-lg-12 col-md-12 col-sm-12 text-center">
-                                  <div className="add-new-btn">
-                                    <button
-                                      className="btn btn-success create-item-btn add-new"
-                                      onClick={handleActivityLog}
-                                    >
-                                      <span>View All</span>
-                                    </button>
+                                                  <span
+                                                    class="activity-text"
+                                                    style={{
+                                                      color: "blue",
+                                                      cursor: "pointer",
+                                                    }}
+                                                    onClick={() => {
+                                                      navigate(
+                                                        `/${ActivityLogList?.moduleURL}`
+                                                      );
+                                                    }}
+                                                  >
+                                                    {ActivityLogList.logMessage
+                                                      ?.replace(
+                                                        /quotation/g,
+                                                        proposalName
+                                                      )
+                                                      ?.replace(
+                                                        /client/g,
+                                                        prospectName
+                                                      )
+                                                      ?.replace(
+                                                        /contract/g,
+                                                        EngagementName
+                                                      )}
+                                                  </span>
+                                                </div>
+                                              </li>
+                                            </>
+                                          );
+                                        }
+                                      )}
+                                    </>
+                                  )}
+                                </ol>
+                                <>
+                                  {" "}
+                                  <div className="col-lg-12 col-md-12 col-sm-12 text-center">
+                                    <div className="add-new-btn">
+                                      <button
+                                        className="btn btn-success create-item-btn add-new"
+                                        onClick={handleActivityLog}
+                                      >
+                                        <span>View All</span>
+                                      </button>
+                                    </div>
                                   </div>
-                                </div>
-                              </>
+                                </>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </>
-                    )}
+                        </>
+                      )}
                   </div>
                 </div>
               </div>
