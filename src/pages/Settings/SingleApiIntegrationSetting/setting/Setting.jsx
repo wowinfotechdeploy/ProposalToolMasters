@@ -2660,7 +2660,7 @@ function Setting() {
                                       >
                                         <div class="col-md-3 col-sm-12 text-start text-md-end">
                                           <label class="form-label">
-                                            Update "Custom(Single)" Label
+                                            Update "Services" Label
                                             {/* <span className="text-danger">
                                               *
                                             </span> */}
@@ -2670,7 +2670,7 @@ function Setting() {
                                           <input
                                             type="text"
                                             className="input-text"
-                                            placeholder="Update Custom(Single) Label"
+                                            placeholder="Update Services Label"
                                             value={setting.customSingleLabel}
                                             onChange={(e) =>
                                               setSetting({
@@ -2704,9 +2704,7 @@ function Setting() {
                                       >
                                         <div class="col-md-3 col-sm-12 text-start text-md-end">
                                           <label class="form-label">
-                                            Update
-                                            "Packaged(Standard)(Single/Multiple)"
-                                            Label
+                                            Update "Packages" Label
                                             {/* <span className="text-danger">
                                               *
                                             </span> */}
@@ -2716,7 +2714,7 @@ function Setting() {
                                           <input
                                             type="text"
                                             className="input-text"
-                                            placeholder="Update Packaged(Standarde(Single/Multiple) Label"
+                                            placeholder="Update Packages Label"
                                             value={
                                               setting.packagedStandardLabel
                                             }
@@ -2753,9 +2751,7 @@ function Setting() {
                                       >
                                         <div class="col-md-3 col-sm-12 text-start text-md-end">
                                           <label class="form-label">
-                                            Update
-                                            "Package(Customisable)(Single/Multiple)"
-                                            Label
+                                            Update "Custom Packages" Label
                                             {/* <span className="text-danger">
                                               *
                                             </span> */}
@@ -2765,7 +2761,7 @@ function Setting() {
                                           <input
                                             type="text"
                                             className="input-text"
-                                            placeholder=" Update Package(Customisable)(Single/Multiple) Label"
+                                            placeholder=" Update Custom Packages Label"
                                             value={
                                               setting.packagedCustomisableLabel
                                             }

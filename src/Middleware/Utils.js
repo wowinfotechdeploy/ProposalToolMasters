@@ -270,15 +270,15 @@ const fees = [
 const select_Quote_Type = [
   {
     value: 1,
-    label: "Package (Customisable) (Single/Multiple)",
+    label: "Custom Packages",
   },
   {
     value: 2,
-    label: "Packaged (Standard) (Single/Multiple)",
+    label: "Packages",
   },
   {
     value: 3,
-    label: "Custom (Single)",
+    label: "Services",
   },
   {
     value: 4,

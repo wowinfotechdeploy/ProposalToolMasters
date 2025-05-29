@@ -43,7 +43,7 @@ function AddressModalComponent(props) {
   useEffect(() => {
     if (
       props.openAddressPopUp &&
-      props.modelRequestData.model === "Registered Office Address"
+      props.modelRequestData?.model === "Registered Office Address"
     ) {
       if (
         props.title !== undefined &&
@@ -173,7 +173,7 @@ function AddressModalComponent(props) {
   const handleClearAddress = () => {
     setRequireErrorMessage(false);
     // Reset the state values for your input fields
-    if (props.modelRequestData.model === "Registered Office Address") {
+    if (props.modelRequestData?.model === "Registered Office Address") {
       setAddress({
         addressId:
           props.companyAddress?.addressId === null
@@ -217,8 +217,9 @@ function AddressModalComponent(props) {
       address?.addressLine1?.replace(",", " ")
     )}${addPart(address?.addressLine2)}${addPart(address?.locality)}${addPart(
       address?.region
-    )}${addPart(address?.country || address?.countryName)}${address?.postcode || ""
-      }`;
+    )}${addPart(address?.country || address?.countryName)}${
+      address?.postcode || ""
+    }`;
 
     // Remove trailing comma, if present
     if (concatenatedAddress.endsWith(", ")) {
@@ -368,7 +369,7 @@ function AddressModalComponent(props) {
           countryId: selectedCountry?.countryId,
         };
 
-        if (props.modelRequestData.model === "Trading Address") {
+        if (props.modelRequestData?.model === "Trading Address") {
           setAddress({
             addressId:
               props.address?.addressId === null
@@ -377,8 +378,8 @@ function AddressModalComponent(props) {
             premises: updatedAddress.premises,
             addressLine1:
               updatedAddress.premises != undefined &&
-                updatedAddress.premises != null &&
-                updatedAddress.premises != ""
+              updatedAddress.premises != null &&
+              updatedAddress.premises != ""
                 ? `${updatedAddress.premises},${updatedAddress.addressLine1}`
                 : updatedAddress.addressLine1,
             addressLine2: updatedAddress.addressLine2,
@@ -389,7 +390,7 @@ function AddressModalComponent(props) {
             postcode: updatedAddress.postcode,
           });
         } else if (
-          props.modelRequestData.model === "Registered Office Address"
+          props.modelRequestData?.model === "Registered Office Address"
         ) {
           setAddress({
             addressId:
@@ -399,8 +400,8 @@ function AddressModalComponent(props) {
             premises: updatedAddress.premises,
             addressLine1:
               updatedAddress.premises != undefined &&
-                updatedAddress.premises != null &&
-                updatedAddress.premises != ""
+              updatedAddress.premises != null &&
+              updatedAddress.premises != ""
                 ? `${updatedAddress.premises},${updatedAddress.addressLine1}`
                 : updatedAddress.addressLine1,
             addressLine2: updatedAddress.addressLine2,
@@ -591,7 +592,7 @@ function AddressModalComponent(props) {
                   className="SelectedCity"
                   value={
                     selectedCountry?.value === undefined ||
-                      selectedCountry?.value === null
+                    selectedCountry?.value === null
                       ? []
                       : selectedCountry
                   }
@@ -627,9 +628,9 @@ function AddressModalComponent(props) {
                 maxLength={10}
               />
               {requireErrorMessage &&
-                (address.postcode === null ||
-                  address.postcode === undefined ||
-                  address.postcode === "") ? (
+              (address.postcode === null ||
+                address.postcode === undefined ||
+                address.postcode === "") ? (
                 <span className="validation">{ERROR_MESSAGES}</span>
               ) : (
                 ""

@@ -14,6 +14,7 @@ const ClientSoleTraderVariables = [
   "$Client.SoleTrader.Phone$",
   "$Client.SoleTrader.Address$",
   "$Client.SoleTrader.AddressWithLineBreak$",
+  "$Client.TradingName$",
   // "$Client.TradingName$",
   // "$Client.TradingAddress$",
   // "$Client.TradingAddressWithLineBreak$",
@@ -27,6 +28,7 @@ const ClientPartnerShipVariables = [
   "$Client.Partner.Phone$",
   "$Client.Partner.Address$",
   "$Client.Partner.AddressWithLineBreak$",
+  "$Client.TradingName$",
   // "$Client.TradingName$",
   // "$Client.TradingAddress$",
   // "$Client.TradingAddressWithLineBreak$",
@@ -67,7 +69,6 @@ const ClientCompanyVariables = [
 ];
 
 const CommonClientVariables = [
-  "$Client.FullName$",
   "$Client.FirstName$",
   "$Client.LastName$",
   "$Client.FullName$",
@@ -79,6 +80,7 @@ const CommonClientVariables = [
   "$Client.CompanyNumber$",
   "$Client.IncorporatedIn$",
   "$Client.IncorporationDate$",
+  "$Client.TradingName$",
 ];
 
 export default {
