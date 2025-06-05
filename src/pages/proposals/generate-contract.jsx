@@ -2,7 +2,10 @@ import React, { useContext, useEffect, useState } from "react";
 
 import { Row, Col, Card, CardBody } from "reactstrap";
 import { AuthContextProvider } from "../../AuthContext/AuthContext";
-import { GetTemplateListLookupList, GetTemplateModelData } from "../../redux/Services/Config/TemplateApi";
+import {
+  GetTemplateListLookupList,
+  GetTemplateModelData,
+} from "../../redux/Services/Config/TemplateApi";
 import { ElementType } from "../../Middleware/enums";
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
@@ -15,7 +18,15 @@ import GeneratePdfLoaderPage from "../../components/GeneratePdfloaderpage";
 import { generatePdfUrl, mergePdfApiUrl } from "../../Base-Url/Base_Url";
 import Utils from "../../Middleware/Utils";
 function AcceptInvitation() {
-  const { setTopbar, setLoader, formatValueWithoutCurrencySymbol, formatValue, getFontStylesFromHtml, replaceTemplatePricingVariables, replaceUrlInHtml } = useContext(AuthContextProvider);
+  const {
+    setTopbar,
+    setLoader,
+    formatValueWithoutCurrencySymbol,
+    formatValue,
+    getFontStylesFromHtml,
+    replaceTemplatePricingVariables,
+    replaceUrlInHtml,
+  } = useContext(AuthContextProvider);
   const [templateElementList, setTemplateElementList] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
   const [generatePdfData, setGeneratePdfData] = useState([]);
@@ -181,17 +192,17 @@ function AcceptInvitation() {
   }
 
   function getFontNameById(id) {
-    const font = Utils.FontFamily.find(f => f.value === id);
+    const font = Utils.FontFamily.find((f) => f.value === id);
     return font ? font.label : null;
-  };
-  // Set Default Font 
+  }
+  // Set Default Font
   function setDefaultFontFamily(htmlContent, fontFamily) {
     if (!fontFamily) return htmlContent;
 
     const parser = new DOMParser();
     const doc = parser.parseFromString(htmlContent, "text/html");
 
-    const elements = doc.querySelectorAll('*');
+    const elements = doc.querySelectorAll("*");
 
     elements.forEach((el) => {
       const inlineStyle = el.getAttribute("style") || "";
@@ -199,15 +210,15 @@ function AcceptInvitation() {
 
       if (fontFamilyMatch) {
         const existingFonts = fontFamilyMatch[1]
-          .replace(/['"]/g, '') // Remove quotes
+          .replace(/['"]/g, "") // Remove quotes
           .split(/\s*,\s*/)
-          .map(f => f.toLowerCase());
+          .map((f) => f.toLowerCase());
 
         // Check if Roboto is the first font in the list
-        const hasRobotoPrimary = existingFonts[0] === 'roboto';
+        const hasRobotoPrimary = existingFonts[0] === "roboto";
 
         // Check if no font family is actually set (empty value)
-        const isEmptyFontFamily = existingFonts[0] === '';
+        const isEmptyFontFamily = existingFonts[0] === "";
 
         if (hasRobotoPrimary || isEmptyFontFamily) {
           el.style.setProperty("font-family", fontFamily, "important");
@@ -266,10 +277,10 @@ function AcceptInvitation() {
   //         const hasInlineFont = el.style.fontFamily?.toLowerCase().trim();
 
   //         if (
-  //             !hasInlineFont || 
-  //             computedFont === defaultFontFamily || 
-  //             hasInlineFont === 'inherit' || 
-  //             hasInlineFont === 'initial' || 
+  //             !hasInlineFont ||
+  //             computedFont === defaultFontFamily ||
+  //             hasInlineFont === 'inherit' ||
+  //             hasInlineFont === 'initial' ||
   //             hasInlineFont === 'default'
   //         ) {
   //             el.style.setProperty("font-family", fontFamily, "important");
@@ -288,7 +299,6 @@ function AcceptInvitation() {
       );
       let prevElementType = null;
       templateElementList.forEach((element) => {
-
         switch (element.templateElementTypeID) {
           case ElementType.HEADING:
             if (
@@ -312,8 +322,10 @@ function AcceptInvitation() {
             }
             break;
           case ElementType.STATEMENT_OF_FACTS:
-            if (prevElementType === ElementType.PAGE_BREAK ||
-              prevElementType === ElementType.AWS_PDF_LINK) {
+            if (
+              prevElementType === ElementType.PAGE_BREAK ||
+              prevElementType === ElementType.AWS_PDF_LINK
+            ) {
               pdfDataArray.push(currentArray);
               currentArray = [];
             }
@@ -328,84 +340,121 @@ function AcceptInvitation() {
                           </p>
                           <hr style="color: gray; margin-top: -15px;">
                           ${serviceCat.servicesList
-                        .map(
-                          (subService) => `
+                            .map(
+                              (subService) => `
                               <p style="font-family:${fontFamily}; color:black; font-size: ${fontSize};">
                                   ${subService.serviceName}
                               </p>
-                              ${subService?.gpdList !== null
-                              ? subService?.gpdList.filter(item => item.driverTypeID !== 1)
-                                ?.map(
-                                  (pricingDriver) => `
+                              ${
+                                subService?.gpdList !== null
+                                  ? subService?.gpdList
+                                      .filter((item) => item.driverTypeID !== 1)
+                                      ?.map(
+                                        (pricingDriver) => `
                                 <li style="font-family:${fontFamily}; color:black; font-size: ${fontSize}; margin-top:5px;">
                                 ${pricingDriver.driverName}: 
                                 <span style="">
                                      <strong> ${
-                                    //formatValue(pricingDriver.driverValue)
-                                    pricingDriver.driverTypeID === 2
-                                      ? Number(pricingDriver.driverValue)
-                                        .toFixed(2)
-                                        .toString()
-                                        .replace(
-                                          /\B(?=(\d{3})+(?!\d))/g,
-                                          ","
-                                        )
-                                      : pricingDriver.driverTypeID === 3
-                                        ? pricingDriver.variationName
-                                        : pricingDriver.driverTypeID === 4
-                                          ? pricingDriver.slabTypeID === 2 ?
-                                            formatValueWithoutCurrencySymbol(pricingDriver.driverValue) :
-                                            Number(pricingDriver.slabFrom)
-                                              .toFixed(2)
-                                              .toString()
-                                              .replace(
-                                                /\B(?=(\d{3})+(?!\d))/g,
-                                                ","
-                                              ) +
-                                            "-" +
-                                            Number(pricingDriver.slabTo)
-                                              .toFixed(2)
-                                              .toString()
-                                              .replace(
-                                                /\B(?=(\d{3})+(?!\d))/g,
-                                                ","
-                                              )
-                                          : ""
-                                    }</strong>
+                                       //formatValue(pricingDriver.driverValue)
+                                       pricingDriver.driverTypeID === 2
+                                         ? Number(pricingDriver.driverValue)
+                                             .toFixed(2)
+                                             .toString()
+                                             .replace(
+                                               /\B(?=(\d{3})+(?!\d))/g,
+                                               ","
+                                             )
+                                         : pricingDriver.driverTypeID === 3
+                                         ? pricingDriver.variationName
+                                         : pricingDriver.driverTypeID === 4
+                                         ? pricingDriver.slabTypeID === 2
+                                           ? formatValueWithoutCurrencySymbol(
+                                               pricingDriver.driverValue
+                                             )
+                                           : Number(pricingDriver.slabFrom)
+                                               .toFixed(2)
+                                               .toString()
+                                               .replace(
+                                                 /\B(?=(\d{3})+(?!\d))/g,
+                                                 ","
+                                               ) +
+                                             "-" +
+                                             Number(pricingDriver.slabTo)
+                                               .toFixed(2)
+                                               .toString()
+                                               .replace(
+                                                 /\B(?=(\d{3})+(?!\d))/g,
+                                                 ","
+                                               )
+                                         : ""
+                                     }</strong>
                                 </span> 
                             </li>
                               `
-                                )
-                                .join("")
-                              : ``
-                            }
+                                      )
+                                      .join("")
+                                  : ``
+                              }
                           `
-                        )
-                        .join("")}
+                            )
+                            .join("")}
                       </div>
                   `
                   )
                   .join("")}
-                                        ${AdditionalInformation?.length > 0 ?
-                  `<p style="font-family:${fontFamily}; color: ${BrandColor}; font-size: ${fontSizeHeading}; font-weight: bold;">
+                                        ${
+                                          AdditionalInformation?.length > 0
+                                            ? `<p style="font-family:${fontFamily}; color: ${BrandColor}; font-size: ${fontSizeHeading}; font-weight: bold;">
         Additional Information
     </p>
     <hr style="color: gray; margin-top: -15px;" />` +
-                  AdditionalInformation.filter(item => item.driverTypeID !== 1).map(serviceCat => `
+                                              AdditionalInformation.filter(
+                                                (item) =>
+                                                  item.driverTypeID !== 1
+                                              )
+                                                .map(
+                                                  (serviceCat) => `
         <div>
             <p style="font-family:${fontFamily}; color:black; font-size: ${fontSize};">
-                ${serviceCat.driverName}: ${serviceCat.driverTypeID === 4 ? serviceCat.slabTypeID === 2 ? `<strong>${formatValueWithoutCurrencySymbol(serviceCat.driverValue)}</strong>` : `<strong>${formatValueWithoutCurrencySymbol(serviceCat.slabFrom)}-${formatValueWithoutCurrencySymbol(serviceCat.slabTo)}</strong>` : serviceCat.driverTypeID === 3 ? `<strong>${serviceCat.variationName}</strong>` : `${serviceCat.driverName}: <strong>${formatValueWithoutCurrencySymbol(serviceCat.driverValue)}</strong>`}
+                ${serviceCat.driverName}: ${
+                                                    serviceCat.driverTypeID ===
+                                                    4
+                                                      ? serviceCat.slabTypeID ===
+                                                        2
+                                                        ? `<strong>${formatValueWithoutCurrencySymbol(
+                                                            serviceCat.driverValue
+                                                          )}</strong>`
+                                                        : `<strong>${formatValueWithoutCurrencySymbol(
+                                                            serviceCat.slabFrom
+                                                          )}-${formatValueWithoutCurrencySymbol(
+                                                            serviceCat.slabTo
+                                                          )}</strong>`
+                                                      : serviceCat.driverTypeID ===
+                                                        3
+                                                      ? `<strong>${serviceCat.variationName}</strong>`
+                                                      : `${
+                                                          serviceCat.driverName
+                                                        }: <strong>${formatValueWithoutCurrencySymbol(
+                                                          serviceCat.driverValue
+                                                        )}</strong>`
+                                                  }
             </p>
         </div>
-    `).join("") : ""
-                }
+    `
+                                                )
+                                                .join("")
+                                            : ""
+                                        }
 
                   </div>`,
             });
 
             break;
           case ElementType.TEXT_BLOCK:
-            const appliedFontContent = setDefaultFontFamily(element.htmlContent, fontFamily);
+            const appliedFontContent = setDefaultFontFamily(
+              element.htmlContent,
+              fontFamily
+            );
             if (
               prevElementType !== ElementType.PAGE_BREAK &&
               prevElementType !== ElementType.AWS_PDF_LINK
@@ -452,7 +501,9 @@ function AcceptInvitation() {
           case ElementType.SIGNATURE_BLOCK:
             // const signatureObjects = [];
             // Include officers based on image URL and map to opposite side
-            const signatureImageUrl = organisationData?.otherInformation?.[0]?.signatureImageUrl;
+
+            const signatureImageUrl =
+              organisationData?.otherInformation?.[0]?.signatureImageUrl;
 
             let rightSignatureList = contractSignatoriesList.filter(
               (x) => x.signaturePositionID === 1 && x.officerType === null
@@ -460,13 +511,15 @@ function AcceptInvitation() {
             let leftSignatureList = contractSignatoriesList.filter(
               (x) => x.signaturePositionID === 2 && x.officerType === null
             );
-            let contractSignatoryRowNoForOfficer = contractSignatoriesList.filter((x) => x.officerType !== null
-            );
+            let contractSignatoryRowNoForOfficer =
+              contractSignatoriesList.filter((x) => x.officerType !== null);
 
-
-            if (!signatureImageUrl && Array.isArray(contractSignatoryRowNoForOfficer)) {
+            if (
+              !signatureImageUrl &&
+              Array.isArray(contractSignatoryRowNoForOfficer)
+            ) {
               // Officers go to the *opposite* side of each signaturePositionID
-              contractSignatoryRowNoForOfficer.forEach(officer => {
+              contractSignatoryRowNoForOfficer.forEach((officer) => {
                 // If most contract signatories are on the right, place officers on the left, and vice versa
                 if (rightSignatureList.length <= leftSignatureList.length) {
                   rightSignatureList.push(officer); // balance to right
@@ -485,14 +538,17 @@ function AcceptInvitation() {
             let orgSignatureInserted = false;
 
             htmlContentForSignatories += `<div id='SignatoryBlock' style='width: 95%; padding-left: 0px; padding-right: 0px; margin-top: 50px; page-break-inside: avoid; break-inside: avoid;'>`;
-            htmlContentForSignatories += "<table style='width: 100%; border-collapse: collapse;'>";
+            htmlContentForSignatories +=
+              "<table style='width: 100%; border-collapse: collapse;'>";
 
             for (let i = 0; i < loopCount; i++) {
               htmlContentForSignatories += `<tr style='width:100%; vertical-align: bottom;'>`;
 
               // --- LEFT SIGNATURE CELL ---
               const left = leftSignatureList?.[i];
-              htmlContentForSignatories += `<td id="left_${i + 1}" style="padding-top: 60px; width: 50%; font-family: ${fontFamily}; font-size: 0.2in; text-align: left; vertical-align: bottom;">`;
+              htmlContentForSignatories += `<td id="left_${
+                i + 1
+              }" style="padding-top: 60px; width: 50%; font-family: ${fontFamily}; font-size: 0.2in; text-align: left; vertical-align: bottom;">`;
 
               if (left) {
                 htmlContentForSignatories += `
@@ -501,8 +557,12 @@ function AcceptInvitation() {
                 const org = organisationData.otherInformation[0];
                 htmlContentForSignatories += `
                 <div style="margin-left: 60px;">
-                  <div><img src="${org.signatureImageUrl}" alt="Signature" style="height:100px; width:130px;"></div>
-                  <div style="margin-top: 10px;">${org.signatoryName || ""}</div>
+                  <div style="height:40px; width:130px;border:1px solid black"><img src="${
+                    org.signatureImageUrl
+                  }" alt="Signature" style="height:100%; width:100%;"></div>
+                  <div style="margin-top: 10px;">${
+                    org.signatoryName || ""
+                  }</div>
                   </div>`;
                 orgSignatureInserted = true;
               }
@@ -511,7 +571,9 @@ function AcceptInvitation() {
 
               // --- RIGHT SIGNATURE CELL ---
               const right = rightSignatureList?.[i];
-              htmlContentForSignatories += `<td id="right_${i + 1}" style="padding-top: 60px; width: 50%; font-family: ${fontFamily}; font-size: 0.2in; text-align: right; vertical-align: bottom;">`;
+              htmlContentForSignatories += `<td id="right_${
+                i + 1
+              }" style="padding-top: 60px; width: 50%; font-family: ${fontFamily}; font-size: 0.2in; text-align: right; vertical-align: bottom;">`;
 
               if (right) {
                 htmlContentForSignatories += `
@@ -520,8 +582,12 @@ function AcceptInvitation() {
                 const org = organisationData.otherInformation[0];
                 htmlContentForSignatories += `
                 <div style="margin-right: 60px;">
-                  <div><img src="${org.signatureImageUrl}" alt="Signature" style="height:100px; width:130px;"></div>
-                  <div style="margin-top: 10px;">${org.signatoryName || ""}</div>
+                  <div style="height:40px; width:130px;border:1px solid black"><img src="${
+                    org.signatureImageUrl
+                  }" alt="Signature" style="height:100%; width:100%;"></div>
+                  <div style="margin-top: 10px;">${
+                    org.signatoryName || ""
+                  }</div>
                   </div>`;
                 orgSignatureInserted = true;
               }
@@ -575,8 +641,10 @@ function AcceptInvitation() {
             }
             break;
           case ElementType.SERVICE_PRICING_TABLE:
-            if (prevElementType === ElementType.PAGE_BREAK ||
-              prevElementType === ElementType.AWS_PDF_LINK) {
+            if (
+              prevElementType === ElementType.PAGE_BREAK ||
+              prevElementType === ElementType.AWS_PDF_LINK
+            ) {
               pdfDataArray.push(currentArray);
               currentArray = [];
             }
@@ -597,17 +665,17 @@ function AcceptInvitation() {
                                   <tr style="background-color: ${BrandColor};">
                                     <th style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white; font-size: 18px;">Services</th>
                                     ${packageList
-                      .map(
-                        (selectedPackagesData) => `
+                                      .map(
+                                        (selectedPackagesData) => `
                                       <th style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; font-size: 18px;">
                                         ${selectedPackagesData.servicePackageName}
                                       </th>`
-                      )
-                      .join("")}
+                                      )
+                                      .join("")}
                                   </tr>
                                   ${recurringServiceCatList
-                      .map(
-                        (serviceCat) => `
+                                    .map(
+                                      (serviceCat) => `
                                     <tr style="background-color: #DCDCDC;">
                                       <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; font-weight: bold; font-size: 18px;">
                                         ${serviceCat.serviceCatName}
@@ -615,61 +683,69 @@ function AcceptInvitation() {
                                       <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;"></td>
                                     </tr>
                                     ${serviceCat.servicesList
-                            .map(
-                              (subService) => `
+                                      .map(
+                                        (subService) => `
                                       <tr>
                                         <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">
                                           ${subService.serviceName}
                                         </td>
-                                 ${feeTypeId == 1
-                                  ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;"> ${formatValue(
-                                    subService.quotationPrice
-                                  )}</td>`
-                                  : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
-                                }
+                                 ${
+                                   feeTypeId == 1
+                                     ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;"> ${formatValue(
+                                         subService.quotationPrice
+                                       )}</td>`
+                                     : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
+                                 }
 
                                       </tr>`
-                            )
-                            .join("")}
+                                      )
+                                      .join("")}
                                   `
-                      )
-                      .join("")}
+                                    )
+                                    .join("")}
                                   <tr style="background-color:#808080;">
                                     <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white;">
                                       Net Total
                                     </td>
                                     <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
                                         ${finalQuotationAmountList
-                      .filter(
-                        (x) =>
-                          x.serviceChargeTypeID === 1 &&
-                          x.servicePackageID ===
-                          packageList[0]?.servicePackageID
-                      )
-                      .map((x) => (x.netTotal) < (x.discountedTotal) || (x.discounted > 0 && (!ShowDiscountLine)) ? formatValue(x.discountedTotal) : formatValue(x.netTotal))
-                      .join("")}
+                                          .filter(
+                                            (x) =>
+                                              x.serviceChargeTypeID === 1 &&
+                                              x.servicePackageID ===
+                                                packageList[0]?.servicePackageID
+                                          )
+                                          .map((x) =>
+                                            x.netTotal < x.discountedTotal ||
+                                            (x.discounted > 0 &&
+                                              !ShowDiscountLine)
+                                              ? formatValue(x.discountedTotal)
+                                              : formatValue(x.netTotal)
+                                          )
+                                          .join("")}
                                     </td>
                                   </tr>
-                                  ${finalQuotationAmountList.some(
-                        (x) =>
-                          x.serviceChargeTypeID === 1 &&
-                          x.discounted > 0
-                      ) && ShowDiscountLine
-                      ? `
+                                  ${
+                                    finalQuotationAmountList.some(
+                                      (x) =>
+                                        x.serviceChargeTypeID === 1 &&
+                                        x.discounted > 0
+                                    ) && ShowDiscountLine
+                                      ? `
                                     <tr style="background-color: #DCDCDC;">
                                       <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: black;">
                                         Discount
                                       </td>
                                       <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: black;">
                                         (-)  ${finalQuotationAmountList
-                        .filter(
-                          (x) =>
-                            x.serviceChargeTypeID === 1 &&
-                            x.servicePackageID ===
-                            packageList[0]?.servicePackageID
-                        )
-                        .map((x) => formatValue(x.discounted))
-                        .join("")}
+                                          .filter(
+                                            (x) =>
+                                              x.serviceChargeTypeID === 1 &&
+                                              x.servicePackageID ===
+                                                packageList[0]?.servicePackageID
+                                          )
+                                          .map((x) => formatValue(x.discounted))
+                                          .join("")}
                                       </td>
                                     </tr>
                                   <tr style="background-color:#808080;">
@@ -678,40 +754,41 @@ function AcceptInvitation() {
                                     </td>
                                     <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
                                        ${finalQuotationAmountList
-                        .filter(
-                          (x) =>
-                            x.serviceChargeTypeID === 1 &&
-                            x.servicePackageID ===
-                            packageList[0]?.servicePackageID
-                        )
-                        .map((x) =>
-                          formatValue(x.discountedTotal)
-                        )
-                        .join("")}
+                                         .filter(
+                                           (x) =>
+                                             x.serviceChargeTypeID === 1 &&
+                                             x.servicePackageID ===
+                                               packageList[0]?.servicePackageID
+                                         )
+                                         .map((x) =>
+                                           formatValue(x.discountedTotal)
+                                         )
+                                         .join("")}
                                     </td>
                                   </tr>`
-                      : ""
-                    }
-                                     ${finalQuotationAmountList.some(
-                      (x) =>
-                        x.serviceChargeTypeID === 1 &&
-                        x.vat > 0
-                    )
-                      ? `
+                                      : ""
+                                  }
+                                     ${
+                                       finalQuotationAmountList.some(
+                                         (x) =>
+                                           x.serviceChargeTypeID === 1 &&
+                                           x.vat > 0
+                                       )
+                                         ? `
                                   <tr style="background-color: #DCDCDC;">
                                     <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: black;">
                                       VAT
                                     </td>
                                     <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: black;">
                                        ${finalQuotationAmountList
-                        .filter(
-                          (x) =>
-                            x.serviceChargeTypeID === 1 &&
-                            x.servicePackageID ===
-                            packageList[0]?.servicePackageID
-                        )
-                        .map((x) => formatValue(x.vat))
-                        .join("")}
+                                         .filter(
+                                           (x) =>
+                                             x.serviceChargeTypeID === 1 &&
+                                             x.servicePackageID ===
+                                               packageList[0]?.servicePackageID
+                                         )
+                                         .map((x) => formatValue(x.vat))
+                                         .join("")}
                                     </td>
                                   </tr>
                                   <tr style="background-color:#808080;">
@@ -720,18 +797,18 @@ function AcceptInvitation() {
                                     </td>
                                     <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
                                        ${finalQuotationAmountList
-                        .filter(
-                          (x) =>
-                            x.serviceChargeTypeID === 1 &&
-                            x.servicePackageID ===
-                            packageList[0]?.servicePackageID
-                        )
-                        .map((x) => formatValue(x.grandTotal))
-                        .join("")}
+                                         .filter(
+                                           (x) =>
+                                             x.serviceChargeTypeID === 1 &&
+                                             x.servicePackageID ===
+                                               packageList[0]?.servicePackageID
+                                         )
+                                         .map((x) => formatValue(x.grandTotal))
+                                         .join("")}
                                     </td>
                                   </tr>`
-                      : ""
-                    }
+                                         : ""
+                                     }
                                 </table>
                               </div>
                             `,
@@ -748,17 +825,17 @@ function AcceptInvitation() {
                                   <tr style="background-color: ${BrandColor};">
                                     <th style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white; font-size: 18px;">Services</th>
                                     ${packageList
-                      .map(
-                        (selectedPackagesData) => `
+                                      .map(
+                                        (selectedPackagesData) => `
                                       <th style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; font-size: 18px;">
                                         ${selectedPackagesData.servicePackageName}
                                       </th>`
-                      )
-                      .join("")}
+                                      )
+                                      .join("")}
                                   </tr>
                                   ${oneOffServiceCatList
-                      .map(
-                        (serviceCat) => `
+                                    .map(
+                                      (serviceCat) => `
                                     <tr style="background-color: #DCDCDC;">
                                       <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; font-weight: bold; font-size: 18px;">
                                         ${serviceCat.serviceCatName}
@@ -766,61 +843,68 @@ function AcceptInvitation() {
                                       <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;"></td>
                                     </tr>
                                     ${serviceCat.servicesList
-                            .map(
-                              (subService) => `
+                                      .map(
+                                        (subService) => `
                                       <tr>
                                         <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">
                                           ${subService.serviceName}
                                         </td>
-                                        ${feeTypeId == 1
-                                  ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;"> ${formatValue(
-                                    subService.quotationPrice
-                                  )}</td>`
-                                  : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
-                                }
+                                        ${
+                                          feeTypeId == 1
+                                            ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;"> ${formatValue(
+                                                subService.quotationPrice
+                                              )}</td>`
+                                            : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
+                                        }
 
                                       </tr>`
-                            )
-                            .join("")}
+                                      )
+                                      .join("")}
                                   `
-                      )
-                      .join("")}
+                                    )
+                                    .join("")}
                                   <tr style="background-color:#808080;">
                                     <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white;">
                                       Net Total
                                     </td>
                                     <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
                                      ${finalQuotationAmountList
-                      .filter(
-                        (x) =>
-                          x.serviceChargeTypeID === 2 &&
-                          x.servicePackageID ===
-                          packageList[0]?.servicePackageID
-                      )
-                      .map((x) => (x.netTotal) < (x.discountedTotal) || (x.discounted > 0 && (!ShowDiscountLine)) ? formatValue(x.discountedTotal) : formatValue(x.netTotal))
-                      .join("")}
+                                       .filter(
+                                         (x) =>
+                                           x.serviceChargeTypeID === 2 &&
+                                           x.servicePackageID ===
+                                             packageList[0]?.servicePackageID
+                                       )
+                                       .map((x) =>
+                                         x.netTotal < x.discountedTotal ||
+                                         (x.discounted > 0 && !ShowDiscountLine)
+                                           ? formatValue(x.discountedTotal)
+                                           : formatValue(x.netTotal)
+                                       )
+                                       .join("")}
                                     </td>
                                   </tr>
-                                   ${finalQuotationAmountList.some(
-                        (x) =>
-                          x.serviceChargeTypeID === 2 &&
-                          x.discounted > 0
-                      ) && ShowDiscountLine
-                      ? `
+                                   ${
+                                     finalQuotationAmountList.some(
+                                       (x) =>
+                                         x.serviceChargeTypeID === 2 &&
+                                         x.discounted > 0
+                                     ) && ShowDiscountLine
+                                       ? `
                                     <tr style="background-color: #DCDCDC;">
                                       <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: black;">
                                         Discount
                                       </td>
                                       <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: black;">
                                         (-)  ${finalQuotationAmountList
-                        .filter(
-                          (x) =>
-                            x.serviceChargeTypeID === 2 &&
-                            x.servicePackageID ===
-                            packageList[0]?.servicePackageID
-                        )
-                        .map((x) => formatValue(x.discounted))
-                        .join("")}
+                                          .filter(
+                                            (x) =>
+                                              x.serviceChargeTypeID === 2 &&
+                                              x.servicePackageID ===
+                                                packageList[0]?.servicePackageID
+                                          )
+                                          .map((x) => formatValue(x.discounted))
+                                          .join("")}
                                       </td>
                                     </tr>
                                   <tr style="background-color:#808080;">
@@ -829,40 +913,41 @@ function AcceptInvitation() {
                                     </td>
                                     <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
                                        ${finalQuotationAmountList
-                        .filter(
-                          (x) =>
-                            x.serviceChargeTypeID === 2 &&
-                            x.servicePackageID ===
-                            packageList[0]?.servicePackageID
-                        )
-                        .map((x) =>
-                          formatValue(x.discountedTotal)
-                        )
-                        .join("")}
+                                         .filter(
+                                           (x) =>
+                                             x.serviceChargeTypeID === 2 &&
+                                             x.servicePackageID ===
+                                               packageList[0]?.servicePackageID
+                                         )
+                                         .map((x) =>
+                                           formatValue(x.discountedTotal)
+                                         )
+                                         .join("")}
                                     </td>
                                   </tr>`
-                      : ""
-                    }
-                                     ${finalQuotationAmountList.some(
-                      (x) =>
-                        x.serviceChargeTypeID === 2 &&
-                        x.vat > 0
-                    )
-                      ? `
+                                       : ""
+                                   }
+                                     ${
+                                       finalQuotationAmountList.some(
+                                         (x) =>
+                                           x.serviceChargeTypeID === 2 &&
+                                           x.vat > 0
+                                       )
+                                         ? `
                                   <tr style="background-color: #DCDCDC;">
                                     <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: black;">
                                       VAT
                                     </td>
                                     <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: black;">
                                        ${finalQuotationAmountList
-                        .filter(
-                          (x) =>
-                            x.serviceChargeTypeID === 2 &&
-                            x.servicePackageID ===
-                            packageList[0]?.servicePackageID
-                        )
-                        .map((x) => formatValue(x.vat))
-                        .join("")}
+                                         .filter(
+                                           (x) =>
+                                             x.serviceChargeTypeID === 2 &&
+                                             x.servicePackageID ===
+                                               packageList[0]?.servicePackageID
+                                         )
+                                         .map((x) => formatValue(x.vat))
+                                         .join("")}
                                     </td>
                                   </tr>
                                   <tr style="background-color:#808080;">
@@ -871,18 +956,18 @@ function AcceptInvitation() {
                                     </td>
                                     <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
                                        ${finalQuotationAmountList
-                        .filter(
-                          (x) =>
-                            x.serviceChargeTypeID === 2 &&
-                            x.servicePackageID ===
-                            packageList[0]?.servicePackageID
-                        )
-                        .map((x) => formatValue(x.grandTotal))
-                        .join("")}
+                                         .filter(
+                                           (x) =>
+                                             x.serviceChargeTypeID === 2 &&
+                                             x.servicePackageID ===
+                                               packageList[0]?.servicePackageID
+                                         )
+                                         .map((x) => formatValue(x.grandTotal))
+                                         .join("")}
                                     </td>
                                   </tr>`
-                      : ""
-                    }
+                                         : ""
+                                     }
                                 </table>
                                 </div>
                               `,
@@ -900,8 +985,8 @@ function AcceptInvitation() {
                                 <th style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; font-size: 18px;">Fees (£)</th>
                               </tr>
                               ${recurringServiceCatList
-                      .map(
-                        (serviceCat) => `
+                                .map(
+                                  (serviceCat) => `
                                 <tr style="background-color: #eee;">
                                   <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; font-weight: bold; font-size: 18px;">
                                     ${serviceCat.serviceCatName}
@@ -909,42 +994,46 @@ function AcceptInvitation() {
                                   <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;"></td>
                                 </tr>
                                 ${serviceCat.servicesList
-                            .map(
-                              (subService) => `
+                                  .map(
+                                    (subService) => `
                                   <tr>
                                     <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">
                                       ${subService.serviceName}
                                     </td>
-                                          ${feeTypeId == 1
-                                  ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;"> ${formatValue(
-                                    subService.quotationPrice
-                                  )}</td>`
-                                  : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
-                                }
+                                          ${
+                                            feeTypeId == 1
+                                              ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;"> ${formatValue(
+                                                  subService.quotationPrice
+                                                )}</td>`
+                                              : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
+                                          }
                                   </tr>`
-                            )
-                            .join("")}
+                                  )
+                                  .join("")}
                               `
-                      )
-                      .join("")}
+                                )
+                                .join("")}
                               ${ChargeTypeId1Array.map(
-                        (value) => `
+                                (value) => `
                                 <tr style="background-color:#808080;">
                                   <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white;">
                                     Net Total
                                   </td>
                                   <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
-                                     ${(value.netTotal < value.discountedTotal) ||
-                            (Number(value?.discounted) > 0 && (!ShowDiscountLine))
-                            ? formatValue(value.discountedTotal)
-                            : formatValue(value.netTotal)
-                          }
+                                     ${
+                                       value.netTotal < value.discountedTotal ||
+                                       (Number(value?.discounted) > 0 &&
+                                         !ShowDiscountLine)
+                                         ? formatValue(value.discountedTotal)
+                                         : formatValue(value.netTotal)
+                                     }
                                   </td>
                                 </tr>
-                                ${(value?.discounted !== null &&
-                            value?.discounted !== 0.0) &&
-                            ShowDiscountLine
-                            ? `
+                                ${
+                                  value?.discounted !== null &&
+                                  value?.discounted !== 0.0 &&
+                                  ShowDiscountLine
+                                    ? `
                                   <tr style="background-color: #DCDCDC;">
                                     <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: black;">
                                       Discount
@@ -961,10 +1050,11 @@ function AcceptInvitation() {
                                        ${formatValue(value?.discountedTotal)}
                                     </td>
                                   </tr>`
-                            : ""
-                          }
-                                ${value?.vat !== null && value?.vat !== 0.0
-                            ? `
+                                    : ""
+                                }
+                                ${
+                                  value?.vat !== null && value?.vat !== 0.0
+                                    ? `
                                   <tr style="background-color: #DCDCDC;">
                                     <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: black;">
                                       VAT
@@ -981,10 +1071,10 @@ function AcceptInvitation() {
                                        ${formatValue(value?.grandTotal)}
                                     </td>
                                   </tr>`
-                            : ""
-                          }
+                                    : ""
+                                }
                               `
-                      ).join("")}
+                              ).join("")}
                             </table>
                           </div>
                         `,
@@ -1003,8 +1093,8 @@ function AcceptInvitation() {
                                       <th style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; font-size: 18px;">Fees ()</th>
                                     </tr>
                                     ${oneOffServiceCatList
-                      .map(
-                        (serviceCat) => `
+                                      .map(
+                                        (serviceCat) => `
                                       <tr style="background-color:#eee;">
                                         <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; font-weight: bold; font-size: 18px;">
                                           ${serviceCat.serviceCatName}
@@ -1012,50 +1102,57 @@ function AcceptInvitation() {
                                         <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;"></td>
                                       </tr>
                                       ${serviceCat.servicesList
-                            .map(
-                              (subService) => `
+                                        .map(
+                                          (subService) => `
                                         <tr>
                                     <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">
                                       ${subService.serviceName}
                                     </td>
-                                          ${feeTypeId == 1
-                                  ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;"> ${formatValue(
-                                    subService.quotationPrice
-                                  )}</td>`
-                                  : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
-                                }
+                                          ${
+                                            feeTypeId == 1
+                                              ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;"> ${formatValue(
+                                                  subService.quotationPrice
+                                                )}</td>`
+                                              : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
+                                          }
                                   </tr>`
-                            )
-                            .join("")}
+                                        )
+                                        .join("")}
                                     `
-                      )
-                      .join("")}
+                                      )
+                                      .join("")}
                                     ${ChargeTypeId2Array.map(
-                        (value) => `
+                                      (value) => `
                                       <tr style="background-color:#808080;">
                                         <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white;">
                                           Net Total
                                         </td>
                                         <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
-                                           ${(value.netTotal < value.discountedTotal) ||
-                            (Number(value?.discounted) > 0 && (!ShowDiscountLine))
-                            ? formatValue(value.discountedTotal)
-                            : formatValue(value.netTotal)
-                          }
+                                           ${
+                                             value.netTotal <
+                                               value.discountedTotal ||
+                                             (Number(value?.discounted) > 0 &&
+                                               !ShowDiscountLine)
+                                               ? formatValue(
+                                                   value.discountedTotal
+                                                 )
+                                               : formatValue(value.netTotal)
+                                           }
                                         </td>
                                       </tr>
-                                      ${(value?.discounted !== null &&
-                            value?.discounted !== 0.0) &&
-                            ShowDiscountLine
-                            ? `
+                                      ${
+                                        value?.discounted !== null &&
+                                        value?.discounted !== 0.0 &&
+                                        ShowDiscountLine
+                                          ? `
                                         <tr style="background-color: #DCDCDC;">
                                           <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: black;">
                                             Discount
                                           </td>
                                           <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: black;">
                                             (-)  ${formatValue(
-                              value.discounted
-                            )}
+                                              value.discounted
+                                            )}
                                           </td>
                                         </tr>
                                         <tr style="background-color:#808080;">
@@ -1064,15 +1161,16 @@ function AcceptInvitation() {
                                           </td>
                                           <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
                                              ${formatValue(
-                              value.discountedTotal
-                            )}
+                                               value.discountedTotal
+                                             )}
                                           </td>
                                         </tr>`
-                            : ""
-                          }
-                                      ${value?.vat !== null &&
-                            value?.vat !== 0.0
-                            ? `
+                                          : ""
+                                      }
+                                      ${
+                                        value?.vat !== null &&
+                                        value?.vat !== 0.0
+                                          ? `
                                         <tr style="background-color: #DCDCDC;">
                                           <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: black;">
                                             VAT
@@ -1089,10 +1187,10 @@ function AcceptInvitation() {
                                              ${formatValue(value.grandTotal)}
                                           </td>
                                         </tr>`
-                            : ""
-                          }
+                                          : ""
+                                      }
                                     `
-                      ).join("")}
+                                    ).join("")}
                                   </table>
                                 </div>
                               `,
@@ -1109,37 +1207,37 @@ function AcceptInvitation() {
               currentArray.push({
                 textbox: ` ${imgTag}<div style="padding-left: 40px; padding-right: 40px;margin-top: 10px">                
                                 ${serviceDescriptionList
-                    .map(
-                      (serviceCat) => `
+                                  .map(
+                                    (serviceCat) => `
                       <div>
                           <p style="font-family:${fontFamily};font-size: ${fontSizeHeading};color: black;font-weight: bold;">
                               ${serviceCat.serviceCatName}
                           </p>
                           <hr style="color: gray; margin-top:-5px;">
                           ${serviceCat.servicesList
-                          .map(
-                            (subService) => `
+                            .map(
+                              (subService) => `
                               <p style="font-family:${fontFamily}; color:black; font-size: ${fontSize}; ">
                                   ${subService.serviceName}
                               </p>
                               <p>
                                  
-                              ${subService.description === null ||
-                                subService.description ===
-                                undefined ||
+                              ${
+                                subService.description === null ||
+                                subService.description === undefined ||
                                 subService.description === ""
-                                ? ""
-                                : subService.description
+                                  ? ""
+                                  : subService.description
                               }
                               </p>
                              
                           `
-                          )
-                          .join("")}
+                            )
+                            .join("")}
                       </div>
                   `
-                    )
-                    .join("")}
+                                  )
+                                  .join("")}
                   
                
                 </div >
@@ -1151,8 +1249,8 @@ function AcceptInvitation() {
                 {
                   textbox: ` ${imgTag}<div style="padding-left: 40px; padding-right: 40px;margin-top: 10px">                    
               ${serviceDescriptionList
-                      .map(
-                        (serviceCat) => `
+                .map(
+                  (serviceCat) => `
                       <div>
                           <p style="font-family:${fontFamily}; color: black; font-size: ${fontSizeHeading}; font-weight: bold;">
                               ${serviceCat.serviceCatName}
@@ -1165,13 +1263,13 @@ function AcceptInvitation() {
                                   ${subService.serviceName}
                               </p>
                               <p>
-                                  ${subService.description === null ||
-                                  subService.description ===
-                                  undefined ||
-                                  subService.description === ""
-                                  ? ""
-                                  : subService.description
-                                }
+                                  ${
+                                    subService.description === null ||
+                                    subService.description === undefined ||
+                                    subService.description === ""
+                                      ? ""
+                                      : subService.description
+                                  }
                               </p>
                              
                           `
@@ -1179,17 +1277,17 @@ function AcceptInvitation() {
                             .join("")}
                       </div>
                   `
-                      )
-                      .join("")}
+                )
+                .join("")}
                   </div >
                   
                   `,
-
                 },
               ];
             }
             break;
-          case ElementType.PAGE_BREAK: break;
+          case ElementType.PAGE_BREAK:
+            break;
           case ElementType.AWS_PDF_LINK:
             pdfDataArray.push(currentArray);
             currentArray = [];
@@ -1200,53 +1298,46 @@ function AcceptInvitation() {
             });
             break;
           case ElementType.TermsAndCondition:
-            const appliedFontTNCContent = setDefaultFontFamily(TnCHtmlContent, fontFamily);
-            if (prevElementType === ElementType.PAGE_BREAK ||
-              prevElementType === ElementType.AWS_PDF_LINK) {
+            const appliedFontTNCContent = setDefaultFontFamily(
+              TnCHtmlContent,
+              fontFamily
+            );
+            if (
+              prevElementType === ElementType.PAGE_BREAK ||
+              prevElementType === ElementType.AWS_PDF_LINK
+            ) {
               if (TnCHtmlContent || TnCPdf) {
-                if (
-                  TnCHtmlContent !== null &&
-                  TnCHtmlContent !== undefined
-                ) {
+                if (TnCHtmlContent !== null && TnCHtmlContent !== undefined) {
                   currentArray.push({
                     textbox: `<div style="padding-left: 40px; padding-right: 40px; color:${BrandColor}; font-size: ${fontSizeHeading}; font-family:${fontFamily}" >TERMS & CONDITIONS<br>
                               <hr style="padding-left: 40px; padding-right: 40px; color: black;"></hr></div>
                                 <div style="padding-left: 40px; padding-right: 40px;">${appliedFontTNCContent}</div>`,
-                  },)
-                } else if (
-                  TnCPdf !== null ||
-                  TnCHtmlContent === null
-                ) {
+                  });
+                } else if (TnCPdf !== null || TnCHtmlContent === null) {
                   pdfDataArray.push(currentArray);
                   currentArray = [];
                   currentArray.push({
                     ["awsLink"]: TnCPdf,
                   });
-
                 }
               }
             } else {
               pdfDataArray.push(currentArray);
               if (TnCHtmlContent || TnCPdf) {
-                if (
-                  TnCHtmlContent !== null &&
-                  TnCHtmlContent !== undefined
-                ) {
+                if (TnCHtmlContent !== null && TnCHtmlContent !== undefined) {
                   currentArray = [
                     {
                       textbox: `<div style="padding-left: 40px; padding-right: 40px; color:${BrandColor}; font-size: ${fontSizeHeading}; font-family:${fontFamily}" >TERMS & CONDITIONS<br>
                                   <hr style="padding-left: 40px; padding-right: 40px; color: black;"></hr></div>
-                                    <div style="padding-left: 40px; padding-right: 40px;">${appliedFontTNCContent}</div>`
+                                    <div style="padding-left: 40px; padding-right: 40px;">${appliedFontTNCContent}</div>`,
                     },
                   ];
-                } else if (
-                  TnCPdf !== null ||
-                  TnCHtmlContent === null
-                ) {
-
-                  currentArray = [{
-                    ["awsLink"]: TnCPdf,
-                  }];
+                } else if (TnCPdf !== null || TnCHtmlContent === null) {
+                  currentArray = [
+                    {
+                      ["awsLink"]: TnCPdf,
+                    },
+                  ];
                 }
               }
             }
@@ -1254,9 +1345,14 @@ function AcceptInvitation() {
           default:
             if (TnCHtmlContent || TnCPdf) {
               if (!TermAndConditionAddedOrNot) {
-                const appliedFontTNCContent = setDefaultFontFamily(TnCHtmlContent, fontFamily);
-                if (prevElementType === ElementType.PAGE_BREAK ||
-                  prevElementType === ElementType.AWS_PDF_LINK) {
+                const appliedFontTNCContent = setDefaultFontFamily(
+                  TnCHtmlContent,
+                  fontFamily
+                );
+                if (
+                  prevElementType === ElementType.PAGE_BREAK ||
+                  prevElementType === ElementType.AWS_PDF_LINK
+                ) {
                   if (TnCHtmlContent || TnCPdf) {
                     if (
                       TnCHtmlContent !== null &&
@@ -1266,17 +1362,13 @@ function AcceptInvitation() {
                         textbox: `<div style="padding-left: 40px; padding-right: 40px; color:${BrandColor}; font-size: ${fontSizeHeading}; font-family:${fontFamily}" >TERMS & CONDITIONS<br>
                                   <hr style="padding-left: 40px; padding-right: 40px; color: black;"></hr></div>
                                     <div style="padding-left: 40px; padding-right: 40px;">${appliedFontTNCContent}</div>`,
-                      },)
-                    } else if (
-                      TnCPdf !== null ||
-                      TnCHtmlContent === null
-                    ) {
+                      });
+                    } else if (TnCPdf !== null || TnCHtmlContent === null) {
                       pdfDataArray.push(currentArray);
                       currentArray = [];
                       currentArray.push({
                         ["awsLink"]: TnCPdf,
                       });
-
                     }
                   }
                 } else {
@@ -1290,22 +1382,21 @@ function AcceptInvitation() {
                         {
                           textbox: `<div style="padding-left: 40px; padding-right: 40px; color:${BrandColor}; font-size: ${fontSizeHeading}; font-family:${fontFamily}" >TERMS & CONDITIONS<br>
                                       <hr style="padding-left: 40px; padding-right: 40px; color: black;"></hr></div>
-                                        <div style="padding-left: 40px; padding-right: 40px;">${appliedFontTNCContent}</div>`
+                                        <div style="padding-left: 40px; padding-right: 40px;">${appliedFontTNCContent}</div>`,
                         },
                       ];
-                    } else if (
-                      TnCPdf !== null ||
-                      TnCHtmlContent === null
-                    ) {
-
-                      currentArray = [{
-                        ["awsLink"]: TnCPdf,
-                      }];
+                    } else if (TnCPdf !== null || TnCHtmlContent === null) {
+                      currentArray = [
+                        {
+                          ["awsLink"]: TnCPdf,
+                        },
+                      ];
                     }
                   }
                 }
               }
-              const signatureImageUrl = organisationData?.otherInformation?.[0]?.signatureImageUrl;
+              const signatureImageUrl =
+                organisationData?.otherInformation?.[0]?.signatureImageUrl;
 
               let rightSignatureList = contractSignatoriesList.filter(
                 (x) => x.signaturePositionID === 1 && x.officerType === null
@@ -1313,13 +1404,15 @@ function AcceptInvitation() {
               let leftSignatureList = contractSignatoriesList.filter(
                 (x) => x.signaturePositionID === 2 && x.officerType === null
               );
-              let contractSignatoryRowNoForOfficer = contractSignatoriesList.filter((x) => x.officerType !== null
-              );
+              let contractSignatoryRowNoForOfficer =
+                contractSignatoriesList.filter((x) => x.officerType !== null);
 
-
-              if (!signatureImageUrl && Array.isArray(contractSignatoryRowNoForOfficer)) {
+              if (
+                !signatureImageUrl &&
+                Array.isArray(contractSignatoryRowNoForOfficer)
+              ) {
                 // Officers go to the *opposite* side of each signaturePositionID
-                contractSignatoryRowNoForOfficer.forEach(officer => {
+                contractSignatoryRowNoForOfficer.forEach((officer) => {
                   // If most contract signatories are on the right, place officers on the left, and vice versa
                   if (rightSignatureList.length <= leftSignatureList.length) {
                     rightSignatureList.push(officer); // balance to right
@@ -1338,14 +1431,17 @@ function AcceptInvitation() {
               let orgSignatureInserted = false;
 
               htmlContentForSignatories += `<div id='SignatoryBlock' style='width: 95%; padding-left: 0px; padding-right: 0px; margin-top: 50px; page-break-inside: avoid; break-inside: avoid;'>`;
-              htmlContentForSignatories += "<table style='width: 100%; border-collapse: collapse;'>";
+              htmlContentForSignatories +=
+                "<table style='width: 100%; border-collapse: collapse;'>";
 
               for (let i = 0; i < loopCount; i++) {
                 htmlContentForSignatories += `<tr style='width:100%; vertical-align: bottom;'>`;
 
                 // --- LEFT SIGNATURE CELL ---
                 const left = leftSignatureList?.[i];
-                htmlContentForSignatories += `<td id="left_${i + 1}" style="padding-top: 60px; width: 50%; font-family: ${fontFamily}; font-size: 0.2in; text-align: left; vertical-align: bottom;">`;
+                htmlContentForSignatories += `<td id="left_${
+                  i + 1
+                }" style="padding-top: 60px; width: 50%; font-family: ${fontFamily}; font-size: 0.2in; text-align: left; vertical-align: bottom;">`;
 
                 if (left) {
                   htmlContentForSignatories += `
@@ -1354,8 +1450,12 @@ function AcceptInvitation() {
                   const org = organisationData.otherInformation[0];
                   htmlContentForSignatories += `
                     <div style="margin-left: 60px;">
-                      <div><img src="${org.signatureImageUrl}" alt="Signature" style="height:100px; width:130px;"></div>
-                      <div style="margin-top: 10px;">${org.signatoryName || ""}</div>
+                      <div style="height:40px; width:130px";border:1px solid black><img src="${
+                        org.signatureImageUrl
+                      }" alt="Signature" style="height:100%; width:100%;"></div>
+                      <div style="margin-top: 10px;">${
+                        org.signatoryName || ""
+                      }</div>
                       </div>`;
                   orgSignatureInserted = true;
                 }
@@ -1364,7 +1464,9 @@ function AcceptInvitation() {
 
                 // --- RIGHT SIGNATURE CELL ---
                 const right = rightSignatureList?.[i];
-                htmlContentForSignatories += `<td id="right_${i + 1}" style="padding-top: 60px; width: 50%; font-family: ${fontFamily}; font-size: 0.2in; text-align: right; vertical-align: bottom;">`;
+                htmlContentForSignatories += `<td id="right_${
+                  i + 1
+                }" style="padding-top: 60px; width: 50%; font-family: ${fontFamily}; font-size: 0.2in; text-align: right; vertical-align: bottom;">`;
 
                 if (right) {
                   htmlContentForSignatories += `
@@ -1373,8 +1475,12 @@ function AcceptInvitation() {
                   const org = organisationData.otherInformation[0];
                   htmlContentForSignatories += `
                     <div style="margin-right: 60px;">
-                      <div><img src="${org.signatureImageUrl}" alt="Signature" style="height:100px; width:130px;"></div>
-                      <div style="margin-top: 10px;">${org.signatoryName || ""}</div>
+                      <div style="height:40px; width:130px"><img src="${
+                        org.signatureImageUrl
+                      }" alt="Signature" style="height:100%; width:100%;"></div>
+                      <div style="margin-top: 10px;">${
+                        org.signatoryName || ""
+                      }</div>
                       </div>`;
                   orgSignatureInserted = true;
                 }
@@ -1386,13 +1492,9 @@ function AcceptInvitation() {
 
               htmlContentForSignatories += "</table>";
               htmlContentForSignatories += "</div>";
-              currentArray.push(
-                {
-                  textbox: `${htmlContentForSignatories}`,
-                })
-
-
-
+              currentArray.push({
+                textbox: `${htmlContentForSignatories}`,
+              });
             }
             break;
         }
@@ -1434,7 +1536,7 @@ function AcceptInvitation() {
       HeaderHeight: HeaderHeight,
       FooterHeight: FooterHeight,
       HeaderImage: HeaderImage,
-      FooterImage: FooterImage
+      FooterImage: FooterImage,
     };
     try {
       const response = await fetch(generatePdfUrl, {
@@ -1451,7 +1553,7 @@ function AcceptInvitation() {
     }
   };
 
-  //Generate the merge pdf 
+  //Generate the merge pdf
   const generateMergePdfUrl = () => {
     fetch(mergePdfApiUrl, {
       method: "POST",
@@ -1472,7 +1574,7 @@ function AcceptInvitation() {
             moduleName: "Quotation",
             contractKeyID: contractKeyID,
             contractPDFUrl: pdfUrl,
-            ContractSignatoryKeyID: ContractSignatoryKeyID
+            ContractSignatoryKeyID: ContractSignatoryKeyID,
           };
 
           GetSendToSignEasyData(ApiRequest_ParamsObj);
@@ -1489,7 +1591,7 @@ function AcceptInvitation() {
       });
   };
 
-  //Generate Pdf For send the 
+  //Generate Pdf For send the
   const generatePdf = async () => {
     if (
       generatePdfData.length === 0 ||
@@ -1520,7 +1622,11 @@ function AcceptInvitation() {
       }
     }
   };
-  const GetVariableValuesForTnCTemplateData = async (ClientID, HtmlContent, variablesWithValuesList) => {
+  const GetVariableValuesForTnCTemplateData = async (
+    ClientID,
+    HtmlContent,
+    variablesWithValuesList
+  ) => {
     // const VariableData = await GetVariableValuesForTnCTemplate(
     //   ClientID,
     //   common.userKeyID,
@@ -1546,12 +1652,8 @@ function AcceptInvitation() {
       return replacedHtmlContent;
     };
 
-    const htmlContent = replaceVariables(
-      HtmlContent,
-      variablesWithValuesList
-    );
-    setTnCHtmlContent(htmlContent)
-
+    const htmlContent = replaceVariables(HtmlContent, variablesWithValuesList);
+    setTnCHtmlContent(htmlContent);
   };
 
   useEffect(() => {
@@ -1589,7 +1691,7 @@ function AcceptInvitation() {
           headerImage: item.headerImage,
           footerImage: item.footerImage,
           headerContent: item.headerContent,
-          footerContent: item.footerContent
+          footerContent: item.footerContent,
         }));
         // setTemplateLookUpOptions(mappedOptions);
         // const isSelectedDefault = data.responseData.data.filter(
@@ -1600,7 +1702,7 @@ function AcceptInvitation() {
         setHeaderContent(mappedOptions[0]?.headerContent);
         setFooterContent(mappedOptions[0]?.footerContent);
         setHeaderImage(mappedOptions[0]?.headerImage);
-        setFooterImage(mappedOptions[0]?.footerImage)
+        setFooterImage(mappedOptions[0]?.footerImage);
         setHeaderHeight(mappedOptions[0]?.headerHeight);
         setFooterHeight(mappedOptions[0]?.footerHeight);
       } else {
@@ -1612,7 +1714,7 @@ function AcceptInvitation() {
       console.error("Error fetching data from the API", error);
     }
   };
-  //Get Template Model Data 
+  //Get Template Model Data
   const GetTemplateModalData = async (
     TemplateKeyID,
     clientID,
@@ -1624,7 +1726,6 @@ function AcceptInvitation() {
     packageData
   ) => {
     try {
-
       const data = await GetTemplateModelData({
         TemplateKeyID: TemplateKeyID,
         clientID: clientID || null,
@@ -1699,16 +1800,28 @@ function AcceptInvitation() {
             htmlContent: null,
           };
           const updatedTemplateElementList = [...newArray, pdfObject];
-          const Logo = ModelData.templateElementListWithRequiredData.organisationLogoUrl
-          setBrandLogo(Logo)
-          let clientNameOnFirstPage = ModelData.templateElementListWithRequiredData.clientNameOnFirstPage == null ? "" : ModelData.templateElementListWithRequiredData.clientNameOnFirstPage
+          const Logo =
+            ModelData.templateElementListWithRequiredData.organisationLogoUrl;
+          setBrandLogo(Logo);
+          let clientNameOnFirstPage =
+            ModelData.templateElementListWithRequiredData
+              .clientNameOnFirstPage == null
+              ? ""
+              : ModelData.templateElementListWithRequiredData
+                  .clientNameOnFirstPage;
           const firstPageHTML = `
          <div style="margin-top: 300px;">
-     <div style="display: flex; justify-content: center; align-items: center; text-align: center;margin-top:${Logo ? `-100px` : "0px"}">
-    ${Logo ? `
+     <div style="display: flex; justify-content: center; align-items: center; text-align: center;margin-top:${
+       Logo ? `-100px` : "0px"
+     }">
+    ${
+      Logo
+        ? `
       <div style="display: inline-block; text-align: center; width: 700px; height: 150px; background-image: url('${Logo}'); background-size: contain; background-repeat: no-repeat; background-position: center;">
       </div>
-    ` : ''}
+    `
+        : ""
+    }
 
   <p style="text-align: center; color: #00BFFF; page-break-after: always;">
     <span style="color: #00BFFF; margin-top: 15px; font-size: 50px; font-family: ${fontFamily}" class="OrgBrandColor">Engagement Letter For</span><br><br>
@@ -1718,10 +1831,11 @@ function AcceptInvitation() {
     </div>
   `;
 
-          let isAddedFirstPage = updatedTemplateElementList.some(item => item.templateElementTypeID === 10);
-          let AddFirstPageHtmlContent = [...updatedTemplateElementList]
+          let isAddedFirstPage = updatedTemplateElementList.some(
+            (item) => item.templateElementTypeID === 10
+          );
+          let AddFirstPageHtmlContent = [...updatedTemplateElementList];
           if (!isAddedFirstPage) {
-
             // const firstPageElement = {
             //   "ttetMapID": null,
             //   "templateElementTypeID": 10,
@@ -1745,7 +1859,7 @@ function AcceptInvitation() {
             3,
             packageData
           );
-          setIsDefaultFirstPage(ModelData?.enableFirstPage)
+          setIsDefaultFirstPage(ModelData?.enableFirstPage);
           setTemplateElementList(ReplaceVariableArray);
           setBrandColor(
             ModelData.templateElementListWithRequiredData.brandColor
@@ -1792,7 +1906,7 @@ function AcceptInvitation() {
               moduleName: "Quotation",
               contractKeyID: GetContractKeyID,
               contractPDFUrl: null,
-              ContractSignatoryKeyID: ContractSignatoryKeyID
+              ContractSignatoryKeyID: ContractSignatoryKeyID,
             };
             GetSendToSignEasyData(ApiRequest_ParamsObj);
           } else {
@@ -1825,8 +1939,13 @@ function AcceptInvitation() {
       if (data?.data?.statusCode === 200) {
         if (data?.data?.responseData?.data) {
           const ModelData = data?.data?.responseData?.data;
-          const variablesWithValuesList = data?.data?.responseData?.variablesWithValuesList;
-          await GetVariableValuesForTnCTemplateData(ModelData.clientID, ModelData.tnCTemplateContent, variablesWithValuesList)
+          const variablesWithValuesList =
+            data?.data?.responseData?.variablesWithValuesList;
+          await GetVariableValuesForTnCTemplateData(
+            ModelData.clientID,
+            ModelData.tnCTemplateContent,
+            variablesWithValuesList
+          );
           const packageData = data?.data?.responseData?.packageList;
           const finalQuotationAmountList =
             data?.data?.responseData?.finalContractAmountList;
@@ -1834,13 +1953,17 @@ function AcceptInvitation() {
           setShowDiscountLine(ModelData.showDiscountLine);
           // setShowDiscountLine(true)
           // setTnCHtmlContent(ModelData.tnCTemplateContent)
-          setTnCPdf(ModelData.tnCTemplatePdfUrl)
+          setTnCPdf(ModelData.tnCTemplatePdfUrl);
 
           setFeeTypeId(ModelData.feesInQuoteID);
           setRecurringServiceCatList(ModelData.recurringServiceCatList);
           setOneOffServiceCatList(ModelData.oneOffServiceCatList);
-          const RecurringData = finalQuotationAmountList.filter(item => item.serviceChargeTypeID === 1);
-          const OneOffData = finalQuotationAmountList.filter(item => item.serviceChargeTypeID === 2);
+          const RecurringData = finalQuotationAmountList.filter(
+            (item) => item.serviceChargeTypeID === 1
+          );
+          const OneOffData = finalQuotationAmountList.filter(
+            (item) => item.serviceChargeTypeID === 2
+          );
           let OneOffPricingInfo = {
             OriginalPrice: "",
             DefaultDiscount: "",
@@ -1849,8 +1972,8 @@ function AcceptInvitation() {
             NetTotal: "",
             Discount: "",
             GrandTotal: "",
-            DiscountedTotal: ""
-          }
+            DiscountedTotal: "",
+          };
           let RecurringPricingInfo = {
             OriginalPrice: "",
             DefaultDiscount: "",
@@ -1859,8 +1982,8 @@ function AcceptInvitation() {
             NetTotal: "",
             Discount: "",
             GrandTotal: "",
-            DiscountedTotal: ""
-          }
+            DiscountedTotal: "",
+          };
           if (RecurringData.length > 0) {
             const recurringItem = RecurringData[0]; // Access the first item in the filtered array
 
@@ -1873,7 +1996,7 @@ function AcceptInvitation() {
               Discount: recurringItem.discounted,
               GrandTotal: recurringItem.grandTotal,
               DiscountedTotal: recurringItem.discountedTotal,
-            }
+            };
           }
 
           if (OneOffData.length > 0) {
@@ -1888,10 +2011,8 @@ function AcceptInvitation() {
               Discount: oneOffItem.discounted,
               GrandTotal: oneOffItem.grandTotal,
               DiscountedTotal: oneOffItem.discountedTotal,
-            }
+            };
           }
-
-
 
           setFinalQuotationAmountList(finalQuotationAmountList);
           const contractSignatoryRowNo = ModelData.contractSignatoriesList.map(
@@ -1926,9 +2047,9 @@ function AcceptInvitation() {
               emailID: ModelData.organisationDetails.emailID,
               phoneNo: `${ModelData.organisationDetails.countryCode} ${ModelData.organisationDetails.phoneNo}`,
               fullAddress: ModelData.organisationDetails.tradingAddress,
-              signatureImageUrl: ModelData.organisationDetails.signatureImageUrl,
-              signatoryName: ModelData.organisationDetails?.signatoryName || ""
-
+              signatureImageUrl:
+                ModelData.organisationDetails.signatureImageUrl,
+              signatoryName: ModelData.organisationDetails?.signatoryName || "",
             },
           ];
 
@@ -1963,10 +2084,12 @@ function AcceptInvitation() {
       const data = await GetSendToSignEasy(params);
       if (data?.data?.statusCode === 200) {
         setLoader(false);
-        let acceptedDeclinedByEmailID = data?.data?.responseData?.acceptedDeclinedByEmailID
-        const signingUrls =
-          data?.data?.responseData?.sentMailResponse;
-        let SignEasyUrlForEmail = signingUrls.find(item => item.email == acceptedDeclinedByEmailID)
+        let acceptedDeclinedByEmailID =
+          data?.data?.responseData?.acceptedDeclinedByEmailID;
+        const signingUrls = data?.data?.responseData?.sentMailResponse;
+        let SignEasyUrlForEmail = signingUrls.find(
+          (item) => item.email == acceptedDeclinedByEmailID
+        );
         setSvgShow(false);
         if (SignEasyUrlForEmail.signingUrl) {
           window.open(SignEasyUrlForEmail.signingUrl, "_self");

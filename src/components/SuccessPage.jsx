@@ -1,13 +1,12 @@
 import React, { useContext, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { AuthContextProvider } from "../AuthContext/AuthContext";
+import { useSelector } from "react-redux";
 
 const SuccessPage = () => {
-
-  const {
-    setActiveOrganizationSubscriptionPlan,
-    setIsAddUpdatePurchaseDone
-  } = useContext(AuthContextProvider);
+  const { setActiveOrganizationSubscriptionPlan, setIsAddUpdatePurchaseDone } =
+    useContext(AuthContextProvider);
+  const common = useSelector((state) => state.Storage);
   useEffect(() => {
     localStorage.removeItem("OrganisationLocalList");
     // localStorage.removeItem("subscriptionPlan");
@@ -15,7 +14,7 @@ const SuccessPage = () => {
 
     // Reset the activeOrganizationSubscriptionPlan state to null
     setActiveOrganizationSubscriptionPlan(null);
-    setIsAddUpdatePurchaseDone(true)
+    setIsAddUpdatePurchaseDone(true);
   }, []);
 
   return (
@@ -47,12 +46,22 @@ const SuccessPage = () => {
       </div>
       <div style={{ textAlign: "center" }}>
         <br />
-        <Link
-          to="/mySubscription"
-          className="btn btn-md btn-success create-item-btn"
-        >
-          Go to My Subscription
-        </Link>
+        {common.organisationKeyID === null ||
+        common.organisationKeyID === undefined ? (
+          <Link
+            to="/organisations"
+            className="btn btn-md btn-success create-item-btn"
+          >
+            Go to Organisation List
+          </Link>
+        ) : (
+          <Link
+            to="/mySubscription"
+            className="btn btn-md btn-success create-item-btn"
+          >
+            Go to My Subscription
+          </Link>
+        )}
         &nbsp;|&nbsp;
         <Link to="/" className="btn btn-md btn-success create-item-btn">
           Dashboard

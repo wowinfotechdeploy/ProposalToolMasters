@@ -1731,9 +1731,11 @@ export default function PreviewComponentPdf(props) {
                 const org = props.organisationData.otherInformation[0];
                 htmlContentForSignatories += `
                 <div style="margin-left: 60px;">
-                  <div><img src="${
+                 <div style="height:40px; width:130px;border:1px solid black">
+                  <img src="${
                     org.signatureImageUrl
-                  }" alt="Signature" style="height:100px; width:130px;"></div>
+                  }" alt="Signature" style="height:100%; widht: 100%;">
+                  </div>
                   <div style="margin-top: 10px;">${
                     org.signatoryName || ""
                   }</div>
@@ -1756,9 +1758,9 @@ export default function PreviewComponentPdf(props) {
                 const org = props.organisationData.otherInformation[0];
                 htmlContentForSignatories += `
                 <div style="margin-right: 60px;">
-                  <div><img src="${
+                  <div style="height:40px; width:130px;border:1px solid black"><img src="${
                     org.signatureImageUrl
-                  }" alt="Signature" style="height:100px; width:130px;"></div>
+                  }" alt="Signature" style="height:100%; width:100%;"></div>
                   <div style="margin-top: 10px;">${
                     org.signatoryName || ""
                   }</div>
@@ -4563,9 +4565,9 @@ export default function PreviewComponentPdf(props) {
                   const org = props.organisationData.otherInformation[0];
                   htmlContentForSignatories += `
                 <div style="margin-left: 60px;">
-                  <div><img src="${
+                  <div style="height:40px; width:130px;border:1px solid black"><img src="${
                     org.signatureImageUrl
-                  }" alt="Signature" style="height:100px; width:130px;"></div>
+                  }" alt="Signature" style="height:100%; width:100%;"></div>
                   <div style="margin-top: 10px;">${
                     org.signatoryName || ""
                   }</div>
@@ -4588,9 +4590,9 @@ export default function PreviewComponentPdf(props) {
                   const org = props.organisationData.otherInformation[0];
                   htmlContentForSignatories += `
                 <div style="margin-right: 60px;">
-                  <div><img src="${
+                  <div style="height:40px; width:130px;border:1px solid black"><img src="${
                     org.signatureImageUrl
-                  }" alt="Signature" style="height:100px; width:130px;"></div>
+                  }" alt="Signature" style="height:100%; width:100%;"></div>
                   <div style="margin-top: 10px;">${
                     org.signatoryName || ""
                   }</div>
