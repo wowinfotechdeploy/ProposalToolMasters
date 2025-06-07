@@ -2576,7 +2576,7 @@ function Setting() {
                                       >
                                         <div class="col-md-3 col-sm-12 text-start text-md-end">
                                           <label class="form-label">
-                                            Update "{proposalName} For" Label
+                                            Rename "{proposalName} For" Label
                                             {/* <span className="text-danger">
                                               *
                                             </span> */}
@@ -2586,7 +2586,7 @@ function Setting() {
                                           <input
                                             type="text"
                                             className="input-text"
-                                            placeholder={`Update ${proposalName} For Label`}
+                                            placeholder={`Rename ${proposalName} For Label`}
                                             value={setting.proposalForLabel}
                                             onChange={(e) =>
                                               setSetting({
@@ -2616,7 +2616,7 @@ function Setting() {
                                       <div class="row mb-2" id="FontSizeType">
                                         <div class="col-md-3 col-sm-12 text-start text-md-end">
                                           <label class="form-label">
-                                            Update "{proposalName} Type" Label
+                                            Rename "{proposalName} Type" Label
                                             {/* <span className="text-danger">
                                               *
                                             </span> */}
@@ -2626,7 +2626,7 @@ function Setting() {
                                           <input
                                             type="text"
                                             className="input-text"
-                                            placeholder={` Update ${proposalName} Type Label`}
+                                            placeholder={` Rename ${proposalName} Type Label`}
                                             value={setting.proposalTypeLabel}
                                             onChange={(e) =>
                                               setSetting({
@@ -2660,7 +2660,7 @@ function Setting() {
                                       >
                                         <div class="col-md-3 col-sm-12 text-start text-md-end">
                                           <label class="form-label">
-                                            Update "Services" Label
+                                            Rename "Services" Label
                                             {/* <span className="text-danger">
                                               *
                                             </span> */}
@@ -2670,7 +2670,7 @@ function Setting() {
                                           <input
                                             type="text"
                                             className="input-text"
-                                            placeholder="Update Services Label"
+                                            placeholder="Rename Services Label"
                                             value={setting.customSingleLabel}
                                             onChange={(e) =>
                                               setSetting({
@@ -2704,7 +2704,7 @@ function Setting() {
                                       >
                                         <div class="col-md-3 col-sm-12 text-start text-md-end">
                                           <label class="form-label">
-                                            Update "Packages" Label
+                                            Rename "Packages" Label
                                             {/* <span className="text-danger">
                                               *
                                             </span> */}
@@ -2714,7 +2714,7 @@ function Setting() {
                                           <input
                                             type="text"
                                             className="input-text"
-                                            placeholder="Update Packages Label"
+                                            placeholder="Rename Packages Label"
                                             value={
                                               setting.packagedStandardLabel
                                             }
@@ -2751,7 +2751,7 @@ function Setting() {
                                       >
                                         <div class="col-md-3 col-sm-12 text-start text-md-end">
                                           <label class="form-label">
-                                            Update "Custom Packages" Label
+                                            Rename "Custom Packages" Label
                                             {/* <span className="text-danger">
                                               *
                                             </span> */}
@@ -2761,7 +2761,7 @@ function Setting() {
                                           <input
                                             type="text"
                                             className="input-text"
-                                            placeholder=" Update Custom Packages Label"
+                                            placeholder=" Rename Custom Packages Label"
                                             value={
                                               setting.packagedCustomisableLabel
                                             }
@@ -2795,7 +2795,7 @@ function Setting() {
                                       <div class="row mb-2" id="GetQuote">
                                         <div class="col-md-3 col-sm-12 text-start text-md-end">
                                           <label class="form-label">
-                                            Update "{proposalName}" Button
+                                            Rename "{proposalName}" Button
                                             {/* <span className="text-danger">
                                               *
                                             </span> */}
@@ -2805,7 +2805,7 @@ function Setting() {
                                           <input
                                             type="text"
                                             className="input-text"
-                                            placeholder="Update Proposal button"
+                                            placeholder="Rename Proposal button"
                                             value={setting.getQuoteLabel}
                                             onChange={(e) =>
                                               setSetting({
@@ -2834,7 +2834,7 @@ function Setting() {
                                       <div class="row mb-2" id="SignContract">
                                         <div class="col-md-3 col-sm-12 text-start text-md-end">
                                           <label class="form-label">
-                                            Update {EngagementName} Button
+                                            Rename "{EngagementName}" Button
                                             {/* <span className="text-danger">
                                               *
                                             </span> */}
@@ -2844,7 +2844,7 @@ function Setting() {
                                           <input
                                             type="text"
                                             className="input-text"
-                                            placeholder="Update Engagement Letter Button"
+                                            placeholder="Rename Engagement Letter Button"
                                             value={setting.signContractLabel}
                                             onChange={(e) =>
                                               setSetting({
