@@ -12,12 +12,23 @@ function SuperAdminEmailTemplateVariable({
   return (
     <div className="fieldset-group helper-variables-div">
       <label className="fieldset-group-label">Variables</label>
-      <AccountantVariables ModuleName={ModuleName} businessTypeId={null} />
+      {businessTypeId !== SUPER_EMAIL_TEMPLATE.SubscriptionPurchase &&
+        businessTypeId !== SUPER_EMAIL_TEMPLATE.SubscriptionRenew &&
+        businessTypeId !== SUPER_EMAIL_TEMPLATE.EsignQuotaExceed && (
+          <div>
+            <span className="variableHeading">Common Variables :</span>
+            <AccountantVariables
+              ModuleName={ModuleName}
+              businessTypeId={null}
+            />
+          </div>
+        )}
 
       {businessTypeId == SUPER_EMAIL_TEMPLATE.Confirmation_Email && (
         <>
           {" "}
           <div className="separator mt-2 mb-2" />
+          <span className="variableHeading">Template Type Variables:</span>
           <CopyToClipboard
             texts={SuperTemplateTypeVariable.ConfirmationEmail}
           />
@@ -27,6 +38,7 @@ function SuperAdminEmailTemplateVariable({
         <>
           {" "}
           <div className="separator mt-2 mb-2" />
+          <span className="variableHeading">Template Type Variables:</span>
           <CopyToClipboard texts={SuperTemplateTypeVariable.WelcomeEmail} />
         </>
       )}
@@ -34,6 +46,7 @@ function SuperAdminEmailTemplateVariable({
         <>
           {" "}
           <div className="separator mt-2 mb-2" />
+          <span className="variableHeading">Template Type Variables:</span>
           <CopyToClipboard
             texts={SuperTemplateTypeVariable.ForgotPasswordEmail}
           />
@@ -43,6 +56,7 @@ function SuperAdminEmailTemplateVariable({
         <>
           {" "}
           <div className="separator mt-2 mb-2" />
+          <span className="variableHeading">Template Type Variables:</span>
           <CopyToClipboard texts={SuperTemplateTypeVariable.InviteForSignUp} />
         </>
       )}
@@ -50,6 +64,7 @@ function SuperAdminEmailTemplateVariable({
         <>
           {" "}
           <div className="separator mt-2 mb-2" />
+          <span className="variableHeading">Template Type Variables:</span>
           <CopyToClipboard texts={SuperTemplateTypeVariable.TwoFA} />
         </>
       )}
@@ -57,14 +72,30 @@ function SuperAdminEmailTemplateVariable({
         <>
           {" "}
           <div className="separator mt-2 mb-2" />
-          <CopyToClipboard texts={SuperTemplateTypeVariable.SubscriptionPurchase} />
+          <span className="variableHeading">Template Type Variables:</span>
+          <CopyToClipboard
+            texts={SuperTemplateTypeVariable.SubscriptionPurchase}
+          />
         </>
       )}
       {businessTypeId == SUPER_EMAIL_TEMPLATE.SubscriptionRenew && (
         <>
           {" "}
           <div className="separator mt-2 mb-2" />
-          <CopyToClipboard texts={SuperTemplateTypeVariable.SubscriptionRenewal} />
+          <span className="variableHeading">Template Type Variables:</span>
+          <CopyToClipboard
+            texts={SuperTemplateTypeVariable.SubscriptionRenewal}
+          />
+        </>
+      )}
+      {businessTypeId == SUPER_EMAIL_TEMPLATE.EsignQuotaExceed && (
+        <>
+          {" "}
+          <div className="separator mt-2 mb-2" />
+          <span className="variableHeading">Template Type Variables:</span>
+          <CopyToClipboard
+            texts={SuperTemplateTypeVariable.EsignQuotaExceedVariables}
+          />
         </>
       )}
       {businessTypeId == SUPER_EMAIL_TEMPLATE.AccesskeyCreated && (

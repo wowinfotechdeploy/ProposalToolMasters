@@ -49,7 +49,8 @@ export const SUPER_EMAIL_TEMPLATE = {
   Two_FA: 16,
   SubscriptionPurchase: 39,
   SubscriptionRenew: 40,
-  AccesskeyCreated: 41
+  EsignQuotaExceed: 43,
+  AccesskeyCreated: 41,
 };
 export const Template_Type = {
   Quote: 1,
@@ -121,7 +122,7 @@ export const ServiceChargeTypeEnum = {
 export const ChangeDefaultPaymentGatewaysTypes = {
   BankTransfer: 1,
   Stripe: 2,
-  GoCardless: 3
+  GoCardless: 3,
 };
 
 export const statusID = {
@@ -133,7 +134,7 @@ export const statusID = {
   Accepted: 6,
   Declined: 7,
   Void: 8,
-  All: 9
+  All: 9,
 };
 export const statusNames = {
   Draft: "draft",
@@ -145,7 +146,7 @@ export const statusNames = {
   Declined: "declined",
   All: "all",
   Completed: "completed",
-  Pending: "pending"
+  Pending: "pending",
 };
 
 export const CalenderFilterEnum = {
@@ -173,7 +174,6 @@ export const ActiveDateFilterEnum = {
   Active_In_Last_1_Year: 6,
 };
 
-
 // src/emailTemplates.js
 export const EmailTemplates = {
   UnpaidUser_FirstMail: 31,
@@ -183,7 +183,7 @@ export const EmailTemplates = {
   PaidUser_FirstMail: 35,
   PaidUser_SecondMail: 36,
   PaidUser_ThirdMail: 37,
-  Reminder: 38
+  Reminder: 38,
 };
 export const EmailProviderEnum = {
   BT_Internet: 1,
@@ -196,7 +196,6 @@ export const EmailProviderEnum = {
   Other: 8,
 };
 
-
 export const REMINDER_EMAIL_TEMPLATE = {
   QuoteSentTriggerPoint: 23,
   QuoteViewedTriggerPoint: 24,
@@ -206,14 +205,13 @@ export const REMINDER_EMAIL_TEMPLATE = {
   ContractViewedTriggerPoint: 28,
   ContractSignedTriggerPoint: 29,
   ContractDeclinedTriggerPoint: 30,
-
 };
 
 export const MarketingEmailAddressIdType = {
   EmailAddressID: "EmailAddressID",
-  SubscriptionPackageID: "SubscriptionPackageID"
-}
+  SubscriptionPackageID: "SubscriptionPackageID",
+};
 export const AppSettingType = {
   UnpaidUser: "Unpaid_Users_Login_To_Outbooks_Warning_Mail",
-  paidUser: "Paid_Users_Login_To_Outbooks_Warning_Mail"
-}
+  paidUser: "Paid_Users_Login_To_Outbooks_Warning_Mail",
+};

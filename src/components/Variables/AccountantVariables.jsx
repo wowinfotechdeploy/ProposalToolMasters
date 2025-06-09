@@ -21,7 +21,7 @@ const AccountantVariables = ({
   TemplateType,
   SuperTemplateType,
   ModuleName,
-  ClintTypeID
+  ClintTypeID,
 }) => {
   const common = useSelector((state) => state.Storage);
   const { prospectName } = useContext(AuthContextProvider);
@@ -34,14 +34,14 @@ const AccountantVariables = ({
           texts={BusinessTypeVariables.commonVariablesForOrganisation}
           heading="Organisation:"
         />
-        {ClintTypeID !== 1 &&
+        {ClintTypeID !== 1 && (
           <>
             <CopyToClipboard
               texts={ProspectTypeVariables.CommonClientVariables}
               heading={`${prospectName}:`}
             />
           </>
-        }
+        )}
 
         {ClintType !== null && <hr />}
         <span className="variableHeading"> Organisation Variables :</span>
@@ -88,14 +88,14 @@ const AccountantVariables = ({
           texts={BusinessTypeVariables.commonVariablesForOrganisation}
           heading="Organisation:"
         />
-        {ClintTypeID !== 1 &&
+        {ClintTypeID !== 1 && (
           <>
             <CopyToClipboard
               texts={ProspectTypeVariables.CommonClientVariables}
               heading={`${prospectName}:`}
             />
           </>
-        }
+        )}
 
         {ClintType !== null && <hr />}
         <span className="variableHeading"> Organisation Variables :</span>
@@ -139,14 +139,14 @@ const AccountantVariables = ({
           texts={BusinessTypeVariables.commonVariablesForOrganisation}
           heading="Organisation:"
         />
-        {ClintTypeID !== 1 &&
+        {ClintTypeID !== 1 && (
           <>
             <CopyToClipboard
               texts={ProspectTypeVariables.CommonClientVariables}
               heading={`${prospectName}:`}
             />
           </>
-        }
+        )}
 
         {ClintType !== null && <hr />}
         <span className="variableHeading"> Organisation Variables :</span>
@@ -191,14 +191,14 @@ const AccountantVariables = ({
           texts={BusinessTypeVariables.commonVariablesForOrganisation}
           heading="Organisation:"
         />
-        {ClintTypeID !== 1 &&
+        {ClintTypeID !== 1 && (
           <>
             <CopyToClipboard
               texts={ProspectTypeVariables.CommonClientVariables}
               heading={`${prospectName}:`}
             />
           </>
-        }
+        )}
 
         {ClintType !== null && <hr />}
         <span className="variableHeading"> Organisation Variables :</span>
@@ -455,7 +455,10 @@ const AccountantVariables = ({
   ) {
     return (
       <div>
-        <CopyToClipboard texts={SuperTemplateTypeVariable.SuperAllVariable} />
+        <CopyToClipboard
+          texts={SuperTemplateTypeVariable.SuperAllVariable}
+          heading="User:"
+        />
       </div>
     );
   } else if (
@@ -515,7 +518,7 @@ const AccountantVariables = ({
     );
   } else if (
     businessTypeId ==
-    EMAIL_TEMPLATE.Quote_AcceptedDeclined_Email_Send_To_Sender &&
+      EMAIL_TEMPLATE.Quote_AcceptedDeclined_Email_Send_To_Sender &&
     ModuleName === "EmailTemplate"
   ) {
     return (
@@ -582,9 +585,7 @@ const AccountantVariables = ({
         />
       </div>
     );
-  } else if (
-    ModuleName === "HeaderFooterTemplate"
-  ) {
+  } else if (ModuleName === "HeaderFooterTemplate") {
     return (
       <div>
         <span className="variableHeading">Common Variables :</span>
@@ -603,13 +604,19 @@ const AccountantVariables = ({
         <hr />
         <span className="variableHeading">Organisation Variables :</span>
         {businessTypeId === CLIENT_TYPES.Sole_Trader && (
-          <CopyToClipboard texts={BusinessTypeVariables.BusinessSoleTraderVariables} />
+          <CopyToClipboard
+            texts={BusinessTypeVariables.BusinessSoleTraderVariables}
+          />
         )}
         {businessTypeId === CLIENT_TYPES.Partnership && (
-          <CopyToClipboard texts={BusinessTypeVariables.BusinessPartnerShipVariables} />
+          <CopyToClipboard
+            texts={BusinessTypeVariables.BusinessPartnerShipVariables}
+          />
         )}
         {businessTypeId === CLIENT_TYPES.Company && (
-          <CopyToClipboard texts={BusinessTypeVariables.BusinessCompanyVariables} />
+          <CopyToClipboard
+            texts={BusinessTypeVariables.BusinessCompanyVariables}
+          />
         )}
         {businessTypeId === CLIENT_TYPES.LLP && (
           <CopyToClipboard texts={BusinessTypeVariables.BusinessLLpVariables} />
