@@ -14,14 +14,12 @@ import {
   NotificationCount,
   VanishCount,
 } from "../redux/Services/Setting/NotificationApi";
-import {
-  Box,
-  Button,
-  Drawer,
-  Tooltip,
-} from "@mui/material";
+import { Box, Button, Drawer, Tooltip } from "@mui/material";
 import { ColorContext } from "../AuthContext/ColorContext";
-import { GetOrganisationLookupList, OrganisationLoginUpdate } from "../redux/Services/Master/OrganisationLookupList";
+import {
+  GetOrganisationLookupList,
+  OrganisationLoginUpdate,
+} from "../redux/Services/Master/OrganisationLookupList";
 import { USER_ROLE_TYPE } from "../Middleware/enums";
 import ResetPasswordModal from "../Auth/ResetPassword/ResetPasswordModal";
 import profile from "../../src/assets/images/profile.jpg";
@@ -61,6 +59,7 @@ const Topbar = () => {
   const [isHoveredProspect, setIsHoveredProspect] = useState(false);
   const [isHoveredProposal, setIsHoveredProposal] = useState(false);
   const [isHoveredEngagement, setIsHoveredEngagement] = useState(false);
+  const [isHoveredPdfToCsv, setIsHoveredPdfToCsv] = useState(false);
   const [isHoveredConfigure, setIsHoveredConfigure] = useState(false);
   const [isHoveredSetting, setIsHoveredSetting] = useState(false);
   const [isHoveredDashboards, setIsHoveredDashboards] = useState(false);
@@ -140,7 +139,7 @@ const Topbar = () => {
     } else {
       OrganisationLocalListData();
     }
-    setIsAddUpdatePurchaseDone(false)
+    setIsAddUpdatePurchaseDone(false);
   }, [common.userKeyID, common.organisationKeyID, isAddUpdatePurchaseDone]);
 
   useEffect(() => {
@@ -226,7 +225,7 @@ const Topbar = () => {
         dropdownButton.removeEventListener("click", handleCloseDropdown);
       }
     }
-  }
+  };
   const togglenav = (event) => {
     // Adjust the breakpoint according to your design
     if (isMobile || window.innerWidth <= 1024) {
@@ -292,7 +291,7 @@ const Topbar = () => {
     setIsSettingDropdownOpen(!isSettingDropdownOpen);
     if (!isSettingDropdownOpen) {
       list.style.display = "block";
-      list.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      list.scrollIntoView({ behavior: "smooth", block: "start" });
     } else {
       list.style.display = "none";
     }
@@ -303,7 +302,7 @@ const Topbar = () => {
     setIsUserRoleDropdownOpen(!isUserRoleDropdownOpen);
     if (!isUserRoleDropdownOpen) {
       list.style.display = "block";
-      list.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      list.scrollIntoView({ behavior: "smooth", block: "start" });
     } else {
       list.style.display = "none";
     }
@@ -389,9 +388,9 @@ const Topbar = () => {
       const organisationKeyID =
         organisationData?.organisationKeyID === undefined
           ? null
-          : organisationData?.organisationKeyID
+          : organisationData?.organisationKeyID;
       if (organisationKeyID !== null) {
-        await OrganisationLoginUpdate(common.userKeyID, organisationKeyID)
+        await OrganisationLoginUpdate(common.userKeyID, organisationKeyID);
       }
 
       //alert("OnOrganisationsChange : "+JSON.stringify(selectedOrg))
@@ -431,7 +430,6 @@ const Topbar = () => {
         (organisationData.subscriptionPlan.isPlanActive === true &&
           organisationData.subscriptionPlan.yearlyValuePlan < 1)
       ) {
-
       } else {
         clearTimeout(timeoutId);
         setShowModal(false);
@@ -502,14 +500,12 @@ const Topbar = () => {
     setIsSettingDropdownOpen(true);
   };
 
-
-
   const toggleSettingList = () => {
     const list = document.getElementById("Setting");
 
     if (list.style.display !== "block") {
       list.style.display = "block";
-      list.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      list.scrollIntoView({ behavior: "smooth", block: "start" });
     } else {
       list.style.display = "none";
     }
@@ -549,7 +545,7 @@ const Topbar = () => {
       } else {
         list.classList.add("d-block");
         list.classList.remove("d-none");
-        list.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        list.scrollIntoView({ behavior: "smooth", block: "start" });
       }
     }
   };
@@ -565,7 +561,7 @@ const Topbar = () => {
     setIsDropdownOpen(!isDropdownOpen);
     if (!isDropdownOpen) {
       list.style.display = "block";
-      list.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      list.scrollIntoView({ behavior: "smooth", block: "start" });
     } else {
       list.style.display = "none";
     }
@@ -672,7 +668,7 @@ const Topbar = () => {
   // 1) Get Organisations List Data
   const GetOrganisationsListData = async (KeyID) => {
     if (common.token === "") {
-      return
+      return;
     }
     try {
       setLoader(true);
@@ -753,7 +749,10 @@ const Topbar = () => {
           }
           setLoader(false);
           if (organisationData.organisationKeyID !== null) {
-            await OrganisationLoginUpdate(common.userKeyID, organisationData.organisationKeyID)
+            await OrganisationLoginUpdate(
+              common.userKeyID,
+              organisationData.organisationKeyID
+            );
           }
           if (organisationData) {
             setOrgLoaderList(true);
@@ -1108,8 +1107,7 @@ const Topbar = () => {
                       <div className="edit-topbar">
                         <div
                           onClick={() => (
-                            navigate("/create-new-practice"),
-                            togglenav()
+                            navigate("/create-new-practice"), togglenav()
                           )}
                           title="Create New Practice "
                         >
@@ -1126,10 +1124,7 @@ const Topbar = () => {
                         <div className="update-practice-details">
                           <div
                             onClick={() =>
-                              navigate(
-                                "/update-practice-details",
-                                closeNav()
-                              )
+                              navigate("/update-practice-details", closeNav())
                             }
                             title="Update Practice"
                           >
@@ -1382,7 +1377,7 @@ const Topbar = () => {
                                                 onClick={() => {
                                                   closeDropdown("config");
                                                   NotificationCountData();
-                                                  togglenav()
+                                                  togglenav();
                                                 }} // pass main list id
                                                 style={{ whiteSpace: "nowrap" }}
                                                 class="nav-link"
@@ -1576,8 +1571,6 @@ const Topbar = () => {
                                             >
                                               <a
                                                 onClick={() => {
-
-
                                                   closeDropdown("config");
                                                   NotificationCountData();
                                                 }}
@@ -1751,92 +1744,101 @@ const Topbar = () => {
                                       </Link>
                                     </li>
                                   )} */}
-                                  {userAccessData.Admin_Setting_Practice_Config_CanView && activeOrganizationSubscriptionPlan?.apiIntegration && (
-                                    <li
-                                      class="nav-item"
-                                      onMouseLeave={() =>
-                                        hideSettingSubList("WebIntegration")
-                                      }
-                                      onMouseEnter={() =>
-                                        showSettingSubList("WebIntegration")
-                                      }
-                                      onClick={() =>
-                                        toggleSettingSubList("WebIntegration")
-                                      }
-                                    >
-                                      <a
-                                        href="#sidebarProfile"
-                                        class="nav-link collapsed"
-                                        data-bs-toggle="collapse"
-                                        role="button"
-                                        aria-expanded="false"
-                                        aria-controls="sidebarProfile"
-                                        data-key="t-profile"
+                                  {userAccessData.Admin_Setting_Practice_Config_CanView &&
+                                    activeOrganizationSubscriptionPlan?.apiIntegration && (
+                                      <li
+                                        class="nav-item"
+                                        onMouseLeave={() =>
+                                          hideSettingSubList("WebIntegration")
+                                        }
+                                        onMouseEnter={() =>
+                                          showSettingSubList("WebIntegration")
+                                        }
+                                        onClick={() =>
+                                          toggleSettingSubList("WebIntegration")
+                                        }
                                       >
-                                        API Integration
-                                      </a>
-                                      <div
-                                        class="subList collapse menu-dropdown"
-                                        id="WebIntegration"
-                                        style={style}
-                                      >
-                                        <ul class="nav nav-sm flex-column">
-                                          <li class="nav-item">
-                                            <Link
-                                              to="/WebSetting"
-                                              onClick={togglenav}
-                                            >
-                                              <a
-                                                onClick={() => {
-                                                  toggleSettingList("Setting");
-                                                  NotificationCountData();
-                                                }}
-                                                style={{ whiteSpace: "nowrap" }}
-                                                class="nav-link"
-                                                data-key="t-basic-3"
+                                        <a
+                                          href="#sidebarProfile"
+                                          class="nav-link collapsed"
+                                          data-bs-toggle="collapse"
+                                          role="button"
+                                          aria-expanded="false"
+                                          aria-controls="sidebarProfile"
+                                          data-key="t-profile"
+                                        >
+                                          API Integration
+                                        </a>
+                                        <div
+                                          class="subList collapse menu-dropdown"
+                                          id="WebIntegration"
+                                          style={style}
+                                        >
+                                          <ul class="nav nav-sm flex-column">
+                                            <li class="nav-item">
+                                              <Link
+                                                to="/WebSetting"
+                                                onClick={togglenav}
                                               >
-                                                Setting
-                                              </a>
-                                            </Link>
-                                          </li>
-                                          <li class="nav-item">
-                                            <Link
-                                              to="/AccessKey"
-                                              onClick={togglenav}
-                                            >
-                                              <a
-                                                onClick={() => {
-                                                  toggleSettingList("Setting");
-                                                  NotificationCountData();
-                                                }}
-                                                class="nav-link"
-                                                data-key="t-basic-6"
+                                                <a
+                                                  onClick={() => {
+                                                    toggleSettingList(
+                                                      "Setting"
+                                                    );
+                                                    NotificationCountData();
+                                                  }}
+                                                  style={{
+                                                    whiteSpace: "nowrap",
+                                                  }}
+                                                  class="nav-link"
+                                                  data-key="t-basic-3"
+                                                >
+                                                  Setting
+                                                </a>
+                                              </Link>
+                                            </li>
+                                            <li class="nav-item">
+                                              <Link
+                                                to="/AccessKey"
+                                                onClick={togglenav}
                                               >
-                                                Access Key
-                                              </a>
-                                            </Link>
-                                          </li>
-                                          <li class="nav-item">
-                                            <Link
-                                              to="/coupon"
-                                              onClick={togglenav}
-                                            >
-                                              <a
-                                                onClick={() => {
-                                                  toggleSettingList("Setting");
-                                                  NotificationCountData();
-                                                }}
-                                                class="nav-link"
-                                                data-key="t-basic-7"
+                                                <a
+                                                  onClick={() => {
+                                                    toggleSettingList(
+                                                      "Setting"
+                                                    );
+                                                    NotificationCountData();
+                                                  }}
+                                                  class="nav-link"
+                                                  data-key="t-basic-6"
+                                                >
+                                                  Access Key
+                                                </a>
+                                              </Link>
+                                            </li>
+                                            <li class="nav-item">
+                                              <Link
+                                                to="/coupon"
+                                                onClick={togglenav}
                                               >
-                                                Coupons
-                                              </a>
-                                            </Link>
-                                          </li>
-                                        </ul>
-                                      </div>
-                                    </li>
-                                  )}
+                                                <a
+                                                  onClick={() => {
+                                                    toggleSettingList(
+                                                      "Setting"
+                                                    );
+                                                    NotificationCountData();
+                                                  }}
+                                                  class="nav-link"
+                                                  data-key="t-basic-7"
+                                                >
+                                                  Coupons
+                                                </a>
+                                              </Link>
+                                            </li>
+                                          </ul>
+                                        </div>
+                                      </li>
+                                    )}
                                   {userAccessData.Admin_Setting_Practice_Config_CanView && (
                                     <li
                                       class="nav-item"
@@ -1948,7 +1950,7 @@ const Topbar = () => {
                                         onClick={() => {
                                           toggleSettingList("Setting");
                                           NotificationCountData();
-                                          togglenav()
+                                          togglenav();
                                         }}
                                         class="nav-link"
                                         data-key="t-basic-7"
@@ -1983,11 +1985,47 @@ const Topbar = () => {
                                       </a>
                                     </Link>
                                   </li>
-
                                 </ul>
                               </div>
                             </li>
                           )}
+
+                          {/* PDF to CSV section starts */}
+
+                          {/* <li class="nav-item">
+                            <NavLink
+                              to="/pdf-to-csv"
+                              onClick={() => {
+                                NotificationCountData();
+                                togglenav();
+                              }}
+                              activeclassname="active"
+                              className="nav-link menu-link"
+                              onMouseOver={() => setIsHoveredPdfToCsv(true)}
+                              onMouseOut={() => setIsHoveredPdfToCsv(false)}
+                              style={{
+                                color: isHoveredPdfToCsv
+                                  ? "#438eff"
+                                  : TopTextColor.color,
+                              }}
+                            >
+                              {" "}
+                              <img
+                                src={EngagementSvg}
+                                alt="PdfToCsvSvg"
+                                style={{
+                                  width: "16px",
+                                  marginRight: "5px",
+                                }}
+                              />
+                              <span data-key="t-dashboard">
+                                {" "}
+                                Convert PDF To CSV
+                              </span>{" "}
+                            </NavLink>
+                          </li> */}
+
+                          {/* PDF to CSV section ends */}
                         </ul>
                       </div>
                     </div>
@@ -2199,7 +2237,7 @@ const Topbar = () => {
                                                   onClick={() => {
                                                     closeDropdown("config");
                                                     NotificationCountData();
-                                                    togglenav()
+                                                    togglenav();
                                                   }}
                                                   class="nav-link"
                                                   data-key="t-simple-page"
@@ -2300,7 +2338,6 @@ const Topbar = () => {
                                                   onClick={() => {
                                                     closeDropdown("config");
                                                     NotificationCountData();
-
                                                   }}
                                                   class="nav-link"
                                                   data-key="t-simple-page"
@@ -2363,7 +2400,8 @@ const Topbar = () => {
                                                   class="nav-link"
                                                   data-key="t-simple-page"
                                                 >
-                                                  Predefined {proposalName}/{EngagementName}
+                                                  Predefined {proposalName}/
+                                                  {EngagementName}
                                                 </a>
                                               </NavLink>
                                             </li>
@@ -2436,7 +2474,6 @@ const Topbar = () => {
                                           id="PredefinedReminder"
                                         >
                                           <ul class="nav nav-sm flex-column">
-
                                             <li class="nav-item">
                                               <NavLink to="/reminder-email-template">
                                                 <a
@@ -2447,8 +2484,8 @@ const Topbar = () => {
                                                   class="nav-link"
                                                   data-key="t-simple-page"
                                                 >
-                                                  Predefined
-                                                  Workflows Email Templates
+                                                  Predefined Workflows Email
+                                                  Templates
                                                 </a>
                                               </NavLink>
                                             </li>
@@ -2466,7 +2503,6 @@ const Topbar = () => {
                                                 </a>
                                               </NavLink>
                                             </li>
-
                                           </ul>
                                         </div>
                                       </li>
@@ -2477,7 +2513,7 @@ const Topbar = () => {
                             )}
 
                             {/*  Super Admin Config End */}
-                            {/*  Super Admin Subscription End */}
+                            {/*  Super Admin Subscription Start */}
                             {userAccessData.Subscription_CanView && (
                               <li
                                 class="nav-item"
@@ -2548,6 +2584,21 @@ const Topbar = () => {
                                         </NavLink>
                                       </li>
                                     )}
+                                    {/* {userAccessData.SuperAdmin_Config_Subscription_Package_CanView && (
+                                      <li class="nav-item">
+                                        <NavLink
+                                          onClick={() => {
+                                            closeDropdown("Subscription");
+                                            NotificationCountData();
+                                          }}
+                                          to="/pdf-csv-sub-package"
+                                          activeclassname="active"
+                                          className="nav-link menu-link"
+                                        >
+                                          PDF to CSV Subscription Packages
+                                        </NavLink>
+                                      </li>
+                                    )} */}
                                     {userAccessData.SuperAdmin_Config_Subscription_User_CanView && (
                                       <li class="nav-item">
                                         <NavLink
@@ -2627,7 +2678,7 @@ const Topbar = () => {
                                     display: isUserRoleDropdownOpen
                                       ? "block"
                                       : "none",
-                                    width: "200px"
+                                    width: "200px",
                                   }}
                                   class="collapse menu-dropdown"
                                   id="UserRole"
@@ -2788,14 +2839,19 @@ const Topbar = () => {
                                               >
                                                 <a
                                                   onClick={() => {
-                                                    toggleSettingList("Setting");
+                                                    toggleSettingList(
+                                                      "Setting"
+                                                    );
                                                     NotificationCountData();
                                                   }}
-                                                  style={{ whiteSpace: "nowrap" }}
+                                                  style={{
+                                                    whiteSpace: "nowrap",
+                                                  }}
                                                   class="nav-link"
                                                   data-key="t-basic-3"
                                                 >
-                                                  Super Admin Workflow Email Templates
+                                                  Super Admin Workflow Email
+                                                  Templates
                                                 </a>
                                               </Link>
                                             </li>
@@ -2806,7 +2862,9 @@ const Topbar = () => {
                                               >
                                                 <a
                                                   onClick={() => {
-                                                    toggleSettingList("Setting");
+                                                    toggleSettingList(
+                                                      "Setting"
+                                                    );
                                                     NotificationCountData();
                                                   }}
                                                   class="nav-link"
@@ -2823,7 +2881,9 @@ const Topbar = () => {
                                               >
                                                 <a
                                                   onClick={() => {
-                                                    toggleSettingList("Setting");
+                                                    toggleSettingList(
+                                                      "Setting"
+                                                    );
                                                     NotificationCountData();
                                                   }}
                                                   class="nav-link"
@@ -2860,8 +2920,8 @@ const Topbar = () => {
                         class="btn btn-icon btn-topbar  d-flex justify-content-center align-items-center"
                         id="page-header-notifications-dropdown"
                         onClick={() => {
-                          Notifications()
-                          closeNav()
+                          Notifications();
+                          closeNav();
                         }}
                       >
                         <span>
@@ -2927,7 +2987,7 @@ const Topbar = () => {
                       // onClick={ResetPasswordClicked}
                       >
                         <span class="align-middle" data-key="t-logout">
-                          Hello {" "}
+                          Hello{" "}
                           <strong class="FontW">
                             {common.name.length > 15
                               ? ` ${common.name.slice(0, 15)}....`

@@ -1,0 +1,758 @@
+/* global $ */
+import React, { useEffect, useState, useRef, useContext } from "react";
+import Select from "react-select";
+import { useLocation } from "react-router-dom";
+import SuccessModal from "../../../components/SuccessModal";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import TextField from "@mui/material/TextField";
+import FormGroup from "@mui/material/FormGroup";
+import { Row, Col } from "reactstrap";
+import { ERROR_MESSAGES } from "../../../components/GlobalMessage";
+import { useSelector } from "react-redux";
+import {
+  AddUpdateSubscriptionPackage,
+  GetSubscriptionPackageModel,
+} from "../../../redux/Services/Subscription/PackageApi";
+import { AuthContextProvider } from "../../../AuthContext/AuthContext";
+import { useNavigate } from "react-router-dom";
+import BackButtonSvg from "../../../components/BackButtonSvg";
+import Android12Switch from "../../../components/AndroidSwitch";
+import DropDown from "../../../components/DropDown";
+import { PdfToCsvValidityList } from "../../../Middleware/Utils";
+
+function PdfToCsvSubscriptionPackageModel(props) {
+  const moduleName = "PDF To CSV Subscription Package";
+  // Declare all State
+  const [modelAction, setModelAction] = useState("");
+  const [requireErrorMessage, setRequireErrorMessage] = useState(false);
+  const [
+    requireErrorMessageForESignature,
+    setRequireErrorMessageForESignature,
+  ] = useState(false);
+  const SubscriptionContainerRef = useRef(null);
+  const [DiscountPriceError, setDiscountPriceError] = useState(false);
+  const [subscriptionPackageObj, setSubscriptionPackageObj] = useState({
+    packageName: "",
+    validityID: null,
+    packagePrice: null,
+    packageDiscountedPrice: null,
+    pages: null,
+  });
+
+  const navigate = useNavigate();
+  const [errorMessage, setErrorMessage] = useState("");
+  const location = useLocation();
+  const common = useSelector((state) => state.Storage); //Getting Logged Users Details From Persist Storage of redux hooks
+  const [openSuccessModal, setOpenSuccessModal] = React.useState(false);
+  const {
+    setLoader,
+    proposalName,
+    EngagementName,
+    scrollUpDownByElementID,
+    scrollUptoCurrentPosition,
+    setTopbar,
+    getCrudPopUpTitleName,
+  } = useContext(AuthContextProvider);
+
+  //c]Declare UseEffect
+
+  useEffect(() => {
+    setTopbar("none");
+  }, []);
+  useEffect(() => {
+    setModelAction(
+      location?.state?.Action === undefined || location?.state?.Action === null
+        ? "Add"
+        : "Update"
+    ); //Do not change this naming convention
+
+    // setModelAction(props.modelRequestData?.Action === null ? "Add" : "Update"); //Do not change this naming convention
+    if (location.state?.subscriptionPackageKeyID !== null) {
+      GetSubscriptionPackageModelData(location.state?.subscriptionPackageKeyID);
+    }
+  }, [location.state]);
+
+  // C] This function will clear all data from popup model
+  const SetInitialModelData = () => {
+    setSubscriptionPackageObj({
+      ...subscriptionPackageObj,
+      packageName: null,
+      packagePrice: null,
+      packageDiscountedPrice: null,
+      pages: null,
+    });
+    setErrorMessage("");
+    setRequireErrorMessage(false);
+  };
+
+  // F] Calling CRUD Api here
+  // 1) Get Model Data Api
+  const GetSubscriptionPackageModelData = async (id) => {
+    if (!id) {
+      return;
+    }
+    //..............Subscription package Edit Data Api...................
+    try {
+      const data = await GetSubscriptionPackageModel(id);
+      if (data?.data?.statusCode === 200) {
+        if (data?.data?.responseData?.data) {
+          const ModelData = data?.data?.responseData?.data;
+          const discountPriceYear = ModelData.subscriptionOffers.find(
+            (offer) => offer.paymentFrequencyID === 1
+          )?.discountPrice;
+          const monthFreeYear = ModelData.subscriptionOffers.find(
+            (offer) => offer.paymentFrequencyID === 1
+          )?.monthFree;
+          const getMonthsYear = ModelData.subscriptionOffers.find(
+            (offer) => offer.paymentFrequencyID === 1
+          )?.getMonths;
+          const inPriceOfMonthYear = ModelData.subscriptionOffers.find(
+            (offer) => offer.paymentFrequencyID === 1
+          )?.inPriceOfMonth;
+          const discountPercentageYear = ModelData.subscriptionOffers.find(
+            (offer) => offer.paymentFrequencyID === 1
+          )?.discountPercentage;
+
+          const discountPriceMonth = ModelData.subscriptionOffers.find(
+            (offer) => offer.paymentFrequencyID === 4
+          )?.discountPrice;
+          const monthFreeMonth = ModelData.subscriptionOffers.find(
+            (offer) => offer.paymentFrequencyID === 4
+          )?.monthFree;
+          const getMonthsMonth = ModelData.subscriptionOffers.find(
+            (offer) => offer.paymentFrequencyID === 4
+          )?.getMonths;
+          const inPriceOfMonthMonth = ModelData.subscriptionOffers.find(
+            (offer) => offer.paymentFrequencyID === 4
+          )?.inPriceOfMonth;
+          const discountPercentageMonth = ModelData.subscriptionOffers.find(
+            (offer) => offer.paymentFrequencyID === 4
+          )?.discountPercentage;
+          setSubscriptionPackageObj({
+            ...subscriptionPackageObj,
+            apiIntegration: ModelData.apiIntegration,
+            isFreePackage: ModelData.isFreePackage,
+            subscriptionPackageKeyID: ModelData.subscriptionPackageKeyID,
+            packageName: ModelData.packageName,
+            prepareQuote: ModelData.prepareQuote,
+            sendQuote: ModelData.sendQuote,
+            prepareContract: ModelData.prepareContract,
+            sendContract: ModelData.sendContract,
+            signContract: ModelData.signContract,
+            eSignaturePerMonth: ModelData.eSignaturePerMonth,
+            yearlyValuePlan: ModelData.yearlyValuePlan,
+            isMailBox: ModelData.isMailBox,
+            discountPercentageYear:
+              discountPercentageYear === undefined ? 0 : discountPercentageYear,
+            discountPercentageMonth:
+              discountPercentageMonth === undefined
+                ? 0
+                : discountPercentageMonth,
+            discountPriceYear:
+              discountPriceYear === undefined ? 0 : discountPriceYear,
+            discountPriceMonth:
+              discountPriceMonth === undefined ? 0 : discountPriceMonth,
+            monthFreeYear: monthFreeYear === undefined ? 0 : monthFreeYear,
+            monthFreeMonth: monthFreeMonth === undefined ? 0 : monthFreeMonth,
+            getMonthsYear: getMonthsYear === undefined ? 0 : getMonthsYear,
+            getMonthsMonth: getMonthsMonth === undefined ? 0 : getMonthsMonth,
+            inPriceOfMonthYear:
+              inPriceOfMonthYear === undefined ? 0 : inPriceOfMonthYear,
+            inPriceOfMonthMonth:
+              inPriceOfMonthMonth === undefined ? 0 : inPriceOfMonthMonth,
+          });
+        }
+      } else {
+        setErrorMessage(data?.data?.errorMessage);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  //2]Add Update Button Click Function
+  const SubscriptionPackageAddUpdateBtnClicked = () => {
+    //Check Validations will be done here
+
+    if (
+      subscriptionPackageObj.packageName === undefined ||
+      subscriptionPackageObj.packageName === "" ||
+      subscriptionPackageObj.packageName === null
+    ) {
+      scrollUpDownByElementID("PackageName");
+      setRequireErrorMessage(true);
+      return false; // Return false or handle your error logic here if needed.
+    } else {
+      setRequireErrorMessage(""); // Clear the error message if there are no errors.
+    }
+    if (
+      subscriptionPackageObj.packagePrice === undefined ||
+      subscriptionPackageObj.packagePrice === "" ||
+      subscriptionPackageObj.packagePrice === null
+    ) {
+      scrollUpDownByElementID("validity");
+      setRequireErrorMessage(true);
+      return false; // Return false or handle your error logic here if needed.
+    } else {
+      setRequireErrorMessage(""); // Clear the error message if there are no errors.
+    }
+    if (
+      subscriptionPackageObj.packageDiscountedPrice === undefined ||
+      subscriptionPackageObj.packageDiscountedPrice === "" ||
+      subscriptionPackageObj.packageDiscountedPrice === null
+    ) {
+      scrollUpDownByElementID("discountedPrice");
+      setRequireErrorMessage(true);
+      return false; // Return false or handle your error logic here if needed.
+    } else {
+      setRequireErrorMessage(""); // Clear the error message if there are no errors.
+    }
+    if (
+      subscriptionPackageObj.validityID === undefined ||
+      subscriptionPackageObj.validityID === "" ||
+      subscriptionPackageObj.validityID === null
+    ) {
+      scrollUpDownByElementID("validity");
+      setRequireErrorMessage(true);
+      return false; // Return false or handle your error logic here if needed.
+    } else {
+      setRequireErrorMessage(""); // Clear the error message if there are no errors.
+    }
+    if (
+      subscriptionPackageObj.pages === undefined ||
+      subscriptionPackageObj.pages === "" ||
+      subscriptionPackageObj.pages === null
+    ) {
+      scrollUpDownByElementID("discountedPrice");
+      setRequireErrorMessage(true);
+      return false; // Return false or handle your error logic here if needed.
+    } else {
+      setRequireErrorMessage(""); // Clear the error message if there are no errors.
+    }
+
+    scrollUpDownByElementID("ErrorMessage");
+    // Clear the error message and set close to true if there are no errors.
+    setErrorMessage("");
+
+    // Preparing Object For Add Update and if any modification then it will done here
+    const ApiRequest_ParamsObj = {
+      validity: subscriptionPackageObj.validityID,
+      price: subscriptionPackageObj.packagePrice,
+      packageDiscountedPrice: subscriptionPackageObj.packageDiscountedPrice,
+      pages: subscriptionPackageObj.pages,
+    };
+    // AddUpdateSubscriptionPackageData(ApiRequest_ParamsObj);
+    console.log("ApiRequest_ParamsObj", ApiRequest_ParamsObj);
+  };
+
+  // 3) Add Update Subscription package Data Api
+  const AddUpdateSubscriptionPackageData = async (ApiRequest_ParamsObj) => {
+    setLoader(true);
+    try {
+      const response = await AddUpdateSubscriptionPackage(ApiRequest_ParamsObj);
+      if (response) {
+        setLoader(false);
+        if (response?.data?.statusCode === 200) {
+          // $('#' + props.id).modal('hide')
+          // uncomment upper code for hide
+
+          if (ApiRequest_ParamsObj.Action === null) {
+            setOpenSuccessModal(true);
+            props.setIsAddUpdateActionDone(true);
+            navigate("/sub-package");
+          } else {
+            setOpenSuccessModal(true);
+            props.setIsAddUpdateActionDone(true);
+            navigate("/sub-package");
+          }
+        } else {
+          setErrorMessage(response?.response?.data?.errorMessage);
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const HandleClose = () => {
+    $("#" + props.id).modal("hide");
+    setOpenSuccessModal(false);
+    SetInitialModelData();
+    navigate("/sub-package");
+  };
+  const handlePrepareQuoteChange = (e) => {
+    const prepareQuoteValue = !subscriptionPackageObj.prepareQuote;
+    setSubscriptionPackageObj({
+      ...subscriptionPackageObj,
+      prepareQuote: prepareQuoteValue,
+      sendQuote: prepareQuoteValue ? subscriptionPackageObj.sendQuote : false,
+    });
+  };
+  const handleApiIntegrationChange = (e) => {
+    const prepareQuoteValue = !subscriptionPackageObj.apiIntegration;
+    setSubscriptionPackageObj({
+      ...subscriptionPackageObj,
+      apiIntegration: prepareQuoteValue,
+    });
+  };
+  const handleSendQuoteChange = (e) => {
+    if (subscriptionPackageObj.prepareQuote) {
+      setSubscriptionPackageObj({
+        ...subscriptionPackageObj,
+        sendQuote: !subscriptionPackageObj.sendQuote,
+      });
+    }
+  };
+
+  const handlePrepareELChange = (e) => {
+    const prepareElValue = !subscriptionPackageObj.prepareContract;
+    setSubscriptionPackageObj({
+      ...subscriptionPackageObj,
+      prepareContract: prepareElValue,
+      sendContract: prepareElValue
+        ? subscriptionPackageObj.sendContract
+        : false,
+      eSignaturePerMonth: prepareElValue
+        ? subscriptionPackageObj.eSignaturePerMonth
+        : "",
+    });
+  };
+
+  const handleSendELChange = (e) => {
+    if (subscriptionPackageObj.prepareContract) {
+      const sendContract = !subscriptionPackageObj.sendContract;
+      setSubscriptionPackageObj({
+        ...subscriptionPackageObj,
+        sendContract: sendContract,
+        eSignaturePerMonth: sendContract
+          ? subscriptionPackageObj.eSignaturePerMonth
+          : "",
+        // signContract: sendContract === "YES" ? true : false,
+      });
+    }
+  };
+
+  const handleSubmit = () => {
+    setTopbar("block");
+    navigate("/pdf-csv-sub-package");
+    SetInitialModelData();
+  };
+
+  const handleSelectChange = (value) => {
+    setSubscriptionPackageObj((prev) => ({
+      ...prev,
+      validityID: value.value,
+    }));
+  };
+
+  return (
+    <div
+      ref={SubscriptionContainerRef}
+      onClick={(e) => scrollUptoCurrentPosition(e, SubscriptionContainerRef)}
+    >
+      <div class="container-fluid new-item-page-container">
+        <div class="new-item-page-nav"></div>
+        <div class="new-item-page-content">
+          <div class="row form-row">
+            <div class="col-lg-12">
+              <h3 class="modal-title">
+                <BackButtonSvg onClick={handleSubmit} />
+                {modelAction === "Add"
+                  ? getCrudPopUpTitleName("Add", moduleName)
+                  : getCrudPopUpTitleName("Update", moduleName)}
+              </h3>
+              <div class="separator mb-3"></div>
+
+              <div className="template-height scrollbar" id="style-1">
+                <div class="tab-content">
+                  <div className="row" id="PackageName">
+                    <div className="col-lg-6">
+                      <label>
+                        {moduleName} Name
+                        <span className="text-danger">*</span>
+                      </label>
+                    </div>
+                    <div className="col-12 ">
+                      <input
+                        type="text"
+                        className="input-text"
+                        placeholder={`${moduleName} Name`}
+                        value={subscriptionPackageObj?.packageName}
+                        onChange={(e) => {
+                          setErrorMessage("");
+                          let inputValue = e.target.value;
+                          // Truncate input if length exceeds 30 characters
+                          if (inputValue.length > 30) {
+                            inputValue = inputValue.slice(0, 30);
+                          }
+
+                          const isValidName =
+                            /^[a-zA-Z]+(?:[a-zA-Z0-9\s]*)$/.test(inputValue) &&
+                            !/^\d+$/.test(inputValue);
+                          if (isValidName || inputValue === "") {
+                            const capitalizedValue =
+                              inputValue.charAt(0).toUpperCase() +
+                              inputValue.slice(1);
+                            setSubscriptionPackageObj({
+                              ...subscriptionPackageObj,
+                              packageName: capitalizedValue,
+                            });
+                          }
+                        }}
+                      />
+
+                      {requireErrorMessage &&
+                      subscriptionPackageObj.packageName === "" ? (
+                        <label className="validation">{ERROR_MESSAGES}</label>
+                      ) : (
+                        ""
+                      )}
+                    </div>
+                  </div>
+                  <div className="row p-2">
+                    <div className="fieldset-group ">
+                      <label className="fieldset-group-label required">
+                        Package Parameters
+                      </label>
+                      <div class="row" id="validity">
+                        <div
+                          class="col-2 text-right"
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            paddingBottom: "10px",
+                          }}
+                        >
+                          <label
+                            htmlFor="serviceCategoryNameField"
+                            class="fieldset-label required"
+                          >
+                            Validity<span className="text-danger">*</span>
+                          </label>
+                        </div>
+                        <div class="col-4" style={{ paddingBottom: "10px" }}>
+                          <div className="input-group new-user-select">
+                            <DropDown
+                              className="phone-input-country-code selectDropDown Drop-down-width"
+                              options={PdfToCsvValidityList}
+                              value={PdfToCsvValidityList.find(
+                                (item) =>
+                                  item.value ===
+                                  subscriptionPackageObj.validityID
+                              )}
+                              onChange={handleSelectChange}
+                            />
+                            {requireErrorMessage &&
+                            (subscriptionPackageObj.validityID === "" ||
+                              subscriptionPackageObj.validityID === undefined ||
+                              subscriptionPackageObj.validityID === null) ? (
+                              <label className="validation">
+                                {ERROR_MESSAGES}
+                              </label>
+                            ) : (
+                              ""
+                            )}
+                          </div>
+                        </div>
+                        {/* Pages */}
+                        <div
+                          className="col-2"
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                          }}
+                        >
+                          <label className="text-center">
+                            Pages
+                            <span className="text-danger">*</span>
+                          </label>
+                        </div>
+                        <div className="col-4 ">
+                          <input
+                            type="text"
+                            className="input-text"
+                            placeholder="Pages"
+                            value={subscriptionPackageObj?.pages}
+                            onChange={(e) => {
+                              setErrorMessage("");
+                              let inputValue = e.target.value;
+
+                              // Remove leading zeros (except when "0." is being typed)
+                              if (!inputValue.startsWith("0.")) {
+                                inputValue = inputValue.replace(/^0+/, "");
+                              }
+
+                              // Remove non-numeric characters except decimal point
+                              inputValue = inputValue.replace(/[^\d.]/g, "");
+
+                              // Limit to 12 digits before the decimal point
+                              // if (inputValue.includes(".")) {
+                              //   const [integerPart, decimalPart] =
+                              //     inputValue.split(".");
+                              //   inputValue = `${integerPart.slice(
+                              //     0,
+                              //     7
+                              //   )}.${decimalPart.slice(0, 2)}`;
+                              // } else {
+                              //   inputValue = inputValue.slice(0, 7);
+                              // }
+
+                              // Format with UK-style commas (1,000.00)
+                              // let formattedValue = inputValue;
+                              // if (inputValue !== "") {
+                              //   const [intPart, decPart] =
+                              //     inputValue.split(".");
+                              //   const formattedInt =
+                              //     Number(intPart).toLocaleString("en-UK");
+                              //   formattedValue =
+                              //     decPart !== undefined
+                              //       ? `${formattedInt}.${decPart}`
+                              //       : formattedInt;
+                              // }
+
+                              setSubscriptionPackageObj({
+                                ...subscriptionPackageObj,
+                                pages: inputValue,
+                              });
+                            }}
+                          />
+
+                          {requireErrorMessage &&
+                          (subscriptionPackageObj.pages === "" ||
+                            subscriptionPackageObj.pages === undefined ||
+                            subscriptionPackageObj.pages === null) ? (
+                            <label className="validation">
+                              {ERROR_MESSAGES}
+                            </label>
+                          ) : (
+                            ""
+                          )}
+                        </div>
+                      </div>
+                      <div className="row" id="discountedPrice">
+                        {/* Price */}
+                        <div
+                          className="col-2"
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            marginBottom: "10px",
+                          }}
+                        >
+                          <label className="text-center">
+                            Price
+                            <span className="text-danger">*</span>
+                          </label>
+                        </div>
+                        <div
+                          className="col-4 "
+                          style={{ marginBottom: "10px" }}
+                        >
+                          <input
+                            type="text"
+                            className="input-text"
+                            placeholder="Price"
+                            value={subscriptionPackageObj?.packagePrice}
+                            onChange={(e) => {
+                              setErrorMessage("");
+                              let inputValue = e.target.value;
+
+                              // Remove leading zeros (except when "0." is being typed)
+                              if (!inputValue.startsWith("0.")) {
+                                inputValue = inputValue.replace(/^0+/, "");
+                              }
+
+                              // Remove non-numeric characters except decimal point
+                              inputValue = inputValue.replace(/[^\d.]/g, "");
+
+                              // Limit to 12 digits before the decimal point
+                              if (inputValue.includes(".")) {
+                                const [integerPart, decimalPart] =
+                                  inputValue.split(".");
+                                inputValue = `${integerPart.slice(
+                                  0,
+                                  7
+                                )}.${decimalPart.slice(0, 2)}`;
+                              } else {
+                                inputValue = inputValue.slice(0, 7);
+                              }
+
+                              // Format with UK-style commas (1,000.00)
+                              let formattedValue = inputValue;
+                              if (inputValue !== "") {
+                                const [intPart, decPart] =
+                                  inputValue.split(".");
+                                const formattedInt =
+                                  Number(intPart).toLocaleString("en-UK");
+                                formattedValue =
+                                  decPart !== undefined
+                                    ? `${formattedInt}.${decPart}`
+                                    : formattedInt;
+                              }
+
+                              setSubscriptionPackageObj({
+                                ...subscriptionPackageObj,
+                                packagePrice: formattedValue,
+                              });
+                            }}
+                          />
+
+                          {requireErrorMessage &&
+                          (subscriptionPackageObj.packagePrice === "" ||
+                            subscriptionPackageObj.packagePrice === null ||
+                            subscriptionPackageObj.packagePrice ===
+                              undefined) ? (
+                            <label className="validation">
+                              {ERROR_MESSAGES}
+                            </label>
+                          ) : (
+                            ""
+                          )}
+                        </div>
+                        {/* Discounted price */}
+                        <div
+                          className="col-2"
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            marginBottom: "10px",
+                          }}
+                        >
+                          <label className="text-center">
+                            Discounted Price
+                            <span className="text-danger">*</span>
+                          </label>
+                        </div>
+                        <div
+                          className="col-4 "
+                          style={{ marginBottom: "10px" }}
+                        >
+                          <input
+                            type="text"
+                            className="input-text"
+                            placeholder="Discounted Price"
+                            value={
+                              subscriptionPackageObj?.packageDiscountedPrice
+                            }
+                            onChange={(e) => {
+                              setErrorMessage("");
+                              let inputValue = e.target.value;
+
+                              // Remove leading zeros (except when "0." is being typed)
+                              if (!inputValue.startsWith("0.")) {
+                                inputValue = inputValue.replace(/^0+/, "");
+                              }
+
+                              // Remove non-numeric characters except decimal point
+                              inputValue = inputValue.replace(/[^\d.]/g, "");
+
+                              // Limit to 12 digits before the decimal point
+                              if (inputValue.includes(".")) {
+                                const [integerPart, decimalPart] =
+                                  inputValue.split(".");
+                                inputValue = `${integerPart.slice(
+                                  0,
+                                  7
+                                )}.${decimalPart.slice(0, 2)}`;
+                              } else {
+                                inputValue = inputValue.slice(0, 7);
+                              }
+
+                              // Format with UK-style commas (1,000.00)
+                              let formattedValue = inputValue;
+                              if (inputValue !== "") {
+                                const [intPart, decPart] =
+                                  inputValue.split(".");
+                                const formattedInt =
+                                  Number(intPart).toLocaleString("en-UK");
+                                formattedValue =
+                                  decPart !== undefined
+                                    ? `${formattedInt}.${decPart}`
+                                    : formattedInt;
+                              }
+
+                              setSubscriptionPackageObj({
+                                ...subscriptionPackageObj,
+                                packageDiscountedPrice: formattedValue,
+                              });
+                            }}
+                          />
+
+                          {requireErrorMessage &&
+                          (subscriptionPackageObj.packageDiscountedPrice ===
+                            "" ||
+                            subscriptionPackageObj.packageDiscountedPrice ===
+                              undefined ||
+                            subscriptionPackageObj.packageDiscountedPrice ===
+                              null) ? (
+                            <label className="validation">
+                              {ERROR_MESSAGES}
+                            </label>
+                          ) : (
+                            ""
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <label
+                style={{ display: "flex", justifyContent: "center" }}
+                className="validation mt-2"
+                id="ErrorMessage"
+              >
+                {errorMessage}
+              </label>
+              <hr />
+              <Row class="modal-footer">
+                <Col
+                  style={{ paddingTop: "14px" }}
+                  class="hstack gap-2 justify-content-end"
+                >
+                  <button
+                    type="submit"
+                    style={{ float: "right", paddingTop: "5px" }}
+                    className="btn btn-md btn-success create-item-btn"
+                    onClick={SubscriptionPackageAddUpdateBtnClicked}
+                    disabled={DiscountPriceError}
+                  >
+                    <span>
+                      {modelAction === "Add" ? "Add " + moduleName : "Update"}
+                    </span>
+                  </button>
+
+                  <button
+                    style={{
+                      float: "right",
+                      paddingTop: "5px",
+                      marginRight: "10px",
+                    }}
+                    onClick={handleSubmit}
+                    class="btn btn-md btn-light"
+                  >
+                    <span>Cancel</span>
+                  </button>
+                </Col>
+              </Row>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <SuccessModal
+        handleClose={HandleClose}
+        setOpenSuccessModal={setOpenSuccessModal}
+        openSuccessModal={openSuccessModal}
+        modelAction={modelAction}
+        message={`Subscription package ${subscriptionPackageObj.packageName}`}
+      />
+    </div>
+  );
+}
+
+export default PdfToCsvSubscriptionPackageModel;

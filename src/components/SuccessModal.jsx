@@ -60,7 +60,7 @@ const SuccessModal = (props) => {
                           </div>
                           {props?.modelRequestData?.Action === "Update" &&
                             props?.modelRequestData?.ServiceName?.length >
-                            0 && (
+                              0 && (
                               <>
                                 <div class="mt-3">
                                   <span class="text-muted mb-0 mt-2">
@@ -122,14 +122,10 @@ const SuccessModal = (props) => {
                       ? `${props.message} has been added successfully!`
                       : null}
                     {props.modelAction === "UnpaidUser" ? (
-                      <span class="text-muted mb-0">
-                        {props.message}
-                      </span>
+                      <span class="text-muted mb-0">{props.message}</span>
                     ) : null}
                     {props.modelAction === "PaidUser" ? (
-                      <span class="text-muted mb-0">
-                        {props.message}
-                      </span>
+                      <span class="text-muted mb-0">{props.message}</span>
                     ) : null}
                     {props.modelAction === "NotificationSend"
                       ? `Notification has been send successfully!`
@@ -162,14 +158,19 @@ const SuccessModal = (props) => {
                     {props.modelAction === "Delete"
                       ? `${props.message} has been deleted successfully!`
                       : null}
+                    {props.modelAction === "DeleteContract"
+                      ? `${props.message} has been deleted successfully!`
+                      : null}
                     {props.modelAction === "Copy" ? `${props.message}` : null}
                     {props.modelAction === "Void" ? `${props.message}` : null}
-                    {props.modelAction === "EnableApiIntegration" ? `${props.message}` : null}
-                    {props.modelAction === "Status" ? `${props.message}` : null}
-                    {props.modelAction === "ReminderStatus" ? `${props.message}` : null}
-                    {props.modelAction === "ShowMessage"
-                      ? (props.message)
+                    {props.modelAction === "EnableApiIntegration"
+                      ? `${props.message}`
                       : null}
+                    {props.modelAction === "Status" ? `${props.message}` : null}
+                    {props.modelAction === "ReminderStatus"
+                      ? `${props.message}`
+                      : null}
+                    {props.modelAction === "ShowMessage" ? props.message : null}
                     {props.modelAction === "Create"
                       ? `${props.message} has been created successfully!`
                       : null}

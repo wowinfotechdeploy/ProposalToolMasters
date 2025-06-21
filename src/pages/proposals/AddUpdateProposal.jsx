@@ -14631,7 +14631,7 @@ const Add_Update_Proposal = (props) => {
           footerImage: item.footerImage,
           headerHeight: item.headerHeight,
           footerHeight: item.footerHeight,
-          showSeparatorLines: Boolean(item.showSeparatorLines),
+          showSeparatorLine: Boolean(item.showSeparatorLines)
         }));
         setTemplateLookUpOptions(mappedOptions);
         // setProposalObject((prev) => ({
@@ -14671,7 +14671,7 @@ const Add_Update_Proposal = (props) => {
               footerImage: filteredRecords[0].footerImage,
               headerHeight: filteredRecords[0].headerHeight,
               footerHeight: filteredRecords[0].footerHeight,
-              showSeparatorLines: filteredRecords[0].showSeparatorLines,
+              showSeparatorLine: filteredRecords[0].showSeparatorLine,
             };
             setProposalObject((prev) => ({
               ...prev,
@@ -14684,7 +14684,7 @@ const Add_Update_Proposal = (props) => {
             setFooterImage(defaultTemplateObject?.footerImage);
             setHeaderHeight(defaultTemplateObject?.headerHeight);
             setFooterHeight(defaultTemplateObject?.footerHeight);
-            setShowSeparatorLines(defaultTemplateObject?.showSeparatorLines);
+            setShowSeparatorLines(defaultTemplateObject?.showSeparatorLine);
 
           } else {
             // If filteredRecords is empty, set defaultTemplateOptions
@@ -14698,7 +14698,7 @@ const Add_Update_Proposal = (props) => {
             setFooterImage(defaultTemplateOptions[0]?.footerImage);
             setHeaderHeight(defaultTemplateOptions[0]?.headerHeight);
             setFooterHeight(defaultTemplateOptions[0]?.footerHeight);
-            setShowSeparatorLines(defaultTemplateOptions[0]?.showSeparatorLines);
+            setShowSeparatorLines(defaultTemplateOptions[0]?.showSeparatorLine);
           }
         } else {
           // If templateID is not present, set defaultTemplateOptions

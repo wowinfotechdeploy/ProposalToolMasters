@@ -29,7 +29,7 @@ const View_Engagement_Latter = () => {
     SearchKeyword: "",
     status: null,
     Action: "",
-    fileName: null
+    fileName: null,
   });
   const [officersForm, setOfficers] = useState([
     {
@@ -86,7 +86,7 @@ const View_Engagement_Latter = () => {
     contractName: null,
     statusID: null,
     manuallySignedContractDocUrl: null,
-    clientMasterBusinessTypeID: null
+    clientMasterBusinessTypeID: null,
   });
   const [selectedRecurringServiceList, setSelectedRecurringServiceList] =
     useState([]);
@@ -108,7 +108,7 @@ const View_Engagement_Latter = () => {
     prospectName,
     formatValue,
     proposalName,
-    isMobile
+    isMobile,
   } = useContext(AuthContextProvider);
   const navigate = useNavigate();
   const location = useLocation();
@@ -147,6 +147,11 @@ const View_Engagement_Latter = () => {
   const handleBack = () => {
     navigate("/engagement-letters");
   };
+
+  const draftOn = location.state.draftOn;
+  const sentOn = location.state.sentOn;
+  const signedOn = location.state.SignedOn;
+  const VoidOn = location.state.voidOn;
 
   useEffect(() => {
     if (location.state?.contractKeyID !== null) {
@@ -230,8 +235,9 @@ const View_Engagement_Latter = () => {
             oneOffDiscountPercentage: ModelData.oneOffDiscountPercentage,
             declinedReason: ModelData.declinedReason,
             statusID: ModelData.statusID,
-            manuallySignedContractDocUrl: ModelData.manuallySignedContractDocUrl,
-            clientMasterBusinessTypeID: ModelData.clientMasterBusinessTypeID
+            manuallySignedContractDocUrl:
+              ModelData.manuallySignedContractDocUrl,
+            clientMasterBusinessTypeID: ModelData.clientMasterBusinessTypeID,
           });
 
           const RecurringDetails = finalContractAmountList.find(
@@ -240,16 +246,24 @@ const View_Engagement_Latter = () => {
           const OneOffDetails = finalContractAmountList.find(
             (obj) => obj.serviceChargeTypeID === 2
           );
-          if (RecurringDetails !== undefined && RecurringDetails?.length !== 0) {
+          if (
+            RecurringDetails !== undefined &&
+            RecurringDetails?.length !== 0
+          ) {
             setVATPercentage(RecurringDetails?.vatPercentage);
           } else {
             setVATPercentage(OneOffDetails?.vatPercentage);
           }
-          if (RecurringDetails !== undefined && RecurringDetails?.servicePackageID !== null) {
+          if (
+            RecurringDetails !== undefined &&
+            RecurringDetails?.servicePackageID !== null
+          ) {
             setRecurringPricingInfo({
               ...RecurringPricingInfo,
               OriginalPrice: RecurringDetails?.netTotal,
-              DefaultDiscount: Number(RecurringDetails.discountPercentageWithAllDecimal).toFixed(2),
+              DefaultDiscount: Number(
+                RecurringDetails.discountPercentageWithAllDecimal
+              ).toFixed(2),
               DiscountedPrice: RecurringDetails?.discountedTotal,
               Discount: RecurringDetails?.discounted,
               DiscountedTotal: RecurringDetails?.discountedTotal,
@@ -260,8 +274,9 @@ const View_Engagement_Latter = () => {
             setRecurringPricingInfo({
               ...RecurringPricingInfo,
               OriginalPrice: RecurringDetails?.netTotal,
-              DefaultDiscount:
-                Number(ModelData.recurringDiscountPercentage_WithAllDecimal).toFixed(2),
+              DefaultDiscount: Number(
+                ModelData.recurringDiscountPercentage_WithAllDecimal
+              ).toFixed(2),
               DiscountedPrice: RecurringDetails?.discountedTotal,
               Discount: RecurringDetails?.discounted,
               DiscountedTotal: RecurringDetails?.discountedTotal,
@@ -269,11 +284,16 @@ const View_Engagement_Latter = () => {
               GrandTotal: RecurringDetails?.grandTotal,
             });
           }
-          if (OneOffDetails !== undefined && OneOffDetails?.servicePackageID !== null) {
+          if (
+            OneOffDetails !== undefined &&
+            OneOffDetails?.servicePackageID !== null
+          ) {
             setOneOffPricingInfo({
               ...OneOffPricingInfo,
               OriginalPrice: OneOffDetails?.netTotal,
-              DefaultDiscount: Number(OneOffDetails.discountPercentageWithAllDecimal).toFixed(2),
+              DefaultDiscount: Number(
+                OneOffDetails.discountPercentageWithAllDecimal
+              ).toFixed(2),
               DiscountedPrice: OneOffDetails?.discountedTotal,
               Discount: OneOffDetails?.discounted,
               DiscountedTotal: OneOffDetails?.discountedTotal,
@@ -284,7 +304,9 @@ const View_Engagement_Latter = () => {
             setOneOffPricingInfo({
               ...OneOffPricingInfo,
               OriginalPrice: OneOffDetails?.netTotal,
-              DefaultDiscount: Number(ModelData.oneOffDiscountPercentage_WithAllDecimal).toFixed(2),
+              DefaultDiscount: Number(
+                ModelData.oneOffDiscountPercentage_WithAllDecimal
+              ).toFixed(2),
               DiscountedPrice: OneOffDetails?.discountedTotal,
               Discount: OneOffDetails?.discounted,
               DiscountedTotal: OneOffDetails?.discountedTotal,
@@ -292,8 +314,6 @@ const View_Engagement_Latter = () => {
               GrandTotal: OneOffDetails?.grandTotal,
             });
           }
-
-
 
           setSelectedRecurringServiceList(ModelData.recurringServiceCatList);
           setSelectedOneOffServiceList(ModelData.oneOffServiceCatList);
@@ -312,7 +332,11 @@ const View_Engagement_Latter = () => {
   const handleDownload = async (ContractKeyID) => {
     setLoader(true);
 
-    if (EngagementObj.statusID !== statusID.Signed || (EngagementObj.statusID === statusID.Signed && EngagementObj.manuallySignedContractDocUrl !== null)) {
+    if (
+      EngagementObj.statusID !== statusID.Signed ||
+      (EngagementObj.statusID === statusID.Signed &&
+        EngagementObj.manuallySignedContractDocUrl !== null)
+    ) {
       setModelRequestData({
         ...modelRequestData,
         ModuleName: "Contract",
@@ -384,8 +408,8 @@ const View_Engagement_Latter = () => {
       setModelRequestData({
         ...modelRequestData,
         Action: "Upload",
-        fileName: file
-      })
+        fileName: file,
+      });
       setSelectedFile({
         fileName: file,
         size: file.size,
@@ -404,37 +428,42 @@ const View_Engagement_Latter = () => {
   };
   const confirmToUpload = () => {
     if (pdfUrl === null) {
-      setRequireErrorMessage(true)
+      setRequireErrorMessage(true);
       return;
     }
     $("#" + "ConfirmModel").modal("show");
-  }
+  };
   const UploadManuallySignedContractData = async () => {
     const file = new FormData();
     file.set("file", selectedFile.fileName); // Append the file itself
-    setLoader(true)
-    const data = await UploadManuallySignedContract(EngagementObj.contractKeyID, common.userKeyID, file)
+    setLoader(true);
+    const data = await UploadManuallySignedContract(
+      EngagementObj.contractKeyID,
+      common.userKeyID,
+      file
+    );
     if (data) {
-      const response = await SendEmailsToManuallySignedContract(EngagementObj.contractKeyID, common.userKeyID)
+      const response = await SendEmailsToManuallySignedContract(
+        EngagementObj.contractKeyID,
+        common.userKeyID
+      );
       if (response.data.statusCode === 200) {
-        setOpenSuccessModal(true)
-        setLoader(false)
-        setISUpload(false)
+        setOpenSuccessModal(true);
+        setLoader(false);
+        setISUpload(false);
         $("#" + "ConfirmModel").modal("hide");
         GetContractDetailsModelData(EngagementObj.contractKeyID);
       } else {
-        setErrorMessage(response.data?.errorMessage)
-        setOpenErrorModal(true)
+        setErrorMessage(response.data?.errorMessage);
+        setOpenErrorModal(true);
       }
-
     } else {
-      setOpenSuccessModal(true)
-      setLoader(false)
-      setISUpload(false)
+      setOpenSuccessModal(true);
+      setLoader(false);
+      setISUpload(false);
       $("#" + "ConfirmModel").modal("hide");
     }
-
-  }
+  };
   const handleClose = () => {
     setModelRequestData({
       clientKeyID: null,
@@ -447,14 +476,12 @@ const View_Engagement_Latter = () => {
   };
 
   const handleCloseErrorModel = () => {
-
     $("#" + "ConfirmModel").modal("hide");
     setOpenSuccessModal(false);
     setOpenErrorModal(false);
   };
   const handlePdfDelete = () => {
-
-    setPdfUrl(null)
+    setPdfUrl(null);
     setSelectedFile({
       fileName: null,
       size: null,
@@ -471,8 +498,10 @@ const View_Engagement_Latter = () => {
                 <div className="col-md-6 col-sm-6 col-6">
                   <div class="prospects-title">
                     <h5>
-                      {EngagementName}:  {isMobile
-                        ? EngagementObj.clientName && EngagementObj.clientName.length > 15
+                      {EngagementName}:{" "}
+                      {isMobile
+                        ? EngagementObj.clientName &&
+                          EngagementObj.clientName.length > 15
                           ? `${EngagementObj.clientName.substring(0, 15)}...`
                           : EngagementObj.clientName
                         : EngagementObj.clientName}
@@ -482,30 +511,34 @@ const View_Engagement_Latter = () => {
 
                 <div className="col-md-6 col-sm-6 col-6">
                   <div className="d-flex justify-content-md-end justify-content-sm-end justify-content-end add-new-prospect">
-                    {EngagementObj.statusID == statusID.Signed && EngagementObj.manuallySignedContractDocUrl === null && (
-                      <Tooltip title={`Download ${EngagementName} `}>
-                        <button
-                          className="btn btn-md btn-success create-item-btn"
-                          onClick={handleDownload}
-                        >
-                          <i className="bi bi-download"></i>{" "}
-                          <span className="d-none d-sm-inline">
-                            Download {EngagementName}
-                          </span>
-                        </button>
-                      </Tooltip>
-                    )}
-                    {(EngagementObj.statusID !== statusID.Signed || (EngagementObj.statusID === statusID.Signed && EngagementObj.manuallySignedContractDocUrl !== null)) && (
-                      <Tooltip title={`View Pdf`}>
-                        <button
-                          className="btn btn-md btn-success create-item-btn"
-                          onClick={handleDownload}
-                        >
-                          <i class="bi bi-eye"></i>{" "}
-                          <span className="d-none d-sm-inline">View Pdf</span>
-                        </button>
-                      </Tooltip>
-                    )}
+                    {EngagementObj.statusID == statusID.Signed &&
+                      EngagementObj.manuallySignedContractDocUrl === null && (
+                        <Tooltip title={`Download ${EngagementName} `}>
+                          <button
+                            className="btn btn-md btn-success create-item-btn"
+                            onClick={handleDownload}
+                          >
+                            <i className="bi bi-download"></i>{" "}
+                            <span className="d-none d-sm-inline">
+                              Download {EngagementName}
+                            </span>
+                          </button>
+                        </Tooltip>
+                      )}
+                    {(EngagementObj.statusID !== statusID.Signed ||
+                      (EngagementObj.statusID === statusID.Signed &&
+                        EngagementObj.manuallySignedContractDocUrl !==
+                        null)) && (
+                        <Tooltip title={`View Pdf`}>
+                          <button
+                            className="btn btn-md btn-success create-item-btn"
+                            onClick={handleDownload}
+                          >
+                            <i class="bi bi-eye"></i>{" "}
+                            <span className="d-none d-sm-inline">View Pdf</span>
+                          </button>
+                        </Tooltip>
+                      )}
 
                     <Tooltip title={`Back`}>
                       <button
@@ -530,7 +563,10 @@ const View_Engagement_Latter = () => {
                     <div style={{ height: "60vh" }} id="customerList">
                       <div class="row g-4 mb-3"></div>
                       <div class="search-box ms-2 width-searchbox prospect-form">
-                        <div style={{ height: "70vh" }} class=" table-card  mb-3 Height_View_scroll scroll-hidden">
+                        <div
+                          style={{ height: "70vh" }}
+                          class=" table-card  mb-3 Height_View_scroll scroll-hidden"
+                        >
                           <ul class="nav nav-tabs mb-3" role="tablist">
                             <li class="nav-item">
                               <a
@@ -590,19 +626,23 @@ const View_Engagement_Latter = () => {
                                 </a>
                               </li>
                             )}
-                            {(EngagementObj.statusID === statusID.Sent || EngagementObj.statusID === statusID.Awaiting_Signature || EngagementObj.manuallySignedContractDocUrl !== null) && (
-                              <li class="nav-item">
-                                <a
-                                  class="nav-link tab_nav"
-                                  data-bs-toggle="tab"
-                                  href="#SignManually"
-                                  role="tab"
-                                  aria-selected="false"
-                                >
-                                  Sign Manually
-                                </a>
-                              </li>
-                            )}
+                            {(EngagementObj.statusID === statusID.Sent ||
+                              EngagementObj.statusID ===
+                              statusID.Awaiting_Signature ||
+                              EngagementObj.manuallySignedContractDocUrl !==
+                              null) && (
+                                <li class="nav-item">
+                                  <a
+                                    class="nav-link tab_nav"
+                                    data-bs-toggle="tab"
+                                    href="#SignManually"
+                                    role="tab"
+                                    aria-selected="false"
+                                  >
+                                    Sign Manually
+                                  </a>
+                                </li>
+                              )}
                           </ul>
 
                           <div class="tab-content  text-muted">
@@ -631,6 +671,49 @@ const View_Engagement_Latter = () => {
                                       {EngagementObj.templateName}
                                     </td>
                                   </tr>
+                                  {
+                                    draftOn && (
+                                      <tr>
+                                        <td>Drafted On</td>
+                                        <td class="text-end">
+                                          {draftOn}
+                                        </td>
+                                      </tr>
+                                    )
+                                  }
+                                  {
+                                    sentOn && (
+                                      <tr>
+                                        <td>Sent On</td>
+                                        <td class="text-end">
+                                          {sentOn}
+                                        </td>
+                                      </tr>
+                                    )
+                                  }
+                                  {
+                                    signedOn && (
+                                      <tr>
+                                        <td>Signed On</td>
+                                        <td class="text-end">
+                                          {signedOn}
+                                        </td>
+                                      </tr>
+                                    )
+                                  }
+
+                                  {
+                                    VoidOn && (
+                                      <tr>
+                                        <td>Void On</td>
+                                        <td class="text-end">
+                                          {VoidOn}
+                                        </td>
+                                      </tr>
+                                    )
+                                  }
+
+
                                   {/* <tr>
                                     <td>Select ProposalType</td>
                                     <td class="text-end">
@@ -742,7 +825,17 @@ const View_Engagement_Latter = () => {
                                                   //   formatValue(
                                                   //   RecurringPricingInfo.OriginalPrice
                                                   // )
-                                                  Number(Math.floor(RecurringPricingInfo.OriginalPrice * 100) / 100).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                                  Number(
+                                                    Math.floor(
+                                                      RecurringPricingInfo.OriginalPrice *
+                                                      100
+                                                    ) / 100
+                                                  )
+                                                    .toFixed(2)
+                                                    .replace(
+                                                      /\B(?=(\d{3})+(?!\d))/g,
+                                                      ","
+                                                    )
 
                                                   // RecurringPricingInfo.OriginalPrice?.toString().replace(
                                                   //   /\B(?=(\d{3})+(?!\d))/g,
@@ -801,14 +894,25 @@ const View_Engagement_Latter = () => {
                                                 class="input-text"
                                                 type="text"
                                                 placeholder="Discounted Price (£)"
-                                                value={
-                                                  Number(Math.floor(RecurringPricingInfo.DiscountedPrice * 100) / 100).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                                                }
+                                                value={Number(
+                                                  Math.floor(
+                                                    RecurringPricingInfo.DiscountedPrice *
+                                                    100
+                                                  ) / 100
+                                                )
+                                                  .toFixed(2)
+                                                  .replace(
+                                                    /\B(?=(\d{3})+(?!\d))/g,
+                                                    ","
+                                                  )}
                                               />
                                             </div>
                                           </div>
                                           <div className="mb-3"></div>
-                                          <div style={{ marginTop: "0px" }} className="table-responsive">
+                                          <div
+                                            style={{ marginTop: "0px" }}
+                                            className="table-responsive"
+                                          >
                                             <table className="table align-middle table-nowrap">
                                               <thead className="table-light table-header-font">
                                                 <tr className="head-row">
@@ -840,7 +944,8 @@ const View_Engagement_Latter = () => {
                                                             return (
                                                               <tr
                                                                 key={subIndex}
-                                                                className={` ${subService?.isAdditionalService === true
+                                                                className={` ${subService?.isAdditionalService ===
+                                                                  true
                                                                   ? "bg-info  text-white"
                                                                   : ""
                                                                   }`}
@@ -858,7 +963,6 @@ const View_Engagement_Latter = () => {
                                                                   {EngagementObj.feeTypeId ===
                                                                     1 && (
                                                                       <>
-                                                                        {" "}
                                                                         {" "}
                                                                         {formatValue(
                                                                           subService.contractPrice
@@ -885,14 +989,16 @@ const View_Engagement_Latter = () => {
                                                   <td className="tr-table-class font-14 text-white text-right">
                                                     {" "}
                                                     {
-                                                      (Number(
+                                                      Number(
                                                         RecurringPricingInfo.OriginalPrice
                                                       ) <
                                                         Number(
                                                           RecurringPricingInfo.DiscountedPrice
                                                         ) ||
-                                                        (Number(RecurringPricingInfo.Discount) > 0 &&
-                                                          (!EngagementObj.DiscountLines)))
+                                                        (Number(
+                                                          RecurringPricingInfo.Discount
+                                                        ) > 0 &&
+                                                          !EngagementObj.DiscountLines)
                                                         ? formatValue(
                                                           RecurringPricingInfo.DiscountedPrice
                                                         )
@@ -910,10 +1016,10 @@ const View_Engagement_Latter = () => {
                                                     }
                                                   </td>
                                                 </tr>
-                                                {(Number(
+                                                {Number(
                                                   RecurringPricingInfo.Discount
                                                 ) > 0 &&
-                                                  EngagementObj.DiscountLines) && (
+                                                  EngagementObj.DiscountLines && (
                                                     <>
                                                       <tr class="head-grey-row">
                                                         <td className="tr-table-class font-14 text-white">
@@ -962,7 +1068,6 @@ const View_Engagement_Latter = () => {
                                                         {formatValue(
                                                           RecurringPricingInfo.GrandTotal
                                                         )}
-
                                                       </td>
                                                     </tr>
                                                   </>
@@ -1000,7 +1105,17 @@ const View_Engagement_Latter = () => {
                                                   // formatValue(
                                                   //   OneOffPricingInfo.OriginalPrice
                                                   // )
-                                                  Number(Math.floor(OneOffPricingInfo.OriginalPrice * 100) / 100).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                                  Number(
+                                                    Math.floor(
+                                                      OneOffPricingInfo.OriginalPrice *
+                                                      100
+                                                    ) / 100
+                                                  )
+                                                    .toFixed(2)
+                                                    .replace(
+                                                      /\B(?=(\d{3})+(?!\d))/g,
+                                                      ","
+                                                    )
                                                   // OneOffPricingInfo.OriginalPrice?.toString().replace(
                                                   //   /\B(?=(\d{3})+(?!\d))/g,
                                                   //   ","
@@ -1045,14 +1160,25 @@ const View_Engagement_Latter = () => {
                                                 class="input-text"
                                                 type="text"
                                                 placeholder="Discounted Price (£)"
-                                                value={
-                                                  Number(Math.floor(OneOffPricingInfo.DiscountedPrice * 100) / 100).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                                                }
+                                                value={Number(
+                                                  Math.floor(
+                                                    OneOffPricingInfo.DiscountedPrice *
+                                                    100
+                                                  ) / 100
+                                                )
+                                                  .toFixed(2)
+                                                  .replace(
+                                                    /\B(?=(\d{3})+(?!\d))/g,
+                                                    ","
+                                                  )}
                                               />
                                             </div>
                                           </div>
                                           <div className="mb-3"></div>
-                                          <div style={{ marginTop: "0px" }} className="table-responsive">
+                                          <div
+                                            style={{ marginTop: "0px" }}
+                                            className="table-responsive"
+                                          >
                                             <table className="table align-middle table-nowrap">
                                               <thead className="table-light table-header-font">
                                                 <tr className="head-row">
@@ -1084,7 +1210,8 @@ const View_Engagement_Latter = () => {
                                                             return (
                                                               <tr
                                                                 key={subIndex}
-                                                                className={` ${subService?.isAdditionalService === true
+                                                                className={` ${subService?.isAdditionalService ===
+                                                                  true
                                                                   ? "bg-info  text-white"
                                                                   : ""
                                                                   }`}
@@ -1102,7 +1229,6 @@ const View_Engagement_Latter = () => {
                                                                   {EngagementObj.feeTypeId ===
                                                                     1 && (
                                                                       <>
-                                                                        {" "}
                                                                         {" "}
                                                                         {formatValue(
                                                                           subService.contractPrice
@@ -1129,14 +1255,16 @@ const View_Engagement_Latter = () => {
                                                   <td className="tr-table-class font-14 text-white text-right">
                                                     {" "}
                                                     {
-                                                      (Number(
+                                                      Number(
                                                         OneOffPricingInfo.OriginalPrice
                                                       ) <
                                                         Number(
                                                           OneOffPricingInfo.DiscountedPrice
                                                         ) ||
-                                                        (Number(OneOffPricingInfo.Discount) > 0 &&
-                                                          (!EngagementObj.DiscountLines)))
+                                                        (Number(
+                                                          OneOffPricingInfo.Discount
+                                                        ) > 0 &&
+                                                          !EngagementObj.DiscountLines)
                                                         ? formatValue(
                                                           OneOffPricingInfo.DiscountedPrice
                                                         )
@@ -1154,10 +1282,10 @@ const View_Engagement_Latter = () => {
                                                     }
                                                   </td>
                                                 </tr>
-                                                {(Number(
+                                                {Number(
                                                   OneOffPricingInfo.Discount
                                                 ) > 0 &&
-                                                  EngagementObj.DiscountLines) && (
+                                                  EngagementObj.DiscountLines && (
                                                     <>
                                                       {" "}
                                                       <tr class="head-grey-row">
@@ -1165,7 +1293,7 @@ const View_Engagement_Latter = () => {
                                                           Discount
                                                         </td>
                                                         <td className="tr-table-class text-white text-right font-14">
-                                                          (-) {" "}
+                                                          (-){" "}
                                                           {formatValue(
                                                             OneOffPricingInfo.Discount
                                                           )}
@@ -1262,6 +1390,14 @@ const View_Engagement_Latter = () => {
                                           {signatory.emailID}
                                         </td>
                                       </tr>
+                                      <tr>
+                                        <td>Signed on</td>
+                                        <td className="text-right">
+                                          {signatory.isSigned
+                                            ? signatory.isSigned
+                                            : "-"}
+                                        </td>
+                                      </tr>
                                     </tbody>
                                   </table>
                                 )
@@ -1284,23 +1420,30 @@ const View_Engagement_Latter = () => {
                                         </tr>
 
                                         <tr>
-                                          {(EngagementObj.clientMasterBusinessTypeID === 3 || EngagementObj.clientMasterBusinessTypeID === 4 || EngagementObj.clientMasterBusinessTypeID === 5) &&
-                                            <>
-                                              <td>Authorised </td>
-                                              <td className="text-end">
-                                                {officersForm[index]
-                                                  ?.isAuthorisedSignatory
-                                                  ? "Yes"
-                                                  : "NO"}
-                                                <Switch
-                                                  checked={
-                                                    officersForm[index]
-                                                      ?.isAuthorisedSignatory
-                                                  }
-                                                  disabled
-                                                  color="primary"
-                                                />
-                                              </td></>}
+                                          {(EngagementObj.clientMasterBusinessTypeID ===
+                                            3 ||
+                                            EngagementObj.clientMasterBusinessTypeID ===
+                                            4 ||
+                                            EngagementObj.clientMasterBusinessTypeID ===
+                                            5) && (
+                                              <>
+                                                <td>Authorised </td>
+                                                <td className="text-end">
+                                                  {officersForm[index]
+                                                    ?.isAuthorisedSignatory
+                                                    ? "Yes"
+                                                    : "NO"}
+                                                  <Switch
+                                                    checked={
+                                                      officersForm[index]
+                                                        ?.isAuthorisedSignatory
+                                                    }
+                                                    disabled
+                                                    color="primary"
+                                                  />
+                                                </td>
+                                              </>
+                                            )}
                                         </tr>
 
                                         <tr>
@@ -1387,34 +1530,42 @@ const View_Engagement_Latter = () => {
                               class="tab-pane"
                               id="DeclinedReason"
                               role="tabpanel"
-
                             >
                               <b
                                 className="font-14"
                                 style={{ marginLeft: "10px" }}
                               >
-                                Reason {" "}:</b> {"  "}{EngagementObj.declinedReason}
-
+                                Reason :
+                              </b>{" "}
+                              {"  "}
+                              {EngagementObj.declinedReason}
                             </div>
                             <div
                               class="tab-pane"
                               id="SignManually"
                               role="tabpanel"
                               style={{ marginTop: "-30px" }}
-                            >   <div>
-                                {EngagementObj.manuallySignedContractDocUrl === null ? (
+                            >
+                              {" "}
+                              <div>
+                                {EngagementObj.manuallySignedContractDocUrl ===
+                                  null ? (
                                   <>
                                     <span className="text-muted p-2">
                                       <p style={{ padding: "5px" }}>
                                         <i>
                                           <strong>Note:</strong>
-                                          Please upload document carefully, because after uploading document {EngagementName} status will change to signed immediately. you can not change this document later.
+                                          Please upload document carefully,
+                                          because after uploading document{" "}
+                                          {EngagementName} status will change to
+                                          signed immediately. you can not change
+                                          this document later.
                                         </i>
                                       </p>
                                     </span>
-                                    {(pdfUrl) ? (
+                                    {pdfUrl ? (
                                       <div style={{ height: "25vh" }}>
-                                        {isUpload &&
+                                        {isUpload && (
                                           <>
                                             <div className="input-group justify-content-end">
                                               <button
@@ -1425,9 +1576,7 @@ const View_Engagement_Latter = () => {
                                                 }}
                                                 className="btn btn-sm btn-danger remove-item-btn "
                                               >
-                                                <span>
-                                                  Delete
-                                                </span>
+                                                <span>Delete</span>
                                               </button>
                                             </div>
                                             <div className="input-group justify-content-center">
@@ -1441,14 +1590,21 @@ const View_Engagement_Latter = () => {
                                               </object>
                                             </div>
                                           </>
-                                        }
-
+                                        )}
                                       </div>
                                     ) : (
                                       <>
                                         <div>
                                           <div style={{ height: "30vh" }}>
-                                            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100%" }} className="row">
+                                            <div
+                                              style={{
+                                                display: "flex",
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                                width: "100%",
+                                              }}
+                                              className="row"
+                                            >
                                               <div className="box12">
                                                 <div className="col-lg-8 col-md-8 col-sm-12">
                                                   {/* <label className="form-label">
@@ -1458,10 +1614,12 @@ const View_Engagement_Latter = () => {
                                           </label> */}
                                                   {/* </div>
                                         <div className="col-lg-3 col-md-3 col-sm-3 text-center"> */}
-                                                  <div className="input-group justify-content-center " >
+                                                  <div className="input-group justify-content-center ">
                                                     <input
                                                       id="PdfUpload"
-                                                      style={{ display: "none" }}
+                                                      style={{
+                                                        display: "none",
+                                                      }}
                                                       type="file"
                                                       accept=".pdf"
                                                       onChange={(e) => {
@@ -1469,31 +1627,35 @@ const View_Engagement_Latter = () => {
                                                         handleFileUpload(e);
                                                       }}
                                                     />
-                                                    <label style={{ borderRadius: "6px" }} htmlFor="PdfUpload" className="btn btn-md btn-success create-item-btn">
-                                                      <b>
-                                                        Select a File
-                                                      </b>
+                                                    <label
+                                                      style={{
+                                                        borderRadius: "6px",
+                                                      }}
+                                                      htmlFor="PdfUpload"
+                                                      className="btn btn-md btn-success create-item-btn"
+                                                    >
+                                                      <b>Select a File</b>
                                                     </label>
-                                                    Supported file types are .PDF up to a file
-                                                    size of 10MB.
-                                                    {(requireErrorMessage &&
-                                                      pdfUrl === null) ?
+                                                    Supported file types are
+                                                    .PDF up to a file size of
+                                                    10MB.
+                                                    {requireErrorMessage &&
+                                                      pdfUrl === null ? (
                                                       <label className="validation">
                                                         {ERROR_MESSAGES}
-                                                      </label> : ""}
+                                                      </label>
+                                                    ) : (
+                                                      ""
+                                                    )}
                                                   </div>
-
                                                 </div>
 
                                                 {/* <div style={{ display: "flex" }} className="text-muted helpMessage justify-content-center"> */}
                                                 {/* Supported file types are .PDF up to a file
                                           size of 10MB. */}
                                                 {/* </div> */}
-
                                               </div>
-
                                             </div>
-
                                           </div>
                                         </div>
                                       </>
@@ -1513,21 +1675,41 @@ const View_Engagement_Latter = () => {
 
                                     </div> */}
                                     {/* <div className="input-group justify-content-center"> */}
-                                    <div style={{ height: "30vh", marginTop: "140px" }}>
-                                      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100%" }} className="row">
+                                    <div
+                                      style={{
+                                        height: "30vh",
+                                        marginTop: "140px",
+                                      }}
+                                    >
+                                      <div
+                                        style={{
+                                          display: "flex",
+                                          alignItems: "center",
+                                          justifyContent: "center",
+                                          width: "100%",
+                                        }}
+                                        className="row"
+                                      >
                                         <div className="box12">
                                           <div className="col-lg-8 col-md-8 col-sm-12">
-
                                             {/* <div className="input-group justify-content-center"> */}
-                                            Signed document has been uploaded for {EngagementName} <b>{EngagementObj.contractName}.<br></br>
-                                            </b>To view signed document <p
+                                            Signed document has been uploaded
+                                            for {EngagementName}{" "}
+                                            <b>
+                                              {EngagementObj.contractName}.
+                                              <br></br>
+                                            </b>
+                                            To view signed document{" "}
+                                            <p
                                               onClick={handleDownload}
                                               style={{
                                                 cursor: "pointer",
                                                 color: "blue",
-                                                display: "inline"
-                                              }}  // This style ensures the <a> tag is displayed inline
-                                            >click here</p>
+                                                display: "inline",
+                                              }} // This style ensures the <a> tag is displayed inline
+                                            >
+                                              click here
+                                            </p>
                                             {/* </div> */}
                                           </div>
                                           {/* </div> */}
@@ -1535,33 +1717,31 @@ const View_Engagement_Latter = () => {
                                       </div>
                                     </div>
                                   </>
-                                )
-                                }
-
-
+                                )}
                               </div>
-                              {(EngagementObj.manuallySignedContractDocUrl === null && isUpload) ? (
+                              {EngagementObj.manuallySignedContractDocUrl ===
+                                null && isUpload ? (
                                 <div className="input-group justify-content-center py1 py2">
                                   <button
                                     onClick={confirmToUpload}
-                                    style={{ float: "right", paddingTop: "5px", marginTop: "20px" }}
+                                    style={{
+                                      float: "right",
+                                      paddingTop: "5px",
+                                      marginTop: "20px",
+                                    }}
                                     className="btn btn-md btn-success create-item-btn"
                                   >
-                                    <span>
-                                      Upload the signed document
-                                    </span>
+                                    <span>Upload the signed document</span>
                                   </button>
                                 </div>
-                              ) : ""}
+                              ) : (
+                                ""
+                              )}
                             </div>
                           </div>
-
                         </div>
-
                       </div>
-                      <div className="input-group justify-content-center">
-
-                      </div>
+                      <div className="input-group justify-content-center"></div>
                     </div>
                     {/* end card  */}
                   </div>
@@ -1608,7 +1788,7 @@ const View_Engagement_Latter = () => {
         <i class="ri-arrow-up-line"></i>
       </button>
       {/* end back-to-top */}
-    </div >
+    </div>
   );
 };
 

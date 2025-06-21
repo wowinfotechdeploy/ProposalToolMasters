@@ -45,7 +45,7 @@ function AddUpdateEmailTemplate(props) {
     proposalName,
     EngagementName,
     hasActionAccess,
-    updateTemplateList
+    updateTemplateList,
   } = useContext(AuthContextProvider);
   const navigate = useNavigate();
   const common = useSelector((state) => state.Storage); //Getting Logged Users Details From Persist Storage of redux hooks
@@ -76,6 +76,7 @@ function AddUpdateEmailTemplate(props) {
     status: 1,
     isDefault: false,
     templateName: undefined,
+    subject: null,
     templateTypeID: null,
     ClientBusinessTypeID: null,
     isPredefined: null,
@@ -87,18 +88,29 @@ function AddUpdateEmailTemplate(props) {
   useEffect(() => {
     const Admin_Config_Template_CanAdd = hasActionAccess(21, 81);
     const SuperAdmin_Config_Template_CanAdd = hasActionAccess(16, 61);
-    if ((location?.state?.Action === undefined || location?.state?.Action === null) && !(Admin_Config_Template_CanAdd || SuperAdmin_Config_Template_CanAdd)) {
-      navigate(-1)
+    if (
+      (location?.state?.Action === undefined ||
+        location?.state?.Action === null) &&
+      !(Admin_Config_Template_CanAdd || SuperAdmin_Config_Template_CanAdd)
+    ) {
+      navigate(-1);
     }
-  }, [])
+  }, []);
   useEffect(() => {
-    setModelAction((location?.state?.Action === undefined || location?.state?.Action === null) ? "Add" : "Update"); //Do not change this naming convention
+    setModelAction(
+      location?.state?.Action === undefined || location?.state?.Action === null
+        ? "Add"
+        : "Update"
+    ); //Do not change this naming convention
     GetProfessionTypeLookupListData();
     GetTemplateTypeLookupListData();
     setTopbar("none");
 
     if (location.state?.templateKeyID !== null) {
-      GetEmailTemplatesModelData(location.state?.templateKeyID, location.state?.Type);
+      GetEmailTemplatesModelData(
+        location.state?.templateKeyID,
+        location.state?.Type
+      );
     }
   }, [location.state]);
 
@@ -207,6 +219,7 @@ function AddUpdateEmailTemplate(props) {
             organisationID: ModelData.organisationID,
             createdByID: ModelData.createdByID,
             templateName: ModelData.templateName,
+            subject: ModelData.subject,
             templateTypeID: ModelData.templateTypeID,
             isDefault: ModelData.isDefault,
             ClientBusinessTypeID: ModelData.ClientBusinessTypeID,
@@ -246,8 +259,8 @@ function AddUpdateEmailTemplate(props) {
     if (Accept === "Accept") {
       $("#" + "ConfirmSAChangesModel").modal("show");
 
-      setStatus(true)
-      return
+      setStatus(true);
+      return;
     }
     if (
       (common.professionTypeLists?.length > 1 ||
@@ -260,6 +273,9 @@ function AddUpdateEmailTemplate(props) {
     } else if (
       TemplateObj.templateName === undefined ||
       TemplateObj.templateName === "" ||
+      TemplateObj.subject === undefined ||
+      TemplateObj.subject === "" ||
+      TemplateObj.subject === null ||
       TemplateObj.templateTypeID === undefined ||
       TemplateObj.templateTypeID === "" ||
       TemplateObj.templateTypeID === null ||
@@ -315,7 +331,10 @@ function AddUpdateEmailTemplate(props) {
       setRequireErrorMessage(false); // Clear the error message if there are no errors.
     }
     // Await the result of updateTemplateList
-    const updatedTemplateList = await updateTemplateList(templateElementList, "Email_Template");
+    const updatedTemplateList = await updateTemplateList(
+      templateElementList,
+      "Email_Template"
+    );
     // Preparing Object For Add Update and if any modification then it will done here
     const ApiRequest_ParamsObj = {
       acceptSAChanges: Accept,
@@ -328,44 +347,44 @@ function AddUpdateEmailTemplate(props) {
       userKeyID: common.userKeyID,
       ClientBusinessTypeID: TemplateObj.ClientBusinessTypeID,
       isPredefined: common.roleTypeId === USER_ROLE_TYPE.SuperAdmin ? 1 : 0,
-
+      subject: TemplateObj.subject,
       templateName: TemplateObj.templateName,
       isDefault: TemplateObj.isDefault,
       templateElementList: updatedTemplateList,
       professionTypeList:
         common.professionTypeLists?.length > 1 ||
-          common.organisationKeyID === null
+        common.organisationKeyID === null
           ? TemplateObj.professionTypeList
           : [
-            {
-              professionTypeId: professionTypeInputValue[0]?.professionTypeId,
-              professionTypeName:
-                professionTypeInputValue[0]?.professionTypeName,
-            },
-          ],
+              {
+                professionTypeId: professionTypeInputValue[0]?.professionTypeId,
+                professionTypeName:
+                  professionTypeInputValue[0]?.professionTypeName,
+              },
+            ],
     };
     AddUpdateEmailTemplatesData(ApiRequest_ParamsObj);
   };
 
   const handleClose = async () => {
     if (isCheck) {
-      setLoader(true)
+      setLoader(true);
       const Notification = await NotifySuperAdminPredefinedChangesToAdmin({
         userKeyID: common.userKeyID,
         moduleKeyID: TemplateObj.templateKeyID,
-        moduleName: "Predefined-Email-Template"
-      })
+        moduleName: "Predefined-Email-Template",
+      });
       if (Notification?.data?.statusCode === 200) {
-        setLoader(false)
-        setModelAction("NotificationSend")
-        setOpenSuccessModal(true)
-        setIsCheck(false)
+        setLoader(false);
+        setModelAction("NotificationSend");
+        setOpenSuccessModal(true);
+        setIsCheck(false);
       }
     } else {
       $("#" + props.id).modal("hide");
       $("#" + "ConfirmSAChangesModel").modal("hide");
       setOpenSuccessModal(false);
-      setOpenErrorModal(false)
+      setOpenErrorModal(false);
       navigate("/email-template");
     }
   };
@@ -411,7 +430,7 @@ function AddUpdateEmailTemplate(props) {
     SetInitialModelData();
   };
 
-  //Handle Content change 
+  //Handle Content change
   const handleContentChange = (newEditorState) => {
     const indexToUpdate = 0;
 
@@ -455,7 +474,7 @@ function AddUpdateEmailTemplate(props) {
     }
   };
 
-  //Handle Change Template Type 
+  //Handle Change Template Type
   const handleChangeTemplateType = (e) => {
     if (TemplateObj.templateTypeID !== null) {
       setTemplateObj({
@@ -488,13 +507,12 @@ function AddUpdateEmailTemplate(props) {
     (item) => common.professionTypeLists[0] === item.professionTypeId
   );
   const DeclineSuperAdminChangesData = async (Decline) => {
-
     if (Decline === "Decline") {
       // $('#' + props.id).modal('hide')
 
-      setStatus(false)
+      setStatus(false);
       $("#" + "ConfirmSAChangesModel").modal("show");
-      return
+      return;
     }
     setLoader(true);
     try {
@@ -502,39 +520,39 @@ function AddUpdateEmailTemplate(props) {
         organisationKeyID: common.organisationKeyID,
         userKeyID: common.userKeyID,
         moduleKeyID: location.state?.templateKeyID,
-        moduleName: "Predefined-Email-Template"
-      }
+        moduleName: "Predefined-Email-Template",
+      };
       const response = await DeclineSuperAdminChanges(apiRequestParams);
       if (response) {
         setLoader(false);
         if (response?.data?.statusCode === 200) {
           if (apiRequestParams.Action === null) {
             $("#" + "ConfirmSAChangesModel").modal("hide");
-            navigate("/email-template")
+            navigate("/email-template");
             props.setIsAddUpdateActionDone(true);
           } else {
             $("#" + "ConfirmSAChangesModel").modal("hide");
-            navigate("/email-template")
+            navigate("/email-template");
             props.setIsAddUpdateActionDone(true);
           }
         } else {
           $("#" + "ConfirmSAChangesModel").modal("hide");
-          setOpenErrorModal(true)
+          setOpenErrorModal(true);
           setErrorMessage(response?.response?.data?.errorMessage);
         }
       }
     } catch (error) {
       console.error(error);
     }
-  }
+  };
   const handleConfirmButton = () => {
     $("#" + "ConfirmSAChangesModel").modal("hide");
     if (Status) {
-      TemplateAddUpdateBtnClicked(true)
+      TemplateAddUpdateBtnClicked(true);
     } else {
-      DeclineSuperAdminChangesData()
+      DeclineSuperAdminChangesData();
     }
-  }
+  };
   return (
     <div className="container-fluid new-item-page-container">
       <div class="new-item-page-nav"></div>
@@ -552,47 +570,52 @@ function AddUpdateEmailTemplate(props) {
               <div class="tab-content">
                 <>
                   <div className="row fieldset" id="ProfessionTypeDiv">
-                    <SAPredefinedChangesNotifyMessageModel Params={{ moduleName: moduleName, SAChanges: location.state?.Type }} />
+                    <SAPredefinedChangesNotifyMessageModel
+                      Params={{
+                        moduleName: moduleName,
+                        SAChanges: location.state?.Type,
+                      }}
+                    />
                     {(common.professionTypeLists?.length > 1 ||
                       common.organisationKeyID === null) && (
-                        <>
-                          <div className="col-lg-2 template-label text-left">
-                            <div className="mb-1">
-                              <label className="form-label">
-                                Profession Type
-                                <span className="text-danger">*</span>
-                              </label>
-                            </div>
+                      <>
+                        <div className="col-lg-2 template-label text-left">
+                          <div className="mb-1">
+                            <label className="form-label">
+                              Profession Type
+                              <span className="text-danger">*</span>
+                            </label>
                           </div>
-                          <div className="col-lg-10 mb-2">
-                            <div className="input-group">
-                              {common.professionTypeLists?.length > 1 ||
-                                common.organisationKeyID === null ? (
-                                <Select
-                                  isMulti
-                                  style={{ padding: "5px" }}
-                                  className="user-role-select"
-                                  options={ProfessionalTypeLookeupListOptions}
-                                  value={professionTypeValue}
-                                  onChange={OnChangeSelectProfessionType}
-                                />
-                              ) : (
-                                ""
-                              )}
-                            </div>
-                            {requireErrorMessage &&
-                              (common.professionTypeLists?.length > 1 ||
-                                common.organisationKeyID === null) &&
-                              professionTypeValue?.length === 0 ? (
-                              <label className="validation">
-                                {ERROR_MESSAGES}
-                              </label>
+                        </div>
+                        <div className="col-lg-10 mb-2">
+                          <div className="input-group">
+                            {common.professionTypeLists?.length > 1 ||
+                            common.organisationKeyID === null ? (
+                              <Select
+                                isMulti
+                                style={{ padding: "5px" }}
+                                className="user-role-select"
+                                options={ProfessionalTypeLookeupListOptions}
+                                value={professionTypeValue}
+                                onChange={OnChangeSelectProfessionType}
+                              />
                             ) : (
                               ""
                             )}
                           </div>
-                        </>
-                      )}
+                          {requireErrorMessage &&
+                          (common.professionTypeLists?.length > 1 ||
+                            common.organisationKeyID === null) &&
+                          professionTypeValue?.length === 0 ? (
+                            <label className="validation">
+                              {ERROR_MESSAGES}
+                            </label>
+                          ) : (
+                            ""
+                          )}
+                        </div>
+                      </>
+                    )}
                   </div>
                 </>
                 <div className="row" id="TemplateNameDiv">
@@ -625,14 +648,15 @@ function AddUpdateEmailTemplate(props) {
                       />
                     </div>
                     {requireErrorMessage &&
-                      (TemplateObj.templateName === "" ||
-                        TemplateObj.templateName === undefined) ? (
+                    (TemplateObj.templateName === "" ||
+                      TemplateObj.templateName === undefined) ? (
                       <label className="validation">{ERROR_MESSAGES}</label>
                     ) : (
                       ""
                     )}
                   </div>
                 </div>
+                {/* Template Type */}
                 <div className="row" id="TemplateTypeDiv">
                   <div className="col-lg-2 template-label text-left">
                     <div className="mb-1">
@@ -655,8 +679,8 @@ function AddUpdateEmailTemplate(props) {
                         />
                       </div>
                       {requireErrorMessage &&
-                        (TemplateObj.templateTypeID == "" ||
-                          TemplateObj.templateTypeID == null) ? (
+                      (TemplateObj.templateTypeID == "" ||
+                        TemplateObj.templateTypeID == null) ? (
                         <label className="validation">{ERROR_MESSAGES}</label>
                       ) : (
                         ""
@@ -664,6 +688,57 @@ function AddUpdateEmailTemplate(props) {
                     </div>
                   </div>
                 </div>
+
+                {/* Subject Line */}
+                <div className="row" id="TemplateNameDiv">
+                  <div className="col-lg-2 template-label text-left">
+                    <div className="mb-1">
+                      <label className="form-label">
+                        Subject Line
+                        <span className="text-danger">*</span>
+                      </label>
+                    </div>
+                  </div>
+                  <div className="col-lg-10">
+                    <div className="mb-2 ">
+                      <div className="input-group">
+                        <input
+                          type="text"
+                          className="input-text"
+                          placeholder="Enter Subject Line"
+                          value={TemplateObj.subject}
+                          onChange={(e) => {
+                            setErrorMessage("");
+                            const inputValue = e.target.value;
+                            const trimmedValue = inputValue.replace(
+                              /^\s+/g,
+                              ""
+                            );
+                            const capitalizedValue =
+                              trimmedValue.charAt(0).toUpperCase() +
+                              trimmedValue.slice(1);
+                            setTemplateObj({
+                              ...TemplateObj,
+                              subject: capitalizedValue,
+                            });
+                          }}
+                          maxLength={50}
+                        />
+                      </div>
+                      {/* <label className="validation">{errorMessage}</label> */}
+                      {requireErrorMessage &&
+                      (TemplateObj.subject === "" ||
+                        TemplateObj.subject === undefined ||
+                        TemplateObj.subject === null) ? (
+                        <label className="validation">{ERROR_MESSAGES}</label>
+                      ) : (
+                        ""
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* IsDefault */}
                 <div className="row mb-2">
                   <div
                     style={{ padding: "10px" }}
@@ -691,16 +766,18 @@ function AddUpdateEmailTemplate(props) {
                         }
                       />
                     </div>
-                    {modelAction === "Update" ? <></> :
+                    {modelAction === "Update" ? (
+                      <></>
+                    ) : (
                       <div
                         style={{ fontSize: "12px" }}
                         className="text-muted helpMessage"
                       >
                         If you set this template as the default, any other
-                        template with the same template type will automatically be
-                        marked as non-default.
+                        template with the same template type will automatically
+                        be marked as non-default.
                       </div>
-                    }
+                    )}
                   </div>
                 </div>
                 <div>
@@ -728,13 +805,13 @@ function AddUpdateEmailTemplate(props) {
                   </div>
                 </div>
                 {requireErrorMessage &&
-                  (!editorState ||
-                    templateElementList[0].htmlContent === null ||
-                    templateElementList[0].htmlContent === "" ||
-                    templateElementList[0].htmlContent === undefined ||
-                    templateElementList[0].htmlContent === "<p></p>\n" ||
-                    templateElementList[0].htmlContent === "<p></p>" ||
-                    templateElementList[0].htmlContent === "<p><br></p>") ? (
+                (!editorState ||
+                  templateElementList[0].htmlContent === null ||
+                  templateElementList[0].htmlContent === "" ||
+                  templateElementList[0].htmlContent === undefined ||
+                  templateElementList[0].htmlContent === "<p></p>\n" ||
+                  templateElementList[0].htmlContent === "<p></p>" ||
+                  templateElementList[0].htmlContent === "<p><br></p>") ? (
                   <label className="validation">{ERROR_MESSAGES}</label>
                 ) : (
                   ""
@@ -748,9 +825,9 @@ function AddUpdateEmailTemplate(props) {
               <label className="validation">
                 {" "}
                 {common.professionTypeLists?.length <= 1 &&
-                  errorMessage?.includes(
-                    `Please dont choose this profession type`
-                  )
+                errorMessage?.includes(
+                  `Please dont choose this profession type`
+                )
                   ? errorMessage.split(".")[0]
                   : errorMessage}
               </label>
@@ -762,49 +839,48 @@ function AddUpdateEmailTemplate(props) {
                 style={{ paddingTop: "14px" }}
                 className="hstack gap-2 justify-content-end"
               >
-                {location.state?.Type ? (<>
-                  <button
-                    type="submit"
-                    class="btn btn-md btn-success accept-item-btn"
-                    onClick={() => {
-                      TemplateAddUpdateBtnClicked("Accept");
-                    }}
-                  >
-                    <span>
-                      Accept
-                    </span>
-                  </button>
-                  <button
-                    type="submit"
-                    class="btn btn-md btn-success declined-item-btn"
-                    // data-bs-dismiss="modal"
-                    onClick={() => DeclineSuperAdminChangesData("Decline")}
-                  >
-                    <span>
-                      Decline
-                    </span>
-                  </button>
-                </>) : (<>
-                  <button
-                    onClick={handleSubmit}
-                    style={{ float: "right", paddingTop: "5px" }}
-                    className="btn btn-md btn-light"
-                  >
-                    <span>{getCrudButtonTextName("Cancel")}</span>
-                  </button>
-                  <button
-                    onClick={(e) => TemplateAddUpdateBtnClicked()}
-                    style={{ float: "right", paddingTop: "5px" }}
-                    className="btn btn-md btn-success create-item-btn"
-                  >
-                    <span>
-                      {modelAction === "Add"
-                        ? getCrudButtonTextName("Add", moduleName)
-                        : getCrudButtonTextName("Update", moduleName)}
-                    </span>
-                  </button>
-                </>)
-                }
+                {location.state?.Type ? (
+                  <>
+                    <button
+                      type="submit"
+                      class="btn btn-md btn-success accept-item-btn"
+                      onClick={() => {
+                        TemplateAddUpdateBtnClicked("Accept");
+                      }}
+                    >
+                      <span>Accept</span>
+                    </button>
+                    <button
+                      type="submit"
+                      class="btn btn-md btn-success declined-item-btn"
+                      // data-bs-dismiss="modal"
+                      onClick={() => DeclineSuperAdminChangesData("Decline")}
+                    >
+                      <span>Decline</span>
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      onClick={handleSubmit}
+                      style={{ float: "right", paddingTop: "5px" }}
+                      className="btn btn-md btn-light"
+                    >
+                      <span>{getCrudButtonTextName("Cancel")}</span>
+                    </button>
+                    <button
+                      onClick={(e) => TemplateAddUpdateBtnClicked()}
+                      style={{ float: "right", paddingTop: "5px" }}
+                      className="btn btn-md btn-success create-item-btn"
+                    >
+                      <span>
+                        {modelAction === "Add"
+                          ? getCrudButtonTextName("Add", moduleName)
+                          : getCrudButtonTextName("Update", moduleName)}
+                      </span>
+                    </button>
+                  </>
+                )}
               </Col>
             </Row>
             {/* <!-- end tab content --> */}

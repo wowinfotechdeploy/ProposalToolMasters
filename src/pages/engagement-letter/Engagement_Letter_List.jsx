@@ -21,6 +21,7 @@ import { useSelector } from "react-redux";
 import {
   ChangeContractStatus,
   CopyContract,
+  DeleteContract,
   DeleteSingleApiContract,
   GetEngagementList,
   GetOldEngagementList,
@@ -708,11 +709,42 @@ const Engagement_Letter = () => {
     setSingleElCurrentPage(pageNumber);
     await GetEngagementListForSingleApiData(pageNumber); // Call your function with the selected page number
   };
+  const GetOnlyDate = (value, signedOn) => {
+    // if (signedOn) {
+    //   // value format: "May 28 2025  6:03PM"
+    //   const [monthStr, day, year] = value?.split(" ");
+    //   const monthMap = {
+    //     Jan: "01",
+    //     Feb: "02",
+    //     Mar: "03",
+    //     Apr: "04",
+    //     May: "05",
+    //     Jun: "06",
+    //     Jul: "07",
+    //     Aug: "08",
+    //     Sep: "09",
+    //     Oct: "10",
+    //     Nov: "11",
+    //     Dec: "12",
+    //   };
+    //   const month = monthMap[monthStr];
+    //   const formattedDay = day?.padStart(2, "0");
+    //   return `${formattedDay}/${month}/${year}`;
+    // }
+
+    // Default case: value like "6/11/2025 10:21:35 AM" → return "6/11/2025"
+    return value?.split(" ")[0];
+  };
   const handleViewEngagementDetails = (engagement) => {
     setModelRequestData({
       ...modelRequestData,
       contractKeyID: engagement.contractKeyID, // Change ClientKeyID to contractKeyID
       Action: "View",
+      draftOn: GetOnlyDate(engagement.createdOn),
+      sentOn: GetOnlyDate(engagement.sentOn),
+      SignedOn: engagement.signedOn,
+      // SignedOn:GetOnlyDate(engagement.signedOn,true),
+      voidOn: GetOnlyDate(engagement.lastUpdatedOn),
     });
   };
   //Resend the Proposal
@@ -1015,6 +1047,33 @@ const Engagement_Letter = () => {
       setSelectedRows([]); // Deselect all
     } else {
       setSelectedRows(visibleRows.map((item) => item.contractKeyID)); // Select all
+    }
+  };
+
+
+
+  // const HandleDeleteDraftContractData = () => {
+  //   console.log(modelRequestData.contractKeyID);
+  // };
+
+  const HandleDeleteDraftContractData = async () => {
+    try {
+      setLoader(true);
+      const data = await DeleteContract({
+        userKeyID: common.userKeyID,
+        contractKeyIDs: [modelRequestData.contractKeyID],
+      });
+      if (data?.data?.statusCode === 200) {
+        setLoader(false);
+        setOpenSuccessModal(true);
+        GetEngagementListData(currentPage);
+      } else {
+        setLoader(false);
+        setErrorMessage(data?.data?.errorMessage);
+        setOpenErrorModal(true);
+      }
+    } catch (error) {
+      console.error(error);
     }
   };
 
@@ -1669,6 +1728,9 @@ const Engagement_Letter = () => {
                                     Documents
                                   </td>
                                   <td className="tr-table-class text-white">
+                                    Last Updated On
+                                  </td>
+                                  <td className="tr-table-class text-white">
                                     Send Reminder
                                   </td>
                                   <td className="tr-table-class text-white">
@@ -1842,9 +1904,6 @@ const Engagement_Letter = () => {
                                           </td>
 
                                           <td className="table-content-font">
-                                            {/* <a href={engagement.documents} target="_blank">
-                                      {EngagementName} PDF
-                                    </a> */}
                                             {engagement.statusID !==
                                               statusID.Draft &&
                                               engagement.statusID !==
@@ -1884,6 +1943,37 @@ const Engagement_Letter = () => {
                                                   {EngagementName} PDF
                                                 </p>
                                               )}
+                                          </td>
+                                          <td className="table-content-font">
+                                            {engagement.statusID ===
+                                              statusID.Signed ? (
+                                              <span>
+                                                Signed on:{" "}
+                                                {engagement.signedOn}
+                                              </span>
+                                            ) : engagement.statusID ===
+                                              statusID.Sent ? (
+                                              <span>
+                                                Sent on:{" "}
+                                                {GetOnlyDate(engagement.sentOn)}
+                                              </span>
+                                            ) : engagement.statusID ===
+                                              statusID.Draft ? (
+                                              <span>
+                                                Drafted on:{" "}
+                                                {GetOnlyDate(
+                                                  engagement.createdOn
+                                                )}
+                                              </span>
+                                            ) : engagement.statusID ===
+                                              statusID.Void ? (
+                                              <span>
+                                                Voided on:{" "}
+                                                {GetOnlyDate(
+                                                  engagement.lastUpdatedOn
+                                                )}
+                                              </span>
+                                            ) : null}
                                           </td>
 
                                           <td className="table-content-font">
@@ -1987,27 +2077,63 @@ const Engagement_Letter = () => {
                                                   {engagement.statusID ===
                                                     statusID.Draft &&
                                                     userAccessData.Admin_Engagement_Latter_CanEdit && (
-                                                      <li>
-                                                        {/* <Tooltip title={`Edit ${EngagementName}`}> */}
-                                                        <a
-                                                          class="dropdown-item"
-                                                          onClick={() =>
-                                                            EngagementEditBtnClicked(
-                                                              engagement
-                                                            )
-                                                          }
-                                                        >
-                                                          <i
-                                                            className="ri-pencil-fill custom-pencil-icon"
-                                                            style={{
-                                                              marginRight:
-                                                                "2px",
+                                                      <>
+                                                        <li>
+                                                          {/* <Tooltip title={`Edit ${EngagementName}`}> */}
+                                                          <a
+                                                            class="dropdown-item"
+                                                            onClick={() =>
+                                                              EngagementEditBtnClicked(
+                                                                engagement
+                                                              )
+                                                            }
+                                                          >
+                                                            <i
+                                                              className="ri-pencil-fill custom-pencil-icon"
+                                                              style={{
+                                                                marginRight:
+                                                                  "2px",
+                                                              }}
+                                                            ></i>{" "}
+                                                            Edit{" "}
+                                                            {EngagementName}
+                                                          </a>
+                                                          {/* </Tooltip> */}
+                                                        </li>
+
+                                                        {/* Delete Contract */}
+
+                                                        <li>
+                                                          {/* <Tooltip title={`Delete ${proposalName}`} placement="right"> */}
+                                                          <a
+                                                            class="dropdown-item"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#ConfirmModel"
+                                                            onClick={() => {
+                                                              setModelRequestData(
+                                                                (prev) => ({
+                                                                  ...prev,
+                                                                  Action:
+                                                                    "DeleteContract",
+                                                                  contractKeyID:
+                                                                    engagement.contractKeyID,
+                                                                })
+                                                              );
                                                             }}
-                                                          ></i>{" "}
-                                                          Edit {EngagementName}
-                                                        </a>
-                                                        {/* </Tooltip> */}
-                                                      </li>
+                                                          >
+                                                            <i
+                                                              className="ri-delete-bin-5-fill"
+                                                              style={{
+                                                                marginRight:
+                                                                  "2px",
+                                                              }}
+                                                            ></i>{" "}
+                                                            Delete{" "}
+                                                            {EngagementName}
+                                                          </a>
+                                                          {/* </Tooltip> */}
+                                                        </li>
+                                                      </>
                                                     )}
 
                                                   {/* View button */}
@@ -2027,6 +2153,44 @@ const Engagement_Letter = () => {
                                                           View {EngagementName}
                                                         </a>
                                                       </li>
+                                                    )}
+
+                                                  {/* Void action button */}
+                                                  {engagement.statusID ===
+                                                    statusID.Void &&
+                                                    userAccessData.Admin_Engagement_Latter_CanEdit && (
+                                                      <>
+                                                        {/* Delete Void */}
+                                                        <li>
+                                                          <a
+                                                            class="dropdown-item"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#ConfirmModel"
+                                                            onClick={() => {
+                                                              setModelRequestData(
+                                                                (prev) => ({
+                                                                  ...prev,
+                                                                  Action:
+                                                                    "DeleteContract",
+                                                                  contractKeyID:
+                                                                    engagement.contractKeyID,
+                                                                })
+                                                              );
+                                                            }}
+                                                          >
+                                                            <i
+                                                              className="ri-delete-bin-5-fill"
+                                                              style={{
+                                                                marginRight:
+                                                                  "2px",
+                                                              }}
+                                                            ></i>{" "}
+                                                            Delete{" "}
+                                                            {EngagementName}
+                                                          </a>
+                                                          {/* </Tooltip> */}
+                                                        </li>
+                                                      </>
                                                     )}
 
                                                   {/* Copy button */}
@@ -2819,7 +2983,9 @@ const Engagement_Letter = () => {
                   ? VoidContractData
                   : modelRequestData.Action === "Delete"
                     ? DeleteSingleApiContractData
-                    : CopyContractData
+                    : modelRequestData.Action === "DeleteContract"
+                      ? HandleDeleteDraftContractData
+                      : CopyContractData
           }
         />
         <SuccessModal
@@ -2840,7 +3006,9 @@ const Engagement_Letter = () => {
                       ? selectedRows.length !== 0
                         ? EngagementName
                         : ""
-                      : ""
+                      : modelRequestData.Action === "DeleteContract"
+                        ? EngagementName
+                        : ""
           }
           refIdStore={modelRequestData.refId}
         />

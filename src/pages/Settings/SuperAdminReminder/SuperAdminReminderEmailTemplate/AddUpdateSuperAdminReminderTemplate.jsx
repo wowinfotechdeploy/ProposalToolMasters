@@ -71,6 +71,7 @@ function AddUpdateSuperAdminReminderTemplate(props) {
     isDefault: false,
     templateName: undefined,
     templateTypeID: null,
+    subject: null,
     ClientBusinessTypeID: null,
     isPredefined: null,
   });
@@ -135,6 +136,7 @@ function AddUpdateSuperAdminReminderTemplate(props) {
             organisationID: ModelData.organisationID,
             createdByID: ModelData.createdByID,
             templateName: ModelData.templateName,
+            subject: ModelData.subject,
             templateTypeID: ModelData.templateTypeID,
             isDefault: ModelData.isDefault,
             ClientBusinessTypeID: ModelData.ClientBusinessTypeID,
@@ -169,6 +171,9 @@ function AddUpdateSuperAdminReminderTemplate(props) {
     if (
       TemplateObj.templateName === undefined ||
       TemplateObj.templateName === "" ||
+      TemplateObj.subject === undefined ||
+      TemplateObj.subject === "" ||
+      TemplateObj.subject === null ||
       TemplateObj.templateTypeID === undefined ||
       TemplateObj.templateTypeID === "" ||
       TemplateObj.templateTypeID === null ||
@@ -239,6 +244,7 @@ function AddUpdateSuperAdminReminderTemplate(props) {
       isPredefined: common.roleTypeId === USER_ROLE_TYPE.SuperAdmin ? 1 : 0,
 
       templateName: TemplateObj.templateName,
+      subject: TemplateObj.subject,
       isDefault: TemplateObj.isDefault,
       templateElementList: templateElementList,
     };
@@ -413,8 +419,8 @@ function AddUpdateSuperAdminReminderTemplate(props) {
                       </div>
                       {/* <label className="validation">{errorMessage}</label> */}
                       {requireErrorMessage &&
-                        (TemplateObj.templateName === "" ||
-                          TemplateObj.templateName === undefined) ? (
+                      (TemplateObj.templateName === "" ||
+                        TemplateObj.templateName === undefined) ? (
                         <label className="validation">{ERROR_MESSAGES}</label>
                       ) : (
                         ""
@@ -422,7 +428,7 @@ function AddUpdateSuperAdminReminderTemplate(props) {
                     </div>
                   </div>
                 </div>
-
+                {/* Template type */}
                 <div className="row" id="TemplateTypeDiv">
                   <div className="col-lg-2 template-label text-left">
                     <div className="mb-1">
@@ -445,8 +451,8 @@ function AddUpdateSuperAdminReminderTemplate(props) {
                         />
                       </div>
                       {requireErrorMessage &&
-                        (TemplateObj.templateTypeID == "" ||
-                          TemplateObj.templateTypeID == null) ? (
+                      (TemplateObj.templateTypeID == "" ||
+                        TemplateObj.templateTypeID == null) ? (
                         <label className="validation">{ERROR_MESSAGES}</label>
                       ) : (
                         ""
@@ -454,6 +460,58 @@ function AddUpdateSuperAdminReminderTemplate(props) {
                     </div>
                   </div>
                 </div>
+
+                {/* Subject Line */}
+
+                <div className="row" id="TemplateNameDiv">
+                  <div className="col-lg-2 template-label text-left">
+                    <div className="mb-1">
+                      <label className="form-label">
+                        Subject Line
+                        <span className="text-danger">*</span>
+                      </label>
+                    </div>
+                  </div>
+                  <div className="col-lg-10">
+                    <div className="mb-2 ">
+                      <div className="input-group">
+                        <input
+                          type="text"
+                          className="input-text"
+                          placeholder="Enter Subject Line"
+                          value={TemplateObj.subject}
+                          onChange={(e) => {
+                            setErrorMessage("");
+                            const inputValue = e.target.value;
+                            const trimmedValue = inputValue.replace(
+                              /^\s+/g,
+                              ""
+                            );
+                            const capitalizedValue =
+                              trimmedValue.charAt(0).toUpperCase() +
+                              trimmedValue.slice(1);
+                            setTemplateObj({
+                              ...TemplateObj,
+                              subject: capitalizedValue,
+                            });
+                          }}
+                          maxLength={50}
+                        />
+                      </div>
+                      {/* <label className="validation">{errorMessage}</label> */}
+                      {requireErrorMessage &&
+                      (TemplateObj.subject === "" ||
+                        TemplateObj.subject === undefined ||
+                        TemplateObj.subject === null) ? (
+                        <label className="validation">{ERROR_MESSAGES}</label>
+                      ) : (
+                        ""
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Is default */}
                 <div className="row mb-2">
                   <div
                     style={{ padding: "10px" }}
@@ -526,13 +584,13 @@ function AddUpdateSuperAdminReminderTemplate(props) {
                   </div>
                 </div>
                 {requireErrorMessage &&
-                  (!editorState ||
-                    templateElementList[0].htmlContent === null ||
-                    templateElementList[0].htmlContent === "" ||
-                    templateElementList[0].htmlContent === undefined ||
-                    templateElementList[0].htmlContent === "<p></p>\n" ||
-                    templateElementList[0].htmlContent === "<p></p>" ||
-                    templateElementList[0].htmlContent === "<p><br></p>") ? (
+                (!editorState ||
+                  templateElementList[0].htmlContent === null ||
+                  templateElementList[0].htmlContent === "" ||
+                  templateElementList[0].htmlContent === undefined ||
+                  templateElementList[0].htmlContent === "<p></p>\n" ||
+                  templateElementList[0].htmlContent === "<p></p>" ||
+                  templateElementList[0].htmlContent === "<p><br></p>") ? (
                   <label className="validation">{ERROR_MESSAGES}</label>
                 ) : (
                   ""
@@ -546,9 +604,9 @@ function AddUpdateSuperAdminReminderTemplate(props) {
               <label className="validation">
                 {" "}
                 {common.professionTypeLists?.length <= 1 &&
-                  errorMessage?.includes(
-                    `Please don't choose this profession type`
-                  )
+                errorMessage?.includes(
+                  `Please don't choose this profession type`
+                )
                   ? errorMessage.split(".")[0]
                   : errorMessage}
               </label>

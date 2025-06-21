@@ -6,7 +6,7 @@ import CommonButtonComponent from "../../../components/CommonButtonComponent";
 import FormGroup from "@mui/material/FormGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Android12Switch from "../../../components/AndroidSwitch";
-import SubscriptionPackageModel from "./SubscriptionPackageModel";
+// import SubscriptionPackageModel from "./SubscriptionPackageModel";
 import ConfirmModel from "../../../components/ConfirmationBox";
 import PaginationComponent from "../../../components/PaginationModel";
 import Tooltip, { tooltipClasses } from "@mui/material/Tooltip";
@@ -23,8 +23,8 @@ import SuccessModal from "../../../components/SuccessModal";
 import Footer from "../../../components/Footer";
 // import { updateState } from "../../../redux/Persist";
 import { updateState } from "../../../redux/Persist";
-const Subscription_Package = () => {
-  const moduleName = "Subscription Package";
+const PdfToCsvSubscription_Package = () => {
+  const moduleName = "PDF To CSV Subscription Package";
   // A] States Declaration :
   const [subscriptionPackageList, setSubscriptionPackageList] = useState([]);
   const [totalRecords, setTotalRecords] = useState(-1);
@@ -97,7 +97,7 @@ const Subscription_Package = () => {
       modelRequestData.subscriptionPackageKeyID !== null
     ) {
       setTopbar("none");
-      navigate("/subscriptionModal", { state: modelRequestData });
+      navigate("/pdf-csv-subscriptionModal", { state: modelRequestData });
     } else if (modelRequestData.Action === null) {
       GetSubscriptionPackageListData(1);
     }
@@ -181,14 +181,15 @@ const Subscription_Package = () => {
       userKeyID: null,
     };
     setTopbar("none");
-    navigate("/subscriptionModal", { state: addEmailTemplateRequestData });
+    navigate("/pdf-csv-subscriptionModal", {
+      state: addEmailTemplateRequestData,
+    });
   };
   // 2) On Click subscription package Edit Button
   const SubscriptionPackageEditBtnClicked = (subscriptionPackage) => {
-    // debugger;
-    // dispatch(updateState({ currentPage: currentPage }));
-    setModelRequestData(() => ({
-      ...modelRequestData,
+    dispatch(updateState({ currentPage: currentPage }));
+    setModelRequestData((prevState) => ({
+      ...prevState,
       subscriptionPackageKeyID: subscriptionPackage?.subscriptionPackageKeyID,
       Action: "Update",
       isFreePackage: subscriptionPackage.isFreePackage,
@@ -284,7 +285,9 @@ const Subscription_Package = () => {
             <div class="container">
               <div className="row">
                 <div className="col-md-6 col-6">
-                  <div class="page-title-cls">Subscription Packages</div>
+                  <div class="page-title-cls">
+                    PDF To CSV Subscription Packages
+                  </div>
                 </div>
                 <div class="col-md-6 col-6">
                   <div className="d-flex justify-content-sm-end add-new-btn">
@@ -460,11 +463,7 @@ const Subscription_Package = () => {
                                     <td>
                                       <div class="d-flex gap-2">
                                         {userAccessData.SuperAdmin_Config_Subscription_Package_CanEdit && (
-                                          <Tooltip
-                                            title={
-                                              "Update Subscription Package"
-                                            }
-                                          >
+                                          <Tooltip title={"Update Package"}>
                                             <div class="edit">
                                               <button
                                                 onClick={() =>
@@ -594,4 +593,4 @@ const Subscription_Package = () => {
     </div>
   );
 };
-export default Subscription_Package;
+export default PdfToCsvSubscription_Package;

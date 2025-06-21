@@ -613,6 +613,12 @@ const emailTemplates = [
   { value: 3, label: "Template 3" },
 ];
 
+export const PdfToCsvValidityList = [
+  { value: 1, label: "Months" },
+  { value: 2, label: "Current Month" },
+  { value: 3, label: "Unlimited" },
+];
+
 const periods = [{ value: 1, label: "After" }];
 
 const repeats = [

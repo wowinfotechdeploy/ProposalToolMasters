@@ -37,7 +37,7 @@ function SuperAdminEmailTemplateModel(props) {
     getCrudPopUpTitleName,
     scrollUpDownByElementID,
     HtmlToPlainText,
-    updateTemplateList
+    updateTemplateList,
   } = useContext(AuthContextProvider);
   const navigate = useNavigate();
   const common = useSelector((state) => state.Storage); //Getting Logged Users Details From Persist Storage of redux hooks
@@ -64,6 +64,7 @@ function SuperAdminEmailTemplateModel(props) {
     organisationID: null,
     createdByID: null,
     status: 1,
+    subject: null,
     isDefault: false,
     templateName: undefined,
     templateTypeID: null,
@@ -131,6 +132,7 @@ function SuperAdminEmailTemplateModel(props) {
             organisationID: ModelData.organisationID,
             createdByID: ModelData.createdByID,
             templateName: ModelData.templateName,
+            subject: ModelData.subject,
             templateTypeID: ModelData.templateTypeID,
             isDefault: ModelData.isDefault,
             ClientBusinessTypeID: ModelData.ClientBusinessTypeID,
@@ -166,6 +168,9 @@ function SuperAdminEmailTemplateModel(props) {
     if (
       TemplateObj.templateName === undefined ||
       TemplateObj.templateName === "" ||
+      TemplateObj.subject === undefined ||
+      TemplateObj.subject === "" ||
+      TemplateObj.subject === null ||
       TemplateObj.templateTypeID === undefined ||
       TemplateObj.templateTypeID === "" ||
       TemplateObj.templateTypeID === null ||
@@ -196,7 +201,9 @@ function SuperAdminEmailTemplateModel(props) {
       templateElementList[0].htmlContent === "<p></p>" ||
       templateElementList[0].htmlContent === "<p><br></p>"
     ) {
-      scrollUpDownByElementID(`EditorDiv_${templateElementList[0].htmlContent}`);
+      scrollUpDownByElementID(
+        `EditorDiv_${templateElementList[0].htmlContent}`
+      );
       setRequireErrorMessage(true);
       return false;
     } else if (editorState) {
@@ -211,7 +218,9 @@ function SuperAdminEmailTemplateModel(props) {
           htmlContent: null,
         };
         setTemplateElementList(updatedTemplateElementList);
-        scrollUpDownByElementID(`EditorDiv_${templateElementList[0].htmlContent}`);
+        scrollUpDownByElementID(
+          `EditorDiv_${templateElementList[0].htmlContent}`
+        );
         setRequireErrorMessage(true);
         return false;
       }
@@ -219,7 +228,10 @@ function SuperAdminEmailTemplateModel(props) {
       setRequireErrorMessage(false); // Clear the error message if there are no errors.
     }
     // Await the result of updateTemplateList
-    const updatedTemplateList = await updateTemplateList(templateElementList, "Super_Admin_Email_Template");
+    const updatedTemplateList = await updateTemplateList(
+      templateElementList,
+      "Super_Admin_Email_Template"
+    );
     // Prepare Object For Add Update
     const ApiRequest_ParamsObj = {
       // Global level params: fixed
@@ -232,6 +244,7 @@ function SuperAdminEmailTemplateModel(props) {
       ClientBusinessTypeID: TemplateObj.ClientBusinessTypeID,
       isPredefined: common.roleTypeId === USER_ROLE_TYPE.SuperAdmin ? 1 : 0,
       templateName: TemplateObj.templateName,
+      subject: TemplateObj.subject,
       isDefault: TemplateObj.isDefault,
       templateElementList: updatedTemplateList, // Use the result of updateTemplateList
     };
@@ -239,7 +252,6 @@ function SuperAdminEmailTemplateModel(props) {
     // Call the API
     AddUpdateEmailTemplatesData(ApiRequest_ParamsObj);
   };
-
 
   //Handle Close
   const handleClose = () => {
@@ -373,6 +385,7 @@ function SuperAdminEmailTemplateModel(props) {
             <div class="separator mb-3"></div>
             <div className="template-height scrollbar">
               <div class="tab-content">
+                {/* Template Name */}
                 <div className="row" id="TemplateNameDiv">
                   <div className="col-lg-2 template-label text-left">
                     <div className="mb-1">
@@ -410,8 +423,8 @@ function SuperAdminEmailTemplateModel(props) {
                       </div>
                       {/* <label className="validation">{errorMessage}</label> */}
                       {requireErrorMessage &&
-                        (TemplateObj.templateName === "" ||
-                          TemplateObj.templateName === undefined) ? (
+                      (TemplateObj.templateName === "" ||
+                        TemplateObj.templateName === undefined) ? (
                         <label className="validation">{ERROR_MESSAGES}</label>
                       ) : (
                         ""
@@ -419,7 +432,7 @@ function SuperAdminEmailTemplateModel(props) {
                     </div>
                   </div>
                 </div>
-
+                {/* Template Type */}
                 <div className="row" id="TemplateTypeDiv">
                   <div className="col-lg-2 template-label text-left">
                     <div className="mb-1">
@@ -442,8 +455,8 @@ function SuperAdminEmailTemplateModel(props) {
                         />
                       </div>
                       {requireErrorMessage &&
-                        (TemplateObj.templateTypeID == "" ||
-                          TemplateObj.templateTypeID == null) ? (
+                      (TemplateObj.templateTypeID == "" ||
+                        TemplateObj.templateTypeID == null) ? (
                         <label className="validation">{ERROR_MESSAGES}</label>
                       ) : (
                         ""
@@ -451,6 +464,55 @@ function SuperAdminEmailTemplateModel(props) {
                     </div>
                   </div>
                 </div>
+                {/* Subject Line */}
+                <div className="row" id="TemplateNameDiv">
+                  <div className="col-lg-2 template-label text-left">
+                    <div className="mb-1">
+                      <label className="form-label">
+                        Subject Line
+                        <span className="text-danger">*</span>
+                      </label>
+                    </div>
+                  </div>
+                  <div className="col-lg-10">
+                    <div className="mb-2 ">
+                      <div className="input-group">
+                        <input
+                          type="text"
+                          className="input-text"
+                          placeholder="Enter Subject Line"
+                          value={TemplateObj.subject}
+                          onChange={(e) => {
+                            setErrorMessage("");
+                            const inputValue = e.target.value;
+                            const trimmedValue = inputValue.replace(
+                              /^\s+/g,
+                              ""
+                            );
+                            const capitalizedValue =
+                              trimmedValue.charAt(0).toUpperCase() +
+                              trimmedValue.slice(1);
+                            setTemplateObj({
+                              ...TemplateObj,
+                              subject: capitalizedValue,
+                            });
+                          }}
+                          maxLength={50}
+                        />
+                      </div>
+                      {/* <label className="validation">{errorMessage}</label> */}
+                      {requireErrorMessage &&
+                      (TemplateObj.subject === "" ||
+                        TemplateObj.subject === undefined ||
+                        TemplateObj.subject === null) ? (
+                        <label className="validation">{ERROR_MESSAGES}</label>
+                      ) : (
+                        ""
+                      )}
+                    </div>
+                  </div>
+                </div>
+                {/* isDefault */}
                 <div className="row mb-2">
                   <div
                     style={{ padding: "10px" }}
@@ -478,16 +540,18 @@ function SuperAdminEmailTemplateModel(props) {
                         }
                       />
                     </div>
-                    {modelAction === "Update" ? <></> :
+                    {modelAction === "Update" ? (
+                      <></>
+                    ) : (
                       <div
                         style={{ fontSize: "12px" }}
                         className="text-muted helpMessage"
                       >
                         If you set this template as the default, any other
-                        template with the same template type will automatically be
-                        marked as non-default.
+                        template with the same template type will automatically
+                        be marked as non-default.
                       </div>
-                    }
+                    )}
                   </div>
                 </div>
                 <div>
@@ -521,13 +585,13 @@ function SuperAdminEmailTemplateModel(props) {
                   </div>
                 </div>
                 {requireErrorMessage &&
-                  (!editorState ||
-                    templateElementList[0].htmlContent === null ||
-                    templateElementList[0].htmlContent === "" ||
-                    templateElementList[0].htmlContent === undefined ||
-                    templateElementList[0].htmlContent === "<p></p>\n" ||
-                    templateElementList[0].htmlContent === "<p></p>" ||
-                    templateElementList[0].htmlContent === "<p><br></p>") ? (
+                (!editorState ||
+                  templateElementList[0].htmlContent === null ||
+                  templateElementList[0].htmlContent === "" ||
+                  templateElementList[0].htmlContent === undefined ||
+                  templateElementList[0].htmlContent === "<p></p>\n" ||
+                  templateElementList[0].htmlContent === "<p></p>" ||
+                  templateElementList[0].htmlContent === "<p><br></p>") ? (
                   <label className="validation">{ERROR_MESSAGES}</label>
                 ) : (
                   ""
@@ -541,9 +605,9 @@ function SuperAdminEmailTemplateModel(props) {
               <label className="validation">
                 {" "}
                 {common.professionTypeLists?.length <= 1 &&
-                  errorMessage?.includes(
-                    `Please don't choose this profession type`
-                  )
+                errorMessage?.includes(
+                  `Please don't choose this profession type`
+                )
                   ? errorMessage.split(".")[0]
                   : errorMessage}
               </label>

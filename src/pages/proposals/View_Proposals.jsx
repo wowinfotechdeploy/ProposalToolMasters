@@ -31,6 +31,7 @@ const View_Proposals = () => {
     keyID: null,
     SearchKeyword: "",
   });
+  const location = useLocation();
   const [vatPercentage, setVATPercentage] = useState(null);
   const [packageList, setPackageList] = useState([]);
   const [selectedPackagesList, setSelectedPackagesList] = useState([]);
@@ -88,6 +89,13 @@ const View_Proposals = () => {
     acceptedServicePackageID: null
   });
 
+  const draftOn = location.state.draftOn;
+  const sentOn = location.state.sentOn;
+  const AcceptedOn = location.state.acceptDeclineDate;
+  const SkippedOn = location.state.SkippedOn;
+
+  console.log(draftOn,sentOn,AcceptedOn,SkippedOn);
+
   const {
     setTopbar,
     proposalName,
@@ -97,7 +105,7 @@ const View_Proposals = () => {
     isMobile,
   } = useContext(AuthContextProvider);
   const navigate = useNavigate();
-  const location = useLocation();
+ 
   const [RecurringPricingInfo, setRecurringPricingInfo] = useState({
     OriginalPrice: 0,
     DefaultDiscount: null,
@@ -789,6 +797,47 @@ const View_Proposals = () => {
                                       {ProposalObject.quoteTypeName}
                                     </td>
                                   </tr>
+                                  {
+                                    draftOn && (
+                                      <tr>
+                                        <td>Drafted On</td>
+                                        <td class="text-end">
+                                          {draftOn}
+                                        </td>
+                                      </tr>
+                                    )
+                                  }
+                                  {
+                                    sentOn && (
+                                      <tr>
+                                        <td>Sent On</td>
+                                        <td class="text-end">
+                                          {sentOn}
+                                        </td>
+                                      </tr>
+                                    )
+                                  }
+                                  {
+                                    AcceptedOn && (
+                                      <tr>
+                                        <td>Signed On</td>
+                                        <td class="text-end">
+                                          {AcceptedOn}
+                                        </td>
+                                      </tr>
+                                    )
+                                  }
+
+                                  {
+                                    SkippedOn && (
+                                      <tr>
+                                        <td>Skipped On</td>
+                                        <td class="text-end">
+                                          {SkippedOn}
+                                        </td>
+                                      </tr>
+                                    )
+                                  }
                                 </tbody>
                               </table>
                             </div>

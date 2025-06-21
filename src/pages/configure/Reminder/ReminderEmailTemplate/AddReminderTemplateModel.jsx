@@ -66,6 +66,7 @@ function AddUpdateReminderTemplate(props) {
     status: 1,
     isDefault: false,
     templateName: undefined,
+    subject: null,
     templateTypeID: null,
     ClientBusinessTypeID: null,
     isPredefined: null,
@@ -95,7 +96,10 @@ function AddUpdateReminderTemplate(props) {
     setTopbar("none");
 
     if (location.state?.templateKeyID !== null) {
-      GetEmailTemplatesModelData(location.state?.templateKeyID, location.state?.Type);
+      GetEmailTemplatesModelData(
+        location.state?.templateKeyID,
+        location.state?.Type
+      );
     }
   }, [location.state]);
 
@@ -115,11 +119,11 @@ function AddUpdateReminderTemplate(props) {
 
   //2) TemplateType Lookup List Api
   const GetTemplateTypeLookupListData = async () => {
-    setLoader(true)
+    setLoader(true);
     try {
       const data = await GetTemplateTypeList(5);
       if (data?.data?.statusCode === 200) {
-        setLoader(false)
+        setLoader(false);
         if (data?.data?.responseData?.data) {
           let TemplateTypeListData = data?.data?.responseData?.data;
           TemplateTypeListData = TemplateTypeListData.map((templateType) => ({
@@ -144,11 +148,11 @@ function AddUpdateReminderTemplate(props) {
           setTemplateTypeLookupList(updatedData);
         }
       } else {
-        setLoader(false)
+        setLoader(false);
         setErrorMessage(data?.data?.errorMessage);
       }
     } catch (error) {
-      setLoader(false)
+      setLoader(false);
       console.log(error);
     }
   };
@@ -184,6 +188,7 @@ function AddUpdateReminderTemplate(props) {
             organisationID: ModelData.organisationID,
             createdByID: ModelData.createdByID,
             templateName: ModelData.templateName,
+            subject: ModelData.subject,
             templateTypeID: ModelData.templateTypeID,
             isDefault: ModelData.isDefault,
             ClientBusinessTypeID: ModelData.ClientBusinessTypeID,
@@ -233,12 +238,15 @@ function AddUpdateReminderTemplate(props) {
     if (Accept === "Accept") {
       $("#" + "ConfirmSAChangesModel").modal("show");
 
-      setStatus(true)
-      return
+      setStatus(true);
+      return;
     }
     if (
       TemplateObj.templateName === undefined ||
       TemplateObj.templateName === "" ||
+      TemplateObj.subject === undefined ||
+      TemplateObj.subject === "" ||
+      TemplateObj.subject === null ||
       TemplateObj.templateTypeID === undefined ||
       TemplateObj.templateTypeID === "" ||
       TemplateObj.templateTypeID === null ||
@@ -306,9 +314,10 @@ function AddUpdateReminderTemplate(props) {
       ClientBusinessTypeID: TemplateObj.ClientBusinessTypeID,
       isPredefined: common.roleTypeId === USER_ROLE_TYPE.SuperAdmin ? 1 : 0,
       templateName: TemplateObj.templateName,
+      subject: TemplateObj.subject,
       isDefault: TemplateObj.isDefault,
       templateElementList: templateElementList,
-      professionTypeList: null
+      professionTypeList: null,
       // professionTypeList:
       //   common.professionTypeLists?.length > 1 ||
       //     common.organisationKeyID === null
@@ -326,17 +335,17 @@ function AddUpdateReminderTemplate(props) {
 
   const handleClose = async () => {
     if (isCheck) {
-      setLoader(true)
+      setLoader(true);
       const Notification = await NotifySuperAdminPredefinedChangesToAdmin({
         userKeyID: common.userKeyID,
         moduleKeyID: TemplateObj.templateKeyID,
-        moduleName: "Predefined-Reminder-Email-Template"
-      })
+        moduleName: "Predefined-Reminder-Email-Template",
+      });
       if (Notification?.data?.statusCode === 200) {
-        setLoader(false)
-        setModelAction("NotificationSend")
-        setOpenSuccessModal(true)
-        setIsCheck(false)
+        setLoader(false);
+        setModelAction("NotificationSend");
+        setOpenSuccessModal(true);
+        setIsCheck(false);
       }
     } else {
       $("#" + props.id).modal("hide");
@@ -364,19 +373,19 @@ function AddUpdateReminderTemplate(props) {
 
             navigate("/reminder-email-template");
           } else {
-            setLoader(false)
+            setLoader(false);
             // toast.success("Updated Successfully.");
             setOpenSuccessModal(true);
             props.setIsAddUpdateActionDone(true);
             navigate("/reminder-email-template");
           }
         } else {
-          setLoader(false)
+          setLoader(false);
           setErrorMessage(response?.response?.data?.errorMessage);
         }
       }
     } catch (error) {
-      setLoader(false)
+      setLoader(false);
       console.error(error);
     }
   };
@@ -466,9 +475,9 @@ function AddUpdateReminderTemplate(props) {
     if (Decline === "Decline") {
       // $('#' + props.id).modal('hide')
 
-      setStatus(false)
+      setStatus(false);
       $("#" + "ConfirmSAChangesModel").modal("show");
-      return
+      return;
     }
     setLoader(true);
     try {
@@ -476,11 +485,11 @@ function AddUpdateReminderTemplate(props) {
         organisationKeyID: common.organisationKeyID,
         userKeyID: common.userKeyID,
         moduleKeyID: location.state?.templateKeyID,
-        moduleName: "Predefined-Reminder-Email-Template"
+        moduleName: "Predefined-Reminder-Email-Template",
         //Predefined-ServiceCategory, Predefined-GlobalConstant, Predefined-GlobalPricingDriver,
         //Predefined-PL-EL-Template, Predefined-TnC-Template, Predefined-Email-Template,
         //Predefined-Service, Predefined-ServicePackage
-      }
+      };
       const response = await DeclineSuperAdminChanges(apiRequestParams);
       if (response) {
         setLoader(false);
@@ -495,7 +504,7 @@ function AddUpdateReminderTemplate(props) {
             props.setIsAddUpdateActionDone(true);
           }
         } else {
-          setErrorMessage(true)
+          setErrorMessage(true);
           $("#" + "ConfirmSAChangesModel").modal("hide");
           setErrorMessage(response?.response?.data?.errorMessage);
         }
@@ -503,15 +512,15 @@ function AddUpdateReminderTemplate(props) {
     } catch (error) {
       console.error(error);
     }
-  }
+  };
   const handleConfirmButton = () => {
     $("#" + "ConfirmSAChangesModel").modal("hide");
     if (Status) {
-      TemplateAddUpdateBtnClicked(true)
+      TemplateAddUpdateBtnClicked(true);
     } else {
-      DeclineSuperAdminChangesData()
+      DeclineSuperAdminChangesData();
     }
-  }
+  };
   return (
     <div className="container-fluid new-item-page-container">
       <div class="new-item-page-nav"></div>
@@ -527,7 +536,12 @@ function AddUpdateReminderTemplate(props) {
             <div class="separator mb-3"></div>
             <div className="template-height scrollbar" id="style-1">
               <div class="tab-content">
-                <SAPredefinedChangesNotifyMessageModel Params={{ moduleName: moduleName, SAChanges: location.state.Type }} />
+                <SAPredefinedChangesNotifyMessageModel
+                  Params={{
+                    moduleName: moduleName,
+                    SAChanges: location.state.Type,
+                  }}
+                />
                 <>
                   {/* <div className="row" id="ProfessionTypeDiv">
                     {(common.professionTypeLists?.length > 1 ||
@@ -602,14 +616,15 @@ function AddUpdateReminderTemplate(props) {
                       />
                     </div>
                     {requireErrorMessage &&
-                      (TemplateObj.templateName === "" ||
-                        TemplateObj.templateName === undefined) ? (
+                    (TemplateObj.templateName === "" ||
+                      TemplateObj.templateName === undefined) ? (
                       <label className="validation">{ERROR_MESSAGES}</label>
                     ) : (
                       ""
                     )}
                   </div>
                 </div>
+                {/* Template Type */}
                 <div className="row" id="TemplateTypeDiv">
                   <div className="col-lg-2 template-label text-left">
                     <div className="mb-1">
@@ -632,8 +647,8 @@ function AddUpdateReminderTemplate(props) {
                         />
                       </div>
                       {requireErrorMessage &&
-                        (TemplateObj.templateTypeID == "" ||
-                          TemplateObj.templateTypeID == null) ? (
+                      (TemplateObj.templateTypeID == "" ||
+                        TemplateObj.templateTypeID == null) ? (
                         <label className="validation">{ERROR_MESSAGES}</label>
                       ) : (
                         ""
@@ -641,6 +656,57 @@ function AddUpdateReminderTemplate(props) {
                     </div>
                   </div>
                 </div>
+
+                {/* Subject Line */}
+                <div className="row" id="TemplateNameDiv">
+                  <div className="col-lg-2 template-label text-left">
+                    <div className="mb-1">
+                      <label className="form-label">
+                        Subject Line
+                        <span className="text-danger">*</span>
+                      </label>
+                    </div>
+                  </div>
+                  <div className="col-lg-10">
+                    <div className="mb-2 ">
+                      <div className="input-group">
+                        <input
+                          type="text"
+                          className="input-text"
+                          placeholder="Enter Subject Line"
+                          value={TemplateObj.subject}
+                          onChange={(e) => {
+                            setErrorMessage("");
+                            const inputValue = e.target.value;
+                            const trimmedValue = inputValue.replace(
+                              /^\s+/g,
+                              ""
+                            );
+                            const capitalizedValue =
+                              trimmedValue.charAt(0).toUpperCase() +
+                              trimmedValue.slice(1);
+                            setTemplateObj({
+                              ...TemplateObj,
+                              subject: capitalizedValue,
+                            });
+                          }}
+                          maxLength={50}
+                        />
+                      </div>
+                      {/* <label className="validation">{errorMessage}</label> */}
+                      {requireErrorMessage &&
+                      (TemplateObj.subject === "" ||
+                        TemplateObj.subject === undefined ||
+                        TemplateObj.subject === null) ? (
+                        <label className="validation">{ERROR_MESSAGES}</label>
+                      ) : (
+                        ""
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Is Default */}
                 <div className="row mb-2">
                   <div
                     style={{ padding: "10px" }}
@@ -708,25 +774,24 @@ function AddUpdateReminderTemplate(props) {
                   </div>
                 </div>
                 {requireErrorMessage &&
-                  (!editorState ||
-                    templateElementList[0].htmlContent === null ||
-                    templateElementList[0].htmlContent === "" ||
-                    templateElementList[0].htmlContent === undefined ||
-                    templateElementList[0].htmlContent === "<p></p>\n" ||
-                    templateElementList[0].htmlContent === "<p></p>" ||
-                    templateElementList[0].htmlContent === "<p><br></p>") ? (
+                (!editorState ||
+                  templateElementList[0].htmlContent === null ||
+                  templateElementList[0].htmlContent === "" ||
+                  templateElementList[0].htmlContent === undefined ||
+                  templateElementList[0].htmlContent === "<p></p>\n" ||
+                  templateElementList[0].htmlContent === "<p></p>" ||
+                  templateElementList[0].htmlContent === "<p><br></p>") ? (
                   <label className="validation">{ERROR_MESSAGES}</label>
                 ) : (
                   ""
                 )}
-
               </div>
               <label className="validation">
                 {" "}
                 {common.professionTypeLists?.length <= 1 &&
-                  errorMessage?.includes(
-                    `Please dont choose this profession type`
-                  )
+                errorMessage?.includes(
+                  `Please dont choose this profession type`
+                )
                   ? errorMessage.split(".")[0]
                   : errorMessage}
               </label>
@@ -738,51 +803,50 @@ function AddUpdateReminderTemplate(props) {
                 style={{ paddingTop: "14px" }}
                 className="hstack gap-2 justify-content-end"
               >
-                {location.state?.Type ? (<>
-                  <button
-                    type="submit"
-                    class="btn btn-md btn-success accept-item-btn"
-                    onClick={() => {
-                      TemplateAddUpdateBtnClicked("Accept");
-                    }}
-                  >
-                    <span>
-                      Accept
-                    </span>
-                  </button>
-                  <button
-                    type="submit"
-                    class="btn btn-md btn-success declined-item-btn"
-                    // data-bs-dismiss="modal"
-                    onClick={() => DeclineSuperAdminChangesData("Decline")}
-                  >
-                    <span>
-                      Decline
-                    </span>
-                  </button>
-                </>) : (<>
-                  <button
-                    onClick={handleSubmit}
-                    style={{ float: "right", paddingTop: "5px" }}
-                    className="btn btn-md btn-light"
-                  >
-                    <span>{getCrudButtonTextName("Cancel")}</span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      TemplateAddUpdateBtnClicked();
-                    }}
-                    style={{ float: "right", paddingTop: "5px" }}
-                    className="btn btn-md btn-success create-item-btn"
-                  >
-                    <span>
-                      {modelAction === "Add"
-                        ? getCrudButtonTextName("Add", moduleName)
-                        : getCrudButtonTextName("Update", moduleName)}
-                    </span>
-                  </button>
-                </>)
-                }
+                {location.state?.Type ? (
+                  <>
+                    <button
+                      type="submit"
+                      class="btn btn-md btn-success accept-item-btn"
+                      onClick={() => {
+                        TemplateAddUpdateBtnClicked("Accept");
+                      }}
+                    >
+                      <span>Accept</span>
+                    </button>
+                    <button
+                      type="submit"
+                      class="btn btn-md btn-success declined-item-btn"
+                      // data-bs-dismiss="modal"
+                      onClick={() => DeclineSuperAdminChangesData("Decline")}
+                    >
+                      <span>Decline</span>
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      onClick={handleSubmit}
+                      style={{ float: "right", paddingTop: "5px" }}
+                      className="btn btn-md btn-light"
+                    >
+                      <span>{getCrudButtonTextName("Cancel")}</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        TemplateAddUpdateBtnClicked();
+                      }}
+                      style={{ float: "right", paddingTop: "5px" }}
+                      className="btn btn-md btn-success create-item-btn"
+                    >
+                      <span>
+                        {modelAction === "Add"
+                          ? getCrudButtonTextName("Add", moduleName)
+                          : getCrudButtonTextName("Update", moduleName)}
+                      </span>
+                    </button>
+                  </>
+                )}
               </Col>
             </Row>
             {/* <!-- end tab content --> */}

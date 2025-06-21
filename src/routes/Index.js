@@ -77,6 +77,20 @@ const SubscriptionModal = Loadable(
     )
   )
 );
+const PdfToCsvSubscriptionPackageModel = Loadable(
+  lazy(() =>
+    import(
+      "../pages/subscription/pdf_csv_subscription_package/PdfToCsvSubscriptionPackageModel"
+    )
+  )
+);
+const PdfToCsvConvertorModel = Loadable(
+  lazy(() =>
+    import(
+      "../pages/subscription/pdf_csv_subscription_package/PdfToCsvConvertor"
+    )
+  )
+);
 
 const DeletionReminder = Loadable(
   lazy(() =>
@@ -187,7 +201,9 @@ const Email_Config = Loadable(
 );
 
 const SuperAdminEmail_Config = Loadable(
-  lazy(() => import("../pages/Settings/SuperAdminReminder/EmailConfig/EmailConfig"))
+  lazy(() =>
+    import("../pages/Settings/SuperAdminReminder/EmailConfig/EmailConfig")
+  )
 );
 const Users = Loadable(lazy(() => import("../pages/Settings/users/UsersList")));
 const Payment_Gateway = Loadable(
@@ -211,6 +227,13 @@ const Notification = Loadable(
 const Subscription_package = Loadable(
   lazy(() =>
     import("../pages/subscription/subscription_package/SubscriptionPackageList")
+  )
+);
+const PdfToCsvSubscription_Package = Loadable(
+  lazy(() =>
+    import(
+      "../pages/subscription/pdf_csv_subscription_package/PdfToCsvSubscriptionPackageList"
+    )
   )
 );
 const Edit_Sub_package = Loadable(
@@ -1108,7 +1131,10 @@ function Index() {
                         element={<ViewProspects />}
                       />
                       <Route path="/email-config" element={<Email_Config />} />
-                      <Route path="/reminder-Email-Config" element={<SuperAdminEmail_Config />} />
+                      <Route
+                        path="/reminder-Email-Config"
+                        element={<SuperAdminEmail_Config />}
+                      />
                       <Route
                         path="/add-proposal"
                         element={<Add_New_Proposals />}
@@ -1120,6 +1146,14 @@ function Index() {
                       <Route
                         path="/subscriptionModal"
                         element={<SubscriptionModal />}
+                      />
+                      <Route
+                        path="/pdf-csv-subscriptionModal"
+                        element={<PdfToCsvSubscriptionPackageModel />}
+                      />
+                      <Route
+                        path="/pdf-to-csv"
+                        element={<PdfToCsvConvertorModel />}
                       />
                       <Route
                         path="/UserSubscriptionTab"
@@ -1169,6 +1203,10 @@ function Index() {
                       <Route
                         path="/sub-package"
                         element={<Subscription_package />}
+                      />
+                      <Route
+                        path="/pdf-csv-sub-package"
+                        element={<PdfToCsvSubscription_Package />}
                       />
                       <Route
                         path="/edit_sub_package"
