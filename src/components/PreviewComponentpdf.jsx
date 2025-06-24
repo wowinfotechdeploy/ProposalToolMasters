@@ -4495,59 +4495,60 @@ export default function PreviewComponentPdf(props) {
                 props.updatedTnCData,
                 fontFamily
               );
-              // if (!TermAndConditionAddedOrNot) {
-              //   if (
-              //     prevElementType === ElementType.PAGE_BREAK ||
-              //     prevElementType === ElementType.AWS_PDF_LINK
-              //   ) {
-              //     if (props?.updatedTnCData || props?.engagementObj?.pdf) {
-              //       if (
-              //         props?.updatedTnCData !== null &&
-              //         props?.updatedTnCData !== undefined
-              //       ) {
-              //         currentArray.push({
-              //           textbox: `<div style="padding-left: 40px; padding-right: 40px; color:${newColorCode}; font-size: ${fontSizeHeading}; font-family:${fontFamily}" >TERMS & CONDITIONS<br>
-              //         <hr style="padding-left: 40px; padding-right: 40px; color: black;"></hr></div>
-              //           <div style="padding-left: 40px; padding-right: 40px;">${appliedFontTNCContent}</div>`,
-              //         });
-              //       } else if (
-              //         props?.engagementObj?.pdf !== null ||
-              //         props?.updatedTnCData === null
-              //       ) {
-              //         pdfDataArray.push(currentArray);
-              //         currentArray = [];
-              //         currentArray.push({
-              //           ["awsLink"]: props.engagementObj.pdf,
-              //         });
-              //       }
-              //     }
-              //   } else {
-              //     pdfDataArray.push(currentArray);
-              //     if (props?.updatedTnCData || props?.engagementObj?.pdf) {
-              //       if (
-              //         props?.updatedTnCData !== null &&
-              //         props?.updatedTnCData !== undefined
-              //       ) {
-              //         currentArray = [
-              //           {
-              //             textbox: `<div style="padding-left: 40px; padding-right: 40px; color:${newColorCode}; font-size: ${fontSizeHeading}; font-family:${fontFamily}" >TERMS & CONDITIONS<br>
-              //             <hr style="padding-left: 40px; padding-right: 40px; color: black;"></hr></div>
-              //               <div style="padding-left: 40px; padding-right: 40px;">${appliedFontTNCContent}</div>`,
-              //           },
-              //         ];
-              //       } else if (
-              //         props?.engagementObj?.pdf !== null ||
-              //         props?.updatedTnCData === null
-              //       ) {
-              //         currentArray = [
-              //           {
-              //             ["awsLink"]: props.engagementObj.pdf,
-              //           },
-              //         ];
-              //       }
-              //     }
-              //   }
-              // }
+
+              if (!TermAndConditionAddedOrNot) {
+                if (
+                  prevElementType === ElementType.PAGE_BREAK ||
+                  prevElementType === ElementType.AWS_PDF_LINK
+                ) {
+                  if (props?.updatedTnCData || props?.engagementObj?.pdf) {
+                    if (
+                      props?.updatedTnCData !== null &&
+                      props?.updatedTnCData !== undefined
+                    ) {
+                      currentArray.push({
+                        textbox: `<div style="padding-left: 40px; padding-right: 40px; color:${newColorCode}; font-size: ${fontSizeHeading}; font-family:${fontFamily}" >TERMS & CONDITIONS<br>
+                      <hr style="padding-left: 40px; padding-right: 40px; color: black;"></hr></div>
+                        <div style="padding-left: 40px; padding-right: 40px;">${appliedFontTNCContent}</div>`,
+                      });
+                    } else if (
+                      props?.engagementObj?.pdf !== null ||
+                      props?.updatedTnCData === null
+                    ) {
+                      pdfDataArray.push(currentArray);
+                      currentArray = [];
+                      currentArray.push({
+                        ["awsLink"]: props.engagementObj.pdf,
+                      });
+                    }
+                  }
+                } else {
+                  pdfDataArray.push(currentArray);
+                  if (props?.updatedTnCData || props?.engagementObj?.pdf) {
+                    if (
+                      props?.updatedTnCData !== null &&
+                      props?.updatedTnCData !== undefined
+                    ) {
+                      currentArray = [
+                        {
+                          textbox: `<div style="padding-left: 40px; padding-right: 40px; color:${newColorCode}; font-size: ${fontSizeHeading}; font-family:${fontFamily}" >TERMS & CONDITIONS<br>
+                          <hr style="padding-left: 40px; padding-right: 40px; color: black;"></hr></div>
+                            <div style="padding-left: 40px; padding-right: 40px;">${appliedFontTNCContent}</div>`,
+                        },
+                      ];
+                    } else if (
+                      props?.engagementObj?.pdf !== null ||
+                      props?.updatedTnCData === null
+                    ) {
+                      currentArray = [
+                        {
+                          ["awsLink"]: props.engagementObj.pdf,
+                        },
+                      ];
+                    }
+                  }
+                }
+              }
               const contractSignatoryRowNo = props.contractSignatoriesList.map(
                 (item, index) => ({
                   ...item,
@@ -5235,7 +5236,7 @@ export default function PreviewComponentPdf(props) {
                       />
                     </div>
 
-                        {/* Attachment section starts */}
+                    {/* Attachment section starts */}
 
                     {/* <div className="mt-3">
                       {TemplatePdfList.length > 0 && <h6>Attachments:</h6>}

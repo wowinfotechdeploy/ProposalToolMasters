@@ -20,7 +20,10 @@ import First_Page from "../../../components/TemplateDesign/First_Page";
 import { useLocation } from "react-router-dom";
 import FullPage from "../../../components/TemplateDesign/Full_Page_Heading";
 import { GetProfessionTypeLookupList } from "../../../redux/Services/Master/ProfessionTypeApi";
-import { GetBusinessTypeLookupList, GetProspectTypeVariationLookupList } from "../../../redux/Services/Master/BusinessTypeLookupListApi";
+import {
+  GetBusinessTypeLookupList,
+  GetProspectTypeVariationLookupList,
+} from "../../../redux/Services/Master/BusinessTypeLookupListApi";
 import { GetTemplateTypeList } from "../../../redux/Services/Master/TemplateTypeLookupListApi";
 import { GetTemplateElementTypeLookUpList } from "../../../redux/Services/Master/TemplateElementType";
 import {
@@ -34,7 +37,7 @@ import {
   AddUpdateTemplate,
   GetTemplatePdfList,
   GetTemplateLookupPDFList,
-  GetFontFamilyList
+  GetFontFamilyList,
 } from "../../../redux/Services/Config/TemplateApi";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -64,7 +67,7 @@ function Add_New_Templates(props) {
     scrollUpDownByElementID,
     scrollUptoCurrentPosition,
     HtmlToPlainText,
-    hasActionAccess
+    hasActionAccess,
   } = useContext(AuthContextProvider);
   const navigate = useNavigate();
   const TemplateDivContainerRef = useRef(null);
@@ -85,7 +88,9 @@ function Add_New_Templates(props) {
   const [professionTypeLookupList, setProfessionTypeLookupList] = useState([]);
   const [fontFamilyList, setFontFamilyList] = useState([]);
   const [BusinessTypeLookupList, setBusinessTypeLookupList] = useState([]);
-  const [ProspectTypeVariation, setProspectTypeVariationLookupList] = useState([]);
+  const [ProspectTypeVariation, setProspectTypeVariationLookupList] = useState(
+    []
+  );
   const [TemplateTypeLookupList, setTemplateTypeLookupList] = useState([]);
 
   const [templatePdfList, setTemplatePdfList] = useState([]);
@@ -136,10 +141,14 @@ function Add_New_Templates(props) {
   const [Status, setStatus] = React.useState(false);
   // A]  useEffect : Will call when Add/Update button click from list page
   useEffect(() => {
-    setModelAction((location?.state?.Action === undefined || location?.state?.Action === null) ? "Add" : "Update"); //Do not change this naming convention
+    setModelAction(
+      location?.state?.Action === undefined || location?.state?.Action === null
+        ? "Add"
+        : "Update"
+    ); //Do not change this naming convention
     GetProfessionTypeLookupListData();
     GetBusinessTypeLookupListData();
-    GetProspectTypeVariationLookupListData()
+    GetProspectTypeVariationLookupListData();
     GetTemplateTypeLookupListData();
     // GetFontFamilyListData();
     GetTemplateElementTypeLookUpListData();
@@ -148,15 +157,15 @@ function Add_New_Templates(props) {
       GetTemplateModalData(location.state?.templateKeyID, location.state?.Type);
       setModelRequestData({
         ...modelRequestData,
-        Action: "update"
-      })
+        Action: "update",
+      });
     }
   }, [location.state]);
   useEffect(() => {
     if (modelAction === "Update") {
-      GetTemplateLookupPdfListData()
+      GetTemplateLookupPdfListData();
     }
-  }, [modelAction])
+  }, [modelAction]);
   const SetInitialModelData = () => {
     setTemplateObj({
       templateKeyID: null,
@@ -190,12 +199,10 @@ function Add_New_Templates(props) {
   //     console.error(error);
   //   }
   // }
-  const FontFamilyLookupList = Utils.FontFamily.map(
-    (font) => ({
-      value: font.value,
-      label: font.label
-    })
-  );
+  const FontFamilyLookupList = Utils.FontFamily.map((font) => ({
+    value: font.value,
+    label: font.label,
+  }));
   const FontFamilyValue = FontFamilyLookupList?.find(
     (font) => font.value === TemplateObj.fontFamilyID || null
   );
@@ -224,7 +231,7 @@ function Add_New_Templates(props) {
     value: item.professionTypeId,
     label: item.professionTypeName,
   }));
-  // Handle Compare And Set Pdf 
+  // Handle Compare And Set Pdf
   const handleCompareAndSetPdf = () => {
     templateElementList.forEach((element) => {
       if (element.templateElementTypeID === 9) {
@@ -244,8 +251,12 @@ function Add_New_Templates(props) {
   useEffect(() => {
     const Admin_Config_Template_CanAdd = hasActionAccess(21, 81);
     const SuperAdmin_Config_Template_CanAdd = hasActionAccess(16, 61);
-    if ((location?.state?.Action === undefined || location?.state?.Action === null) && !(Admin_Config_Template_CanAdd || SuperAdmin_Config_Template_CanAdd)) {
-      navigate(-1)
+    if (
+      (location?.state?.Action === undefined ||
+        location?.state?.Action === null) &&
+      !(Admin_Config_Template_CanAdd || SuperAdmin_Config_Template_CanAdd)
+    ) {
+      navigate(-1);
     }
     handleCompareAndSetPdf(); // Call the function to set the initial selected PDF
   }, []);
@@ -274,10 +285,13 @@ function Add_New_Templates(props) {
       console.log(error);
     }
   };
-  // Get Prospect Type variation Lookup list data 
+  // Get Prospect Type variation Lookup list data
   const GetProspectTypeVariationLookupListData = async () => {
     try {
-      const data = await GetProspectTypeVariationLookupList(common.organisationKeyID, common.userKeyID);
+      const data = await GetProspectTypeVariationLookupList(
+        common.organisationKeyID,
+        common.userKeyID
+      );
       if (data?.data?.statusCode === 200) {
         if (data?.data?.responseData?.data) {
           let BusinessTypeListData = data?.data?.responseData?.data;
@@ -379,7 +393,6 @@ function Add_New_Templates(props) {
     }
   ).filter(Boolean);
 
-
   // E] Event Handling Functions will call here.
   // 1) On Change Select Profession Type
   const OnChangeSelectProfessionType = (ptype) => {
@@ -400,7 +413,7 @@ function Add_New_Templates(props) {
       return;
     }
     try {
-      setLoader(true)
+      setLoader(true);
       const data = await GetTemplateModel(id, GetSAChanges);
       if (data?.data?.statusCode === 200) {
         if (data?.data?.responseData?.data) {
@@ -421,35 +434,33 @@ function Add_New_Templates(props) {
             fontFamilyID: ModelData.fontFamilyID,
             professionTypeList: ModelData.professionTypeList,
             originalBusinessTypeID: ModelData.originalBusinessTypeID,
-            originalBusinessTypeIDs: ModelData.originalBusinessTypeIDs
+            originalBusinessTypeIDs: ModelData.originalBusinessTypeIDs,
           });
           setTemplateElementList(
             ...templateElementList,
             ModelData.templateElementList
           );
         }
-        setLoader(false)
+        setLoader(false);
       } else {
         setErrorMessage(data?.data?.errorMessage);
-        setLoader(false)
+        setLoader(false);
       }
     } catch (error) {
       console.log(error);
-      setLoader(false)
+      setLoader(false);
     }
   };
 
-  // Get Template Lookup Pdf List Data 
+  // Get Template Lookup Pdf List Data
   const GetTemplateLookupPdfListData = async () => {
-
     try {
       const data = await GetTemplateLookupPDFList({
         OrganisationKeyID: common.organisationKeyID,
         userKeyID: common.userKeyID,
-        selectedTemplatePDFKeyIDs: selectedPdfDetails.length > 0 ? selectedPdfDetails : null
-      }
-
-      );
+        selectedTemplatePDFKeyIDs:
+          selectedPdfDetails.length > 0 ? selectedPdfDetails : null,
+      });
       if (data) {
         if (data?.data?.statusCode === 200) {
           if (data?.data?.responseData?.data) {
@@ -473,12 +484,11 @@ function Add_New_Templates(props) {
 
   // 2) Add Update Button Click Function
   const TemplateAddUpdateBtnClicked = (Accept) => {
-
     if (Accept === "Accept") {
       $("#" + "ConfirmSAChangesModel").modal("show");
 
-      setStatus(true)
-      return
+      setStatus(true);
+      return;
     }
     // Check Validations will be done here
     if (
@@ -663,7 +673,7 @@ function Add_New_Templates(props) {
                 setTemplateElementList(updatedTemplateElementList);
                 hasError = true;
                 scrollUpDownByElementID(`EditorDiv_${element.htmlContent}`);
-                return false  // This should probably be set through state to trigger re-renders
+                return false; // This should probably be set through state to trigger re-renders
               }
             } else {
               scrollUpDownByElementID(`EditorDiv_${element.htmlContent}`);
@@ -737,20 +747,22 @@ function Add_New_Templates(props) {
           });
         }
 
-        if (TemplateObj.templateTypeID === 2 && elementTypeId.length === 0) {
-          const SignataryBlock = templateElementList.filter(
-            (item) => item.templateElementTypeID == 7
-          );
+        // Select atleast one signatory block validation
 
-          if (SignataryBlock.length === 0) {
-            scrollUpDownByElementID("SignatoriesBlockDiv");
-            setRequireElementTypeErrorMessage({
-              ...requireElementTypeErrorMessage,
-              RequireSignataryBlock: true,
-            });
-            hasError = true;
-          }
-        }
+        // if (TemplateObj.templateTypeID === 2 && elementTypeId.length === 0) {
+        //   const SignataryBlock = templateElementList.filter(
+        //     (item) => item.templateElementTypeID == 7
+        //   );
+
+        //   if (SignataryBlock.length === 0) {
+        //     scrollUpDownByElementID("SignatoriesBlockDiv");
+        //     setRequireElementTypeErrorMessage({
+        //       ...requireElementTypeErrorMessage,
+        //       RequireSignataryBlock: true,
+        //     });
+        //     hasError = true;
+        //   }
+        // }
 
         const FirstPageOnTop = templateElementList.filter(
           (item) => item.templateElementTypeID == 10
@@ -821,15 +833,15 @@ function Add_New_Templates(props) {
       fontFamilyID: TemplateObj.fontFamilyID,
       professionTypeList:
         common.professionTypeLists?.length > 1 ||
-          common.organisationKeyID === null
+        common.organisationKeyID === null
           ? TemplateObj.professionTypeList
           : [
-            {
-              professionTypeId: professionTypeInputValue[0]?.professionTypeId,
-              professionTypeName:
-                professionTypeInputValue[0]?.professionTypeName,
-            },
-          ],
+              {
+                professionTypeId: professionTypeInputValue[0]?.professionTypeId,
+                professionTypeName:
+                  professionTypeInputValue[0]?.professionTypeName,
+              },
+            ],
     };
 
     AddUpdateTemplateData(ApiRequest_ParamsObj);
@@ -837,7 +849,6 @@ function Add_New_Templates(props) {
 
   // Add or Update Service Category setRequireErrorMessage
   const AddUpdateTemplateData = async (apiRequestParams) => {
-
     setLoader(true);
     try {
       let url = "/AddUpdateTemplate"; // Default URL for Adding Data
@@ -879,7 +890,7 @@ function Add_New_Templates(props) {
 
     if (templateTypeId.length === 0) {
       const elementObj = {
-        TTETMapID: null,  //Template's Template Element Type Mapping Id. 
+        TTETMapID: null, //Template's Template Element Type Mapping Id.
         templateElementTypeID: null,
         headings: null,
         shortDesc: null,
@@ -993,26 +1004,25 @@ function Add_New_Templates(props) {
   };
   const handleClose = async () => {
     if (isCheck) {
-      setLoader(true)
+      setLoader(true);
       const Notification = await NotifySuperAdminPredefinedChangesToAdmin({
         userKeyID: common.userKeyID,
         moduleKeyID: TemplateObj.templateKeyID,
-        moduleName: "Predefined-PL-EL-Template"
-      })
+        moduleName: "Predefined-PL-EL-Template",
+      });
       if (Notification?.data?.statusCode === 200) {
-        setLoader(false)
-        setModelAction("NotificationSend")
-        setOpenSuccessModal(true)
-        setIsCheck(false)
+        setLoader(false);
+        setModelAction("NotificationSend");
+        setOpenSuccessModal(true);
+        setIsCheck(false);
       }
     } else {
       $("#" + props.id).modal("hide");
       $("#" + "ConfirmSAChangesModel").modal("hide");
-      setErrorMessage(false)
+      setErrorMessage(false);
       setOpenSuccessModal(false);
       navigate("/templates");
     }
-
   };
 
   const templateTypeFilter = TemplateTypeLookupList?.filter(
@@ -1047,7 +1057,10 @@ function Add_New_Templates(props) {
 
   const handlePdfSelect = (selectedOption, index) => {
     setSelectedPdf(selectedOption);
-    setSelectedPdfDetails(prevDetails => [...prevDetails, selectedOption.value]);
+    setSelectedPdfDetails((prevDetails) => [
+      ...prevDetails,
+      selectedOption.value,
+    ]);
 
     const updatedTemplateElementList = [...templateElementList];
     if (
@@ -1058,7 +1071,6 @@ function Add_New_Templates(props) {
       updatedTemplateElementList[index].headings = selectedOption.value; // Assuming you want to set the headings property to the selected PDF title
       setTemplateElementList(updatedTemplateElementList);
     }
-
   };
 
   const SignataryBlock = templateElementList?.filter(
@@ -1069,7 +1081,10 @@ function Add_New_Templates(props) {
     .map((element, index) => {
       const matchingOption = TemplateElementLookeupListOptions.find(
         (option) => {
-          return element.templateElementTypeID !== null && option.value === element.templateElementTypeID;
+          return (
+            element.templateElementTypeID !== null &&
+            option.value === element.templateElementTypeID
+          );
         }
       );
       if (matchingOption) {
@@ -1087,9 +1102,9 @@ function Add_New_Templates(props) {
     if (Decline === "Decline") {
       // $('#' + props.id).modal('hide')
 
-      setStatus(false)
+      setStatus(false);
       $("#" + "ConfirmSAChangesModel").modal("show");
-      return
+      return;
     }
     setLoader(true);
     try {
@@ -1097,26 +1112,26 @@ function Add_New_Templates(props) {
         organisationKeyID: common.organisationKeyID,
         userKeyID: common.userKeyID,
         moduleKeyID: location.state?.templateKeyID,
-        moduleName: "Predefined-PL-EL-Template"
+        moduleName: "Predefined-PL-EL-Template",
         //Predefined-ServiceCategory, Predefined-GlobalConstant, Predefined-GlobalPricingDriver,
         //Predefined-PL-EL-Template, Predefined-TnC-Template, Predefined-Email-Template,
         //Predefined-Service, Predefined-ServicePackage
-      }
+      };
       const response = await DeclineSuperAdminChanges(apiRequestParams);
       if (response) {
         setLoader(false);
         if (response?.data?.statusCode === 200) {
           if (apiRequestParams.Action === null) {
             $("#" + "ConfirmSAChangesModel").modal("hide");
-            navigate("/templates")
+            navigate("/templates");
             props.setIsAddUpdateActionDone(true);
           } else {
             $("#" + "ConfirmSAChangesModel").modal("hide");
-            navigate("/templates")
+            navigate("/templates");
             props.setIsAddUpdateActionDone(true);
           }
         } else {
-          setErrorMessage(true)
+          setErrorMessage(true);
           $("#" + "ConfirmSAChangesModel").modal("hide");
           setErrorMessage(response?.response?.data?.errorMessage);
         }
@@ -1124,15 +1139,15 @@ function Add_New_Templates(props) {
     } catch (error) {
       console.error(error);
     }
-  }
+  };
   const handleConfirmButton = () => {
     $("#" + "ConfirmSAChangesModel").modal("hide");
     if (Status) {
-      TemplateAddUpdateBtnClicked(true)
+      TemplateAddUpdateBtnClicked(true);
     } else {
-      DeclineSuperAdminChangesData()
+      DeclineSuperAdminChangesData();
     }
-  }
+  };
 
   const handleMultiSelectChange = (selectedOptions) => {
     setTemplateObj({
@@ -1170,57 +1185,62 @@ function Add_New_Templates(props) {
               <div class="tab-content  force-overflow">
                 <>
                   <div className="row mb-2" id="ProfessionTypeDiv">
-                    <SAPredefinedChangesNotifyMessageModel Params={{ moduleName: moduleName, SAChanges: location.state?.Type }} />
+                    <SAPredefinedChangesNotifyMessageModel
+                      Params={{
+                        moduleName: moduleName,
+                        SAChanges: location.state?.Type,
+                      }}
+                    />
                     {(common.professionTypeLists?.length > 1 ||
                       common.organisationKeyID === null) && (
-                        <>
-                          <div className="col-lg-3 template-label text-left">
-                            <div className="mb-1">
-                              <label className="form-label">
-                                Profession Type
-                                <span className="text-danger">*</span>
-                              </label>
-                            </div>
+                      <>
+                        <div className="col-lg-3 template-label text-left">
+                          <div className="mb-1">
+                            <label className="form-label">
+                              Profession Type
+                              <span className="text-danger">*</span>
+                            </label>
                           </div>
-                          <div className="col-lg-9 mb-1">
-                            <div className="input-group">
-                              {common.professionTypeLists?.length > 1 ||
-                                common.organisationKeyID === null ? (
-                                <Select
-                                  isMulti
-                                  style={{ padding: "5px" }}
-                                  className="user-role-select"
-                                  options={ProfessionalTypeLookeupListOptions}
-                                  value={professionTypeValue}
-                                  onChange={OnChangeSelectProfessionType}
-                                />
-                              ) : (
-                                ""
-                                // <input
-                                //   disabled
-                                //   style={{ padding: "5px" }}
-                                //   type="text"
-                                //   class="input-text"
-                                //   placeholder=" Profession Type"
-                                //   value={
-                                //     professionTypeInputValue[0]?.professionTypeName
-                                //   }
-                                // />
-                              )}
-                            </div>
-                            {requireErrorMessage &&
-                              (common.professionTypeLists?.length > 1 ||
-                                common.organisationKeyID === null) &&
-                              professionTypeValue?.length === 0 ? (
-                              <label className="validation">
-                                {ERROR_MESSAGES}
-                              </label>
+                        </div>
+                        <div className="col-lg-9 mb-1">
+                          <div className="input-group">
+                            {common.professionTypeLists?.length > 1 ||
+                            common.organisationKeyID === null ? (
+                              <Select
+                                isMulti
+                                style={{ padding: "5px" }}
+                                className="user-role-select"
+                                options={ProfessionalTypeLookeupListOptions}
+                                value={professionTypeValue}
+                                onChange={OnChangeSelectProfessionType}
+                              />
                             ) : (
                               ""
+                              // <input
+                              //   disabled
+                              //   style={{ padding: "5px" }}
+                              //   type="text"
+                              //   class="input-text"
+                              //   placeholder=" Profession Type"
+                              //   value={
+                              //     professionTypeInputValue[0]?.professionTypeName
+                              //   }
+                              // />
                             )}
                           </div>
-                        </>
-                      )}
+                          {requireErrorMessage &&
+                          (common.professionTypeLists?.length > 1 ||
+                            common.organisationKeyID === null) &&
+                          professionTypeValue?.length === 0 ? (
+                            <label className="validation">
+                              {ERROR_MESSAGES}
+                            </label>
+                          ) : (
+                            ""
+                          )}
+                        </div>
+                      </>
+                    )}
                   </div>
                 </>
                 {common.roleTypeId === USER_ROLE_TYPE.SuperAdmin &&
@@ -1249,8 +1269,8 @@ function Add_New_Templates(props) {
                               }
                             />
                             {requireErrorMessage &&
-                              (TemplateObj.orgBusinessTypeID === "" ||
-                                TemplateObj.orgBusinessTypeID === null) ? (
+                            (TemplateObj.orgBusinessTypeID === "" ||
+                              TemplateObj.orgBusinessTypeID === null) ? (
                               <label className="validation">
                                 {ERROR_MESSAGES}
                               </label>
@@ -1281,11 +1301,9 @@ function Add_New_Templates(props) {
                         onChange={handleMultiSelectChange}
                       />
                       {requireErrorMessage &&
-                        (
-                          // TemplateObj.clientBusinessTypeID === "" ||
-                          // TemplateObj.clientBusinessTypeID === null
-                          TemplateObj.clientBusinessTypeIDs.length === 0
-                        ) ? (
+                      // TemplateObj.clientBusinessTypeID === "" ||
+                      // TemplateObj.clientBusinessTypeID === null
+                      TemplateObj.clientBusinessTypeIDs.length === 0 ? (
                         <label className="validation">{ERROR_MESSAGES}</label>
                       ) : (
                         ""
@@ -1313,8 +1331,8 @@ function Add_New_Templates(props) {
                         }}
                       />
                       {requireErrorMessage &&
-                        (TemplateObj.templateTypeID === "" ||
-                          TemplateObj.templateTypeID === null) ? (
+                      (TemplateObj.templateTypeID === "" ||
+                        TemplateObj.templateTypeID === null) ? (
                         <label className="validation">{ERROR_MESSAGES}</label>
                       ) : (
                         ""
@@ -1358,8 +1376,8 @@ function Add_New_Templates(props) {
                         />
                       </div>
                       {requireErrorMessage &&
-                        (TemplateObj.templateName === "" ||
-                          TemplateObj.templateName === undefined) ? (
+                      (TemplateObj.templateName === "" ||
+                        TemplateObj.templateName === undefined) ? (
                         <label className="validation">{ERROR_MESSAGES}</label>
                       ) : (
                         ""
@@ -1393,24 +1411,25 @@ function Add_New_Templates(props) {
                         }
                       />
                       {requireErrorMessage &&
-                        (TemplateObj.status === "" ||
-                          TemplateObj.status === null) ? (
+                      (TemplateObj.status === "" ||
+                        TemplateObj.status === null) ? (
                         <label className="validation">{ERROR_MESSAGES}</label>
                       ) : (
                         ""
                       )}
                     </div>
-                    {modelAction === "Update" ? <></> :
+                    {modelAction === "Update" ? (
+                      <></>
+                    ) : (
                       <div
                         style={{ fontSize: "12px" }}
                         className="text-muted helpMessage"
                       >
                         If you set this template as the default, any other
-                        template with the same template type will automatically be
-                        marked as non-default.
+                        template with the same template type will automatically
+                        be marked as non-default.
                       </div>
-                    }
-
+                    )}
                   </div>
                 </div>
                 <div className="row mb-2" id="FontFamily">
@@ -1419,9 +1438,7 @@ function Add_New_Templates(props) {
                     className="col-lg-3  text-left"
                   >
                     <div className="mb-1">
-                      <label className="form-label">
-                        Font Family
-                      </label>
+                      <label className="form-label">Font Family</label>
                     </div>
                   </div>
                   <div className="col-lg-9">
@@ -1442,11 +1459,10 @@ function Add_New_Templates(props) {
                         styles={{
                           option: (provided, state) => ({
                             ...provided,
-                            cursor: 'pointer'
+                            cursor: "pointer",
                           }),
                         }}
                       />
-
                     </div>
                   </div>
                 </div>
@@ -1467,7 +1483,6 @@ function Add_New_Templates(props) {
                         alignItems: "center",
                       }}
                     >
-
                       <FormGroup>
                         <FormControlLabel
                           control={
@@ -1476,9 +1491,7 @@ function Add_New_Templates(props) {
                             >
                               <Android12Switch
                                 id="isEL"
-                                checked={
-                                  TemplateObj.enableFirstPage
-                                }
+                                checked={TemplateObj.enableFirstPage}
                                 onChange={() =>
                                   setTemplateObj({
                                     ...TemplateObj,
@@ -1499,10 +1512,12 @@ function Add_New_Templates(props) {
                           className="text-muted helpMessage"
                         >
                           <b>Note: </b>
-                          If enabled and a customised first page is configured, it will be displayed; if not, the default first page will appear. If disabled, no first page will be displayed.
+                          If enabled and a customised first page is configured,
+                          it will be displayed; if not, the default first page
+                          will appear. If disabled, no first page will be
+                          displayed.
                         </div>
                       </FormGroup>
-
                     </div>
                   </div>
                 </div>
@@ -1579,21 +1594,20 @@ function Add_New_Templates(props) {
                             />
                           </>
                         )} */}
-                      {
-                        TemplateObj.templateTypeID !== null && (
-                          <>
-                            <div className="separator mb-3" />
-                            <CommonProspectVariable
-                              ModuleName="Template"
-                              ClintType={TemplateObj?.originalBusinessTypeIDs}
-                              businessTypeId={
-                                common.organisationKeyID === null
-                                  ? TemplateObj.orgBusinessTypeID
-                                  : common.businessTypeID
-                              }
-                            />
-                          </>
-                        )}
+                      {TemplateObj.templateTypeID !== null && (
+                        <>
+                          <div className="separator mb-3" />
+                          <CommonProspectVariable
+                            ModuleName="Template"
+                            ClintType={TemplateObj?.originalBusinessTypeIDs}
+                            businessTypeId={
+                              common.organisationKeyID === null
+                                ? TemplateObj.orgBusinessTypeID
+                                : common.businessTypeID
+                            }
+                          />
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -1620,7 +1634,6 @@ function Add_New_Templates(props) {
                 </div> */}
               </div>
               {templateElementList?.map((item, index) => {
-
                 let componentToRender = null;
                 switch (item.templateElementTypeID) {
                   case 1:
@@ -1725,9 +1738,9 @@ function Add_New_Templates(props) {
                                 />
                               </div>
                               {requireElementTypeErrorMessage.headings &&
-                                (templateElementList[index]?.headings === "" ||
-                                  templateElementList[index]?.headings === null ||
-                                  templateElementList[index]?.headings ===
+                              (templateElementList[index]?.headings === "" ||
+                                templateElementList[index]?.headings === null ||
+                                templateElementList[index]?.headings ===
                                   undefined) ? (
                                 <label className="validation">
                                   {ERROR_MESSAGES}
@@ -1771,9 +1784,9 @@ function Add_New_Templates(props) {
                                   value={
                                     selectedPdf
                                       ? {
-                                        label: selectedPdf.templatePDFTitle,
-                                        value: selectedPdf.templatePDFKeyID,
-                                      }
+                                          label: selectedPdf.templatePDFTitle,
+                                          value: selectedPdf.templatePDFKeyID,
+                                        }
                                       : null
                                   }
                                   onChange={(selectedOption) =>
@@ -1782,9 +1795,9 @@ function Add_New_Templates(props) {
                                 />
                               </div>
                               {requireElementTypeErrorMessage.headings &&
-                                (templateElementList[index]?.headings === "" ||
-                                  templateElementList[index]?.headings === null ||
-                                  templateElementList[index]?.headings ===
+                              (templateElementList[index]?.headings === "" ||
+                                templateElementList[index]?.headings === null ||
+                                templateElementList[index]?.headings ===
                                   undefined) ? (
                                 <label className="validation">
                                   {ERROR_MESSAGES}
@@ -1876,14 +1889,14 @@ function Add_New_Templates(props) {
                     //       />
                     //     )}
                     <div id="FirstPage">
-                      {requireElementTypeErrorMessage.RequireFirstPageBlock
-                        ? (
-
-                          <label className="validation">First page should be at top position</label>
-                        ) : (
-                          ""
-                        )}
-                    </div>
+                      {requireElementTypeErrorMessage.RequireFirstPageBlock ? (
+                        <label className="validation">
+                          First page should be at top position
+                        </label>
+                      ) : (
+                        ""
+                      )}
+                    </div>;
                     //   </>
                     // );
                     break;
@@ -1893,7 +1906,6 @@ function Add_New_Templates(props) {
                     break;
                 }
                 return (
-
                   <div
                     id={`ElementDiv_${templateElementList[index]?.templateElementTypeID}`}
                     className="element-block"
@@ -1906,7 +1918,6 @@ function Add_New_Templates(props) {
                       e.preventDefault();
                     }}
                     onDrop={(e) => {
-
                       e.preventDefault();
                       const sourceIndex = e.dataTransfer.getData("index");
                       const targetIndex = index;
@@ -1914,19 +1925,27 @@ function Add_New_Templates(props) {
                         ...requireElementTypeErrorMessage,
                         RequireFirstPageBlock: true,
                       });
-                      if (templateElementList[templateElementList.length - 1]?.templateElementTypeID === null) {
-                        if (sourceIndex == templateElementList.length - 1 || targetIndex == templateElementList.length - 1) {
-                          return
-
+                      if (
+                        templateElementList[templateElementList.length - 1]
+                          ?.templateElementTypeID === null
+                      ) {
+                        if (
+                          sourceIndex == templateElementList.length - 1 ||
+                          targetIndex == templateElementList.length - 1
+                        ) {
+                          return;
                         }
                       }
                       if (templateElementList[0].templateElementTypeID === 10) {
-                        if (targetIndex == 0 || `${templateElementList[index]?.templateElementTypeID}` === 10 || sourceIndex == 0) {
-                          return
+                        if (
+                          targetIndex == 0 ||
+                          `${templateElementList[index]?.templateElementTypeID}` ===
+                            10 ||
+                          sourceIndex == 0
+                        ) {
+                          return;
                         }
                       }
-
-
 
                       // Rearrange the templateElementList based on the drag-and-drop
                       if (sourceIndex !== targetIndex) {
@@ -1942,7 +1961,6 @@ function Add_New_Templates(props) {
                     }}
                     key={index}
                   >
-
                     <button
                       onClick={() => DeleteBtnClicked(index)}
                       className="btn btn-sm btn-danger delete-element-btn"
@@ -1969,7 +1987,11 @@ function Add_New_Templates(props) {
                                       element.templateElementTypeID !== 10
                                   )
                               )}
-                              value={ElementTypeValue[index] === undefined ? null : ElementTypeValue[index]}
+                              value={
+                                ElementTypeValue[index] === undefined
+                                  ? null
+                                  : ElementTypeValue[index]
+                              }
                               onChange={(e) => {
                                 setRequireElementTypeErrorMessage(false);
                                 OnTemplateChange(
@@ -1983,9 +2005,9 @@ function Add_New_Templates(props) {
                           </div>
 
                           {requireElementTypeErrorMessage.templateElementTypeIDRequire &&
-                            (templateElementList[index].templateElementTypeID ===
-                              "" ||
-                              templateElementList[index].templateElementTypeID ===
+                          (templateElementList[index].templateElementTypeID ===
+                            "" ||
+                            templateElementList[index].templateElementTypeID ===
                               null) ? (
                             <label className="validation">
                               {ERROR_MESSAGES}
@@ -2036,9 +2058,9 @@ function Add_New_Templates(props) {
                 }}
               >
                 {common.professionTypeLists?.length <= 1 &&
-                  errorMessage?.includes(
-                    `Please don't choose this profession type`
-                  )
+                errorMessage?.includes(
+                  `Please don't choose this profession type`
+                )
                   ? errorMessage.split(".")[0]
                   : errorMessage}
                 {SignataryBlock.length === 0 &&
@@ -2054,15 +2076,17 @@ function Add_New_Templates(props) {
 
             <hr />
             <Row className="modal-footer">
-              <p className="text-danger">Note - Selected PDF size should be less than 20MB.</p>
+              <p className="text-danger">
+                Note - Selected PDF size should be less than 20MB.
+              </p>
               <Col
                 style={{ paddingTop: "14px" }}
                 className="hstack gap-2 justify-content-end"
               >
                 {(TemplateObj.templateTypeID == 1 ||
                   TemplateObj.templateTypeID == 2) && (
-                    <>
-                      {/* {" "}
+                  <>
+                    {/* {" "}
                     <hr />
                     <div
                       className="element-block add-element-block"
@@ -2083,68 +2107,67 @@ function Add_New_Templates(props) {
                       ""
                     )} */}
 
-                      {requireElementLengthErrorMessage &&
-                        templateElementList.length === 0 ? (
-                        <label className="validation">At least one element is required.</label>
-                      ) : (
-                        ""
-                      )}
-                      <button
-                        onClick={AddElementBtnClicked}
-                        style={{ float: "right", paddingTop: "5px" }}
-                        className="btn btn-md btn-success create-item-btn"
-                      >
-                        <span>
-                          Add Element
-                        </span>
-                      </button>
-                    </>
-                  )}
-                {location.state?.Type ? (<>
-                  <button
-                    type="submit"
-                    class="btn btn-md btn-success accept-item-btn"
-                    onClick={() => {
-                      TemplateAddUpdateBtnClicked("Accept");
-                    }}
-                  >
-                    <span>
-                      Accept
-                    </span>
-                  </button>
-                  <button
-                    type="submit"
-                    class="btn btn-md btn-success declined-item-btn"
-                    // data-bs-dismiss="modal"
-                    onClick={() => DeclineSuperAdminChangesData("Decline")}
-                  >
-                    <span>
-                      Decline
-                    </span>
-                  </button>
-                </>) : (<>
-                  <button
-                    onClick={handleSubmit}
-                    style={{ float: "right", paddingTop: "5px" }}
-                    className="btn btn-md btn-light"
-                  >
-                    <span>{getCrudButtonTextName("Cancel")}</span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      TemplateAddUpdateBtnClicked();
-                    }}
-                    style={{ float: "right", paddingTop: "5px" }}
-                    className="btn btn-md btn-success create-item-btn"
-                  >
-                    <span>
-                      {modelAction === "Add"
-                        ? getCrudButtonTextName("Add", moduleName)
-                        : getCrudButtonTextName("Update", moduleName)}
-                    </span>
-                  </button>
-                </>)
-                }
+                    {requireElementLengthErrorMessage &&
+                    templateElementList.length === 0 ? (
+                      <label className="validation">
+                        At least one element is required.
+                      </label>
+                    ) : (
+                      ""
+                    )}
+                    <button
+                      onClick={AddElementBtnClicked}
+                      style={{ float: "right", paddingTop: "5px" }}
+                      className="btn btn-md btn-success create-item-btn"
+                    >
+                      <span>Add Element</span>
+                    </button>
+                  </>
+                )}
+                {location.state?.Type ? (
+                  <>
+                    <button
+                      type="submit"
+                      class="btn btn-md btn-success accept-item-btn"
+                      onClick={() => {
+                        TemplateAddUpdateBtnClicked("Accept");
+                      }}
+                    >
+                      <span>Accept</span>
+                    </button>
+                    <button
+                      type="submit"
+                      class="btn btn-md btn-success declined-item-btn"
+                      // data-bs-dismiss="modal"
+                      onClick={() => DeclineSuperAdminChangesData("Decline")}
+                    >
+                      <span>Decline</span>
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      onClick={handleSubmit}
+                      style={{ float: "right", paddingTop: "5px" }}
+                      className="btn btn-md btn-light"
+                    >
+                      <span>{getCrudButtonTextName("Cancel")}</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        TemplateAddUpdateBtnClicked();
+                      }}
+                      style={{ float: "right", paddingTop: "5px" }}
+                      className="btn btn-md btn-success create-item-btn"
+                    >
+                      <span>
+                        {modelAction === "Add"
+                          ? getCrudButtonTextName("Add", moduleName)
+                          : getCrudButtonTextName("Update", moduleName)}
+                      </span>
+                    </button>
+                  </>
+                )}
               </Col>
             </Row>
             {/* <!-- end tab content --> */}
