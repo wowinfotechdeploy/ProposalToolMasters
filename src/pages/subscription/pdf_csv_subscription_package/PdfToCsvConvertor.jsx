@@ -5,13 +5,36 @@ import { Card, CardBody, Col, Row } from "reactstrap";
 import { AuthContextProvider } from "../../../AuthContext/AuthContext";
 import { Select } from "@mui/material";
 import axios from "axios";
-import { ChoosePlanApi } from "../../../redux/Services/Setting/PaymentGatewayApi";
+import {
+  ChoosePlanApi,
+  CreateStripeCheckoutSession,
+} from "../../../redux/Services/Setting/PaymentGatewayApi";
+import {
+  BuyPDFToCSVPlan,
+  ChoosePDFToCSVPlanApi,
+  getPreviouslyConvertedList,
+  uploadPdfForConversion,
+} from "../../../redux/Services/PDFToCSVAPI/PDFToCSVAPI";
+import { useSelector } from "react-redux";
+import SuccessModal from "../../../components/SuccessModal";
+import NoResultFoundModel from "../../../components/NoResultFoundModel";
+import PaginationComponent from "../../../components/PaginationModel";
+import NoSubscriptionModal from "../../../components/NoSubscriptionModal";
+import * as pdfjsLib from "pdfjs-dist";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
 function PdfToCsvConvertorModel(props) {
   const [pdfFile, setPdfFile] = useState(null);
   const [csvData, setCsvData] = useState(null);
   const [hasSubcription, setHasSubcription] = useState(true);
   const [convertablePageCount, setConvertablePageCount] = useState(10);
+  const [previouslyConvertedFiles, setPreviouslyConvertedFiles] = useState([]);
+  const [totalRecords, setTotalRecords] = useState(-1);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [pagesInUploadedPDF, setPagesInUploadedPDF] = useState(null);
+  const [enoughPages, setEnoughPages] = useState(true);
+  const [openSuccessModal, setOpenSuccessModal] = useState(false);
+  const [openNosubscriptionModal, setOpenNosubscriptionModal] = useState(false);
   const [pagesPackages, setPagesPackages] = useState([]);
   const {
     setLoader,
@@ -19,29 +42,88 @@ function PdfToCsvConvertorModel(props) {
     proposalName,
     formatValue,
     formatValueWithoutCurrencySymbol,
+    setListCount,
+    listCount,
+    isMobile,
+    isMobileRecords,
+    desktopRecords,
     setTopbar,
   } = useContext(AuthContextProvider);
   //   const [convertedFiles, setConvertedFiles] = useState([]);
   const [isConverting, setIsConverting] = useState(false);
+  const [conversionCompleted, setConversionCompleted] = useState(false);
   const [error, setError] = useState("");
   const fileInputRef = useRef(null);
   const [errorMessage, setErrorMessage] = useState("");
+  const [pageNo, setPageNo] = useState();
+  const [pageSize, setPageSize] = useState(6);
   const API_KEY = `828c1ceb-7702-4a15-a71b-c4f186884dc1`;
+  const common = useSelector((state) => state.Storage);
+  const remainingCount = 50;
 
   const navigate = useNavigate();
+  // const pageSize = isMobile
+  //   ? isMobileRecords
+  //   : desktopRecords > 5 && window.innerHeight == 652
+  //   ? 5
+  //   : desktopRecords;
 
   useEffect(() => {
     ChoosePlanApiModelData();
   }, []);
 
+  // useEffect(() => {
+  //   if (!enoughPages) {
+  //     setOpenNosubscriptionModal(true);
+  //   }
+  // }, [enoughPages]);
+
+  useEffect(() => {
+    GetPreviouslyConvertedFilesList();
+  }, [conversionCompleted]);
+
+  const setInitialData = () => {
+    setPdfFile(null);
+  };
+
+  const handleClearFile = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.value = null;
+    }
+  };
+
   const handleFileChange = (e) => {
-    debugger;
     const file = e.target.files[0];
 
     if (file && file.type === "application/pdf") {
       setPdfFile(file);
       setError("");
       setCsvData(null);
+
+      const reader = new FileReader();
+
+      reader.onload = async function () {
+        const typedArray = new Uint8Array(reader.result);
+
+        try {
+          const pdf = await pdfjsLib.getDocument({ data: typedArray }).promise;
+          const totalPages = pdf.numPages;
+
+          setPagesInUploadedPDF(totalPages);
+          setEnoughPages(false);
+          if (totalPages > remainingCount) {
+            setOpenNosubscriptionModal(true);
+            handleRemoveFile();
+          }
+          console.log("Total Pages:", totalPages);
+          // setPdfPageCount(totalPages);
+        } catch (err) {
+          console.error("Error reading PDF:", err);
+          setError("Failed to read the PDF.");
+        }
+      };
+
+      reader.readAsArrayBuffer(file);
     } else {
       setError("Please upload a valid PDF file.");
     }
@@ -53,44 +135,67 @@ function PdfToCsvConvertorModel(props) {
       setError("No file selected.");
       return;
     }
+    setLoader(true);
 
     setIsConverting(true);
     setError("");
 
-    const formData = new FormData();
-    console.log("pdfFile:", pdfFile);
-    console.log("instanceof File:", pdfFile instanceof File); // should be true
-
-    formData.append("file", pdfFile);
-
-    for (let [key, value] of formData.entries()) {
-      console.log(`${key}:`, value); // should show "file: File {...}"
-    }
-
     try {
-      const response = await axios.post(
-        "https://docubot.caelum.ai/api/process-bank-statement?output_file_format=csv&response_format=url",
-        formData,
-        {
-          headers: {
-            "API-Key": "828c1ceb-7702-4a15-a71b-c4f186884dc1",
-          },
-        }
-      );
+      const res = await uploadPdfForConversion({
+        organisationKeyID: common.organisationKeyID,
+        userKeyID: common.userKeyID,
+        pdfFile: pdfFile,
+      });
 
-      const result = response.data;
+      if (res.status === 200) {
+        setLoader(false);
+        setIsConverting(false);
+        setInitialData();
+        handleClearFile();
+        setConversionCompleted(true);
+        setOpenSuccessModal(true);
 
-      if (result?.response?.status === "SUCCESS") {
-        const csvUrl = result.response.processed_file_download_url;
-        setCsvData(csvUrl);
-      } else {
-        setError("File processed, but response status is not SUCCESS.");
+        console.log(res);
       }
-    } catch (err) {
-      console.error("Error during conversion:", err);
-      setError("Failed to upload and process the file.");
-    } finally {
-      setIsConverting(false);
+    } catch (error) {
+      setLoader(false);
+      console.log(error);
+    }
+  };
+
+  const GetPreviouslyConvertedFilesList = async () => {
+    setLoader(true);
+    // const pageNoList = i - 1;
+    try {
+      const res = await getPreviouslyConvertedList({
+        pageSize: 30,
+        pageNo: 0,
+        organisationKeyID: common.organisationKeyID,
+        searchKeyword: null,
+        userKeyID: common.userKeyID,
+        fromDate: null,
+        toDate: null,
+      });
+      if (res.status === 200) {
+        setLoader(false);
+        const listData = res.data.responseData.data;
+
+        // if (pageNo > 0 && listData.length === 0) {
+        //   let newPaneNo = Number(pageNoList);
+        //   if (newPaneNo > 1) {
+        //     newPaneNo = newPaneNo - 1;
+        //   }
+        //   GetPreviouslyConvertedFilesList(newPaneNo);
+        //   setCurrentPage(pageNoList);
+        //   return;
+        // }
+        setPreviouslyConvertedFiles(listData);
+        setListCount(res.data.totalCount);
+        setTotalRecords(listData.length);
+      }
+    } catch (error) {
+      setLoader(false);
+      console.log(error);
     }
   };
 
@@ -112,9 +217,37 @@ function PdfToCsvConvertorModel(props) {
     },
   ]);
 
+  const CreateStripeCheckoutSessionRedirection = async (
+    userKeyID,
+    InvoiceKeyID
+  ) => {
+    setLoader(true);
+
+    try {
+      const response = await CreateStripeCheckoutSession(
+        userKeyID,
+        InvoiceKeyID
+      );
+      const data = response.data;
+
+      if (data.statusCode === 200) {
+        const sessionURL = data.responseData.sessionURL;
+        setLoader(false);
+
+        window.open(sessionURL, "_self");
+      } else {
+        console.error("Error fetching data from the API");
+        setLoader(false);
+      }
+    } catch (error) {
+      console.error("Error fetching data from the API", error);
+      setLoader(false);
+    }
+  };
+
   const ChoosePlanApiModelData = async () => {
     try {
-      const data = await ChoosePlanApi();
+      const data = await ChoosePDFToCSVPlanApi(common.userKeyID);
       if (data?.data?.statusCode === 200) {
         if (data?.data?.responseData?.data) {
           const ModelData = data?.data?.responseData?.data;
@@ -129,12 +262,53 @@ function PdfToCsvConvertorModel(props) {
     }
   };
 
+  const BuyPlanData = async (i, pcspKeyID) => {
+    debugger;
+    setLoader(true);
+    try {
+      const data = await BuyPDFToCSVPlan({
+        organisationKeyID: common.organisationKeyID,
+        userKeyID: common.userKeyID,
+        pcspKeyID: pcspKeyID,
+      });
+
+      if (data && data?.data?.statusCode === 200) {
+        setLoader(false);
+
+        const invoiceKeyID = data.data.responseData.invoiceKeyID;
+        const finalBillingAmount = data.data.responseData.finalBillingAmount;
+        if (finalBillingAmount !== null) {
+          CreateStripeCheckoutSessionRedirection(
+            common.userKeyID,
+            invoiceKeyID
+          );
+        } else {
+          navigate("/pdf-to-csv");
+        }
+
+        // setOpenSuccessModal(true); // Open success modal upon successful purchase
+        // Additional logic if needed
+      } else {
+        setLoader(false);
+        setErrorMessage(data?.data?.errorMessage);
+      }
+    } catch (error) {
+      setLoader(false);
+      console.log(error);
+    }
+  };
+
   const handleRemoveFile = () => {
     setPdfFile(null);
     setError("");
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
+  };
+
+  const handlePageChange = async (pageNumber) => {
+    setCurrentPage(pageNumber);
+    await GetPreviouslyConvertedFilesList(pageNumber); // Call your function with the selected page number
   };
 
   const chooseApiData = [
@@ -238,6 +412,21 @@ function PdfToCsvConvertorModel(props) {
 
   const isYearly = true;
 
+  const handleCloseNoSubscriptionModal = () => {
+    setOpenNosubscriptionModal(false);
+  };
+
+  const upgradeBtnClicked = () => {
+    setOpenNosubscriptionModal(false);
+    setHasSubcription(false);
+  };
+
+  const handleButtonClick = async (i, pcspKeyID) => {
+    // Pass the value of 'i' and 'searchKeywordValue' into the BuyPlanData function
+    BuyPlanData(i, pcspKeyID);
+    // Your logic after BuyPlanData completes, if needed
+  };
+
   return (
     <div style={{ marginTop: "110px" }}>
       <div className="container-fluid new-item-page-container mt-4">
@@ -261,6 +450,7 @@ function PdfToCsvConvertorModel(props) {
                     onClick={() => setHasSubcription(false)}
                     // disabled={isConverting}
                   >
+                    {/* <i className="bi bi-plus-circle "></i> */}
                     Upgrade
                   </button>
                 </div>
@@ -314,9 +504,12 @@ function PdfToCsvConvertorModel(props) {
                 <hr />
 
                 {/* Previously Converted Files Table */}
-                {convertedFiles.length > 0 && (
+                {previouslyConvertedFiles.length > 0 && (
                   <div className="mt-4">
-                    <h5 className="mb-1">Previously Converted Files</h5>
+                    <div className="d-flex align-items-center justify-content-between">
+                      <h5 className="mb-1">Previously Converted Files</h5>
+                      <h6 className="mb-1">Total Remaining Pages: 50</h6>
+                    </div>
                     <div
                       className="table-responsive"
                       style={{ marginTop: "30px" }}
@@ -327,28 +520,34 @@ function PdfToCsvConvertorModel(props) {
                             <th className="text-white">Sr No.</th>
                             <th className="text-white">PDF File</th>
                             <th className="text-white">CSV File</th>
-                            <th className="text-white">Converted At</th>
+                            <th className="text-white">Converted On</th>
                           </tr>
                         </thead>
 
                         <tbody>
-                          {convertedFiles.map((file, index) => (
+                          {previouslyConvertedFiles.map((file, index) => (
                             <tr key={index}>
                               <td>{index + 1}</td>
-                              <td>{file.fileName}</td>
+                              <td>
+                                <a
+                                  href={file.uploadDocPath}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                >
+                                  Uploaded PDF File
+                                </a>
+                              </td>
 
                               <td>
-                                <pre
-                                  style={{
-                                    maxHeight: "100px",
-                                    overflowY: "auto",
-                                  }}
-                                  className="small mb-0"
+                                <a
+                                  href={file.convertedDocPath}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
                                 >
-                                  {file.csvContent}
-                                </pre>
+                                  Converted CSV File
+                                </a>
                               </td>
-                              <td>{file.convertedAt}</td>
+                              <td>{file.createdOnDate?.split(" ")[0]}</td>
                             </tr>
                           ))}
                         </tbody>
@@ -357,6 +556,24 @@ function PdfToCsvConvertorModel(props) {
                   </div>
                 )}
               </div>
+              <div>
+                {totalRecords <= 0 && (
+                  <NoResultFoundModel
+                    name="Records"
+                    totalRecords={totalRecords}
+                  />
+                )}
+              </div>
+              {/* <div>
+                {listCount > Number(pageSize) && (
+                  <PaginationComponent
+                    totalCount={listCount}
+                    totalPages={listCount / desktopRecords}
+                    currentPage={currentPage}
+                    onPageChange={handlePageChange}
+                  />
+                )}
+              </div> */}
             </div>
           </div>
         ) : (
@@ -403,9 +620,8 @@ function PdfToCsvConvertorModel(props) {
                                     className="d-flex"
                                     style={{ background: "white" }}
                                   >
-                                    {pagesPackages
-                                      ?.filter((item) => !item.isFreePackage)
-                                      .map((PurchasePlanList, index) => {
+                                    {pagesPackages.map(
+                                      (PurchasePlanList, index) => {
                                         return (
                                           <>
                                             <Col xl={4} md={6}>
@@ -435,273 +651,70 @@ function PdfToCsvConvertorModel(props) {
                                                         }
                                                       </h6>
 
-                                                      {!isYearly ? (
-                                                        <div>
-                                                          {(() => {
-                                                            const MonthlyPrice =
-                                                              Number(
-                                                                PurchasePlanList?.yearlyValuePlan
-                                                              ) / 12;
-                                                            return formatValue(
-                                                              MonthlyPrice
-                                                            );
-                                                          })()}
-                                                          / Month
-                                                        </div>
-                                                      ) : (
-                                                        <div>
-                                                          {formatValue(
-                                                            PurchasePlanList?.yearlyValuePlan
-                                                          )}
-                                                          / Year
-                                                        </div>
-                                                      )}
-                                                    </div>
-                                                  </div>
-                                                  <div className="pricing-features mt-1 pt-2">
-                                                    {/* <div>
-                                                      {PurchasePlanList?.apiIntegration ==
-                                                      true ? (
-                                                        <span
-                                                          style={{
-                                                            color: "green",
-                                                          }}
-                                                          className="fa fa-check"
-                                                        ></span>
-                                                      ) : (
-                                                        <span
-                                                          style={{
-                                                            color: "red",
-                                                          }}
-                                                          className="fa fa-times"
-                                                        ></span>
-                                                      )}
-                                                      <span
-                                                        style={{
-                                                          marginLeft: "10px",
-                                                        }}
-                                                      >
-                                                        {" "}
-                                                        API Integration
-                                                      </span>
-                                                    </div>
-                                                    <div>
-                                                      {PurchasePlanList?.prepareQuote ==
-                                                      true ? (
-                                                        <span
-                                                          style={{
-                                                            color: "green",
-                                                          }}
-                                                          className="fa fa-check"
-                                                        ></span>
-                                                      ) : (
-                                                        <span
-                                                          style={{
-                                                            color: "red",
-                                                          }}
-                                                          className="fa fa-times"
-                                                        ></span>
-                                                      )}
-                                                      <span
-                                                        style={{
-                                                          marginLeft: "10px",
-                                                        }}
-                                                      >
-                                                        {" "}
-                                                        Prepare {proposalName}
-                                                      </span>
-                                                    </div>
-                                                    <div>
-                                                      {PurchasePlanList?.prepareContract ===
-                                                      true ? (
-                                                        <span
-                                                          style={{
-                                                            color: "green",
-                                                          }}
-                                                          className="fa fa-check"
-                                                        ></span>
-                                                      ) : (
-                                                        <span
-                                                          style={{
-                                                            color: "red",
-                                                          }}
-                                                          className="fa fa-times"
-                                                        ></span>
-                                                      )}
-                                                      {"  "}
-                                                      <span
-                                                        style={{
-                                                          marginLeft: "10px",
-                                                        }}
-                                                      >
-                                                        {" "}
-                                                        Prepare {EngagementName}
-                                                      </span>
-                                                    </div> */}
-                                                    <div>
-                                                      {PurchasePlanList?.sendQuote ===
-                                                      true ? (
-                                                        <span
-                                                          style={{
-                                                            color: "green",
-                                                          }}
-                                                          className="fa fa-check"
-                                                        ></span>
-                                                      ) : (
-                                                        <span
-                                                          style={{
-                                                            color: "red",
-                                                          }}
-                                                          className="fa fa-times"
-                                                        ></span>
-                                                      )}
-                                                      <span
-                                                        style={{
-                                                          marginLeft: "10px",
-                                                        }}
-                                                      >
-                                                        {" "}
-                                                        Send {proposalName}
-                                                      </span>
-                                                    </div>
-
-                                                    <div className="d-flex align-items-start">
                                                       <div>
-                                                        {PurchasePlanList?.eSignaturePerMonth >
-                                                        0 ? (
-                                                          <span
-                                                            style={{
-                                                              color: "green",
-                                                            }}
-                                                            className="fa fa-check"
-                                                          ></span>
-                                                        ) : (
-                                                          <span
-                                                            style={{
-                                                              color: "red",
-                                                            }}
-                                                            className="fa fa-times"
-                                                          ></span>
-                                                        )}
+                                                        £
+                                                        {
+                                                          PurchasePlanList?.discountedPrice
+                                                        }
                                                       </div>
-                                                      <span
-                                                        style={{
-                                                          marginLeft: "10px",
-                                                        }}
-                                                      >
-                                                        Send And Digitally Sign
-                                                        The {EngagementName}
-                                                        {PurchasePlanList?.eSignaturePerMonth >
-                                                          0 && (
-                                                          <>
-                                                            :{" "}
-                                                            {formatValueWithoutCurrencySymbol(
-                                                              PurchasePlanList?.eSignaturePerMonth
-                                                            )}
-                                                            /Month
-                                                          </>
-                                                        )}
-                                                      </span>
                                                     </div>
-                                                    <div>
-                                                      {PurchasePlanList?.isMailBox ===
-                                                        true ||
-                                                      PurchasePlanList?.isMailBox ===
-                                                        null ? (
-                                                        <span
-                                                          style={{
-                                                            color: "green",
-                                                          }}
-                                                          className="fa fa-check"
-                                                        ></span>
-                                                      ) : (
-                                                        <span
-                                                          style={{
-                                                            color: "red",
-                                                          }}
-                                                          className="fa fa-times"
-                                                        ></span>
-                                                      )}
-                                                      <span
-                                                        style={{
-                                                          marginLeft: "10px",
-                                                        }}
-                                                      >
-                                                        {" "}
-                                                        Personalized Outgoing
-                                                        Mailbox
-                                                      </span>
-                                                    </div>
-                                                    {PurchasePlanList && (
-                                                      <div
-                                                        className="d-flex flex-column"
-                                                        style={{
-                                                          minHeight: "40px",
-                                                        }}
-                                                      >
-                                                        {(isYearly &&
-                                                          PurchasePlanList
-                                                            .yearlyOffer
-                                                            ?.length > 0) ||
-                                                        (!isYearly &&
-                                                          PurchasePlanList
-                                                            .monthlyOffer
-                                                            ?.length > 0) ? (
-                                                          <div className="w-100">
-                                                            <label></label>
-                                                            {/* <Select
-                                                              placeholder="Select Offer"
-                                                              menuPosition="auto"
-                                                              className="phone-input-country-code selectDropDown Drop-down-width"
-                                                              onChange={(
-                                                                selectedOption
-                                                              ) =>
-                                                                handleSelectChange(
-                                                                  selectedOption,
-                                                                  index,
-                                                                  PurchasePlanList.subscriptionPackageKeyID,
-                                                                  PurchasePlanList.packageName
-                                                                )
-                                                              }
-                                                              options={(isYearly
-                                                                ? PurchasePlanList.yearlyOffer
-                                                                : PurchasePlanList.monthlyOffer
-                                                              )?.map(
-                                                                (offer) => ({
-                                                                  id: offer.offerID,
-                                                                  label:
-                                                                    offer.offerName,
-                                                                  value:
-                                                                    offer.offerID,
-                                                                })
-                                                              )}
-                                                              value={
-                                                                selectedOfferID &&
-                                                                selectedOfferID.index ===
-                                                                  index
-                                                                  ? selectedOfferID
-                                                                  : null
-                                                              }
-                                                            /> */}
-                                                          </div>
-                                                        ) : (
-                                                          <div className="flex-grow-1"></div>
-                                                        )}
-                                                      </div>
-                                                    )}
                                                   </div>
+                                                  <div className="pricing-features mt-1 pt-2 mb-2">
+                                                    <div className="d-flex gap-2">
+                                                      <span
+                                                        style={{
+                                                          color: "green",
+                                                        }}
+                                                        className="fa fa-check"
+                                                      ></span>
+                                                      <span
+                                                        style={{
+                                                          display: "block",
+                                                          marginTop: "4px",
+                                                        }}
+                                                      >
+                                                        Validity:{" "}
+                                                        {PurchasePlanList.months !==
+                                                        null
+                                                          ? String(
+                                                              PurchasePlanList.months
+                                                            ) +
+                                                            " " +
+                                                            PurchasePlanList.validity
+                                                          : PurchasePlanList.validity}
+                                                      </span>
+                                                    </div>
+                                                    <div className="d-flex gap-2">
+                                                      <span
+                                                        style={{
+                                                          color: "green",
+                                                        }}
+                                                        className="fa fa-check"
+                                                      ></span>
+                                                      <span
+                                                        style={{
+                                                          display: "block",
+                                                          marginTop: "4px",
+                                                        }}
+                                                      >
+                                                        Pages:{" "}
+                                                        {PurchasePlanList.pages}
+                                                      </span>
+                                                    </div>
+                                                  </div>
+
                                                   {errorMessage && (
                                                     <p>{errorMessage}</p>
                                                   )}
 
                                                   <div className=" d-flex justify-content-center ">
                                                     <button
-                                                      // onClick={() =>
-                                                      //   handleButtonClick(
-                                                      //     index,
-                                                      //     PurchasePlanList.subscriptionPackageKeyID
-                                                      //   )
-                                                      // }
+                                                      onClick={() =>
+                                                        handleButtonClick(
+                                                          index,
+                                                          PurchasePlanList.pcspKeyID
+                                                        )
+                                                      }
                                                       className="btn btn-success create-item-btn add-new "
                                                     >
                                                       <span> Purchase</span>
@@ -712,7 +725,8 @@ function PdfToCsvConvertorModel(props) {
                                             </Col>
                                           </>
                                         );
-                                      })}
+                                      }
+                                    )}
                                   </Row>
                                 </div>
                               </div>
@@ -732,6 +746,20 @@ function PdfToCsvConvertorModel(props) {
           </div>
         )}
       </div>
+      <SuccessModal
+        openSuccessModal={openSuccessModal}
+        handleClose={() => setOpenSuccessModal(false)}
+        isBackDropDisplay={true}
+        message="PDF converted to CSV successfully! "
+        modelAction={null}
+      />
+
+      <NoSubscriptionModal
+        open={openNosubscriptionModal}
+        handleClose={handleCloseNoSubscriptionModal}
+        upgradeBtn={upgradeBtnClicked}
+        isBackDropDisplay={true}
+      />
     </div>
   );
 }

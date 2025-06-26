@@ -11,6 +11,7 @@ import { Provider } from "react-redux";
 import { PublicClientApplication, EventType } from "@azure/msal-browser";
 import { msalConfig } from "./config/microsoftConfig.js";
 import { MsalProvider } from "@azure/msal-react";
+import { Document, Page, pdfjs } from "react-pdf";
 
 const msalInstance = new PublicClientApplication(msalConfig);
 
@@ -20,6 +21,9 @@ msalInstance.addEventCallback((event) => {
     msalInstance.setActiveAccount(account);
   }
 });
+
+// 👇 Set workerSrc properly using pdfjs version and CDN
+pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 const AppWrapper = () => {
   return (

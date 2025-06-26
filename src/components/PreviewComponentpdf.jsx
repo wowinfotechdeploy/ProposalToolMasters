@@ -19,6 +19,7 @@ import { Tooltip } from "reactstrap";
 import { ServiceChargeTypeEnum } from "../Middleware/enums";
 import {
   GetEmailContent,
+  GetTemplateLookupPDFList,
   GetTemplatePdfList,
 } from "../redux/Services/Config/TemplateApi";
 export default function PreviewComponentPdf(props) {
@@ -1370,17 +1371,14 @@ export default function PreviewComponentPdf(props) {
   };
 
   const GetTemplatePdfListData = async () => {
+    debugger;
     setLoader(true);
     // const pageNoList = i - 1;
     try {
-      const data = await GetTemplatePdfList({
-        pageSize: 30,
-        pageNo: 0,
-        SearchKeyword: null,
-        userKeyID: common.userKeyID || null,
-        organisationKeyID: common.organisationKeyID || null,
-        primarySortDirection: null,
-        PrimarySortColumnName: null,
+      const data = await GetTemplateLookupPDFList({
+        OrganisationKeyID: common.organisationKeyID,
+        userKeyID: common.userKeyID,
+        selectedTemplatePDFKeyIDs: null,
       });
       if (data) {
         if (data?.data?.statusCode === 200) {
@@ -1392,29 +1390,41 @@ export default function PreviewComponentPdf(props) {
             // setTotalRecords(TemplateListData.length);
           }
         }
-        // else {
-        //   if (getTemplateListApiCallCount < maxCountToRecallApi) {
-        //     getTemplateListApiCallCount += 1;
-        //     setTimeout(function () {
-        //       GetTemplatePdfListData(
-        //         i,
-        //         searchKeywordForPDF,
-        //         sortValue,
-        //         TemplateSort
-        //       );
-        //     }, 2000);
-        //   } else {
-        //     setLoader(false);
-        //   }
-
-        //   setErrorMessage(data?.data?.errorMessage);
-        // }
       }
     } catch (error) {
       setLoader(false);
       console.log(error);
     }
   };
+  // const GetTemplatePdfListData = async () => {
+  //   setLoader(true);
+  //   // const pageNoList = i - 1;
+  //   try {
+  //     const data = await GetTemplatePdfList({
+  //       pageSize: 30,
+  //       pageNo: 0,
+  //       SearchKeyword: null,
+  //       userKeyID: common.userKeyID || null,
+  //       organisationKeyID: common.organisationKeyID || null,
+  //       primarySortDirection: null,
+  //       PrimarySortColumnName: null,
+  //     });
+  //     if (data) {
+  //       if (data?.data?.statusCode === 200) {
+  //         // setLoader(false);
+  //         if (data?.data?.responseData?.data) {
+  //           const TemplateListData = data.data.responseData.data;
+  //           setPdfListCount(0);
+  //           setTemplatePdfList(TemplateListData);
+  //           // setTotalRecords(TemplateListData.length);
+  //         }
+  //       }
+  //     }
+  //   } catch (error) {
+  //     setLoader(false);
+  //     console.log(error);
+  //   }
+  // };
 
   const generateMergePdfUrl = () => {
     if (count == 0) {
@@ -4725,25 +4735,45 @@ export default function PreviewComponentPdf(props) {
     });
 
   const handleAttachmentSelect = (item) => {
-    const keyID = item.templatePdfKeyID;
+    const keyID = item.templatePDFKeyID;
 
-    props.setEngagementObj((prev) => {
-      const doesExistsAlready = prev.selectedAttachments.includes(keyID);
+    if (isPopUpVisible && props.moduleName == "Quote") {
+      props.setProposalObject((prev) => {
+        const doesExistsAlready = prev.selectedAttachments.includes(keyID);
 
-      if (doesExistsAlready) {
-        return {
-          ...prev,
-          selectedAttachments: prev.selectedAttachments.filter(
-            (id) => id !== keyID
-          ),
-        };
-      } else {
-        return {
-          ...prev,
-          selectedAttachments: [...prev.selectedAttachments, keyID],
-        };
-      }
-    });
+        if (doesExistsAlready) {
+          return {
+            ...prev,
+            selectedAttachments: prev.selectedAttachments.filter(
+              (id) => id !== keyID
+            ),
+          };
+        } else {
+          return {
+            ...prev,
+            selectedAttachments: [...prev.selectedAttachments, keyID],
+          };
+        }
+      });
+    } else if (isPopUpVisible && props.moduleName == "Contract") {
+      props.setEngagementObj((prev) => {
+        const doesExistsAlready = prev.selectedAttachments.includes(keyID);
+
+        if (doesExistsAlready) {
+          return {
+            ...prev,
+            selectedAttachments: prev.selectedAttachments.filter(
+              (id) => id !== keyID
+            ),
+          };
+        } else {
+          return {
+            ...prev,
+            selectedAttachments: [...prev.selectedAttachments, keyID],
+          };
+        }
+      });
+    }
   };
 
   // useEffect(() => {
@@ -5067,6 +5097,36 @@ export default function PreviewComponentPdf(props) {
                         // modelAction={modelAction}
                       />
                     </div>
+                    {/* Attachment section starts */}
+
+                    <div className="mt-3">
+                      {TemplatePdfList.length > 0 && <h6>Attachments:</h6>}
+                      <div className="d-flex gap-2">
+                        {TemplatePdfList.map((item, index) => (
+                          <div
+                            className="d-flex align-items-center"
+                            key={index}
+                          >
+                            <input
+                              type="checkbox"
+                              className="me-2"
+                              checked={props.ProposalObject.selectedAttachments.find(
+                                (att) =>
+                                  att.templatePDFKeyID === item.templatePDFKeyID
+                              )}
+                              onChange={() => handleAttachmentSelect(item)}
+                            />
+                            <label
+                              className="m-0"
+                              style={{ fontSize: "12px", fontWeight: "400" }}
+                            >
+                              {item.templatePDFTitle}
+                            </label>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    {/* Attachment section ends */}
                   </div>
                   <div className="d-flex justify-content-end flex-wrap mt-5">
                     <button
@@ -5238,7 +5298,7 @@ export default function PreviewComponentPdf(props) {
 
                     {/* Attachment section starts */}
 
-                    {/* <div className="mt-3">
+                    <div className="mt-3">
                       {TemplatePdfList.length > 0 && <h6>Attachments:</h6>}
                       <div className="d-flex gap-2">
                         {TemplatePdfList.map((item, index) => (
@@ -5249,9 +5309,9 @@ export default function PreviewComponentPdf(props) {
                             <input
                               type="checkbox"
                               className="me-2"
-                              checked={selectedAttachments.find(
+                              checked={props.engagementObj.selectedAttachments.find(
                                 (att) =>
-                                  att.templatePdfKeyID === item.templatePdfKeyID
+                                  att.templatePDFKeyID === item.templatePDFKeyID
                               )}
                               onChange={() => handleAttachmentSelect(item)}
                             />
@@ -5259,12 +5319,12 @@ export default function PreviewComponentPdf(props) {
                               className="m-0"
                               style={{ fontSize: "12px", fontWeight: "400" }}
                             >
-                              {item.templatePdfTitle}
+                              {item.templatePDFTitle}
                             </label>
                           </div>
                         ))}
                       </div>
-                    </div> */}
+                    </div>
                     {/* Attachment section ends */}
                   </div>
                   <div className="d-flex justify-content-end flex-wrap mt-5">

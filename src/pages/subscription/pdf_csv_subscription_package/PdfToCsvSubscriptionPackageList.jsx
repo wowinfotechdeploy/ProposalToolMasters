@@ -23,6 +23,7 @@ import SuccessModal from "../../../components/SuccessModal";
 import Footer from "../../../components/Footer";
 // import { updateState } from "../../../redux/Persist";
 import { updateState } from "../../../redux/Persist";
+import { getPDFToCSVSubscriptionPackageList } from "../../../redux/Services/PDFToCSVAPI/PDFToCSVAPI";
 const PdfToCsvSubscription_Package = () => {
   const moduleName = "PDF To CSV Subscription Package";
   // A] States Declaration :
@@ -31,12 +32,8 @@ const PdfToCsvSubscription_Package = () => {
   const [openSuccessModal, setOpenSuccessModal] = React.useState(false);
   const [openErrorModal, setOpenErrorModal] = useState(false);
   const [modelRequestData, setModelRequestData] = useState({
-    isFreePackage: null,
-    subscriptionPackageKeyID: null,
-    packageName: null,
-    status: "",
-    Action: "",
-    userKeyID: null,
+    pcspKeyID: null,
+    Action: null,
   });
   // const dispatch = useDispatch();
   const [errorMessage, setErrorMessage] = useState("");
@@ -72,7 +69,7 @@ const PdfToCsvSubscription_Package = () => {
   // 1) Will Call Initial Api Like List Api
   useEffect(() => {
     setTopbar("block");
-    GetSubscriptionPackageListData(1);
+    GetPDFToCSVSubscriptionPackageListData(1);
   }, []);
 
   //2) This useEffect will trigger when we successfully add or update record from popup model
@@ -82,9 +79,9 @@ const PdfToCsvSubscription_Package = () => {
         setSearchKeyword("");
         setPrimarySortDirection(null);
         setCurrentPage(1);
-        GetSubscriptionPackageListData(1, null, null);
+        GetPDFToCSVSubscriptionPackageListData(1, null, null);
       } else {
-        GetSubscriptionPackageListData(currentPage);
+        GetPDFToCSVSubscriptionPackageListData(currentPage);
       }
 
       setIsAddUpdateActionDone(false);
@@ -94,32 +91,32 @@ const PdfToCsvSubscription_Package = () => {
   useEffect(() => {
     if (
       modelRequestData.Action === "Update" &&
-      modelRequestData.subscriptionPackageKeyID !== null
+      modelRequestData.pcspKeyID !== null
     ) {
       setTopbar("none");
       navigate("/pdf-csv-subscriptionModal", { state: modelRequestData });
     } else if (modelRequestData.Action === null) {
-      GetSubscriptionPackageListData(1);
+      GetPDFToCSVSubscriptionPackageListData(1);
     }
   }, [modelRequestData, navigate]);
 
   // C] Calling All Api's like List and other Here :
   // 1) Get subscription package List Data
-  const GetSubscriptionPackageListData = async (
+  const GetPDFToCSVSubscriptionPackageListData = async (
     i,
-    searchKeywordValue,
-    sortValue
+    searchKeywordValue
   ) => {
     setLoader(true);
     const pageNoList = i - 1;
     try {
-      const data = await GetSubscriptionPackageList({
+      const data = await getPDFToCSVSubscriptionPackageList({
         pageSize: pageSize,
         pageNo: pageNoList,
         searchKeyword:
           searchKeywordValue === undefined ? searchKeyword : searchKeywordValue,
-        primarySortDirection:
-          sortValue === undefined ? primarySortDirection : sortValue,
+        // primarySortDirection:
+        //   sortValue === undefined ? primarySortDirection : sortValue,
+        userKeyID: common.userKeyID,
       });
       if (data) {
         setLoader(false);
@@ -133,10 +130,9 @@ const PdfToCsvSubscription_Package = () => {
               if (newPaneNo > 1) {
                 newPaneNo = newPaneNo - 1;
               }
-              GetSubscriptionPackageListData(
+              GetPDFToCSVSubscriptionPackageListData(
                 newPaneNo,
-                searchKeywordValue,
-                sortValue
+                searchKeywordValue
               );
               setCurrentPage(pageNoList);
               return;
@@ -149,7 +145,7 @@ const PdfToCsvSubscription_Package = () => {
           if (getServiceCategoryListApiCallCount < maxCountToRecallApi) {
             getServiceCategoryListApiCallCount += 1;
             setTimeout(function () {
-              GetSubscriptionPackageListData(i, searchKeywordValue, sortValue);
+              GetPDFToCSVSubscriptionPackageListData(i, searchKeywordValue);
             }, 2000);
           } else {
             setLoader(false);
@@ -170,6 +166,7 @@ const PdfToCsvSubscription_Package = () => {
       setModelRequestData({
         ...modelRequestData,
         subscriptionPackageKeyID: null,
+        pcspKeyID: null,
         Action: null,
       });
     }
@@ -190,9 +187,8 @@ const PdfToCsvSubscription_Package = () => {
     dispatch(updateState({ currentPage: currentPage }));
     setModelRequestData((prevState) => ({
       ...prevState,
-      subscriptionPackageKeyID: subscriptionPackage?.subscriptionPackageKeyID,
+      pcspKeyID: subscriptionPackage?.pcspKeyID,
       Action: "Update",
-      isFreePackage: subscriptionPackage.isFreePackage,
     }));
   };
   const handleChangeStatus = (subscriptionPackage) => {
@@ -224,7 +220,7 @@ const PdfToCsvSubscription_Package = () => {
             );
             setOpenErrorModal(true);
           }
-          GetSubscriptionPackageListData(currentPage);
+          GetPDFToCSVSubscriptionPackageListData(currentPage);
         }
       } catch (error) {
         console.log(error);
@@ -245,7 +241,7 @@ const PdfToCsvSubscription_Package = () => {
           }
         }
 
-        GetSubscriptionPackageListData(currentPage);
+        GetPDFToCSVSubscriptionPackageListData(currentPage);
       } catch (error) {
         console.log(error);
       }
@@ -255,20 +251,20 @@ const PdfToCsvSubscription_Package = () => {
   // F] Pagination :
   const handlePageChange = async (pageNumber) => {
     setCurrentPage(pageNumber);
-    await GetSubscriptionPackageListData(pageNumber); // Call your function with the selected page number
+    await GetPDFToCSVSubscriptionPackageListData(pageNumber); // Call your function with the selected page number
   };
 
   // E] Sorting & handle Function
   const HandleSort = (sortValue) => {
     setPrimarySortDirection(sortValue);
     setCurrentPage(1);
-    GetSubscriptionPackageListData(1, searchKeyword, sortValue);
+    GetPDFToCSVSubscriptionPackageListData(1, searchKeyword);
   };
   const HandleSearch = (e) => {
     const searchKeywordValue = e.target.value;
     setSearchKeyword(searchKeywordValue);
     setCurrentPage(1);
-    GetSubscriptionPackageListData(1, searchKeywordValue);
+    GetPDFToCSVSubscriptionPackageListData(1, searchKeywordValue);
   };
 
   const handleClose = () => {
@@ -339,7 +335,7 @@ const PdfToCsvSubscription_Package = () => {
                                 className="tr-table-class text-white"
                                 style={{ width: "50%" }}
                               >
-                                {moduleName} Name
+                                Package Name
                                 {primarySortDirection === "desc" && (
                                   <i
                                     onClick={() => {
@@ -365,10 +361,13 @@ const PdfToCsvSubscription_Package = () => {
                                 )}
                               </td>
                               <td className="tr-table-class text-white">
-                                Monthly Price
+                                Validity
                               </td>
                               <td className="tr-table-class text-white">
-                                Yearly Price
+                                Pages
+                              </td>
+                              <td className="tr-table-class text-white">
+                                Discounted Price
                               </td>
 
                               <td className="tr-table-class text-white">
@@ -391,22 +390,13 @@ const PdfToCsvSubscription_Package = () => {
                                       {subscriptionPackage.packageName}
                                     </td>
                                     <td className="table-content-font">
-                                      {formatValue(
-                                        subscriptionPackage.monthlyPrice
-                                      )}
-                                      {/* {Number(subscriptionPackage.monthlyPrice)
-                                        .toFixed(2)
-                                        .replace(/\B(?=(\d{3})+(?!\d))/g, ",")} */}
-                                      {/* {subscriptionPackage.monthlyPrice} */}
+                                      {subscriptionPackage.validity}
                                     </td>
                                     <td className="table-content-font">
-                                      {formatValue(
-                                        subscriptionPackage.yearlyPrice
-                                      )}
-                                      {/* {Number(subscriptionPackage.yearlyPrice)
-                                        .toFixed(2)
-                                        .replace(/\B(?=(\d{3})+(?!\d))/g, ",")} */}
-                                      {/* {subscriptionPackage.yearlyPrice} */}
+                                      {subscriptionPackage.pages}
+                                    </td>
+                                    <td className="table-content-font">
+                                      {subscriptionPackage.discountedPrice}
                                     </td>
                                     <td className="Switch">
                                       <div

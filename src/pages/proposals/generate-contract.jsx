@@ -1344,57 +1344,57 @@ function AcceptInvitation() {
             break;
           default:
             if (TnCHtmlContent || TnCPdf) {
-              // if (!TermAndConditionAddedOrNot) {
-              //   const appliedFontTNCContent = setDefaultFontFamily(
-              //     TnCHtmlContent,
-              //     fontFamily
-              //   );
-              //   if (
-              //     prevElementType === ElementType.PAGE_BREAK ||
-              //     prevElementType === ElementType.AWS_PDF_LINK
-              //   ) {
-              //     if (TnCHtmlContent || TnCPdf) {
-              //       if (
-              //         TnCHtmlContent !== null &&
-              //         TnCHtmlContent !== undefined
-              //       ) {
-              //         currentArray.push({
-              //           textbox: `<div style="padding-left: 40px; padding-right: 40px; color:${BrandColor}; font-size: ${fontSizeHeading}; font-family:${fontFamily}" >TERMS & CONDITIONS<br>
-              //                     <hr style="padding-left: 40px; padding-right: 40px; color: black;"></hr></div>
-              //                       <div style="padding-left: 40px; padding-right: 40px;">${appliedFontTNCContent}</div>`,
-              //         });
-              //       } else if (TnCPdf !== null || TnCHtmlContent === null) {
-              //         pdfDataArray.push(currentArray);
-              //         currentArray = [];
-              //         currentArray.push({
-              //           ["awsLink"]: TnCPdf,
-              //         });
-              //       }
-              //     }
-              //   } else {
-              //     pdfDataArray.push(currentArray);
-              //     if (TnCHtmlContent || TnCPdf) {
-              //       if (
-              //         TnCHtmlContent !== null &&
-              //         TnCHtmlContent !== undefined
-              //       ) {
-              //         currentArray = [
-              //           {
-              //             textbox: `<div style="padding-left: 40px; padding-right: 40px; color:${BrandColor}; font-size: ${fontSizeHeading}; font-family:${fontFamily}" >TERMS & CONDITIONS<br>
-              //                         <hr style="padding-left: 40px; padding-right: 40px; color: black;"></hr></div>
-              //                           <div style="padding-left: 40px; padding-right: 40px;">${appliedFontTNCContent}</div>`,
-              //           },
-              //         ];
-              //       } else if (TnCPdf !== null || TnCHtmlContent === null) {
-              //         currentArray = [
-              //           {
-              //             ["awsLink"]: TnCPdf,
-              //           },
-              //         ];
-              //       }
-              //     }
-              //   }
-              // }
+              if (!TermAndConditionAddedOrNot) {
+                const appliedFontTNCContent = setDefaultFontFamily(
+                  TnCHtmlContent,
+                  fontFamily
+                );
+                if (
+                  prevElementType === ElementType.PAGE_BREAK ||
+                  prevElementType === ElementType.AWS_PDF_LINK
+                ) {
+                  if (TnCHtmlContent || TnCPdf) {
+                    if (
+                      TnCHtmlContent !== null &&
+                      TnCHtmlContent !== undefined
+                    ) {
+                      currentArray.push({
+                        textbox: `<div style="padding-left: 40px; padding-right: 40px; color:${BrandColor}; font-size: ${fontSizeHeading}; font-family:${fontFamily}" >TERMS & CONDITIONS<br>
+                                  <hr style="padding-left: 40px; padding-right: 40px; color: black;"></hr></div>
+                                    <div style="padding-left: 40px; padding-right: 40px;">${appliedFontTNCContent}</div>`,
+                      });
+                    } else if (TnCPdf !== null || TnCHtmlContent === null) {
+                      pdfDataArray.push(currentArray);
+                      currentArray = [];
+                      currentArray.push({
+                        ["awsLink"]: TnCPdf,
+                      });
+                    }
+                  }
+                } else {
+                  pdfDataArray.push(currentArray);
+                  if (TnCHtmlContent || TnCPdf) {
+                    if (
+                      TnCHtmlContent !== null &&
+                      TnCHtmlContent !== undefined
+                    ) {
+                      currentArray = [
+                        {
+                          textbox: `<div style="padding-left: 40px; padding-right: 40px; color:${BrandColor}; font-size: ${fontSizeHeading}; font-family:${fontFamily}" >TERMS & CONDITIONS<br>
+                                      <hr style="padding-left: 40px; padding-right: 40px; color: black;"></hr></div>
+                                        <div style="padding-left: 40px; padding-right: 40px;">${appliedFontTNCContent}</div>`,
+                        },
+                      ];
+                    } else if (TnCPdf !== null || TnCHtmlContent === null) {
+                      currentArray = [
+                        {
+                          ["awsLink"]: TnCPdf,
+                        },
+                      ];
+                    }
+                  }
+                }
+              }
               const signatureImageUrl =
                 organisationData?.otherInformation?.[0]?.signatureImageUrl;
 

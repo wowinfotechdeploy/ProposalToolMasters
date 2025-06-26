@@ -19,11 +19,9 @@ const View_Proposals = () => {
   const [selectedOneOffServiceList, setSelectedOneOffServiceList] = useState(
     []
   );
-  const [acceptedPackageIndex, setAcceptedIndex] =
-    useState(false);
+  const [acceptedPackageIndex, setAcceptedIndex] = useState(false);
 
-  const [acceptedPackageName, setAcceptedAcceptedName] =
-    useState("");
+  const [acceptedPackageName, setAcceptedAcceptedName] = useState("");
 
   const [modelRequestData, setModelRequestData] = useState({
     ModuleName: null,
@@ -86,15 +84,15 @@ const View_Proposals = () => {
     selectedOneOffServiceList: [],
     reccrunigServiceCatList: [],
     clientMasterBusinessTypeID: null,
-    acceptedServicePackageID: null
+    acceptedServicePackageID: null,
   });
 
   const draftOn = location.state.draftOn;
   const sentOn = location.state.sentOn;
-  const AcceptedOn = location.state.acceptDeclineDate;
+  const AcceptedOn = location.state.AcceptedOn;
   const SkippedOn = location.state.SkippedOn;
 
-  console.log(draftOn,sentOn,AcceptedOn,SkippedOn);
+  console.log(draftOn, sentOn, AcceptedOn, SkippedOn);
 
   const {
     setTopbar,
@@ -105,7 +103,7 @@ const View_Proposals = () => {
     isMobile,
   } = useContext(AuthContextProvider);
   const navigate = useNavigate();
- 
+
   const [RecurringPricingInfo, setRecurringPricingInfo] = useState({
     OriginalPrice: 0,
     DefaultDiscount: null,
@@ -249,13 +247,12 @@ const View_Proposals = () => {
       if (data?.data?.statusCode === 200) {
         if (data?.data?.responseData?.data) {
           const ModelData = data?.data?.responseData?.data;
-          const ServiceMappingWithPackagesList = data?.data?.responseData?.serviceMappingWithPackagesList;
+          const ServiceMappingWithPackagesList =
+            data?.data?.responseData?.serviceMappingWithPackagesList;
           const packageData = data?.data?.responseData?.packageList;
-          const PackageOneID = packageData[0]?.servicePackageID
-          const PackageTwoID = packageData[1]?.servicePackageID
-          const PackageThreeID = packageData[2]?.servicePackageID
-
-
+          const PackageOneID = packageData[0]?.servicePackageID;
+          const PackageTwoID = packageData[1]?.servicePackageID;
+          const PackageThreeID = packageData[2]?.servicePackageID;
 
           const finalQuotationAmountList =
             data?.data?.responseData?.finalQuotationAmountList;
@@ -318,24 +315,31 @@ const View_Proposals = () => {
             oneOffDiscountPercentage: ModelData.oneOffDiscountPercentage,
             quoteFormatName: ModelData.quoteFormatName,
             clientMasterBusinessTypeID: ModelData.clientMasterBusinessTypeID,
-            acceptedServicePackageID: ModelData.acceptedServicePackageID
-
+            acceptedServicePackageID: ModelData.acceptedServicePackageID,
           });
 
-          const packageName = packageData.find(item => item.servicePackageID == ModelData.acceptedServicePackageID)
-          setAcceptedAcceptedName(packageName?.servicePackageName)
-          const packageIndex = packageData.findIndex(item => item.servicePackageID === ModelData.acceptedServicePackageID);
+          const packageName = packageData.find(
+            (item) =>
+              item.servicePackageID == ModelData.acceptedServicePackageID
+          );
+          setAcceptedAcceptedName(packageName?.servicePackageName);
+          const packageIndex = packageData.findIndex(
+            (item) =>
+              item.servicePackageID === ModelData.acceptedServicePackageID
+          );
           setAcceptedIndex(packageIndex);
 
           if (packageData.length > 0) {
-
             const RecurringDetails = finalQuotationAmountList.filter(
               (obj) => obj.serviceChargeTypeID === 1
             );
             const OneOffDetails = finalQuotationAmountList.filter(
               (obj) => obj.serviceChargeTypeID === 2
             );
-            if (RecurringDetails !== undefined && RecurringDetails?.length !== 0) {
+            if (
+              RecurringDetails !== undefined &&
+              RecurringDetails?.length !== 0
+            ) {
               setVATPercentage(RecurringDetails[0]?.vatPercentage);
             } else {
               setVATPercentage(OneOffDetails[0]?.vatPercentage);
@@ -343,14 +347,18 @@ const View_Proposals = () => {
 
             setRecurringPricingInfo({
               ...RecurringPricingInfo,
-              DefaultDiscount: ModelData.quoteTypeID == 1 || ModelData.quoteTypeID == 2 ?
-                RecurringDetails[0]?.discountPercentageWithAllDecimal :
-                ModelData.recurringDiscountPercentage == null
+              DefaultDiscount:
+                ModelData.quoteTypeID == 1 || ModelData.quoteTypeID == 2
+                  ? RecurringDetails[0]?.discountPercentageWithAllDecimal
+                  : ModelData.recurringDiscountPercentage == null
                   ? 0
                   : ModelData.recurringDiscountPercentage,
-              DiscountPercentagePackageOne: RecurringDetails[0]?.discountPercentageWithAllDecimal,
-              DiscountPercentagePackageTwo: RecurringDetails[1]?.discountPercentageWithAllDecimal,
-              DiscountPercentagePackageThree: RecurringDetails[2]?.discountPercentageWithAllDecimal,
+              DiscountPercentagePackageOne:
+                RecurringDetails[0]?.discountPercentageWithAllDecimal,
+              DiscountPercentagePackageTwo:
+                RecurringDetails[1]?.discountPercentageWithAllDecimal,
+              DiscountPercentagePackageThree:
+                RecurringDetails[2]?.discountPercentageWithAllDecimal,
               packageOneNetTotal: RecurringDetails[0]?.netTotal,
               packageTwoNetTotal: RecurringDetails[1]?.netTotal,
               packageThreeNetTotal: RecurringDetails[2]?.netTotal,
@@ -390,15 +398,18 @@ const View_Proposals = () => {
 
             setOneOffPricingInfo({
               ...OneOffPricingInfo,
-              DefaultDiscount: ModelData.quoteTypeID == 1 ?
-                OneOffDetails[0]?.discountPercentageWithAllDecimal :
-                ModelData.oneOffDiscountPercentage_WithAllDecimal == null
+              DefaultDiscount:
+                ModelData.quoteTypeID == 1
+                  ? OneOffDetails[0]?.discountPercentageWithAllDecimal
+                  : ModelData.oneOffDiscountPercentage_WithAllDecimal == null
                   ? 0
-                  : ModelData.oneOffDiscountPercentage_WithAllDecimal
-              ,
-              DiscountPercentagePackageOne: OneOffDetails[0]?.discountPercentageWithAllDecimal,
-              DiscountPercentagePackageTwo: OneOffDetails[1]?.discountPercentageWithAllDecimal,
-              DiscountPercentagePackageThree: OneOffDetails[2]?.discountPercentageWithAllDecimal,
+                  : ModelData.oneOffDiscountPercentage_WithAllDecimal,
+              DiscountPercentagePackageOne:
+                OneOffDetails[0]?.discountPercentageWithAllDecimal,
+              DiscountPercentagePackageTwo:
+                OneOffDetails[1]?.discountPercentageWithAllDecimal,
+              DiscountPercentagePackageThree:
+                OneOffDetails[2]?.discountPercentageWithAllDecimal,
               packageOneDisCount: OneOffDetails[0]?.discounted,
               packageTwoDisCount: OneOffDetails[1]?.discounted,
               packageThreeDisCount: OneOffDetails[2]?.discounted,
@@ -442,7 +453,10 @@ const View_Proposals = () => {
             const OneOffDetails = finalQuotationAmountList.find(
               (obj) => obj.serviceChargeTypeID === 2
             );
-            if (RecurringDetails !== undefined && RecurringDetails?.length === 0) {
+            if (
+              RecurringDetails !== undefined &&
+              RecurringDetails?.length === 0
+            ) {
               setVATPercentage(RecurringDetails?.vatPercentage);
             } else {
               setVATPercentage(OneOffDetails?.vatPercentage);
@@ -496,50 +510,68 @@ const View_Proposals = () => {
               GrandTotal: OneOffDetails?.grandTotal,
             });
           }
-          let RecurringService = ModelData.reccrunigServiceCatList
-          let OneOffService = ModelData.oneOffServiceCatList
+          let RecurringService = ModelData.reccrunigServiceCatList;
+          let OneOffService = ModelData.oneOffServiceCatList;
           if (packageData.length !== 0) {
-            const updateServicePackages = (services, servicesList, serviceChargeTypeID) => {
+            const updateServicePackages = (
+              services,
+              servicesList,
+              serviceChargeTypeID
+            ) => {
               // Filter the services that match the provided serviceChargeTypeID
 
-              const serviceMappings = ServiceMappingWithPackagesList.filter(item => item.serviceChargeTypeID === serviceChargeTypeID);
+              const serviceMappings = ServiceMappingWithPackagesList.filter(
+                (item) => item.serviceChargeTypeID === serviceChargeTypeID
+              );
 
               return servicesList.map((SelectedService) => {
-
                 // Find matching service mappings for the current SelectedService
-                const matchedMappings = serviceMappings.filter(serviceMappingWithPackages => {
-
-                  return serviceMappingWithPackages.serviceCatID === services.serviceCatID &&
-                    serviceMappingWithPackages.serviceID === SelectedService.serviceID;
-                });
+                const matchedMappings = serviceMappings.filter(
+                  (serviceMappingWithPackages) => {
+                    return (
+                      serviceMappingWithPackages.serviceCatID ===
+                        services.serviceCatID &&
+                      serviceMappingWithPackages.serviceID ===
+                        SelectedService.serviceID
+                    );
+                  }
+                );
 
                 let packageOneValue = SelectedService.packageOneValue;
                 let packageTwoValue = SelectedService.packageTwoValue;
                 let packageThreeValue = SelectedService.packageThreeValue;
 
                 // Loop through matchedMappings to update package values if a match is found
-                matchedMappings.forEach(serviceMappingWithPackages => {
-
-
+                matchedMappings.forEach((serviceMappingWithPackages) => {
                   //Set Package One Value
-                  if (PackageOneID === serviceMappingWithPackages.servicePackageID) {
-                    packageOneValue = serviceMappingWithPackages.priceWithAllDecimal !== null
-                      ? serviceMappingWithPackages.priceWithAllDecimal
-                      : SelectedService.packageOneValue;
+                  if (
+                    PackageOneID === serviceMappingWithPackages.servicePackageID
+                  ) {
+                    packageOneValue =
+                      serviceMappingWithPackages.priceWithAllDecimal !== null
+                        ? serviceMappingWithPackages.priceWithAllDecimal
+                        : SelectedService.packageOneValue;
                   }
 
                   //Set Package Two Value
-                  if (PackageTwoID === serviceMappingWithPackages.servicePackageID) {
-                    packageTwoValue = serviceMappingWithPackages.priceWithAllDecimal !== null
-                      ? serviceMappingWithPackages.priceWithAllDecimal
-                      : SelectedService.packageTwoValue;
+                  if (
+                    PackageTwoID === serviceMappingWithPackages.servicePackageID
+                  ) {
+                    packageTwoValue =
+                      serviceMappingWithPackages.priceWithAllDecimal !== null
+                        ? serviceMappingWithPackages.priceWithAllDecimal
+                        : SelectedService.packageTwoValue;
                   }
 
                   //Set Package Three Value
-                  if (PackageThreeID === serviceMappingWithPackages.servicePackageID) {
-                    packageThreeValue = serviceMappingWithPackages.priceWithAllDecimal !== null
-                      ? serviceMappingWithPackages.priceWithAllDecimal
-                      : SelectedService.packageThreeValue;
+                  if (
+                    PackageThreeID ===
+                    serviceMappingWithPackages.servicePackageID
+                  ) {
+                    packageThreeValue =
+                      serviceMappingWithPackages.priceWithAllDecimal !== null
+                        ? serviceMappingWithPackages.priceWithAllDecimal
+                        : SelectedService.packageThreeValue;
                   }
                 });
 
@@ -548,24 +580,34 @@ const View_Proposals = () => {
                   ...SelectedService,
                   packageOneValue,
                   packageTwoValue,
-                  packageThreeValue
+                  packageThreeValue,
                 };
               });
             };
 
             // Update RecurringService
-            RecurringService = ModelData.reccrunigServiceCatList.map((services) => {
-              return {
-                ...services,
-                servicesList: updateServicePackages(services, services.servicesList, 1) // serviceChargeTypeID for RecurringService is 1
-              };
-            });
+            RecurringService = ModelData.reccrunigServiceCatList.map(
+              (services) => {
+                return {
+                  ...services,
+                  servicesList: updateServicePackages(
+                    services,
+                    services.servicesList,
+                    1
+                  ), // serviceChargeTypeID for RecurringService is 1
+                };
+              }
+            );
 
             // Update OneOffService
             OneOffService = ModelData.oneOffServiceCatList.map((services) => {
               return {
                 ...services,
-                servicesList: updateServicePackages(services, services.servicesList, 2) // serviceChargeTypeID for OneOffService is 2
+                servicesList: updateServicePackages(
+                  services,
+                  services.servicesList,
+                  2
+                ), // serviceChargeTypeID for OneOffService is 2
               };
             });
           }
@@ -649,11 +691,27 @@ const View_Proposals = () => {
     let fontSize = "14px";
 
     if (Type === "Index") {
-      fontWeight = acceptedPackageIndex === servicePackageID && ProposalObject.statusID !== statusID.Declined ? "600" : "400";
-      fontSize = acceptedPackageIndex === servicePackageID && ProposalObject.statusID !== statusID.Declined ? "16px" : "14px"; // Adjust font size as needed
+      fontWeight =
+        acceptedPackageIndex === servicePackageID &&
+        ProposalObject.statusID !== statusID.Declined
+          ? "600"
+          : "400";
+      fontSize =
+        acceptedPackageIndex === servicePackageID &&
+        ProposalObject.statusID !== statusID.Declined
+          ? "16px"
+          : "14px"; // Adjust font size as needed
     } else {
-      fontWeight = servicePackageID === ProposalObject.acceptedServicePackageID && ProposalObject.statusID !== statusID.Declined ? "600" : "400";
-      fontSize = servicePackageID === ProposalObject.acceptedServicePackageID && ProposalObject.statusID !== statusID.Declined ? "16px" : "14px"; // Adjust font size as needed
+      fontWeight =
+        servicePackageID === ProposalObject.acceptedServicePackageID &&
+        ProposalObject.statusID !== statusID.Declined
+          ? "600"
+          : "400";
+      fontSize =
+        servicePackageID === ProposalObject.acceptedServicePackageID &&
+        ProposalObject.statusID !== statusID.Declined
+          ? "16px"
+          : "14px"; // Adjust font size as needed
     }
 
     return { fontWeight, fontSize };
@@ -668,9 +726,14 @@ const View_Proposals = () => {
                 <div className="col-md-6 col-sm-6 col-6">
                   <div class="prospects-title">
                     <h5>
-                      {proposalName}:  {isMobile
-                        ? ProposalObject?.quotationName && ProposalObject?.quotationName.length > 15
-                          ? `${ProposalObject?.quotationName.substring(0, 15)}...`
+                      {proposalName}:{" "}
+                      {isMobile
+                        ? ProposalObject?.quotationName &&
+                          ProposalObject?.quotationName.length > 15
+                          ? `${ProposalObject?.quotationName.substring(
+                              0,
+                              15
+                            )}...`
                           : ProposalObject?.quotationName
                         : ProposalObject?.quotationName}
                     </h5>
@@ -762,7 +825,6 @@ const View_Proposals = () => {
                                 All Officers
                               </a>
                             </li>
-
                           </ul>
 
                           <div class="tab-content  text-muted">
@@ -797,47 +859,31 @@ const View_Proposals = () => {
                                       {ProposalObject.quoteTypeName}
                                     </td>
                                   </tr>
-                                  {
-                                    draftOn && (
-                                      <tr>
-                                        <td>Drafted On</td>
-                                        <td class="text-end">
-                                          {draftOn}
-                                        </td>
-                                      </tr>
-                                    )
-                                  }
-                                  {
-                                    sentOn && (
-                                      <tr>
-                                        <td>Sent On</td>
-                                        <td class="text-end">
-                                          {sentOn}
-                                        </td>
-                                      </tr>
-                                    )
-                                  }
-                                  {
-                                    AcceptedOn && (
-                                      <tr>
-                                        <td>Signed On</td>
-                                        <td class="text-end">
-                                          {AcceptedOn}
-                                        </td>
-                                      </tr>
-                                    )
-                                  }
+                                  {draftOn && (
+                                    <tr>
+                                      <td>Drafted On</td>
+                                      <td class="text-end">{draftOn}</td>
+                                    </tr>
+                                  )}
+                                  {sentOn && (
+                                    <tr>
+                                      <td>Sent On</td>
+                                      <td class="text-end">{sentOn}</td>
+                                    </tr>
+                                  )}
+                                  {AcceptedOn && (
+                                    <tr>
+                                      <td>Accepted On</td>
+                                      <td class="text-end">{AcceptedOn}</td>
+                                    </tr>
+                                  )}
 
-                                  {
-                                    SkippedOn && (
-                                      <tr>
-                                        <td>Skipped On</td>
-                                        <td class="text-end">
-                                          {SkippedOn}
-                                        </td>
-                                      </tr>
-                                    )
-                                  }
+                                  {SkippedOn && (
+                                    <tr>
+                                      <td>Skipped On</td>
+                                      <td class="text-end">{SkippedOn}</td>
+                                    </tr>
+                                  )}
                                 </tbody>
                               </table>
                             </div>
@@ -871,12 +917,15 @@ const View_Proposals = () => {
                                               </div>
                                             </div>
                                           </div>
-                                          {ProposalObject.paymentGatewayID !== null &&
+                                          {ProposalObject.paymentGatewayID !==
+                                            null && (
                                             <div className="row fieldset">
                                               <div className="col-lg-3 text-lg-right">
                                                 <label className="fieldset-label required">
                                                   Payment Gateway
-                                                  <span className="text-danger">*</span>
+                                                  <span className="text-danger">
+                                                    *
+                                                  </span>
                                                 </label>
                                               </div>
                                               <div className="col-md-9 mb-2">
@@ -889,7 +938,8 @@ const View_Proposals = () => {
                                                   />
                                                 </div>
                                               </div>
-                                            </div>}
+                                            </div>
+                                          )}
                                           <div className="row fieldset">
                                             <div className="col-lg-3 text-lg-right">
                                               <label className="fieldset-label required">
@@ -909,173 +959,202 @@ const View_Proposals = () => {
                                               </div>
                                             </div>
                                           </div>
-                                          {ProposalObject.acceptedServicePackageID !== null && ProposalObject.statusID !== statusID.Declined &&
-                                            <div className="row fieldset mt-2">
-                                              <div className="col-lg-3 text-lg-right">
-                                                <label className="fieldset-label required">
-                                                  Accepted Package
-                                                </label>
-                                              </div>
-                                              <div className="col-lg-9">
-                                                <div className="input-group">
+                                          {ProposalObject.acceptedServicePackageID !==
+                                            null &&
+                                            ProposalObject.statusID !==
+                                              statusID.Declined && (
+                                              <div className="row fieldset mt-2">
+                                                <div className="col-lg-3 text-lg-right">
                                                   <label className="fieldset-label required">
-                                                    {acceptedPackageName}
+                                                    Accepted Package
                                                   </label>
                                                 </div>
+                                                <div className="col-lg-9">
+                                                  <div className="input-group">
+                                                    <label className="fieldset-label required">
+                                                      {acceptedPackageName}
+                                                    </label>
+                                                  </div>
+                                                </div>
                                               </div>
-                                            </div>
-                                          }
+                                            )}
                                         </div>
                                       </div>
                                     </div>
                                     {selectedRecurringServiceList?.length !==
                                       0 && (
-                                        <div className="tab-content">
-                                          <div className="tab-pane p-3 active">
-                                            <div className="row">
-                                              <div className="col-lg-12">
-                                                <div className="separator mb-2"></div>
-                                                <h6>Recurring Services</h6>
-                                                <div className="separator mb-3"></div>
+                                      <div className="tab-content">
+                                        <div className="tab-pane p-3 active">
+                                          <div className="row">
+                                            <div className="col-lg-12">
+                                              <div className="separator mb-2"></div>
+                                              <h6>Recurring Services</h6>
+                                              <div className="separator mb-3"></div>
 
-                                                <div
-                                                  className="row"
-                                                  id="recurring_Default"
-                                                >
-                                                  <div class="col-lg-2 mb-1 col-md-2 col-sm-12 mt-2 text-md-end">
-                                                    {packageCount == 1 && (
-
-                                                      <label className="fieldset-label">
-                                                        Discount (%)
-                                                      </label>
-                                                    )}
-                                                  </div>
-                                                  <div className="col-lg-4">
-                                                    {packageCount == 1 && (
-                                                      <input
-                                                        readonly=""
-                                                        className="input-text"
-                                                        type="number" // Change type to number
-                                                        placeholder="Default Discount (%)"
-                                                        value={
-                                                          Number(Math.floor(RecurringPricingInfo.DefaultDiscount * 100) / 100).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                                                        }
-                                                      />
-                                                    )}
-                                                  </div>
-                                                  <div className="col-lg-2 text-lg-right">
-                                                    <label className="fieldset-label required mt-2">
-                                                      Payment Frequency
+                                              <div
+                                                className="row"
+                                                id="recurring_Default"
+                                              >
+                                                <div class="col-lg-2 mb-1 col-md-2 col-sm-12 mt-2 text-md-end">
+                                                  {packageCount == 1 && (
+                                                    <label className="fieldset-label">
+                                                      Discount (%)
                                                     </label>
-                                                  </div>
-                                                  <div className="col-lg-4">
-                                                    <Select
-                                                      isDisabled
-                                                      className="phone-input-country-code selectDropDown Drop-down-width"
-                                                      value={selectedFrequency}
-                                                    />
-                                                  </div>
+                                                  )}
                                                 </div>
-                                                <div className="row fieldset"></div>
-                                                <div className="mb-3"></div>
+                                                <div className="col-lg-4">
+                                                  {packageCount == 1 && (
+                                                    <input
+                                                      readonly=""
+                                                      className="input-text"
+                                                      type="number" // Change type to number
+                                                      placeholder="Default Discount (%)"
+                                                      value={Number(
+                                                        Math.floor(
+                                                          RecurringPricingInfo.DefaultDiscount *
+                                                            100
+                                                        ) / 100
+                                                      )
+                                                        .toFixed(2)
+                                                        .replace(
+                                                          /\B(?=(\d{3})+(?!\d))/g,
+                                                          ","
+                                                        )}
+                                                    />
+                                                  )}
+                                                </div>
+                                                <div className="col-lg-2 text-lg-right">
+                                                  <label className="fieldset-label required mt-2">
+                                                    Payment Frequency
+                                                  </label>
+                                                </div>
+                                                <div className="col-lg-4">
+                                                  <Select
+                                                    isDisabled
+                                                    className="phone-input-country-code selectDropDown Drop-down-width"
+                                                    value={selectedFrequency}
+                                                  />
+                                                </div>
+                                              </div>
+                                              <div className="row fieldset"></div>
+                                              <div className="mb-3"></div>
 
-                                                <div style={{ marginTop: "0px" }} className="table-responsive">
-                                                  <table
-                                                    class="table align-middle table-nowrap"
-                                                    style={{ width: "100%" }}
-                                                  >
-                                                    <thead className="table-light table-header-font">
-                                                      <tr className="head-row">
-                                                        <td className="tr-table-class text-white">
-                                                          Services
-                                                        </td>
-                                                        {selectedPackagesList.map(
-                                                          (pkg, index) => (
-                                                            <td
-                                                              key={index}
-                                                              style={{
-                                                                fontWeight: getFontStyles(selectedPackagesList[index].servicePackageID, "ID").fontWeight,
-                                                                fontSize: getFontStyles(selectedPackagesList[index].servicePackageID, "ID").fontSize
-                                                              }}
-                                                              className="tr-table-class text-white text-right"
-                                                            >
-                                                              {pkg
-                                                                .servicePackageName
-                                                                .length > 10 ? (
-                                                                <Tooltip
-                                                                  title={
-                                                                    pkg.servicePackageName
-                                                                  }
-                                                                >
-                                                                  {pkg.servicePackageName
-                                                                    .substring(
-                                                                      0,
-                                                                      10
-                                                                    )
-                                                                    .toLowerCase()
-                                                                    .replace(
-                                                                      /\b\w/g,
-                                                                      (l) =>
-                                                                        l.toUpperCase()
-                                                                    ) + "..."}
-                                                                </Tooltip>
-                                                              ) : pkg
-                                                                .servicePackageName
-                                                                .length > 10 ? (
-                                                                <Tooltip
-                                                                  title={
-                                                                    pkg.servicePackageName
-                                                                  }
-                                                                >
-                                                                  {pkg.servicePackageName.substring(
+                                              <div
+                                                style={{ marginTop: "0px" }}
+                                                className="table-responsive"
+                                              >
+                                                <table
+                                                  class="table align-middle table-nowrap"
+                                                  style={{ width: "100%" }}
+                                                >
+                                                  <thead className="table-light table-header-font">
+                                                    <tr className="head-row">
+                                                      <td className="tr-table-class text-white">
+                                                        Services
+                                                      </td>
+                                                      {selectedPackagesList.map(
+                                                        (pkg, index) => (
+                                                          <td
+                                                            key={index}
+                                                            style={{
+                                                              fontWeight:
+                                                                getFontStyles(
+                                                                  selectedPackagesList[
+                                                                    index
+                                                                  ]
+                                                                    .servicePackageID,
+                                                                  "ID"
+                                                                ).fontWeight,
+                                                              fontSize:
+                                                                getFontStyles(
+                                                                  selectedPackagesList[
+                                                                    index
+                                                                  ]
+                                                                    .servicePackageID,
+                                                                  "ID"
+                                                                ).fontSize,
+                                                            }}
+                                                            className="tr-table-class text-white text-right"
+                                                          >
+                                                            {pkg
+                                                              .servicePackageName
+                                                              .length > 10 ? (
+                                                              <Tooltip
+                                                                title={
+                                                                  pkg.servicePackageName
+                                                                }
+                                                              >
+                                                                {pkg.servicePackageName
+                                                                  .substring(
                                                                     0,
                                                                     10
+                                                                  )
+                                                                  .toLowerCase()
+                                                                  .replace(
+                                                                    /\b\w/g,
+                                                                    (l) =>
+                                                                      l.toUpperCase()
                                                                   ) + "..."}
-                                                                </Tooltip>
-                                                              ) : (
-                                                                pkg.servicePackageName
-                                                              )}
-                                                            </td>
-                                                          )
-                                                        )}
-                                                      </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                      {selectedRecurringServiceList.map(
-                                                        (service, index) => {
-                                                          return (
-                                                            <>
-                                                              <tr className="a-la-carte-services-review-head-row">
-                                                                <th
-                                                                  colSpan={
-                                                                    1 +
-                                                                    packageCount
-                                                                  }
-                                                                >
-                                                                  {
-                                                                    service.serviceCatName
-                                                                  }
-                                                                </th>
-                                                              </tr>
-                                                              {service.servicesList.map(
-                                                                (
-                                                                  subService,
-                                                                  subIndex
-                                                                ) => (
-                                                                  <tr
-                                                                    key={subIndex}
-                                                                    className={` ${subService?.isAdditionalService === true
+                                                              </Tooltip>
+                                                            ) : pkg
+                                                                .servicePackageName
+                                                                .length > 10 ? (
+                                                              <Tooltip
+                                                                title={
+                                                                  pkg.servicePackageName
+                                                                }
+                                                              >
+                                                                {pkg.servicePackageName.substring(
+                                                                  0,
+                                                                  10
+                                                                ) + "..."}
+                                                              </Tooltip>
+                                                            ) : (
+                                                              pkg.servicePackageName
+                                                            )}
+                                                          </td>
+                                                        )
+                                                      )}
+                                                    </tr>
+                                                  </thead>
+                                                  <tbody>
+                                                    {selectedRecurringServiceList.map(
+                                                      (service, index) => {
+                                                        return (
+                                                          <>
+                                                            <tr className="a-la-carte-services-review-head-row">
+                                                              <th
+                                                                colSpan={
+                                                                  1 +
+                                                                  packageCount
+                                                                }
+                                                              >
+                                                                {
+                                                                  service.serviceCatName
+                                                                }
+                                                              </th>
+                                                            </tr>
+                                                            {service.servicesList.map(
+                                                              (
+                                                                subService,
+                                                                subIndex
+                                                              ) => (
+                                                                <tr
+                                                                  key={subIndex}
+                                                                  className={` ${
+                                                                    subService?.isAdditionalService ===
+                                                                    true
                                                                       ? "bg-info  text-white"
                                                                       : ""
-                                                                      }`}
-                                                                  >
-                                                                    <td>
-                                                                      <div>
-                                                                        {subService
-                                                                          .serviceName
-                                                                          .length >
-                                                                          45
-                                                                          ? subService.serviceName
+                                                                  }`}
+                                                                >
+                                                                  <td>
+                                                                    <div>
+                                                                      {subService
+                                                                        .serviceName
+                                                                        .length >
+                                                                      45
+                                                                        ? subService.serviceName
                                                                             .substring(
                                                                               0,
                                                                               45
@@ -1089,139 +1168,223 @@ const View_Proposals = () => {
                                                                                 l.toUpperCase()
                                                                             ) +
                                                                           "..."
-                                                                          : subService.serviceName}
-                                                                      </div>
-                                                                      <div className="package-variables"></div>
-                                                                    </td>
+                                                                        : subService.serviceName}
+                                                                    </div>
+                                                                    <div className="package-variables"></div>
+                                                                  </td>
 
-                                                                    <td style={{
-                                                                      fontWeight: getFontStyles(0, "Index").fontWeight,
-                                                                      fontSize: getFontStyles(0, "Index").fontSize
-                                                                    }} className="text-right">
+                                                                  <td
+                                                                    style={{
+                                                                      fontWeight:
+                                                                        getFontStyles(
+                                                                          0,
+                                                                          "Index"
+                                                                        )
+                                                                          .fontWeight,
+                                                                      fontSize:
+                                                                        getFontStyles(
+                                                                          0,
+                                                                          "Index"
+                                                                        )
+                                                                          .fontSize,
+                                                                    }}
+                                                                    className="text-right"
+                                                                  >
+                                                                    {ProposalObject.feeTypeId ===
+                                                                    1 ? (
+                                                                      <>
+                                                                        {" "}
+                                                                        {subService.packageOneValue ===
+                                                                        null ? (
+                                                                          <span className="fa fa-times"></span>
+                                                                        ) : (
+                                                                          formatValue(
+                                                                            subService.packageOneValue
+                                                                          )
+                                                                        )}
+                                                                      </>
+                                                                    ) : subService.packageOneValue !==
+                                                                      null ? (
+                                                                      <span className="fa fa-check"></span>
+                                                                    ) : (
+                                                                      <span className="fa fa-times"></span>
+                                                                    )}
+                                                                  </td>
+                                                                  {packageCount >=
+                                                                    2 && (
+                                                                    <td
+                                                                      style={{
+                                                                        fontWeight:
+                                                                          getFontStyles(
+                                                                            1,
+                                                                            "Index"
+                                                                          )
+                                                                            .fontWeight,
+                                                                        fontSize:
+                                                                          getFontStyles(
+                                                                            1,
+                                                                            "Index"
+                                                                          )
+                                                                            .fontSize,
+                                                                      }}
+                                                                      className="text-right"
+                                                                    >
                                                                       {ProposalObject.feeTypeId ===
-                                                                        1 ? (
+                                                                      1 ? (
                                                                         <>
                                                                           {" "}
-
                                                                           {
-                                                                            subService.packageOneValue === null ?
-                                                                              <span className="fa fa-times"></span> :
+                                                                            subService.packageTwoValue ===
+                                                                            null ? (
+                                                                              <span className="fa fa-times"></span>
+                                                                            ) : (
                                                                               formatValue(
-                                                                                subService.packageOneValue
+                                                                                subService.packageTwoValue
                                                                               )
+                                                                            )
+                                                                            // Number(
+                                                                            //   subService.packageTwoValue
+                                                                            // )
+                                                                            //   .toFixed(2)
+                                                                            //   .toString()
+                                                                            //   .replace(
+                                                                            //     /\B(?=(\d{3})+(?!\d))/g,
+                                                                            //     ","
+                                                                            //   )
                                                                           }
                                                                         </>
-                                                                      ) :
-                                                                        subService.packageOneValue
-                                                                          !==
-                                                                          null ? (
-                                                                          <span className="fa fa-check"></span>
-                                                                        ) : (
-                                                                          <span className="fa fa-times"></span>
-                                                                        )}
+                                                                      ) : subService.packageTwoValue !==
+                                                                        null ? (
+                                                                        <span className="fa fa-check"></span>
+                                                                      ) : (
+                                                                        <span className="fa fa-times"></span>
+                                                                      )}
                                                                     </td>
-                                                                    {packageCount >=
-                                                                      2 && (
-                                                                        <td style={{
-                                                                          fontWeight: getFontStyles(1, "Index").fontWeight,
-                                                                          fontSize: getFontStyles(1, "Index").fontSize
-                                                                        }} className="text-right">
-                                                                          {ProposalObject.feeTypeId ===
-                                                                            1 ? (
-                                                                            <>
-                                                                              {" "}
-                                                                              {
-                                                                                subService.packageTwoValue === null ?
-                                                                                  <span className="fa fa-times"></span> :
-                                                                                  formatValue(
-                                                                                    subService.packageTwoValue
-                                                                                  )
-                                                                                // Number(
-                                                                                //   subService.packageTwoValue
-                                                                                // )
-                                                                                //   .toFixed(2)
-                                                                                //   .toString()
-                                                                                //   .replace(
-                                                                                //     /\B(?=(\d{3})+(?!\d))/g,
-                                                                                //     ","
-                                                                                //   )
-                                                                              }
-                                                                            </>
-                                                                          ) :
-                                                                            subService.packageTwoValue
-                                                                              !==
-                                                                              null ? (
-                                                                              <span className="fa fa-check"></span>
-                                                                            ) : (
+                                                                  )}
+                                                                  {packageCount ===
+                                                                    3 && (
+                                                                    <td
+                                                                      style={{
+                                                                        fontWeight:
+                                                                          getFontStyles(
+                                                                            2,
+                                                                            "Index"
+                                                                          )
+                                                                            .fontWeight,
+                                                                        fontSize:
+                                                                          getFontStyles(
+                                                                            2,
+                                                                            "Index"
+                                                                          )
+                                                                            .fontSize,
+                                                                      }}
+                                                                      className="text-right"
+                                                                    >
+                                                                      {ProposalObject.feeTypeId ===
+                                                                      1 ? (
+                                                                        <>
+                                                                          {" "}
+                                                                          {
+                                                                            subService.packageThreeValue ===
+                                                                            null ? (
                                                                               <span className="fa fa-times"></span>
-                                                                            )}
-                                                                        </td>
-                                                                      )}
-                                                                    {packageCount ===
-                                                                      3 && (
-                                                                        <td style={{
-                                                                          fontWeight: getFontStyles(2, "Index").fontWeight,
-                                                                          fontSize: getFontStyles(2, "Index").fontSize
-                                                                        }} className="text-right">
-                                                                          {ProposalObject.feeTypeId ===
-                                                                            1 ? (
-                                                                            <>
-                                                                              {" "}
-                                                                              {
-                                                                                subService.packageThreeValue === null ?
-                                                                                  <span className="fa fa-times"></span> :
-                                                                                  formatValue(
-                                                                                    subService.packageThreeValue
-                                                                                  )
-                                                                                // Number(
-                                                                                //   subService.packageThreeValue
-                                                                                // )
-                                                                                //   .toFixed(2)
-                                                                                //   .toString()
-                                                                                //   .replace(
-                                                                                //     /\B(?=(\d{3})+(?!\d))/g,
-                                                                                //     ","
-                                                                                //   )
-                                                                              }
-                                                                            </>
-                                                                          ) :
-                                                                            subService.packageThreeValue
-                                                                              !==
-                                                                              null ? (
-                                                                              <span className="fa fa-check"></span>
                                                                             ) : (
-                                                                              <span className="fa fa-times"></span>
-                                                                            )}
-                                                                        </td>
+                                                                              formatValue(
+                                                                                subService.packageThreeValue
+                                                                              )
+                                                                            )
+                                                                            // Number(
+                                                                            //   subService.packageThreeValue
+                                                                            // )
+                                                                            //   .toFixed(2)
+                                                                            //   .toString()
+                                                                            //   .replace(
+                                                                            //     /\B(?=(\d{3})+(?!\d))/g,
+                                                                            //     ","
+                                                                            //   )
+                                                                          }
+                                                                        </>
+                                                                      ) : subService.packageThreeValue !==
+                                                                        null ? (
+                                                                        <span className="fa fa-check"></span>
+                                                                      ) : (
+                                                                        <span className="fa fa-times"></span>
                                                                       )}
-                                                                  </tr>
-                                                                )
-                                                              )}
-                                                            </>
-                                                          );
-                                                        }
-                                                      )}
-                                                    </tbody>
-                                                    {packageCount > 1 && (
-                                                      <>
-                                                        <tr id="recurring_DefaultWithPackages">
-                                                          <td>
-                                                            <div>Discount (%)</div>
-                                                            {/* <div className="package-variables"></div> */}
-                                                          </td>
+                                                                    </td>
+                                                                  )}
+                                                                </tr>
+                                                              )
+                                                            )}
+                                                          </>
+                                                        );
+                                                      }
+                                                    )}
+                                                  </tbody>
+                                                  {packageCount > 1 && (
+                                                    <>
+                                                      <tr id="recurring_DefaultWithPackages">
+                                                        <td>
+                                                          <div>
+                                                            Discount (%)
+                                                          </div>
+                                                          {/* <div className="package-variables"></div> */}
+                                                        </td>
 
+                                                        <td
+                                                          style={{
+                                                            width: "35%",
+                                                            padding: "0px",
+                                                            whiteSpace:
+                                                              "normal",
+                                                          }}
+                                                        >
+                                                          <div
+                                                            style={{
+                                                              display: "flex",
+                                                              flexDirection:
+                                                                "column",
+                                                              alignItems:
+                                                                "flex-start",
+                                                            }}
+                                                          >
+                                                            <input
+                                                              readOnly
+                                                              className="input-text"
+                                                              type="number" // Change type to number
+                                                              placeholder="Discount (%)"
+                                                              value={Number(
+                                                                RecurringPricingInfo.DiscountPercentagePackageOne
+                                                              )
+                                                                .toFixed(2)
+                                                                .replace(
+                                                                  /\B(?=(\d{3})+(?!\d))/g,
+                                                                  ","
+                                                                )}
+                                                              style={{
+                                                                width: "100%",
+                                                                textAlign:
+                                                                  "right",
+                                                              }}
+                                                            />
+                                                          </div>
+                                                        </td>
+
+                                                        {packageCount >= 2 && (
                                                           <td
                                                             style={{
                                                               width: "35%",
                                                               padding: "0px",
-                                                              whiteSpace: "normal",
+                                                              whiteSpace:
+                                                                "normal",
                                                             }}
                                                           >
                                                             <div
                                                               style={{
                                                                 display: "flex",
-                                                                flexDirection: "column",
-                                                                alignItems: "flex-start",
+                                                                flexDirection:
+                                                                  "column",
+                                                                alignItems:
+                                                                  "flex-start",
                                                               }}
                                                             >
                                                               <input
@@ -1229,498 +1392,707 @@ const View_Proposals = () => {
                                                                 className="input-text"
                                                                 type="number" // Change type to number
                                                                 placeholder="Discount (%)"
-                                                                value={Number(RecurringPricingInfo.DiscountPercentagePackageOne).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                                                                value={Number(
+                                                                  RecurringPricingInfo.DiscountPercentagePackageTwo
+                                                                )
+                                                                  .toFixed(2)
+                                                                  .replace(
+                                                                    /\B(?=(\d{3})+(?!\d))/g,
+                                                                    ","
+                                                                  )}
                                                                 style={{
                                                                   width: "100%",
-                                                                  textAlign: "right",
+                                                                  textAlign:
+                                                                    "right",
+                                                                }}
+                                                              />
+                                                              <div></div>
+                                                            </div>
+                                                          </td>
+                                                        )}
+
+                                                        {packageCount === 3 && (
+                                                          <td
+                                                            style={{
+                                                              width: "35%",
+                                                              padding: "0px",
+                                                              whiteSpace:
+                                                                "normal",
+                                                            }}
+                                                          >
+                                                            <div
+                                                              style={{
+                                                                display: "flex",
+                                                                flexDirection:
+                                                                  "column",
+                                                                alignItems:
+                                                                  "flex-start",
+                                                              }}
+                                                            >
+                                                              <input
+                                                                readOnly
+                                                                className="input-text"
+                                                                type="number" // Change type to number
+                                                                placeholder="Discount (%)"
+                                                                value={Number(
+                                                                  RecurringPricingInfo.DiscountPercentagePackageThree
+                                                                )
+                                                                  .toFixed(2)
+                                                                  .replace(
+                                                                    /\B(?=(\d{3})+(?!\d))/g,
+                                                                    ","
+                                                                  )}
+                                                                style={{
+                                                                  width: "100%",
+                                                                  textAlign:
+                                                                    "right",
                                                                 }}
                                                               />
                                                             </div>
                                                           </td>
-
-                                                          {packageCount >= 2 && (
-                                                            <td
-                                                              style={{
-                                                                width: "35%",
-                                                                padding: "0px",
-                                                                whiteSpace: "normal",
-                                                              }}
-                                                            >
-                                                              <div
-                                                                style={{
-                                                                  display: "flex",
-                                                                  flexDirection: "column",
-                                                                  alignItems: "flex-start",
-                                                                }}
-                                                              >
-                                                                <input
-                                                                  readOnly
-                                                                  className="input-text"
-                                                                  type="number" // Change type to number
-                                                                  placeholder="Discount (%)"
-                                                                  value={Number(RecurringPricingInfo.DiscountPercentagePackageTwo).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-
-                                                                  style={{
-                                                                    width: "100%",
-                                                                    textAlign: "right",
-                                                                  }}
-                                                                />
-                                                                <div>
-                                                                </div>
-                                                              </div>
-                                                            </td>
+                                                        )}
+                                                      </tr>
+                                                    </>
+                                                  )}
+                                                  <tr className="head-row">
+                                                    <td className="tr-table-class font-14 text-white">
+                                                      Net Total
+                                                    </td>
+                                                    <td
+                                                      style={{
+                                                        fontWeight:
+                                                          getFontStyles(
+                                                            0,
+                                                            "Index"
+                                                          ).fontWeight,
+                                                        fontSize: getFontStyles(
+                                                          0,
+                                                          "Index"
+                                                        ).fontSize,
+                                                      }}
+                                                      className="tr-table-class font-14 text-white text-right"
+                                                    >
+                                                      {" "}
+                                                      {Number(
+                                                        RecurringPricingInfo.packageOneNetTotal
+                                                      ) <
+                                                        Number(
+                                                          RecurringPricingInfo.packageOneDisCountedTotal
+                                                        ) ||
+                                                      (Number(
+                                                        RecurringPricingInfo.packageOneDisCount
+                                                      ) > 0 &&
+                                                        !ProposalObject.DiscountLines)
+                                                        ? formatValue(
+                                                            RecurringPricingInfo.packageOneDisCountedTotal
+                                                          )
+                                                        : formatValue(
+                                                            RecurringPricingInfo.packageOneNetTotal
                                                           )}
-
-                                                          {packageCount === 3 && (
-                                                            <td
-                                                              style={{
-                                                                width: "35%",
-                                                                padding: "0px",
-                                                                whiteSpace: "normal",
-                                                              }}
-                                                            >
-                                                              <div
-                                                                style={{
-                                                                  display: "flex",
-                                                                  flexDirection: "column",
-                                                                  alignItems: "flex-start",
-                                                                }}
-                                                              >
-                                                                <input
-                                                                  readOnly
-                                                                  className="input-text"
-                                                                  type="number" // Change type to number
-                                                                  placeholder="Discount (%)"
-                                                                  value={Number(RecurringPricingInfo.DiscountPercentagePackageThree).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-
-                                                                  style={{
-                                                                    width: "100%",
-                                                                    textAlign: "right",
-                                                                  }}
-                                                                />
-
-                                                              </div>
-                                                            </td>
-                                                          )}
-                                                        </tr>
-                                                      </>
-                                                    )}
-                                                    <tr className="head-row">
-                                                      <td className="tr-table-class font-14 text-white">
-                                                        Net Total
-                                                      </td>
-                                                      <td style={{
-                                                        fontWeight: getFontStyles(0, "Index").fontWeight,
-                                                        fontSize: getFontStyles(0, "Index").fontSize
-                                                      }} className="tr-table-class font-14 text-white text-right">
+                                                    </td>
+                                                    {packageCount >= 2 && (
+                                                      <td
+                                                        style={{
+                                                          fontWeight:
+                                                            getFontStyles(
+                                                              1,
+                                                              "Index"
+                                                            ).fontWeight,
+                                                          fontSize:
+                                                            getFontStyles(
+                                                              1,
+                                                              "Index"
+                                                            ).fontSize,
+                                                        }}
+                                                        className="tr-table-class font-14 text-white text-right"
+                                                      >
                                                         {" "}
-                                                        {
-                                                          Number(RecurringPricingInfo.packageOneNetTotal) <
-                                                            Number(RecurringPricingInfo.packageOneDisCountedTotal) ||
-                                                            (Number(RecurringPricingInfo.packageOneDisCount) > 0 &&
-                                                              (!ProposalObject.DiscountLines)) ?
-                                                            formatValue(
-                                                              RecurringPricingInfo.packageOneDisCountedTotal
-                                                            ) : formatValue(
-                                                              RecurringPricingInfo.packageOneNetTotal
+                                                        {Number(
+                                                          RecurringPricingInfo.packageTwoNetTotal
+                                                        ) <
+                                                          Number(
+                                                            RecurringPricingInfo.packageTwoDisCountedTotal
+                                                          ) ||
+                                                        (Number(
+                                                          RecurringPricingInfo.packageTwoDisCount
+                                                        ) > 0 &&
+                                                          !ProposalObject.DiscountLines)
+                                                          ? formatValue(
+                                                              RecurringPricingInfo.packageTwoDisCountedTotal
+                                                            )
+                                                          : formatValue(
+                                                              RecurringPricingInfo.packageTwoNetTotal
                                                             )}
                                                       </td>
-                                                      {packageCount >= 2 && (
-                                                        <td style={{
-                                                          fontWeight: getFontStyles(1, "Index").fontWeight,
-                                                          fontSize: getFontStyles(1, "Index").fontSize
-                                                        }} className="tr-table-class font-14 text-white text-right">
-                                                          {" "}
-                                                          {
-                                                            Number(RecurringPricingInfo.packageTwoNetTotal) <
-                                                              Number(RecurringPricingInfo.packageTwoDisCountedTotal) ||
-                                                              (Number(RecurringPricingInfo.packageTwoDisCount) > 0 &&
-                                                                (!ProposalObject.DiscountLines)) ?
-                                                              formatValue(
-                                                                RecurringPricingInfo.packageTwoDisCountedTotal
-                                                              ) : formatValue(
-                                                                RecurringPricingInfo.packageTwoNetTotal
-                                                              )}
-                                                        </td>
-                                                      )}{" "}
-                                                      {packageCount === 3 && (
-                                                        <td style={{
-                                                          fontWeight: getFontStyles(2, "Index").fontWeight,
-                                                          fontSize: getFontStyles(2, "Index").fontSize
-                                                        }} className="tr-table-class font-14 text-white text-right">
-                                                          {" "}
-                                                          {
-                                                            Number(RecurringPricingInfo.packageThreeNetTotal) <
-                                                              Number(RecurringPricingInfo.packageThreeDisCountedTotal) ||
-                                                              (Number(RecurringPricingInfo.packageThreeDisCount) > 0 &&
-                                                                (!ProposalObject.DiscountLines)) ?
-                                                              formatValue(
-                                                                RecurringPricingInfo.packageThreeDisCountedTotal
-                                                              ) : formatValue(
-                                                                RecurringPricingInfo.packageThreeNetTotal
-                                                              )}
-                                                        </td>
-                                                      )}
-                                                    </tr>
+                                                    )}{" "}
+                                                    {packageCount === 3 && (
+                                                      <td
+                                                        style={{
+                                                          fontWeight:
+                                                            getFontStyles(
+                                                              2,
+                                                              "Index"
+                                                            ).fontWeight,
+                                                          fontSize:
+                                                            getFontStyles(
+                                                              2,
+                                                              "Index"
+                                                            ).fontSize,
+                                                        }}
+                                                        className="tr-table-class font-14 text-white text-right"
+                                                      >
+                                                        {" "}
+                                                        {Number(
+                                                          RecurringPricingInfo.packageThreeNetTotal
+                                                        ) <
+                                                          Number(
+                                                            RecurringPricingInfo.packageThreeDisCountedTotal
+                                                          ) ||
+                                                        (Number(
+                                                          RecurringPricingInfo.packageThreeDisCount
+                                                        ) > 0 &&
+                                                          !ProposalObject.DiscountLines)
+                                                          ? formatValue(
+                                                              RecurringPricingInfo.packageThreeDisCountedTotal
+                                                            )
+                                                          : formatValue(
+                                                              RecurringPricingInfo.packageThreeNetTotal
+                                                            )}
+                                                      </td>
+                                                    )}
+                                                  </tr>
 
-                                                    {((Number(
-                                                      RecurringPricingInfo.packageThreeDisCount
+                                                  {(Number(
+                                                    RecurringPricingInfo.packageThreeDisCount
+                                                  ) > 0 ||
+                                                    Number(
+                                                      RecurringPricingInfo.packageOneDisCount
                                                     ) > 0 ||
-                                                      Number(
-                                                        RecurringPricingInfo.packageOneDisCount
-                                                      ) > 0 ||
-                                                      Number(
-                                                        RecurringPricingInfo.packageTwoDisCount
-                                                      ) > 0) &&
-                                                      ProposalObject.DiscountLines) && (
-                                                        <>
-                                                          <tr className="head-grey-row">
-                                                            <td className="tr-table-class font-14  text-white">
-                                                              Discount
-                                                            </td>
-                                                            <td style={{
-                                                              fontWeight: getFontStyles(0, "Index").fontWeight,
-                                                              fontSize: getFontStyles(0, "Index").fontSize
-                                                            }} className="tr-table-class font-14 text-white text-right">
+                                                    Number(
+                                                      RecurringPricingInfo.packageTwoDisCount
+                                                    ) > 0) &&
+                                                    ProposalObject.DiscountLines && (
+                                                      <>
+                                                        <tr className="head-grey-row">
+                                                          <td className="tr-table-class font-14  text-white">
+                                                            Discount
+                                                          </td>
+                                                          <td
+                                                            style={{
+                                                              fontWeight:
+                                                                getFontStyles(
+                                                                  0,
+                                                                  "Index"
+                                                                ).fontWeight,
+                                                              fontSize:
+                                                                getFontStyles(
+                                                                  0,
+                                                                  "Index"
+                                                                ).fontSize,
+                                                            }}
+                                                            className="tr-table-class font-14 text-white text-right"
+                                                          >
+                                                            (-){" "}
+                                                            {new Intl.NumberFormat(
+                                                              "en-GB",
+                                                              {
+                                                                style:
+                                                                  "currency",
+                                                                currency: "GBP",
+                                                              }
+                                                            ).format(
+                                                              Number(
+                                                                RecurringPricingInfo.packageOneDisCount
+                                                              )
+                                                            )}
+                                                            {/* NewDiscount Rs.{RecurringPackageCalculation.PackageOneDiscountAmount} */}
+                                                          </td>
+                                                          {packageCount >=
+                                                            2 && (
+                                                            <td
+                                                              style={{
+                                                                fontWeight:
+                                                                  getFontStyles(
+                                                                    1,
+                                                                    "Index"
+                                                                  ).fontWeight,
+                                                                fontSize:
+                                                                  getFontStyles(
+                                                                    1,
+                                                                    "Index"
+                                                                  ).fontSize,
+                                                              }}
+                                                              className="tr-table-class font-14 text-white text-right"
+                                                            >
                                                               (-){" "}
                                                               {new Intl.NumberFormat(
                                                                 "en-GB",
                                                                 {
-                                                                  style: "currency",
-                                                                  currency: "GBP",
+                                                                  style:
+                                                                    "currency",
+                                                                  currency:
+                                                                    "GBP",
                                                                 }
                                                               ).format(
                                                                 Number(
-                                                                  RecurringPricingInfo.packageOneDisCount
+                                                                  RecurringPricingInfo.packageTwoDisCount
                                                                 )
-                                                              )}
-                                                              {/* NewDiscount Rs.{RecurringPackageCalculation.PackageOneDiscountAmount} */}
-                                                            </td>
-                                                            {packageCount >= 2 && (
-                                                              <td style={{
-                                                                fontWeight: getFontStyles(1, "Index").fontWeight,
-                                                                fontSize: getFontStyles(1, "Index").fontSize
-                                                              }} className="tr-table-class font-14 text-white text-right">
-                                                                (-){" "}
-                                                                {new Intl.NumberFormat(
-                                                                  "en-GB",
-                                                                  {
-                                                                    style:
-                                                                      "currency",
-                                                                    currency: "GBP",
-                                                                  }
-                                                                ).format(
-                                                                  Number(
-                                                                    RecurringPricingInfo.packageTwoDisCount
-                                                                  )
-                                                                )}
-                                                              </td>
-                                                            )}
-                                                            {packageCount === 3 && (
-                                                              <td style={{
-                                                                fontWeight: getFontStyles(2, "Index").fontWeight,
-                                                                fontSize: getFontStyles(2, "Index").fontSize
-                                                              }} className="tr-table-class font-14 text-white text-right">
-                                                                (-){" "}
-                                                                {new Intl.NumberFormat(
-                                                                  "en-GB",
-                                                                  {
-                                                                    style:
-                                                                      "currency",
-                                                                    currency: "GBP",
-                                                                  }
-                                                                ).format(
-                                                                  Number(
-                                                                    RecurringPricingInfo.packageThreeDisCount
-                                                                  )
-                                                                )}
-                                                              </td>
-                                                            )}
-                                                          </tr>
-                                                          <tr className="head-row">
-                                                            <td className="tr-table-class font-14 text-white">
-                                                              Discounted Total
-                                                            </td>
-                                                            <td style={{
-                                                              fontWeight: getFontStyles(0, "Index").fontWeight,
-                                                              fontSize: getFontStyles(0, "Index").fontSize
-                                                            }} className="tr-table-class font-14 text-white text-right">
-                                                              {new Intl.NumberFormat(
-                                                                "en-GB",
-                                                                {
-                                                                  style: "currency",
-                                                                  currency: "GBP",
-                                                                }
-                                                              ).format(
-                                                                Number(
-                                                                  RecurringPricingInfo.packageOneDisCountedTotal
-                                                                )
-                                                              )}
-
-                                                              {/* New Rs.{RecurringPackageCalculation.PackageOneDiscountedTotalAmount} */}
-                                                            </td>
-                                                            {packageCount >= 2 && (
-                                                              <td style={{
-                                                                fontWeight: getFontStyles(1, "Index").fontWeight,
-                                                                fontSize: getFontStyles(1, "Index").fontSize
-                                                              }} className="tr-table-class font-14  text-white text-right">
-                                                                {new Intl.NumberFormat(
-                                                                  "en-GB",
-                                                                  {
-                                                                    style:
-                                                                      "currency",
-                                                                    currency: "GBP",
-                                                                  }
-                                                                ).format(
-                                                                  Number(
-                                                                    RecurringPricingInfo.packageTwoDisCountedTotal
-                                                                  )
-                                                                )}
-                                                              </td>
-                                                            )}
-                                                            {packageCount === 3 && (
-                                                              <td style={{
-                                                                fontWeight: getFontStyles(2, "Index").fontWeight,
-                                                                fontSize: getFontStyles(2, "Index").fontSize
-                                                              }} className="tr-table-class font-14 text-white text-right">
-                                                                {new Intl.NumberFormat(
-                                                                  "en-GB",
-                                                                  {
-                                                                    style:
-                                                                      "currency",
-                                                                    currency: "GBP",
-                                                                  }
-                                                                ).format(
-                                                                  Number(
-                                                                    RecurringPricingInfo.packageThreeDisCountedTotal
-                                                                  )
-                                                                )}
-                                                              </td>
-                                                            )}
-                                                          </tr>
-                                                        </>
-                                                      )}
-
-                                                    {vatPercentage && (
-                                                      <>
-                                                        <tr class="head-grey-row">
-                                                          <td className="tr-table-class font-14 text-white">
-                                                            VAT
-                                                          </td>
-                                                          <td style={{
-                                                            fontWeight: getFontStyles(0, "Index").fontWeight,
-                                                            fontSize: getFontStyles(0, "Index").fontSize
-                                                          }} className="tr-table-class font-14 text-white text-right">
-                                                            {" "}
-                                                            {formatValue(
-                                                              RecurringPricingInfo.PackageOneVaTPrice
-                                                            )}
-                                                          </td>
-                                                          {packageCount >= 2 && (
-                                                            <td style={{
-                                                              fontWeight: getFontStyles(1, "Index").fontWeight,
-                                                              fontSize: getFontStyles(1, "Index").fontSize
-                                                            }} className="tr-table-class font-14 text-white text-right">
-                                                              {" "}
-                                                              {formatValue(
-                                                                RecurringPricingInfo.PackageTwoVaTPrice
                                                               )}
                                                             </td>
                                                           )}
-                                                          {packageCount === 3 && (
-                                                            <td style={{
-                                                              fontWeight: getFontStyles(2, "Index").fontWeight,
-                                                              fontSize: getFontStyles(2, "Index").fontSize
-                                                            }} className="tr-table-class font-14 text-white text-right">
-                                                              {" "}
-                                                              {formatValue(
-                                                                RecurringPricingInfo.PackageThreeVaTPrice
+                                                          {packageCount ===
+                                                            3 && (
+                                                            <td
+                                                              style={{
+                                                                fontWeight:
+                                                                  getFontStyles(
+                                                                    2,
+                                                                    "Index"
+                                                                  ).fontWeight,
+                                                                fontSize:
+                                                                  getFontStyles(
+                                                                    2,
+                                                                    "Index"
+                                                                  ).fontSize,
+                                                              }}
+                                                              className="tr-table-class font-14 text-white text-right"
+                                                            >
+                                                              (-){" "}
+                                                              {new Intl.NumberFormat(
+                                                                "en-GB",
+                                                                {
+                                                                  style:
+                                                                    "currency",
+                                                                  currency:
+                                                                    "GBP",
+                                                                }
+                                                              ).format(
+                                                                Number(
+                                                                  RecurringPricingInfo.packageThreeDisCount
+                                                                )
                                                               )}
                                                             </td>
                                                           )}
                                                         </tr>
                                                         <tr className="head-row">
                                                           <td className="tr-table-class font-14 text-white">
-                                                            Grand Total
+                                                            Discounted Total
                                                           </td>
-                                                          <td style={{
-                                                            fontWeight: getFontStyles(0, "Index").fontWeight,
-                                                            fontSize: getFontStyles(0, "Index").fontSize
-                                                          }} className="tr-table-class font-14 text-white text-right">
-                                                            {" "}
-                                                            {formatValue(
-                                                              RecurringPricingInfo.PackageOneGrandTotal
+                                                          <td
+                                                            style={{
+                                                              fontWeight:
+                                                                getFontStyles(
+                                                                  0,
+                                                                  "Index"
+                                                                ).fontWeight,
+                                                              fontSize:
+                                                                getFontStyles(
+                                                                  0,
+                                                                  "Index"
+                                                                ).fontSize,
+                                                            }}
+                                                            className="tr-table-class font-14 text-white text-right"
+                                                          >
+                                                            {new Intl.NumberFormat(
+                                                              "en-GB",
+                                                              {
+                                                                style:
+                                                                  "currency",
+                                                                currency: "GBP",
+                                                              }
+                                                            ).format(
+                                                              Number(
+                                                                RecurringPricingInfo.packageOneDisCountedTotal
+                                                              )
                                                             )}
+
+                                                            {/* New Rs.{RecurringPackageCalculation.PackageOneDiscountedTotalAmount} */}
                                                           </td>
-                                                          {packageCount >= 2 && (
-                                                            <td style={{
-                                                              fontWeight: getFontStyles(1, "Index").fontWeight,
-                                                              fontSize: getFontStyles(1, "Index").fontSize
-                                                            }} className="tr-table-class font-14 text-white text-right">
-                                                              {" "}
-                                                              {formatValue(
-                                                                RecurringPricingInfo.PackageTwoGrandTotal
+                                                          {packageCount >=
+                                                            2 && (
+                                                            <td
+                                                              style={{
+                                                                fontWeight:
+                                                                  getFontStyles(
+                                                                    1,
+                                                                    "Index"
+                                                                  ).fontWeight,
+                                                                fontSize:
+                                                                  getFontStyles(
+                                                                    1,
+                                                                    "Index"
+                                                                  ).fontSize,
+                                                              }}
+                                                              className="tr-table-class font-14  text-white text-right"
+                                                            >
+                                                              {new Intl.NumberFormat(
+                                                                "en-GB",
+                                                                {
+                                                                  style:
+                                                                    "currency",
+                                                                  currency:
+                                                                    "GBP",
+                                                                }
+                                                              ).format(
+                                                                Number(
+                                                                  RecurringPricingInfo.packageTwoDisCountedTotal
+                                                                )
                                                               )}
                                                             </td>
                                                           )}
-                                                          {packageCount == 3 && (
-                                                            <td style={{
-                                                              fontWeight: getFontStyles(2, "Index").fontWeight,
-                                                              fontSize: getFontStyles(2, "Index").fontSize
-                                                            }} className="tr-table-class font-14 text-white text-right">
-                                                              {" "}
-                                                              {formatValue(
-                                                                RecurringPricingInfo.PackageThreeGrandTotal
+                                                          {packageCount ===
+                                                            3 && (
+                                                            <td
+                                                              style={{
+                                                                fontWeight:
+                                                                  getFontStyles(
+                                                                    2,
+                                                                    "Index"
+                                                                  ).fontWeight,
+                                                                fontSize:
+                                                                  getFontStyles(
+                                                                    2,
+                                                                    "Index"
+                                                                  ).fontSize,
+                                                              }}
+                                                              className="tr-table-class font-14 text-white text-right"
+                                                            >
+                                                              {new Intl.NumberFormat(
+                                                                "en-GB",
+                                                                {
+                                                                  style:
+                                                                    "currency",
+                                                                  currency:
+                                                                    "GBP",
+                                                                }
+                                                              ).format(
+                                                                Number(
+                                                                  RecurringPricingInfo.packageThreeDisCountedTotal
+                                                                )
                                                               )}
                                                             </td>
                                                           )}
                                                         </tr>
                                                       </>
                                                     )}
-                                                  </table>
-                                                </div>
+
+                                                  {vatPercentage && (
+                                                    <>
+                                                      <tr class="head-grey-row">
+                                                        <td className="tr-table-class font-14 text-white">
+                                                          VAT
+                                                        </td>
+                                                        <td
+                                                          style={{
+                                                            fontWeight:
+                                                              getFontStyles(
+                                                                0,
+                                                                "Index"
+                                                              ).fontWeight,
+                                                            fontSize:
+                                                              getFontStyles(
+                                                                0,
+                                                                "Index"
+                                                              ).fontSize,
+                                                          }}
+                                                          className="tr-table-class font-14 text-white text-right"
+                                                        >
+                                                          {" "}
+                                                          {formatValue(
+                                                            RecurringPricingInfo.PackageOneVaTPrice
+                                                          )}
+                                                        </td>
+                                                        {packageCount >= 2 && (
+                                                          <td
+                                                            style={{
+                                                              fontWeight:
+                                                                getFontStyles(
+                                                                  1,
+                                                                  "Index"
+                                                                ).fontWeight,
+                                                              fontSize:
+                                                                getFontStyles(
+                                                                  1,
+                                                                  "Index"
+                                                                ).fontSize,
+                                                            }}
+                                                            className="tr-table-class font-14 text-white text-right"
+                                                          >
+                                                            {" "}
+                                                            {formatValue(
+                                                              RecurringPricingInfo.PackageTwoVaTPrice
+                                                            )}
+                                                          </td>
+                                                        )}
+                                                        {packageCount === 3 && (
+                                                          <td
+                                                            style={{
+                                                              fontWeight:
+                                                                getFontStyles(
+                                                                  2,
+                                                                  "Index"
+                                                                ).fontWeight,
+                                                              fontSize:
+                                                                getFontStyles(
+                                                                  2,
+                                                                  "Index"
+                                                                ).fontSize,
+                                                            }}
+                                                            className="tr-table-class font-14 text-white text-right"
+                                                          >
+                                                            {" "}
+                                                            {formatValue(
+                                                              RecurringPricingInfo.PackageThreeVaTPrice
+                                                            )}
+                                                          </td>
+                                                        )}
+                                                      </tr>
+                                                      <tr className="head-row">
+                                                        <td className="tr-table-class font-14 text-white">
+                                                          Grand Total
+                                                        </td>
+                                                        <td
+                                                          style={{
+                                                            fontWeight:
+                                                              getFontStyles(
+                                                                0,
+                                                                "Index"
+                                                              ).fontWeight,
+                                                            fontSize:
+                                                              getFontStyles(
+                                                                0,
+                                                                "Index"
+                                                              ).fontSize,
+                                                          }}
+                                                          className="tr-table-class font-14 text-white text-right"
+                                                        >
+                                                          {" "}
+                                                          {formatValue(
+                                                            RecurringPricingInfo.PackageOneGrandTotal
+                                                          )}
+                                                        </td>
+                                                        {packageCount >= 2 && (
+                                                          <td
+                                                            style={{
+                                                              fontWeight:
+                                                                getFontStyles(
+                                                                  1,
+                                                                  "Index"
+                                                                ).fontWeight,
+                                                              fontSize:
+                                                                getFontStyles(
+                                                                  1,
+                                                                  "Index"
+                                                                ).fontSize,
+                                                            }}
+                                                            className="tr-table-class font-14 text-white text-right"
+                                                          >
+                                                            {" "}
+                                                            {formatValue(
+                                                              RecurringPricingInfo.PackageTwoGrandTotal
+                                                            )}
+                                                          </td>
+                                                        )}
+                                                        {packageCount == 3 && (
+                                                          <td
+                                                            style={{
+                                                              fontWeight:
+                                                                getFontStyles(
+                                                                  2,
+                                                                  "Index"
+                                                                ).fontWeight,
+                                                              fontSize:
+                                                                getFontStyles(
+                                                                  2,
+                                                                  "Index"
+                                                                ).fontSize,
+                                                            }}
+                                                            className="tr-table-class font-14 text-white text-right"
+                                                          >
+                                                            {" "}
+                                                            {formatValue(
+                                                              RecurringPricingInfo.PackageThreeGrandTotal
+                                                            )}
+                                                          </td>
+                                                        )}
+                                                      </tr>
+                                                    </>
+                                                  )}
+                                                </table>
                                               </div>
                                             </div>
                                           </div>
                                         </div>
-                                      )}
+                                      </div>
+                                    )}
 
                                     {selectedOneOffServiceList?.length !==
                                       0 && (
-                                        <div className="tab-content">
-                                          <div className="tab-pane p-3 active">
-                                            <div className="row">
-                                              <div className="col-lg-12">
-                                                <div className="separator mb-2"></div>
-                                                <h6>One-Off Services</h6>
-                                                <div className="separator mb-3"></div>
-                                                <div
-                                                  class="row"
-                                                  id="OneOff_Default"
-                                                >
-                                                  <div class="col-lg-2 mb-1 col-md-2 col-sm-12 mt-2 text-md-end">
-                                                    <div class="mb-1 text-md-end">
-                                                      {packageCount == 1 && (<label class="form-label">
+                                      <div className="tab-content">
+                                        <div className="tab-pane p-3 active">
+                                          <div className="row">
+                                            <div className="col-lg-12">
+                                              <div className="separator mb-2"></div>
+                                              <h6>One-Off Services</h6>
+                                              <div className="separator mb-3"></div>
+                                              <div
+                                                class="row"
+                                                id="OneOff_Default"
+                                              >
+                                                <div class="col-lg-2 mb-1 col-md-2 col-sm-12 mt-2 text-md-end">
+                                                  <div class="mb-1 text-md-end">
+                                                    {packageCount == 1 && (
+                                                      <label class="form-label">
                                                         Discount (%)
                                                       </label>
-                                                      )}
-                                                    </div>
+                                                    )}
                                                   </div>
-                                                  <div className="col-lg-4">
-                                                    {packageCount == 1 && (<input
+                                                </div>
+                                                <div className="col-lg-4">
+                                                  {packageCount == 1 && (
+                                                    <input
                                                       readonly=""
                                                       class="input-text"
                                                       type="text"
                                                       placeholder="Default Discount (%)"
                                                       value={
-                                                        Number(Math.floor(OneOffPricingInfo.DefaultDiscount * 100) / 100).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                                        Number(
+                                                          Math.floor(
+                                                            OneOffPricingInfo.DefaultDiscount *
+                                                              100
+                                                          ) / 100
+                                                        )
+                                                          .toFixed(2)
+                                                          .replace(
+                                                            /\B(?=(\d{3})+(?!\d))/g,
+                                                            ","
+                                                          )
 
                                                         // OneOffPricingInfo.DefaultDiscount
                                                       }
                                                     />
-                                                    )}
-                                                  </div>
+                                                  )}
                                                 </div>
-                                                <div className="mb-3"></div>
+                                              </div>
+                                              <div className="mb-3"></div>
 
-                                                <div style={{ marginTop: "0px" }} className="table-responsive">
-                                                  <table
-                                                    class="table align-middle table-nowrap"
-                                                    style={{ width: "100%" }}
-                                                  >
-                                                    <thead className="table-light table-header-font">
-                                                      <tr className="head-row">
-                                                        <td className="tr-table-class text-white">
-                                                          Services
-                                                        </td>
+                                              <div
+                                                style={{ marginTop: "0px" }}
+                                                className="table-responsive"
+                                              >
+                                                <table
+                                                  class="table align-middle table-nowrap"
+                                                  style={{ width: "100%" }}
+                                                >
+                                                  <thead className="table-light table-header-font">
+                                                    <tr className="head-row">
+                                                      <td className="tr-table-class text-white">
+                                                        Services
+                                                      </td>
 
-                                                        {selectedPackagesList.map(
-                                                          (pkg, index) => (
-                                                            <td
-                                                              key={index}
-                                                              className="tr-table-class text-white text-right"
-                                                              style={{
-                                                                fontWeight: getFontStyles(selectedPackagesList[index].servicePackageID, "ID").fontWeight,
-                                                                fontSize: getFontStyles(selectedPackagesList[index].servicePackageID, "ID").fontSize
-                                                              }}
-                                                            >
-                                                              {pkg
-                                                                .servicePackageName
-                                                                .length > 10 ? (
-                                                                <Tooltip
-                                                                  title={
-                                                                    pkg.servicePackageName
-                                                                  }
-                                                                >
-                                                                  {pkg.servicePackageName
-                                                                    .substring(
-                                                                      0,
-                                                                      10
-                                                                    )
-                                                                    .toLowerCase()
-                                                                    .replace(
-                                                                      /\b\w/g,
-                                                                      (l) =>
-                                                                        l.toUpperCase()
-                                                                    ) + "..."}
-                                                                </Tooltip>
-                                                              ) : pkg
-                                                                .servicePackageName
-                                                                .length > 10 ? (
-                                                                <Tooltip
-                                                                  title={
-                                                                    pkg.servicePackageName
-                                                                  }
-                                                                >
-                                                                  {pkg.servicePackageName.substring(
+                                                      {selectedPackagesList.map(
+                                                        (pkg, index) => (
+                                                          <td
+                                                            key={index}
+                                                            className="tr-table-class text-white text-right"
+                                                            style={{
+                                                              fontWeight:
+                                                                getFontStyles(
+                                                                  selectedPackagesList[
+                                                                    index
+                                                                  ]
+                                                                    .servicePackageID,
+                                                                  "ID"
+                                                                ).fontWeight,
+                                                              fontSize:
+                                                                getFontStyles(
+                                                                  selectedPackagesList[
+                                                                    index
+                                                                  ]
+                                                                    .servicePackageID,
+                                                                  "ID"
+                                                                ).fontSize,
+                                                            }}
+                                                          >
+                                                            {pkg
+                                                              .servicePackageName
+                                                              .length > 10 ? (
+                                                              <Tooltip
+                                                                title={
+                                                                  pkg.servicePackageName
+                                                                }
+                                                              >
+                                                                {pkg.servicePackageName
+                                                                  .substring(
                                                                     0,
                                                                     10
+                                                                  )
+                                                                  .toLowerCase()
+                                                                  .replace(
+                                                                    /\b\w/g,
+                                                                    (l) =>
+                                                                      l.toUpperCase()
                                                                   ) + "..."}
-                                                                </Tooltip>
-                                                              ) : (
-                                                                pkg.servicePackageName
-                                                              )}
-                                                            </td>
-                                                          )
-                                                        )}
-                                                      </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                      {selectedOneOffServiceList.map(
-                                                        (service, index) => {
-                                                          return (
-                                                            <>
-                                                              <tr className="a-la-carte-services-review-head-row">
-                                                                <th
-                                                                  colSpan={
-                                                                    1 +
-                                                                    packageCount
-                                                                  }
-                                                                >
-                                                                  {
-                                                                    service.serviceCatName
-                                                                  }
-                                                                </th>
-                                                              </tr>
-                                                              {service.servicesList.map(
-                                                                (
-                                                                  subService,
-                                                                  subIndex
-                                                                ) => (
-                                                                  <tr
-                                                                    key={subIndex}
-                                                                    className={` ${subService?.isAdditionalService === true
+                                                              </Tooltip>
+                                                            ) : pkg
+                                                                .servicePackageName
+                                                                .length > 10 ? (
+                                                              <Tooltip
+                                                                title={
+                                                                  pkg.servicePackageName
+                                                                }
+                                                              >
+                                                                {pkg.servicePackageName.substring(
+                                                                  0,
+                                                                  10
+                                                                ) + "..."}
+                                                              </Tooltip>
+                                                            ) : (
+                                                              pkg.servicePackageName
+                                                            )}
+                                                          </td>
+                                                        )
+                                                      )}
+                                                    </tr>
+                                                  </thead>
+                                                  <tbody>
+                                                    {selectedOneOffServiceList.map(
+                                                      (service, index) => {
+                                                        return (
+                                                          <>
+                                                            <tr className="a-la-carte-services-review-head-row">
+                                                              <th
+                                                                colSpan={
+                                                                  1 +
+                                                                  packageCount
+                                                                }
+                                                              >
+                                                                {
+                                                                  service.serviceCatName
+                                                                }
+                                                              </th>
+                                                            </tr>
+                                                            {service.servicesList.map(
+                                                              (
+                                                                subService,
+                                                                subIndex
+                                                              ) => (
+                                                                <tr
+                                                                  key={subIndex}
+                                                                  className={` ${
+                                                                    subService?.isAdditionalService ===
+                                                                    true
                                                                       ? "bg-info  text-white"
                                                                       : ""
-                                                                      }`}
-                                                                  >
-                                                                    <td>
-                                                                      <div>
-                                                                        {subService
-                                                                          .serviceName
-                                                                          .length >
-                                                                          45
-                                                                          ? subService.serviceName
+                                                                  }`}
+                                                                >
+                                                                  <td>
+                                                                    <div>
+                                                                      {subService
+                                                                        .serviceName
+                                                                        .length >
+                                                                      45
+                                                                        ? subService.serviceName
                                                                             .substring(
                                                                               0,
                                                                               45
@@ -1734,111 +2106,201 @@ const View_Proposals = () => {
                                                                                 l.toUpperCase()
                                                                             ) +
                                                                           "..."
-                                                                          : subService.serviceName}
-                                                                      </div>
-                                                                      <div className="package-variables"></div>
-                                                                    </td>
+                                                                        : subService.serviceName}
+                                                                    </div>
+                                                                    <div className="package-variables"></div>
+                                                                  </td>
 
-                                                                    <td style={{
-                                                                      fontWeight: getFontStyles(0, "Index").fontWeight,
-                                                                      fontSize: getFontStyles(0, "Index").fontSize
-                                                                    }} className="text-right">
+                                                                  <td
+                                                                    style={{
+                                                                      fontWeight:
+                                                                        getFontStyles(
+                                                                          0,
+                                                                          "Index"
+                                                                        )
+                                                                          .fontWeight,
+                                                                      fontSize:
+                                                                        getFontStyles(
+                                                                          0,
+                                                                          "Index"
+                                                                        )
+                                                                          .fontSize,
+                                                                    }}
+                                                                    className="text-right"
+                                                                  >
+                                                                    {ProposalObject.feeTypeId ===
+                                                                    1 ? (
+                                                                      <>
+                                                                        {" "}
+                                                                        {subService.packageOneValue ===
+                                                                        null ? (
+                                                                          <span className="fa fa-times"></span>
+                                                                        ) : (
+                                                                          formatValue(
+                                                                            subService.packageOneValue
+                                                                          )
+                                                                        )}
+                                                                      </>
+                                                                    ) : subService.packageOneValue !==
+                                                                      null ? (
+                                                                      <span className="fa fa-check"></span>
+                                                                    ) : (
+                                                                      <span className="fa fa-times"></span>
+                                                                    )}
+                                                                  </td>
+                                                                  {packageCount >=
+                                                                    2 && (
+                                                                    <td
+                                                                      style={{
+                                                                        fontWeight:
+                                                                          getFontStyles(
+                                                                            1,
+                                                                            "Index"
+                                                                          )
+                                                                            .fontWeight,
+                                                                        fontSize:
+                                                                          getFontStyles(
+                                                                            1,
+                                                                            "Index"
+                                                                          )
+                                                                            .fontSize,
+                                                                      }}
+                                                                      className="text-right"
+                                                                    >
                                                                       {ProposalObject.feeTypeId ===
-                                                                        1 ? (
+                                                                      1 ? (
                                                                         <>
                                                                           {" "}
-                                                                          {subService.packageOneValue === null ?
-                                                                            <span className="fa fa-times"></span> : formatValue(
-                                                                              subService.packageOneValue
-                                                                            )}
-                                                                        </>
-                                                                      ) :
-                                                                        subService.packageOneValue
-                                                                          !==
+                                                                          {subService.packageTwoValue ===
                                                                           null ? (
-                                                                          <span className="fa fa-check"></span>
-                                                                        ) : (
-                                                                          <span className="fa fa-times"></span>
-                                                                        )}
+                                                                            <span className="fa fa-times"></span>
+                                                                          ) : (
+                                                                            formatValue(
+                                                                              subService.packageTwoValue
+                                                                            )
+                                                                          )}
+                                                                        </>
+                                                                      ) : subService.packageTwoValue !==
+                                                                        null ? (
+                                                                        <span className="fa fa-check"></span>
+                                                                      ) : (
+                                                                        <span className="fa fa-times"></span>
+                                                                      )}
                                                                     </td>
-                                                                    {packageCount >=
-                                                                      2 && (
-                                                                        <td style={{
-                                                                          fontWeight: getFontStyles(1, "Index").fontWeight,
-                                                                          fontSize: getFontStyles(1, "Index").fontSize
-                                                                        }} className="text-right">
-                                                                          {ProposalObject.feeTypeId ===
-                                                                            1 ? (
-                                                                            <>
-                                                                              {" "}
-                                                                              {subService.packageTwoValue === null ?
-                                                                                <span className="fa fa-times"></span> : formatValue(
-                                                                                  subService.packageTwoValue
-                                                                                )}
-                                                                            </>
-                                                                          ) :
-                                                                            subService.packageTwoValue
-                                                                              !==
-                                                                              null ? (
-                                                                              <span className="fa fa-check"></span>
-                                                                            ) : (
-                                                                              <span className="fa fa-times"></span>
-                                                                            )}
-                                                                        </td>
+                                                                  )}
+                                                                  {packageCount ===
+                                                                    3 && (
+                                                                    <td
+                                                                      style={{
+                                                                        fontWeight:
+                                                                          getFontStyles(
+                                                                            2,
+                                                                            "Index"
+                                                                          )
+                                                                            .fontWeight,
+                                                                        fontSize:
+                                                                          getFontStyles(
+                                                                            2,
+                                                                            "Index"
+                                                                          )
+                                                                            .fontSize,
+                                                                      }}
+                                                                      className="text-right"
+                                                                    >
+                                                                      {ProposalObject.feeTypeId ===
+                                                                      1 ? (
+                                                                        <>
+                                                                          {" "}
+                                                                          {subService.packageThreeValue ===
+                                                                          null ? (
+                                                                            <span className="fa fa-times"></span>
+                                                                          ) : (
+                                                                            formatValue(
+                                                                              subService.packageThreeValue
+                                                                            )
+                                                                          )}
+                                                                        </>
+                                                                      ) : subService.packageThreeValue !==
+                                                                        null ? (
+                                                                        <span className="fa fa-check"></span>
+                                                                      ) : (
+                                                                        <span className="fa fa-times"></span>
                                                                       )}
-                                                                    {packageCount ===
-                                                                      3 && (
-                                                                        <td style={{
-                                                                          fontWeight: getFontStyles(2, "Index").fontWeight,
-                                                                          fontSize: getFontStyles(2, "Index").fontSize
-                                                                        }} className="text-right">
-                                                                          {ProposalObject.feeTypeId ===
-                                                                            1 ? (
-                                                                            <>
-                                                                              {" "}
-                                                                              {subService.packageThreeValue === null ?
-                                                                                <span className="fa fa-times"></span> : formatValue(
-                                                                                  subService.packageThreeValue
-                                                                                )}
-                                                                            </>
-                                                                          ) :
-                                                                            subService.packageThreeValue
-                                                                              !==
-                                                                              null ? (
-                                                                              <span className="fa fa-check"></span>
-                                                                            ) : (
-                                                                              <span className="fa fa-times"></span>
-                                                                            )}
-                                                                        </td>
-                                                                      )}
-                                                                  </tr>
-                                                                )
-                                                              )}
-                                                            </>
-                                                          );
-                                                        }
-                                                      )}
-                                                    </tbody>
-                                                    {packageCount > 1 && (
-                                                      <>
-                                                        <tr id="recurring_DefaultWithPackages">
-                                                          <td>
-                                                            <div>Discount (%)</div>
-                                                            {/* <div className="package-variables"></div> */}
-                                                          </td>
+                                                                    </td>
+                                                                  )}
+                                                                </tr>
+                                                              )
+                                                            )}
+                                                          </>
+                                                        );
+                                                      }
+                                                    )}
+                                                  </tbody>
+                                                  {packageCount > 1 && (
+                                                    <>
+                                                      <tr id="recurring_DefaultWithPackages">
+                                                        <td>
+                                                          <div>
+                                                            Discount (%)
+                                                          </div>
+                                                          {/* <div className="package-variables"></div> */}
+                                                        </td>
 
+                                                        <td
+                                                          style={{
+                                                            width: "35%",
+                                                            padding: "0px",
+                                                            whiteSpace:
+                                                              "normal",
+                                                          }}
+                                                        >
+                                                          <div
+                                                            style={{
+                                                              display: "flex",
+                                                              flexDirection:
+                                                                "column",
+                                                              alignItems:
+                                                                "flex-start",
+                                                            }}
+                                                          >
+                                                            <input
+                                                              readOnly
+                                                              className="input-text"
+                                                              type="number" // Change type to number
+                                                              placeholder="Discount (%)"
+                                                              value={Number(
+                                                                OneOffPricingInfo.DiscountPercentagePackageOne
+                                                              )
+                                                                .toFixed(2)
+                                                                .replace(
+                                                                  /\B(?=(\d{3})+(?!\d))/g,
+                                                                  ","
+                                                                )}
+                                                              style={{
+                                                                width: "100%",
+                                                                textAlign:
+                                                                  "right",
+                                                              }}
+                                                            />
+                                                          </div>
+                                                        </td>
+
+                                                        {packageCount >= 2 && (
                                                           <td
                                                             style={{
                                                               width: "35%",
                                                               padding: "0px",
-                                                              whiteSpace: "normal",
+                                                              whiteSpace:
+                                                                "normal",
                                                             }}
                                                           >
                                                             <div
                                                               style={{
                                                                 display: "flex",
-                                                                flexDirection: "column",
-                                                                alignItems: "flex-start",
+                                                                flexDirection:
+                                                                  "column",
+                                                                alignItems:
+                                                                  "flex-start",
                                                               }}
                                                             >
                                                               <input
@@ -1846,359 +2308,537 @@ const View_Proposals = () => {
                                                                 className="input-text"
                                                                 type="number" // Change type to number
                                                                 placeholder="Discount (%)"
-                                                                value={Number(OneOffPricingInfo.DiscountPercentagePackageOne).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                                                                value={Number(
+                                                                  OneOffPricingInfo.DiscountPercentagePackageTwo
+                                                                )
+                                                                  .toFixed(2)
+                                                                  .replace(
+                                                                    /\B(?=(\d{3})+(?!\d))/g,
+                                                                    ","
+                                                                  )}
                                                                 style={{
                                                                   width: "100%",
-                                                                  textAlign: "right",
+                                                                  textAlign:
+                                                                    "right",
+                                                                }}
+                                                              />
+                                                              <div></div>
+                                                            </div>
+                                                          </td>
+                                                        )}
+
+                                                        {packageCount === 3 && (
+                                                          <td
+                                                            style={{
+                                                              width: "35%",
+                                                              padding: "0px",
+                                                              whiteSpace:
+                                                                "normal",
+                                                            }}
+                                                          >
+                                                            <div
+                                                              style={{
+                                                                display: "flex",
+                                                                flexDirection:
+                                                                  "column",
+                                                                alignItems:
+                                                                  "flex-start",
+                                                              }}
+                                                            >
+                                                              <input
+                                                                readOnly
+                                                                className="input-text"
+                                                                type="number" // Change type to number
+                                                                placeholder="Discount (%)"
+                                                                value={Number(
+                                                                  OneOffPricingInfo.DiscountPercentagePackageThree
+                                                                )
+                                                                  .toFixed(2)
+                                                                  .replace(
+                                                                    /\B(?=(\d{3})+(?!\d))/g,
+                                                                    ","
+                                                                  )}
+                                                                style={{
+                                                                  width: "100%",
+                                                                  textAlign:
+                                                                    "right",
                                                                 }}
                                                               />
                                                             </div>
                                                           </td>
-
-                                                          {packageCount >= 2 && (
-                                                            <td
-                                                              style={{
-                                                                width: "35%",
-                                                                padding: "0px",
-                                                                whiteSpace: "normal",
-                                                              }}
-                                                            >
-                                                              <div
-                                                                style={{
-                                                                  display: "flex",
-                                                                  flexDirection: "column",
-                                                                  alignItems: "flex-start",
-                                                                }}
-                                                              >
-                                                                <input
-                                                                  readOnly
-                                                                  className="input-text"
-                                                                  type="number" // Change type to number
-                                                                  placeholder="Discount (%)"
-                                                                  value={Number(OneOffPricingInfo.DiscountPercentagePackageTwo).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-
-                                                                  style={{
-                                                                    width: "100%",
-                                                                    textAlign: "right",
-                                                                  }}
-                                                                />
-                                                                <div>
-                                                                </div>
-                                                              </div>
-                                                            </td>
-                                                          )}
-
-                                                          {packageCount === 3 && (
-                                                            <td
-                                                              style={{
-                                                                width: "35%",
-                                                                padding: "0px",
-                                                                whiteSpace: "normal",
-                                                              }}
-                                                            >
-                                                              <div
-                                                                style={{
-                                                                  display: "flex",
-                                                                  flexDirection: "column",
-                                                                  alignItems: "flex-start",
-                                                                }}
-                                                              >
-                                                                <input
-                                                                  readOnly
-                                                                  className="input-text"
-                                                                  type="number" // Change type to number
-                                                                  placeholder="Discount (%)"
-                                                                  value={Number(OneOffPricingInfo.DiscountPercentagePackageThree).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-
-                                                                  style={{
-                                                                    width: "100%",
-                                                                    textAlign: "right",
-                                                                  }}
-                                                                />
-
-                                                              </div>
-                                                            </td>
-                                                          )}
-                                                        </tr>
-                                                      </>
-                                                    )}
-                                                    <thead className="table-light table-header-font">
-
-                                                      <tr className="head-row">
-                                                        <td className="tr-table-class text-white">
-                                                          Net Total
-                                                        </td>
-                                                        <td style={{
-                                                          fontWeight: getFontStyles(0, "Index").fontWeight,
-                                                          fontSize: getFontStyles(0, "Index").fontSize
-                                                        }} className="tr-table-class text-white text-right">
-                                                          {" "}
-                                                          {
-                                                            Number(OneOffPricingInfo.packageOneNetTotal) <
-                                                              Number(OneOffPricingInfo.packageOneDisCountedTotal) ||
-                                                              (Number(OneOffPricingInfo.packageOneDisCount) > 0 &&
-                                                                (!ProposalObject.DiscountLines)) ?
-                                                              formatValue(
-                                                                OneOffPricingInfo.packageOneDisCountedTotal
-                                                              ) : formatValue(
-                                                                OneOffPricingInfo.packageOneNetTotal
-                                                              )}
-                                                        </td>
-                                                        {packageCount >= 2 && (
-                                                          <td style={{
-                                                            fontWeight: getFontStyles(1, "Index").fontWeight,
-                                                            fontSize: getFontStyles(1, "Index").fontSize
-                                                          }} className="tr-table-class text-white text-right">
-                                                            {" "}
-                                                            {
-                                                              Number(OneOffPricingInfo.packageTwoNetTotal) <
-                                                                Number(OneOffPricingInfo.packageTwoDisCountedTotal) ||
-                                                                (Number(OneOffPricingInfo.packageTwoDisCount) > 0 &&
-                                                                  (!ProposalObject.DiscountLines)) ?
-                                                                formatValue(
-                                                                  OneOffPricingInfo.packageTwoDisCountedTotal
-                                                                ) : formatValue(
-                                                                  OneOffPricingInfo.packageTwoNetTotal
-                                                                )}
-                                                          </td>
-                                                        )}{" "}
-                                                        {packageCount === 3 && (
-                                                          <td style={{
-                                                            fontWeight: getFontStyles(2, "Index").fontWeight,
-                                                            fontSize: getFontStyles(2, "Index").fontSize
-                                                          }} className="tr-table-class text-white text-right">
-                                                            {" "}
-                                                            {
-                                                              Number(OneOffPricingInfo.packageThreeNetTotal) <
-                                                                Number(OneOffPricingInfo.packageThreeDisCountedTotal) ||
-                                                                (Number(OneOffPricingInfo.packageThreeDisCount) > 0 &&
-                                                                  (!ProposalObject.DiscountLines)) ?
-                                                                formatValue(
-                                                                  OneOffPricingInfo.packageThreeDisCountedTotal
-                                                                ) : formatValue(
-                                                                  OneOffPricingInfo.packageThreeNetTotal
-                                                                )}
-                                                          </td>
                                                         )}
                                                       </tr>
-                                                    </thead>
-                                                    {((Number(
-                                                      OneOffPricingInfo.packageThreeDisCount
+                                                    </>
+                                                  )}
+                                                  <thead className="table-light table-header-font">
+                                                    <tr className="head-row">
+                                                      <td className="tr-table-class text-white">
+                                                        Net Total
+                                                      </td>
+                                                      <td
+                                                        style={{
+                                                          fontWeight:
+                                                            getFontStyles(
+                                                              0,
+                                                              "Index"
+                                                            ).fontWeight,
+                                                          fontSize:
+                                                            getFontStyles(
+                                                              0,
+                                                              "Index"
+                                                            ).fontSize,
+                                                        }}
+                                                        className="tr-table-class text-white text-right"
+                                                      >
+                                                        {" "}
+                                                        {Number(
+                                                          OneOffPricingInfo.packageOneNetTotal
+                                                        ) <
+                                                          Number(
+                                                            OneOffPricingInfo.packageOneDisCountedTotal
+                                                          ) ||
+                                                        (Number(
+                                                          OneOffPricingInfo.packageOneDisCount
+                                                        ) > 0 &&
+                                                          !ProposalObject.DiscountLines)
+                                                          ? formatValue(
+                                                              OneOffPricingInfo.packageOneDisCountedTotal
+                                                            )
+                                                          : formatValue(
+                                                              OneOffPricingInfo.packageOneNetTotal
+                                                            )}
+                                                      </td>
+                                                      {packageCount >= 2 && (
+                                                        <td
+                                                          style={{
+                                                            fontWeight:
+                                                              getFontStyles(
+                                                                1,
+                                                                "Index"
+                                                              ).fontWeight,
+                                                            fontSize:
+                                                              getFontStyles(
+                                                                1,
+                                                                "Index"
+                                                              ).fontSize,
+                                                          }}
+                                                          className="tr-table-class text-white text-right"
+                                                        >
+                                                          {" "}
+                                                          {Number(
+                                                            OneOffPricingInfo.packageTwoNetTotal
+                                                          ) <
+                                                            Number(
+                                                              OneOffPricingInfo.packageTwoDisCountedTotal
+                                                            ) ||
+                                                          (Number(
+                                                            OneOffPricingInfo.packageTwoDisCount
+                                                          ) > 0 &&
+                                                            !ProposalObject.DiscountLines)
+                                                            ? formatValue(
+                                                                OneOffPricingInfo.packageTwoDisCountedTotal
+                                                              )
+                                                            : formatValue(
+                                                                OneOffPricingInfo.packageTwoNetTotal
+                                                              )}
+                                                        </td>
+                                                      )}{" "}
+                                                      {packageCount === 3 && (
+                                                        <td
+                                                          style={{
+                                                            fontWeight:
+                                                              getFontStyles(
+                                                                2,
+                                                                "Index"
+                                                              ).fontWeight,
+                                                            fontSize:
+                                                              getFontStyles(
+                                                                2,
+                                                                "Index"
+                                                              ).fontSize,
+                                                          }}
+                                                          className="tr-table-class text-white text-right"
+                                                        >
+                                                          {" "}
+                                                          {Number(
+                                                            OneOffPricingInfo.packageThreeNetTotal
+                                                          ) <
+                                                            Number(
+                                                              OneOffPricingInfo.packageThreeDisCountedTotal
+                                                            ) ||
+                                                          (Number(
+                                                            OneOffPricingInfo.packageThreeDisCount
+                                                          ) > 0 &&
+                                                            !ProposalObject.DiscountLines)
+                                                            ? formatValue(
+                                                                OneOffPricingInfo.packageThreeDisCountedTotal
+                                                              )
+                                                            : formatValue(
+                                                                OneOffPricingInfo.packageThreeNetTotal
+                                                              )}
+                                                        </td>
+                                                      )}
+                                                    </tr>
+                                                  </thead>
+                                                  {(Number(
+                                                    OneOffPricingInfo.packageThreeDisCount
+                                                  ) > 0 ||
+                                                    Number(
+                                                      OneOffPricingInfo.packageOneDisCount
                                                     ) > 0 ||
-                                                      Number(
-                                                        OneOffPricingInfo.packageOneDisCount
-                                                      ) > 0 ||
-                                                      Number(
-                                                        OneOffPricingInfo.packageTwoDisCount
-                                                      ) > 0) &&
-                                                      ProposalObject.DiscountLines) && (
-                                                        <>
-                                                          <tr className="head-grey-row">
-                                                            <td className="tr-table-class text-white">
-                                                              Discount
-                                                            </td>
-                                                            <td style={{
-                                                              fontWeight: getFontStyles(0, "Index").fontWeight,
-                                                              fontSize: getFontStyles(0, "Index").fontSize
-                                                            }} className="tr-table-class text-white text-right">
+                                                    Number(
+                                                      OneOffPricingInfo.packageTwoDisCount
+                                                    ) > 0) &&
+                                                    ProposalObject.DiscountLines && (
+                                                      <>
+                                                        <tr className="head-grey-row">
+                                                          <td className="tr-table-class text-white">
+                                                            Discount
+                                                          </td>
+                                                          <td
+                                                            style={{
+                                                              fontWeight:
+                                                                getFontStyles(
+                                                                  0,
+                                                                  "Index"
+                                                                ).fontWeight,
+                                                              fontSize:
+                                                                getFontStyles(
+                                                                  0,
+                                                                  "Index"
+                                                                ).fontSize,
+                                                            }}
+                                                            className="tr-table-class text-white text-right"
+                                                          >
+                                                            (-){" "}
+                                                            {new Intl.NumberFormat(
+                                                              "en-GB",
+                                                              {
+                                                                style:
+                                                                  "currency",
+                                                                currency: "GBP",
+                                                              }
+                                                            ).format(
+                                                              Number(
+                                                                OneOffPricingInfo.packageOneDisCount
+                                                              )
+                                                            )}
+                                                          </td>
+                                                          {packageCount >=
+                                                            2 && (
+                                                            <td
+                                                              style={{
+                                                                fontWeight:
+                                                                  getFontStyles(
+                                                                    1,
+                                                                    "Index"
+                                                                  ).fontWeight,
+                                                                fontSize:
+                                                                  getFontStyles(
+                                                                    1,
+                                                                    "Index"
+                                                                  ).fontSize,
+                                                              }}
+                                                              className="tr-table-class text-white text-right"
+                                                            >
                                                               (-){" "}
                                                               {new Intl.NumberFormat(
                                                                 "en-GB",
                                                                 {
-                                                                  style: "currency",
-                                                                  currency: "GBP",
+                                                                  style:
+                                                                    "currency",
+                                                                  currency:
+                                                                    "GBP",
                                                                 }
                                                               ).format(
                                                                 Number(
-                                                                  OneOffPricingInfo.packageOneDisCount
+                                                                  OneOffPricingInfo.packageTwoDisCount
                                                                 )
-                                                              )}
-                                                            </td>
-                                                            {packageCount >= 2 && (
-                                                              <td style={{
-                                                                fontWeight: getFontStyles(1, "Index").fontWeight,
-                                                                fontSize: getFontStyles(1, "Index").fontSize
-                                                              }} className="tr-table-class text-white text-right">
-                                                                (-){" "}
-                                                                {new Intl.NumberFormat(
-                                                                  "en-GB",
-                                                                  {
-                                                                    style:
-                                                                      "currency",
-                                                                    currency: "GBP",
-                                                                  }
-                                                                ).format(
-                                                                  Number(
-                                                                    OneOffPricingInfo.packageTwoDisCount
-                                                                  )
-                                                                )}
-                                                              </td>
-                                                            )}
-                                                            {packageCount == 3 && (
-                                                              <td style={{
-                                                                fontWeight: getFontStyles(2, "Index").fontWeight,
-                                                                fontSize: getFontStyles(2, "Index").fontSize
-                                                              }} className="tr-table-class text-white text-right">
-                                                                (-){" "}
-                                                                {new Intl.NumberFormat(
-                                                                  "en-GB",
-                                                                  {
-                                                                    style:
-                                                                      "currency",
-                                                                    currency: "GBP",
-                                                                  }
-                                                                ).format(
-                                                                  Number(
-                                                                    OneOffPricingInfo.packageThreeDisCount
-                                                                  )
-                                                                )}
-                                                              </td>
-                                                            )}
-                                                          </tr>
-                                                          <tr className="head-row">
-                                                            <td className="tr-table-class text-white">
-                                                              Discounted Total
-                                                            </td>
-                                                            <td style={{
-                                                              fontWeight: getFontStyles(0, "Index").fontWeight,
-                                                              fontSize: getFontStyles(0, "Index").fontSize
-                                                            }} className="tr-table-class text-white text-right">
-                                                              {new Intl.NumberFormat(
-                                                                "en-GB",
-                                                                {
-                                                                  style: "currency",
-                                                                  currency: "GBP",
-                                                                }
-                                                              ).format(
-                                                                Number(
-                                                                  OneOffPricingInfo.packageOneDisCountedTotal
-                                                                )
-                                                              )}
-                                                            </td>
-                                                            {packageCount >= 2 && (
-                                                              <td style={{
-                                                                fontWeight: getFontStyles(1, "Index").fontWeight,
-                                                                fontSize: getFontStyles(1, "Index").fontSize
-                                                              }} className="tr-table-class text-white text-right">
-                                                                {new Intl.NumberFormat(
-                                                                  "en-GB",
-                                                                  {
-                                                                    style:
-                                                                      "currency",
-                                                                    currency: "GBP",
-                                                                  }
-                                                                ).format(
-                                                                  Number(
-                                                                    OneOffPricingInfo.packageTwoDisCountedTotal
-                                                                  )
-                                                                )}
-                                                              </td>
-                                                            )}
-                                                            {packageCount == 3 && (
-                                                              <td style={{
-                                                                fontWeight: getFontStyles(2, "Index").fontWeight,
-                                                                fontSize: getFontStyles(2, "Index").fontSize
-                                                              }} className="tr-table-class text-white text-right">
-                                                                {new Intl.NumberFormat(
-                                                                  "en-GB",
-                                                                  {
-                                                                    style:
-                                                                      "currency",
-                                                                    currency: "GBP",
-                                                                  }
-                                                                ).format(
-                                                                  Number(
-                                                                    OneOffPricingInfo.packageThreeDisCountedTotal
-                                                                  )
-                                                                )}
-                                                              </td>
-                                                            )}
-                                                          </tr>
-                                                        </>
-                                                      )}
-                                                    {vatPercentage && (
-                                                      <>
-                                                        <tr class="head-grey-row">
-                                                          <td className="tr-table-class text-white">
-                                                            VAT
-                                                          </td>
-                                                          <td style={{
-                                                            fontWeight: getFontStyles(0, "Index").fontWeight,
-                                                            fontSize: getFontStyles(0, "Index").fontSize
-                                                          }} className="tr-table-class text-white text-right">
-                                                            {" "}
-                                                            {formatValue(
-                                                              OneOffPricingInfo.PackageOneVaTPrice
-                                                            )}
-                                                          </td>
-                                                          {packageCount >= 2 && (
-                                                            <td style={{
-                                                              fontWeight: getFontStyles(1, "Index").fontWeight,
-                                                              fontSize: getFontStyles(1, "Index").fontSize
-                                                            }} className="tr-table-class text-white text-right">
-                                                              {" "}
-                                                              {formatValue(
-                                                                OneOffPricingInfo.PackageTwoVaTPrice
                                                               )}
                                                             </td>
                                                           )}
-                                                          {packageCount === 3 && (
-                                                            <td style={{
-                                                              fontWeight: getFontStyles(2, "Index").fontWeight,
-                                                              fontSize: getFontStyles(2, "Index").fontSize
-                                                            }} className="tr-table-class text-white text-right">
-                                                              {" "}
-                                                              {formatValue(
-                                                                OneOffPricingInfo.PackageThreeVaTPrice
+                                                          {packageCount ==
+                                                            3 && (
+                                                            <td
+                                                              style={{
+                                                                fontWeight:
+                                                                  getFontStyles(
+                                                                    2,
+                                                                    "Index"
+                                                                  ).fontWeight,
+                                                                fontSize:
+                                                                  getFontStyles(
+                                                                    2,
+                                                                    "Index"
+                                                                  ).fontSize,
+                                                              }}
+                                                              className="tr-table-class text-white text-right"
+                                                            >
+                                                              (-){" "}
+                                                              {new Intl.NumberFormat(
+                                                                "en-GB",
+                                                                {
+                                                                  style:
+                                                                    "currency",
+                                                                  currency:
+                                                                    "GBP",
+                                                                }
+                                                              ).format(
+                                                                Number(
+                                                                  OneOffPricingInfo.packageThreeDisCount
+                                                                )
                                                               )}
                                                             </td>
                                                           )}
                                                         </tr>
                                                         <tr className="head-row">
                                                           <td className="tr-table-class text-white">
-                                                            Grand Total
+                                                            Discounted Total
                                                           </td>
-                                                          <td style={{
-                                                            fontWeight: getFontStyles(0, "Index").fontWeight,
-                                                            fontSize: getFontStyles(0, "Index").fontSize
-                                                          }} className="tr-table-class text-white text-right">
-                                                            {" "}
-                                                            {formatValue(
-                                                              OneOffPricingInfo.PackageOneGrandTotal
+                                                          <td
+                                                            style={{
+                                                              fontWeight:
+                                                                getFontStyles(
+                                                                  0,
+                                                                  "Index"
+                                                                ).fontWeight,
+                                                              fontSize:
+                                                                getFontStyles(
+                                                                  0,
+                                                                  "Index"
+                                                                ).fontSize,
+                                                            }}
+                                                            className="tr-table-class text-white text-right"
+                                                          >
+                                                            {new Intl.NumberFormat(
+                                                              "en-GB",
+                                                              {
+                                                                style:
+                                                                  "currency",
+                                                                currency: "GBP",
+                                                              }
+                                                            ).format(
+                                                              Number(
+                                                                OneOffPricingInfo.packageOneDisCountedTotal
+                                                              )
                                                             )}
                                                           </td>
-                                                          {packageCount >= 2 && (
-                                                            <td style={{
-                                                              fontWeight: getFontStyles(1, "Index").fontWeight,
-                                                              fontSize: getFontStyles(1, "Index").fontSize
-                                                            }} className="tr-table-class text-white text-right">
-                                                              {" "}
-                                                              {formatValue(
-                                                                OneOffPricingInfo.PackageTwoGrandTotal
+                                                          {packageCount >=
+                                                            2 && (
+                                                            <td
+                                                              style={{
+                                                                fontWeight:
+                                                                  getFontStyles(
+                                                                    1,
+                                                                    "Index"
+                                                                  ).fontWeight,
+                                                                fontSize:
+                                                                  getFontStyles(
+                                                                    1,
+                                                                    "Index"
+                                                                  ).fontSize,
+                                                              }}
+                                                              className="tr-table-class text-white text-right"
+                                                            >
+                                                              {new Intl.NumberFormat(
+                                                                "en-GB",
+                                                                {
+                                                                  style:
+                                                                    "currency",
+                                                                  currency:
+                                                                    "GBP",
+                                                                }
+                                                              ).format(
+                                                                Number(
+                                                                  OneOffPricingInfo.packageTwoDisCountedTotal
+                                                                )
                                                               )}
                                                             </td>
                                                           )}
-                                                          {packageCount == 3 && (
-                                                            <td style={{
-                                                              fontWeight: getFontStyles(2, "Index").fontWeight,
-                                                              fontSize: getFontStyles(2, "Index").fontSize
-                                                            }} className="tr-table-class text-white text-right">
-                                                              {" "}
-                                                              {formatValue(
-                                                                OneOffPricingInfo.PackageThreeGrandTotal
+                                                          {packageCount ==
+                                                            3 && (
+                                                            <td
+                                                              style={{
+                                                                fontWeight:
+                                                                  getFontStyles(
+                                                                    2,
+                                                                    "Index"
+                                                                  ).fontWeight,
+                                                                fontSize:
+                                                                  getFontStyles(
+                                                                    2,
+                                                                    "Index"
+                                                                  ).fontSize,
+                                                              }}
+                                                              className="tr-table-class text-white text-right"
+                                                            >
+                                                              {new Intl.NumberFormat(
+                                                                "en-GB",
+                                                                {
+                                                                  style:
+                                                                    "currency",
+                                                                  currency:
+                                                                    "GBP",
+                                                                }
+                                                              ).format(
+                                                                Number(
+                                                                  OneOffPricingInfo.packageThreeDisCountedTotal
+                                                                )
                                                               )}
                                                             </td>
                                                           )}
                                                         </tr>
                                                       </>
                                                     )}
-                                                  </table>
-                                                </div>
+                                                  {vatPercentage && (
+                                                    <>
+                                                      <tr class="head-grey-row">
+                                                        <td className="tr-table-class text-white">
+                                                          VAT
+                                                        </td>
+                                                        <td
+                                                          style={{
+                                                            fontWeight:
+                                                              getFontStyles(
+                                                                0,
+                                                                "Index"
+                                                              ).fontWeight,
+                                                            fontSize:
+                                                              getFontStyles(
+                                                                0,
+                                                                "Index"
+                                                              ).fontSize,
+                                                          }}
+                                                          className="tr-table-class text-white text-right"
+                                                        >
+                                                          {" "}
+                                                          {formatValue(
+                                                            OneOffPricingInfo.PackageOneVaTPrice
+                                                          )}
+                                                        </td>
+                                                        {packageCount >= 2 && (
+                                                          <td
+                                                            style={{
+                                                              fontWeight:
+                                                                getFontStyles(
+                                                                  1,
+                                                                  "Index"
+                                                                ).fontWeight,
+                                                              fontSize:
+                                                                getFontStyles(
+                                                                  1,
+                                                                  "Index"
+                                                                ).fontSize,
+                                                            }}
+                                                            className="tr-table-class text-white text-right"
+                                                          >
+                                                            {" "}
+                                                            {formatValue(
+                                                              OneOffPricingInfo.PackageTwoVaTPrice
+                                                            )}
+                                                          </td>
+                                                        )}
+                                                        {packageCount === 3 && (
+                                                          <td
+                                                            style={{
+                                                              fontWeight:
+                                                                getFontStyles(
+                                                                  2,
+                                                                  "Index"
+                                                                ).fontWeight,
+                                                              fontSize:
+                                                                getFontStyles(
+                                                                  2,
+                                                                  "Index"
+                                                                ).fontSize,
+                                                            }}
+                                                            className="tr-table-class text-white text-right"
+                                                          >
+                                                            {" "}
+                                                            {formatValue(
+                                                              OneOffPricingInfo.PackageThreeVaTPrice
+                                                            )}
+                                                          </td>
+                                                        )}
+                                                      </tr>
+                                                      <tr className="head-row">
+                                                        <td className="tr-table-class text-white">
+                                                          Grand Total
+                                                        </td>
+                                                        <td
+                                                          style={{
+                                                            fontWeight:
+                                                              getFontStyles(
+                                                                0,
+                                                                "Index"
+                                                              ).fontWeight,
+                                                            fontSize:
+                                                              getFontStyles(
+                                                                0,
+                                                                "Index"
+                                                              ).fontSize,
+                                                          }}
+                                                          className="tr-table-class text-white text-right"
+                                                        >
+                                                          {" "}
+                                                          {formatValue(
+                                                            OneOffPricingInfo.PackageOneGrandTotal
+                                                          )}
+                                                        </td>
+                                                        {packageCount >= 2 && (
+                                                          <td
+                                                            style={{
+                                                              fontWeight:
+                                                                getFontStyles(
+                                                                  1,
+                                                                  "Index"
+                                                                ).fontWeight,
+                                                              fontSize:
+                                                                getFontStyles(
+                                                                  1,
+                                                                  "Index"
+                                                                ).fontSize,
+                                                            }}
+                                                            className="tr-table-class text-white text-right"
+                                                          >
+                                                            {" "}
+                                                            {formatValue(
+                                                              OneOffPricingInfo.PackageTwoGrandTotal
+                                                            )}
+                                                          </td>
+                                                        )}
+                                                        {packageCount == 3 && (
+                                                          <td
+                                                            style={{
+                                                              fontWeight:
+                                                                getFontStyles(
+                                                                  2,
+                                                                  "Index"
+                                                                ).fontWeight,
+                                                              fontSize:
+                                                                getFontStyles(
+                                                                  2,
+                                                                  "Index"
+                                                                ).fontSize,
+                                                            }}
+                                                            className="tr-table-class text-white text-right"
+                                                          >
+                                                            {" "}
+                                                            {formatValue(
+                                                              OneOffPricingInfo.PackageThreeGrandTotal
+                                                            )}
+                                                          </td>
+                                                        )}
+                                                      </tr>
+                                                    </>
+                                                  )}
+                                                </table>
                                               </div>
                                             </div>
                                           </div>
                                         </div>
-                                      )}
+                                      </div>
+                                    )}
                                   </div>
                                 </>
                               ) : (
@@ -2220,7 +2860,7 @@ const View_Proposals = () => {
                                       </div>
                                     </div>
                                   </div>
-                                  {ProposalObject.paymentGatewayID !== null &&
+                                  {ProposalObject.paymentGatewayID !== null && (
                                     <div className="row fieldset">
                                       <div className="col-lg-3 text-lg-right">
                                         <label className="fieldset-label required">
@@ -2238,7 +2878,8 @@ const View_Proposals = () => {
                                           />
                                         </div>
                                       </div>
-                                    </div>}
+                                    </div>
+                                  )}
                                   <div className="row fieldset">
                                     <div className="col-lg-3 text-lg-right">
                                       <label className="fieldset-label required">
@@ -2258,273 +2899,272 @@ const View_Proposals = () => {
                                   </div>
                                   {selectedRecurringServiceList?.length !==
                                     0 && (
-                                      <div className="tab-content">
-                                        <div className="tab-pane p-3 active">
-                                          <div className="row">
-                                            <div className="col-lg-12">
-                                              <div className="separator mb-2"></div>
-                                              <h6>Recurring Services</h6>
-                                              <div className="separator mb-3"></div>
-                                              {ProposalObject.quoteTypeID !== 4 && (
-                                                <>
-                                                  <div className="row fieldset">
-                                                    <div className="col-md-2 col-sm-12  text-md-end">
-                                                      <label className="fieldset-label">
-                                                        Original Price (£)
-                                                      </label>
-                                                    </div>
-                                                    <div className="col-md-4 col-sm-12">
-                                                      <input
-                                                        readonly=""
-                                                        type="text"
-                                                        class="input-text"
-                                                        value={
-                                                          Number(Math.floor(RecurringPricingInfo.OriginalPrice * 100) / 100).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                    <div className="tab-content">
+                                      <div className="tab-pane p-3 active">
+                                        <div className="row">
+                                          <div className="col-lg-12">
+                                            <div className="separator mb-2"></div>
+                                            <h6>Recurring Services</h6>
+                                            <div className="separator mb-3"></div>
+                                            {ProposalObject.quoteTypeID !==
+                                              4 && (
+                                              <>
+                                                <div className="row fieldset">
+                                                  <div className="col-md-2 col-sm-12  text-md-end">
+                                                    <label className="fieldset-label">
+                                                      Original Price (£)
+                                                    </label>
+                                                  </div>
+                                                  <div className="col-md-4 col-sm-12">
+                                                    <input
+                                                      readonly=""
+                                                      type="text"
+                                                      class="input-text"
+                                                      value={
+                                                        Number(
+                                                          Math.floor(
+                                                            RecurringPricingInfo.OriginalPrice *
+                                                              100
+                                                          ) / 100
+                                                        )
+                                                          .toFixed(2)
+                                                          .replace(
+                                                            /\B(?=(\d{3})+(?!\d))/g,
+                                                            ","
+                                                          )
 
-                                                          // RecurringPricingInfo.OriginalPrice
-                                                        }
-                                                      />
-                                                    </div>
-                                                    <div className="col-md-2 col-sm-12  text-md-end">
-                                                      <label className="fieldset-label required">
-                                                        Payment Frequency
-                                                      </label>
-                                                    </div>
-                                                    <div className="col-md-4 col-sm-12">
-                                                      <Select
-                                                        isDisabled
-                                                        className="phone-input-country-code selectDropDown Drop-down-width"
-                                                        value={selectedFrequency}
-                                                      />
-                                                    </div>
+                                                        // RecurringPricingInfo.OriginalPrice
+                                                      }
+                                                    />
+                                                  </div>
+                                                  <div className="col-md-2 col-sm-12  text-md-end">
+                                                    <label className="fieldset-label required">
+                                                      Payment Frequency
+                                                    </label>
+                                                  </div>
+                                                  <div className="col-md-4 col-sm-12">
+                                                    <Select
+                                                      isDisabled
+                                                      className="phone-input-country-code selectDropDown Drop-down-width"
+                                                      value={selectedFrequency}
+                                                    />
+                                                  </div>
+                                                </div>
+                                                <div
+                                                  class="row"
+                                                  id="recurring_Default"
+                                                >
+                                                  <div class="col-lg-2 mb-1 col-md-2 col-sm-12 mt-2 text-md-end">
+                                                    <label className="fieldset-label">
+                                                      Discount (%)
+                                                    </label>
+                                                  </div>
+                                                  <div class="col-lg-4 col-md-4 col-sm-12">
+                                                    <input
+                                                      readonly=""
+                                                      class="input-text"
+                                                      type="text"
+                                                      placeholder="Discount (%)"
+                                                      value={
+                                                        Number(
+                                                          Math.floor(
+                                                            RecurringPricingInfo.DefaultDiscount *
+                                                              100
+                                                          ) / 100
+                                                        )
+                                                          .toFixed(2)
+                                                          .replace(
+                                                            /\B(?=(\d{3})+(?!\d))/g,
+                                                            ","
+                                                          )
+
+                                                        // RecurringPricingInfo.DefaultDiscount
+                                                      }
+                                                    />
                                                   </div>
                                                   <div
-                                                    class="row"
-                                                    id="recurring_Default"
+                                                    style={{ padding: "0px" }}
+                                                    class="col-lg-2 col-md-2  col-sm-12"
                                                   >
-                                                    <div class="col-lg-2 mb-1 col-md-2 col-sm-12 mt-2 text-md-end">
-                                                      <label className="fieldset-label">
-                                                        Discount (%)
+                                                    <div class="mt-2 text-md-end">
+                                                      <label class="form-label">
+                                                        Discounted Price (£)
                                                       </label>
                                                     </div>
-                                                    <div class="col-lg-4 col-md-4 col-sm-12">
-                                                      <input
-                                                        readonly=""
-                                                        class="input-text"
-                                                        type="text"
-                                                        placeholder="Discount (%)"
-                                                        value={
-                                                          Number(Math.floor(RecurringPricingInfo.DefaultDiscount * 100) / 100).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-
-                                                          // RecurringPricingInfo.DefaultDiscount
-                                                        }
-                                                      />
-                                                    </div>
-                                                    <div
-                                                      style={{ padding: "0px" }}
-                                                      class="col-lg-2 col-md-2  col-sm-12"
-                                                    >
-                                                      <div class="mt-2 text-md-end">
-                                                        <label class="form-label">
-                                                          Discounted Price (£)
-                                                        </label>
-                                                      </div>
-                                                    </div>
-                                                    <div class="col-lg-4 col-md-4 col-sm-12">
-                                                      <input
-                                                        readonly=""
-                                                        class="input-text"
-                                                        type="text"
-                                                        placeholder="Discounted Price (£)"
-                                                        value={
-                                                          Number(Math.floor(RecurringPricingInfo.DiscountedPrice * 100) / 100).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-
-                                                          // RecurringPricingInfo.DiscountedPrice
-                                                        }
-                                                      />
-                                                    </div>
                                                   </div>
-                                                </>
-                                              )}
-                                              <div className="mb-3"></div>
-                                              <div style={{ marginTop: "0px" }} className="table-responsive">
-                                                <table className="table align-middle table-nowrap">
-                                                  <thead className="table-light table-header-font">
-                                                    <tr className="head-row">
-                                                      <th className="tr-table-class text-white">
-                                                        Services
+                                                  <div class="col-lg-4 col-md-4 col-sm-12">
+                                                    <input
+                                                      readonly=""
+                                                      class="input-text"
+                                                      type="text"
+                                                      placeholder="Discounted Price (£)"
+                                                      value={
+                                                        Number(
+                                                          Math.floor(
+                                                            RecurringPricingInfo.DiscountedPrice *
+                                                              100
+                                                          ) / 100
+                                                        )
+                                                          .toFixed(2)
+                                                          .replace(
+                                                            /\B(?=(\d{3})+(?!\d))/g,
+                                                            ","
+                                                          )
+
+                                                        // RecurringPricingInfo.DiscountedPrice
+                                                      }
+                                                    />
+                                                  </div>
+                                                </div>
+                                              </>
+                                            )}
+                                            <div className="mb-3"></div>
+                                            <div
+                                              style={{ marginTop: "0px" }}
+                                              className="table-responsive"
+                                            >
+                                              <table className="table align-middle table-nowrap">
+                                                <thead className="table-light table-header-font">
+                                                  <tr className="head-row">
+                                                    <th className="tr-table-class text-white">
+                                                      Services
+                                                    </th>
+                                                    {ProposalObject.quoteTypeID !==
+                                                      4 && (
+                                                      <th className="tr-table-class text-white text-right">
+                                                        Fees (£)
                                                       </th>
-                                                      {ProposalObject.quoteTypeID !== 4 &&
-                                                        <th className="tr-table-class text-white text-right">
-                                                          Fees (£)
-                                                        </th>
-                                                      }
-                                                    </tr>
-                                                  </thead>
-                                                  <tbody>
-                                                    {selectedRecurringServiceList.map(
-                                                      (service, index) => {
-                                                        return (
-                                                          <>
-                                                            <tr class="a-la-carte-services-review-head-row">
-                                                              <th colspan="2">
-                                                                {
-                                                                  service.serviceCatName
-                                                                }
-                                                              </th>
-                                                            </tr>
-                                                            {service.servicesList.map(
-                                                              (
-                                                                subService,
-                                                                subIndex
-                                                              ) => {
-                                                                return (
-                                                                  <tr
-                                                                    key={subIndex}
-                                                                  >
-                                                                    {/* */}
-                                                                    <td>
-                                                                      <div>
-                                                                        {
-                                                                          subService.serviceName
-                                                                        }
-                                                                      </div>
-                                                                      <div class="package-variables"></div>
-                                                                    </td>
-                                                                    {ProposalObject.quoteTypeID !== 4 &&
-                                                                      <td className="text-right">
-                                                                        {ProposalObject.feeTypeId ===
-                                                                          1 && (
-                                                                            <>
-                                                                              {" "}
-                                                                              {" "}
-                                                                              {formatValue(
-                                                                                subService.quotationPrice
-                                                                              )}
-                                                                            </>
-                                                                          )}
-                                                                        {ProposalObject.feeTypeId ===
-                                                                          2 && (
-                                                                            <span className="fa fa-check"></span>
-                                                                          )}
-                                                                      </td>
-                                                                    }
-                                                                  </tr>
-                                                                );
-                                                              }
-                                                            )}
-                                                          </>
-                                                        );
-                                                      }
                                                     )}
-                                                    {ProposalObject.quoteTypeID !== 4 &&
-                                                      <tr className="head-row">
-                                                        <td className="tr-table-class text-white">
-                                                          Net Total
-                                                        </td>
-                                                        <td className="tr-table-class text-white text-right">
-                                                          {" "}
-                                                          {
-                                                            (Number(
-                                                              RecurringPricingInfo.OriginalPrice
-                                                            ) <
-                                                              Number(
-                                                                RecurringPricingInfo.DiscountedPrice
-                                                              ) ||
-                                                              (Number(RecurringPricingInfo.Discount) > 0 &&
-                                                                (!ProposalObject.DiscountLines)))
-                                                              ? formatValue(
+                                                  </tr>
+                                                </thead>
+                                                <tbody>
+                                                  {selectedRecurringServiceList.map(
+                                                    (service, index) => {
+                                                      return (
+                                                        <>
+                                                          <tr class="a-la-carte-services-review-head-row">
+                                                            <th colspan="2">
+                                                              {
+                                                                service.serviceCatName
+                                                              }
+                                                            </th>
+                                                          </tr>
+                                                          {service.servicesList.map(
+                                                            (
+                                                              subService,
+                                                              subIndex
+                                                            ) => {
+                                                              return (
+                                                                <tr
+                                                                  key={subIndex}
+                                                                >
+                                                                  {/* */}
+                                                                  <td>
+                                                                    <div>
+                                                                      {
+                                                                        subService.serviceName
+                                                                      }
+                                                                    </div>
+                                                                    <div class="package-variables"></div>
+                                                                  </td>
+                                                                  {ProposalObject.quoteTypeID !==
+                                                                    4 && (
+                                                                    <td className="text-right">
+                                                                      {ProposalObject.feeTypeId ===
+                                                                        1 && (
+                                                                        <>
+                                                                          {" "}
+                                                                          {formatValue(
+                                                                            subService.quotationPrice
+                                                                          )}
+                                                                        </>
+                                                                      )}
+                                                                      {ProposalObject.feeTypeId ===
+                                                                        2 && (
+                                                                        <span className="fa fa-check"></span>
+                                                                      )}
+                                                                    </td>
+                                                                  )}
+                                                                </tr>
+                                                              );
+                                                            }
+                                                          )}
+                                                        </>
+                                                      );
+                                                    }
+                                                  )}
+                                                  {ProposalObject.quoteTypeID !==
+                                                    4 && (
+                                                    <tr className="head-row">
+                                                      <td className="tr-table-class text-white">
+                                                        Net Total
+                                                      </td>
+                                                      <td className="tr-table-class text-white text-right">
+                                                        {" "}
+                                                        {
+                                                          Number(
+                                                            RecurringPricingInfo.OriginalPrice
+                                                          ) <
+                                                            Number(
+                                                              RecurringPricingInfo.DiscountedPrice
+                                                            ) ||
+                                                          (Number(
+                                                            RecurringPricingInfo.Discount
+                                                          ) > 0 &&
+                                                            !ProposalObject.DiscountLines)
+                                                            ? formatValue(
                                                                 RecurringPricingInfo.DiscountedPrice
                                                               )
-                                                              : // Number(RecurringPricingInfo.DiscountedPrice)
+                                                            : // Number(RecurringPricingInfo.DiscountedPrice)
                                                               //     .toFixed(2)
                                                               //     .toString()
                                                               //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
                                                               formatValue(
                                                                 RecurringPricingInfo.OriginalPrice
                                                               )
-                                                            // Number(RecurringPricingInfo.OriginalPrice)
-                                                            //     .toFixed(2)
-                                                            //     .toString()
-                                                            //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                                                          }
-                                                        </td>
-                                                      </tr>
-                                                    }
-                                                    {(Number(
-                                                      RecurringPricingInfo.Discount
-                                                    ) > 0 &&
-                                                      ProposalObject.DiscountLines) && (
-                                                        <>
-                                                          <tr class="head-grey-row">
-                                                            <td className="tr-table-class text-white">
-                                                              Discount
-                                                            </td>
-                                                            <td className="tr-table-class text-white text-right">
-                                                              (-){" "}
-                                                              {
-                                                                formatValue(
-                                                                  RecurringPricingInfo.Discount
-                                                                )
-                                                                // Number(RecurringPricingInfo.Discount)
-                                                                //   .toFixed(2)
-                                                                //   .toString()
-                                                                //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                                                              }
-                                                            </td>
-                                                          </tr>
-                                                          <tr class="head-row">
-                                                            <td className="tr-table-class text-white">
-                                                              Discounted Total
-                                                            </td>
-                                                            <td className="tr-table-class text-white text-right">
-                                                              {" "}
-                                                              {
-                                                                formatValue(
-                                                                  RecurringPricingInfo.DiscountedTotal
-                                                                )
-                                                                // Number(
-                                                                //   RecurringPricingInfo.DiscountedTotal
-                                                                // )
-                                                                //   .toFixed(2)
-                                                                //   .toString()
-                                                                //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                                                              }
-                                                            </td>
-                                                          </tr>
-                                                        </>
-                                                      )}
-
-                                                    {vatPercentage && (
+                                                          // Number(RecurringPricingInfo.OriginalPrice)
+                                                          //     .toFixed(2)
+                                                          //     .toString()
+                                                          //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                                        }
+                                                      </td>
+                                                    </tr>
+                                                  )}
+                                                  {Number(
+                                                    RecurringPricingInfo.Discount
+                                                  ) > 0 &&
+                                                    ProposalObject.DiscountLines && (
                                                       <>
                                                         <tr class="head-grey-row">
                                                           <td className="tr-table-class text-white">
-                                                            VAT
+                                                            Discount
                                                           </td>
                                                           <td className="tr-table-class text-white text-right">
-                                                            {" "}
+                                                            (-){" "}
                                                             {
                                                               formatValue(
-                                                                RecurringPricingInfo.VATPrice
+                                                                RecurringPricingInfo.Discount
                                                               )
-                                                              // Number(RecurringPricingInfo.VATPrice)
+                                                              // Number(RecurringPricingInfo.Discount)
                                                               //   .toFixed(2)
                                                               //   .toString()
                                                               //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
                                                             }
                                                           </td>
                                                         </tr>
-                                                        <tr className="head-row">
+                                                        <tr class="head-row">
                                                           <td className="tr-table-class text-white">
-                                                            Grand Total
+                                                            Discounted Total
                                                           </td>
                                                           <td className="tr-table-class text-white text-right">
                                                             {" "}
                                                             {
                                                               formatValue(
-                                                                RecurringPricingInfo.GrandTotal
+                                                                RecurringPricingInfo.DiscountedTotal
                                                               )
-                                                              // Number(RecurringPricingInfo.GrandTotal)
+                                                              // Number(
+                                                              //   RecurringPricingInfo.DiscountedTotal
+                                                              // )
                                                               //   .toFixed(2)
                                                               //   .toString()
                                                               //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
@@ -2533,14 +3173,53 @@ const View_Proposals = () => {
                                                         </tr>
                                                       </>
                                                     )}
-                                                  </tbody>
-                                                </table>
-                                              </div>
+
+                                                  {vatPercentage && (
+                                                    <>
+                                                      <tr class="head-grey-row">
+                                                        <td className="tr-table-class text-white">
+                                                          VAT
+                                                        </td>
+                                                        <td className="tr-table-class text-white text-right">
+                                                          {" "}
+                                                          {
+                                                            formatValue(
+                                                              RecurringPricingInfo.VATPrice
+                                                            )
+                                                            // Number(RecurringPricingInfo.VATPrice)
+                                                            //   .toFixed(2)
+                                                            //   .toString()
+                                                            //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                                          }
+                                                        </td>
+                                                      </tr>
+                                                      <tr className="head-row">
+                                                        <td className="tr-table-class text-white">
+                                                          Grand Total
+                                                        </td>
+                                                        <td className="tr-table-class text-white text-right">
+                                                          {" "}
+                                                          {
+                                                            formatValue(
+                                                              RecurringPricingInfo.GrandTotal
+                                                            )
+                                                            // Number(RecurringPricingInfo.GrandTotal)
+                                                            //   .toFixed(2)
+                                                            //   .toString()
+                                                            //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                                          }
+                                                        </td>
+                                                      </tr>
+                                                    </>
+                                                  )}
+                                                </tbody>
+                                              </table>
                                             </div>
                                           </div>
                                         </div>
                                       </div>
-                                    )}
+                                    </div>
+                                  )}
 
                                   {selectedOneOffServiceList?.length !== 0 && (
                                     <div className="tab-content">
@@ -2550,7 +3229,8 @@ const View_Proposals = () => {
                                             <div className="separator mb-2"></div>
                                             <h6>One-Off Services</h6>
                                             <div className="separator mb-3"></div>
-                                            {ProposalObject.quoteTypeID !== 4 && (
+                                            {ProposalObject.quoteTypeID !==
+                                              4 && (
                                               <>
                                                 <div className="row fieldset">
                                                   <div className="col-md-2 col-sm-12  text-md-end">
@@ -2564,7 +3244,17 @@ const View_Proposals = () => {
                                                       type="text"
                                                       class="input-text"
                                                       value={
-                                                        Number(Math.floor(OneOffPricingInfo.OriginalPrice * 100) / 100).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                                        Number(
+                                                          Math.floor(
+                                                            OneOffPricingInfo.OriginalPrice *
+                                                              100
+                                                          ) / 100
+                                                        )
+                                                          .toFixed(2)
+                                                          .replace(
+                                                            /\B(?=(\d{3})+(?!\d))/g,
+                                                            ","
+                                                          )
 
                                                         // formatValue(
                                                         //   OneOffPricingInfo.OriginalPrice
@@ -2595,7 +3285,17 @@ const View_Proposals = () => {
                                                       type="text"
                                                       placeholder="Discount (%)"
                                                       value={
-                                                        Number(Math.floor(OneOffPricingInfo.DefaultDiscount * 100) / 100).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                                        Number(
+                                                          Math.floor(
+                                                            OneOffPricingInfo.DefaultDiscount *
+                                                              100
+                                                          ) / 100
+                                                        )
+                                                          .toFixed(2)
+                                                          .replace(
+                                                            /\B(?=(\d{3})+(?!\d))/g,
+                                                            ","
+                                                          )
 
                                                         // OneOffPricingInfo.DefaultDiscount
                                                       }
@@ -2618,7 +3318,17 @@ const View_Proposals = () => {
                                                       type="text"
                                                       placeholder="Discounted Price (£)"
                                                       value={
-                                                        Number(Math.floor(OneOffPricingInfo.DiscountedPrice * 100) / 100).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                                        Number(
+                                                          Math.floor(
+                                                            OneOffPricingInfo.DiscountedPrice *
+                                                              100
+                                                          ) / 100
+                                                        )
+                                                          .toFixed(2)
+                                                          .replace(
+                                                            /\B(?=(\d{3})+(?!\d))/g,
+                                                            ","
+                                                          )
 
                                                         //     formatValue(
                                                         //   OneOffPricingInfo.DiscountedPrice
@@ -2630,18 +3340,22 @@ const View_Proposals = () => {
                                               </>
                                             )}
                                             <div className="mb-3"></div>
-                                            <div style={{ marginTop: "0px" }} className="table-responsive">
+                                            <div
+                                              style={{ marginTop: "0px" }}
+                                              className="table-responsive"
+                                            >
                                               <table className="table align-middle table-nowrap">
                                                 <thead className="table-light table-header-font">
                                                   <tr className="head-row">
                                                     <th className="tr-table-class text-white">
                                                       Services
                                                     </th>
-                                                    {ProposalObject.quoteTypeID !== 4 &&
+                                                    {ProposalObject.quoteTypeID !==
+                                                      4 && (
                                                       <th className="tr-table-class text-white text-right">
                                                         Fees (£)
                                                       </th>
-                                                    }
+                                                    )}
                                                   </tr>
                                                 </thead>
                                                 <tbody>
@@ -2674,24 +3388,24 @@ const View_Proposals = () => {
                                                                     </div>
                                                                     <div class="package-variables"></div>
                                                                   </td>
-                                                                  {ProposalObject.quoteTypeID !== 4 &&
+                                                                  {ProposalObject.quoteTypeID !==
+                                                                    4 && (
                                                                     <td className="text-right">
                                                                       {ProposalObject.feeTypeId ===
                                                                         1 && (
-                                                                          <>
-                                                                            {" "}
-                                                                            {" "}
-                                                                            {formatValue(
-                                                                              subService.quotationPrice
-                                                                            )}
-                                                                          </>
-                                                                        )}
+                                                                        <>
+                                                                          {" "}
+                                                                          {formatValue(
+                                                                            subService.quotationPrice
+                                                                          )}
+                                                                        </>
+                                                                      )}
                                                                       {ProposalObject.feeTypeId ===
                                                                         2 && (
-                                                                          <span className="fa fa-check"></span>
-                                                                        )}
+                                                                        <span className="fa fa-check"></span>
+                                                                      )}
                                                                     </td>
-                                                                  }
+                                                                  )}
                                                                 </tr>
                                                               );
                                                             }
@@ -2700,7 +3414,8 @@ const View_Proposals = () => {
                                                       );
                                                     }
                                                   )}
-                                                  {ProposalObject.quoteTypeID !== 4 &&
+                                                  {ProposalObject.quoteTypeID !==
+                                                    4 && (
                                                     <tr className="head-row">
                                                       <td className="tr-table-class text-white">
                                                         Net Total
@@ -2708,24 +3423,26 @@ const View_Proposals = () => {
                                                       <td className="tr-table-class text-white text-right">
                                                         {" "}
                                                         {
-                                                          (Number(
+                                                          Number(
                                                             OneOffPricingInfo.OriginalPrice
                                                           ) <
                                                             Number(
                                                               OneOffPricingInfo.DiscountedPrice
                                                             ) ||
-                                                            (Number(OneOffPricingInfo.Discount) > 0 &&
-                                                              (!ProposalObject.DiscountLines)))
+                                                          (Number(
+                                                            OneOffPricingInfo.Discount
+                                                          ) > 0 &&
+                                                            !ProposalObject.DiscountLines)
                                                             ? formatValue(
-                                                              OneOffPricingInfo.DiscountedPrice
-                                                            )
+                                                                OneOffPricingInfo.DiscountedPrice
+                                                              )
                                                             : // Number(OneOffPricingInfo.DiscountedPrice)
-                                                            //     .toFixed(2)
-                                                            //     .toString()
-                                                            //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                                                            formatValue(
-                                                              OneOffPricingInfo.OriginalPrice
-                                                            )
+                                                              //     .toFixed(2)
+                                                              //     .toString()
+                                                              //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                                              formatValue(
+                                                                OneOffPricingInfo.OriginalPrice
+                                                              )
                                                           //  Number(OneOffPricingInfo.OriginalPrice)
                                                           //     .toFixed(2)
                                                           //     .toString()
@@ -2733,11 +3450,11 @@ const View_Proposals = () => {
                                                         }
                                                       </td>
                                                     </tr>
-                                                  }
-                                                  {(Number(
+                                                  )}
+                                                  {Number(
                                                     OneOffPricingInfo.Discount
                                                   ) > 0 &&
-                                                    ProposalObject.DiscountLines) && (
+                                                    ProposalObject.DiscountLines && (
                                                       <>
                                                         {" "}
                                                         <tr class="head-grey-row">
@@ -2745,7 +3462,7 @@ const View_Proposals = () => {
                                                             Discount
                                                           </td>
                                                           <td className="tr-table-class text-white text-right">
-                                                            (-) {" "}
+                                                            (-){" "}
                                                             {formatValue(
                                                               OneOffPricingInfo.Discount
                                                             )}
@@ -2837,7 +3554,12 @@ const View_Proposals = () => {
                                         </tr>
 
                                         <tr>
-                                          {(ProposalObject.clientMasterBusinessTypeID === 3 || ProposalObject.clientMasterBusinessTypeID === 4 || ProposalObject.clientMasterBusinessTypeID === 5) &&
+                                          {(ProposalObject.clientMasterBusinessTypeID ===
+                                            3 ||
+                                            ProposalObject.clientMasterBusinessTypeID ===
+                                              4 ||
+                                            ProposalObject.clientMasterBusinessTypeID ===
+                                              5) && (
                                             <>
                                               <td>Authorised </td>
                                               <td className="text-end">
@@ -2853,8 +3575,9 @@ const View_Proposals = () => {
                                                   disabled
                                                   color="primary"
                                                 />
-                                              </td></>}
-
+                                              </td>
+                                            </>
+                                          )}
                                         </tr>
 
                                         <tr>
@@ -2937,7 +3660,6 @@ const View_Proposals = () => {
                                 </table>
                               </div>
                             </div>
-
                           </div>
                         </div>
                       </div>

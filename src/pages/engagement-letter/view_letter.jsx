@@ -488,6 +488,15 @@ const View_Engagement_Latter = () => {
     });
   };
 
+  const formatDateToDDMMYYYY = (dateString) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are 0-based
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+
   return (
     <div className="container">
       <div class="main-content">
@@ -528,17 +537,17 @@ const View_Engagement_Latter = () => {
                     {(EngagementObj.statusID !== statusID.Signed ||
                       (EngagementObj.statusID === statusID.Signed &&
                         EngagementObj.manuallySignedContractDocUrl !==
-                        null)) && (
-                        <Tooltip title={`View Pdf`}>
-                          <button
-                            className="btn btn-md btn-success create-item-btn"
-                            onClick={handleDownload}
-                          >
-                            <i class="bi bi-eye"></i>{" "}
-                            <span className="d-none d-sm-inline">View Pdf</span>
-                          </button>
-                        </Tooltip>
-                      )}
+                          null)) && (
+                      <Tooltip title={`View Pdf`}>
+                        <button
+                          className="btn btn-md btn-success create-item-btn"
+                          onClick={handleDownload}
+                        >
+                          <i class="bi bi-eye"></i>{" "}
+                          <span className="d-none d-sm-inline">View Pdf</span>
+                        </button>
+                      </Tooltip>
+                    )}
 
                     <Tooltip title={`Back`}>
                       <button
@@ -628,21 +637,21 @@ const View_Engagement_Latter = () => {
                             )}
                             {(EngagementObj.statusID === statusID.Sent ||
                               EngagementObj.statusID ===
-                              statusID.Awaiting_Signature ||
+                                statusID.Awaiting_Signature ||
                               EngagementObj.manuallySignedContractDocUrl !==
-                              null) && (
-                                <li class="nav-item">
-                                  <a
-                                    class="nav-link tab_nav"
-                                    data-bs-toggle="tab"
-                                    href="#SignManually"
-                                    role="tab"
-                                    aria-selected="false"
-                                  >
-                                    Sign Manually
-                                  </a>
-                                </li>
-                              )}
+                                null) && (
+                              <li class="nav-item">
+                                <a
+                                  class="nav-link tab_nav"
+                                  data-bs-toggle="tab"
+                                  href="#SignManually"
+                                  role="tab"
+                                  aria-selected="false"
+                                >
+                                  Sign Manually
+                                </a>
+                              </li>
+                            )}
                           </ul>
 
                           <div class="tab-content  text-muted">
@@ -671,48 +680,31 @@ const View_Engagement_Latter = () => {
                                       {EngagementObj.templateName}
                                     </td>
                                   </tr>
-                                  {
-                                    draftOn && (
-                                      <tr>
-                                        <td>Drafted On</td>
-                                        <td class="text-end">
-                                          {draftOn}
-                                        </td>
-                                      </tr>
-                                    )
-                                  }
-                                  {
-                                    sentOn && (
-                                      <tr>
-                                        <td>Sent On</td>
-                                        <td class="text-end">
-                                          {sentOn}
-                                        </td>
-                                      </tr>
-                                    )
-                                  }
-                                  {
-                                    signedOn && (
-                                      <tr>
-                                        <td>Signed On</td>
-                                        <td class="text-end">
-                                          {signedOn}
-                                        </td>
-                                      </tr>
-                                    )
-                                  }
+                                  {draftOn && (
+                                    <tr>
+                                      <td>Drafted On</td>
+                                      <td class="text-end">{draftOn}</td>
+                                    </tr>
+                                  )}
+                                  {sentOn && (
+                                    <tr>
+                                      <td>Sent On</td>
+                                      <td class="text-end">{sentOn}</td>
+                                    </tr>
+                                  )}
+                                  {signedOn && (
+                                    <tr>
+                                      <td>Signed On</td>
+                                      <td class="text-end">{signedOn}</td>
+                                    </tr>
+                                  )}
 
-                                  {
-                                    VoidOn && (
-                                      <tr>
-                                        <td>Void On</td>
-                                        <td class="text-end">
-                                          {VoidOn}
-                                        </td>
-                                      </tr>
-                                    )
-                                  }
-
+                                  {VoidOn && !signedOn && (
+                                    <tr>
+                                      <td>Void On</td>
+                                      <td class="text-end">{VoidOn}</td>
+                                    </tr>
+                                  )}
 
                                   {/* <tr>
                                     <td>Select ProposalType</td>
@@ -828,7 +820,7 @@ const View_Engagement_Latter = () => {
                                                   Number(
                                                     Math.floor(
                                                       RecurringPricingInfo.OriginalPrice *
-                                                      100
+                                                        100
                                                     ) / 100
                                                   )
                                                     .toFixed(2)
@@ -897,7 +889,7 @@ const View_Engagement_Latter = () => {
                                                 value={Number(
                                                   Math.floor(
                                                     RecurringPricingInfo.DiscountedPrice *
-                                                    100
+                                                      100
                                                   ) / 100
                                                 )
                                                   .toFixed(2)
@@ -944,11 +936,12 @@ const View_Engagement_Latter = () => {
                                                             return (
                                                               <tr
                                                                 key={subIndex}
-                                                                className={` ${subService?.isAdditionalService ===
+                                                                className={` ${
+                                                                  subService?.isAdditionalService ===
                                                                   true
-                                                                  ? "bg-info  text-white"
-                                                                  : ""
-                                                                  }`}
+                                                                    ? "bg-info  text-white"
+                                                                    : ""
+                                                                }`}
                                                               >
                                                                 {/* */}
                                                                 <td>
@@ -962,17 +955,17 @@ const View_Engagement_Latter = () => {
                                                                 <td className="text-right">
                                                                   {EngagementObj.feeTypeId ===
                                                                     1 && (
-                                                                      <>
-                                                                        {" "}
-                                                                        {formatValue(
-                                                                          subService.contractPrice
-                                                                        )}
-                                                                      </>
-                                                                    )}
+                                                                    <>
+                                                                      {" "}
+                                                                      {formatValue(
+                                                                        subService.contractPrice
+                                                                      )}
+                                                                    </>
+                                                                  )}
                                                                   {EngagementObj.feeTypeId ===
                                                                     2 && (
-                                                                      <span className="fa fa-check"></span>
-                                                                    )}
+                                                                    <span className="fa fa-check"></span>
+                                                                  )}
                                                                 </td>
                                                               </tr>
                                                             );
@@ -995,20 +988,20 @@ const View_Engagement_Latter = () => {
                                                         Number(
                                                           RecurringPricingInfo.DiscountedPrice
                                                         ) ||
-                                                        (Number(
-                                                          RecurringPricingInfo.Discount
-                                                        ) > 0 &&
-                                                          !EngagementObj.DiscountLines)
+                                                      (Number(
+                                                        RecurringPricingInfo.Discount
+                                                      ) > 0 &&
+                                                        !EngagementObj.DiscountLines)
                                                         ? formatValue(
-                                                          RecurringPricingInfo.DiscountedPrice
-                                                        )
+                                                            RecurringPricingInfo.DiscountedPrice
+                                                          )
                                                         : // Number(RecurringPricingInfo.DiscountedPrice)
-                                                        //     .toFixed(2)
-                                                        //     .toString()
-                                                        //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                                                        formatValue(
-                                                          RecurringPricingInfo.OriginalPrice
-                                                        )
+                                                          //     .toFixed(2)
+                                                          //     .toString()
+                                                          //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                                          formatValue(
+                                                            RecurringPricingInfo.OriginalPrice
+                                                          )
                                                       // Number(RecurringPricingInfo.OriginalPrice)
                                                       //     .toFixed(2)
                                                       //     .toString()
@@ -1108,7 +1101,7 @@ const View_Engagement_Latter = () => {
                                                   Number(
                                                     Math.floor(
                                                       OneOffPricingInfo.OriginalPrice *
-                                                      100
+                                                        100
                                                     ) / 100
                                                   )
                                                     .toFixed(2)
@@ -1163,7 +1156,7 @@ const View_Engagement_Latter = () => {
                                                 value={Number(
                                                   Math.floor(
                                                     OneOffPricingInfo.DiscountedPrice *
-                                                    100
+                                                      100
                                                   ) / 100
                                                 )
                                                   .toFixed(2)
@@ -1210,11 +1203,12 @@ const View_Engagement_Latter = () => {
                                                             return (
                                                               <tr
                                                                 key={subIndex}
-                                                                className={` ${subService?.isAdditionalService ===
+                                                                className={` ${
+                                                                  subService?.isAdditionalService ===
                                                                   true
-                                                                  ? "bg-info  text-white"
-                                                                  : ""
-                                                                  }`}
+                                                                    ? "bg-info  text-white"
+                                                                    : ""
+                                                                }`}
                                                               >
                                                                 {/* */}
                                                                 <td>
@@ -1228,17 +1222,17 @@ const View_Engagement_Latter = () => {
                                                                 <td className="text-right">
                                                                   {EngagementObj.feeTypeId ===
                                                                     1 && (
-                                                                      <>
-                                                                        {" "}
-                                                                        {formatValue(
-                                                                          subService.contractPrice
-                                                                        )}
-                                                                      </>
-                                                                    )}
+                                                                    <>
+                                                                      {" "}
+                                                                      {formatValue(
+                                                                        subService.contractPrice
+                                                                      )}
+                                                                    </>
+                                                                  )}
                                                                   {EngagementObj.feeTypeId ===
                                                                     2 && (
-                                                                      <span className="fa fa-check"></span>
-                                                                    )}
+                                                                    <span className="fa fa-check"></span>
+                                                                  )}
                                                                 </td>
                                                               </tr>
                                                             );
@@ -1261,20 +1255,20 @@ const View_Engagement_Latter = () => {
                                                         Number(
                                                           OneOffPricingInfo.DiscountedPrice
                                                         ) ||
-                                                        (Number(
-                                                          OneOffPricingInfo.Discount
-                                                        ) > 0 &&
-                                                          !EngagementObj.DiscountLines)
+                                                      (Number(
+                                                        OneOffPricingInfo.Discount
+                                                      ) > 0 &&
+                                                        !EngagementObj.DiscountLines)
                                                         ? formatValue(
-                                                          OneOffPricingInfo.DiscountedPrice
-                                                        )
+                                                            OneOffPricingInfo.DiscountedPrice
+                                                          )
                                                         : // Number(OneOffPricingInfo.DiscountedPrice)
-                                                        //     .toFixed(2)
-                                                        //     .toString()
-                                                        //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                                                        formatValue(
-                                                          OneOffPricingInfo.OriginalPrice
-                                                        )
+                                                          //     .toFixed(2)
+                                                          //     .toString()
+                                                          //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                                          formatValue(
+                                                            OneOffPricingInfo.OriginalPrice
+                                                          )
                                                       //  Number(OneOffPricingInfo.OriginalPrice)
                                                       //     .toFixed(2)
                                                       //     .toString()
@@ -1423,27 +1417,27 @@ const View_Engagement_Latter = () => {
                                           {(EngagementObj.clientMasterBusinessTypeID ===
                                             3 ||
                                             EngagementObj.clientMasterBusinessTypeID ===
-                                            4 ||
+                                              4 ||
                                             EngagementObj.clientMasterBusinessTypeID ===
-                                            5) && (
-                                              <>
-                                                <td>Authorised </td>
-                                                <td className="text-end">
-                                                  {officersForm[index]
-                                                    ?.isAuthorisedSignatory
-                                                    ? "Yes"
-                                                    : "NO"}
-                                                  <Switch
-                                                    checked={
-                                                      officersForm[index]
-                                                        ?.isAuthorisedSignatory
-                                                    }
-                                                    disabled
-                                                    color="primary"
-                                                  />
-                                                </td>
-                                              </>
-                                            )}
+                                              5) && (
+                                            <>
+                                              <td>Authorised </td>
+                                              <td className="text-end">
+                                                {officersForm[index]
+                                                  ?.isAuthorisedSignatory
+                                                  ? "Yes"
+                                                  : "NO"}
+                                                <Switch
+                                                  checked={
+                                                    officersForm[index]
+                                                      ?.isAuthorisedSignatory
+                                                  }
+                                                  disabled
+                                                  color="primary"
+                                                />
+                                              </td>
+                                            </>
+                                          )}
                                         </tr>
 
                                         <tr>
@@ -1485,7 +1479,9 @@ const View_Engagement_Latter = () => {
                                           <tr>
                                             <td>Appointed On</td>
                                             <td className="text-end">
-                                              {officersForm[index].appointedOn}
+                                              {formatDateToDDMMYYYY(
+                                                officersForm[index].appointedOn
+                                              )}
                                             </td>
                                           </tr>
                                         </>
@@ -1549,7 +1545,7 @@ const View_Engagement_Latter = () => {
                               {" "}
                               <div>
                                 {EngagementObj.manuallySignedContractDocUrl ===
-                                  null ? (
+                                null ? (
                                   <>
                                     <span className="text-muted p-2">
                                       <p style={{ padding: "5px" }}>
@@ -1640,7 +1636,7 @@ const View_Engagement_Latter = () => {
                                                     .PDF up to a file size of
                                                     10MB.
                                                     {requireErrorMessage &&
-                                                      pdfUrl === null ? (
+                                                    pdfUrl === null ? (
                                                       <label className="validation">
                                                         {ERROR_MESSAGES}
                                                       </label>

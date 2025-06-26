@@ -1148,8 +1148,9 @@ const Topbar = () => {
                     <div class="container">
                       <div class="row" style={{ marginTop: "5px" }}>
                         <ul
-                          className={`changed-nav navbar-nav${isDropdownOpen ? " open" : ""
-                            } `}
+                          className={`changed-nav navbar-nav${
+                            isDropdownOpen ? " open" : ""
+                          } `}
                           id="navbar-UL-nav"
                         >
                           <li class="menu-title">
@@ -1390,7 +1391,7 @@ const Topbar = () => {
                                           <li class="nav-item ">
                                             <NavLink
                                               to="/services"
-                                            // onClick={togglenav}
+                                              // onClick={togglenav}
                                             >
                                               <a
                                                 onClick={() => {
@@ -1407,7 +1408,7 @@ const Topbar = () => {
                                           <li class="nav-item ">
                                             <NavLink
                                               to="/packages"
-                                            // onClick={togglenav}
+                                              // onClick={togglenav}
                                             >
                                               <a
                                                 onClick={() => {
@@ -1461,7 +1462,7 @@ const Topbar = () => {
                                           <li class="nav-item ">
                                             <NavLink
                                               to="/global-constant"
-                                            // onClick={togglenav}
+                                              // onClick={togglenav}
                                             >
                                               <a
                                                 onClick={() => {
@@ -1479,7 +1480,7 @@ const Topbar = () => {
                                           <li class="nav-item ">
                                             <NavLink
                                               to="/global-pricing-driver"
-                                            // onClick={togglenav}
+                                              // onClick={togglenav}
                                             >
                                               <a
                                                 style={{ whiteSpace: "nowrap" }}
@@ -1531,7 +1532,7 @@ const Topbar = () => {
                                           <li class="nav-item ">
                                             <NavLink
                                               to="/templates"
-                                            // onClick={togglenav}
+                                              // onClick={togglenav}
                                             >
                                               <a
                                                 style={{ whiteSpace: "nowrap" }}
@@ -1549,7 +1550,7 @@ const Topbar = () => {
                                           <li class="nav-item ">
                                             <NavLink
                                               to="/terms-and-conditions"
-                                            // onClick={togglenav}
+                                              // onClick={togglenav}
                                             >
                                               <a
                                                 style={{ whiteSpace: "nowrap" }}
@@ -1567,7 +1568,7 @@ const Topbar = () => {
                                           <li class="nav-item ">
                                             <NavLink
                                               to="/email-template"
-                                            // onClick={togglenav}
+                                              // onClick={togglenav}
                                             >
                                               <a
                                                 onClick={() => {
@@ -1619,7 +1620,7 @@ const Topbar = () => {
                                           <li class="nav-item ">
                                             <NavLink
                                               to="/reminder-email-template"
-                                            // onClick={togglenav}
+                                              // onClick={togglenav}
                                             >
                                               <a
                                                 onClick={() => {
@@ -1637,7 +1638,7 @@ const Topbar = () => {
                                           <li class="nav-item ">
                                             <NavLink
                                               to="/reminder"
-                                            // onClick={togglenav}
+                                              // onClick={togglenav}
                                             >
                                               <a
                                                 style={{ whiteSpace: "nowrap" }}
@@ -2544,14 +2545,14 @@ const Topbar = () => {
                                       ? "#438eff"
                                       : TopTextColor.color,
                                   }}
-                                // any issue arise ,undo this code
+                                  // any issue arise ,undo this code
 
-                                // onMouseOver={() =>
-                                //   setIsHoveredSubscription(true)
-                                // }
-                                // onMouseOut={() =>
-                                //   setIsHoveredSubscription(false)
-                                // }
+                                  // onMouseOver={() =>
+                                  //   setIsHoveredSubscription(true)
+                                  // }
+                                  // onMouseOut={() =>
+                                  //   setIsHoveredSubscription(false)
+                                  // }
                                 >
                                   <i class="bi bi-credit-card mr-2"></i>{" "}
                                   <span data-key="t-dashboard">
@@ -2984,7 +2985,7 @@ const Topbar = () => {
                         data-bs-toggle="modal"
                         data-bs-target="#TopbarUserProfileEdit"
                         style={{ cursor: "pointer" }}
-                      // onClick={ResetPasswordClicked}
+                        // onClick={ResetPasswordClicked}
                       >
                         <span class="align-middle" data-key="t-logout">
                           Hello{" "}
@@ -3037,7 +3038,7 @@ const Topbar = () => {
                         data-bs-toggle="modal"
                         data-bs-target="#ResetPasswordModal"
                         style={{ cursor: "pointer" }}
-                      // onClick={ResetPasswordClicked}
+                        // onClick={ResetPasswordClicked}
                       >
                         {/* <i class="mdi mdi-logout text-muted fs-16 align-middle me-1"></i>{" "} */}
                         <i class=" mdi mdi-key-star text-muted fs-16 align-middle me-1"></i>{" "}
@@ -3198,15 +3199,15 @@ const Topbar = () => {
                 <div className="text-center">
                   {" "}
                   {RequireErrorMessage &&
-                    (updatedEngagementName === "" ||
-                      updatedEngagementName === null ||
-                      updatedEngagementName === undefined) &&
-                    (updatedProposalName === "" ||
-                      updatedProposalName === null ||
-                      updatedProposalName === undefined) &&
-                    (updatedProspectName === "" ||
-                      updatedProspectName === null ||
-                      updatedProspectName === undefined) ? (
+                  (updatedEngagementName === "" ||
+                    updatedEngagementName === null ||
+                    updatedEngagementName === undefined) &&
+                  (updatedProposalName === "" ||
+                    updatedProposalName === null ||
+                    updatedProposalName === undefined) &&
+                  (updatedProspectName === "" ||
+                    updatedProspectName === null ||
+                    updatedProspectName === undefined) ? (
                     <label className="validation">
                       Please make sure to fill out at least one field.
                     </label>
@@ -3226,8 +3227,8 @@ const Topbar = () => {
                         updatedProspectName !== null &&
                         updatedProspectName !== undefined)) &&
                     (updatedEngagementName === updatedProposalName ||
-                      updatedProposalName === updatedProspectName ||
-                      updatedEngagementName === updatedProspectName ? (
+                    updatedProposalName === updatedProspectName ||
+                    updatedEngagementName === updatedProspectName ? (
                       <label className="validation">
                         Variable name should be unique. Please set unique
                         variable name.
@@ -3242,16 +3243,16 @@ const Topbar = () => {
                   userAccessData.Admin_Personalize_SettingCanEdit) ||
                   (userAccessData.SuperAdmin_Personalize_SettingCanView &&
                     userAccessData.SuperAdmin_Personalize_SettingCanEdit)) && (
-                    <button
-                      type="button"
-                      onClick={async () => {
-                        await updateVariableFun();
-                      }}
-                      class="btn btn-md btn-success create-item-btn"
-                    >
-                      <span> Apply Changes</span>
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      await updateVariableFun();
+                    }}
+                    class="btn btn-md btn-success create-item-btn"
+                  >
+                    <span> Apply Changes</span>
+                  </button>
+                )}
               </div>
             </div>
 

@@ -20,9 +20,10 @@ import BackButtonSvg from "../../../components/BackButtonSvg";
 import { NotifySuperAdminPredefinedChangesToAdmin } from "../../../redux/Services/Setting/NotificationApi";
 import { DeclineSuperAdminChanges } from "../../../redux/Services/Config/ServiceCategoryApi";
 import ErrorModel from "../../../components/ErrorModel";
+import FileTablePreview from "../../../components/FileTablePreview";
 function Add_New_Templates_Pdf(props) {
   //Declare State:
-  const moduleName = "Template PDF";
+  const moduleName = "Template";
   const {
     setTopbar,
     setLoader,
@@ -81,16 +82,21 @@ function Add_New_Templates_Pdf(props) {
 
   // A]  useEffect : Will call when Add/Update button click from list page
   useEffect(() => {
-    setModelAction(location.state?.templatePdfKeyID === null ? "Add" : "Update"); //Do not change this naming convention
+    setModelAction(
+      location.state?.templatePdfKeyID === null ? "Add" : "Update"
+    ); //Do not change this naming convention
     GetBusinessTypeLookupListData();
     setTopbar("none");
 
     if (location.state?.templatePdfKeyID !== null) {
-      GetTemplatePdfModalData(location.state?.templatePdfKeyID, location.state?.Type);
+      GetTemplatePdfModalData(
+        location.state?.templatePdfKeyID,
+        location.state?.Type
+      );
       setModelRequestData({
         ...modelRequestData,
-        Action: "update"
-      })
+        Action: "update",
+      });
     }
   }, [location.state]);
 
@@ -112,35 +118,34 @@ function Add_New_Templates_Pdf(props) {
   // 1) On Change Select Profession Type
   const handleClose = async () => {
     if (isCheck) {
-      setLoader(true)
+      setLoader(true);
       const Notification = await NotifySuperAdminPredefinedChangesToAdmin({
         userKeyID: common.userKeyID,
         moduleKeyID: TemplateObj.templatePdfKeyID,
-        moduleName: "Predefined-Template-PDF"
-      })
+        moduleName: "Predefined-Template-PDF",
+      });
       if (Notification?.data?.statusCode === 200) {
-        setLoader(false)
-        setModelAction("NotificationSend")
-        setOpenSuccessModal(true)
-        setIsCheck(false)
+        setLoader(false);
+        setModelAction("NotificationSend");
+        setOpenSuccessModal(true);
+        setIsCheck(false);
       }
     } else {
       $("#" + props.id).modal("hide");
       $("#" + "ConfirmSAChangesModel").modal("hide");
-      setErrorMessage(false)
+      setErrorMessage(false);
       setOpenSuccessModal(false);
       navigate("/templates", { state: "Templates PDF" });
     }
-
   };
 
   const DeclineSuperAdminChangesData = async (Decline) => {
     if (Decline === "Decline") {
       // $('#' + props.id).modal('hide')
 
-      setStatus(false)
+      setStatus(false);
       $("#" + "ConfirmSAChangesModel").modal("show");
-      return
+      return;
     }
     setLoader(true);
     try {
@@ -148,24 +153,24 @@ function Add_New_Templates_Pdf(props) {
         organisationKeyID: common.organisationKeyID,
         userKeyID: common.userKeyID,
         moduleKeyID: location.state?.templatePdfKeyID,
-        moduleName: "Predefined-Template-PDF"
+        moduleName: "Predefined-Template-PDF",
         //Predefined-ServiceCategory, Predefined-GlobalConstant, Predefined-GlobalPricingDriver,
         //Predefined-PL-EL-Template, Predefined-TnC-Template, Predefined-Email-Template,
         //Predefined-Service, Predefined-ServicePackage
-      }
+      };
       const response = await DeclineSuperAdminChanges(apiRequestParams);
       if (response) {
         setLoader(false);
         if (response?.data?.statusCode === 200) {
           if (apiRequestParams.Action === null) {
             $("#" + "ConfirmSAChangesModel").modal("hide");
-            navigate("/templates")
+            navigate("/templates");
           } else {
             $("#" + "ConfirmSAChangesModel").modal("hide");
-            navigate("/templates")
+            navigate("/templates");
           }
         } else {
-          setErrorMessage(true)
+          setErrorMessage(true);
           $("#" + "ConfirmSAChangesModel").modal("hide");
           setErrorMessage(response?.response?.data?.errorMessage);
         }
@@ -173,15 +178,15 @@ function Add_New_Templates_Pdf(props) {
     } catch (error) {
       console.error(error);
     }
-  }
+  };
   const handleConfirmButton = () => {
     $("#" + "ConfirmSAChangesModel").modal("hide");
     if (Status) {
-      TemplateAddUpdateBtnClicked(true)
+      TemplateAddUpdateBtnClicked(true);
     } else {
-      DeclineSuperAdminChangesData()
+      DeclineSuperAdminChangesData();
     }
-  }
+  };
   // F] Calling CRUD Api here
   // 1) Get Model Data Api
   const GetTemplatePdfModalData = async (TemplatePdfKeyID, GetSAChanges) => {
@@ -213,6 +218,10 @@ function Add_New_Templates_Pdf(props) {
             ...templateElementList,
             ModelData.templateElementList
           );
+          setSelectedFile({
+            fileName: ModelData.templatePdfTitle,
+            size: ModelData.pdf.size,
+          });
           setTemplateElementList([
             {
               TTETMapID:
@@ -249,8 +258,8 @@ function Add_New_Templates_Pdf(props) {
     if (Accept === "Accept") {
       $("#" + "ConfirmSAChangesModel").modal("show");
 
-      setStatus(true)
-      return
+      setStatus(true);
+      return;
     }
 
     // Check Validations will be done here
@@ -281,7 +290,7 @@ function Add_New_Templates_Pdf(props) {
     AddUpdateTemplateDataPdf(ApiRequest_ParamsObj);
   };
 
-  // Add or Update Service Template Data 
+  // Add or Update Service Template Data
   const AddUpdateTemplateDataPdf = async (apiRequestParams) => {
     setLoader(true);
     try {
@@ -294,7 +303,9 @@ function Add_New_Templates_Pdf(props) {
         if (response?.data?.statusCode === 200) {
           const TemplatePdfKeyID = response.data.responseData.data;
           const formData = new FormData();
-          const isBinary = selectedFile.fileName instanceof Blob || selectedFile.fileName instanceof File;
+          const isBinary =
+            selectedFile.fileName instanceof Blob ||
+            selectedFile.fileName instanceof File;
           // Instead, you should append the entire file
           if (isBinary) {
             formData.set("file", selectedFile.fileName); // Append the file itself
@@ -305,7 +316,6 @@ function Add_New_Templates_Pdf(props) {
             );
 
             if (uploadResponse) {
-
               if (apiRequestParams.templatePdfKeyID === null) {
                 $("#" + props.id).modal("show");
                 setOpenSuccessModal(true);
@@ -324,7 +334,6 @@ function Add_New_Templates_Pdf(props) {
             setOpenSuccessModal(true);
             setLoader(false);
           }
-
         } else {
           setErrorMessage(response?.response?.data?.errorMessage);
           setLoader(false);
@@ -353,22 +362,35 @@ function Add_New_Templates_Pdf(props) {
     SetInitialModelData();
   };
 
-  // handle Upload file 
+  // handle Upload file
   const handleFileUpload = (e) => {
     e.preventDefault();
     setErrorMessage(""); // Clear any existing error message
-    const file = e.target.files[0];
     setRequireErrorMessage(false);
-    // Check if a file is selected
-    if (file) {
-      // Check if the file size exceeds the limit (2MB)
-      if (file.size > 10 * 1024 * 1024) {
-        setErrorMessage("File size must be less than 10MB.");
 
-        return; // Return without setting the selectedFile state
+    const file = e.target.files[0];
+
+    if (file) {
+      // Validate file extension
+      const fileNameParts = file.name.split(".");
+      const fileExtension =
+        fileNameParts[fileNameParts.length - 1].toLowerCase();
+      const allowedExtensions = ["pdf", "csv", "xls", "xlsx"];
+
+      if (!allowedExtensions.includes(fileExtension)) {
+        setErrorMessage(
+          "Invalid file type. Only PDF, CSV, and Excel files are allowed."
+        );
+        return;
       }
 
-      // File size is within the limit, set the selectedFile state
+      // Validate file size (max 10MB)
+      if (file.size > 10 * 1024 * 1024) {
+        setErrorMessage("File size must be less than 10MB.");
+        return;
+      }
+
+      // File is valid
       setSelectedFile({
         fileName: file,
         size: file.size,
@@ -412,7 +434,12 @@ function Add_New_Templates_Pdf(props) {
               <div class="tab-content">
                 <>
                   <div className="row fieldset" id="TemplatePdfTitleDiv">
-                    <SAPredefinedChangesNotifyMessageModel Params={{ moduleName: moduleName, SAChanges: location.state?.Type }} />
+                    <SAPredefinedChangesNotifyMessageModel
+                      Params={{
+                        moduleName: moduleName,
+                        SAChanges: location.state?.Type,
+                      }}
+                    />
                     <div className="col-lg-3 template-label text-left">
                       <div className="mb-1">
                         <label htmlFor="useremail" className="form-label">
@@ -448,9 +475,9 @@ function Add_New_Templates_Pdf(props) {
                           />
                         </div>
                         {requireErrorMessage &&
-                          (TemplateObj.templatePdfTitle === "" ||
-                            TemplateObj.templatePdfTitle === null ||
-                            TemplateObj.templatePdfTitle === undefined) ? (
+                        (TemplateObj.templatePdfTitle === "" ||
+                          TemplateObj.templatePdfTitle === null ||
+                          TemplateObj.templatePdfTitle === undefined) ? (
                           <label className="validation">{ERROR_MESSAGES}</label>
                         ) : (
                           ""
@@ -504,16 +531,55 @@ function Add_New_Templates_Pdf(props) {
                         <>
                           {selectedFile.fileName ? (
                             <>
-                              <div className="input-group">
-                                {/* Embed the PDF using an iframe */}
-                                <iframe
-                                  title="PDF Viewer"
-                                  src={URL.createObjectURL(
-                                    selectedFile.fileName
-                                  )}
-                                  width="100%"
-                                  height="600px"
-                                ></iframe>
+                              <div className="input-group mt-3">
+                                {(() => {
+                                  const file = selectedFile.fileName;
+                                  const fileExtension = file.name
+                                    .split(".")
+                                    .pop()
+                                    .toLowerCase();
+
+                                  if (fileExtension === "pdf") {
+                                    return (
+                                      <iframe
+                                        title="PDF Viewer"
+                                        src={URL.createObjectURL(file)}
+                                        width="100%"
+                                        height="600px"
+                                      ></iframe>
+                                    );
+                                  }
+
+                                  if (
+                                    ["csv", "xls", "xlsx"].includes(
+                                      fileExtension
+                                    )
+                                  ) {
+                                    return (
+                                      <div
+                                        className="table-responsive"
+                                        style={{
+                                          maxHeight: "600px",
+                                          overflowY: "auto",
+                                        }}
+                                      >
+                                        <p>
+                                          <strong>Preview:</strong> {file.name}
+                                        </p>
+                                        <FileTablePreview
+                                          file={file}
+                                          extension={fileExtension}
+                                        />
+                                      </div>
+                                    );
+                                  }
+
+                                  return (
+                                    <p className="text-danger">
+                                      Unsupported file format.
+                                    </p>
+                                  );
+                                })()}
                               </div>
                             </>
                           ) : (
@@ -521,45 +587,52 @@ function Add_New_Templates_Pdf(props) {
                               <div className="input-group">
                                 <input
                                   type="file"
-                                  accept=".pdf"
+                                  accept=".pdf, .csv, .xls, .xlsx"
                                   onChange={(e) => {
                                     e.preventDefault();
-                                    // Prevent the default form submission behavior
-                                    const file = e.target.files[0]; // Get the selected file
+                                    const file = e.target.files[0];
 
                                     if (file) {
                                       const fileNameParts =
-                                        file.name.split("."); // Split the file name by periods
+                                        file.name.split(".");
                                       const fileExtension =
                                         fileNameParts[
                                           fileNameParts.length - 1
-                                        ].toLowerCase(); // Get the lowercase extension
+                                        ].toLowerCase();
+                                      const allowedExtensions = [
+                                        "pdf",
+                                        "csv",
+                                        "xls",
+                                        "xlsx",
+                                      ];
 
-                                      if (fileExtension !== "pdf") {
-                                        // Display an error message or handle the issue accordingly
+                                      if (
+                                        !allowedExtensions.includes(
+                                          fileExtension
+                                        )
+                                      ) {
                                         console.error(
-                                          "Please select a PDF file."
+                                          "Please select a PDF, CSV, or Excel file (.xls, .xlsx)."
                                         );
                                         return;
                                       }
+
                                       handleFileUpload(e);
                                     }
                                   }}
                                 />
                               </div>
                               <div className="text-muted helpMessage">
-                                Supported file types are .PDF up to a file size
-                                of 10MB.
+                                Supported file types are .PDF, CSV, and Excel
+                                (.xls, .xlsx) up to a file size of 10MB.
                               </div>
                               {requireErrorMessage &&
-                                !selectedFile.fileName &&
-                                TemplateObj.pdf === null ? (
+                              !selectedFile.fileName &&
+                              TemplateObj.pdf === null ? (
                                 <label className="validation">
                                   {ERROR_MESSAGES}
                                 </label>
-                              ) : (
-                                ""
-                              )}
+                              ) : null}
                             </>
                           )}
                         </>
@@ -582,13 +655,14 @@ function Add_New_Templates_Pdf(props) {
               </div>
               <label
                 style={{ display: "flex", justifyContent: "center" }}
-                className="validation mt-2" id="ErrorMessage"
+                className="validation mt-2"
+                id="ErrorMessage"
               >
                 {/* {errorMessage} */}
                 {common.professionTypeLists?.length <= 1 &&
-                  errorMessage?.includes(
-                    `Please don't choose this profession type`
-                  )
+                errorMessage?.includes(
+                  `Please don't choose this profession type`
+                )
                   ? errorMessage.split(".")[0]
                   : errorMessage}
               </label>
@@ -600,29 +674,27 @@ function Add_New_Templates_Pdf(props) {
                 style={{ paddingTop: "14px" }}
                 className="hstack gap-2 justify-content-end"
               >
-                {location.state?.Type ? (<>
-                  <button
-                    type="submit"
-                    class="btn btn-md btn-success accept-item-btn"
-                    onClick={() => {
-                      TemplateAddUpdateBtnClicked("Accept");
-                    }}
-                  >
-                    <span>
-                      Accept
-                    </span>
-                  </button>
-                  <button
-                    type="submit"
-                    class="btn btn-md btn-success declined-item-btn"
-                    // data-bs-dismiss="modal"
-                    onClick={() => DeclineSuperAdminChangesData("Decline")}
-                  >
-                    <span>
-                      Decline
-                    </span>
-                  </button>
-                </>) : (
+                {location.state?.Type ? (
+                  <>
+                    <button
+                      type="submit"
+                      class="btn btn-md btn-success accept-item-btn"
+                      onClick={() => {
+                        TemplateAddUpdateBtnClicked("Accept");
+                      }}
+                    >
+                      <span>Accept</span>
+                    </button>
+                    <button
+                      type="submit"
+                      class="btn btn-md btn-success declined-item-btn"
+                      // data-bs-dismiss="modal"
+                      onClick={() => DeclineSuperAdminChangesData("Decline")}
+                    >
+                      <span>Decline</span>
+                    </button>
+                  </>
+                ) : (
                   <>
                     <button
                       onClick={handleSubmit}
@@ -631,7 +703,6 @@ function Add_New_Templates_Pdf(props) {
                     >
                       <span>{getCrudButtonTextName("Cancel")}</span>
                     </button>
-
 
                     <button
                       onClick={(e) => TemplateAddUpdateBtnClicked()}
@@ -646,7 +717,6 @@ function Add_New_Templates_Pdf(props) {
                     </button>
                   </>
                 )}
-
               </Col>
             </Row>
             {/* <!-- end tab content --> */}

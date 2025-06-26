@@ -19,6 +19,10 @@ import BackButtonSvg from "../../../components/BackButtonSvg";
 import Android12Switch from "../../../components/AndroidSwitch";
 import DropDown from "../../../components/DropDown";
 import { PdfToCsvValidityList } from "../../../Middleware/Utils";
+import {
+  addUpdatePDFToCSVSubscriptionPackage,
+  GetPDFToCSVSubscriptionPackageModel,
+} from "../../../redux/Services/PDFToCSVAPI/PDFToCSVAPI";
 
 function PdfToCsvSubscriptionPackageModel(props) {
   const moduleName = "PDF To CSV Subscription Package";
@@ -37,6 +41,7 @@ function PdfToCsvSubscriptionPackageModel(props) {
     packagePrice: null,
     packageDiscountedPrice: null,
     pages: null,
+    months: null,
   });
 
   const navigate = useNavigate();
@@ -56,6 +61,8 @@ function PdfToCsvSubscriptionPackageModel(props) {
 
   //c]Declare UseEffect
 
+  console.log(location.state);
+
   useEffect(() => {
     setTopbar("none");
   }, []);
@@ -68,7 +75,7 @@ function PdfToCsvSubscriptionPackageModel(props) {
 
     // setModelAction(props.modelRequestData?.Action === null ? "Add" : "Update"); //Do not change this naming convention
     if (location.state?.subscriptionPackageKeyID !== null) {
-      GetSubscriptionPackageModelData(location.state?.subscriptionPackageKeyID);
+      GetPDFToCSVSubscriptionPackageModelData(location.state?.pcspKeyID);
     }
   }, [location.state]);
 
@@ -87,79 +94,28 @@ function PdfToCsvSubscriptionPackageModel(props) {
 
   // F] Calling CRUD Api here
   // 1) Get Model Data Api
-  const GetSubscriptionPackageModelData = async (id) => {
+  const GetPDFToCSVSubscriptionPackageModelData = async (id) => {
     if (!id) {
       return;
     }
     //..............Subscription package Edit Data Api...................
+
     try {
-      const data = await GetSubscriptionPackageModel(id);
+      const data = await GetPDFToCSVSubscriptionPackageModel(
+        id,
+        common.userKeyID
+      );
       if (data?.data?.statusCode === 200) {
         if (data?.data?.responseData?.data) {
           const ModelData = data?.data?.responseData?.data;
-          const discountPriceYear = ModelData.subscriptionOffers.find(
-            (offer) => offer.paymentFrequencyID === 1
-          )?.discountPrice;
-          const monthFreeYear = ModelData.subscriptionOffers.find(
-            (offer) => offer.paymentFrequencyID === 1
-          )?.monthFree;
-          const getMonthsYear = ModelData.subscriptionOffers.find(
-            (offer) => offer.paymentFrequencyID === 1
-          )?.getMonths;
-          const inPriceOfMonthYear = ModelData.subscriptionOffers.find(
-            (offer) => offer.paymentFrequencyID === 1
-          )?.inPriceOfMonth;
-          const discountPercentageYear = ModelData.subscriptionOffers.find(
-            (offer) => offer.paymentFrequencyID === 1
-          )?.discountPercentage;
-
-          const discountPriceMonth = ModelData.subscriptionOffers.find(
-            (offer) => offer.paymentFrequencyID === 4
-          )?.discountPrice;
-          const monthFreeMonth = ModelData.subscriptionOffers.find(
-            (offer) => offer.paymentFrequencyID === 4
-          )?.monthFree;
-          const getMonthsMonth = ModelData.subscriptionOffers.find(
-            (offer) => offer.paymentFrequencyID === 4
-          )?.getMonths;
-          const inPriceOfMonthMonth = ModelData.subscriptionOffers.find(
-            (offer) => offer.paymentFrequencyID === 4
-          )?.inPriceOfMonth;
-          const discountPercentageMonth = ModelData.subscriptionOffers.find(
-            (offer) => offer.paymentFrequencyID === 4
-          )?.discountPercentage;
           setSubscriptionPackageObj({
             ...subscriptionPackageObj,
-            apiIntegration: ModelData.apiIntegration,
-            isFreePackage: ModelData.isFreePackage,
-            subscriptionPackageKeyID: ModelData.subscriptionPackageKeyID,
             packageName: ModelData.packageName,
-            prepareQuote: ModelData.prepareQuote,
-            sendQuote: ModelData.sendQuote,
-            prepareContract: ModelData.prepareContract,
-            sendContract: ModelData.sendContract,
-            signContract: ModelData.signContract,
-            eSignaturePerMonth: ModelData.eSignaturePerMonth,
-            yearlyValuePlan: ModelData.yearlyValuePlan,
-            isMailBox: ModelData.isMailBox,
-            discountPercentageYear:
-              discountPercentageYear === undefined ? 0 : discountPercentageYear,
-            discountPercentageMonth:
-              discountPercentageMonth === undefined
-                ? 0
-                : discountPercentageMonth,
-            discountPriceYear:
-              discountPriceYear === undefined ? 0 : discountPriceYear,
-            discountPriceMonth:
-              discountPriceMonth === undefined ? 0 : discountPriceMonth,
-            monthFreeYear: monthFreeYear === undefined ? 0 : monthFreeYear,
-            monthFreeMonth: monthFreeMonth === undefined ? 0 : monthFreeMonth,
-            getMonthsYear: getMonthsYear === undefined ? 0 : getMonthsYear,
-            getMonthsMonth: getMonthsMonth === undefined ? 0 : getMonthsMonth,
-            inPriceOfMonthYear:
-              inPriceOfMonthYear === undefined ? 0 : inPriceOfMonthYear,
-            inPriceOfMonthMonth:
-              inPriceOfMonthMonth === undefined ? 0 : inPriceOfMonthMonth,
+            validityID: ModelData.validityID,
+            packagePrice: ModelData.price,
+            packageDiscountedPrice: ModelData.discountedPrice,
+            pages: ModelData.pages,
+            months: ModelData.months,
           });
         }
       } else {
@@ -229,41 +185,76 @@ function PdfToCsvSubscriptionPackageModel(props) {
     } else {
       setRequireErrorMessage(""); // Clear the error message if there are no errors.
     }
+    if (subscriptionPackageObj.validityID === 1) {
+      if (
+        subscriptionPackageObj.months === undefined ||
+        subscriptionPackageObj.months === "" ||
+        subscriptionPackageObj.months === null
+      ) {
+        scrollUpDownByElementID("months");
+        setRequireErrorMessage(true);
+        return false; // Return false or handle your error logic here if needed.
+      }
+    } else {
+      setRequireErrorMessage(""); // Clear the error message if there are no errors.
+    }
 
     scrollUpDownByElementID("ErrorMessage");
     // Clear the error message and set close to true if there are no errors.
     setErrorMessage("");
 
     // Preparing Object For Add Update and if any modification then it will done here
+    const parseNumber = (value) =>
+      typeof value === "string"
+        ? parseFloat(value.replace(/,/g, "")) || 0
+        : value || 0;
+
+    const parseInteger = (value) =>
+      typeof value === "string"
+        ? parseInt(value.replace(/,/g, ""), 10) || 0
+        : value || 0;
+
     const ApiRequest_ParamsObj = {
-      validity: subscriptionPackageObj.validityID,
-      price: subscriptionPackageObj.packagePrice,
-      packageDiscountedPrice: subscriptionPackageObj.packageDiscountedPrice,
-      pages: subscriptionPackageObj.pages,
+      userKeyID: common.userKeyID,
+      pcspKeyID: location.state?.pcspKeyID || null,
+      packageName: subscriptionPackageObj.packageName,
+      validityID: subscriptionPackageObj.validityID,
+      price: parseNumber(subscriptionPackageObj.packagePrice),
+      discountedPrice: parseNumber(
+        subscriptionPackageObj.packageDiscountedPrice
+      ),
+      pages: parseInteger(subscriptionPackageObj.pages),
+      months:
+        subscriptionPackageObj.validityID === 1
+          ? parseInteger(subscriptionPackageObj.months)
+          : null,
     };
-    // AddUpdateSubscriptionPackageData(ApiRequest_ParamsObj);
-    console.log("ApiRequest_ParamsObj", ApiRequest_ParamsObj);
+
+    AddUpdatePDFToCSVSubscriptionPackageData(ApiRequest_ParamsObj);
+    console.log(ApiRequest_ParamsObj);
   };
 
   // 3) Add Update Subscription package Data Api
-  const AddUpdateSubscriptionPackageData = async (ApiRequest_ParamsObj) => {
+  const AddUpdatePDFToCSVSubscriptionPackageData = async (
+    ApiRequest_ParamsObj
+  ) => {
+    debugger;
     setLoader(true);
     try {
-      const response = await AddUpdateSubscriptionPackage(ApiRequest_ParamsObj);
+      const response = await addUpdatePDFToCSVSubscriptionPackage(
+        ApiRequest_ParamsObj
+      );
       if (response) {
         setLoader(false);
         if (response?.data?.statusCode === 200) {
-          // $('#' + props.id).modal('hide')
-          // uncomment upper code for hide
-
-          if (ApiRequest_ParamsObj.Action === null) {
+          if (location.state.Action === null) {
             setOpenSuccessModal(true);
             props.setIsAddUpdateActionDone(true);
-            navigate("/sub-package");
+            navigate("/pdf-csv-sub-package");
           } else {
             setOpenSuccessModal(true);
             props.setIsAddUpdateActionDone(true);
-            navigate("/sub-package");
+            navigate("/pdf-csv-sub-package");
           }
         } else {
           setErrorMessage(response?.response?.data?.errorMessage);
@@ -278,7 +269,7 @@ function PdfToCsvSubscriptionPackageModel(props) {
     $("#" + props.id).modal("hide");
     setOpenSuccessModal(false);
     SetInitialModelData();
-    navigate("/sub-package");
+    navigate("/pdf-csv-sub-package");
   };
   const handlePrepareQuoteChange = (e) => {
     const prepareQuoteValue = !subscriptionPackageObj.prepareQuote;
@@ -697,6 +688,72 @@ function PdfToCsvSubscriptionPackageModel(props) {
                           )}
                         </div>
                       </div>
+
+                      {/* Months */}
+                      {subscriptionPackageObj.validityID === 1 && (
+                        <div className="row mb-2" id="months">
+                          <div
+                            className="col-2"
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                            }}
+                          >
+                            <label className="text-center">
+                              Months
+                              <span className="text-danger">*</span>
+                            </label>
+                          </div>
+                          <div className="col-4 ">
+                            <input
+                              type="text"
+                              className="input-text"
+                              placeholder="Months"
+                              value={
+                                subscriptionPackageObj?.months
+                                  ? subscriptionPackageObj?.months
+                                  : null
+                              }
+                              onChange={(e) => {
+                                setErrorMessage("");
+                                let inputValue = e.target.value;
+
+                                // Remove non-digit characters
+                                inputValue = inputValue.replace(/[^\d]/g, "");
+
+                                // Convert to number to validate the range
+                                const numericValue = parseInt(inputValue, 10);
+
+                                // Allow clearing or valid month (1–12)
+                                if (
+                                  inputValue === "" ||
+                                  (!isNaN(numericValue) &&
+                                    numericValue >= 1 &&
+                                    numericValue <= 12)
+                                ) {
+                                  setSubscriptionPackageObj({
+                                    ...subscriptionPackageObj,
+                                    months: inputValue, // Keep the user input as string
+                                  });
+                                }
+                              }}
+                            />
+
+                            {requireErrorMessage &&
+                            subscriptionPackageObj.validityID === 1 &&
+                            (subscriptionPackageObj.months === "" ||
+                              subscriptionPackageObj.months === undefined ||
+                              subscriptionPackageObj.months === null) ? (
+                              <label className="validation">
+                                {ERROR_MESSAGES}
+                              </label>
+                            ) : (
+                              ""
+                            )}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>

@@ -10780,7 +10780,7 @@ const Add_Update_Engagement_Letter = () => {
       contractPDFUrl: MergePdfUrl,
       templateID: engagementObj.templateID,
       customizedEmailContent: updatedTemplateList,
-      selectedAttachments: engagementObj.selectedAttachments,
+      templatePDFKeyIDs: engagementObj.selectedAttachments,
       tnCTemplateID:
         engagementObj.tnCTemplateID == "" ? null : engagementObj.tnCTemplateID,
       tnCTemplateContent:
