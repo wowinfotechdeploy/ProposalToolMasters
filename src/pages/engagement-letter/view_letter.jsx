@@ -1388,7 +1388,9 @@ const View_Engagement_Latter = () => {
                                         <td>Signed on</td>
                                         <td className="text-right">
                                           {signatory.isSigned
-                                            ? signatory.isSigned
+                                            ? formatDateToDDMMYYYY(
+                                                signatory.isSigned
+                                              )
                                             : "-"}
                                         </td>
                                       </tr>
