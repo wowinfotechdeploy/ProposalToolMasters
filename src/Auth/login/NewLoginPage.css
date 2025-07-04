@@ -1,0 +1,29 @@
+@media (max-width: 600px) {
+  .responsive-td {
+    width: 100% !important;
+    padding: 20px 10px !important;
+  }
+
+  .responsive-wrapper {
+    max-width: 100% !important;
+    text-align: left !important;
+  }
+
+  .responsive-wrapper h2 {
+    font-size: 24px !important;
+  }
+
+  .responsive-wrapper h3 {
+    font-size: 20px !important;
+  }
+
+  .responsive-wrapper p {
+    font-size: 16px !important;
+  }
+
+  .responsive-video {
+    width: 100% !important;
+    height: auto !important;
+    aspect-ratio: 16 / 9;
+  }
+}

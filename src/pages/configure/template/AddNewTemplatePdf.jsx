@@ -197,6 +197,7 @@ function Add_New_Templates_Pdf(props) {
       setLoader(true);
       const data = await GetTemplatePdfModel(TemplatePdfKeyID, GetSAChanges);
       if (data?.data?.statusCode === 200) {
+        debugger;
         if (data?.data?.responseData?.data) {
           const ModelData = data?.data?.responseData?.data;
           setTemplateObj({
@@ -490,7 +491,7 @@ function Add_New_Templates_Pdf(props) {
                   <div className="col-lg-3 template-label text-left">
                     <div className="mb-1">
                       <label className="form-label">
-                        PDF Template
+                        Preview Template
                         <span className="text-danger">*</span>
                       </label>
                     </div>

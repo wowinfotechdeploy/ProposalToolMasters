@@ -16,8 +16,14 @@ import { useSelector } from "react-redux";
 import { FormControlLabel, Switch } from "@mui/material";
 
 const ChoosePlanForPurchase = (props) => {
-  const { setLoader, EngagementName, proposalName, formatValue, formatValueWithoutCurrencySymbol, setTopbar } =
-    useContext(AuthContextProvider);
+  const {
+    setLoader,
+    EngagementName,
+    proposalName,
+    formatValue,
+    formatValueWithoutCurrencySymbol,
+    setTopbar,
+  } = useContext(AuthContextProvider);
   const [selectedOfferID, setSelectedOfferID] = useState({
     value: null,
     label: null,
@@ -26,6 +32,11 @@ const ChoosePlanForPurchase = (props) => {
     packageName: null,
   });
   const [openSuccessModal, setOpenSuccessModal] = React.useState(false);
+  const [discountedRateYearly, setDiscountedRateYearly] = useState(null);
+  const [discountedRateMonthly, setDiscountedRateMonthly] = useState(null);
+  const [discountedMonthsYearly, setDiscountedMonthsYearly] = useState([]);
+  const [discountedMonthsMonthly, setDiscountedMonthsMonthly] = useState([]);
+  const [yearlyBillingAmount, setYearlyBillingAmount] = useState([]);
   const [chooseApiData, setChooseApiData] = useState();
   const common = useSelector((state) => state.Storage);
   const [errorMessage, setErrorMessage] = useState("");
@@ -35,7 +46,7 @@ const ChoosePlanForPurchase = (props) => {
   const { organizationKeyId } = location.state || {}; // Access organizationKeyId from location state
 
   useEffect(() => {
-    setTopbar("block")
+    setTopbar("block");
     ChoosePlanApiModelData();
   }, []);
 
@@ -58,6 +69,8 @@ const ChoosePlanForPurchase = (props) => {
   const handleToggle = () => {
     setIsYearly(!isYearly); // Toggle between monthly and yearly
     // Additional logic if needed
+    // setDiscountedMonthsMonthly(null);
+    // setDiscountedMonthsYearly(null);
     setSelectedOfferID({
       value: null,
       label: null,
@@ -77,12 +90,12 @@ const ChoosePlanForPurchase = (props) => {
     try {
       const subscriptionPackageData =
         subscriptionPackageKeyIDForPurchase ===
-          selectedOfferID?.subscriptionPackageKeyID
+        selectedOfferID?.subscriptionPackageKeyID
           ? selectedOfferID.subscriptionPackageKeyID
           : subscriptionPackageKeyIDForPurchase;
       const offerData =
         subscriptionPackageKeyIDForPurchase ===
-          selectedOfferID?.subscriptionPackageKeyID
+        selectedOfferID?.subscriptionPackageKeyID
           ? selectedOfferID.value
           : null;
       const data = await BuyPlan({
@@ -155,12 +168,14 @@ const ChoosePlanForPurchase = (props) => {
     } else {
       navigate("/mySubscription", { state: "ChoosePlane" });
     }
-  }
+  };
   const handleSelectChange = (
     selectedOption,
     index,
     subscriptionPackageKeyIDNew,
-    packageNameNew
+    packageNameNew,
+    yearlyOffer,
+    monthlyOffer
   ) => {
     // Extract the offerID and label from the selected option
     const selectedOfferID = selectedOption.value;
@@ -176,7 +191,185 @@ const ChoosePlanForPurchase = (props) => {
       packageName: packageNameNew,
     });
     // setSelectedIndex(index);
+
+    // const GetMonths = 1;
+    // const MonthFree = 2;
+    // const DiscountPrice = 3;
+    // const DiscountPercentage = 4;
+
+    let offerType;
+
+    if (isYearly) {
+      if (selectedOfferID === "GetMonths") {
+        offerType = 1;
+        const offer = yearlyOffer.find(
+          (item) => item.offerID === selectedOfferID
+        );
+        const [firstValue, secondValue] = offer.value.split(",").map(Number);
+
+        setDiscountedMonthsYearly((prev) => {
+          const existingIndex = prev.findIndex((obj) => obj.index === index);
+
+          if (existingIndex !== -1) {
+            const updated = [...prev];
+            updated[existingIndex] = { index, firstValue, offerType };
+            return updated;
+          } else {
+            return [...prev, { index, firstValue, offerType }];
+          }
+        });
+      } else if (selectedOfferID === "MonthFree") {
+        offerType = 2;
+        const offer = yearlyOffer.find(
+          (item) => item.offerID === selectedOfferID
+        );
+        const firstValue = Number(offer.value); // Rename to match
+
+        setDiscountedMonthsYearly((prev) => {
+          const existingIndex = prev.findIndex((obj) => obj.index === index);
+
+          if (existingIndex !== -1) {
+            const updated = [...prev];
+            updated[existingIndex] = { index, firstValue, offerType }; // Keep consistent
+            return updated;
+          } else {
+            return [...prev, { index, firstValue, offerType }];
+          }
+        });
+      } else if (selectedOfferID === "DiscountPrice") {
+        offerType = 3;
+        const offer = yearlyOffer.find(
+          (item) => item.offerID === selectedOfferID
+        );
+        const firstValue = Number(offer.finalBillingAmount); // Rename to match
+
+        setDiscountedMonthsYearly((prev) => {
+          const existingIndex = prev.findIndex((obj) => obj.index === index);
+
+          if (existingIndex !== -1) {
+            const updated = [...prev];
+            updated[existingIndex] = { index, firstValue, offerType }; // Keep consistent
+            return updated;
+          } else {
+            return [...prev, { index, firstValue, offerType }];
+          }
+        });
+      } else if (selectedOfferID === "DiscountPercentage") {
+        offerType = 4;
+        const offer = yearlyOffer.find(
+          (item) => item.offerID === selectedOfferID
+        );
+        const firstValue = Number(offer.finalBillingAmount); // Rename to match
+
+        setDiscountedMonthsYearly((prev) => {
+          const existingIndex = prev.findIndex((obj) => obj.index === index);
+
+          if (existingIndex !== -1) {
+            const updated = [...prev];
+            updated[existingIndex] = { index, firstValue, offerType }; // Keep consistent
+            return updated;
+          } else {
+            return [...prev, { index, firstValue, offerType }];
+          }
+        });
+      } else {
+        // Remove the object with matching index if it exists
+        setDiscountedMonthsYearly((prev) =>
+          prev.filter((obj) => obj.index !== index)
+        );
+      }
+    } else if (!isYearly) {
+      if (selectedOfferID === "GetMonths") {
+        offerType = 1;
+        const offer = monthlyOffer.find(
+          (item) => item.offerID === selectedOfferID
+        );
+        const [firstValue, secondValue] = offer.value.split(",").map(Number);
+
+        setDiscountedMonthsMonthly((prev) => {
+          const existingIndex = prev?.findIndex((obj) => obj.index === index);
+
+          if (existingIndex !== -1) {
+            const updated = [...prev];
+            updated[existingIndex] = { index, firstValue, offerType };
+            return updated;
+          } else {
+            return [...prev, { index, firstValue, offerType }];
+          }
+        });
+      } else if (selectedOfferID === "MonthFree") {
+        offerType = 2;
+        const offer = monthlyOffer.find(
+          (item) => item.offerID === selectedOfferID
+        );
+        const firstValue = Number(offer.value); // Rename to match
+
+        setDiscountedMonthsMonthly((prev) => {
+          const existingIndex = prev?.findIndex((obj) => obj.index === index);
+
+          if (existingIndex !== -1) {
+            const updated = [...prev];
+            updated[existingIndex] = { index, firstValue, offerType }; // Keep consistent
+            return updated;
+          } else {
+            return [...prev, { index, firstValue, offerType }];
+          }
+        });
+      } else if (selectedOfferID === "DiscountPrice") {
+        offerType = 3;
+        const offer = monthlyOffer.find(
+          (item) => item.offerID === selectedOfferID
+        );
+        const firstValue = Number(offer.finalBillingAmount); // Rename to match
+
+        setDiscountedMonthsMonthly((prev) => {
+          const existingIndex = prev.findIndex((obj) => obj.index === index);
+
+          if (existingIndex !== -1) {
+            const updated = [...prev];
+            updated[existingIndex] = { index, firstValue, offerType }; // Keep consistent
+            return updated;
+          } else {
+            return [...prev, { index, firstValue, offerType }];
+          }
+        });
+      } else if (selectedOfferID === "DiscountPercentage") {
+        offerType = 4;
+        const offer = monthlyOffer.find(
+          (item) => item.offerID === selectedOfferID
+        );
+        const firstValue = Number(offer.finalBillingAmount); // Rename to match
+
+        setDiscountedMonthsMonthly((prev) => {
+          const existingIndex = prev.findIndex((obj) => obj.index === index);
+
+          if (existingIndex !== -1) {
+            const updated = [...prev];
+            updated[existingIndex] = { index, firstValue, offerType }; // Keep consistent
+            return updated;
+          } else {
+            return [...prev, { index, firstValue, offerType }];
+          }
+        });
+      } else {
+        // Remove the object with matching index if it exists
+        setDiscountedMonthsMonthly((prev) =>
+          prev.filter((obj) => obj.index !== index)
+        );
+      }
+    }
   };
+
+  const HandleGetDiscountedRate = (actualRate, offer) => {
+    // offer -> offerId
+    // offers
+    // 1. Get x % off    ----> DiscountPercentage
+    // 2. Get at x amount   ----> DiscountPrice
+    // 3. Get x months in the price of y months   ----> GetMonths
+    // 4. Get x months for free   -----> MonthFree
+  };
+
+  console.log(chooseApiData);
 
   return (
     <div>
@@ -223,16 +416,20 @@ const ChoosePlanForPurchase = (props) => {
                                     className="d-flex"
                                     style={{ background: "white" }}
                                   >
-                                    {chooseApiData?.filter((item) => !item.isFreePackage).map(
-                                      (PurchasePlanList, index) => {
+                                    {chooseApiData
+                                      ?.filter((item) => !item.isFreePackage)
+                                      .map((PurchasePlanList, index) => {
                                         return (
                                           <>
                                             <Col xl={4} md={6}>
                                               <Card className="pricing-box d-flex shadow-lg p-3 mb-3 bg-white rounded">
-                                                <CardBody style={{
-                                                  width: "305px",
-                                                  height: "450px"
-                                                }} className="p-3">
+                                                <CardBody
+                                                  style={{
+                                                    width: "305px",
+                                                    height: "450px",
+                                                  }}
+                                                  className="p-3"
+                                                >
                                                   <div className="media ">
                                                     <i className="ion ion-ios-airplane h2 align-self-center"></i>
                                                     <div className="media-body text-center ">
@@ -251,31 +448,265 @@ const ChoosePlanForPurchase = (props) => {
                                                         }
                                                       </h6>
 
-                                                      {!isYearly ?
+                                                      {!isYearly ? (
+                                                        // <div>
+                                                        //   {(() => {
+                                                        //     const MonthlyPrice =
+                                                        //       Number(
+                                                        //         PurchasePlanList?.yearlyValuePlan
+                                                        //       ) / 12;
+                                                        //     return formatValue(
+                                                        //       MonthlyPrice
+                                                        //     );
+                                                        //   })()}
+                                                        //   / Month
+                                                        // </div>
                                                         <div>
-
-                                                          {
-                                                            (() => {
-                                                              const MonthlyPrice = Number(PurchasePlanList?.yearlyValuePlan) / 12;
-                                                              return formatValue(MonthlyPrice);
-                                                            })()
-                                                          }
-
-                                                          / Month
-                                                        </div> :
-                                                        <div>
-                                                          {(
-                                                            formatValue(PurchasePlanList?.yearlyValuePlan)
+                                                          {discountedMonthsMonthly?.find(
+                                                            (item) =>
+                                                              item.index ===
+                                                              index
+                                                          ) && (
+                                                            <span
+                                                              style={{
+                                                                color:
+                                                                  "#6c757d",
+                                                                textDecoration:
+                                                                  "line-through",
+                                                                display:
+                                                                  "block",
+                                                              }}
+                                                            >
+                                                              {formatValue(
+                                                                PurchasePlanList?.yearlyValuePlan /
+                                                                  12
+                                                              )}{" "}
+                                                              /Month
+                                                            </span>
                                                           )}
-                                                          / Year
+
+                                                          {/* {formatValue(
+                                                            PurchasePlanList?.yearlyValuePlan /
+                                                              12
+                                                          )} */}
+                                                          {(() => {
+                                                            const discount =
+                                                              discountedMonthsMonthly?.find(
+                                                                (item) =>
+                                                                  item.index ===
+                                                                  index
+                                                              );
+
+                                                            if (discount) {
+                                                              if (
+                                                                discount.offerType ===
+                                                                1
+                                                              ) {
+                                                                return `${formatValue(
+                                                                  PurchasePlanList?.yearlyValuePlan /
+                                                                    12
+                                                                )}/${
+                                                                  discount.firstValue
+                                                                } months`;
+                                                              }
+
+                                                              if (
+                                                                discount.offerType ===
+                                                                2
+                                                              ) {
+                                                                return `${formatValue(
+                                                                  PurchasePlanList?.yearlyValuePlan /
+                                                                    12
+                                                                )}/${
+                                                                  discount.firstValue +
+                                                                  1
+                                                                } months`;
+                                                              }
+
+                                                              if (
+                                                                discount.offerType ===
+                                                                  3 ||
+                                                                discount.offerType ===
+                                                                  4
+                                                              ) {
+                                                                return `${formatValue(
+                                                                  discount.firstValue
+                                                                )}/Month`;
+                                                              }
+                                                            }
+
+                                                            // If no discount or not matched types
+                                                            return `${formatValue(
+                                                              PurchasePlanList?.yearlyValuePlan /
+                                                                12
+                                                            )}/Month`;
+                                                          })()}
+                                                          {/* {(() => {
+                                                            const discount =
+                                                              discountedMonthsMonthly?.find(
+                                                                (item) =>
+                                                                  item.index ===
+                                                                  index
+                                                              );
+
+                                                            if (
+                                                              discount?.offerType ===
+                                                              1
+                                                            ) {
+                                                              return `/${discount.firstValue} months`;
+                                                            }
+
+                                                            if (
+                                                              discount?.offerType ===
+                                                              2
+                                                            ) {
+                                                              return `/${
+                                                                discount.firstValue +
+                                                                1
+                                                              } months`;
+                                                            }
+
+                                                            return "/Months";
+                                                          })()} */}
+
+                                                          {/* {discountedMonthsYearly
+                                                            ? `/${discountedMonthsYearly}`
+                                                            : `/Year`} */}
                                                         </div>
-                                                      }
+                                                      ) : (
+                                                        <div>
+                                                          {discountedMonthsYearly?.find(
+                                                            (item) =>
+                                                              item.index ===
+                                                              index
+                                                          ) && (
+                                                            <span
+                                                              style={{
+                                                                color:
+                                                                  "#6c757d",
+                                                                textDecoration:
+                                                                  "line-through",
+                                                                display:
+                                                                  "block",
+                                                              }}
+                                                            >
+                                                              {formatValue(
+                                                                PurchasePlanList?.yearlyValuePlan
+                                                              )}{" "}
+                                                              /Year
+                                                            </span>
+                                                          )}
+
+                                                          {/* {formatValue(
+                                                            PurchasePlanList?.yearlyValuePlan
+                                                          )} */}
+
+                                                          {(() => {
+                                                            const discount =
+                                                              discountedMonthsYearly?.find(
+                                                                (item) =>
+                                                                  item.index ===
+                                                                  index
+                                                              );
+
+                                                            if (discount) {
+                                                              if (
+                                                                discount.offerType ===
+                                                                1
+                                                              ) {
+                                                                return `${formatValue(
+                                                                  PurchasePlanList?.yearlyValuePlan
+                                                                )}/${
+                                                                  discount.firstValue
+                                                                } months`;
+                                                              }
+
+                                                              if (
+                                                                discount.offerType ===
+                                                                2
+                                                              ) {
+                                                                return `${formatValue(
+                                                                  PurchasePlanList?.yearlyValuePlan
+                                                                )}/${
+                                                                  discount.firstValue +
+                                                                  12
+                                                                } months`;
+                                                              }
+
+                                                              if (
+                                                                discount.offerType ===
+                                                                  3 ||
+                                                                discount.offerType ===
+                                                                  4
+                                                              ) {
+                                                                return `${formatValue(
+                                                                  discount.firstValue
+                                                                )}/Year`;
+                                                              }
+                                                            }
+
+                                                            // If no discount or not matched types
+                                                            return `${formatValue(
+                                                              PurchasePlanList?.yearlyValuePlan
+                                                            )}/Year`;
+                                                          })()}
+
+                                                          {/* {(() => {
+                                                            debugger
+                                                            const discount =
+                                                              discountedMonthsYearly?.find(
+                                                                (item) =>
+                                                                  item.index ===
+                                                                  index
+                                                              );
+                                                            if (!discount)
+                                                              return "/Year";
+
+                                                            if (
+                                                              discount?.offerType ===
+                                                              1
+                                                            ) {
+                                                              return `/${discount.firstValue} months`;
+                                                            }
+
+                                                            if (
+                                                              discount?.offerType ===
+                                                              2
+                                                            ) {
+                                                              return `/${
+                                                                discount.firstValue +
+                                                                12
+                                                              } months`;
+                                                            }
+
+                                                            if (!discount) {
+                                                              const val =
+                                                                formatValue(
+                                                                  PurchasePlanList?.yearlyValuePlan
+                                                                );
+                                                              return val;
+                                                            }
+
+                                                            if (discount.offerType === 3 || discount.offerType === 4) {
+                                                              return (
+                                                                discount.firstValue
+                                                              );
+                                                            }
+
+                                                            return "/Year";
+                                                          })()} */}
+
+                                                          {/* {discountedMonthsYearly
+                                                            ? `/${discountedMonthsYearly}`
+                                                            : `/Year`} */}
+                                                        </div>
+                                                      )}
                                                     </div>
                                                   </div>
                                                   <div className="pricing-features mt-1 pt-2">
                                                     <div>
                                                       {PurchasePlanList?.apiIntegration ==
-                                                        true ? (
+                                                      true ? (
                                                         <span
                                                           style={{
                                                             color: "green",
@@ -301,7 +732,7 @@ const ChoosePlanForPurchase = (props) => {
                                                     </div>
                                                     <div>
                                                       {PurchasePlanList?.prepareQuote ==
-                                                        true ? (
+                                                      true ? (
                                                         <span
                                                           style={{
                                                             color: "green",
@@ -327,7 +758,7 @@ const ChoosePlanForPurchase = (props) => {
                                                     </div>
                                                     <div>
                                                       {PurchasePlanList?.prepareContract ===
-                                                        true ? (
+                                                      true ? (
                                                         <span
                                                           style={{
                                                             color: "green",
@@ -354,7 +785,7 @@ const ChoosePlanForPurchase = (props) => {
                                                     </div>
                                                     <div>
                                                       {PurchasePlanList?.sendQuote ===
-                                                        true ? (
+                                                      true ? (
                                                         <span
                                                           style={{
                                                             color: "green",
@@ -382,7 +813,7 @@ const ChoosePlanForPurchase = (props) => {
                                                     <div className="d-flex align-items-start">
                                                       <div>
                                                         {PurchasePlanList?.eSignaturePerMonth >
-                                                          0 ? (
+                                                        0 ? (
                                                           <span
                                                             style={{
                                                               color: "green",
@@ -403,21 +834,25 @@ const ChoosePlanForPurchase = (props) => {
                                                           marginLeft: "10px",
                                                         }}
                                                       >
-                                                        Send And Digitally Sign The {EngagementName}
-
+                                                        Send And Digitally Sign
+                                                        The {EngagementName}
                                                         {PurchasePlanList?.eSignaturePerMonth >
                                                           0 && (
-                                                            <>
-                                                              : {formatValueWithoutCurrencySymbol(PurchasePlanList?.eSignaturePerMonth)}/Month
-                                                            </>
-                                                          )}
+                                                          <>
+                                                            :{" "}
+                                                            {formatValueWithoutCurrencySymbol(
+                                                              PurchasePlanList?.eSignaturePerMonth
+                                                            )}
+                                                            /Month
+                                                          </>
+                                                        )}
                                                       </span>
-
                                                     </div>
                                                     <div>
-                                                      {(PurchasePlanList?.isMailBox ===
-                                                        true || PurchasePlanList?.isMailBox ===
-                                                        null) ? (
+                                                      {PurchasePlanList?.isMailBox ===
+                                                        true ||
+                                                      PurchasePlanList?.isMailBox ===
+                                                        null ? (
                                                         <span
                                                           style={{
                                                             color: "green",
@@ -453,10 +888,10 @@ const ChoosePlanForPurchase = (props) => {
                                                           PurchasePlanList
                                                             .yearlyOffer
                                                             ?.length > 0) ||
-                                                          (!isYearly &&
-                                                            PurchasePlanList
-                                                              .monthlyOffer
-                                                              ?.length > 0) ? (
+                                                        (!isYearly &&
+                                                          PurchasePlanList
+                                                            .monthlyOffer
+                                                            ?.length > 0) ? (
                                                           <div className="w-100">
                                                             <label></label>
                                                             <Select
@@ -470,24 +905,34 @@ const ChoosePlanForPurchase = (props) => {
                                                                   selectedOption,
                                                                   index,
                                                                   PurchasePlanList.subscriptionPackageKeyID,
-                                                                  PurchasePlanList.packageName
+                                                                  PurchasePlanList.packageName,
+                                                                  PurchasePlanList?.yearlyOffer,
+                                                                  PurchasePlanList?.monthlyOffer
                                                                 )
                                                               }
-                                                              options={(isYearly
-                                                                ? PurchasePlanList.yearlyOffer
-                                                                : PurchasePlanList.monthlyOffer
-                                                              )?.map(
-                                                                (offer) => ({
-                                                                  id: offer.offerID,
+                                                              options={[
+                                                                {
+                                                                  id: "", // or null, depending on how you handle unselected values
                                                                   label:
-                                                                    offer.offerName,
-                                                                  value:
-                                                                    offer.offerID,
-                                                                })
-                                                              )}
+                                                                    "Select Offer",
+                                                                  value: "",
+                                                                },
+                                                                ...(isYearly
+                                                                  ? PurchasePlanList.yearlyOffer
+                                                                  : PurchasePlanList.monthlyOffer
+                                                                )?.map(
+                                                                  (offer) => ({
+                                                                    id: offer.offerID,
+                                                                    label:
+                                                                      offer.offerName,
+                                                                    value:
+                                                                      offer.offerID,
+                                                                  })
+                                                                ),
+                                                              ]}
                                                               value={
                                                                 selectedOfferID &&
-                                                                  selectedOfferID.index ===
+                                                                selectedOfferID.index ===
                                                                   index
                                                                   ? selectedOfferID
                                                                   : null
@@ -504,7 +949,7 @@ const ChoosePlanForPurchase = (props) => {
                                                     <p>{errorMessage}</p>
                                                   )}
 
-                                                  <div className=" d-flex justify-content-center ">
+                                                  <div className=" d-flex justify-content-center mb-1">
                                                     <button
                                                       onClick={() =>
                                                         handleButtonClick(
@@ -517,13 +962,20 @@ const ChoosePlanForPurchase = (props) => {
                                                       <span> Purchase</span>
                                                     </button>
                                                   </div>
+                                                  <span
+                                                    className="text-muted"
+                                                    style={{ fontSize: "12px" }}
+                                                  >
+                                                    Note: Selected offer apply
+                                                    once only. After expiry,
+                                                    standard rates apply.
+                                                  </span>
                                                 </CardBody>
                                               </Card>
                                             </Col>
                                           </>
                                         );
-                                      }
-                                    )}
+                                      })}
                                   </Row>
                                 </div>
                               </div>
@@ -551,7 +1003,8 @@ const ChoosePlanForPurchase = (props) => {
         openSuccessModal={openSuccessModal}
         modelAction={"Purchase"}
         message={selectedOfferID?.packageName}
-      /><Footer />
+      />
+      <Footer />
     </div>
   );
 };

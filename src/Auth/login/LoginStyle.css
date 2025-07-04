@@ -163,7 +163,7 @@ body {
   color: #43afef;
 }
 
-.lnnav-bar .lnmenu ul li:hover>.sb-nav {
+.lnnav-bar .lnmenu ul li:hover > .sb-nav {
   display: block;
 }
 
@@ -284,7 +284,8 @@ body {
 
 .lnlogin-right {
   width: 100%;
-  padding: 0 5%;
+  padding: 0 2%;
+  /* padding: 0 5%; */
   float: right;
 }
 
@@ -1070,7 +1071,7 @@ input.lninput.lntext.sign-f {
     color: #01d7e1;
   }
 
-  .tosb-nav:hover>.sb-nav {
+  .tosb-nav:hover > .sb-nav {
     display: block !important;
   }
 

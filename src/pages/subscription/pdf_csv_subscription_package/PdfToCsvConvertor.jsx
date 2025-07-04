@@ -22,6 +22,7 @@ import PaginationComponent from "../../../components/PaginationModel";
 import NoSubscriptionModal from "../../../components/NoSubscriptionModal";
 import * as pdfjsLib from "pdfjs-dist";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import { GetOrganisationLookupList } from "../../../redux/Services/Master/OrganisationLookupList";
 
 function PdfToCsvConvertorModel(props) {
   const [pdfFile, setPdfFile] = useState(null);
@@ -35,6 +36,7 @@ function PdfToCsvConvertorModel(props) {
   const [enoughPages, setEnoughPages] = useState(true);
   const [openSuccessModal, setOpenSuccessModal] = useState(false);
   const [openNosubscriptionModal, setOpenNosubscriptionModal] = useState(false);
+  const [remainingCount, setRemainingCount] = useState(null);
   const [pagesPackages, setPagesPackages] = useState([]);
   const {
     setLoader,
@@ -59,7 +61,8 @@ function PdfToCsvConvertorModel(props) {
   const [pageSize, setPageSize] = useState(6);
   const API_KEY = `828c1ceb-7702-4a15-a71b-c4f186884dc1`;
   const common = useSelector((state) => state.Storage);
-  const remainingCount = 50;
+  // const plan = JSON.parse(localStorage.getItem("subscriptionPlan"));
+  // const remainingCount = plan?.remaningPDFtoCSVPages || 0;
 
   const navigate = useNavigate();
   // const pageSize = isMobile
@@ -71,6 +74,10 @@ function PdfToCsvConvertorModel(props) {
   useEffect(() => {
     ChoosePlanApiModelData();
   }, []);
+
+  useEffect(() => {
+    OrganisationLookupList();
+  }, [conversionCompleted]);
 
   // useEffect(() => {
   //   if (!enoughPages) {
@@ -84,6 +91,26 @@ function PdfToCsvConvertorModel(props) {
 
   const setInitialData = () => {
     setPdfFile(null);
+  };
+
+  const OrganisationLookupList = async () => {
+    debugger;
+    try {
+      const res = await GetOrganisationLookupList(common.userKeyID);
+      if (res?.data?.statusCode === 200) {
+        if (res?.data?.responseData?.data) {
+          const OrganisationsListData = res.data.responseData.data;
+          const CurrentOrganisation = OrganisationsListData.find(
+            (item) => item.organisationKeyID === common.organisationKeyID
+          );
+          setRemainingCount(
+            CurrentOrganisation.subscriptionPlan.remaningPDFtoCSVPages
+          );
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const handleClearFile = () => {
@@ -427,6 +454,15 @@ function PdfToCsvConvertorModel(props) {
     // Your logic after BuyPlanData completes, if needed
   };
 
+  const formatDateToDDMMYYYY = (dateString) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are 0-based
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+
   return (
     <div style={{ marginTop: "110px" }}>
       <div className="container-fluid new-item-page-container mt-4">
@@ -508,7 +544,9 @@ function PdfToCsvConvertorModel(props) {
                   <div className="mt-4">
                     <div className="d-flex align-items-center justify-content-between">
                       <h5 className="mb-1">Previously Converted Files</h5>
-                      <h6 className="mb-1">Total Remaining Pages: 50</h6>
+                      <h6 className="mb-1">
+                        Total Remaining Pages: {remainingCount}
+                      </h6>
                     </div>
                     <div
                       className="table-responsive"
@@ -547,7 +585,9 @@ function PdfToCsvConvertorModel(props) {
                                   Converted CSV File
                                 </a>
                               </td>
-                              <td>{file.createdOnDate?.split(" ")[0]}</td>
+                              <td>
+                                {formatDateToDDMMYYYY(file.createdOnDate)}
+                              </td>
                             </tr>
                           ))}
                         </tbody>
