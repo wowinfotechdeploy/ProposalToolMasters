@@ -37,6 +37,7 @@ function PdfToCsvConvertorModel(props) {
   const [openSuccessModal, setOpenSuccessModal] = useState(false);
   const [openNosubscriptionModal, setOpenNosubscriptionModal] = useState(false);
   const [remainingCount, setRemainingCount] = useState(null);
+  const [visibleCount, setVisibleCount] = useState(10);
   const [pagesPackages, setPagesPackages] = useState([]);
   const {
     setLoader,
@@ -463,6 +464,10 @@ function PdfToCsvConvertorModel(props) {
     return `${day}/${month}/${year}`;
   };
 
+  const handleShowMore = () => {
+    setVisibleCount((prev) => prev + 10);
+  };
+
   return (
     <div style={{ marginTop: "110px" }}>
       <div className="container-fluid new-item-page-container mt-4">
@@ -484,7 +489,7 @@ function PdfToCsvConvertorModel(props) {
                   <button
                     className="btn btn-md btn-success create-item-btn"
                     onClick={() => setHasSubcription(false)}
-                    // disabled={isConverting}
+                  // disabled={isConverting}
                   >
                     {/* <i className="bi bi-plus-circle "></i> */}
                     Upgrade
@@ -563,35 +568,47 @@ function PdfToCsvConvertorModel(props) {
                         </thead>
 
                         <tbody>
-                          {previouslyConvertedFiles.map((file, index) => (
-                            <tr key={index}>
-                              <td>{index + 1}</td>
-                              <td>
-                                <a
-                                  href={file.uploadDocPath}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                >
-                                  Uploaded PDF File
-                                </a>
-                              </td>
+                          {previouslyConvertedFiles
+                            .slice(0, visibleCount)
+                            .map((file, index) => (
+                              <tr key={index}>
+                                <td>{index + 1}</td>
+                                <td>
+                                  <a
+                                    href={file.uploadDocPath}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                  >
+                                    Uploaded PDF File
+                                  </a>
+                                </td>
 
-                              <td>
-                                <a
-                                  href={file.convertedDocPath}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                >
-                                  Converted CSV File
-                                </a>
-                              </td>
-                              <td>
-                                {formatDateToDDMMYYYY(file.createdOnDate)}
-                              </td>
-                            </tr>
-                          ))}
+                                <td>
+                                  <a
+                                    href={file.convertedDocPath}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                  >
+                                    Converted CSV File
+                                  </a>
+                                </td>
+                                <td>
+                                  {formatDateToDDMMYYYY(file.createdOnDate)}
+                                </td>
+                              </tr>
+                            ))}
                         </tbody>
                       </table>
+                      {visibleCount < previouslyConvertedFiles.length && (
+                        <div className="text-center mt-3">
+                          <button
+                            onClick={handleShowMore}
+                            className="btn btn-primary"
+                          >
+                            Show More
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
@@ -636,7 +653,7 @@ function PdfToCsvConvertorModel(props) {
                     <button
                       className="btn btn-md btn-success create-item-btn"
                       onClick={() => setHasSubcription(true)}
-                      // disabled={isConverting}
+                    // disabled={isConverting}
                     >
                       Back
                     </button>
@@ -715,12 +732,12 @@ function PdfToCsvConvertorModel(props) {
                                                       >
                                                         Validity:{" "}
                                                         {PurchasePlanList.months !==
-                                                        null
+                                                          null
                                                           ? String(
-                                                              PurchasePlanList.months
-                                                            ) +
-                                                            " " +
-                                                            PurchasePlanList.validity
+                                                            PurchasePlanList.months
+                                                          ) +
+                                                          " " +
+                                                          PurchasePlanList.validity
                                                           : PurchasePlanList.validity}
                                                       </span>
                                                     </div>

@@ -90,12 +90,12 @@ const ChoosePlanForPurchase = (props) => {
     try {
       const subscriptionPackageData =
         subscriptionPackageKeyIDForPurchase ===
-        selectedOfferID?.subscriptionPackageKeyID
+          selectedOfferID?.subscriptionPackageKeyID
           ? selectedOfferID.subscriptionPackageKeyID
           : subscriptionPackageKeyIDForPurchase;
       const offerData =
         subscriptionPackageKeyIDForPurchase ===
-        selectedOfferID?.subscriptionPackageKeyID
+          selectedOfferID?.subscriptionPackageKeyID
           ? selectedOfferID.value
           : null;
       const data = await BuyPlan({
@@ -467,23 +467,23 @@ const ChoosePlanForPurchase = (props) => {
                                                               item.index ===
                                                               index
                                                           ) && (
-                                                            <span
-                                                              style={{
-                                                                color:
-                                                                  "#6c757d",
-                                                                textDecoration:
-                                                                  "line-through",
-                                                                display:
-                                                                  "block",
-                                                              }}
-                                                            >
-                                                              {formatValue(
-                                                                PurchasePlanList?.yearlyValuePlan /
+                                                              <span
+                                                                style={{
+                                                                  color:
+                                                                    "#6c757d",
+                                                                  textDecoration:
+                                                                    "line-through",
+                                                                  display:
+                                                                    "block",
+                                                                }}
+                                                              >
+                                                                {formatValue(
+                                                                  PurchasePlanList?.yearlyValuePlan /
                                                                   12
-                                                              )}{" "}
-                                                              /Month
-                                                            </span>
-                                                          )}
+                                                                )}{" "}
+                                                                /Month
+                                                              </span>
+                                                            )}
 
                                                           {/* {formatValue(
                                                             PurchasePlanList?.yearlyValuePlan /
@@ -504,10 +504,9 @@ const ChoosePlanForPurchase = (props) => {
                                                               ) {
                                                                 return `${formatValue(
                                                                   PurchasePlanList?.yearlyValuePlan /
-                                                                    12
-                                                                )}/${
-                                                                  discount.firstValue
-                                                                } months`;
+                                                                  12
+                                                                )}/${discount.firstValue
+                                                                  } months`;
                                                               }
 
                                                               if (
@@ -516,18 +515,17 @@ const ChoosePlanForPurchase = (props) => {
                                                               ) {
                                                                 return `${formatValue(
                                                                   PurchasePlanList?.yearlyValuePlan /
-                                                                    12
-                                                                )}/${
-                                                                  discount.firstValue +
+                                                                  12
+                                                                )}/${discount.firstValue +
                                                                   1
-                                                                } months`;
+                                                                  } months`;
                                                               }
 
                                                               if (
                                                                 discount.offerType ===
-                                                                  3 ||
+                                                                3 ||
                                                                 discount.offerType ===
-                                                                  4
+                                                                4
                                                               ) {
                                                                 return `${formatValue(
                                                                   discount.firstValue
@@ -538,7 +536,7 @@ const ChoosePlanForPurchase = (props) => {
                                                             // If no discount or not matched types
                                                             return `${formatValue(
                                                               PurchasePlanList?.yearlyValuePlan /
-                                                                12
+                                                              12
                                                             )}/Month`;
                                                           })()}
                                                           {/* {(() => {
@@ -580,22 +578,22 @@ const ChoosePlanForPurchase = (props) => {
                                                               item.index ===
                                                               index
                                                           ) && (
-                                                            <span
-                                                              style={{
-                                                                color:
-                                                                  "#6c757d",
-                                                                textDecoration:
-                                                                  "line-through",
-                                                                display:
-                                                                  "block",
-                                                              }}
-                                                            >
-                                                              {formatValue(
-                                                                PurchasePlanList?.yearlyValuePlan
-                                                              )}{" "}
-                                                              /Year
-                                                            </span>
-                                                          )}
+                                                              <span
+                                                                style={{
+                                                                  color:
+                                                                    "#6c757d",
+                                                                  textDecoration:
+                                                                    "line-through",
+                                                                  display:
+                                                                    "block",
+                                                                }}
+                                                              >
+                                                                {formatValue(
+                                                                  PurchasePlanList?.yearlyValuePlan
+                                                                )}{" "}
+                                                                /Year
+                                                              </span>
+                                                            )}
 
                                                           {/* {formatValue(
                                                             PurchasePlanList?.yearlyValuePlan
@@ -616,9 +614,8 @@ const ChoosePlanForPurchase = (props) => {
                                                               ) {
                                                                 return `${formatValue(
                                                                   PurchasePlanList?.yearlyValuePlan
-                                                                )}/${
-                                                                  discount.firstValue
-                                                                } months`;
+                                                                )}/${discount.firstValue
+                                                                  } months`;
                                                               }
 
                                                               if (
@@ -627,17 +624,16 @@ const ChoosePlanForPurchase = (props) => {
                                                               ) {
                                                                 return `${formatValue(
                                                                   PurchasePlanList?.yearlyValuePlan
-                                                                )}/${
-                                                                  discount.firstValue +
+                                                                )}/${discount.firstValue +
                                                                   12
-                                                                } months`;
+                                                                  } months`;
                                                               }
 
                                                               if (
                                                                 discount.offerType ===
-                                                                  3 ||
+                                                                3 ||
                                                                 discount.offerType ===
-                                                                  4
+                                                                4
                                                               ) {
                                                                 return `${formatValue(
                                                                   discount.firstValue
@@ -706,7 +702,7 @@ const ChoosePlanForPurchase = (props) => {
                                                   <div className="pricing-features mt-1 pt-2">
                                                     <div>
                                                       {PurchasePlanList?.apiIntegration ==
-                                                      true ? (
+                                                        true ? (
                                                         <span
                                                           style={{
                                                             color: "green",
@@ -732,7 +728,7 @@ const ChoosePlanForPurchase = (props) => {
                                                     </div>
                                                     <div>
                                                       {PurchasePlanList?.prepareQuote ==
-                                                      true ? (
+                                                        true ? (
                                                         <span
                                                           style={{
                                                             color: "green",
@@ -758,7 +754,7 @@ const ChoosePlanForPurchase = (props) => {
                                                     </div>
                                                     <div>
                                                       {PurchasePlanList?.prepareContract ===
-                                                      true ? (
+                                                        true ? (
                                                         <span
                                                           style={{
                                                             color: "green",
@@ -785,7 +781,7 @@ const ChoosePlanForPurchase = (props) => {
                                                     </div>
                                                     <div>
                                                       {PurchasePlanList?.sendQuote ===
-                                                      true ? (
+                                                        true ? (
                                                         <span
                                                           style={{
                                                             color: "green",
@@ -813,7 +809,7 @@ const ChoosePlanForPurchase = (props) => {
                                                     <div className="d-flex align-items-start">
                                                       <div>
                                                         {PurchasePlanList?.eSignaturePerMonth >
-                                                        0 ? (
+                                                          0 ? (
                                                           <span
                                                             style={{
                                                               color: "green",
@@ -838,20 +834,20 @@ const ChoosePlanForPurchase = (props) => {
                                                         The {EngagementName}
                                                         {PurchasePlanList?.eSignaturePerMonth >
                                                           0 && (
-                                                          <>
-                                                            :{" "}
-                                                            {formatValueWithoutCurrencySymbol(
-                                                              PurchasePlanList?.eSignaturePerMonth
-                                                            )}
-                                                            /Month
-                                                          </>
-                                                        )}
+                                                            <>
+                                                              :{" "}
+                                                              {formatValueWithoutCurrencySymbol(
+                                                                PurchasePlanList?.eSignaturePerMonth
+                                                              )}
+                                                              /Month
+                                                            </>
+                                                          )}
                                                       </span>
                                                     </div>
                                                     <div>
                                                       {PurchasePlanList?.isMailBox ===
                                                         true ||
-                                                      PurchasePlanList?.isMailBox ===
+                                                        PurchasePlanList?.isMailBox ===
                                                         null ? (
                                                         <span
                                                           style={{
@@ -881,17 +877,17 @@ const ChoosePlanForPurchase = (props) => {
                                                       <div
                                                         className="d-flex flex-column"
                                                         style={{
-                                                          minHeight: "90px",
+                                                          minHeight: "75px",
                                                         }}
                                                       >
                                                         {(isYearly &&
                                                           PurchasePlanList
                                                             .yearlyOffer
                                                             ?.length > 0) ||
-                                                        (!isYearly &&
-                                                          PurchasePlanList
-                                                            .monthlyOffer
-                                                            ?.length > 0) ? (
+                                                          (!isYearly &&
+                                                            PurchasePlanList
+                                                              .monthlyOffer
+                                                              ?.length > 0) ? (
                                                           <div className="w-100">
                                                             <label></label>
                                                             <Select
@@ -932,7 +928,7 @@ const ChoosePlanForPurchase = (props) => {
                                                               ]}
                                                               value={
                                                                 selectedOfferID &&
-                                                                selectedOfferID.index ===
+                                                                  selectedOfferID.index ===
                                                                   index
                                                                   ? selectedOfferID
                                                                   : null
@@ -949,7 +945,12 @@ const ChoosePlanForPurchase = (props) => {
                                                     <p>{errorMessage}</p>
                                                   )}
 
-                                                  <div className=" d-flex justify-content-center mb-1">
+                                                  <div
+                                                    className=" d-flex justify-content-center"
+                                                    style={{
+                                                      marginBottom: "0.5rem",
+                                                    }}
+                                                  >
                                                     <button
                                                       onClick={() =>
                                                         handleButtonClick(

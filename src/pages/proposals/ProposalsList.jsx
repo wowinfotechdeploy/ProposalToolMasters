@@ -2536,7 +2536,7 @@ const Proposals = () => {
                   )}
                   {activeTab === "Web Proposal" && (
                     <div>
-                      {oldProposalListCount > Number(pageSize) && (
+                      {SingleProposalListCount > Number(pageSize) && (
                         <PaginationComponent
                           totalCount={SingleProposalListCount}
                           totalPages={

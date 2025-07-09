@@ -28,7 +28,7 @@ import { GetProposalList } from "../../redux/Services/Proposal/ProposalApi";
 import { GetEngagementList } from "../../redux/Services/EngagementLetter/EngagementLetterApi";
 import { GetNOBTypeLookupList } from "../../redux/Services/Master/NOBTypeLookupListApi";
 import * as XLSX from "xlsx";
-
+import Skeleton from "@mui/material/Skeleton";
 const Dashboard = () => {
   const getFilterHeading = (selectedOption) => {
     switch (selectedOption.value) {
@@ -614,11 +614,11 @@ const Dashboard = () => {
       const StartDate = startDate
         ? startDate.format("YYYY-MM-DD")
         : // : defaultStartDate.format("YYYY-MM-DD");
-          null;
+        null;
       const EndDate = endDate
         ? endDate.format("YYYY-MM-DD")
         : // : defaultEndDate.format("YYYY-MM-DD");
-          null;
+        null;
 
       const response = await DashboardCountList({
         organisationKeyID: common?.organisationKeyID,
@@ -1309,256 +1309,300 @@ const Dashboard = () => {
 
                         {(userAccessData.Admin_Proposal_CanView ||
                           common.organisationKeyID == null) && (
-                          <>
-                            <div
-                              className={`col-xl-4 col-lg-4s col-md-4 dashboard-box col-sm-12  ${
-                                common.organisationKeyID !== null
+                            <>
+                              <div
+                                className={`col-xl-4 col-lg-4s col-md-4 dashboard-box col-sm-12  ${common.organisationKeyID !== null
                                   ? "cursor-pointer"
                                   : ""
-                              } `}
-                            >
-                              <div className="dashboard-new-design">
-                                <div
-                                  class="card"
-                                  onClick={() =>
-                                    handleAddData("Draft", statusID.Draft)
-                                  }
-                                >
-                                  <div
-                                    class="card-header p-3 pt-2"
-                                    style={cardStyle}
-                                  >
-                                    <div className="row">
-                                      <div className="col-lg-3">
-                                        <img
-                                          src={DraftProposalPng}
-                                          className="CardImage"
-                                          alt
-                                        />
-                                      </div>
-                                      <div className="col-lg-9">
-                                        <div class="text-end pt-1">
-                                          <h5 class="text-white mb-0">
-                                            {calculateGBPAmount(
-                                              dashboardCount.quotationDraft_AmountOneOff,
-                                              dashboardCount.quotationDraft_AmountRecc
-                                            )}
-                                          </h5>
-                                        </div>
-                                      </div>
-                                    </div>
-                                    <div class="text-end pt-1"></div>
-                                  </div>
-                                  <hr class="dark horizontal my-0" />
-                                  <div
-                                    class="card-footer p-3 d-flex justify-content-between align-items-center"
-                                    style={cardStyle}
-                                  >
-                                    <p class="mb-0 font-weight-bolder">
-                                      <span class="text-success  text-white text-sm font-weight-bolder" />
-                                      Draft {proposalName}
-                                    </p>
-                                    <div class="text-end pt-1">
-                                      <h5 class="text-white mb-0">
-                                        {dashboardCount?.quotationDraft}
-                                      </h5>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-
-                            <div
-                              className={`col-xl-4 col-lg-4 col-md-4 dashboard-box col-sm-12  ${
-                                common.organisationKeyID !== null
-                                  ? "cursor-pointer"
-                                  : ""
-                              } `}
-                            >
-                              <div className="dashboard-new-design">
-                                <div
-                                  class="card"
-                                  onClick={() =>
-                                    handleAddData("Sent", statusID.Sent)
-                                  }
-                                >
-                                  <div
-                                    class="card-header p-3 pt-2"
-                                    style={cardStyle}
-                                  >
-                                    <div className="row">
-                                      <div className="col-lg-3">
-                                        <img
-                                          src={SentProposalPng}
-                                          className="CardImage"
-                                          alt
-                                        />
-                                      </div>
-                                      <div className="col-lg-9">
-                                        <div class="text-end pt-1">
-                                          <h5 class=" text-white  mb-0">
-                                            {calculateGBPAmount(
-                                              dashboardCount.quotationSent_AmountOneOff,
-                                              dashboardCount.quotationSent_AmountRecc
-                                            )}
-                                          </h5>
-                                        </div>
-                                      </div>
-                                    </div>
-                                    <div class="text-end pt-1">
-                                      {/* <p class="text-sm mb-0 text-capitalize">Sent</p> */}
-                                      {/* <h4 class=" text-white  mb-0">44</h4> */}
-                                    </div>
-                                  </div>
-                                  <hr class="dark horizontal my-0" />
-                                  <div
-                                    class="card-footer p-3 d-flex justify-content-between align-items-center"
-                                    style={cardStyle}
-                                  >
-                                    <p class="mb-0 font-weight-bolder">
-                                      <span class="text-success text-sm font-weight-bolder" />
-                                      {proposalName} Sent
-                                    </p>
-                                    <div class="text-end pt-1">
-                                      <h5 class=" text-white  mb-0">
-                                        {dashboardCount?.quotationSent}{" "}
-                                      </h5>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* Proposal Accepted */}
-
-                            <div
-                              className={`col-xl-4 col-lg-4 col-md-4 dashboard-box col-sm-12  ${
-                                common.organisationKeyID !== null
-                                  ? "cursor-pointer"
-                                  : ""
-                              } `}
-                            >
-                              <div className="dashboard-new-design">
-                                <div
-                                  class="card"
-                                  onClick={() =>
-                                    handleAddData("Accepted", statusID.Accepted)
-                                  }
-                                >
-                                  <div
-                                    class="card-header p-3 pt-2"
-                                    style={cardStyle}
-                                  >
-                                    <div className="row">
-                                      <div className="col-lg-3">
-                                        <img
-                                          src={DraftEngagementLatterPng}
-                                          className="CardImage"
-                                          alt
-                                        />
-                                      </div>
-                                      <div className="col-lg-9">
-                                        <div class="text-end pt-1">
-                                          <h5 class="mb-0 text-white ">
-                                            {calculateGBPAmount(
-                                              dashboardCount.quotationAccepted_AmountOneOff,
-                                              dashboardCount.quotationAccepted_AmountRecc
-                                            )}
-                                          </h5>
-                                        </div>
-                                      </div>
-                                    </div>
-                                    <div class="text-end pt-1"></div>
-                                  </div>
-                                  <hr class="dark horizontal my-0" />
-                                  <div
-                                    class="card-footer p-3 d-flex justify-content-between align-items-center"
-                                    style={cardStyle}
-                                  >
-                                    <p class="mb-0 font-weight-bolder">
-                                      <span class="text-success text-sm font-weight-bolder" />
-                                      {proposalName} Accepted
-                                    </p>
-                                    <div class="text-end pt-1">
-                                      <h5 class="mb-0 text-white ">
-                                        {dashboardCount?.quotationAccepted}{" "}
-                                      </h5>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* proposal start */}
-                            {(common.enableEL == 0 ||
-                              common.enableEL == null) && (
-                              <>
-                                <div
-                                  className={`col-xl-4 col-lg-4 col-md-4 dashboard-box col-sm-12  ${
-                                    common.organisationKeyID !== null
-                                      ? "cursor-pointer"
-                                      : ""
                                   } `}
-                                >
-                                  <div className="dashboard-new-design">
+                              >
+                                <div className="dashboard-new-design">
+                                  <div
+                                    class="card"
+                                    onClick={() =>
+                                      handleAddData("Draft", statusID.Draft)
+                                    }
+                                  >
                                     <div
-                                      class="card"
-                                      onClick={() =>
-                                        handleAddData(
-                                          "Sent",
-                                          statusID.Awaiting_Signature
-                                        )
-                                      }
+                                      class="card-header p-3 pt-2"
+                                      style={cardStyle}
                                     >
-                                      <div
-                                        class="card-header p-3 pt-2"
-                                        style={cardStyle}
-                                      >
-                                        <div className="row">
-                                          <div className="col-lg-3">
-                                            <img
-                                              src={DraftEngagementLatterPng}
-                                              className="CardImage"
-                                              alt
-                                            />
+                                      <div className="row">
+                                        <div className="col-lg-3">
+                                          <img
+                                            src={DraftProposalPng}
+                                            className="CardImage"
+                                            alt
+                                          />
+                                        </div>
+                                        <div className="col-lg-9">
+                                          <div class="text-end pt-1">
+                                            <h5 class="text-white mb-0">
+                                              {typeof dashboardCount.quotationDraft_AmountOneOff === 'number' &&
+                                                typeof dashboardCount.quotationDraft_AmountRecc === 'number' ? (
+                                                calculateGBPAmount(
+                                                  dashboardCount.quotationDraft_AmountOneOff,
+                                                  dashboardCount.quotationDraft_AmountRecc
+                                                )
+                                              ) : (
+                                                <Skeleton
+                                                  width={180}
+                                                  height={40}
+                                                  animation="wave"
+                                                  sx={{ bgcolor: "#fffbfb8a" }} // use sx for background color
+                                                />
+                                              )}
+
+
+                                            </h5>
                                           </div>
-                                          <div className="col-lg-9">
+                                        </div>
+                                      </div>
+                                      <div class="text-end pt-1"></div>
+                                    </div>
+                                    <hr class="dark horizontal my-0" />
+                                    <div
+                                      class="card-footer p-3 d-flex justify-content-between align-items-center"
+                                      style={cardStyle}
+                                    >
+                                      <p class="mb-0 font-weight-bolder">
+                                        <span class="text-success  text-white text-sm font-weight-bolder" />
+                                        Draft {proposalName}
+                                      </p>
+                                      <div class="text-end pt-1">
+                                        <h5 class="text-white mb-0">
+                                          {dashboardCount?.quotationDraft}
+                                        </h5>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div
+                                className={`col-xl-4 col-lg-4 col-md-4 dashboard-box col-sm-12  ${common.organisationKeyID !== null
+                                  ? "cursor-pointer"
+                                  : ""
+                                  } `}
+                              >
+                                <div className="dashboard-new-design">
+                                  <div
+                                    class="card"
+                                    onClick={() =>
+                                      handleAddData("Sent", statusID.Sent)
+                                    }
+                                  >
+                                    <div
+                                      class="card-header p-3 pt-2"
+                                      style={cardStyle}
+                                    >
+                                      <div className="row">
+                                        <div className="col-lg-3">
+                                          <img
+                                            src={SentProposalPng}
+                                            className="CardImage"
+                                            alt
+                                          />
+                                        </div>
+                                        <div className="col-lg-9">
+                                          <div class="text-end pt-1">
+                                            <h5 class=" text-white  mb-0">
+
+                                              {typeof dashboardCount.quotationSent_AmountRecc === 'number' &&
+                                                typeof dashboardCount.quotationSent_AmountOneOff === 'number' ? (
+                                                calculateGBPAmount(
+                                                  dashboardCount.quotationSent_AmountOneOff,
+                                                  dashboardCount.quotationSent_AmountRecc
+                                                )
+                                              ) : (
+                                                <Skeleton
+                                                  width={180}
+                                                  height={40}
+                                                  animation="wave"
+                                                  sx={{ bgcolor: "#fffbfb8a" }} // use sx for background color
+                                                />
+                                              )}
+                                            </h5>
+                                          </div>
+                                        </div>
+                                      </div>
+                                      <div class="text-end pt-1">
+                                        {/* <p class="text-sm mb-0 text-capitalize">Sent</p> */}
+                                        {/* <h4 class=" text-white  mb-0">44</h4> */}
+                                      </div>
+                                    </div>
+                                    <hr class="dark horizontal my-0" />
+                                    <div
+                                      class="card-footer p-3 d-flex justify-content-between align-items-center"
+                                      style={cardStyle}
+                                    >
+                                      <p class="mb-0 font-weight-bolder">
+                                        <span class="text-success text-sm font-weight-bolder" />
+                                        {proposalName} Sent
+                                      </p>
+                                      <div class="text-end pt-1">
+                                        <h5 class=" text-white  mb-0">
+                                          {dashboardCount?.quotationSent}{" "}
+                                        </h5>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Proposal Accepted */}
+
+                              <div
+                                className={`col-xl-4 col-lg-4 col-md-4 dashboard-box col-sm-12  ${common.organisationKeyID !== null
+                                  ? "cursor-pointer"
+                                  : ""
+                                  } `}
+                              >
+                                <div className="dashboard-new-design">
+                                  <div
+                                    class="card"
+                                    onClick={() =>
+                                      handleAddData("Accepted", statusID.Accepted)
+                                    }
+                                  >
+                                    <div
+                                      class="card-header p-3 pt-2"
+                                      style={cardStyle}
+                                    >
+                                      <div className="row">
+                                        <div className="col-lg-3">
+                                          <img
+                                            src={DraftEngagementLatterPng}
+                                            className="CardImage"
+                                            alt
+                                          />
+                                        </div>
+                                        <div className="col-lg-9">
+                                          <div class="text-end pt-1">
+                                            <h5 class="mb-0 text-white ">
+
+                                              {typeof dashboardCount.quotationAccepted_AmountOneOff === 'number' &&
+                                                typeof dashboardCount.quotationAccepted_AmountRecc === 'number' ? (
+                                                calculateGBPAmount(
+                                                  dashboardCount.quotationAccepted_AmountOneOff,
+                                                  dashboardCount.quotationAccepted_AmountRecc
+                                                )
+                                              ) : (
+                                                <Skeleton
+                                                  width={180}
+                                                  height={40}
+                                                  animation="wave"
+                                                  sx={{ bgcolor: "#fffbfb8a" }} // use sx for background color
+                                                />
+                                              )}
+                                            </h5>
+                                          </div>
+                                        </div>
+                                      </div>
+                                      <div class="text-end pt-1"></div>
+                                    </div>
+                                    <hr class="dark horizontal my-0" />
+                                    <div
+                                      class="card-footer p-3 d-flex justify-content-between align-items-center"
+                                      style={cardStyle}
+                                    >
+                                      <p class="mb-0 font-weight-bolder">
+                                        <span class="text-success text-sm font-weight-bolder" />
+                                        {proposalName} Accepted
+                                      </p>
+                                      <div class="text-end pt-1">
+                                        <h5 class="mb-0 text-white ">
+                                          {dashboardCount?.quotationAccepted}{" "}
+                                        </h5>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* proposal start */}
+                              {(common.enableEL == 0 ||
+                                common.enableEL == null) && (
+                                  <>
+                                    <div
+                                      className={`col-xl-4 col-lg-4 col-md-4 dashboard-box col-sm-12  ${common.organisationKeyID !== null
+                                        ? "cursor-pointer"
+                                        : ""
+                                        } `}
+                                    >
+                                      <div className="dashboard-new-design">
+                                        <div
+                                          class="card"
+                                          onClick={() =>
+                                            handleAddData(
+                                              "Sent",
+                                              statusID.Awaiting_Signature
+                                            )
+                                          }
+                                        >
+                                          <div
+                                            class="card-header p-3 pt-2"
+                                            style={cardStyle}
+                                          >
+                                            <div className="row">
+                                              <div className="col-lg-3">
+                                                <img
+                                                  src={DraftEngagementLatterPng}
+                                                  className="CardImage"
+                                                  alt
+                                                />
+                                              </div>
+                                              <div className="col-lg-9">
+                                                <div class="text-end pt-1">
+                                                  <h5 class="mb-0 text-white ">
+                                                    {/* {calculateGBPAmount(
+                                                      dashboardCount.quotationAwaitingSignatureEnd_AmountOneOff,
+                                                      dashboardCount.quotationAwaitingSignatureEnd_AmountRecc
+                                                  )} */}
+                                                    {typeof dashboardCount.quotationAwaitingSignatureEnd_AmountOneOff === 'number' &&
+                                                      typeof dashboardCount.quotationAwaitingSignatureEnd_AmountRecc === 'number' ? (
+                                                      calculateGBPAmount(
+                                                        dashboardCount.quotationAwaitingSignatureEnd_AmountOneOff,
+                                                        dashboardCount.quotationAwaitingSignatureEnd_AmountRecc
+                                                      )
+                                                    ) : (
+                                                      <Skeleton
+                                                        width={180}
+                                                        height={40}
+                                                        animation="wave"
+                                                        sx={{ bgcolor: "#fffbfb8a" }} // use sx for background color
+                                                      />
+                                                    )}
+                                                  </h5>
+                                                </div>
+                                              </div>
+                                            </div>
+                                            <div class="text-end pt-1"></div>
+                                          </div>
+                                          <hr class="dark horizontal my-0" />
+                                          <div
+                                            class="card-footer p-3 d-flex justify-content-between align-items-center"
+                                            style={cardStyle}
+                                          >
+                                            <p class="mb-0 font-weight-bolder">
+                                              <span class="text-success text-sm font-weight-bolder" />
+                                              Awaiting Response
+                                            </p>
                                             <div class="text-end pt-1">
                                               <h5 class="mb-0 text-white ">
-                                                {calculateGBPAmount(
-                                                  dashboardCount.quotationAwaitingSignatureEnd_AmountOneOff,
-                                                  dashboardCount.quotationAwaitingSignatureEnd_AmountRecc
-                                                )}
+                                                {dashboardCount?.quotationAccepted}{" "}
                                               </h5>
                                             </div>
                                           </div>
                                         </div>
-                                        <div class="text-end pt-1"></div>
-                                      </div>
-                                      <hr class="dark horizontal my-0" />
-                                      <div
-                                        class="card-footer p-3 d-flex justify-content-between align-items-center"
-                                        style={cardStyle}
-                                      >
-                                        <p class="mb-0 font-weight-bolder">
-                                          <span class="text-success text-sm font-weight-bolder" />
-                                          Awaiting Response
-                                        </p>
-                                        <div class="text-end pt-1">
-                                          <h5 class="mb-0 text-white ">
-                                            {dashboardCount?.quotationAccepted}{" "}
-                                          </h5>
-                                        </div>
                                       </div>
                                     </div>
-                                  </div>
-                                </div>
-                              </>
-                            )}
-                            {(common.enableEL == 0 ||
-                              common.enableEL == null) && (
-                              <>
-                                {/* <div
+                                  </>
+                                )}
+                              {(common.enableEL == 0 ||
+                                common.enableEL == null) && (
+                                  <>
+                                    {/* <div
                                   className={`col-xl-4 col-lg-4 col-md-4 dashboard-box col-sm-12  ${
                                     common.organisationKeyID !== null
                                       ? "cursor-pointer"
@@ -1613,70 +1657,83 @@ const Dashboard = () => {
                                   </div>
                                 </div> */}
 
-                                <div
-                                  className={`col-xl-4 col-lg-4 col-md-4 dashboard-box col-sm-12  ${
-                                    common.organisationKeyID !== null
-                                      ? "cursor-pointer"
-                                      : ""
-                                  } `}
-                                >
-                                  <div className="dashboard-new-design">
                                     <div
-                                      class="card"
-                                      onClick={() =>
-                                        handleAddData(
-                                          "Decline",
-                                          statusID.Declined
-                                        )
-                                      }
+                                      className={`col-xl-4 col-lg-4 col-md-4 dashboard-box col-sm-12  ${common.organisationKeyID !== null
+                                        ? "cursor-pointer"
+                                        : ""
+                                        } `}
                                     >
-                                      <div
-                                        class="card-header p-3 pt-2"
-                                        style={cardStyle}
-                                      >
-                                        <div className="row">
-                                          <div className="col-lg-3">
-                                            <img
-                                              src={EngagementLatterSendSvg}
-                                              className="CardImage"
-                                              alt
-                                            />
+                                      <div className="dashboard-new-design">
+                                        <div
+                                          class="card"
+                                          onClick={() =>
+                                            handleAddData(
+                                              "Decline",
+                                              statusID.Declined
+                                            )
+                                          }
+                                        >
+                                          <div
+                                            class="card-header p-3 pt-2"
+                                            style={cardStyle}
+                                          >
+                                            <div className="row">
+                                              <div className="col-lg-3">
+                                                <img
+                                                  src={EngagementLatterSendSvg}
+                                                  className="CardImage"
+                                                  alt
+                                                />
+                                              </div>
+                                              <div className="col-lg-9">
+                                                <div class="text-end pt-1">
+                                                  <h5 class="mb-0 text-white ">
+                                                    {/* {calculateGBPAmount(
+                                                      dashboardCount.quotationDeclined_AmountOneOff,
+                                                      dashboardCount.quotationDeclined_AmountRecc
+                                                    )} */}
+                                                    {typeof dashboardCount.quotationDeclined_AmountOneOff === 'number' &&
+                                                      typeof dashboardCount.quotationDeclined_AmountRecc === 'number' ? (
+                                                      calculateGBPAmount(
+                                                        dashboardCount.quotationDeclined_AmountOneOff,
+                                                        dashboardCount.quotationDeclined_AmountRecc
+                                                      )
+                                                    ) : (
+                                                      <Skeleton
+                                                        width={180}
+                                                        height={40}
+                                                        animation="wave"
+                                                        sx={{ bgcolor: "#fffbfb8a" }} // use sx for background color
+                                                      />
+                                                    )}
+                                                  </h5>
+                                                </div>
+                                              </div>
+                                            </div>
+                                            <div class="text-end pt-1"></div>
                                           </div>
-                                          <div className="col-lg-9">
+                                          <hr class="dark horizontal my-0" />
+                                          <div
+                                            class="card-footer p-3 d-flex justify-content-between align-items-center"
+                                            style={cardStyle}
+                                          >
+                                            <p class="mb-0 font-weight-bolder">
+                                              <span class="text-success text-sm font-weight-bolder" />
+                                              {proposalName} Declined
+                                            </p>
                                             <div class="text-end pt-1">
                                               <h5 class="mb-0 text-white ">
-                                                {calculateGBPAmount(
-                                                  dashboardCount.quotationDeclined_AmountOneOff,
-                                                  dashboardCount.quotationDeclined_AmountRecc
-                                                )}
+                                                {dashboardCount?.quotationDeclined}
                                               </h5>
                                             </div>
                                           </div>
                                         </div>
-                                        <div class="text-end pt-1"></div>
-                                      </div>
-                                      <hr class="dark horizontal my-0" />
-                                      <div
-                                        class="card-footer p-3 d-flex justify-content-between align-items-center"
-                                        style={cardStyle}
-                                      >
-                                        <p class="mb-0 font-weight-bolder">
-                                          <span class="text-success text-sm font-weight-bolder" />
-                                          {proposalName} Declined
-                                        </p>
-                                        <div class="text-end pt-1">
-                                          <h5 class="mb-0 text-white ">
-                                            {dashboardCount?.quotationDeclined}
-                                          </h5>
-                                        </div>
                                       </div>
                                     </div>
-                                  </div>
-                                </div>
-                              </>
-                            )}
-                          </>
-                        )}
+                                  </>
+                                )}
+                            </>
+                          )}
                       </div>
                       {/* proposal end  */}
 
@@ -1687,11 +1744,10 @@ const Dashboard = () => {
                             common.organisationKeyID == null) && (
                             <>
                               <div
-                                className={`col-xl-4 col-lg-4 col-md-4 dashboard-box col-sm-12  ${
-                                  common.organisationKeyID !== null
-                                    ? "cursor-pointer"
-                                    : ""
-                                } `}
+                                className={`col-xl-4 col-lg-4 col-md-4 dashboard-box col-sm-12  ${common.organisationKeyID !== null
+                                  ? "cursor-pointer"
+                                  : ""
+                                  } `}
                               >
                                 <div className="dashboard-new-design">
                                   <div
@@ -1718,9 +1774,23 @@ const Dashboard = () => {
                                         <div className="col-lg-9">
                                           <div class="text-end pt-1">
                                             <h5 class="mb-0 text-white ">
-                                              {calculateGBPAmount(
+                                              {/* {calculateGBPAmount(
                                                 dashboardCount.contractDraft_AmountOneOff,
                                                 dashboardCount.contractDraft_AmountRecc
+                                              )} */}
+                                              {typeof dashboardCount.contractDraft_AmountOneOff === 'number' &&
+                                                typeof dashboardCount.contractDraft_AmountRecc === 'number' ? (
+                                                calculateGBPAmount(
+                                                  dashboardCount.contractDraft_AmountOneOff,
+                                                  dashboardCount.contractDraft_AmountRecc
+                                                )
+                                              ) : (
+                                                <Skeleton
+                                                  width={180}
+                                                  height={40}
+                                                  animation="wave"
+                                                  sx={{ bgcolor: "#fffbfb8a" }} // use sx for background color
+                                                />
                                               )}
                                             </h5>
                                           </div>
@@ -1804,11 +1874,10 @@ const Dashboard = () => {
                               </div> */}
 
                               <div
-                                className={`col-xl-4 col-lg-4 col-md-4 dashboard-box col-sm-12  ${
-                                  common.organisationKeyID !== null
-                                    ? "cursor-pointer"
-                                    : ""
-                                } `}
+                                className={`col-xl-4 col-lg-4 col-md-4 dashboard-box col-sm-12  ${common.organisationKeyID !== null
+                                  ? "cursor-pointer"
+                                  : ""
+                                  } `}
                               >
                                 <div className="dashboard-new-design">
                                   <div
@@ -1835,9 +1904,23 @@ const Dashboard = () => {
                                         <div className="col-lg-9">
                                           <div class="text-end pt-1">
                                             <h5 class="mb-0 text-white ">
-                                              {calculateGBPAmount(
+                                              {/* {calculateGBPAmount(
                                                 dashboardCount.contractSent_AmountOneOff,
                                                 dashboardCount.contractSent_AmountRecc
+                                              )} */}
+                                              {typeof dashboardCount.contractSent_AmountOneOff === 'number' &&
+                                                typeof dashboardCount.contractSent_AmountRecc === 'number' ? (
+                                                calculateGBPAmount(
+                                                  dashboardCount.contractSent_AmountOneOff,
+                                                  dashboardCount.contractSent_AmountRecc
+                                                )
+                                              ) : (
+                                                <Skeleton
+                                                  width={180}
+                                                  height={40}
+                                                  animation="wave"
+                                                  sx={{ bgcolor: "#fffbfb8a" }} // use sx for background color
+                                                />
                                               )}
                                             </h5>
                                           </div>
@@ -1924,11 +2007,10 @@ const Dashboard = () => {
                                   </div> */}
 
                               <div
-                                className={`col-xl-4 col-lg-4 col-md-4 dashboard-box col-sm-12  ${
-                                  common.organisationKeyID !== null
-                                    ? "cursor-pointer"
-                                    : ""
-                                } `}
+                                className={`col-xl-4 col-lg-4 col-md-4 dashboard-box col-sm-12  ${common.organisationKeyID !== null
+                                  ? "cursor-pointer"
+                                  : ""
+                                  } `}
                               >
                                 <div className="dashboard-new-design">
                                   <div
@@ -1955,9 +2037,23 @@ const Dashboard = () => {
                                         <div className="col-lg-9">
                                           <div class="text-end pt-1">
                                             <h5 class="mb-0 text-white ">
-                                              {calculateGBPAmount(
+                                              {/* {calculateGBPAmount(
                                                 dashboardCount.contractSigned_AmountOneOff,
                                                 dashboardCount.contractSigned_AmountRecc
+                                              )} */}
+                                              {typeof dashboardCount.contractSigned_AmountOneOff === 'number' &&
+                                                typeof dashboardCount.contractSigned_AmountRecc === 'number' ? (
+                                                calculateGBPAmount(
+                                                  dashboardCount.contractSigned_AmountOneOff,
+                                                  dashboardCount.contractSigned_AmountRecc
+                                                )
+                                              ) : (
+                                                <Skeleton
+                                                  width={180}
+                                                  height={40}
+                                                  animation="wave"
+                                                  sx={{ bgcolor: "#fffbfb8a" }} // use sx for background color
+                                                />
                                               )}
                                             </h5>
                                           </div>
@@ -1987,11 +2083,10 @@ const Dashboard = () => {
                               </div>
 
                               <div
-                                className={`col-xl-4 col-lg-4 col-md-4 dashboard-box col-sm-12  ${
-                                  common.organisationKeyID !== null
-                                    ? "cursor-pointer"
-                                    : ""
-                                } `}
+                                className={`col-xl-4 col-lg-4 col-md-4 dashboard-box col-sm-12  ${common.organisationKeyID !== null
+                                  ? "cursor-pointer"
+                                  : ""
+                                  } `}
                               >
                                 <div className="dashboard-new-design">
                                   <div
@@ -2018,9 +2113,23 @@ const Dashboard = () => {
                                         <div className="col-lg-9">
                                           <div class="text-end pt-1">
                                             <h4 class="mb-0 text-white ">
-                                              {calculateGBPAmount(
+                                              {/* {calculateGBPAmount(
                                                 dashboardCount.contractDeclined_AmountOneOff,
                                                 dashboardCount.contractDeclined_AmountRecc
+                                              )} */}
+                                              {typeof dashboardCount.contractDeclined_AmountOneOff === 'number' &&
+                                                typeof dashboardCount.contractDeclined_AmountRecc === 'number' ? (
+                                                calculateGBPAmount(
+                                                  dashboardCount.contractDeclined_AmountOneOff,
+                                                  dashboardCount.contractDeclined_AmountRecc
+                                                )
+                                              ) : (
+                                                <Skeleton
+                                                  width={180}
+                                                  height={40}
+                                                  animation="wave"
+                                                  sx={{ bgcolor: "#fffbfb8a" }} // use sx for background color
+                                                />
                                               )}
                                             </h4>
                                           </div>
@@ -2055,86 +2164,86 @@ const Dashboard = () => {
                     </div>
                     {(userAccessData.Admin_Activity_Log_CanView ||
                       common.organisationKeyID == null) && (
-                      <>
-                        <div class="col-xl-4 col-lg-4 pb-2">
-                          <div class="card activity-section-cls">
-                            <div class="card-body dashboard-body">
-                              <h5 className="activity-cls">Activity</h5>
-                              <ol class="activity-feed">
-                                {activityLogsList.length == 0 ? (
-                                  <>
-                                    <h6 className="activity-cls">
-                                      No Activity Logs Found Today..
-                                    </h6>
-                                  </>
-                                ) : (
-                                  <>
-                                    {activityLogsList?.map(
-                                      (ActivityLogList) => {
-                                        return (
-                                          <>
-                                            <li class="feed-item">
-                                              <div class="feed-item-list">
-                                                <span
-                                                  style={{ color: "black" }}
-                                                >
-                                                  {ActivityLogList.logDateTime}
-                                                </span>
-                                                <br />
+                        <>
+                          <div class="col-xl-4 col-lg-4 pb-2">
+                            <div class="card activity-section-cls">
+                              <div class="card-body dashboard-body">
+                                <h5 className="activity-cls">Activity</h5>
+                                <ol class="activity-feed">
+                                  {activityLogsList.length == 0 ? (
+                                    <>
+                                      <h6 className="activity-cls">
+                                        No Activity Logs Found Today..
+                                      </h6>
+                                    </>
+                                  ) : (
+                                    <>
+                                      {activityLogsList?.map(
+                                        (ActivityLogList) => {
+                                          return (
+                                            <>
+                                              <li class="feed-item">
+                                                <div class="feed-item-list">
+                                                  <span
+                                                    style={{ color: "black" }}
+                                                  >
+                                                    {ActivityLogList.logDateTime}
+                                                  </span>
+                                                  <br />
 
-                                                <span
-                                                  class="activity-text"
-                                                  style={{
-                                                    color: "blue",
-                                                    cursor: "pointer",
-                                                  }}
-                                                  onClick={() => {
-                                                    navigate(
-                                                      `/${ActivityLogList?.moduleURL}`
-                                                    );
-                                                  }}
-                                                >
-                                                  {ActivityLogList.logMessage
-                                                    ?.replace(
-                                                      /quotation/g,
-                                                      proposalName
-                                                    )
-                                                    ?.replace(
-                                                      /client/g,
-                                                      prospectName
-                                                    )
-                                                    ?.replace(
-                                                      /contract/g,
-                                                      EngagementName
-                                                    )}
-                                                </span>
-                                              </div>
-                                            </li>
-                                          </>
-                                        );
-                                      }
-                                    )}
-                                  </>
-                                )}
-                              </ol>
-                              <>
-                                {" "}
-                                <div className="col-lg-12 col-md-12 col-sm-12 text-center">
-                                  <div className="add-new-btn">
-                                    <button
-                                      className="btn btn-success create-item-btn add-new"
-                                      onClick={handleActivityLog}
-                                    >
-                                      <span>View All</span>
-                                    </button>
+                                                  <span
+                                                    class="activity-text"
+                                                    style={{
+                                                      color: "blue",
+                                                      cursor: "pointer",
+                                                    }}
+                                                    onClick={() => {
+                                                      navigate(
+                                                        `/${ActivityLogList?.moduleURL}`
+                                                      );
+                                                    }}
+                                                  >
+                                                    {ActivityLogList.logMessage
+                                                      ?.replace(
+                                                        /quotation/g,
+                                                        proposalName
+                                                      )
+                                                      ?.replace(
+                                                        /client/g,
+                                                        prospectName
+                                                      )
+                                                      ?.replace(
+                                                        /contract/g,
+                                                        EngagementName
+                                                      )}
+                                                  </span>
+                                                </div>
+                                              </li>
+                                            </>
+                                          );
+                                        }
+                                      )}
+                                    </>
+                                  )}
+                                </ol>
+                                <>
+                                  {" "}
+                                  <div className="col-lg-12 col-md-12 col-sm-12 text-center">
+                                    <div className="add-new-btn">
+                                      <button
+                                        className="btn btn-success create-item-btn add-new"
+                                        onClick={handleActivityLog}
+                                      >
+                                        <span>View All</span>
+                                      </button>
+                                    </div>
                                   </div>
-                                </div>
-                              </>
+                                </>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </>
-                    )}
+                        </>
+                      )}
                   </div>
                 </div>
               </div>

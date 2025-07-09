@@ -89,6 +89,11 @@ const View_Engagement_Latter = () => {
     statusID: null,
     manuallySignedContractDocUrl: null,
     clientMasterBusinessTypeID: null,
+    draftOn: null,
+    sentOn: null,
+    signedOn: null,
+    VoidOn: null,
+    isSigned: null,
   });
   const [selectedRecurringServiceList, setSelectedRecurringServiceList] =
     useState([]);
@@ -150,10 +155,10 @@ const View_Engagement_Latter = () => {
     navigate("/engagement-letters");
   };
 
-  const draftOn = location.state.draftOn;
-  const sentOn = location.state.sentOn;
-  const signedOn = location.state.SignedOn;
-  const VoidOn = location.state.voidOn;
+  // const draftOn = location.state.draftOn;
+  // const sentOn = location.state.sentOn;
+  // const signedOn = location.state.SignedOn;
+  // const VoidOn = location.state.voidOn;
   const isSigned = location.state.isSigned;
 
   useEffect(() => {
@@ -170,6 +175,8 @@ const View_Engagement_Latter = () => {
     if (!id) {
       return;
     }
+
+    debugger;
 
     try {
       const data = await GetContractDetailsModel(id);
@@ -222,6 +229,10 @@ const View_Engagement_Latter = () => {
             contractKeyID: id,
             contractName: ModelData.contractName,
             sourceName: ModelData.sourceName,
+            draftOn: ModelData.createdOn,
+            sentOn: ModelData.sentOn,
+            signedOn: ModelData.signedOn,
+            VoidOn: ModelData.lastUpdatedOn,
             quoteKeyID: ModelData.quoteKeyID,
             clientName: ModelData.clientName,
             templateName: ModelData.templateName,
@@ -492,6 +503,39 @@ const View_Engagement_Latter = () => {
     });
   };
 
+  const GetOnlyDate = (value) => {
+    if (!value) return "";
+
+    // Case 1: Format like "May 28 2025  6:03PM" or "May  9 2025  5:55PM"
+    if (/[A-Za-z]{3}\s+\d{1,2}\s+\d{4}/.test(value)) {
+      const [monthStr, day, year] = value.trim().split(/\s+/);
+      const monthMap = {
+        Jan: "01",
+        Feb: "02",
+        Mar: "03",
+        Apr: "04",
+        May: "05",
+        Jun: "06",
+        Jul: "07",
+        Aug: "08",
+        Sep: "09",
+        Oct: "10",
+        Nov: "11",
+        Dec: "12",
+      };
+      const month = monthMap[monthStr];
+      const formattedDay = day.padStart(2, "0");
+      return `${formattedDay}/${month}/${year}`;
+    }
+
+    // Case 2: Format like "6/11/2025 10:21:35 AM"
+    const [datePart] = value.split(" ");
+    const [month, day, year] = datePart.split("/"); // US format mm/dd/yyyy
+    const formattedDay = day.padStart(2, "0");
+    const formattedMonth = month.padStart(2, "0");
+    return `${formattedDay}/${formattedMonth}/${year}`;
+  };
+
   const formatDateToDDMMYYYY = (dateString) => {
     if (!dateString) return "";
     const date = new Date(dateString);
@@ -684,29 +728,37 @@ const View_Engagement_Latter = () => {
                                       {EngagementObj.templateName}
                                     </td>
                                   </tr>
-                                  {draftOn && (
+                                  {EngagementObj.draftOn && (
                                     <tr>
                                       <td>Drafted On</td>
-                                      <td class="text-end">{draftOn}</td>
+                                      <td class="text-end">
+                                        {GetOnlyDate(EngagementObj.draftOn)}
+                                      </td>
                                     </tr>
                                   )}
-                                  {sentOn && (
+                                  {EngagementObj.sentOn && (
                                     <tr>
                                       <td>Sent On</td>
-                                      <td class="text-end">{sentOn}</td>
+                                      <td class="text-end">
+                                        {GetOnlyDate(EngagementObj.sentOn)}
+                                      </td>
                                     </tr>
                                   )}
-                                  {signedOn && (
+                                  {EngagementObj.signedOn && (
                                     <tr>
                                       <td>Signed On</td>
-                                      <td class="text-end">{signedOn}</td>
+                                      <td class="text-end">
+                                        {GetOnlyDate(EngagementObj.signedOn)}
+                                      </td>
                                     </tr>
                                   )}
 
-                                  {VoidOn && !isSigned && (
+                                  {EngagementObj.VoidOn && !isSigned && (
                                     <tr>
                                       <td>Void On</td>
-                                      <td class="text-end">{VoidOn}</td>
+                                      <td class="text-end">
+                                        {GetOnlyDate(EngagementObj.VoidOn)}
+                                      </td>
                                     </tr>
                                   )}
                                   <tr>

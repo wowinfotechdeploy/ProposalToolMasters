@@ -12,6 +12,7 @@ import Utils from "../../Middleware/Utils";
 import "../configure/packages/Package.css";
 import { statusID } from "../../Middleware/enums";
 import { Base_Url } from "../../Base-Url/Base_Url";
+
 const View_Proposals = () => {
   const common = useSelector((state) => state.Storage);
   const [selectedRecurringServiceList, setSelectedRecurringServiceList] =
@@ -20,6 +21,7 @@ const View_Proposals = () => {
     []
   );
   const [acceptedPackageIndex, setAcceptedIndex] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(1);
 
   const [acceptedPackageName, setAcceptedAcceptedName] = useState("");
 
@@ -86,14 +88,16 @@ const View_Proposals = () => {
     reccrunigServiceCatList: [],
     clientMasterBusinessTypeID: null,
     acceptedServicePackageID: null,
+    draftOn: null,
+    sentOn: null,
+    AcceptedOn: null,
+    SkippedOn: null,
   });
 
-  const draftOn = location.state.draftOn;
-  const sentOn = location.state.sentOn;
-  const AcceptedOn = location.state.AcceptedOn;
-  const SkippedOn = location.state.SkippedOn;
-
-  console.log(draftOn, sentOn, AcceptedOn, SkippedOn);
+  // const draftOn = location.state.draftOn;
+  // const sentOn = location.state.sentOn;
+  // const AcceptedOn = location.state.AcceptedOn;
+  // const SkippedOn = location.state.SkippedOn;
 
   const {
     setTopbar,
@@ -227,12 +231,6 @@ const View_Proposals = () => {
     navigate(-1);
   };
 
-  const [visibleCount, setVisibleCount] = useState(5); // Show first 5 initially
-
-  const totalContracts = ProposalObject.contractKeyID.length;
-  const visibleContracts = ProposalObject.contractKeyID.slice(0, visibleCount);
-  const hasMore = totalContracts > visibleCount;
-
   useEffect(() => {
     setTopbar("block");
   }, []);
@@ -306,6 +304,10 @@ const View_Proposals = () => {
             contractKeyID: ModelData.contractKeyID,
             quotationName: ModelData.quotationName,
             clientName: ModelData.clientName,
+            draftOn: ModelData.createdOn,
+            sentOn: ModelData.sentOn,
+            AcceptedOn: ModelData.acceptDeclineDate,
+            SkippedOn: ModelData.lastUpdatedOn,
             templateName: ModelData.templateName,
             quoteTypeID: ModelData.quoteTypeID,
             quoteTypeName: ModelData.quoteTypeName,
@@ -724,6 +726,44 @@ const View_Proposals = () => {
 
     return { fontWeight, fontSize };
   };
+
+  const handleShowMore = () => {
+    setVisibleCount((prev) => prev + 10);
+  };
+
+  const GetOnlyDate = (value) => {
+    if (!value) return "";
+
+    // Case 1: Format like "May 28 2025  6:03PM" or "May  9 2025  5:55PM"
+    if (/[A-Za-z]{3}\s+\d{1,2}\s+\d{4}/.test(value)) {
+      const [monthStr, day, year] = value.trim().split(/\s+/);
+      const monthMap = {
+        Jan: "01",
+        Feb: "02",
+        Mar: "03",
+        Apr: "04",
+        May: "05",
+        Jun: "06",
+        Jul: "07",
+        Aug: "08",
+        Sep: "09",
+        Oct: "10",
+        Nov: "11",
+        Dec: "12",
+      };
+      const month = monthMap[monthStr];
+      const formattedDay = day.padStart(2, "0");
+      return `${formattedDay}/${month}/${year}`;
+    }
+
+    // Case 2: Format like "6/11/2025 10:21:35 AM"
+    const [datePart] = value.split(" ");
+    const [month, day, year] = datePart.split("/"); // US format mm/dd/yyyy
+    const formattedDay = day.padStart(2, "0");
+    const formattedMonth = month.padStart(2, "0");
+    return `${formattedDay}/${formattedMonth}/${year}`;
+  };
+
   return (
     <div className="container">
       <div class="main-content">
@@ -867,33 +907,42 @@ const View_Proposals = () => {
                                       {ProposalObject.quoteTypeName}
                                     </td>
                                   </tr>
-                                  {draftOn && (
+                                  {ProposalObject.draftOn && (
                                     <tr>
                                       <td>Drafted On</td>
-                                      <td class="text-end">{draftOn}</td>
+                                      <td class="text-end">
+                                        {GetOnlyDate(ProposalObject.draftOn)}
+                                      </td>
                                     </tr>
                                   )}
-                                  {sentOn && (
+                                  {ProposalObject.sentOn && (
                                     <tr>
                                       <td>Sent On</td>
-                                      <td class="text-end">{sentOn}</td>
+                                      <td class="text-end">
+                                        {GetOnlyDate(ProposalObject.sentOn)}
+                                      </td>
                                     </tr>
                                   )}
-                                  {AcceptedOn && (
+                                  {ProposalObject.AcceptedOn && (
                                     <tr>
                                       <td>Accepted On</td>
-                                      <td class="text-end">{AcceptedOn}</td>
+                                      <td class="text-end">
+                                        {GetOnlyDate(ProposalObject.AcceptedOn)}
+                                      </td>
                                     </tr>
                                   )}
 
-                                  {SkippedOn && (
+                                  {ProposalObject.SkippedOn && (
                                     <tr>
                                       <td>Skipped On</td>
-                                      <td class="text-end">{SkippedOn}</td>
+                                      <td class="text-end">
+                                        {GetOnlyDate(ProposalObject.SkippedOn)}
+                                      </td>
                                     </tr>
                                   )}
-                                  {ProposalObject.contractKeyID.map(
-                                    (contract) => (
+                                  {ProposalObject.contractKeyID
+                                    ?.slice(0, visibleCount)
+                                    .map((contract) => (
                                       <tr>
                                         <td>Linked Engagement Letter</td>
                                         <td
@@ -913,51 +962,20 @@ const View_Proposals = () => {
                                           View EL
                                         </td>
                                       </tr>
-                                    )
-                                  )}
-                                  {/* <>
-                                    {visibleContracts.map((contract, index) => (
-                                      <tr key={index}>
-                                        <td>Linked Engagement Letter</td>
-                                        <td
-                                          className="text-end"
-                                          style={{
-                                            color: "blue",
-                                            cursor: "pointer",
-                                          }}
-                                          onClick={() =>
-                                            navigate("/view-letter", {
-                                              state: {
-                                                contractKeyID: contract,
-                                              },
-                                            })
-                                          }
-                                        >
-                                          View Letter
-                                        </td>
-                                      </tr>
                                     ))}
-
-                                    {hasMore && (
-                                      <tr>
-                                        <td colSpan={2} className="text-center">
-                                          <span
-                                            style={{
-                                              color: "blue",
-                                              cursor: "pointer",
-                                            }}
-                                            onClick={() =>
-                                              setVisibleCount(totalContracts)
-                                            }
-                                          >
-                                            Show More
-                                          </span>
-                                        </td>
-                                      </tr>
-                                    )}
-                                  </> */}
                                 </tbody>
                               </table>
+                              {visibleCount <
+                                ProposalObject.contractKeyID?.length && (
+                                  <div className="text-left mt-3">
+                                    <button
+                                      onClick={handleShowMore}
+                                      className="btn btn-primary"
+                                    >
+                                      Show More
+                                    </button>
+                                  </div>
+                                )}
                             </div>
 
                             <div
