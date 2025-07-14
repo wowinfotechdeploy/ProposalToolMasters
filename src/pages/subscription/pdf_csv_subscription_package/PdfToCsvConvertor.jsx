@@ -489,7 +489,7 @@ function PdfToCsvConvertorModel(props) {
                   <button
                     className="btn btn-md btn-success create-item-btn"
                     onClick={() => setHasSubcription(false)}
-                  // disabled={isConverting}
+                    // disabled={isConverting}
                   >
                     {/* <i className="bi bi-plus-circle "></i> */}
                     Upgrade
@@ -653,7 +653,7 @@ function PdfToCsvConvertorModel(props) {
                     <button
                       className="btn btn-md btn-success create-item-btn"
                       onClick={() => setHasSubcription(true)}
-                    // disabled={isConverting}
+                      // disabled={isConverting}
                     >
                       Back
                     </button>
@@ -732,12 +732,12 @@ function PdfToCsvConvertorModel(props) {
                                                       >
                                                         Validity:{" "}
                                                         {PurchasePlanList.months !==
-                                                          null
+                                                        null
                                                           ? String(
-                                                            PurchasePlanList.months
-                                                          ) +
-                                                          " " +
-                                                          PurchasePlanList.validity
+                                                              PurchasePlanList.months
+                                                            ) +
+                                                            " " +
+                                                            PurchasePlanList.validity
                                                           : PurchasePlanList.validity}
                                                       </span>
                                                     </div>
