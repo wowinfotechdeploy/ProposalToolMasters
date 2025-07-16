@@ -233,7 +233,7 @@ function ConfirmModel({
                     Are you sure you want to {modelRequestData.status} mail box?
                   </p>
                 )}
-                {/* {modelRequestData.Action === "Warning" && (
+                {modelRequestData.Action === "Warning" && (
                   <>
                     <div>
                       <span class="text-muted mb-0">
@@ -257,52 +257,7 @@ function ConfirmModel({
                       service ?.
                     </span>
                   </>
-                )} */}
-                {modelRequestData.Action === "Warning" && (
-                  <>
-                    {modelRequestData.message && (
-                      <>
-                        <span className="text-muted mb-0">{modelRequestData.message}</span>
-                        <ul className="designed-list" style={{ textAlign: "left" }}>
-                          {modelRequestData.DriverName?.map((item, idx) => (
-                            <li key={`driver-${idx}`}>{item}</li>
-                          ))}
-                        </ul>
-                      </>
-                    )}
-
-                    {modelRequestData.dependingMessage && (
-                      <>
-                        <div style={{ marginTop: '1rem' }}>
-                          <span className="text-muted mb-0">{modelRequestData.dependingMessage}</span>
-                          <ul className="designed-list" style={{ textAlign: "left" }}>
-                            {modelRequestData.dependingList?.map((item, idx) => (
-                              <li key={`dep-${idx}`}>{item}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      </>
-                    )}
-
-                    {modelRequestData.prerequisiteMessage && (
-                      <>
-                        <div style={{ marginTop: '1rem' }}>
-                          <span className="text-muted mb-0">{modelRequestData.prerequisiteMessage}</span>
-                          <ul className="designed-list" style={{ textAlign: "left" }}>
-                            {modelRequestData.prerequisiteList?.map((item, idx) => (
-                              <li key={`pre-${idx}`}>{item}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      </>
-                    )}
-
-                    <span className="font-weight-bold mb-0">
-                      Do you still want to {modelAction === "Update" ? "update" : modelAction} the service?
-                    </span>
-                  </>
                 )}
-                
                 {modelRequestData.Action === "ServiceWarning" && (
                   <>
                     <div>

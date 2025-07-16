@@ -134,7 +134,6 @@ const Update_Practice_Details = () => {
     VATReg: 1,
     vatNumber: null,
     preferredCurrency: 1,
-    indirectTaxPercentage: null,
     website: null,
     logoUrl: null,
     contactEmail: null,
@@ -199,7 +198,6 @@ const Update_Practice_Details = () => {
       },
     },
   ]);
-  const [taxName,setTaxName] = useState("VAT");
   const [modalOpen, setModalOpen] = useState(false);
   const [professionTypeLookupList, setProfessionTypeLookupList] = useState([]);
   const [selectedOfficerAddressIndex, setSelectedOfficerAddressIndex] =
@@ -276,51 +274,6 @@ const Update_Practice_Details = () => {
       setConcatenatedResidentialAddress(ResidentialFullAddress);
     }
   }, [addressUpdatedDatetime]);
-  
-  const handleCurrencyChange = (e) => {
-    const selectedCurrency = e.value;
-    let newVAT = 20;
-
-    if (selectedCurrency === 4) {
-      newVAT = 18;
-      setTaxName("GST");
-    } else if (selectedCurrency === 2) {
-      newVAT = 21;
-      setTaxName("EU VAT");
-    } else if (selectedCurrency === 3) {
-      newVAT = 19;
-      setTaxName("Salex Tax");
-    } else {
-      setTaxName("VAT");
-    }
-
-    setOtherInfo((prev) => ({
-      ...prev,
-      indirectTaxPercentage: newVAT,
-      preferredCurrency: selectedCurrency
-    }));
-  }
-
-  const handleChangeTaxPercentage = (e) => {
-  let value = e.target.value;
-
-  let cleanValue = value.replace(/[^0-9.]/g, '');
-
-  // Prevent multiple dots:
-  const parts = cleanValue.split('.');
-  if (parts.length > 2) {
-    cleanValue = parts[0] + '.' + parts.slice(1).join('');
-  }
-
-  const regex = /^(\d{0,3}(\.\d{0,2})?)?$/;
-
-    if (regex.test(cleanValue)) {
-      setOtherInfo({
-        ...otherInfo,
-        indirectTaxPercentage: cleanValue,
-      });
-    }
-  };
 
   const handleOpenRegisterOfficeAddressPopup = (e, AddressIndex) => {
     setSelectedOfficerAddressIndex(AddressIndex);
@@ -531,7 +484,6 @@ const Update_Practice_Details = () => {
           VATReg: ModelData.otherInformation.isVatRegistered,
           vatNumber: ModelData.otherInformation.vatNumber,
           preferredCurrency: ModelData.otherInformation.preferredCurrencyId,
-          indirectTaxPercentage: ModelData.otherInformation.indirectTaxPercentage,
           website: ModelData.otherInformation.website,
           contactEmail: ModelData.otherInformation.emailID,
           contactPhone: ModelData.otherInformation.phoneNo,
@@ -545,19 +497,7 @@ const Update_Practice_Details = () => {
           webOfAffiliatedAccount:
             ModelData.otherInformation.affiliatedAccountingBodyWebsite,
         });
-        if(ModelData.otherInformation.preferredCurrencyId === 1) {
-          setTaxName("VAT");
-        } else if(ModelData.otherInformation.preferredCurrencyId === 2) {
-          setTaxName("EU VAT");
-        } else if(ModelData.otherInformation.preferredCurrencyId === 3) {
-          setTaxName("Sales Tax");
-        } else if(ModelData.otherInformation.preferredCurrencyId === 4) {
-          setTaxName("GST");
-        }
-        setOtherInfo((prev) => ({
-          ...prev,
-          indirectTaxPercentage: ModelData.otherInformation.indirectTaxPercentage
-        }));
+
         let CountryList;
         const countryCodeData = await CountryCode();
         if (countryCodeData?.data?.statusCode === 200) {
@@ -992,7 +932,6 @@ const Update_Practice_Details = () => {
               signatoryName: basicInfo.signatoryName,
               isVatRegistered: otherInfo.VATReg,
               vatNumber: otherInfo.vatNumber,
-              indirectTaxPercentage: otherInfo.indirectTaxPercentage,
               preferredCurrencyId: otherInfo.preferredCurrency,
               website: otherInfo.website,
               countryCodeID: otherInfo.countryCodeID,
@@ -1179,7 +1118,6 @@ const Update_Practice_Details = () => {
               signatoryName: basicInfo.signatoryName,
               isVatRegistered: otherInfo.VATReg,
               vatNumber: otherInfo.vatNumber,
-              indirectTaxPercentage: otherInfo.indirectTaxPercentage,
               preferredCurrencyId: otherInfo.preferredCurrency,
               website: otherInfo.website,
               countryCodeID: otherInfo.countryCodeID,
@@ -2770,7 +2708,7 @@ const Update_Practice_Details = () => {
                               <div class="row mb-3">
                                 <div class="col-md-3 col-sm-12 text-start text-md-end">
                                   <label class="form-label">
-                                    {taxName} Registered
+                                    VAT Registered
                                   </label>
                                 </div>
                                 <div class="col-md-9 col-sm-12">
@@ -2792,18 +2730,17 @@ const Update_Practice_Details = () => {
                               </div>
                             </div>
                             {otherInfo.VATReg === 0 && (
-                              <>
                               <div class="col-lg-12">
                                 <div class="row mb-3">
                                   <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                    <label class="form-label">{taxName} Number</label>
+                                    <label class="form-label">VAT Number</label>
                                   </div>
                                   <div class="col-md-9 col-sm-12">
                                     <input
                                       style={{ width: "100%" }}
                                       className="input-text"
                                       type="text"
-                                      placeholder={`${taxName} Number`}
+                                      placeholder="VAT Number"
                                       value={otherInfo.vatNumber}
                                       onChange={(e) => {
                                         const sanitizedInput = e.target.value
@@ -2819,39 +2756,8 @@ const Update_Practice_Details = () => {
                                   </div>
                                 </div>
                               </div>
-                                <div className="col-lg-12">
-                                  <div className="row mb-3">
-                                    <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                      <label className="form-label">{taxName} Percentage</label>
-                                    </div>
-                                    <div className="col-md-9 col-sm-12">
-                                      {/* <Slider
-                                      value={otherInfo.indirectTaxPercentage ?? 20}
-                                      step={0.1}
-                                      min={0}
-                                      max={100}
-                                      aria-label="Default"
-                                      valueLabelDisplay="auto"
-                                      onChange={(e, newValue) => {
-                                        setOtherInfo({
-                                          ...otherInfo,
-                                          indirectTaxPercentage: newValue,
-                                        });
-                                      }}
-                                    /> */}
-                                      <input
-                                        style={{ width: "100%" }}
-                                        className="input-text"
-                                        type="text"
-                                        value={otherInfo.indirectTaxPercentage ?? 20.00}
-                                        onChange={handleChangeTaxPercentage}
-                                      />
-                                    </div>
-                                  </div>
-                                </div>
-                              </>
                             )}
-                            {/* <div class="col-lg-12">
+                            <div class="col-lg-12">
                               <div class="row mb-3">
                                 <div class="col-md-3 col-sm-12 text-start text-md-end">
                                   <label class="form-label">
@@ -2878,38 +2784,6 @@ const Update_Practice_Details = () => {
                                   )}
                                 </div>
                               </div>
-                            </div> */}
-                            <div class="col-md-3 col-sm-12 text-start text-md-end">
-                              <label class="form-label">
-                                Currency
-                                <span style={{ color: "red" }}>*</span>
-                              </label>
-                            </div>
-                            <div className="col-md-9 col-sm-12 mb-3">
-                              <div className="input-group">
-                                <Select
-                                  style={{ padding: "5px", width: "20%" }}
-                                  className="CurrencySelect"
-                                  options={currencyType}
-                                  value={currencyFilter}
-                                  // onChange={(e) => {
-                                  //   setOtherInfo({
-                                  //     ...otherInfo,
-                                  //     preferredCurrency: e.value,
-                                  //   });
-                                  // }}
-                                  onChange={handleCurrencyChange}
-                                />
-                              </div>
-                              {requireErrorMessage &&
-                                (otherInfo.preferredCurrency === "" ||
-                                  otherInfo.preferredCurrency === null) ? (
-                                <span className="validation">
-                                  {ERROR_MESSAGES}
-                                </span>
-                              ) : (
-                                ""
-                              )}
                             </div>
                             <div class="col-lg-12">
                               <div class="row mb-3">

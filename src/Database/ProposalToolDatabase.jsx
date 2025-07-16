@@ -45,18 +45,6 @@ export const CurrencyTypeLookUpList = {
           currencyId: 1,
           currencyName: "GBP",
         },
-        {
-          currencyId: 2,
-          currencyName: "EUR",
-        },
-        {
-          currencyId: 3,
-          currencyName: "USD",
-        },
-        {
-          currencyId: 4,
-          currencyName: "INR",
-        },
       ],
     },
   },
@@ -122,14 +110,6 @@ export const GetDriverTypeLookUpList = {
         {
           driverTypeId: 4,
           driverTypeName: "Slab",
-        },
-        {
-          driverTypeId: 5,
-          driverTypeName: "Text"
-        },
-        {
-          driverTypeId: 6,
-          driverTypeName: "Date",
         },
       ],
     },

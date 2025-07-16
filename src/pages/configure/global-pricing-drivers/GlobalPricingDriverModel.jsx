@@ -23,10 +23,6 @@ import { NotifySuperAdminPredefinedChangesToAdmin } from "../../../redux/Service
 import { DeclineSuperAdminChanges } from "../../../redux/Services/Config/ServiceCategoryApi";
 import AcceptSuperAdminChangesConfirmation from "../../../components/AcceptSuperAdminChangesConfirmation";
 import SAPredefinedChangesNotifyMessageModel from "../../../components/SAPredefinedChangesNotifyMessageModel";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
-import { parse, format, isValid,differenceInCalendarDays, addDays,subDays } from "date-fns"; 
-import Utils from "../../../Middleware/Utils";
 function Modal(props) {
   //A] Declare State
   const moduleName = "Global Pricing Driver";
@@ -57,21 +53,6 @@ function Modal(props) {
     variationName: false,
     variationValue: false,
   });
-  const [dateError, setDateError] = useState({
-    date: false,
-    dateFormat: false,
-    dateValue: false,
-    fromDate: false,
-    toDate: false
-  });
-  const [textError, setTextError] = useState({
-    text: false,
-    textValue: false,
-    textLength: false,
-  });
-  const [qtyError, setQtyError] = useState({
-    quantityError: false
-  });
   const [errorMessageTitle, setErrorMessageTitle] = useState("");
   const [slabType, setSlabType] = useState([]);
   const [variations, setVariations] = useState([
@@ -94,33 +75,6 @@ function Modal(props) {
       isDefault: true,
     },
   ]);
-  const [dates, setDates] = useState([
-    {
-      dateFormat: null,
-      defaultDateValue: null,
-      blocks: [
-        {
-          fromDate: "",
-          toDate: "",
-          dateValue: null,
-        }
-      ]
-    }
-  ]);
-  const [textDriver, setTextDriver] = useState(
-    {
-      textKeyID: null,
-      textLength: null,
-      textValue: null,
-      allowedSpecialCharacters: ""
-    })
-  const [quantity, setQuantity] = useState([
-      {
-        quantityKeyID: null,
-        quantityDecimalPlaces: 2,
-        quantityFrom: null,
-        quantityTo: null
-      }])
   const [errorMessage, setErrorMessage] = useState("");
   const [openErrorModal, setOpenErrorModal] = useState(false);
   const [modelAction, setModelAction] = useState("");
@@ -142,8 +96,6 @@ function Modal(props) {
     professionTypeList: [],
     variation: variations,
     slab: slabs,
-    date: dates,
-    text: textDriver
   });
   const [dismissModal, setDismissModal] = useState(null);
   const [openSuccessModal, setOpenSuccessModal] = React.useState(false);
@@ -173,36 +125,6 @@ function Modal(props) {
       SetInitialModelData();
     }
   }, [props.modelRequestData]);
-
-  useEffect(() => {
-    if (
-      globalPricingDriverObj.driverTypeID === 6 &&
-      (dates.length === 0 || !dates[0]?.dateFormat)
-    ) {
-      setDates([
-        {
-          dateFormat: dateFormats[3].value,
-          defaultDateValue: null,
-          blocks: [],
-        },
-      ]);
-    }
-  }, [globalPricingDriverObj.driverTypeID, dates]);
-
-  useEffect(() => {
-    if (
-      globalPricingDriverObj.driverTypeID === 2 &&
-      (quantity.length === 0 || !quantity)
-    ) {
-      setQuantity([
-        {
-          quantityDecimalPlaces: Utils.DECIMAL_PLACE_OPTIONS[2].value,
-          quantityFrom: null,
-          quantityTo: null,
-        },
-      ]);
-    }
-  }, [globalPricingDriverObj.driverTypeID, quantity]);
 
   // C] This function will clear all data from popup model
   const SetInitialModelData = () => {
@@ -414,33 +336,6 @@ function Modal(props) {
     }
   };
 
-  const OnDeletePeriodBlock = (dateIndex, blockIndex) => {
-    const updatedDates = [...dates];
-    const blocks = [...updatedDates[dateIndex].blocks];
-
-    blocks.splice(blockIndex, 1);
-
-    // Recalculate fromDate for all subsequent blocks
-    for (let i = 1; i < blocks.length; i++) {
-      const prevToDate = parseStoredDate(blocks[i - 1].toDate, updatedDates[dateIndex].dateFormat);
-      blocks[i].fromDate = prevToDate
-        ? formatToDisplay(addDays(prevToDate, 1), updatedDates[dateIndex].dateFormat)
-        : "";
-    }
-
-    updatedDates[dateIndex].blocks = blocks;
-    setDates(updatedDates);
-
-    // Reset errors per blockIndex if you're using an array of errors
-    if (Array.isArray(dateError)) {
-      const errorsCopy = [...dateError];
-      if (errorsCopy[dateIndex]?.blocks?.length) {
-        errorsCopy[dateIndex].blocks.splice(blockIndex, 1);
-      }
-      setDateError(errorsCopy);
-    }
-  };
-
   //Delete Variations 
   const OnDeleteVariations = async (index) => {
 
@@ -532,302 +427,6 @@ function Modal(props) {
     }, 200);
   };
 
-  const specialCharOptions = Utils.specialCharOptions;
-
-  const dateFormats = Utils.dateFormats;
-
-  const handleSpecialCharChange = (selected) => {
-    const chars = selected ? selected.map((s) => s.value).join(',') : '';
-    setTextDriver((prev) => ({
-      ...prev,
-      allowedSpecialCharacters: chars,
-    }));
-  };
-
-  // const OnAddPeriodBlock = () => {
-  //   setCount(count + 1);
-  //   setErrorMessage("");
-  //   const lastDateBlock = dates[dates.length - 1];
-  //   if (!lastDateBlock) {
-  //     const dateFormat = dateFormats?.[0]?.value || "dd/MM/yyyy";
-  //     const newDateBlock = {
-  //       dateKeyID: null,
-  //       dateFormat,
-  //       fromDate: "",
-  //       toDate: "",
-  //       dateValue: null,
-  //     };
-  
-  //     const updatedDates = [...dates, newDateBlock];
-  //     setDates(updatedDates);
-  
-  //     setDateError({
-  //       date: false,
-  //       fromDate: false,
-  //       toDate: false,
-  //       dateValue: false,
-  //     });
-  
-  //     setTimeout(() => {
-  //       scrollUpDownByElementID(`Period_Block_${updatedDates.length - 1}`);
-  //     }, 200);
-  //     return;
-  //   }
-  
-  //   if (lastDateBlock?.fromDate !== "" && lastDateBlock?.toDate !== "") {
-  //     setDateError({ date: false, dateValue: false, fromDate: false, toDate: false });
-  
-  //     const dateFormat = lastDateBlock?.dateFormat || "dd/MM/yyyy";
-  //     const parsedToDate = parseStoredDate(lastDateBlock?.toDate, dateFormat);
-  
-  //     const nextFromDate = new Date(parsedToDate);
-  //     nextFromDate.setDate(nextFromDate.getDate() + 1);
-  
-  //     const formattedFromDate = formatToDisplay(nextFromDate, dateFormat);
-  
-  //     const newDateBlock = {
-  //       dateKeyID: null,
-  //       dateFormat: dateFormat,
-  //       fromDate: formattedFromDate,
-  //       toDate: "",
-  //       dateValue: null,
-  //     };
-  
-  //     const updatedDates = [...dates, newDateBlock];
-  //     setDates(updatedDates);
-  
-  //     setTimeout(() => {
-  //       scrollUpDownByElementID(`Period_Block_${updatedDates.length - 1}`);
-  //     }, 200);
-  //   } else {
-  //     console.log(lastDateBlock.toDate);
-  //     setDateError({
-  //       fromDate: lastDateBlock?.fromDate === "",
-  //       toDate: lastDateBlock?.toDate === ""
-  //     });
-  //   }
-  // };
-  
-  const OnAddPeriodBlock = () => {
-    setCount(count + 1);
-    setErrorMessage("");
-  
-    const dateFormat = dates[0]?.dateFormat || dateFormats?.[3]?.value;
-    console.log(dateFormat);
-    const blocks = dates[0]?.blocks || [];
-    const lastBlock = blocks[blocks.length - 1];
-  
-    if (!lastBlock) {
-      // No blocks yet, add the first block
-      const newBlock = {
-        fromDate: "",
-        toDate: "",
-        dateValue: null,
-      };
-  
-      const updatedDates = [...dates];
-      updatedDates[0] = {
-        ...updatedDates[0],
-        dateFormat: dateFormat,
-        blocks: [newBlock],
-      };
-  
-      setDates(updatedDates);
-      setDateError({ date: false, fromDate: false, toDate: false, dateValue: false });
-  
-      setTimeout(() => {
-        scrollUpDownByElementID(`Period_Block_0`);
-      }, 200);
-      return;
-    }
-  
-    // Allow adding new block only if toDate is present
-    if (lastBlock.toDate && lastBlock.toDate !== "") {
-      setDateError({ date: false, toDate: false });
-  
-      const parsedToDate = parseStoredDate(lastBlock.toDate, dateFormat);
-      const nextFromDate = addDays(parsedToDate, 1);
-      const formattedFromDate = formatToDisplay(nextFromDate, dateFormat);
-      console.log(formattedFromDate);
-      const newBlock = {
-        fromDate: formattedFromDate,
-        toDate: "",
-        dateValue: null,
-      };
-  
-      const updatedDates = [...dates];
-      updatedDates[0] = {
-        ...updatedDates[0],
-        blocks: [...blocks, newBlock],
-      };
-  
-      setDates(updatedDates);
-  
-      setTimeout(() => {
-        scrollUpDownByElementID(`Period_Block_${updatedDates[0].blocks.length - 1}`);
-      }, 200);
-    } else {
-      setDateError({ toDate: true });
-    }
-  };
-  
-  const AddPeriodBlock = () => {
-    setCount(count + 1);
-    const newDates = {
-      dateValue: null,
-      fromDate: 0,
-      toDate: 0,
-      isDefault: true,
-    };
-    slabs.push(newDates);
-  };
-  
-  const parseStoredDate = (dateStr, formatStr) => {
-    if (!dateStr) return null;
-    try {
-      const parsed = parse(dateStr, formatStr, new Date());
-      return isValid(parsed) ? parsed : null;
-    } catch {
-      return null;
-    }
-  };
-
-  const formatToDisplay = (date, formatStr) => {
-  console.log("date", date);
-  console.log("formatStr", formatStr);
-  
-  if (!isValid(date) || typeof formatStr !== 'string') return "";
-  return format(date, formatStr);
-};
-
-  // const OnPeriodBlockChange = (index, field, value) => {
-  //   const updatedDates = [...dates];
-  //   console.log(updatedDates);
-  //   const cleanValue = value?.replace(/[^0-9]/g, '');
-
-  //   const block = updatedDates[index].blocks[0];
-
-  //   if (field === "dateValue") {
-  //     block[field] = cleanValue;
-  //   } else {
-  //     block[field] = value;
-  //   }
-
-  //   setDates(updatedDates);
-
-  //   const total = updatedDates.length;
-
-  //   const errors = updatedDates.map((d, i) => {
-  //     const fromDate = parseStoredDate(d.blocks[0].fromDate, d.dateFormat);
-  //     const toDate = parseStoredDate(d.blocks[0].toDate, d.dateFormat);
-
-  //     return {
-  //       date: total === 0,
-  //       fromDate: !d.blocks[0].fromDate || d.blocks[0].fromDate === "",
-  //       toDate:
-  //         (!d.blocks[0].toDate || d.blocks[0].toDate === "") && i < total - 1 ||
-  //         (fromDate && toDate && toDate < fromDate),
-  //     };
-  //   });
-
-  //   // Relax paired field if it's currently being edited
-  //   if (field === "fromDate") {
-  //     errors[index].toDate = false;
-  //   }
-  //   if (field === "toDate") {
-  //     errors[index].fromDate = false;
-  //   }
-  //   if (field === "dateValue") {
-  //     errors[index].toDate = false;
-  //   }
-
-  //   setDateError(errors);
-  // };
-  const OnPeriodBlockChange = (dateIndex, field, value, blockIndex = 0) => {
-    const updatedDates = [...dates];
-    const block = updatedDates[dateIndex]?.blocks?.[blockIndex];
-    if (!block) return;
-
-    if (field === "dateValue") {
-      block.dateValue = typeof value === "string" ? value.replace(/[^0-9]/g, "") : value;
-    } else {
-      block[field] = value;
-    }
-
-    setDates(updatedDates);
-
-    const formatStr = updatedDates[dateIndex]?.dateFormat || "dd/MM/yyyy";
-    const errors = updatedDates[dateIndex].blocks.map((b, i) => {
-      const fromDate = parseStoredDate(b.fromDate, formatStr);
-      const toDate = parseStoredDate(b.toDate, formatStr);
-      return {
-        fromDate: !b.fromDate,
-        toDate: (!b.toDate && i < updatedDates[dateIndex].blocks.length - 1)
-          || (fromDate && toDate && toDate < fromDate),
-        dateValue: !b.dateValue && b.dateValue !== 0
-      };
-    });
-
-    setDateError(errors);
-  };
-
-  const reformatDate = (dateStr, oldFormat, newFormat) => {
-    if (!dateStr || !oldFormat || !newFormat) return "";
-    const parsed = parseStoredDate(dateStr, oldFormat);
-    return parsed ? formatToDisplay(parsed, newFormat) : "";
-  };
-
-  const handleDateFormatChange = (selected) => {
-    const newFormat = selected ? selected.value : Utils.dateFormats[0].value;
-  
-    if (dates.length === 0) {
-      setDates([
-        {
-          dateFormat: newFormat,
-          blocks: [] 
-        }
-      ]);
-    } else {
-      const updated = dates.map((dateGroup) => {
-        const oldFormat = dateGroup.dateFormat;
-  
-        return {
-          ...dateGroup,
-          dateFormat: newFormat,
-          blocks: Array.isArray(dateGroup.blocks)
-            ? dateGroup.blocks.map((block) => ({
-                ...block,
-                fromDate: block.fromDate
-                  ? reformatDate(block.fromDate, oldFormat, newFormat)
-                  : "",
-                toDate: block.toDate
-                  ? reformatDate(block.toDate, oldFormat, newFormat)
-                  : "",
-              }))
-            : []
-        };
-      });
-  
-      setDates(updated);
-    }
-  
-    setDateError({ date: false, dateValue: false });
-  };  
-  
-  const handleDefaultDateValueChange = (e) => {
-    const inputValue = e.target.value;
-    const cleanValue = inputValue?.replace(/[^0-9]/g, '');
-  
-    setDates(
-      dates.map((date) => ({
-        ...date,
-        defaultDateValue: cleanValue === "" ? null : parseInt(cleanValue, 10),
-      }))
-    );
-  
-    setDateError({ date: false, dateValue: false });
-  };
-  
   // D] Calling All Api's like Lookup List and other Here :
   // 1) On Change Select Profession Type
   const GetProfessionTypeLookupListData = async () => {
@@ -892,7 +491,6 @@ function Modal(props) {
   const OnDriverTypeChange = async (DriverType) => {
     let variationKeyIDs = null;
     let slabKeyIDs = null;
-    let dateKeyIDs = null;
 
     if (globalPricingDriverObj.driverTypeID === 4) {
       if (globalPricingDriverObj.slab.length > 0) {
@@ -904,11 +502,6 @@ function Modal(props) {
         variationKeyIDs = variations
           .map((variation) => variation.variationKeyID)
           .join(",");
-      }
-    }
-    if (globalPricingDriverObj.driverTypeID === 6) {
-      if (globalPricingDriverObj.date.length > 0) {
-        dateKeyIDs = dates.map((date) => date.dateKeyID).join(",");
       }
     }
     if (globalPricingDriverObj.globalPricingDriverKeyID !== null) {
@@ -952,21 +545,9 @@ function Modal(props) {
                 isDefault: false,
               },
             ],
-            date: [
-          {
-            dateFormat: "",
-            fromDate: "",
-            toDate: "",
-            dateValue: null,
-            isDefault: false,
-          },
-        ],
           });
           if (DriverType.value === 4) {
             setSlabs([]);
-          }
-          if (DriverType.value === 6) {
-            setDates([]);
           }
           setDriverTypeValue1(DriverType);
         }
@@ -1090,50 +671,6 @@ function Modal(props) {
             }));
 
             setSlabs(ModifySlab);
-            if (ModelData.driverTypeID === 6) {
-              const ModifyDate = (ModelData.date || []).map((item) => ({
-                ...item,
-                blocks: (item.blocks || []).map((block) => ({
-                  ...block,
-                  dateValue: block.dateValue,
-                  fromDate: block.fromDate,
-                  toDate: block.toDate,
-                }))
-              }));
-              setDates(ModifyDate);
-            }
-            if (ModelData.driverTypeID === 5 && ModelData.text && ModelData.text.length > 0) {
-              const textData = ModelData.text[0]; // Take the first text driver
-              setTextDriver({
-                textKeyID: textData.textKeyID || null,
-                textValue: textData.textValue || null,
-                textLength: textData.textLength || null,
-                allowedSpecialCharacters: textData.allowedSpecialCharacters || "",
-              });
-            } else if (ModelData.driverTypeID === 5) {
-              // Reset textDriver if no text data exists
-              setTextDriver({
-                textKeyID: null,
-                textValue: "",
-                textLength: null,
-                allowedSpecialCharacters: "",
-              });
-            } 
-            if (ModelData.driverTypeID === 2) {
-              const quantityData = ModelData.quantity[0]; // Take the first text driver
-              setQuantity([
-                {
-                  quantityKeyID: quantityData.quantityKeyID || null,
-                  quantityDecimalPlaces:
-                    quantityData.quantityDecimalPlaces !== undefined &&
-                    quantityData.quantityDecimalPlaces !== null
-                      ? quantityData.quantityDecimalPlaces
-                      : 2,
-                  quantityFrom: quantityData.quantityFrom,
-                  quantityTo: quantityData.quantityTo
-                },
-              ]);
-            }
             professionTypeValue =
               globalPricingDriverObj.professionTypeList?.map((item) => ({
                 value: item.professionTypeId,
@@ -1155,9 +692,6 @@ function Modal(props) {
     const variationData =
       globalPricingDriverObj.driverTypeID === 3 ? variations : null;
     const slabData = globalPricingDriverObj.driverTypeID === 4 ? slabs : null;
-    const dateData = globalPricingDriverObj.driverTypeID === 6 ? dates : null;
-    const textData = globalPricingDriverObj.driverTypeID === 5 ? [textDriver] : null;
-    const quantityData = globalPricingDriverObj.driverTypeID === 2 ? quantity : null;
     const ModifySlab = slabData?.map((item) => ({
       ...item,
       slabValue: item.slabValue,
@@ -1166,11 +700,6 @@ function Modal(props) {
       ...item,
       variationValue: item.variationValue,
     }));
-    const ModifyDate = dateData?.map((item) => ({
-      ...item,
-      dateValue: item.dateValue,
-    }));
-    const ModifyText = textData;
     if (Accept === "Accept") {
       $("#" + "ConfirmSAChangesModel").modal("show");
 
@@ -1200,9 +729,6 @@ function Modal(props) {
 
       variation: ModifyVariation,
       slab: ModifySlab,
-      date: ModifyDate,
-      text: ModifyText,
-      quantity: quantityData,
       isDefault: globalPricingDriverObj.isDefault,
     };
     //Check Validations if any
@@ -1220,25 +746,6 @@ function Modal(props) {
     } else if (globalPricingDriverObj.driverTypeID === "") {
       scrollUpDownByElementID("DriverName");
       setGdriverError(true);
-    } else if (globalPricingDriverObj.driverTypeID === 2) {
-      if (quantityData.length === 0) {
-        console.log("empty");
-        scrollUpDownByElementID("Quantity");
-        setQtyError({ quantityError: true });
-        hasError = true;
-      } else {
-        if (
-          (quantityData[0].quantityFrom && quantityData[0].quantityFrom.trim() !== "") &&
-          (quantityData[0].quantityTo && quantityData[0].quantityTo.trim() !== "") &&
-          Number(quantityData[0].quantityFrom) >= Number(quantityData[0].quantityTo)
-        ) {
-          console.log("Err")
-          setQtyError({ quantityError: true });
-          hasError = true;
-        } else {
-          AddUpdateGlobalPricingDriverData(ApiRequest_ParamsObj);
-        }
-      }
     } else if (globalPricingDriverObj.driverTypeID === 3) {
       if (variations.length === 0) {
         scrollUpDownByElementID("Variation");
@@ -1359,65 +866,6 @@ function Modal(props) {
           return false; // Return false or handle your error logic here if needed.
         }
       }
-    } else if (globalPricingDriverObj.driverTypeID === 6) {
-        console.log(dates);
-      
-        let isValidDates = true;
-        const errors = [];
-        if(!dates[0]?.dateFormat) {
-          setDateError({...dateError, dateFormat: true});
-          isValidDates = false;
-        }
-        for (let i = 0; i < dates[0]?.blocks?.length; i++) {
-          scrollUpDownByElementID(`Date_Div_${i}`);
-    
-          const { fromDate, toDate, dateValue, dateFormat } = dates[0]?.blocks[i];
-          const parsedFrom = parseStoredDate(fromDate, dateFormat);
-          const parsedTo = parseStoredDate(toDate, dateFormat);
-
-          // toDate is required unless it's the last block
-          if ((!toDate || toDate.trim() === "") && i < dates.length - 1) {
-            setDateError({...dateError, toDate: true});
-            isValidDates = false;
-          }
-          if ((!dates[0].blocks[i]?.fromDate || dates[0].blocks[i]?.fromDate  == "") && (!dates[0].blocks[i]?.toDate  || dates[0].blocks[i]?.toDate  == "")) {
-            setDateError({ ...dateError, date: true });
-            isValidDates = false;
-          }
-        }
-    
-        if (isValidDates) {
-          AddUpdateGlobalPricingDriverData(ApiRequest_ParamsObj);
-        } else {
-          return false; // Do not submit
-        }
-    } else if (globalPricingDriverObj.driverTypeID === 5) {
-      if (textData.length === 0) {
-        scrollUpDownByElementID("Text");
-        setTextError({ text: true });
-      } else {
-        let isValidText = true;
-    
-        for (let i = 0; i < textData.length; i++) {
-          scrollUpDownByElementID(`Text_Div_${i}`);
-    
-          const { textValue , textLength} = textData[i];
-    
-          // if (!textValue || textValue.trim() === "" || textValue === null) {
-          //   setTextError({ ...textError, textValue: true });
-          //   isValidText = false;
-          // } 
-          if(!textLength || textLength.trim() === "" || textLength === null) {
-            setTextError({ ...textError, textLength: true });
-            isValidText = false;
-          }
-        }
-        if (isValidText) {
-          AddUpdateGlobalPricingDriverData(ApiRequest_ParamsObj);
-        } else {
-          return false; // Do not submit
-        }
-      }
     } else {
       setGdriverError(""); // Clear the error message if there are no errors.
       AddUpdateGlobalPricingDriverData(ApiRequest_ParamsObj);
@@ -1475,46 +923,6 @@ function Modal(props) {
       $("#" + "ConfirmSAChangesModel").modal("hide");
       console.log(error);
     }
-  };
-
-  const formatDisplayValue = (value, decimalPlaces) => {
-    if (!value || value === '') return '';
-
-    const numValue = parseFloat(value);
-    if (isNaN(numValue)) return value;
-
-    if (decimalPlaces === 0) {
-      return Math.floor(numValue).toString();
-    }
-
-    // Force exact decimal places when formatting
-    return numValue.toFixed(decimalPlaces);
-  };
-
-  const handleQuantityInput = (raw, decimalPlaces) => {
-    if (!raw) return '';
-
-    // Remove all but digits and dot
-    let cleaned = raw.replace(/[^0-9.]/g, '');
-
-    // Keep only first dot
-    const firstDot = cleaned.indexOf('.');
-    if (firstDot !== -1) {
-      const beforeDot = cleaned.slice(0, firstDot + 1);
-      const afterDot = cleaned.slice(firstDot + 1).replace(/\./g, '');
-      cleaned = beforeDot + afterDot;
-    }
-
-    if (decimalPlaces === 0) {
-      return cleaned.split('.')[0];
-    }
-
-    if (cleaned.includes('.')) {
-      const [intPart, decPart] = cleaned.split('.');
-      return `${intPart}.${decPart.slice(0, decimalPlaces)}`;
-    }
-
-    return cleaned;
   };
 
   const handleClose = async () => {
@@ -2494,422 +1902,6 @@ function Modal(props) {
                   </div>
                 </div>
               )}
-                            
-              {globalPricingDriverObj.driverTypeID === 5 && (
-                <>
-                <div class="row">
-                    <div className="col-lg-6">
-                      <div className="mb-1">
-                        <label className="form-label">Text Value</label>
-                        <input
-                          type="text"
-                          className="input-text"
-                          placeholder="Enter Text Value"
-                          value={textDriver.textValue || ""}
-                          onChange={(e) => {
-                            const cleanValue = e.target.value.replace(/[^\d.]/g, "");
-                            setTextDriver({
-                              ...textDriver,
-                              textValue: cleanValue === "" ? null : parseFloat(cleanValue),
-                            });
-                          }}
-                        />
-                      </div>
-                    </div>
-                    <div className="col-lg-6">
-                      <div className="mb-1">
-                        <label className="form-label">Text Length <span className="text-danger">*</span></label>
-                        <input
-                          type="number"
-                          className="input-text"
-                          placeholder="Enter Text Value"
-                          value={textDriver.textLength || null}
-                          onChange={(e) => {
-                            const value = e.target.value;
-                            setTextDriver({
-                              ...textDriver,
-                              textLength: value
-                            });
-                          }}
-                        />
-                      </div>
-                      {textError.textLength && (textDriver.textLength === null || 
-                        textDriver.textLength === undefined ||
-                        textDriver.textLength === "") && (
-                        <label className="validation">
-                          {ERROR_MESSAGES}
-                        </label>
-                        )}
-                    </div>
-                    <div className="col-lg-6">
-                      <div className="mb-1">
-                        <label className="form-label">Allowed Special Characters</label>
-                        <Select
-                          isMulti
-                          className="basic-multi-select"
-                          classNamePrefix="select"
-                          options={specialCharOptions}
-                          value={specialCharOptions.filter((opt) =>
-                            (textDriver.allowedSpecialCharacters || '').split(',').includes(opt.value)
-                          )}
-                          onChange={handleSpecialCharChange}
-                          placeholder="Select special characters..."
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </>
-              )}
-
-              {globalPricingDriverObj.driverTypeID === 6 && (
-                <>
-                  <div class="row">
-                    <div className="col-lg-6">
-                      <div className="mb-1">
-                        <label className="form-label">Date Format <span className="text-danger">*</span></label>
-                        <Select
-                          options={dateFormats}
-                          className="basic-multi-select"
-                          classNamePrefix="select"
-                          value={dateFormats.find(f => f.value === dates[0]?.dateFormat) || dateFormats[3]}
-                          onChange={handleDateFormatChange}
-                        />
-                      </div>
-                      {dateError.dateFormat && (!dates[0] || dates[0].dateFormat === null) ? (
-                        <label className="validation">
-                          {ERROR_MESSAGES}
-                        </label>
-                      ) : (
-                        ""
-                      )}
-                    </div>
-                    <div className="col-lg-6">
-                      <div className="mb-1">
-                        <label className="form-label">Default Date Value</label>
-                        <input
-                          type="text"
-                          className="input-text"
-                          value={dates[0]?.defaultDateValue ? dates[0]?.defaultDateValue : null}
-                          onChange={handleDefaultDateValueChange}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  <div class="row">
-                    <div class="col-xl-12 col-lg-12">
-                      {dates?.map((date, dateIndex) => (
-                        date?.blocks?.map((block, blockIndex) => (
-                          <div
-                            className="card-1 pricing-box p-4 mt-4"
-                            key={`${dateIndex}-${blockIndex}`} // Unique key for each block
-                            id={`Date_Div_${dateIndex}_${blockIndex}`}
-                          >
-                            <div className="col-lg-6 col-md-6">
-                              <p
-                                className="office-name font-weight"
-                                style={{ width: "auto", zIndex: "0" }}
-                              >
-                                Period Block {blockIndex + 1}
-                              </p>
-                            </div>
-                            <p
-                              className="delete delete-margin"
-                              style={{ marginBottom: "0", width: "auto" }}
-                            >
-                              <button
-                                disabled={props.disable}
-                                onClick={() => OnDeletePeriodBlock(dateIndex, blockIndex)} // Pass dateIndex and blockIndex
-                                className="btn btn-sm btn-danger remove-item-btn d-flex gap-1 globalDriver"
-                              >
-                                <i className="ri-delete-bin-5-fill"></i>
-                                <p className="delete-margin font-12">Delete Period Block</p>
-                              </button>
-                            </p>
-                            <div className="row mt-1">
-                              <div className="col-lg-6">
-                                <div className="mb-3">
-                                  <label htmlFor="useremail" className="form-label">
-                                    From Date
-                                  </label>
-                                  <div className="input-group">
-                                    <DatePicker
-                                      className="input-text"
-                                      selected={parseStoredDate(block.fromDate, date?.dateFormat)}
-                                      placeholder="From Date"
-                                      disabled={blockIndex === 0 && dateIndex === 0 ? false : true} // Only enable first block of first date
-                                      maxDate={
-                                        block.toDate
-                                          ? subDays(parseStoredDate(block.toDate, date.dateFormat), 1)
-                                          : null
-                                      }
-                                      onChange={(selectedDate) =>
-                                        OnPeriodBlockChange(
-                                          dateIndex,
-                                          "fromDate",
-                                          formatToDisplay(selectedDate, date.dateFormat),
-                                          blockIndex
-                                        )
-                                      }
-                                      dateFormat={date.dateFormat}
-                                    />
-                                  </div>
-                                  <div className="invalid-feedback">Please enter Date Value</div>
-                                </div>
-                                {dateError.fromDate && block.fromDate === "" && (
-                                  <label className="validation">{ERROR_MESSAGES}</label>
-                                )}
-                              </div>
-                              <div className="col-lg-6">
-                                <div className="mb-3">
-                                  <label className="form-label">To Date</label>
-                                  <div className="input-group">
-                                    <DatePicker
-                                      className="input-text"
-                                      selected={parseStoredDate(block.toDate, date?.dateFormat)}
-                                      placeholder="To Date"
-                                      onChange={(selectedDate) =>
-                                        OnPeriodBlockChange(
-                                          dateIndex,
-                                          "toDate",
-                                          formatToDisplay(selectedDate, date.dateFormat),
-                                          blockIndex
-                                        )
-                                      }
-                                      minDate={
-                                        block.fromDate
-                                          ? addDays(parseStoredDate(block.fromDate, date.dateFormat), 1)
-                                          : null
-                                      }
-                                      maxDate={
-                                        dates[dateIndex]?.blocks[blockIndex + 1]?.fromDate ||
-                                          (dateIndex + 1 < dates.length &&
-                                            dates[dateIndex + 1]?.blocks[0]?.fromDate)
-                                          ? subDays(
-                                            parseStoredDate(
-                                              dates[dateIndex]?.blocks[blockIndex + 1]?.fromDate ||
-                                              dates[dateIndex + 1]?.blocks[0]?.fromDate,
-                                              date.dateFormat
-                                            ),
-                                            1
-                                          )
-                                          : null
-                                      }
-                                      dateFormat={date.dateFormat}
-                                    />
-                                  </div>
-                                  {block.fromDate &&
-                                    block.toDate &&
-                                    parseStoredDate(block.toDate, date.dateFormat) <
-                                    parseStoredDate(block.fromDate, date.dateFormat) && (
-                                      <div className="text-danger mt-1">
-                                        To Date cannot be earlier than From Date.
-                                      </div>
-                                    )}
-                                  {dateError.toDate && block.toDate === "" && (
-                                    <label className="validation">{ERROR_MESSAGES}</label>
-                                  )}
-                                </div>
-                              {!dateError?.toDate &&
-                                  !dateError?.fromDate &&
-                                  formatToDisplay(block.toDate) < formatToDisplay(block.fromDate) && (
-                                    <label className="validation">
-                                      The field must not be less than {block.fromDate}.
-                                    </label>
-                                  )}
-                              </div>
-                              {dateError.date && (
-                                <label className="text-danger text-center">
-                                  Either From date or To date is required
-                                </label>
-                              )}
-                            </div>
-                            <div className="row mt-1">
-                              <div className="col-lg-6">
-                                <div className="mb-3">
-                                  <label htmlFor="useremail" className="form-label">
-                                    Date Value
-                                  </label>
-                                  <input
-                                    type="text"
-                                    className="input-text"
-                                    value={block.dateValue || ""}
-                                    onChange={(e) =>
-                                      OnPeriodBlockChange(dateIndex, "dateValue", e.target.value, blockIndex)
-                                    }
-                                  />
-                                  <div className="invalid-feedback">Please enter Date Value</div>
-                                </div>
-                                {dateError.dateValue && block.dateValue === null && (
-                                  <label className="validation">{ERROR_MESSAGES}</label>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        ))
-                      ))}
-                    </div>
-                  </div>
-                  </>
-              )}
-              {globalPricingDriverObj.driverTypeID === 2 && (
-                <>
-                <div className="row mb-3">
-                <div className="col-lg-6">
-                  <div className="mb-1">
-                    <label className="form-label">
-                      Quantity Decimal Places <span className="text-danger">*</span>
-                    </label>
-                    <div className="input-group">
-                        <Select
-                          className="user-role-select"
-                          onChange={(selectedOption) => {
-                            const updatedDrivers = [...quantity];
-                            updatedDrivers[0] = {
-                              ...updatedDrivers[0],
-                              quantityDecimalPlaces: selectedOption.value,
-                            };
-                            if (updatedDrivers[0].quantityFrom && updatedDrivers[0].quantityFrom !== '') {
-                              const numValue = parseFloat(updatedDrivers[0].quantityFrom);
-                              if (!isNaN(numValue)) {
-                                updatedDrivers[0].quantityFrom = formatDisplayValue(numValue.toString(), selectedOption.value);
-                              }
-                            }
-                            
-                            // Update quantityTo if it exists
-                            if (updatedDrivers[0].quantityTo && updatedDrivers[0].quantityTo !== '') {
-                              const numValue = parseFloat(updatedDrivers[0].quantityTo);
-                              if (!isNaN(numValue)) {
-                                updatedDrivers[0].quantityTo = formatDisplayValue(numValue.toString(), selectedOption.value);
-                              }
-                            }
-                            setQuantity(updatedDrivers);
-                          }}
-                          value={{
-                            value: quantity[0]?.quantityDecimalPlaces ?? 2,
-                            label: (() => {
-                              const decimalPlaces = quantity[0]?.quantityDecimalPlaces ?? 2;
-                              if (decimalPlaces === 0) return "No decimal places";
-                              if (decimalPlaces === 1) return "1 decimal place";
-                              return `${decimalPlaces} decimal places`;
-                            })(),
-                          }}
-                          options={[
-                            { value: 2, label: "2 decimal places" },
-                            { value: 1, label: "1 decimal place" },
-                            { value: 0, label: "No decimal places" },
-                          ]}
-                        />
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="row mb-1">
-                <label>Allowed Range</label>          
-              </div>
-              <div className="row fieldset">
-               <div className="col-lg-6">
-                <div className="mb-1">
-                  <label className="form-label">Quantity From</label>
-                  <div className="input-group">
-                          <input
-                            className="input-text"
-                            type="text"
-                            value={quantity[0].quantityFrom || ""}
-                            onChange={(e) => {
-                              const decimalPlaces = quantity[0]?.quantityDecimalPlaces ?? 2;
-                              const sanitized = handleQuantityInput(e.target.value, decimalPlaces);
-
-                              const updatedDrivers = [...quantity];
-                              updatedDrivers[0] = {
-                                ...updatedDrivers[0],
-                                quantityFrom: sanitized,
-                              };
-                              setQuantity(updatedDrivers);
-                            }}
-                            onBlur={() => {
-                              const currentValue = quantity[0]?.quantityFrom;
-                              const decimalPlaces = quantity[0]?.quantityDecimalPlaces ?? 2;
-
-                              // Only format if there's a valid number
-                              if (currentValue && currentValue !== '' && !isNaN(parseFloat(currentValue))) {
-                                const formattedValue = formatDisplayValue(currentValue, decimalPlaces);
-
-                                const updatedDrivers = [...quantity];
-                                updatedDrivers[0] = {
-                                  ...updatedDrivers[0],
-                                  quantityFrom: formattedValue,
-                                };
-                                setQuantity(updatedDrivers);
-                              } else if (currentValue && currentValue.endsWith('.')) {
-                                // Remove trailing decimal point if user left it
-                                const updatedDrivers = [...quantity];
-                                updatedDrivers[0] = {
-                                  ...updatedDrivers[0],
-                                  quantityFrom: currentValue.slice(0, -1),
-                                };
-                                setQuantity(updatedDrivers);
-                              }
-                            }}
-                          />
-                  </div>
-                </div>
-               </div>
-               <div className="col-lg-6">
-                <div className="mb-1">
-                  <label className="form-label">Quantity To</label>
-                  <div className="input-group">
-                    <input
-                            className="input-text"
-                            type="text"
-                            value={quantity[0].quantityTo || ""}
-                            onChange={(e) => {
-                              const decimalPlaces = quantity[0]?.quantityDecimalPlaces ?? 2;
-                              const sanitized = handleQuantityInput(e.target.value, decimalPlaces);
-
-                              const updatedDrivers = [...quantity];
-                              updatedDrivers[0] = {
-                                ...updatedDrivers[0],
-                                quantityTo: sanitized,
-                              };
-                              setQuantity(updatedDrivers);
-                            }}
-                            onBlur={() => {
-                              const currentValue = quantity[0]?.quantityTo;
-                              const decimalPlaces = quantity[0]?.quantityDecimalPlaces ?? 2;
-
-                              // Only format if there's a valid number
-                              if (currentValue && currentValue !== '' && !isNaN(parseFloat(currentValue))) {
-                                const formattedValue = formatDisplayValue(currentValue, decimalPlaces);
-
-                                const updatedDrivers = [...quantity];
-                                updatedDrivers[0] = {
-                                  ...updatedDrivers[0],
-                                  quantityTo: formattedValue,
-                                };
-                                setQuantity(updatedDrivers);
-                              } else if (currentValue && currentValue.endsWith('.')) {
-                                // Remove trailing decimal point if user left it
-                                const updatedDrivers = [...quantity];
-                                updatedDrivers[0] = {
-                                  ...updatedDrivers[0],
-                                  quantityTo: currentValue.slice(0, -1),
-                                };
-                                setQuantity(updatedDrivers);
-                              }
-                            }}
-                          />
-                  </div>
-                </div>
-               </div>
-              </div>
-              {qtyError.quantityError && quantity[0].quantityFrom !== "" && quantity[0].quantityTo !== "" &&
-                Number(quantity[0].quantityTo) < Number(quantity[0].quantityFrom) && (
-                <label className="text-danger text-center">
-                  Invalid Range
-                </label>
-              )}
-              </>
-              )}
               <label
                 className="validation"
                 style={{
@@ -2962,37 +1954,6 @@ function Modal(props) {
                   <span className="font-12 delete-margin">Add Variation</span>
                 </button>
               )}
-              {dates &&
-                globalPricingDriverObj.driverTypeID === 6 && (
-                  <button
-                    disabled={
-                      dates[0]?.blocks?.length > 0 &&
-                      (
-                        // Disable if fromDate is filled but toDate is empty
-                        (dates[0].blocks.at(-1)?.fromDate && !dates[0].blocks.at(-1)?.toDate) ||
-
-                        // Disable if both fromDate and toDate are empty
-                        (!dates[0].blocks.at(-1)?.fromDate && !dates[0].blocks.at(-1)?.toDate)
-                      )
-                    }
-                    onClick={() => OnAddPeriodBlock()}
-                    className="btn btn-sm btn-primary create-item-btn d-flex gap-1"
-                  >
-                    <i className="bi bi-plus-circle"></i>
-                    <p className="delete-margin font-12">Add Period Block</p>
-                  </button>
-                )}
-
-                {/* {dates.length > 0 &&
-                globalPricingDriverObj.driverTypeID == 6 && (
-                  <button
-                    onClick={AddPeriodBlock}
-                    class="btn btn-sm btn-primary create-item-btn d-flex gap-1"
-                  >
-                    <i class="bi bi-plus-circle "></i>
-                    <span className="font-12 delete-margin">Add Period Block</span>
-                  </button>
-                )} */}
               {props.modelRequestData.Type ? (<>
                 <button
                   type="submit"

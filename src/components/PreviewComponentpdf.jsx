@@ -17,8 +17,6 @@ import AccountantVariables from "./Variables/AccountantVariables";
 import Text_Editor from "./Text_Editor";
 import { Tooltip } from "reactstrap";
 import { ServiceChargeTypeEnum } from "../Middleware/enums";
-import "react-datepicker/dist/react-datepicker.css";
-import { format, parse, isValid } from "date-fns";
 import {
   GetEmailContent,
   GetTemplateLookupPDFList,
@@ -47,9 +45,7 @@ export default function PreviewComponentPdf(props) {
     userAccessData,
     isMobile,
     replaceUrlInHtml,
-    getCurrencySymbol,
     activeOrganizationSubscriptionPlan,
-    convertAndParseDate
   } = useContext(AuthContextProvider);
   const [totalOnePackageValue, setTotalOnePackageValue] = useState(0);
   const [totalTwoPackageValue, setTotalTwoPackageValue] = useState(0);
@@ -167,23 +163,6 @@ export default function PreviewComponentPdf(props) {
   //       }));
   //   };
   // }, []);
-  const getDecimalPlaces = (driver) => {
-    if (driver.driverTypeID === 2) {
-      // Quantity
-      return Array.isArray(driver.quantity) && driver.quantity.length > 0
-        ? driver.quantity[0].quantityDecimalPlaces ?? 0
-        : driver.quantityDecimalPlaces ?? 0;
-    }
-  
-    if (driver.driverTypeID === 4) {
-      // Slab
-      return Array.isArray(driver.slab) && driver.slab.length > 0
-        ? driver.slab[0].decimalPlaces ?? 0
-        : driver.decimalPlaces ?? 0;
-    }
-  
-    return 0;
-  };
 
   useEffect(() => {
     // Function to compute the sum of package values
@@ -526,7 +505,7 @@ export default function PreviewComponentPdf(props) {
                           ) ? (
                           <span>&#10007;</span>
                         ) : (
-                          ` ${props.formatValue(subService.packageTwoValue,props.currencyID)}`
+                          ` ${props.formatValue(subService.packageTwoValue)}`
                         )}
                       </td>
                     ) : subService.packageTwoValue !== null &&
@@ -575,7 +554,7 @@ export default function PreviewComponentPdf(props) {
                           ) ? (
                           <span>&#10007;</span>
                         ) : (
-                          `${props.formatValue(subService.packageThreeValue,props.currencyID)}`
+                          `${props.formatValue(subService.packageThreeValue)}`
                         )}
                       </td>
                     ) : subService.packageThreeValue !== null &&
@@ -2142,7 +2121,9 @@ export default function PreviewComponentPdf(props) {
                                 ${pricingDriver.driverName}: 
                                    <strong> ${
                                      pricingDriver.driverTypeID === 2
-                                       ? props.formatValueWithoutCurrencySymbol_v1(pricingDriver.value,pricingDriver.quantity?.[0]?.quantityDecimalPlaces)
+                                       ? props.formatValueWithoutCurrencySymbol(
+                                           pricingDriver.value
+                                         )
                                        : pricingDriver.driverTypeID === 3
                                        ? pricingDriver.variationName
                                        : pricingDriver.driverTypeID === 4
@@ -2152,22 +2133,8 @@ export default function PreviewComponentPdf(props) {
                                            )
                                          : pricingDriver.slabFrom +
                                            "-" +
-                                           pricingDriver.slabTo :
-                                            pricingDriver.driverTypeID === 5 ? pricingDriver?.enteredText : 
-                                            pricingDriver.driverTypeID === 6 ? pricingDriver?.enteredDate
-                                            //  && pricingDriver?.enteredDateFormat
-                                            //     ? (() => {
-                                            //       const dateObj = convertAndParseDate(
-                                            //         pricingDriver.enteredDate,
-                                            //         pricingDriver.enteredDateFormat,
-                                            //         pricingDriver.date?.[0]?.dateFormat
-                                            //       );
-                                            //       return dateObj && isValid(dateObj)
-                                            //         ? format(dateObj, pricingDriver.date?.[0]?.dateFormat)
-                                            //         : "";
-                                            //     })()
-                                            //     : ""
-                                              : ""
+                                           pricingDriver.slabTo
+                                       : ""
                                    }</strong>
                             </li>
                               `
@@ -2209,7 +2176,9 @@ export default function PreviewComponentPdf(props) {
                                 ${pricingDriver.driverName}: 
                                     <strong> ${
                                       pricingDriver.driverTypeID === 2
-                                        ? props.formatValueWithoutCurrencySymbol_v1(pricingDriver.value,pricingDriver.quantity?.[0]?.quantityDecimalPlaces)
+                                        ? props.formatValueWithoutCurrencySymbol(
+                                            pricingDriver.value
+                                          )
                                         : pricingDriver.driverTypeID === 3
                                         ? pricingDriver.variationName
                                         : pricingDriver.driverTypeID === 4
@@ -2219,22 +2188,8 @@ export default function PreviewComponentPdf(props) {
                                             )
                                           : pricingDriver.slabFrom +
                                             "-" +
-                                            pricingDriver.slabTo :
-                                            pricingDriver.driverTypeID === 5 ? pricingDriver?.enteredText : 
-                                            pricingDriver.driverTypeID === 6 ? pricingDriver?.enteredDate
-                                            //  && pricingDriver?.enteredDateFormat
-                                            //     ? (() => {
-                                            //       const dateObj = convertAndParseDate(
-                                            //         pricingDriver.enteredDate,
-                                            //         pricingDriver.enteredDateFormat,
-                                            //         pricingDriver.date?.[0]?.dateFormat
-                                            //       );
-                                            //       return dateObj && isValid(dateObj)
-                                            //         ? format(dateObj, pricingDriver.date?.[0]?.dateFormat)
-                                            //         : "";
-                                            //     })()
-                                            //     : ""
-                                              : ""
+                                            pricingDriver.slabTo
+                                        : ""
                                     }</strong>
                             </li>
                               `
@@ -2334,9 +2289,9 @@ export default function PreviewComponentPdf(props) {
                                 ${pricingDriver.driverName}: 
                                     <strong> ${
                                       pricingDriver.driverTypeID === 2
-                                        ? props.formatValueWithoutCurrencySymbol_v1(
-                                          pricingDriver.driverValue, getDecimalPlaces(pricingDriver)
-                                        )
+                                        ? props.formatValueWithoutCurrencySymbol(
+                                            pricingDriver.driverValue
+                                          )
                                         : // Number(pricingDriver.driverValue).toFixed(2).toString().replace(
                                         //   /\B(?=(\d{3})+(?!\d))/g,
                                         //   ","
@@ -2352,9 +2307,15 @@ export default function PreviewComponentPdf(props) {
                                         ? subService?.pricingDriverList ==
                                           undefined
                                           ? pricingDriver.slabTypeID === 2
-                                            ? props.formatValueWithoutCurrencySymbol_v1(pricingDriver.driverValue,getDecimalPlaces(pricingDriver))
-                                            : props.formatValueWithoutCurrencySymbol_v1(pricingDriver.driverValue,getDecimalPlaces(pricingDriver)) -
-                                              props.formatValueWithoutCurrencySymbol_v1(pricingDriver.driverValue,getDecimalPlaces(pricingDriver))
+                                            ? props.formatValueWithoutCurrencySymbol(
+                                                pricingDriver.driverValue
+                                              )
+                                            : props.formatValueWithoutCurrencySymbol(
+                                                pricingDriver.slabFrom
+                                              ) -
+                                              props.formatValueWithoutCurrencySymbol(
+                                                pricingDriver.slabTo
+                                              )
                                           : pricingDriver.slab.find(
                                               (item) => item.isDefault
                                             ).slabTypeID === 2
@@ -2374,7 +2335,7 @@ export default function PreviewComponentPdf(props) {
                                                 (item) => item.isDefault
                                               ).slabFrom
                                             )
-                                              .toFixed(getDecimalPlaces(pricingDriver))
+                                              .toFixed(2)
                                               .toString()
                                               .replace(
                                                 /\B(?=(\d{3})+(?!\d))/g,
@@ -2386,26 +2347,13 @@ export default function PreviewComponentPdf(props) {
                                                 (item) => item.isDefault
                                               ).slabTo
                                             )
-                                              .toFixed(getDecimalPlaces(pricingDriver))
+                                              .toFixed(2)
                                               .toString()
                                               .replace(
                                                 /\B(?=(\d{3})+(?!\d))/g,
                                                 ","
                                               )
-                                        : pricingDriver.driverTypeID === 5 ?
-                                          pricingDriver?.enteredText ?? ""
-                                          : pricingDriver.driverTypeID === 6
-                                            ? pricingDriver.enteredDate
-                                            // ? pricingDriver.date && pricingDriver.date.length > 0
-                                            //   ? (() => {
-                                            //     const inputFormat = pricingDriver.enteredDateFormat;
-                                            //     const outputFormat = pricingDriver.date[0]?.dateFormat;
-                                            //     const dateObj = convertAndParseDate(pricingDriver.enteredDate, inputFormat, outputFormat);
-                                            //     return dateObj && isValid(dateObj) ? format(dateObj, outputFormat) : "";
-                                            //   })()
-                                            //   : pricingDriver.enteredDate
-                                            // : ""
-                                            : ""
+                                        : ""
                                     }</strong>
                             </li>
                               `
@@ -2459,8 +2407,8 @@ export default function PreviewComponentPdf(props) {
                                 ${pricingDriver.driverName}: 
                                     <strong> ${
                                       pricingDriver.driverTypeID === 2
-                                        ? props.formatValueWithoutCurrencySymbol_v1(
-                                          pricingDriver.driverValue, getDecimalPlaces(pricingDriver)
+                                        ? props.formatValueWithoutCurrencySymbol(
+                                            pricingDriver.driverValue
                                           )
                                         : // Number(pricingDriver.driverValue).toFixed(2).toString().replace(
                                         //   /\B(?=(\d{3})+(?!\d))/g,
@@ -2474,41 +2422,56 @@ export default function PreviewComponentPdf(props) {
                                               (item) => item.isDefault
                                             ).variationName
                                         : pricingDriver.driverTypeID === 4
-                                        ? subService?.pricingDriverList == undefined
-                                            ? pricingDriver.slabTypeID === 2
-                                              ? props.formatValueWithoutCurrencySymbol_v1(pricingDriver.driverValue, getDecimalPlaces(pricingDriver))
-                                              : props.formatValueWithoutCurrencySymbol_v1(pricingDriver.slabFrom, getDecimalPlaces(pricingDriver)) + "-" + props.formatValueWithoutCurrencySymbol_v1(pricingDriver.slabTo, getDecimalPlaces(pricingDriver))
-                                            : pricingDriver.slab?.find((item) => item.isDefault)?.slabTypeID === 2
-                                              ? Number(pricingDriver?.slab?.find((item) => item.isDefault)?.slabValue ?? pricingDriver.driverValue)
-                                                .toFixed(2)
-                                                .toString()
-                                                .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                                              : Number(pricingDriver.slab?.find((item) => item.isDefault)?.slabFrom ?? pricingDriver.driverValue)
-                                                .toFixed(pricingDriver?.slab?.[0]?.decimalPlaces ?? 2)
-                                                .toString()
-                                                .replace(/\B(?=(\d{3})+(?!\d))/g, ",") +
-                                              "-" +
-                                              Number(pricingDriver.slab?.find((item) => item.isDefault)?.slabTo ?? pricingDriver.driverValue)
-                                                .toFixed(pricingDriver?.slab?.[0]?.decimalPlaces ?? 2)
-                                                .toString()
-                                                .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                                            : pricingDriver.driverTypeID === 5 ? 
-                                              pricingDriver?.enteredText ?? ""
-                                            : pricingDriver.driverTypeID === 6 ? 
-                                              pricingDriver?.enteredDate
-                                              //  && pricingDriver?.enteredDateFormat
-                                              //   ? (() => {
-                                              //     const dateObj = convertAndParseDate(
-                                              //       pricingDriver.enteredDate,
-                                              //       pricingDriver.enteredDateFormat,
-                                              //       pricingDriver.date?.[0]?.dateFormat
-                                              //     );
-                                              //     return dateObj && isValid(dateObj)
-                                              //       ? format(dateObj, pricingDriver.date?.[0]?.dateFormat)
-                                              //       : "";
-                                              //   })()
-                                              //   : "" ?? ""
-                                            : ""
+                                        ? subService?.pricingDriverList ==
+                                          undefined
+                                          ? pricingDriver.slabTypeID === 2
+                                            ? props.formatValueWithoutCurrencySymbol(
+                                                pricingDriver.driverValue
+                                              )
+                                            : props.formatValueWithoutCurrencySymbol(
+                                                pricingDriver.slabFrom
+                                              ) -
+                                              props.formatValueWithoutCurrencySymbol(
+                                                pricingDriver.slabTo
+                                              )
+                                          : pricingDriver.slab.find(
+                                              (item) => item.isDefault
+                                            ).slabTypeID === 2
+                                          ? Number(
+                                              pricingDriver.slab.find(
+                                                (item) => item.isDefault
+                                              ).slabValue
+                                            )
+                                              .toFixed(2)
+                                              .toString()
+                                              .replace(
+                                                /\B(?=(\d{3})+(?!\d))/g,
+                                                ","
+                                              )
+                                          : Number(
+                                              pricingDriver.slab.find(
+                                                (item) => item.isDefault
+                                              ).slabFrom
+                                            )
+                                              .toFixed(2)
+                                              .toString()
+                                              .replace(
+                                                /\B(?=(\d{3})+(?!\d))/g,
+                                                ","
+                                              ) +
+                                            "-" +
+                                            Number(
+                                              pricingDriver.slab.find(
+                                                (item) => item.isDefault
+                                              ).slabTo
+                                            )
+                                              .toFixed(2)
+                                              .toString()
+                                              .replace(
+                                                /\B(?=(\d{3})+(?!\d))/g,
+                                                ","
+                                              )
+                                        : ""
                                     }</strong>
                             </li>
                               `
@@ -2680,7 +2643,9 @@ export default function PreviewComponentPdf(props) {
                                 ${pricingDriver.driverName}: 
                                     <strong> ${
                                       pricingDriver.driverTypeID === 2
-                                        ? props.formatValueWithoutCurrencySymbol_v1(pricingDriver.value,pricingDriver.quantity?.[0]?.quantityDecimalPlaces)
+                                        ? props.formatValueWithoutCurrencySymbol(
+                                            pricingDriver.value
+                                          )
                                         : pricingDriver.driverTypeID === 3
                                         ? pricingDriver.variationName
                                         : pricingDriver.driverTypeID === 4
@@ -2734,8 +2699,8 @@ export default function PreviewComponentPdf(props) {
                                 ${pricingDriver.driverName}: 
                                     <strong> ${
                                       pricingDriver.driverTypeID === 2
-                                        ? props.formatValueWithoutCurrencySymbol_v1(
-                                            pricingDriver.driverValue,pricingDriver.quantity?.[0]?.quantityDecimalPlaces
+                                        ? props.formatValueWithoutCurrencySymbol(
+                                            pricingDriver.value
                                           )
                                         : pricingDriver.driverTypeID === 3
                                         ? pricingDriver.variationName
@@ -2848,8 +2813,8 @@ export default function PreviewComponentPdf(props) {
                               ${pricingDriver.driverName}: 
                                   <strong> ${
                                     pricingDriver.driverTypeID === 2
-                                      ? props.formatValueWithoutCurrencySymbol_v1(
-                                            pricingDriver.driverValue,pricingDriver.quantity?.[0]?.quantityDecimalPlaces
+                                      ? props.formatValueWithoutCurrencySymbol(
+                                          pricingDriver.driverValue
                                         )
                                       : // Number(pricingDriver.driverValue).toFixed(2).toString().replace(
                                       //   /\B(?=(\d{3})+(?!\d))/g,
@@ -2863,41 +2828,56 @@ export default function PreviewComponentPdf(props) {
                                             (item) => item.isDefault
                                           ).variationName
                                       : pricingDriver.driverTypeID === 4
-                                      ? subService?.pricingDriverList == undefined
-                                            ? pricingDriver.slabTypeID === 2
-                                              ? props.formatValueWithoutCurrencySymbol_v1(pricingDriver.driverValue, getDecimalPlaces(pricingDriver))
-                                              : props.formatValueWithoutCurrencySymbol_v1(pricingDriver.slabFrom, getDecimalPlaces(pricingDriver)) + "-" + props.formatValueWithoutCurrencySymbol_v1(pricingDriver.slabTo, getDecimalPlaces(pricingDriver))
-                                            : pricingDriver.slab?.find((item) => item.isDefault)?.slabTypeID === 2
-                                              ? Number(pricingDriver?.slab?.find((item) => item.isDefault)?.slabValue ?? pricingDriver.driverValue)
-                                                .toFixed(2)
-                                                .toString()
-                                                .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                                              : Number(pricingDriver.slab?.find((item) => item.isDefault)?.slabFrom ?? pricingDriver.driverValue)
-                                                .toFixed(pricingDriver?.slab?.[0]?.decimalPlaces ?? 2)
-                                                .toString()
-                                                .replace(/\B(?=(\d{3})+(?!\d))/g, ",") +
-                                              "-" +
-                                              Number(pricingDriver.slab?.find((item) => item.isDefault)?.slabTo ?? pricingDriver.driverValue)
-                                                .toFixed(pricingDriver?.slab?.[0]?.decimalPlaces ?? 2)
-                                                .toString()
-                                                .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                                            : pricingDriver.driverTypeID === 5 ? 
-                                              pricingDriver?.enteredText ?? ""
-                                            : pricingDriver.driverTypeID === 6 ? 
-                                              pricingDriver?.enteredDate
-                                              //  && pricingDriver?.enteredDateFormat
-                                              //   ? (() => {
-                                              //     const dateObj = convertAndParseDate(
-                                              //       pricingDriver.enteredDate,
-                                              //       pricingDriver.enteredDateFormat,
-                                              //       pricingDriver.date?.[0]?.dateFormat
-                                              //     );
-                                              //     return dateObj && isValid(dateObj)
-                                              //       ? format(dateObj, pricingDriver.date?.[0]?.dateFormat)
-                                              //       : "";
-                                              //   })()
-                                              //   : "" ?? ""
-                                            : ""
+                                      ? subService?.pricingDriverList ==
+                                        undefined
+                                        ? pricingDriver.slabTypeID === 2
+                                          ? props.formatValueWithoutCurrencySymbol(
+                                              pricingDriver.driverValue
+                                            )
+                                          : props.formatValueWithoutCurrencySymbol(
+                                              pricingDriver.slabFrom
+                                            ) -
+                                            props.formatValueWithoutCurrencySymbol(
+                                              pricingDriver.slabTo
+                                            )
+                                        : pricingDriver.slab.find(
+                                            (item) => item.isDefault
+                                          ).slabTypeID === 2
+                                        ? Number(
+                                            pricingDriver.slab.find(
+                                              (item) => item.isDefault
+                                            ).slabValue
+                                          )
+                                            .toFixed(2)
+                                            .toString()
+                                            .replace(
+                                              /\B(?=(\d{3})+(?!\d))/g,
+                                              ","
+                                            )
+                                        : Number(
+                                            pricingDriver.slab.find(
+                                              (item) => item.isDefault
+                                            ).slabFrom
+                                          )
+                                            .toFixed(2)
+                                            .toString()
+                                            .replace(
+                                              /\B(?=(\d{3})+(?!\d))/g,
+                                              ","
+                                            ) +
+                                          "-" +
+                                          Number(
+                                            pricingDriver.slab.find(
+                                              (item) => item.isDefault
+                                            ).slabTo
+                                          )
+                                            .toFixed(2)
+                                            .toString()
+                                            .replace(
+                                              /\B(?=(\d{3})+(?!\d))/g,
+                                              ","
+                                            )
+                                      : ""
                                   }</strong>
                           </li>
                             `
@@ -3225,9 +3205,9 @@ export default function PreviewComponentPdf(props) {
                                               )
                                             ? `<span>&#10007;</span>`
                                             : `${props.formatValue(
-                                                subService.packageOneValue,props.currencyID
+                                                subService.packageOneValue
                                               )}`
-                                          : props.formatValue(subService.price,props.currencyID)
+                                          : props.formatValue(subService.price)
                                       }</td>
                             `
                                     : `${
@@ -3273,10 +3253,10 @@ export default function PreviewComponentPdf(props) {
                                                 )
                                               ? `<span>&#10007;</span>`
                                               : `${props.formatValue(
-                                                  subService.packageTwoValue,props.currencyID
+                                                  subService.packageTwoValue
                                                 )}`
                                             : props.formatValue(
-                                                subService.price,props.currencyID
+                                                subService.price
                                               )
                                         }</td>
                               `
@@ -3326,10 +3306,10 @@ export default function PreviewComponentPdf(props) {
                                                 )
                                               ? `<span>&#10007;</span>`
                                               : `${props.formatValue(
-                                                  subService.packageThreeValue,props.currencyID
+                                                  subService.packageThreeValue
                                                 )}`
                                             : props.formatValue(
-                                                subService.price,props.currencyID
+                                                subService.price
                                               )
                                         }</td>
                               `
@@ -3378,10 +3358,10 @@ export default function PreviewComponentPdf(props) {
                             !props.DiscountLines)
                             ? props.formatValue(
                                 props.RecurringPricingInfo
-                                  .packageOneDisCountedTotal,props.currencyID
+                                  .packageOneDisCountedTotal
                               )
                             : props.formatValue(
-                                props.RecurringPricingInfo.packageOneNetTotal,props.currencyID
+                                props.RecurringPricingInfo.packageOneNetTotal
                               )
                         }</td >
                           
@@ -3398,10 +3378,10 @@ export default function PreviewComponentPdf(props) {
                           !props.DiscountLines)
                           ? props.formatValue(
                               props.RecurringPricingInfo
-                                .packageTwoDisCountedTotal,props.currencyID
+                                .packageTwoDisCountedTotal
                             )
                           : props.formatValue(
-                              props.RecurringPricingInfo.packageTwoNetTotal,props.currencyID
+                              props.RecurringPricingInfo.packageTwoNetTotal
                             )
                       }</td>`
                                : ``
@@ -3423,11 +3403,11 @@ export default function PreviewComponentPdf(props) {
                               !props.DiscountLines)
                               ? props.formatValue(
                                   props.RecurringPricingInfo
-                                    .packageThreeDisCountedTotal,props.currencyID
+                                    .packageThreeDisCountedTotal
                                 )
                               : props.formatValue(
                                   props.RecurringPricingInfo
-                                    .packageThreeNetTotal,props.currencyID
+                                    .packageThreeNetTotal
                                 )
                           }</td>`
                                : ` `
@@ -3451,7 +3431,7 @@ export default function PreviewComponentPdf(props) {
              <td style="border: 1px solid #dddddd; text-align: right; padding: 8px;color: black;">
               (-)    
               ${props.formatValue(
-                props.RecurringPricingInfo.packageOneDisCount,props.currencyID
+                props.RecurringPricingInfo.packageOneDisCount
               )}
             </td>
             ${
@@ -3460,7 +3440,7 @@ export default function PreviewComponentPdf(props) {
                <td style="border: 1px solid #dddddd; text-align: right; padding: 8px;color: black;">
                 (-)    
                 ${props.formatValue(
-                  props.RecurringPricingInfo.packageTwoDisCount,props.currencyID
+                  props.RecurringPricingInfo.packageTwoDisCount
                 )}
               </td>
             `
@@ -3472,7 +3452,7 @@ export default function PreviewComponentPdf(props) {
                <td style="border: 1px solid #dddddd; text-align: right; padding: 8px;color: black;">
                 (-)    
                 ${props.formatValue(
-                  props.RecurringPricingInfo.packageThreeDisCount,props.currencyID
+                  props.RecurringPricingInfo.packageThreeDisCount
                 )}
               </td>
             `
@@ -3487,7 +3467,7 @@ export default function PreviewComponentPdf(props) {
             
                  
               ${props.formatValue(
-                props.RecurringPricingInfo.packageOneDisCountedTotal,props.currencyID
+                props.RecurringPricingInfo.packageOneDisCountedTotal
               )}
             </td>
             ${
@@ -3497,7 +3477,7 @@ export default function PreviewComponentPdf(props) {
                
                    
                 ${props.formatValue(
-                  props.RecurringPricingInfo.packageTwoDisCountedTotal,props.currencyID
+                  props.RecurringPricingInfo.packageTwoDisCountedTotal
                 )}
               </td>
             `
@@ -3510,7 +3490,7 @@ export default function PreviewComponentPdf(props) {
                
                    
                 ${props.formatValue(
-                  props.RecurringPricingInfo.packageThreeDisCountedTotal,props.currencyID
+                  props.RecurringPricingInfo.packageThreeDisCountedTotal
                 )}
               </td>
             `
@@ -3527,12 +3507,12 @@ export default function PreviewComponentPdf(props) {
            ? `
         <tr style="background-color: #DCDCDC";>
            <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;color: black;">
-              ${props.taxName}
+              VAT
           </td>
            <td style="border: 1px solid #dddddd; text-align: right; padding: 8px;color: black;">
                
             ${
-              props.formatValue(props.RecurringPricingInfo.PackageOneVaTPrice,props.currencyID)
+              props.formatValue(props.RecurringPricingInfo.PackageOneVaTPrice)
 
               // Number(props.RecurringPricingInfo.PackageOneVaTPrice).toFixed(2).toString().replace(
               //           /\B(?=(\d{3})+(?!\d))/g,
@@ -3546,7 +3526,7 @@ export default function PreviewComponentPdf(props) {
             <td style="border: 1px solid #dddddd; text-align: right; padding: 8px;color: black;">
                  
               ${
-                props.formatValue(props.RecurringPricingInfo.PackageTwoVaTPrice,props.currencyID)
+                props.formatValue(props.RecurringPricingInfo.PackageTwoVaTPrice)
                 // Number(props.RecurringPricingInfo.PackageTwoVaTPrice).toFixed(2).toString().replace(
                 //         /\B(?=(\d{3})+(?!\d))/g,
                 //         ","
@@ -3563,7 +3543,7 @@ export default function PreviewComponentPdf(props) {
                  
               ${
                 props.formatValue(
-                  props.RecurringPricingInfo.PackageThreeVaTPrice,props.currencyID
+                  props.RecurringPricingInfo.PackageThreeVaTPrice
                 )
                 // Number(props.RecurringPricingInfo.PackageThreeVaTPrice).toFixed(2).toString().replace(
                 //         /\B(?=(\d{3})+(?!\d))/g,
@@ -3583,7 +3563,7 @@ export default function PreviewComponentPdf(props) {
           <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
                
             ${
-              props.formatValue(props.RecurringPricingInfo.PackageOneGrandTotal,props.currencyID)
+              props.formatValue(props.RecurringPricingInfo.PackageOneGrandTotal)
               // Number(props.RecurringPricingInfo.PackageOneGrandTotal).toFixed(2).toString().replace(
               //           /\B(?=(\d{3})+(?!\d))/g,
               //           ","
@@ -3597,7 +3577,7 @@ export default function PreviewComponentPdf(props) {
                  
               ${
                 props.formatValue(
-                  props.RecurringPricingInfo.PackageTwoGrandTotal,props.currencyID
+                  props.RecurringPricingInfo.PackageTwoGrandTotal
                 )
                 // Number(props.RecurringPricingInfo.PackageTwoGrandTotal).toFixed(2).toString().replace(
                 //         /\B(?=(\d{3})+(?!\d))/g,
@@ -3615,7 +3595,7 @@ export default function PreviewComponentPdf(props) {
                  
               ${
                 props.formatValue(
-                  props.RecurringPricingInfo.PackageThreeGrandTotal,props.currencyID
+                  props.RecurringPricingInfo.PackageThreeGrandTotal
                 )
                 // Number(props.RecurringPricingInfo.PackageThreeGrandTotal).toFixed(2).toString().replace(
                 //         /\B(?=(\d{3})+(?!\d))/g,
@@ -3708,9 +3688,9 @@ export default function PreviewComponentPdf(props) {
                                               )
                                             ? `<span>&#10007;</span>`
                                             : `${props.formatValue(
-                                                subService.packageOneValue,props.currencyID
+                                                subService.packageOneValue
                                               )}`
-                                          : props.formatValue(subService.price,props.currencyID)
+                                          : props.formatValue(subService.price)
                                       }</td>
                             `
                                     : `${
@@ -3756,10 +3736,10 @@ export default function PreviewComponentPdf(props) {
                                                 )
                                               ? `<span>&#10007;</span>`
                                               : `${props.formatValue(
-                                                  subService.packageTwoValue,props.currencyID
+                                                  subService.packageTwoValue
                                                 )}`
                                             : props.formatValue(
-                                                subService.price,props.currencyID
+                                                subService.price
                                               )
                                         }</td>
                               `
@@ -3809,10 +3789,10 @@ export default function PreviewComponentPdf(props) {
                                                 )
                                               ? `<span>&#10007;</span>`
                                               : `${props.formatValue(
-                                                  subService.packageThreeValue,props.currencyID
+                                                  subService.packageThreeValue
                                                 )}`
                                             : props.formatValue(
-                                                subService.price,props.currencyID
+                                                subService.price
                                               )
                                         }</td>
                               `
@@ -3857,10 +3837,10 @@ export default function PreviewComponentPdf(props) {
                             !props.DiscountLines)
                             ? props.formatValue(
                                 props.OneOffPricingInfo
-                                  .packageOneDisCountedTotal,props.currencyID
+                                  .packageOneDisCountedTotal
                               )
                             : props.formatValue(
-                                props.OneOffPricingInfo.packageOneNetTotal,props.currencyID
+                                props.OneOffPricingInfo.packageOneNetTotal
                               )
                         }</td>
                           
@@ -3880,11 +3860,11 @@ export default function PreviewComponentPdf(props) {
                                      !props.DiscountLines)
                                      ? props.formatValue(
                                          props.OneOffPricingInfo
-                                           .packageTwoDisCountedTotal,props.currencyID
+                                           .packageTwoDisCountedTotal
                                        )
                                      : props.formatValue(
                                          props.OneOffPricingInfo
-                                           .packageTwoNetTotal,props.currencyID
+                                           .packageTwoNetTotal
                                        )
                                  }</td>`
                                : ` `
@@ -3907,11 +3887,11 @@ export default function PreviewComponentPdf(props) {
                                      !props.DiscountLines)
                                      ? props.formatValue(
                                          props.OneOffPricingInfo
-                                           .packageThreeDisCountedTotal,props.currencyID
+                                           .packageThreeDisCountedTotal
                                        )
                                      : props.formatValue(
                                          props.OneOffPricingInfo
-                                           .packageThreeNetTotal,props.currencyID
+                                           .packageThreeNetTotal
                                        )
                                  }
                         </td>`
@@ -3933,14 +3913,14 @@ export default function PreviewComponentPdf(props) {
             </td>
              <td style="border: 1px solid #dddddd; text-align: right; padding: 8px;color: Black;">
               (-)    
-              ${props.formatValue(props.OneOffPricingInfo.packageOneDisCount,props.currencyID)}
+              ${props.formatValue(props.OneOffPricingInfo.packageOneDisCount)}
             </td>
             ${
               props?.selectedPackagesList?.length >= 2
                 ? `
                <td style="border: 1px solid #dddddd; text-align: right; padding: 8px;color: Black;">
                 (-)    
-                ${props.formatValue(props.OneOffPricingInfo.packageTwoDisCount,props.currencyID)}
+                ${props.formatValue(props.OneOffPricingInfo.packageTwoDisCount)}
               </td>
             `
                 : ``
@@ -3951,7 +3931,7 @@ export default function PreviewComponentPdf(props) {
                <td style="border: 1px solid #dddddd; text-align: right; padding: 8px;color: Black;"">
                 (-)    
                 ${props.formatValue(
-                  props.OneOffPricingInfo.packageThreeDisCount,props.currencyID
+                  props.OneOffPricingInfo.packageThreeDisCount
                 )}
               </td>
             `
@@ -3967,7 +3947,7 @@ export default function PreviewComponentPdf(props) {
                  
               ${
                 props.formatValue(
-                  props.OneOffPricingInfo.packageOneDisCountedTotal,props.currencyID
+                  props.OneOffPricingInfo.packageOneDisCountedTotal
                 )
                 // Number(props.OneOffPricingInfo.packageOneDisCountedTotal)
                 //           .toFixed(2).toString().replace(
@@ -3983,7 +3963,7 @@ export default function PreviewComponentPdf(props) {
    
                 ${
                   props.formatValue(
-                    props.OneOffPricingInfo.packageTwoDisCountedTotal,props.currencyID
+                    props.OneOffPricingInfo.packageTwoDisCountedTotal
                   )
                   // Number(props.OneOffPricingInfo.packageTwoDisCountedTotal)
                   //           .toFixed(2).toString().replace(
@@ -4003,7 +3983,7 @@ export default function PreviewComponentPdf(props) {
                    
                 ${
                   props.formatValue(
-                    props.OneOffPricingInfo.packageThreeDisCountedTotal,props.currencyID
+                    props.OneOffPricingInfo.packageThreeDisCountedTotal
                   )
                   // Number(props.OneOffPricingInfo.packageThreeDisCountedTotal)
                   //           .toFixed(2).toString().replace(
@@ -4026,12 +4006,12 @@ export default function PreviewComponentPdf(props) {
            ? `
         <tr style="background-color: #DCDCDC";>
            <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;color: black;">
-              ${props.taxName}
+              VAT
           </td>
            <td style="border: 1px solid #dddddd; text-align: right; padding: 8px;color: black;">
                
             ${
-              props.formatValue(props.OneOffPricingInfo.PackageOneVaTPrice,props.currencyID)
+              props.formatValue(props.OneOffPricingInfo.PackageOneVaTPrice)
               // Number(props.OneOffPricingInfo.PackageOneVaTPrice)
               //           .toFixed(2).toString().replace(
               //             /\B(?=(\d{3})+(?!\d))/g,
@@ -4045,7 +4025,7 @@ export default function PreviewComponentPdf(props) {
             <td style="border: 1px solid #dddddd; text-align: right; padding: 8px;color: black;">
                  
               ${
-                props.formatValue(props.OneOffPricingInfo.PackageTwoVaTPrice,props.currencyID)
+                props.formatValue(props.OneOffPricingInfo.PackageTwoVaTPrice)
                 // Number(props.OneOffPricingInfo.PackageTwoVaTPrice)
                 //           .toFixed(2).toString().replace(
                 //             /\B(?=(\d{3})+(?!\d))/g,
@@ -4062,7 +4042,7 @@ export default function PreviewComponentPdf(props) {
             <td style="border: 1px solid #dddddd; text-align: right; padding: 8px;color: black;">
                  
               ${
-                props.formatValue(props.OneOffPricingInfo.PackageThreeVaTPrice,props.currencyID)
+                props.formatValue(props.OneOffPricingInfo.PackageThreeVaTPrice)
                 // Number(props.OneOffPricingInfo.PackageThreeVaTPrice)
                 //           .toFixed(2).toString().replace(
                 //             /\B(?=(\d{3})+(?!\d))/g,
@@ -4081,7 +4061,7 @@ export default function PreviewComponentPdf(props) {
           <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
                
             ${
-              props.formatValue(props.OneOffPricingInfo.PackageOneGrandTotal,props.currencyID)
+              props.formatValue(props.OneOffPricingInfo.PackageOneGrandTotal)
               // Number(props.OneOffPricingInfo.PackageOneGrandTotal)
               //           .toFixed(2).toString().replace(
               //             /\B(?=(\d{3})+(?!\d))/g,
@@ -4095,7 +4075,7 @@ export default function PreviewComponentPdf(props) {
             <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
                  
               ${
-                props.formatValue(props.OneOffPricingInfo.PackageTwoGrandTotal,props.currencyID)
+                props.formatValue(props.OneOffPricingInfo.PackageTwoGrandTotal)
                 // Number(props.OneOffPricingInfo.PackageTwoGrandTotal)
                 //           .toFixed(2).toString().replace(
                 //             /\B(?=(\d{3})+(?!\d))/g,
@@ -4113,7 +4093,7 @@ export default function PreviewComponentPdf(props) {
                  
               ${
                 props.formatValue(
-                  props.OneOffPricingInfo.PackageThreeGrandTotal,props.currencyID
+                  props.OneOffPricingInfo.PackageThreeGrandTotal
                 )
                 // Number(props.OneOffPricingInfo.PackageThreeGrandTotal)
                 //           .toFixed(2).toString().replace(
@@ -4152,7 +4132,7 @@ export default function PreviewComponentPdf(props) {
                       <table style="font-family:${fontFamily}; border-collapse: collapse; width: 100%; margin-top: -15px;">
                         <tr style="background-color:${newColorCode};">
                           <th style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white; font-size: 18px;">Services</th>
-                          <th style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; font-size: 18px;">Fees (${getCurrencySymbol(props.currencyID)})</th>
+                          <th style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; font-size: 18px;">Fees (£   )</th>
                         </tr>
                         ${props.selectedRecurringServiceList
                           .map(
@@ -4175,9 +4155,9 @@ export default function PreviewComponentPdf(props) {
                                     ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">   ${
                                         subService.price == undefined
                                           ? props.formatValue(
-                                              subService.quotationPrice,props.currencyID
+                                              subService.quotationPrice
                                             )
-                                          : props.formatValue(subService.price,props.currencyID)
+                                          : props.formatValue(subService.price)
                                       }</td>
                             `
                                     : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
@@ -4202,13 +4182,13 @@ export default function PreviewComponentPdf(props) {
                                   props.RecurringPricingInfo.DiscountedPrice
                                 ) === 0
                                 ? props.formatValue(
-                                    props.RecurringPricingInfo.OriginalPrice,props.currencyID
+                                    props.RecurringPricingInfo.OriginalPrice
                                   )
                                 : props.formatValue(
-                                    props.RecurringPricingInfo.DiscountedPrice,props.currencyID
+                                    props.RecurringPricingInfo.DiscountedPrice
                                   )
                               : props.formatValue(
-                                  props.RecurringPricingInfo.OriginalPrice,props.currencyID
+                                  props.RecurringPricingInfo.OriginalPrice
                                 )
                           }
                     </td>
@@ -4225,7 +4205,7 @@ export default function PreviewComponentPdf(props) {
                        <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: black;">
                        
                        (-)     ${props.formatValue(
-                         props.RecurringPricingInfo.Discount,props.currencyID
+                         props.RecurringPricingInfo.Discount
                        )}
                       </td>
                     </tr>
@@ -4236,7 +4216,7 @@ export default function PreviewComponentPdf(props) {
              <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
              
                  
-              ${props.formatValue(props.RecurringPricingInfo.DiscountedTotal,props.currencyID)}
+              ${props.formatValue(props.RecurringPricingInfo.DiscountedTotal)}
             </td>
           </tr>
         </>
@@ -4249,10 +4229,10 @@ export default function PreviewComponentPdf(props) {
           ? `      
           <tr style="background-color: #DCDCDC";>
            <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;color: black;">
-              ${props.taxName}
+              VAT
           </td>
             <td style="border: 1px solid #dddddd; text-align: right; padding: 8px;">   ${
-              props.formatValue(props.RecurringPricingInfo.VATPrice,props.currencyID)
+              props.formatValue(props.RecurringPricingInfo.VATPrice)
               // Number(props.RecurringPricingInfo.VATPrice)
               //           .toFixed(2).toString().replace(
               //             /\B(?=(\d{3})+(?!\d))/g,
@@ -4268,7 +4248,7 @@ export default function PreviewComponentPdf(props) {
           <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
                   
               ${
-                props.formatValue(props.RecurringPricingInfo.GrandTotal,props.currencyID)
+                props.formatValue(props.RecurringPricingInfo.GrandTotal)
                 // Number(props.RecurringPricingInfo.GrandTotal)
                 //         .toFixed(2).toString().replace(
                 //           /\B(?=(\d{3})+(?!\d))/g,
@@ -4299,7 +4279,7 @@ export default function PreviewComponentPdf(props) {
                         <table style="font-family:${fontFamily}; border-collapse: collapse; width: 100%; margin-top: -15px;">
                           <tr style="background-color:${newColorCode};">
                             <th style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white; font-size: 18px;">Services</th>
-                            <th style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; font-size: 18px;">Fees (${getCurrencySymbol(props.currencyID)})</th>
+                            <th style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; font-size: 18px;">Fees (£)</th>
                           </tr>
                           ${props.selectedOneOffServiceList
                             .map(
@@ -4322,9 +4302,9 @@ export default function PreviewComponentPdf(props) {
                                     ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">   ${
                                         subService.price == undefined
                                           ? props.formatValue(
-                                              subService.quotationPrice,props.currencyID
+                                              subService.quotationPrice
                                             )
-                                          : props.formatValue(subService.price,props.currencyID)
+                                          : props.formatValue(subService.price)
                                       }</td>
                             `
                                     : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
@@ -4347,13 +4327,13 @@ export default function PreviewComponentPdf(props) {
                         !props.DiscountLines)
                         ? Number(props.OneOffPricingInfo.DiscountedPrice) === 0
                           ? props.formatValue(
-                              props.OneOffPricingInfo.OriginalPrice,props.currencyID
+                              props.OneOffPricingInfo.OriginalPrice
                             )
                           : props.formatValue(
-                              props.OneOffPricingInfo.DiscountedPrice,props.currencyID
+                              props.OneOffPricingInfo.DiscountedPrice
                             )
                         : props.formatValue(
-                            props.OneOffPricingInfo.OriginalPrice,props.currencyID
+                            props.OneOffPricingInfo.OriginalPrice
                           )
                     }
                     </td>
@@ -4373,7 +4353,7 @@ export default function PreviewComponentPdf(props) {
                        <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: black;">
                        
                        (-)      ${props.formatValue(
-                         props.OneOffPricingInfo.Discount,props.currencyID
+                         props.OneOffPricingInfo.Discount
                        )}
                       </td>
                     </tr>
@@ -4383,7 +4363,7 @@ export default function PreviewComponentPdf(props) {
             </td>
              <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
                                 
-              ${props.formatValue(props.OneOffPricingInfo.DiscountedTotal,props.currencyID)}
+              ${props.formatValue(props.OneOffPricingInfo.DiscountedTotal)}
             </td>
           </tr>
        
@@ -4396,10 +4376,10 @@ export default function PreviewComponentPdf(props) {
        
           <tr style="background-color: #DCDCDC";>
            <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;color: black;">
-              ${props.taxName}
+              VAT
           </td>
             <td style="border: 1px solid #dddddd; text-align: right; padding: 8px;">   ${
-              props.formatValue(props.OneOffPricingInfo.VATPrice,props.currencyID)
+              props.formatValue(props.OneOffPricingInfo.VATPrice)
               // Number(props.OneOffPricingInfo.VATPrice)
               //           .toFixed(2).toString().replace(
               //             /\B(?=(\d{3})+(?!\d))/g,
@@ -4416,7 +4396,7 @@ export default function PreviewComponentPdf(props) {
               
                   
               ${
-                props.formatValue(props.OneOffPricingInfo.GrandTotal,props.currencyID)
+                props.formatValue(props.OneOffPricingInfo.GrandTotal)
                 // Number(props.OneOffPricingInfo.GrandTotal)
                 //         .toFixed(2).toString().replace(
                 //           /\B(?=(\d{3})+(?!\d))/g,

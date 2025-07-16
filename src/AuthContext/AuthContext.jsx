@@ -10,9 +10,6 @@ import { resetState, updateState } from "../redux/Persist";
 import { CalenderFilterEnum, ActiveDateFilterEnum } from "../Middleware/enums";
 import moment from "moment/moment";
 import { GetSaveImage } from "../redux/Services/SaveImage/SaveImageApi";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
-import { format, parse, isValid } from "date-fns";
 const initialState = {
   loading: false,
 };
@@ -1080,18 +1077,15 @@ const AuthContext = ({ children }) => {
 
     // Determine the currency symbol based on the id
     let currencySymbol = "";
-    switch (id) {
+    switch (1) {
       case 1:
         currencySymbol = "£"; // Pound
         break;
       case 2:
-        currencySymbol = "€";
-        break;
-      case 3:
         currencySymbol = "$"; // Dollar
         break;
-      case 4:
-        currencySymbol = "₹"; // Euro
+      case 3:
+        currencySymbol = "€"; // Euro
         break;
       // Add more cases for different currency symbols as needed
       default:
@@ -1106,38 +1100,6 @@ const AuthContext = ({ children }) => {
 
 
     return `${formattedValue}`;
-  }
-
-  function getTaxName(id) {
-    if(!id) return "";
-    switch(id) {
-      case 1:
-        return "VAT";
-      case 2:
-        return "EU VAT";
-      case 3:
-        return "Salex Tax";
-      case 4:
-        return "GST";
-      default:
-        return "";
-    }
-  }
-
-  function getCurrencySymbol(id) {
-    if(!id) return "";
-    switch(id) {
-      case 1:
-        return "£";
-      case 2:
-        return "€";
-      case 3:
-        return "$";
-      case 4:
-        return "₹";
-      default:
-        return "£";
-    }
   }
 
   function formatValueWithoutCurrencySymbol(value, id) {
@@ -1175,55 +1137,6 @@ const AuthContext = ({ children }) => {
     return `${formattedValue}`;
   }
 
-  function formatValueWithoutCurrencySymbol_v1(value, decimalPlace) {
-    // Ensure value is not null
-    value = value == null ? 0 : value;
-
-    // Split the value into integer and decimal parts
-    let valueArray = value.toString().split(".");
-    let valueLength = "";
-
-    // Ensure valueArray[1] is defined and is a string
-    if (
-      valueArray &&
-      valueArray.length > 1 &&
-      typeof valueArray[1] === "string"
-    ) {
-      valueLength = valueArray[1];
-    }
-
-    let valueWithExactPrecision = value.toString();
-
-    // Check if valueLength is defined and has a length of at least 2
-    if (valueLength && valueLength.length > decimalPlace) {
-      valueWithExactPrecision = (Math.floor(value * 100) / 100).toFixed(decimalPlace);
-    }
-
-
-    // Format the value with comma separators
-    const formattedValue = `${Number(valueWithExactPrecision)
-      .toFixed(decimalPlace)
-      .toString()
-      .replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
-
-
-    return `${formattedValue}`;
-  }
-
-  const convertAndParseDate = (dateStr, sourceFormat, targetFormat) => {
-    if (!dateStr || !sourceFormat) return null;
-    
-    try {
-      // Parse using the source format
-      const parsedDate = parse(dateStr, sourceFormat, new Date());
-      
-      // Return the Date object (no need to convert to string for DatePicker)
-      return isValid(parsedDate) ? parsedDate : null;
-    } catch (err) {
-      console.error("Date conversion error:", err);
-      return null;
-    }
-  };
   const GetTwoDecimalValueWithoutRoundOff = (value) => {
     value = value == null ? 0 : value;
     let valueArray = value.toString().split(".");
@@ -3300,12 +3213,8 @@ const AuthContext = ({ children }) => {
         setLoginLoader,
         isMobile,
         totalPage,
-        getCurrencySymbol,
-        getTaxName,
         formatValue,
         formatValueWithoutCurrencySymbol,
-        formatValueWithoutCurrencySymbol_v1,
-        convertAndParseDate,
         isValidEmail,
         setListCount,
         accessCount,
