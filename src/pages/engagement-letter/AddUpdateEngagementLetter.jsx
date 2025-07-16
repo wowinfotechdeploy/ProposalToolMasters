@@ -8,6 +8,7 @@ import { AuthContextProvider } from "../../AuthContext/AuthContext";
 import { useNavigate } from "react-router";
 import Utils from "../../Middleware/Utils";
 import { useLocation } from "react-router-dom";
+import EditableCell from "../../components/EditableCell";
 import "./Engagement_Letter.css";
 import {
   ChangeDefaultPaymentGatewaysTypes,
@@ -1532,7 +1533,7 @@ const ReviewServicesComponent = (props) => {
                       <div className="row fieldset">
                         <div className="col-md-2 col-sm-12  text-md-end">
                           <label className="fieldset-label">
-                            Original Price (£)
+                            Original Price ({props.currencySymbol})
                           </label>
                         </div>
                         <div className="col-md-4 col-sm-12">
@@ -1714,7 +1715,7 @@ const ReviewServicesComponent = (props) => {
                         >
                           <div class="mt-2 text-md-end">
                             <label class="form-label">
-                              Discounted Price (£)
+                              Discounted Price ({props.currencySymbol})
                               <span class="text-danger">*</span>
                             </label>
                           </div>
@@ -1725,7 +1726,7 @@ const ReviewServicesComponent = (props) => {
                               <input
                                 class="input-text"
                                 type="text"
-                                placeholder="Discounted Price (£)"
+                                placeholder={`Discounted Price (${props.currencySymbol})`}
                                 value={props.RecurringPricingInfo.DiscountedPrice.toString().replace(
                                   /\B(?=(\d{3})+(?!\d))/g,
                                   ","
@@ -1814,7 +1815,7 @@ const ReviewServicesComponent = (props) => {
                                       than{" "}
                                       {props.formatValue(
                                         props.pricingSettingObj
-                                          .minMonthlyPriceForQC
+                                          .minMonthlyPriceForQC,props.currencyID
                                       )}
                                     </span>
                                     <br />
@@ -1855,7 +1856,7 @@ const ReviewServicesComponent = (props) => {
                                     {" "}
                                     <span className="validation">
                                       The recurring discounted price may not be
-                                      or less than {props.formatValue(0.0)}
+                                      or less than {props.formatValue(0.0,props.currencyID)}
                                     </span>
                                   </>
                                 )}
@@ -1905,7 +1906,7 @@ const ReviewServicesComponent = (props) => {
                                   props.RecurringPricingInfo.servicePackageName
                                 )
                               ) : (
-                                `Fees (£)`
+                                `Fees (${props.currencySymbol})`
                               )}
                             </td>
                           </tr>
@@ -1917,11 +1918,11 @@ const ReviewServicesComponent = (props) => {
                                 <tr className="a-la-carte-services-review-head-row">
                                   <th colSpan="2">{item.serviceCatName}</th>
                                 </tr>
-                                {item.servicesList.map((service) => {
+                                {item.servicesList.map((service, index) => {
                                   // Add the return statement here
                                   return (
                                     <tr
-                                      key={service.serviceID}
+                                      key={index}
                                       className={` ${
                                         service?.isAdditionalService === true
                                           ? "bg-info  text-white"
@@ -1929,7 +1930,33 @@ const ReviewServicesComponent = (props) => {
                                       }`}
                                     >
                                       <td>
-                                        <div>{service.serviceName}</div>
+                                        <div>
+                                          <EditableCell
+                                              value={service.serviceName}
+                                              displayValue={service.serviceName.length > 45
+                                                ? service.serviceName
+                                                  .substring(0, 45)
+                                                  .toLowerCase()
+                                                  .replace(/\b\w/g, (l) => l.toUpperCase()) + "..."
+                                                : undefined
+                                              }
+                                              onSave={(newName) => {
+                                                props.setSelectedRecurringServiceList(prevList => {
+                                                  const newList = [...prevList];
+                                                  const serviceIndex = prevList.findIndex(s => s === item);
+                                                  newList[serviceIndex].servicesList[index].serviceName = newName;
+                                                  return newList;
+                                                });
+                                              }}
+                                            />
+                                        </div>
+                                        {props.requireMessage && service.serviceName.trim() === "" &&
+                                          <div>
+                                            <label className="text-danger">
+                                              Please enter a valid service name
+                                            </label>
+                                          </div>
+                                        }
                                         <div className="package-variables"></div>
                                       </td>
                                       <td className="text-right">
@@ -1939,7 +1966,7 @@ const ReviewServicesComponent = (props) => {
                                             <>
                                               <span>
                                                 {props.formatValue(
-                                                  service?.price
+                                                  service?.price,props.currencyID
                                                 )}
                                               </span>
                                             </>
@@ -1949,7 +1976,7 @@ const ReviewServicesComponent = (props) => {
                                             2 && (
                                             <span>
                                               {props.formatValue(
-                                                service?.quotationPrice
+                                                service?.quotationPrice,props.currencyID
                                               )}
                                             </span>
                                           )}
@@ -1980,14 +2007,14 @@ const ReviewServicesComponent = (props) => {
                                   0 &&
                                   !props.engagementObj.DiscountLines)
                                   ? props.formatValue(
-                                      props.RecurringPricingInfo.DiscountedPrice
+                                      props.RecurringPricingInfo.DiscountedPrice,props.currencyID
                                     )
                                   : // Number(props.RecurringPricingInfo.DiscountedPrice)
                                     //     .toFixed(2)
                                     //     .toString()
                                     //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
                                     props.formatValue(
-                                      props.RecurringPricingInfo.OriginalPrice
+                                      props.RecurringPricingInfo.OriginalPrice,props.currencyID
                                     )
                                 // Number(props.RecurringPricingInfo.OriginalPrice)
                                 //     .toFixed(2)
@@ -2006,7 +2033,7 @@ const ReviewServicesComponent = (props) => {
                                   <td className="tr-table-class font-14 text-white text-right">
                                     (-){" "}
                                     {props.formatValue(
-                                      props.RecurringPricingInfo.Discount
+                                      props.RecurringPricingInfo.Discount,props.currencyID
                                     )}
                                   </td>
                                 </tr>
@@ -2017,7 +2044,7 @@ const ReviewServicesComponent = (props) => {
                                   <td className="tr-table-class font-14 text-white text-right">
                                     {" "}
                                     {props.formatValue(
-                                      props.RecurringPricingInfo.DiscountedTotal
+                                      props.RecurringPricingInfo.DiscountedTotal,props.currencyID
                                     )}
                                   </td>
                                 </tr>
@@ -2028,12 +2055,12 @@ const ReviewServicesComponent = (props) => {
                             <>
                               <tr class="head-grey-row">
                                 <td className="tr-table-class font-14 text-white">
-                                  VAT
+                                  {props.taxName}
                                 </td>
                                 <td className="tr-table-class font-14 text-white text-right">
                                   {" "}
                                   {props.formatValue(
-                                    props.RecurringPricingInfo.VATPrice
+                                    props.RecurringPricingInfo.VATPrice,props.currencyID
                                   )}
                                 </td>
                               </tr>
@@ -2044,7 +2071,7 @@ const ReviewServicesComponent = (props) => {
                                 <td className="tr-table-class font-14 text-white text-right">
                                   {" "}
                                   {props.formatValue(
-                                    props.RecurringPricingInfo.GrandTotal
+                                    props.RecurringPricingInfo.GrandTotal,props.currencyID
                                   )}
                                 </td>
                               </tr>
@@ -2062,7 +2089,7 @@ const ReviewServicesComponent = (props) => {
                       <div className="row fieldset">
                         <div className="col-md-2 col-sm-12  text-md-end">
                           <label className="fieldset-label">
-                            Original Price (£)
+                            Original Price ({props.currencySymbol})
                           </label>
                         </div>
                         <div className="col-md-10 col-sm-12">
@@ -2209,7 +2236,7 @@ const ReviewServicesComponent = (props) => {
                         >
                           <div class="mb-1  text-md-end">
                             <label class="form-label">
-                              Discounted Price (£)
+                              Discounted Price ({props.currencySymbol})
                               <span class="text-danger">*</span>
                             </label>
                           </div>
@@ -2220,7 +2247,7 @@ const ReviewServicesComponent = (props) => {
                               <input
                                 class="input-text"
                                 type="text"
-                                placeholder="Discounted Price (£)"
+                                placeholder={`Discounted Price (${props.currencySymbol})`}
                                 value={props.OneOffPricingInfo.DiscountedPrice?.toString()?.replace(
                                   /\B(?=(\d{3})+(?!\d))/g,
                                   ","
@@ -2276,7 +2303,7 @@ const ReviewServicesComponent = (props) => {
                                       than{" "}
                                       {props.formatValue(
                                         props.pricingSettingObj
-                                          .minOneOffPriceForQC
+                                          .minOneOffPriceForQC,props.currencyID
                                       )}
                                     </span>
                                     <br />
@@ -2320,7 +2347,7 @@ const ReviewServicesComponent = (props) => {
                                   <>
                                     <span className="validation">
                                       The One Off discounted price may not be or
-                                      less than {props.formatValue(0.0)}
+                                      less than {props.formatValue(0.0,props.currencyID)}
                                     </span>
                                   </>
                                 )}
@@ -2368,7 +2395,7 @@ const ReviewServicesComponent = (props) => {
                                   props.OneOffPricingInfo.servicePackageName
                                 )
                               ) : (
-                                `Fees (£)`
+                                `Fees (${props.currencySymbol})`
                               )}
                             </td>
                           </tr>
@@ -2380,11 +2407,11 @@ const ReviewServicesComponent = (props) => {
                                 <tr className="a-la-carte-services-review-head-row">
                                   <th colSpan="2">{item.serviceCatName}</th>
                                 </tr>
-                                {item.servicesList.map((service) => {
+                                {item.servicesList.map((service,index) => {
                                   // Add the return statement here
                                   return (
                                     <tr
-                                      key={service.serviceID}
+                                      key={index}
                                       className={` ${
                                         service?.isAdditionalService === true
                                           ? "bg-info  text-white"
@@ -2392,7 +2419,33 @@ const ReviewServicesComponent = (props) => {
                                       }`}
                                     >
                                       <td>
-                                        <div>{service.serviceName}</div>
+                                        <div>
+                                          <EditableCell
+                                              value={service.serviceName}
+                                              displayValue={service.serviceName.length > 45
+                                                ? service.serviceName
+                                                  .substring(0, 45)
+                                                  .toLowerCase()
+                                                  .replace(/\b\w/g, (l) => l.toUpperCase()) + "..."
+                                                : undefined
+                                              }
+                                              onSave={(newName) => {
+                                                props.setSelectedOneOffServiceList(prevList => {
+                                                  const newList = [...prevList];
+                                                  const serviceIndex = prevList.findIndex(s => s === item);
+                                                  newList[serviceIndex].servicesList[index].serviceName = newName;
+                                                  return newList;
+                                                });
+                                              }}
+                                            />
+                                        </div>
+                                        {props.requireMessage && service.serviceName.trim() === "" &&
+                                          <div>
+                                            <label className="text-danger">
+                                              Please enter a valid service name
+                                            </label>
+                                          </div>
+                                        }
                                         <div className="package-variables"></div>
                                       </td>
                                       <td className="text-right">
@@ -2401,7 +2454,7 @@ const ReviewServicesComponent = (props) => {
                                             1 && (
                                             <span>
                                               {props.formatValue(
-                                                service?.price
+                                                service?.price,props.currencyID
                                               )}
                                             </span>
                                           )}
@@ -2410,7 +2463,7 @@ const ReviewServicesComponent = (props) => {
                                             2 && (
                                             <span>
                                               {props.formatValue(
-                                                service?.quotationPrice
+                                                service?.quotationPrice,props.currencyID
                                               )}
                                             </span>
                                           )}
@@ -2438,14 +2491,14 @@ const ReviewServicesComponent = (props) => {
                                 (Number(props.OneOffPricingInfo.Discount) > 0 &&
                                   !props.engagementObj.DiscountLines)
                                   ? props.formatValue(
-                                      props.OneOffPricingInfo.DiscountedPrice
+                                      props.OneOffPricingInfo.DiscountedPrice,props.currencyID
                                     )
                                   : // Number(props.OneOffPricingInfo.DiscountedPrice)
                                     //     .toFixed(2)
                                     //     .toString()
                                     //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
                                     props.formatValue(
-                                      props.OneOffPricingInfo.OriginalPrice
+                                      props.OneOffPricingInfo.OriginalPrice,props.currencyID
                                     )
                                 // Number(props.OneOffPricingInfo.OriginalPrice)
                                 //     .toFixed(2)
@@ -2465,7 +2518,7 @@ const ReviewServicesComponent = (props) => {
                                   <td className="tr-table-class font-14 text-white text-right">
                                     (-){" "}
                                     {props.formatValue(
-                                      props.OneOffPricingInfo.Discount
+                                      props.OneOffPricingInfo.Discount,props.currencyID
                                     )}
                                   </td>
                                 </tr>
@@ -2475,7 +2528,7 @@ const ReviewServicesComponent = (props) => {
                                   </td>
                                   <td className="tr-table-class font-14 text-white text-right">
                                     {props.formatValue(
-                                      props.OneOffPricingInfo.DiscountedTotal
+                                      props.OneOffPricingInfo.DiscountedTotal,props.currencyID
                                     )}
                                   </td>
                                 </tr>
@@ -2485,11 +2538,11 @@ const ReviewServicesComponent = (props) => {
                             <>
                               <tr class="head-grey-row">
                                 <td className="tr-table-class font-14 text-white">
-                                  VAT
+                                  {props.taxName}
                                 </td>
                                 <td className="tr-table-class font-14 text-white text-right">
                                   {props.formatValue(
-                                    props.OneOffPricingInfo.VATPrice
+                                    props.OneOffPricingInfo.VATPrice,props.currencyID
                                   )}
                                 </td>
                               </tr>
@@ -2499,7 +2552,7 @@ const ReviewServicesComponent = (props) => {
                                 </td>
                                 <td className="tr-table-class font-14 text-white text-right">
                                   {props.formatValue(
-                                    props.OneOffPricingInfo.GrandTotal
+                                    props.OneOffPricingInfo.GrandTotal,props.currencyID
                                   )}
                                 </td>
                               </tr>
@@ -3907,8 +3960,8 @@ const ReviewPackagesComponent = (props) => {
                                       >
                                         <td>
                                           <div>
-                                            {subService.serviceName.length >
-                                            45 ? (
+                                            {/* {subService.serviceName.length >
+                                              45 ? (
                                               <Tooltip
                                                 title={subService.serviceName}
                                               >
@@ -3920,9 +3973,47 @@ const ReviewPackagesComponent = (props) => {
                                                   ) + "..."}
                                               </Tooltip>
                                             ) : (
-                                              subService.serviceName
-                                            )}
+                                                <EditableCell
+                                                  value={subService.serviceName}
+                                                  onSave={(newName) => {
+                                                    // Update the service name in your state
+                                                    props.setSelectedRecurringServiceList(prevList => {
+                                                      const newList = [...prevList];
+                                                      // Find the correct service and update it
+                                                      const serviceIndex = prevList.findIndex(s => s === service);
+                                                      newList[serviceIndex].servicesList[subIndex].serviceName = newName;
+                                                      return newList;
+                                                    });
+                                                    // For example: call a prop or update local data here
+                                                  }}
+                                                />
+                                            )} */}
+                                            <EditableCell
+                                              value={subService.serviceName}
+                                              displayValue={subService.serviceName.length > 45
+                                                ? subService.serviceName
+                                                  .substring(0, 45)
+                                                  .toLowerCase()
+                                                  .replace(/\b\w/g, (l) => l.toUpperCase()) + "..."
+                                                : undefined
+                                              }
+                                              onSave={(newName) => {
+                                                props.setSelectedRecurringServiceList(prevList => {
+                                                  const newList = [...prevList];
+                                                  const serviceIndex = prevList.findIndex(s => s === service);
+                                                  newList[serviceIndex].servicesList[subIndex].serviceName = newName;
+                                                  return newList;
+                                                });
+                                              }}
+                                            />
                                           </div>
+                                          {props.requireMessage && subService.serviceName.trim() === "" &&
+                                            <div>
+                                              <label className="text-danger">
+                                                Please enter a valid service name
+                                              </label>
+                                            </div>
+                                          }
                                           <div className="package-variables"></div>
                                         </td>
 
@@ -3949,7 +4040,7 @@ const ReviewPackagesComponent = (props) => {
                                                   <span className="fa fa-times"></span>
                                                 ) : (
                                                   ` ${props.formatValue(
-                                                    subService.packageOneValue
+                                                    subService.packageOneValue,props.currencyID
                                                   )}`
                                                 )}
                                               </div>
@@ -3989,7 +4080,7 @@ const ReviewPackagesComponent = (props) => {
                                                     <span className="fa fa-times"></span>
                                                   ) : (
                                                     ` ${props.formatValue(
-                                                      subService.packageTwoValue
+                                                      subService.packageTwoValue,props.currencyID
                                                     )}`
                                                   )}
                                                 </div>
@@ -4030,7 +4121,7 @@ const ReviewPackagesComponent = (props) => {
                                                     <span className="fa fa-times"></span>
                                                   ) : (
                                                     ` ${props.formatValue(
-                                                      subService.packageThreeValue
+                                                      subService.packageThreeValue,props.currencyID
                                                     )}`
                                                   )}
                                                 </div>
@@ -4224,16 +4315,16 @@ const ReviewPackagesComponent = (props) => {
                                   ) > 0 && !props.engagementObj.DiscountLines
                                   ? props.formatValue(
                                       props.RecurringPricingInfo
-                                        .packageOneDisCountedTotal
+                                        .packageOneDisCountedTotal,props.currencyID
                                     )
-                                  : props.formatValue(totalOnePackageValue)
+                                  : props.formatValue(totalOnePackageValue,props.currencyID)
                                 : //  Number(totalOnePackageValue)
                                   //     .toFixed(2)
                                   //     .toString()
                                   //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
                                   props.formatValue(
                                     props.RecurringPricingInfo
-                                      .packageOneNetTotal
+                                      .packageOneNetTotal,props.currencyID
                                   )
                               // Number(
                               //     props.RecurringPricingInfo
@@ -4268,16 +4359,16 @@ const ReviewPackagesComponent = (props) => {
                                     ) > 0 && !props.engagementObj.DiscountLines
                                     ? props.formatValue(
                                         props.RecurringPricingInfo
-                                          .packageTwoDisCountedTotal
+                                          .packageTwoDisCountedTotal,props.currencyID
                                       )
-                                    : props.formatValue(totalTwoPackageValue)
+                                    : props.formatValue(totalTwoPackageValue,props.currencyID)
                                   : // Number(totalTwoPackageValue)
                                     //     .toFixed(2)
                                     //     .toString()
                                     //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
                                     props.formatValue(
                                       props.RecurringPricingInfo
-                                        .packageTwoNetTotal
+                                        .packageTwoNetTotal,props.currencyID
                                     )
                                 // Number(
                                 //     props.RecurringPricingInfo
@@ -4314,16 +4405,16 @@ const ReviewPackagesComponent = (props) => {
                                     ) > 0 && !props.engagementObj.DiscountLines
                                     ? props.formatValue(
                                         props.RecurringPricingInfo
-                                          .packageThreeDisCountedTotal
+                                          .packageThreeDisCountedTotal,props.currencyID
                                       )
-                                    : props.formatValue(totalThreePackageValue)
+                                    : props.formatValue(totalThreePackageValue,props.currencyID)
                                   : // Number(totalThreePackageValue)
                                     //     .toFixed(2)
                                     //     .toString()
                                     //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
                                     props.formatValue(
                                       props.RecurringPricingInfo
-                                        .packageThreeNetTotal
+                                        .packageThreeNetTotal,props.currencyID
                                     )
                                 // Number(
                                 //     props.RecurringPricingInfo
@@ -4358,7 +4449,7 @@ const ReviewPackagesComponent = (props) => {
                                   (-){" "}
                                   {props.formatValue(
                                     props.RecurringPricingInfo
-                                      .packageOneDisCount
+                                      .packageOneDisCount,props.currencyID
                                   )}
                                 </td>
                                 {packageCount >= 2 && (
@@ -4366,7 +4457,7 @@ const ReviewPackagesComponent = (props) => {
                                     (-){" "}
                                     {props.formatValue(
                                       props.RecurringPricingInfo
-                                        .packageTwoDisCount
+                                        .packageTwoDisCount,props.currencyID
                                     )}
                                   </td>
                                 )}
@@ -4375,7 +4466,7 @@ const ReviewPackagesComponent = (props) => {
                                     (-){" "}
                                     {props.formatValue(
                                       props.RecurringPricingInfo
-                                        .packageThreeDisCount
+                                        .packageThreeDisCount,props.currencyID
                                     )}
                                   </td>
                                 )}
@@ -4388,7 +4479,7 @@ const ReviewPackagesComponent = (props) => {
                                   {" "}
                                   {props.formatValue(
                                     props.RecurringPricingInfo
-                                      .packageOneDisCountedTotal
+                                      .packageOneDisCountedTotal,props.currencyID
                                   )}
                                 </td>
 
@@ -4397,7 +4488,7 @@ const ReviewPackagesComponent = (props) => {
                                     {" "}
                                     {props.formatValue(
                                       props.RecurringPricingInfo
-                                        .packageTwoDisCountedTotal
+                                        .packageTwoDisCountedTotal,props.currencyID
                                     )}
                                   </td>
                                 )}
@@ -4406,7 +4497,7 @@ const ReviewPackagesComponent = (props) => {
                                     {" "}
                                     {props.formatValue(
                                       props.RecurringPricingInfo
-                                        .packageThreeDisCountedTotal
+                                        .packageThreeDisCountedTotal,props.currencyID
                                     )}
                                   </td>
                                 )}
@@ -4418,14 +4509,14 @@ const ReviewPackagesComponent = (props) => {
                           <>
                             <tr class="head-grey-row">
                               <td className="tr-table-class font-14 text-white">
-                                VAT
+                                {props.taxName}
                               </td>
                               <td className="tr-table-class font-14 text-white text-right">
                                 {" "}
                                 {
                                   props.formatValue(
                                     props.RecurringPricingInfo
-                                      .PackageOneVaTPrice
+                                      .PackageOneVaTPrice,props.currencyID
                                   )
                                   // Number(
                                   //   props.RecurringPricingInfo.PackageOneVaTPrice
@@ -4442,7 +4533,7 @@ const ReviewPackagesComponent = (props) => {
                                   {
                                     props.formatValue(
                                       props.RecurringPricingInfo
-                                        .PackageTwoVaTPrice
+                                        .PackageTwoVaTPrice,props.currencyID
                                     )
                                     // Number(
                                     //   props.RecurringPricingInfo.PackageTwoVaTPrice
@@ -4459,7 +4550,7 @@ const ReviewPackagesComponent = (props) => {
                                   {
                                     props.formatValue(
                                       props.RecurringPricingInfo
-                                        .PackageThreeVaTPrice
+                                        .PackageThreeVaTPrice,props.currencyID
                                     )
                                     // Number(
                                     //   props.RecurringPricingInfo
@@ -4481,7 +4572,7 @@ const ReviewPackagesComponent = (props) => {
                                 {
                                   props.formatValue(
                                     props.RecurringPricingInfo
-                                      .PackageOneGrandTotal
+                                      .PackageOneGrandTotal,props.currencyID
                                   )
 
                                   // Number(
@@ -4499,7 +4590,7 @@ const ReviewPackagesComponent = (props) => {
                                   {
                                     props.formatValue(
                                       props.RecurringPricingInfo
-                                        .PackageTwoGrandTotal
+                                        .PackageTwoGrandTotal,props.currencyID
                                     )
                                     // Number(
                                     //   props.RecurringPricingInfo
@@ -4517,7 +4608,7 @@ const ReviewPackagesComponent = (props) => {
                                   {
                                     props.formatValue(
                                       props.RecurringPricingInfo
-                                        .PackageThreeGrandTotal
+                                        .PackageThreeGrandTotal,props.currencyID
                                     )
                                     // Number(
                                     //   props.RecurringPricingInfo
@@ -4724,15 +4815,55 @@ const ReviewPackagesComponent = (props) => {
                                       >
                                         <td>
                                           <div>
-                                            {subService.serviceName.length > 45
+                                            {/* {subService.serviceName.length > 45
                                               ? subService.serviceName
+                                                .substring(0, 45)
+                                                .toLowerCase()
+                                                .replace(/\b\w/g, (l) =>
+                                                  l.toUpperCase()
+                                                ) + "..."
+                                              : 
+                                              <EditableCell
+                                                  value={subService.serviceName}
+                                                  onSave={(newName) => {
+                                                    // Update the service name in your state
+                                                    props.setSelectedOneOffServiceList(prevList => {
+                                                      const newList = [...prevList];
+                                                      // Find the correct service and update it
+                                                      const serviceIndex = prevList.findIndex(s => s === service);
+                                                      newList[serviceIndex].servicesList[subIndex].serviceName = newName;
+                                                      return newList;
+                                                    });
+                                                    // For example: call a prop or update local data here
+                                                  }}
+                                                />
+                                              } */}
+                                            <EditableCell
+                                              value={subService.serviceName}
+                                              displayValue={subService.serviceName.length > 45
+                                                ? subService.serviceName
                                                   .substring(0, 45)
                                                   .toLowerCase()
-                                                  .replace(/\b\w/g, (l) =>
-                                                    l.toUpperCase()
-                                                  ) + "..."
-                                              : subService.serviceName}
+                                                  .replace(/\b\w/g, (l) => l.toUpperCase()) + "..."
+                                                : undefined
+                                              }
+                                              onSave={(newName) => {
+                                                props.setSelectedOneOffServiceList(prevList => {
+                                                  const newList = [...prevList];
+                                                  const serviceIndex = prevList.findIndex(s => s === service);
+                                                  newList[serviceIndex].servicesList[subIndex].serviceName = newName;
+                                                  return newList;
+                                                });
+                                              }}
+                                            />
                                           </div>
+                                          {props.requireMessage && subService.serviceName.trim() === "" &&
+                                            <div>
+                                              <label className="text-danger">
+                                                Please enter a valid service name
+                                              </label>
+                                            </div>
+                                          }
                                           <div className="package-variables"></div>
                                         </td>
 
@@ -4759,7 +4890,7 @@ const ReviewPackagesComponent = (props) => {
                                                   <span className="fa fa-times"></span>
                                                 ) : (
                                                   ` ${props.formatValue(
-                                                    subService.packageOneValue
+                                                    subService.packageOneValue,props.currencyID
                                                   )}`
                                                 )}
                                               </div>
@@ -4799,7 +4930,7 @@ const ReviewPackagesComponent = (props) => {
                                                     <span className="fa fa-times"></span>
                                                   ) : (
                                                     ` ${props.formatValue(
-                                                      subService.packageTwoValue
+                                                      subService.packageTwoValue,props.currencyID
                                                     )}`
                                                   )}
                                                 </div>
@@ -4840,7 +4971,7 @@ const ReviewPackagesComponent = (props) => {
                                                     <span className="fa fa-times"></span>
                                                   ) : (
                                                     ` ${props.formatValue(
-                                                      subService.packageThreeValue
+                                                      subService.packageThreeValue,props.currencyID
                                                     )}`
                                                   )}
                                                 </div>
@@ -5031,13 +5162,13 @@ const ReviewPackagesComponent = (props) => {
                                 !props.engagementObj.DiscountLines)
                                 ? props.formatValue(
                                     props.OneOffPricingInfo
-                                      .packageOneDisCountedTotal
+                                      .packageOneDisCountedTotal,props.currencyID
                                   )
                                 : // Number(totalOnePackageValueOneOff)
                                   //     .toFixed(2)
                                   //     .toString()
                                   //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                                  props.formatValue(totalOnePackageValueOneOff)
+                                  props.formatValue(totalOnePackageValueOneOff,props.currencyID)
                               // Number(
                               //     props.OneOffPricingInfo
                               //       .packageOneDisCountedTotal
@@ -5062,14 +5193,14 @@ const ReviewPackagesComponent = (props) => {
                                   !props.engagementObj.DiscountLines)
                                   ? props.formatValue(
                                       props.OneOffPricingInfo
-                                        .packageTwoDisCountedTotal
+                                        .packageTwoDisCountedTotal,props.currencyID
                                     )
                                   : // Number(totalOnePackageValueOneOff)
                                     //     .toFixed(2)
                                     //     .toString()
                                     //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
                                     props.formatValue(
-                                      totalTwoPackageValueOneOff
+                                      totalTwoPackageValueOneOff,props.currencyID
                                     )
                                 // Number(
                                 //     props.OneOffPricingInfo
@@ -5096,14 +5227,14 @@ const ReviewPackagesComponent = (props) => {
                                   !props.engagementObj.DiscountLines)
                                   ? props.formatValue(
                                       props.OneOffPricingInfo
-                                        .packageThreeDisCountedTotal
+                                        .packageThreeDisCountedTotal,props.currencyID
                                     )
                                   : // Number(totalOnePackageValueOneOff)
                                     //     .toFixed(2)
                                     //     .toString()
                                     //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
                                     props.formatValue(
-                                      totalThreePackageValueOneOff
+                                      totalThreePackageValueOneOff,props.currencyID
                                     )
                                 // Number(
                                 //     props.OneOffPricingInfo
@@ -5132,14 +5263,14 @@ const ReviewPackagesComponent = (props) => {
                                 <td className="tr-table-class font-14 text-white text-right">
                                   (-){" "}
                                   {props.formatValue(
-                                    props.OneOffPricingInfo.packageOneDisCount
+                                    props.OneOffPricingInfo.packageOneDisCount,props.currencyID
                                   )}
                                 </td>
                                 {packageCount >= 2 && (
                                   <td className="tr-table-class font-14 text-white text-right">
                                     (-){" "}
                                     {props.formatValue(
-                                      props.OneOffPricingInfo.packageTwoDisCount
+                                      props.OneOffPricingInfo.packageTwoDisCount,props.currencyID
                                     )}
                                   </td>
                                 )}
@@ -5148,7 +5279,7 @@ const ReviewPackagesComponent = (props) => {
                                     (-){" "}
                                     {props.formatValue(
                                       props.OneOffPricingInfo
-                                        .packageThreeDisCount
+                                        .packageThreeDisCount,props.currencyID
                                     )}
                                   </td>
                                 )}
@@ -5161,7 +5292,7 @@ const ReviewPackagesComponent = (props) => {
                                   {" "}
                                   {props.formatValue(
                                     props.OneOffPricingInfo
-                                      .packageOneDisCountedTotal
+                                      .packageOneDisCountedTotal,props.currencyID
                                   )}
                                 </td>
                                 {packageCount >= 2 && (
@@ -5169,7 +5300,7 @@ const ReviewPackagesComponent = (props) => {
                                     {" "}
                                     {props.formatValue(
                                       props.OneOffPricingInfo
-                                        .packageTwoDisCountedTotal
+                                        .packageTwoDisCountedTotal,props.currencyID
                                     )}
                                   </td>
                                 )}
@@ -5178,7 +5309,7 @@ const ReviewPackagesComponent = (props) => {
                                     {" "}
                                     {props.formatValue(
                                       props.OneOffPricingInfo
-                                        .packageThreeDisCountedTotal
+                                        .packageThreeDisCountedTotal,props.currencyID
                                     )}
                                   </td>
                                 )}
@@ -5189,13 +5320,13 @@ const ReviewPackagesComponent = (props) => {
                           <>
                             <tr class="head-grey-row">
                               <td className="tr-table-class font-14 text-white">
-                                VAT
+                                {props.taxName}
                               </td>
                               <td className="tr-table-class font-14 text-white text-right">
                                 {" "}
                                 {
                                   props.formatValue(
-                                    props.OneOffPricingInfo.PackageOneVaTPrice
+                                    props.OneOffPricingInfo.PackageOneVaTPrice,props.currencyID
                                   )
                                   // Number(
                                   //   props.OneOffPricingInfo.PackageOneVaTPrice
@@ -5210,7 +5341,7 @@ const ReviewPackagesComponent = (props) => {
                                   {" "}
                                   {
                                     props.formatValue(
-                                      props.OneOffPricingInfo.PackageTwoVaTPrice
+                                      props.OneOffPricingInfo.PackageTwoVaTPrice,props.currencyID
                                     )
                                     // Number(
                                     //   props.OneOffPricingInfo.PackageTwoVaTPrice
@@ -5227,7 +5358,7 @@ const ReviewPackagesComponent = (props) => {
                                   {
                                     props.formatValue(
                                       props.OneOffPricingInfo
-                                        .PackageThreeVaTPrice
+                                        .PackageThreeVaTPrice,props.currencyID
                                     )
                                     // Number(
                                     //   props.OneOffPricingInfo.PackageThreeVaTPrice
@@ -5247,7 +5378,7 @@ const ReviewPackagesComponent = (props) => {
                                 {" "}
                                 {
                                   props.formatValue(
-                                    props.OneOffPricingInfo.PackageOneGrandTotal
+                                    props.OneOffPricingInfo.PackageOneGrandTotal,props.currencyID
                                   )
                                   // Number(
                                   //   props.OneOffPricingInfo.PackageOneGrandTotal
@@ -5263,7 +5394,7 @@ const ReviewPackagesComponent = (props) => {
                                   {
                                     props.formatValue(
                                       props.OneOffPricingInfo
-                                        .PackageTwoGrandTotal
+                                        .PackageTwoGrandTotal,props.currencyID
                                     )
                                     // Number(
                                     //   props.OneOffPricingInfo.PackageTwoGrandTotal
@@ -5280,7 +5411,7 @@ const ReviewPackagesComponent = (props) => {
                                   {
                                     props.formatValue(
                                       props.OneOffPricingInfo
-                                        .PackageThreeGrandTotal
+                                        .PackageThreeGrandTotal,props.currencyID
                                     )
                                     // Number(
                                     //   props.OneOffPricingInfo.PackageThreeGrandTotal
@@ -5367,6 +5498,7 @@ const Add_Update_Engagement_Letter = () => {
     GetTwoDecimalValueWithoutRoundOff,
     hasHyphenAfterNumber,
     formatValueWithoutCurrencySymbol,
+    formatValueWithoutCurrencySymbol_v1,
     getFontStylesFromHtml,
     isValidNumber,
     replaceTemplatePricingVariables,
@@ -5418,6 +5550,9 @@ const Add_Update_Engagement_Letter = () => {
   const [additionalInformationList, setAdditionalInformationList] = useState(
     []
   );
+  const [taxName,setTaxName] = useState("");
+  const [currencySymbol,setCurrencySymbol] = useState("");
+  const [currencyID,setCurrencyID] = useState(null);
   const [contractFinalPackageAmountList, setContractFinalPackageAmountList] =
     useState([]);
   const [
@@ -5983,7 +6118,22 @@ const Add_Update_Engagement_Letter = () => {
           website,
           signatureImageUrl,
           signatoryName,
+          preferredCurrencyId
         } = ModelData.otherInformation;
+        if(preferredCurrencyId === 1) {
+          setTaxName("VAT");
+          setCurrencySymbol("{props.currencySymbol}");
+        } else if(preferredCurrencyId === 2) {
+          setTaxName("EU VAT");
+          setCurrencySymbol("€");
+        } else if(preferredCurrencyId === 3) {
+          setTaxName("Sales Tax");
+          setCurrencySymbol("$");
+        } else if(preferredCurrencyId === 4) {
+          setTaxName("GST");
+          setCurrencySymbol("₹");
+        }
+        setCurrencyID(preferredCurrencyId);
         const concatenateFullAddress = (address) => {
           const addPart = (part) => (part ? `${part}, ` : "");
           let concatenatedAddress = `${addPart(
@@ -6114,6 +6264,18 @@ const Add_Update_Engagement_Letter = () => {
                             if (defaultSlab) {
                               driver.driverValue = defaultSlab.slabValue;
                               driver.slabID = defaultSlab.slabID;
+                            }
+                          }
+                          // Check if driverTypeID is 6 and driverValue, and dateID are null
+                          else if (driver.driverTypeID === 6) {
+                            // Find the default date
+                            const defaultDate = driver.date.find(
+                              (date) => date.isDefault === true
+                            );
+                            // Update driverValue and dateID if defaultDate exists
+                            if (defaultDate) {
+                              driver.driverValue = defaultDate.dateValue;
+                              driver.dateID = defaultDate.dateID;
                             }
                           }
 
@@ -6268,6 +6430,18 @@ const Add_Update_Engagement_Letter = () => {
                             if (defaultSlab) {
                               driver.driverValue = defaultSlab.slabValue;
                               driver.slabID = defaultSlab.slabID;
+                            }
+                          }
+                           // Check if driverTypeID is 6 and driverValue, and dateID are null
+                          else if (driver.driverTypeID === 6) {
+                            // Find the default date
+                            const defaultDate = driver.date.find(
+                              (date) => date.isDefault === true
+                            );
+                            // Update driverValue and dateID if defaultDate exists
+                            if (defaultDate) {
+                              driver.driverValue = defaultDate.dateValue;
+                              driver.dateID = defaultDate.dateID;
                             }
                           }
 
@@ -9168,6 +9342,17 @@ const Add_Update_Engagement_Letter = () => {
     // All validations passed
     return false;
   }
+    
+  function hasInvalidServiceNames(serviceList) {
+    for (const category of serviceList) {
+      for (const subService of category.servicesList) {
+        if (!subService.serviceName || subService.serviceName.trim() === "") {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
   //13) Check validation and send to next tab Function
   const HandleTabChange = async (NextTab, Status) => {
     if (
@@ -9223,6 +9408,7 @@ const Add_Update_Engagement_Letter = () => {
       } else {
         let hasUndefinedDriver = false;
         let hasUndefinedDriver2 = false;
+        let hasUndefinedTextOrDateorquantityDriver = false;
 
         recurringServiceList.some((rService) => {
           return rService.servicesList?.some((service) => {
@@ -9253,6 +9439,47 @@ const Add_Update_Engagement_Letter = () => {
                     PricingInfo: true,
                   });
                 }
+                if (
+                pricingList.driverVisibility &&
+                pricingList.driverTypeID === 6 &&
+                (pricingList.enteredDate === undefined ||
+                  pricingList.enteredDate === null ||
+                  pricingList.enteredDate === "")
+              ) {
+                hasUndefinedTextOrDateorquantityDriver = true;
+              }
+              if (
+                pricingList.driverVisibility &&
+                (pricingList.driverTypeID === 5 && pricingList.text[0]?.textValue !== null) &&
+                (pricingList.enteredText === undefined ||
+                  pricingList.enteredText === null ||
+                  pricingList.enteredText === "")
+              ) {
+                hasUndefinedTextOrDateorquantityDriver = true;
+              }
+              if (
+                pricingList.driverVisibility &&
+                pricingList.driverTypeID === 2 &&
+                Number(pricingList.driverValue)
+              ) {
+                const value = Number(pricingList.driverValue);
+                const from = pricingList.quantity?.[0]?.quantityFrom;
+                const to = pricingList.quantity?.[0]?.quantityTo;
+
+                const parsedFrom = Number(from);
+                const parsedTo = Number(to);
+
+                const hasFrom = from !== undefined && from !== null && from !== '' && !isNaN(parsedFrom);
+                const hasTo = to !== undefined && to !== null && to !== '' && !isNaN(parsedTo);
+
+                if (
+                  (hasFrom && hasTo && (value < parsedFrom || value > parsedTo)) ||
+                  (hasFrom && !hasTo && value < parsedFrom) ||
+                  (!hasFrom && hasTo && value > parsedTo)
+                ) {
+                  hasUndefinedTextOrDateorquantityDriver = true;
+                }
+              }
               }
             }
           });
@@ -9291,12 +9518,53 @@ const Add_Update_Engagement_Letter = () => {
                     PricingInfo: true,
                   });
                 }
+                if (
+                pricingList.driverVisibility &&
+                pricingList.driverTypeID === 6 &&
+                (pricingList.enteredDate === undefined ||
+                  pricingList.enteredDate === null ||
+                  pricingList.enteredDate === "")
+              ) {
+                hasUndefinedTextOrDateorquantityDriver = true;
+              }
+              if (
+                pricingList.driverVisibility &&
+                (pricingList.driverTypeID === 5 && pricingList.text[0]?.textValue !== null) &&
+                (pricingList.enteredText === undefined ||
+                  pricingList.enteredText === null ||
+                  pricingList.enteredText === "")
+              ) {
+                hasUndefinedTextOrDateorquantityDriver = true;
+              }
+              if (
+                pricingList.driverVisibility &&
+                pricingList.driverTypeID === 2 &&
+                Number(pricingList.driverValue)
+              ) {
+                const value = Number(pricingList.driverValue);
+                const from = pricingList.quantity?.[0]?.quantityFrom;
+                const to = pricingList.quantity?.[0]?.quantityTo;
+
+                const parsedFrom = Number(from);
+                const parsedTo = Number(to);
+
+                const hasFrom = from !== undefined && from !== null && from !== '' && !isNaN(parsedFrom);
+                const hasTo = to !== undefined && to !== null && to !== '' && !isNaN(parsedTo);
+
+                if (
+                  (hasFrom && hasTo && (value < parsedFrom || value > parsedTo)) ||
+                  (hasFrom && !hasTo && value < parsedFrom) ||
+                  (!hasFrom && hasTo && value > parsedTo)
+                ) {
+                  hasUndefinedTextOrDateorquantityDriver = true;
+                }
+              }
               }
             }
           });
         });
 
-        if (hasUndefinedDriver || hasUndefinedDriver2) {
+        if (hasUndefinedDriver || hasUndefinedDriver2 || hasUndefinedTextOrDateorquantityDriver) {
           setRequireMessage(true);
           setIsValidForm({
             ...isValidForm,
@@ -9403,6 +9671,7 @@ const Add_Update_Engagement_Letter = () => {
     } else if (activeTab === EngagementLetterHeader.SelectServices) {
       let hasUndefinedDriver = false;
       let hasUndefinedDriver2 = false;
+      let hasUndefinedTextOrDateorquantityDriver = false;
 
       recurringServiceList.some((rService) => {
         return rService.servicesList?.some((service) => {
@@ -9411,6 +9680,7 @@ const Add_Update_Engagement_Letter = () => {
               const pricingList = service.pricingDriverList[i];
               if (
                 pricingList.driverVisibility &&
+                pricingList.driverTypeID !== 5 && pricingList.driverTypeID !== 6 &&
                 (pricingList.driverValue === undefined ||
                   pricingList.driverValue === null ||
                   pricingList.driverValue === "")
@@ -9431,6 +9701,47 @@ const Add_Update_Engagement_Letter = () => {
                   PricingInfo: true,
                 });
               }
+              if (
+                pricingList.driverVisibility &&
+                pricingList.driverTypeID === 6 &&
+                (pricingList.enteredDate === undefined ||
+                  pricingList.enteredDate === null ||
+                  pricingList.enteredDate === "")
+              ) {
+                hasUndefinedTextOrDateorquantityDriver = true;
+              }
+              if (
+                pricingList.driverVisibility &&
+                (pricingList.driverTypeID === 5) &&
+                (pricingList.enteredText === undefined ||
+                  pricingList.enteredText === null ||
+                  pricingList.enteredText === "")
+              ) {
+                hasUndefinedTextOrDateorquantityDriver = true;
+              }
+              if (
+                pricingList.driverVisibility &&
+                pricingList.driverTypeID === 2 &&
+                Number(pricingList.driverValue)
+              ) {
+                const value = Number(pricingList.driverValue);
+                const from = pricingList.quantity?.[0]?.quantityFrom;
+                const to = pricingList.quantity?.[0]?.quantityTo;
+
+                const parsedFrom = Number(from);
+                const parsedTo = Number(to);
+
+                const hasFrom = from !== undefined && from !== null && from !== '' && !isNaN(parsedFrom);
+                const hasTo = to !== undefined && to !== null && to !== '' && !isNaN(parsedTo);
+
+                if (
+                  (hasFrom && hasTo && (value < parsedFrom || value > parsedTo)) ||
+                  (hasFrom && !hasTo && value < parsedFrom) ||
+                  (!hasFrom && hasTo && value > parsedTo)
+                ) {
+                  hasUndefinedTextOrDateorquantityDriver = true;
+                }
+              }
             }
           }
         });
@@ -9442,6 +9753,7 @@ const Add_Update_Engagement_Letter = () => {
               const pricingList = service.pricingDriverList[i];
               if (
                 pricingList.driverVisibility &&
+                pricingList.driverTypeID !== 5 && pricingList.driverTypeID !== 6 &&
                 (pricingList.driverValue === undefined ||
                   pricingList.driverValue === null ||
                   pricingList.driverValue === "")
@@ -9462,12 +9774,53 @@ const Add_Update_Engagement_Letter = () => {
                   PricingInfo: true,
                 });
               }
+              if (
+                pricingList.driverVisibility &&
+                pricingList.driverTypeID === 6 &&
+                (pricingList.enteredDate === undefined ||
+                  pricingList.enteredDate === null ||
+                  pricingList.enteredDate === "")
+              ) {
+                hasUndefinedTextOrDateorquantityDriver = true;
+              }
+              if (
+                pricingList.driverVisibility &&
+                (pricingList.driverTypeID === 5) &&
+                (pricingList.enteredText === undefined ||
+                  pricingList.enteredText === null ||
+                  pricingList.enteredText === "")
+              ) {
+                hasUndefinedTextOrDateorquantityDriver = true;
+              }
+              if (
+                pricingList.driverVisibility &&
+                pricingList.driverTypeID === 2 &&
+                Number(pricingList.driverValue)
+              ) {
+                const value = Number(pricingList.driverValue);
+                const from = pricingList.quantity?.[0]?.quantityFrom;
+                const to = pricingList.quantity?.[0]?.quantityTo;
+
+                const parsedFrom = Number(from);
+                const parsedTo = Number(to);
+
+                const hasFrom = from !== undefined && from !== null && from !== '' && !isNaN(parsedFrom);
+                const hasTo = to !== undefined && to !== null && to !== '' && !isNaN(parsedTo);
+
+                if (
+                  (hasFrom && hasTo && (value < parsedFrom || value > parsedTo)) ||
+                  (hasFrom && !hasTo && value < parsedFrom) ||
+                  (!hasFrom && hasTo && value > parsedTo)
+                ) {
+                  hasUndefinedTextOrDateorquantityDriver = true;
+                }
+              }
             }
           }
         });
       });
 
-      if (hasUndefinedDriver || hasUndefinedDriver2) {
+      if (hasUndefinedDriver || hasUndefinedDriver2 || hasUndefinedTextOrDateorquantityDriver) {
         setRequireMessage(true);
         setIsValidForm({
           ...isValidForm,
@@ -9571,7 +9924,7 @@ const Add_Update_Engagement_Letter = () => {
           ) {
             setLoader(false);
             setErrorMessage(
-              "Stripe cannot be selected as the payment method because your total exceeds £20,000. Please choose another payment method."
+              `Stripe cannot be selected as the payment method because your total exceeds ${currencySymbol}20,000. Please choose another payment method.`
             );
             setOpenErrorModal(true);
             return;
@@ -9907,6 +10260,8 @@ const Add_Update_Engagement_Letter = () => {
         }
       }
     } else if (activeTab === EngagementLetterHeader.ReviewServices) {
+      const hasInvalidRecurring = hasInvalidServiceNames(selectedRecurringServiceList);
+      const hasInvalidOneOff = hasInvalidServiceNames(selectedOneOffServiceList);
       if (
         (selectedRecurringServiceList.length !== 0 &&
           (RecurringPricingInfo.DiscountedPrice === "" ||
@@ -9993,7 +10348,9 @@ const Add_Update_Engagement_Letter = () => {
               isNaN(OneOffPricingInfo.DiscountedPrice)) ||
             (OneOffPricingInfo.DefaultDiscount !== "" &&
               OneOffPricingInfo.DefaultDiscount !== "-" &&
-              isNaN(OneOffPricingInfo.DefaultDiscount))))
+              isNaN(OneOffPricingInfo.DefaultDiscount)))) ||
+            (selectedRecurringServiceList.length !== 0 && hasInvalidRecurring) ||
+            (selectedOneOffServiceList.length !== 0 && hasInvalidOneOff)
       ) {
         setRequireMessage(true);
         setIsValidForm({
@@ -10101,7 +10458,7 @@ const Add_Update_Engagement_Letter = () => {
             ) {
               setLoader(false);
               setErrorMessage(
-                "Stripe cannot be selected as the payment method because your total exceeds £20,000. Please choose another payment method."
+                `Stripe cannot be selected as the payment method because your total exceeds ${currencySymbol}20,000. Please choose another payment method.`
               );
               setOpenErrorModal(true);
               return;
@@ -10147,7 +10504,13 @@ const Add_Update_Engagement_Letter = () => {
                         driver.slab?.find((item) => item.isDefault === true) ||
                         {}
                       ).slabValue ||
-                      driver.driverValue,
+                      (Array.isArray(driver.text) && driver.text.length > 0 ? driver.text[0].textValue : null) ||
+                      (
+                        driver.date?.find(
+                          (item) => item.isDefault === true
+                        ) || {}
+                      ).dateValue
+                      || driver.driverValue,
                     variationID:
                       (
                         driver.variation?.find(
@@ -10159,6 +10522,18 @@ const Add_Update_Engagement_Letter = () => {
                         driver.slab?.find((item) => item.isDefault === true) ||
                         {}
                       ).slabID || null,
+                    textID:
+                      (
+                        (Array.isArray(driver.text) && driver.text.length > 0)
+                          ? driver.text[0].textID
+                          : null
+                      ),
+                    dateID:
+                      (
+                        (Array.isArray(driver.date) && driver.date.length > 0)
+                          ? driver.date.find(d => d.isDefault === true)?.dateID
+                          : null
+                      ),
                     serviceChargeTypeID: serviceChargeTypeID,
                     serviceCatID: recurringItem.serviceCatID,
                   }));
@@ -10171,6 +10546,8 @@ const Add_Update_Engagement_Letter = () => {
                   driverValue: null,
                   variationID: null,
                   slabID: null,
+                  textID: null,
+                  dateID: null
                 };
               }
             })
@@ -10276,7 +10653,9 @@ const Add_Update_Engagement_Letter = () => {
                         driver.slab?.find((item) => item.isDefault === true) ||
                         {}
                       ).slabValue ||
-                      driver.driverValue,
+                      (Array.isArray(driver.text) && driver.text.length > 0 ? driver.text[0].textValue : null) ||
+                      driver.date?.find(d => d.dateValue === driver.driverValue)?.dateValue
+                        || driver.driverValue,
                     variationID:
                       (
                         driver.variation?.find(
@@ -10288,6 +10667,18 @@ const Add_Update_Engagement_Letter = () => {
                         driver.slab?.find((item) => item.isDefault === true) ||
                         {}
                       ).slabID || null,
+                    dateID:
+                      (
+                        driver.date?.find(
+                          (item) => item.isDefault === true
+                        ) || {}
+                      ).dateID || null,
+                    textID:
+                      (
+                        (Array.isArray(driver.text) && driver.text.length > 0)
+                          ? driver.text[0].textID
+                          : null
+                      ),
                     serviceChargeTypeID: serviceChargeTypeID,
                     serviceCatID: recurringItem.serviceCatID,
                   }));
@@ -10446,8 +10837,16 @@ const Add_Update_Engagement_Letter = () => {
                       )[0]?.variationValue
                     : driver.slab !== null
                     ? driver.slab?.filter((item) => item.isDefault === true)[0]
-                        ?.slabValue
-                    : driver.driverValue,
+                        ?.slabValue :
+                      driver.date !== null
+                        ? driver.date?.length > 0
+                      ? driver.date.find(d => d.dateValue === driver.driverValue)?.dateValue
+                      ?? driver.date[0].defaultDateValue
+                      ?? 0
+                      : 0
+                        : driver.text !== null
+                          ? driver.driverValue ?? driver.text?.find(d => d.textID === driver.textID)?.textValue ?? 0
+                          : driver.driverValue,
                 msgMapID: driver.msgMapID || null,
                 msMapID: driver.msMapID || null,
                 globalPricingDriverID: driver.globalPricingDriverID,
@@ -10460,6 +10859,18 @@ const Add_Update_Engagement_Letter = () => {
                   ? driver.slab.filter((item) => item.isDefault === true)[0]
                       ?.slabID
                   : null,
+                textID: driver.driverTypeID === 5
+                  ? driver.textID || driver.text?.find(d => d.textValue === driver.driverValue)?.textID || null
+                  : null,
+                dateID:
+                  (
+                    (Array.isArray(driver.date) && driver.date.length > 0)
+                      ? driver.date.find(d => d.isDefault === true)?.dateID
+                      : null
+                  ),
+                enteredText: driver.enteredText || null,
+                enteredDate: driver.enteredDate || null,
+                enteredDateFormat: driver.enteredDateFormat || null,
               }));
 
           return {
@@ -13089,6 +13500,9 @@ const Add_Update_Engagement_Letter = () => {
                   setSelectedPackagesDetails={setSelectedPackagesDetails}
                   engagementObj={engagementObj}
                   setEngagementObj={setEngagementObj}
+                  currencyID = {currencyID}
+                  currencySymbol = {currencySymbol}
+                  taxName = {taxName}
                   setOneOffPricingInfoCopy={setOneOffPricingInfoCopy}
                   TabHide={TabHide}
                   common={common}
@@ -13149,6 +13563,9 @@ const Add_Update_Engagement_Letter = () => {
                   HandleBack={HandleBack}
                   proposalName={proposalName}
                   paymentGatewayObj={paymentGatewayObj}
+                  currencyID = {currencyID}
+                  currencySymbol = {currencySymbol}
+                  taxName = {taxName}
                   isMobile={isMobile}
                   hasHyphenAfterNumber={hasHyphenAfterNumber}
                   setVATPercentage={setVATPercentage}
@@ -13161,6 +13578,7 @@ const Add_Update_Engagement_Letter = () => {
                   selectedRecurringServiceListCopy={
                     selectedRecurringServiceListCopy
                   }
+                  setSelectedOneOffServiceList = {setSelectedOneOffServiceList}
                   setSelectedRecurringServiceList={
                     setSelectedRecurringServiceList
                   }
@@ -13208,6 +13626,7 @@ const Add_Update_Engagement_Letter = () => {
                   formatValueWithoutCurrencySymbol={
                     formatValueWithoutCurrencySymbol
                   }
+                  formatValueWithoutCurrencySymbol_v1= {formatValueWithoutCurrencySymbol_v1}
                   selectedPackagesList={selectedPackagesList}
                   lastPaymentFrequencyAndDiscountedPriceForPreview={
                     lastPaymentFrequencyAndDiscountedPriceForPreview
@@ -13222,6 +13641,9 @@ const Add_Update_Engagement_Letter = () => {
                   lastPaymentFrequencyAndDiscountedPriceForPreviewForoneoff={
                     lastPaymentFrequencyAndDiscountedPriceForPreviewForOneOff
                   }
+                  currencyID = {currencyID}
+                  currencySymbol = {currencySymbol}
+                  taxName = {taxName}
                   RecurringPricingInfo={RecurringPricingInfo}
                   OneOffPricingInfo={OneOffPricingInfo}
                   vatPercentage={vatPercentage}

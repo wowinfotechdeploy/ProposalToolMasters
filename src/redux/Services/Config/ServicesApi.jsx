@@ -27,6 +27,13 @@ export const ServiceCategoryList = async (KeyID, ProfessionTypeIDs) => {
 };
 
 
+export const GetServiceDependencyList = async (params) => {
+    const res = await postApiWithAuthenticated(
+        `${services}/GetServiceDependencyList`,
+        params
+    );
+    return res;
+}
 
 export const GetServicesList = async (params) => {
     const res = await postApiWithAuthenticated(

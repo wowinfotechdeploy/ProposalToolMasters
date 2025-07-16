@@ -5,7 +5,8 @@
 // export const Base_Url = "https://nifty-herschel.184-168-123-97.plesk.page/api"
 
 //Master Api
-export const Base_Url = "https://api.master.proposal.ust.outbooks.com/api"
+// export const Base_Url = "https://api.master.proposal.ust.outbooks.com/api"
+export const Base_Url = "https://localhost:7016/api"
 
 // //temporyBAseURl;
 // export const Base_Url = "https://angry-blackburn.101-53-133-129.plesk.page/api"
