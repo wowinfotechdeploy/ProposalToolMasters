@@ -73,6 +73,7 @@ const View_Engagement_Latter = () => {
     clientName: null,
     templateName: null,
     Payment_Frequency: null,
+    currencyID: null,
     feeTypeId: null,
     feesInQuoteName: null,
     DiscountLines: null,
@@ -117,6 +118,8 @@ const View_Engagement_Latter = () => {
     formatValue,
     proposalName,
     isMobile,
+    getTaxName,
+    getCurrencySymbol
   } = useContext(AuthContextProvider);
   const navigate = useNavigate();
   const location = useLocation();
@@ -229,6 +232,7 @@ const View_Engagement_Latter = () => {
             contractName: ModelData.contractName,
             sourceName: ModelData.sourceName,
             contractName: ModelData.contractName,
+            currencyID: ModelData.currencyID,
             draftOn: ModelData.createdOn,
             sentOn: ModelData.sentOn,
             signedOn: ModelData.signedOn,
@@ -887,7 +891,7 @@ const View_Engagement_Latter = () => {
                                           <div className="row fieldset">
                                             <div className="col-md-2 col-sm-12  text-md-end">
                                               <label className="fieldset-label">
-                                                Original Price (£)
+                                                Original Price (${getCurrencySymbol(EngagementObj.currencyID)})
                                               </label>
                                             </div>
                                             <div className="col-md-4 col-sm-12">
@@ -958,7 +962,7 @@ const View_Engagement_Latter = () => {
                                             >
                                               <div class="mt-2 text-md-end">
                                                 <label class="form-label">
-                                                  Discounted Price (£)
+                                                  Discounted Price (${getCurrencySymbol(EngagementObj.currencyID)})
                                                 </label>
                                               </div>
                                             </div>
@@ -967,7 +971,7 @@ const View_Engagement_Latter = () => {
                                                 readonly=""
                                                 class="input-text"
                                                 type="text"
-                                                placeholder="Discounted Price (£)"
+                                                placeholder={`Discounted Price (${getCurrencySymbol(EngagementObj.currencyID)})`}
                                                 value={Number(
                                                   Math.floor(
                                                     RecurringPricingInfo.DiscountedPrice *
@@ -994,7 +998,7 @@ const View_Engagement_Latter = () => {
                                                     Services
                                                   </th>
                                                   <th className="tr-table-class text-white text-right">
-                                                    Fees (£)
+                                                    Fees (${getCurrencySymbol(EngagementObj.currencyID)})
                                                   </th>
                                                 </tr>
                                               </thead>
@@ -1125,7 +1129,7 @@ const View_Engagement_Latter = () => {
                                                   <>
                                                     <tr class="head-grey-row">
                                                       <td className="tr-table-class font-14 text-white">
-                                                        VAT
+                                                        {getTaxName(EngagementObj.currencyID)}
                                                       </td>
                                                       <td className="tr-table-class text-white font-14 text-right">
                                                         {" "}
@@ -1168,7 +1172,7 @@ const View_Engagement_Latter = () => {
                                           <div className="row fieldset">
                                             <div className="col-md-2 col-sm-12  text-md-end">
                                               <label className="fieldset-label">
-                                                Original Price (£)
+                                                Original Price (${getCurrencySymbol(EngagementObj.currencyID)})
                                               </label>
                                             </div>
                                             <div className="col-md-10 col-sm-12">
@@ -1225,7 +1229,7 @@ const View_Engagement_Latter = () => {
                                             >
                                               <div class="mb-1  text-md-end">
                                                 <label class="form-label">
-                                                  Discounted Price (£)
+                                                  Discounted Price (${getCurrencySymbol(EngagementObj.currencyID)})
                                                 </label>
                                               </div>
                                             </div>
@@ -1234,7 +1238,7 @@ const View_Engagement_Latter = () => {
                                                 readonly=""
                                                 class="input-text"
                                                 type="text"
-                                                placeholder="Discounted Price (£)"
+                                                placeholder={`Discounted Price (${getCurrencySymbol(EngagementObj.currencyID)})`}
                                                 value={Number(
                                                   Math.floor(
                                                     OneOffPricingInfo.DiscountedPrice *
@@ -1261,7 +1265,7 @@ const View_Engagement_Latter = () => {
                                                     Services
                                                   </th>
                                                   <th className="tr-table-class text-white text-right">
-                                                    Fees (£)
+                                                    Fees (${getCurrencySymbol(EngagementObj.currencyID)})
                                                   </th>
                                                 </tr>
                                               </thead>
@@ -1392,7 +1396,7 @@ const View_Engagement_Latter = () => {
                                                   <>
                                                     <tr class="head-grey-row">
                                                       <td className="tr-table-class font-14 text-white">
-                                                        VAT
+                                                        {getTaxName(EngagementObj.currencyID)}
                                                       </td>
                                                       <td className="tr-table-class font-14 text-white text-right">
                                                         {" "}

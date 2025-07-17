@@ -22,6 +22,7 @@ import {
   AddUpdateService,
   GetServiceModel,
   ServiceCategoryList,
+  GetServiceDependencyList
 } from "../../../redux/Services/Config/ServicesApi";
 import { useDispatch, useSelector } from "react-redux";
 import { ServiceChargeTypeList } from "../../../redux/Services/Master/ServiceChargeTypeLookupList";
@@ -47,9 +48,16 @@ import DeleteDriverModal from "../../../components/DeleteDriverModel";
 import { NotifySuperAdminPredefinedChangesToAdmin } from "../../../redux/Services/Setting/NotificationApi";
 import { DeclineSuperAdminChanges } from "../../../redux/Services/Config/ServiceCategoryApi";
 import SAPredefinedChangesNotifyMessageModel from "../../../components/SAPredefinedChangesNotifyMessageModel";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { parse, format, isValid,differenceInCalendarDays, addDays, getTime } from "date-fns";
+import Utils from "../../../Middleware/Utils";
 //Tab Custom Component Created
 const BasicInformationComponent = (props) => {
   const ServiceDivContainerRef = useRef(null);
+  const [isDropdownEnabled, setIsDropdownEnabled] = useState(
+    props.servicesObj?.prerequisiteServicesID?.length > 0 || false
+  );
   const { scrollUptoCurrentPosition } = useContext(AuthContextProvider);
   const serviceChargeTypeFilter = props.serviceChargeTypeList?.find(
     (item) => item.serviceChargeTypeID === props.servicesObj.serviceChargeTypeID
@@ -468,6 +476,56 @@ const BasicInformationComponent = (props) => {
                 </div>
               </div>
             )}
+            {props.common.organisationKeyID !== null && (
+              <>
+                <div className="col-lg-6" id="ServiceDependency_Div">
+                  <div className="mb-3 ">
+                    <label className="form-label" style={{ paddingRight: "4px" }}>
+                      Depends on Services
+                    </label>
+                    <input
+                      type="checkbox"
+                      id="enableDropdown"
+                      checked={isDropdownEnabled || props.ServiceDependencyValue.length > 0}
+                      onChange={(e) => {
+                        const isChecked = e.target.checked || props.ServiceDependencyValue.length > 0;
+                        setIsDropdownEnabled(isChecked);
+                        if (!isChecked || props.ServiceDependencyValue.length === 0) {
+                          props.OnServiceDependencyChange([]);
+                          props.setServicesObj((prev) => ({
+                            ...prev,
+                            prerequisiteServicesID: []
+                          }));
+                        }
+                      }}
+                      style={{ verticalAlign: "middle", cursor: "pointer" }}
+                    />
+            
+                    {(props.ServiceDependencyValue.length > 0 || isDropdownEnabled) && (
+                      <>
+                        <div className="input-group">
+                          <Select
+                            isMulti
+                            value={props.ServiceDependencyValue}
+                            options={props.ServiceDependencyLookupList}
+                            className="user-role-select"
+                            onChange={props?.OnServiceDependencyChange}
+                            styles={{
+                              option: (styles) => ({ ...styles, cursor: 'pointer' }),
+                            }}
+                            placeholder="Select..."
+                          />
+                        </div>
+                        {props.serviceError.basicInformationError &&
+                          (!props.ServiceDependencyList || props.ServiceDependencyList === "") && (
+                            <label className="validation">{ERROR_MESSAGES}</label>
+                        )}
+                      </>
+                    )}
+                  </div>
+                </div>
+              </>
+            )}
           </div>
           {/* <!-- end tab row --> */}
         </div>
@@ -631,6 +689,98 @@ const PricingDriversComponent = (props) => {
     }
   };
 
+  useEffect(() => {
+    // Initialize default decimal places and format existing slabs
+    const updatedSlabs = [...props.pricingDriver];
+    let hasChanges = false;
+
+    updatedSlabs.forEach((driver, mainIndex) => {
+      // Set default decimal places if not set
+      // if (driver.slab[0]?.decimalPlaces === undefined || driver.slab[0]?.decimalPlaces === null) {
+      //   driver.decimalPlaces = 2;
+      //   hasChanges = true;
+      // }
+
+
+      // Format existing slabs and set defaults
+      if (driver.slab && driver.slab.length > 0) {
+        driver.slab.forEach((slab, index) => {
+          const decimalPlaces = Number(driver.slab[index].decimalPlaces);
+          // Set default values if empty
+          if ((slab.slabFrom === "" || slab.slabFrom === null || slab.slabFrom === undefined) && index === 0) {
+            slab.slabFrom = (0).toFixed(decimalPlaces);
+            hasChanges = true;
+          }
+          if (slab.slabTo === "" || slab.slabTo === null || slab.slabTo === undefined) {
+            slab.slabTo = (0).toFixed(decimalPlaces);
+            hasChanges = true;
+          }
+
+          // Format existing values
+          if (slab.slabFrom && slab.slabFrom !== "") {
+            const numFrom = parseFloat(slab.slabFrom);
+            if (!isNaN(numFrom)) {
+              const formatted = numFrom.toFixed(decimalPlaces);
+              if (formatted !== slab.slabFrom.toString()) {
+                slab.slabFrom = formatted;
+                hasChanges = true;
+              }
+            }
+          }
+
+          if (slab.slabTo && slab.slabTo !== "") {
+            const numTo = parseFloat(slab.slabTo);
+            if (!isNaN(numTo)) {
+              const formatted = numTo.toFixed(decimalPlaces);
+              if (formatted !== slab.slabTo.toString()) {
+                slab.slabTo = formatted;
+                hasChanges = true;
+              }
+            }
+          }
+        });
+      }
+    });
+
+    if (hasChanges) {
+      props.setPricingDriver(updatedSlabs);
+    }
+  }, []);
+
+  useEffect(() => {
+    const updated = [...props.pricingDriver];
+    let changed = false;
+
+    updated.forEach((driver, index) => {
+      if (
+        driver?.driverTypeID === 6 &&
+        (!driver.date || driver.date.length === 0)
+      ) {
+        updated[index].date = [
+          {
+            dateFormat: dateFormats[3].value,
+            defaultDateValue: null,
+            blocks: [],
+          },
+        ];
+        changed = true;
+      }
+      if (driver?.driverTypeID === 2 && !(driver?.quantity || driver?.quantity?.length === 0)) {
+        updated[index].quantity = [{
+          quantityDecimalPlaces: 2,
+          quantityFrom: "",
+          quantityTo: ""
+        },
+        ];
+        changed = true;
+      }
+    });
+
+    if (changed) {
+      props.setPricingDriver(updated);
+    }
+  }, [props.pricingDriver]);
+
   // handle Content Visibility for Global 
   const toggleContentVisibilityForGlobal = (mainIndex) => {
     if (visibleIndexesGlobal.includes(mainIndex)) {
@@ -641,9 +791,117 @@ const PricingDriversComponent = (props) => {
       setVisibleIndexesGlobal([...visibleIndexesGlobal, mainIndex]);
     }
   };
+
+  const specialCharOptions = Utils.specialCharOptions;
+
+  const dateFormats = Utils.dateFormats;
+
   const findDriverTypeIndex = props.pricingDriver?.findIndex(
     (i) => i.driverTypeID === 3
   );
+
+  const OnAddPeriodBlock = (mainIndex, dateGroupIndex = 0) => {
+    const updatedDrivers = [...props.pricingDriver];
+    const currentDriver = updatedDrivers[mainIndex];
+
+    const dateGroup = currentDriver.date?.[dateGroupIndex];
+    if (!dateGroup) return;
+
+    const blocks = dateGroup.blocks || [];
+    const lastBlock = blocks.at(-1);
+    const dateFormat = dateGroup.dateFormat;
+
+    const lastToDate = lastBlock?.toDate
+      ? props.parseStoredDate(lastBlock.toDate, dateFormat)
+      : null;
+
+    const newFromDate = lastToDate
+      ? props.formatToDisplay(addDays(lastToDate, 1), dateFormat)
+      : null;
+
+    blocks.push({
+      fromDate: newFromDate,
+      toDate: "",
+      dateValue: null,
+    });
+
+    props.setPricingDriver(updatedDrivers);
+  };
+
+  const OnDeletePeriodBlock = (mainIndex, dateGroupIndex, blockIndex) => {
+    const updated = [...props.pricingDriver];
+
+    const dateGroups = updated[mainIndex]?.date;
+    if (!dateGroups) return;
+
+    const dateGroup = dateGroups[dateGroupIndex];
+    if (!dateGroup) return;
+
+    dateGroup.blocks = dateGroup.blocks || [];
+
+    // Remove the block
+    dateGroup.blocks.splice(blockIndex, 1);
+
+    // If no blocks remain, remove the group entirely
+    if (dateGroup.blocks.length === 0) {
+      dateGroups.splice(dateGroupIndex, 1);
+    }
+
+    props.setPricingDriver(updated);
+  };
+
+  // const OnPeriodBlockChange = (mainIndex, blockIndex, field, value) => {
+  //   console.log(value);
+  //   const updated = [...props.pricingDriver];
+  //   const dateData = updated[mainIndex]?.date?.[0];
+  
+  //   if (!dateData || !Array.isArray(dateData.blocks)) return;
+  
+  //   if (!dateData.blocks[blockIndex]) return;
+  
+  //   if (field === "dateValue") {
+  //     const cleanValue = value?.replace(/[^0-9]/g, '');
+  //     dateData.blocks[blockIndex].dateValue = cleanValue;
+  //   } else {
+  //     dateData.blocks[blockIndex][field] = value;
+  //   }
+  
+  //   props.setPricingDriver(updated);
+  // };
+  
+  const OnPeriodBlockChange = (mainIndex, dateGroupIndex, blockIndex, field, value) => {
+    const updated = [...props.pricingDriver];
+    const dateGroup = updated[mainIndex]?.date?.[dateGroupIndex];
+
+    if (!dateGroup || !Array.isArray(dateGroup.blocks)) return;
+    if (!dateGroup.blocks[blockIndex]) return;
+
+    if (field === "dateValue") {
+      let cleanValue = value?.replace(/[^0-9]/g, '');
+      if (cleanValue === "") {
+        cleanValue = null;
+      }
+      dateGroup.blocks[blockIndex].dateValue = cleanValue;
+    } else {
+      dateGroup.blocks[blockIndex][field] = value;
+    }
+
+    props.setPricingDriver(updated);
+  };
+
+  const formatDecimal = (value, decimalPlaces) => {
+    if (value === null || value === undefined || value === "") return "";
+
+    const num = typeof value === "string" ? parseFloat(value) : value;
+    if (isNaN(num)) return "";
+
+    return num.toFixed(decimalPlaces).toString(); // Returns a string
+  };
+
+  const safelyConvertDate = (dateStr, fromFormat, toFormat) => {
+    const parsed = parse(dateStr, fromFormat, new Date());
+    return isValid(parsed) ? format(parsed, toFormat) : dateStr;
+  };
 
   const lastPricingDriver = props.pricingDriver[props.pricingDriver.length - 1];
 
@@ -672,77 +930,74 @@ const PricingDriversComponent = (props) => {
   };
 
   const DriverValue = (e, mainIndex, index, Type) => {
-    // Ensure that the input only contains numeric characters
+    const inputValue = e.target.value;
+    const decimalPlaces =
+      props.pricingDriver?.[mainIndex]?.slab?.[index]?.decimalPlaces === null ? 0 : 2;
 
-    const sanitizedInput = e.target.value
-      .replace(/[^0-9.-]/g, "") // Allow only numeric, dot, and negative sign characters
-      .slice(0, 16); // Limit to 8 characters (5 digits + 1 dot + 1 decimal + 1 negative sign)
-
-    // Split the input into integer and decimal parts
-    const [integerPart, decimalPart] = sanitizedInput.split(".");
-
-    // Combine integer and decimal parts with appropriate precision
-    let formattedInput;
-    if (decimalPart !== undefined) {
-      if (integerPart.includes("-")) {
-        // For negative values, ensure 5 digits after the negative sign
-        formattedInput = `-${integerPart.slice(1, 13)}.${decimalPart.slice(
-          0,
-          2
-        )}`;
-      } else {
-        // For positive values, limit to 5 digits before the decimal point
-        formattedInput = `${integerPart.slice(0, 12)}.${decimalPart.slice(
-          0,
-          2
-        )}`;
+    // Allow empty input
+    if (inputValue === "") {
+      if (Type === "variationValue") {
+        props.OnVariationChange(mainIndex, index, "variationValue", "");
+      } else if (Type === "slabValue") {
+        props.OnSlabChange(mainIndex, index, "slabValue", "");
+      } else if (Type === "slabFrom") {
+        props.OnSlabChange(mainIndex, index, "slabFrom", "");
+      } else if (Type === "slabTo") {
+        props.OnSlabChange(mainIndex, index, "slabTo", "");
       }
-    } else {
-      // No decimal part, limit to 5 digits
-      formattedInput = integerPart.includes("-")
-        ? `-${integerPart.slice(1, 13)}`
-        : `${integerPart.slice(0, 12)}`;
+      return;
     }
+
+    // Clean input - only allow numbers and one decimal point
+    let cleanValue = inputValue.replace(/[^0-9.]/g, '');
+
+    // Handle multiple decimal points
+    const decimalCount = (cleanValue.match(/\./g) || []).length;
+    if (decimalCount > 1) {
+      const firstDecimalIndex = cleanValue.indexOf('.');
+      cleanValue = cleanValue.substring(0, firstDecimalIndex + 1) +
+        cleanValue.substring(firstDecimalIndex + 1).replace(/\./g, '');
+    }
+
+    // For zero decimal places, remove decimal point
+    if (decimalPlaces === 0) {
+      cleanValue = cleanValue.replace(/\./g, '');
+    }
+
+    // Limit decimal places as user types
+    if (cleanValue.includes('.')) {
+      const parts = cleanValue.split('.');
+      if (parts[1] && parts[1].length > decimalPlaces) {
+        parts[1] = parts[1].substring(0, decimalPlaces);
+        cleanValue = parts[0] + '.' + parts[1];
+      }
+    }
+
+    // Update with cleaned value
     if (Type === "variationValue") {
-      props.OnVariationChange(
-        mainIndex,
-        index,
-        "variationValue",
-        formattedInput.replace(/-/g, (match, index) =>
-          index === 0 ? match : ""
-        )
-      );
+      props.OnVariationChange(mainIndex, index, "variationValue", cleanValue);
     } else if (Type === "slabValue") {
-      props.OnSlabChange(
-        mainIndex,
-        index,
-        "slabValue",
-        formattedInput.replace(/-/g, (match, index) =>
-          index === 0 ? match : ""
-        )
-      );
+      props.OnSlabChange(mainIndex, index, "slabValue", cleanValue);
     } else if (Type === "slabFrom") {
-      props.OnSlabChange(
-        mainIndex,
-        index,
-        "slabFrom",
-        formattedInput.replace(/-/g, (match, index) =>
-          index === 0 ? match : ""
-        )
-      );
+      props.OnSlabChange(mainIndex, index, "slabFrom", cleanValue);
     } else if (Type === "slabTo") {
-      props.OnSlabChange(
-        mainIndex,
-        index,
-        "slabTo",
-        formattedInput.replace(/-/g, (match, index) =>
-          index === 0 ? match : ""
-        )
-      );
-      var fromValueForNewSlab = Number(formattedInput) + 0.01;
-      fromValueForNewSlab = Math.round(fromValueForNewSlab * 100) / 100;
-      props.OnSlabChange(mainIndex, index + 1, "slabFrom", fromValueForNewSlab);
+      props.OnSlabChange(mainIndex, index, "slabTo", cleanValue);
     }
+  };
+
+  // Helper function to initialize default slab values
+  const initializeSlabWithDefaults = (mainIndex) => {
+    const decimalPlaces = Number(props.pricingDriver[mainIndex]?.decimalPlaces ?? 2);
+    const defaultFrom = (0).toFixed(decimalPlaces);
+    const defaultTo = (0).toFixed(decimalPlaces);
+
+    return {
+      slabFrom: defaultFrom,
+      slabTo: defaultTo,
+      slabValue: "",
+      slabTypeID: null,
+      // ... other default properties
+    };
   };
 
   return (
@@ -1031,6 +1286,447 @@ const PricingDriversComponent = (props) => {
                               )}
                             </div>
                           </div>
+                          {i.driverTypeID === 5 && (
+                            <>
+                              <div className="col-lg-6">
+                                <div className="mb-1">
+                                  <label className="form-label">
+                                    Text Value
+                                  </label>
+                                  <div className="input-group input-height">
+                                    <input
+                                      type="text"
+                                      className="input-text"
+                                      placeholder="Enter Text Value"
+                                      value={i.text?.[0]?.textValue || null}
+                                      onChange={(e) => {
+                                        const value = e.target.value;
+                                        props.OnPricingDriverChange(mainIndex, "TextValue", value);
+                                      }}
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="col-lg-6">
+                                <div className="mb-1">
+                                  <label className="form-label">
+                                    Text Length <span className="text-danger">*</span>
+                                  </label>
+                                  <div className="input-group input-height">
+                                    <input
+                                      type="text"
+                                      className="input-text"
+                                      placeholder="Enter Text Length"
+                                      value={i.text?.[0]?.textLength || ""}
+                                      onChange={(e) => {
+                                        const value = e.target.value;
+                                        props.OnPricingDriverChange(mainIndex, "TextLength", value);
+                                      }}
+                                      min="5"
+                                      max="500"
+                                      step="1"
+                                    />
+                                  </div>
+                                  {props.gdrivererror.textLengthError && !i.text[0]?.textLength
+                                    ? (
+                                    <label className="validation">{ERROR_MESSAGES}</label>
+                                  ) : null}
+                                </div>
+                              </div>
+                              <div className="col-lg-6">
+                                <div className="mb-1">
+                                  <label className="form-label">Allowed Special Characters</label>
+                                  <Select
+                                    isMulti
+                                    className="basic-multi-select"
+                                    classNamePrefix="select"
+                                    options={specialCharOptions}
+                                    value={specialCharOptions.filter((opt) =>
+                                      (i.text?.[0]?.allowedSpecialCharacters || "").split(",").includes(opt.value)
+                                    )}
+                                    onChange={(selected) => {
+                                      const chars = selected.map((s) => s.value).join(",");
+                                      props.OnPricingDriverChange(mainIndex, "AllowedSpecialCharacters", chars);
+                                    }}
+                                    placeholder="Select special characters..."
+                                  />
+                                </div>
+                              </div>
+                            </>
+                          )}
+                          
+                          {props.pricingDriver[mainIndex].driverTypeID === 6 && (
+                            <>
+                              <div className="col-lg-6">
+                                <div className="mb-1">
+                                  <label className="form-label">Date Format <span className="text-danger">*</span></label>
+                                  <Select
+                                    isDisabled={
+                                      props.pricingDriver[mainIndex].parentGlobalPricingDriverKeyID
+                                        ? true
+                                        : false
+                                    } 
+                                    options={dateFormats}
+                                    className="basic-multi-select"
+                                    classNamePrefix="select"
+                                    value={
+                                      dateFormats.find(
+                                        f =>
+                                          f.value === props.pricingDriver[mainIndex].date?.[0]?.dateFormat
+                                          || f.value === dateFormats[3].value
+                                      )
+                                    } 
+                                    onChange={(selected) => {
+                                      const format = selected ? selected.value : null;
+                                      props.OnPricingDriverChange(mainIndex, "DateFormat", format);
+                                    }}
+                                  />
+                                </div>
+                                {props.gdrivererror.dateError && (
+                                    <label className="validation">{ERROR_MESSAGES}</label>
+                                )}
+                              </div>
+
+                              <div className="col-lg-6">
+                                <div className="mb-1">
+                                  <label className="form-label">Default Date Value</label>
+                                  <input
+                                    type="text"
+                                    className="input-text"
+                                    value={props.pricingDriver[mainIndex].date?.[0]?.defaultDateValue}
+                                    onChange={(e) =>
+                                      props.OnPricingDriverChange(mainIndex, "defaultDateValue", e.target.value)
+                                    }
+                                  />
+                                </div>
+                              </div>
+
+                              <div className="col-xl-12">
+                                {/* {props.gdrivererror.dateError && (
+                                  <div className="text-center">
+                                    <label className="validation">At least 1 Period Block is required.</label>
+                                  </div>
+                                )} */}
+                                {/* {props.pricingDriver[mainIndex].date?.map((item, index) => {
+                                  console.log(item);
+                                  return (
+                                  <div className="card-1 pricing-box p-4 mt-3"
+                                       key={index}
+                                       id={`PeriodDiv_${mainIndex}${index}`}  >
+                                    <div className="col-lg-6 col-md-6">
+                                      <p
+                                        className="office-name font-weight"
+                                        style={{
+                                          width: "auto",
+                                          zIndex: "0",
+                                        }}
+                                      >
+                                        Period Block {index + 1}
+                                      </p>
+                                    </div>
+
+                                    {props.pricingDriver[mainIndex].date.length > 0 && (
+                                      <button
+                                        style={{ marginTop: "-34px" }}
+                                        className="btn btn-sm btn-danger gpd-title-1"
+                                        onClick={() => OnDeletePeriodBlock(mainIndex, index)}
+                                      >
+                                        <i
+                                          className="bi bi-trash3"
+                                          style={{ marginRight: isMobile ? "0px" : "5px" }}
+                                        ></i>
+                                        <span className="d-none d-sm-inline-block">Delete Period</span>
+                                      </button>
+                                    )}
+                                    <div className="row">
+                                      <div className="row">
+                                      <div className="col-lg-6">
+                                          <div className="mb-1">
+                                            <label className="form-label">
+                                              From Date{" "}
+                                            </label>
+                                            <div className="input-group input-height">
+                                                <DatePicker
+                                                  selected={props.parseStoredDate(
+                                                    item.block[index].fromDate,
+                                                    item.dateFormat || props.pricingDriver[mainIndex].date?.[0]?.dateFormat || dateFormats[0]?.value || "dd/MM/yyyy"
+                                                  )}
+                                                  disabled={
+                                                    (index > 0 && props.pricingDriver[mainIndex].date?.[index - 1]?.toDate !== "") ||
+                                                      props.pricingDriver[mainIndex].parentGlobalPricingDriverKeyID
+                                                      ? true
+                                                      : index !== 0
+                                                  }
+                                                  maxDate={
+                                                    item.block[index].toDate
+                                                      ? addDays(
+                                                          props.parseStoredDate(
+                                                            item.block[0].toDate,
+                                                            item.dateFormat || props.pricingDriver[mainIndex].date?.[0]?.dateFormat || dateFormats[0]?.value || "dd/MM/yyyy"
+                                                          ),
+                                                          -1
+                                                        )
+                                                      : null
+                                                  }
+                                                  onChange={(date) =>
+                                                    OnPeriodBlockChange(
+                                                      mainIndex,
+                                                      index,
+                                                      "fromDate",
+                                                      props.formatToDisplay(
+                                                        date,
+                                                        item.dateFormat || props.pricingDriver[mainIndex].date?.[0]?.dateFormat || dateFormats[0]?.value || "dd/MM/yyyy"
+                                                      )
+                                                    )
+                                                  }
+                                                  placeholderText={
+                                                    item.dateFormat || props.pricingDriver[mainIndex].date?.[0]?.dateFormat || dateFormats[0]?.value || "dd/MM/yyyy"
+                                                  }
+                                                  dateFormat={
+                                                    item.dateFormat || props.pricingDriver[mainIndex].date?.[0]?.dateFormat || dateFormats[0]?.value || "dd/MM/yyyy"
+                                                  }
+                                                  className="input-text"
+                                                />
+                                            </div>
+                                          </div>
+                                        </div>
+
+                                        <div className="col-lg-6">
+                                          <div className="mb-1">
+                                            <label className="form-label">
+                                              To Date{" "}
+                                            </label>
+                                            <div className="input-group input-height">
+                                                <DatePicker
+                                                  selected={props.parseStoredDate(
+                                                    item.block[index].toDate,
+                                                    item.dateFormat || props.pricingDriver[mainIndex].date?.[0]?.dateFormat || dateFormats[0]?.value || "dd/MM/yyyy"
+                                                  )}
+                                                  disabled={
+                                                    props.pricingDriver[mainIndex].parentGlobalPricingDriverKeyID ? true : false
+                                                  }
+                                                  minDate={
+                                                    item.fromDate
+                                                      ? addDays(
+                                                        item.block[index].fromDate instanceof Date
+                                                          ? item.block[index].fromDate
+                                                          : parse(
+                                                            item.fromDate,
+                                                            item.dateFormat || props.pricingDriver[mainIndex].date?.[0]?.dateFormat || dateFormats[0]?.value || "dd/MM/yyyy",
+                                                            new Date()
+                                                          ),
+                                                        1
+                                                      )
+                                                      : null
+                                                  }
+                                                  onChange={(date) =>
+                                                    OnPeriodBlockChange(
+                                                      mainIndex,
+                                                      index,
+                                                      "toDate",
+                                                      props.formatToDisplay(
+                                                        date,
+                                                        item.dateFormat || props.pricingDriver[mainIndex].date?.[0]?.dateFormat || dateFormats[0]?.value || "dd/MM/yyyy"
+                                                      )
+                                                    )
+                                                  }
+                                                  placeholderText={
+                                                    item.dateFormat || props.pricingDriver[mainIndex].date?.[0]?.dateFormat || dateFormats[0]?.value || "dd/MM/yyyy"
+                                                  }
+                                                  dateFormat={
+                                                    item.dateFormat || props.pricingDriver[mainIndex].date?.[0]?.dateFormat || dateFormats[0]?.value || "dd/MM/yyyy"
+                                                  }
+                                                  className="input-text"
+                                                />
+                                            </div>
+                                          </div>
+                                            {props.gdrivererror?.toDateError?.[mainIndex]?.[index] && (
+                                              <label className="text-danger mt-1 text-center">
+                                                To Date cannot be earlier than From Date.
+                                              </label>
+                                            )}
+                                        </div>
+                                          {props.gdrivererror?.dateValueError?.[mainIndex]?.[index] && (
+                                            <label className="text-danger mt-1 text-center">
+                                              Either From date or To date is required
+                                            </label>
+                                          )}
+                                    </div>
+                                    <div className="row input-group input-height mt-1">
+                                      <div className="col-lg-6">
+                                        <label className="form-label">Date Value </label>
+                                        <input
+                                          type="text"
+                                          className="input-text"
+                                          value={item.dateValue}
+                                          onChange={(e) =>
+                                            OnPeriodBlockChange(mainIndex, index, "dateValue", e.target.value)
+                                          }
+                                        />
+                                      </div>
+                                    </div>
+                                      </div>
+                                    </div>
+                                  )
+                                })} */}
+                                {props.pricingDriver[mainIndex]?.date?.map((dateItem, dateGroupIndex) =>
+                                dateItem?.blocks?.map((blockItem, blockIndex, arr) => {
+                                  // const isBlockEmpty =
+                                  //   (blockItem.fromDate === null || blockItem.fromDate === "") &&
+                                  //   (blockItem.toDate === null || blockItem.toDate === "");
+                                  // const isOnlyBlock = arr.length === 1;
+                              
+                                  // // Only show if it has a date or is a newly added block
+                                  // if (isBlockEmpty && isOnlyBlock) {
+                                  //   return null;
+                                  // }
+                                  return (
+                                    <div className="card-1 pricing-box p-4 mt-3"
+                                      key={`PeriodDiv_${mainIndex}_${dateGroupIndex}_${blockIndex}`}
+                                      id={`PeriodDiv_${mainIndex}_${dateGroupIndex}_${blockIndex}`}>
+
+                                      <div className="col-lg-6 col-md-6">
+                                        <p className="office-name font-weight" style={{ width: "auto", zIndex: "0" }}>
+                                          Period Block {dateGroupIndex + 1}
+                                        </p>
+                                      </div>
+
+                                      {dateItem.blocks.length > 0 && (
+                                        <button
+                                          style={{ marginTop: "-34px" }}
+                                          className="btn btn-sm btn-danger gpd-title-1"
+                                          onClick={() => OnDeletePeriodBlock(mainIndex, dateGroupIndex, blockIndex)}
+                                        >
+                                          <i className="bi bi-trash3" style={{ marginRight: isMobile ? "0px" : "5px" }}></i>
+                                          <span className="d-none d-sm-inline-block">Delete Period</span>
+                                        </button>
+                                      )}
+
+                                      <div className="row">
+                                        {/* From Date */}
+                                        <div className="col-lg-6">
+                                          <div className="mb-1">
+                                            <label className="form-label">From Date</label>
+                                            <div className="input-group input-height">
+                                              <DatePicker
+                                                selected={props.parseStoredDate(blockItem.fromDate, dateItem.dateFormat)}
+                                                disabled={
+                                                  (dateGroupIndex > 0 &&
+                                                    dateItem.blocks?.[dateGroupIndex - 1]?.toDate !== "") ||
+                                                    props.pricingDriver[mainIndex].parentGlobalPricingDriverKeyID
+                                                    ? true
+                                                    : blockIndex !== 0
+                                                }
+                                                maxDate={
+                                                  blockItem.toDate
+                                                    ? addDays(props.parseStoredDate(blockItem.toDate, dateItem.dateFormat), -1)
+                                                    : null
+                                                }
+                                                onChange={(date) =>
+                                                  OnPeriodBlockChange(
+                                                    mainIndex,
+                                                    dateGroupIndex,
+                                                    blockIndex,
+                                                    "fromDate",
+                                                    props.formatToDisplay(date, dateItem.dateFormat)
+                                                  )
+                                                }
+                                                placeholderText={dateItem.dateFormat?.toUpperCase()}
+                                                dateFormat={dateItem.dateFormat}
+                                                className="input-text"
+                                              />
+                                            </div>
+                                          </div>
+                                        </div>
+
+                                        {/* To Date */}
+                                        <div className="col-lg-6">
+                                          <div className="mb-1">
+                                            <label className="form-label">To Date</label>
+                                            <div className="input-group input-height">
+                                              <DatePicker
+                                                selected={props.parseStoredDate(blockItem.toDate, dateItem.dateFormat)}
+                                                disabled={props.pricingDriver[mainIndex].parentGlobalPricingDriverKeyID}
+                                                minDate={
+                                                  blockItem.fromDate
+                                                    ? addDays(
+                                                      typeof blockItem.fromDate === "string"
+                                                        ? parse(blockItem.fromDate, dateItem.dateFormat, new Date())
+                                                        : blockItem.fromDate,
+                                                      1
+                                                    )
+                                                    : null
+                                                }
+                                                onChange={(date) =>
+                                                  OnPeriodBlockChange(
+                                                    mainIndex,
+                                                    dateGroupIndex,
+                                                    blockIndex,
+                                                    "toDate",
+                                                    props.formatToDisplay(date, dateItem.dateFormat)
+                                                  )
+                                                }
+                                                placeholderText={dateItem.dateFormat?.toUpperCase()}
+                                                dateFormat={dateItem.dateFormat}
+                                                className="input-text"
+                                              />
+                                            </div>
+                                          </div>
+
+                                          {props.gdrivererror?.toDateError?.[mainIndex]?.[blockIndex] && (
+                                            <label className="text-danger mt-1 text-center">
+                                              To Date cannot be earlier than From Date.
+                                            </label>
+                                          )}
+                                        </div>
+
+                                        {props.gdrivererror?.dateValueError?.[mainIndex]?.[blockIndex] && (
+                                          <label className="text-danger mt-1 text-center">
+                                            Either From date or To date is required
+                                          </label>
+                                        )}
+                                      </div>
+
+                                      <div className="row input-group input-height mt-1">
+                                        <div className="col-lg-6">
+                                          <label className="form-label">Date Value </label>
+                                          <input
+                                            type="text"
+                                            className="input-text"
+                                            value={blockItem.dateValue}
+                                            onChange={(e) =>
+                                              OnPeriodBlockChange(mainIndex, dateGroupIndex, blockIndex, "dateValue", e.target.value)
+                                            }
+                                          />
+                                        </div>
+                                      </div>
+                                    </div>
+                                   );
+                                  })
+                                )}
+                                <span className="delete-right align-right mt-1">
+                                  <button
+                                    onClick={() => {
+                                      const dateGroups = props.pricingDriver[mainIndex]?.date || [];
+                                      const lastGroupIndex = dateGroups.length - 1;
+                                      OnAddPeriodBlock(mainIndex, lastGroupIndex);
+                                    }}
+                                    disabled={(() => {
+                                      const driver = props.pricingDriver[mainIndex];
+                                      if (driver && driver.parentGlobalPricingDriverKeyID) return true;
+                                      const lastGroup = driver?.date?.at(-1);
+                                      const lastBlock = lastGroup?.blocks?.at(-1);
+                                      return lastBlock && !lastBlock.toDate;
+                                    })()}
+                                    className="btn btn-sm create-item-btn d-flex gap-1"
+                                  >
+                                    <i className="bi bi-plus-circle"></i>
+                                    <span>Add Period Block</span>
+                                  </button>
+                                </span>
+                              </div>
+                            </>
+                          )}
                           {(TotalVariationsAddedBeforeMe(
                             props.pricingDriver,
                             mainIndex
@@ -1687,9 +2383,185 @@ const PricingDriversComponent = (props) => {
                         {/* <!-- end tab row --> */}
                         {visibleIndexes.includes(mainIndex) ||
                           visibleIndexesGlobal.includes(mainIndex) ||
+                          (props.pricingDriver[mainIndex].driverTypeID === 2 && (
+                            <>
+                            <div className="row mb-3">
+                                <div className="col-lg-6">
+                                  <div className="mb-1">
+                                    <label className="form-label">
+                                      Quantity Decimal Places <span className="text-danger">*</span>
+                                    </label>
+                                    <div className="input-group">
+                                      <Select
+                                        className="user-role-select"
+                                        onChange={(selectedOption) => props.OnDecimalPlacesChange(selectedOption, mainIndex)}
+                                        isDisabled={
+                                          props.pricingDriver[mainIndex].parentGlobalPricingDriverKeyID
+                                        }
+                                        value={{
+                                          value: props.pricingDriver[mainIndex]?.quantity?.[0]?.quantityDecimalPlaces ?? 2,
+                                          label: (() => {
+                                            const decimalPlaces = props.pricingDriver[mainIndex]?.quantity?.[0]?.quantityDecimalPlaces ?? 2;
+                                            if (decimalPlaces === 0) {
+                                              return "No decimal places";
+                                            } else if (decimalPlaces === 1) {
+                                              return "1 decimal place";
+                                            } else {
+                                              return `${decimalPlaces} decimal places`;
+                                            }
+                                          })(),
+                                        }}
+                                        options={[
+                                          { value: 2, label: "2 decimal places" },
+                                          { value: 1, label: "1 decimal place" },
+                                          { value: 0, label: "No decimal places" },
+                                        ]}
+                                      />
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="row">
+                                <div className="col-12">
+                                <label>Allowed Range</label>
+                                </div>
+                              </div>
+                              <div className="row fieldset mt-1">
+                                <div className="col-lg-6">
+                                  <div className="mb-1">
+                                    <label className="form-label">From</label>
+                                    <div className="input-group">
+                                      <input
+                                       type="text"
+                                       className="input-text"
+                                       value={props.pricingDriver[mainIndex].quantity?.[0]?.quantityFrom || ""}
+                                       onChange={(e) => props.OnQuantityChange(e.target.value,'from',mainIndex)}
+                                       onBlur={() => {
+                                        const updatedDrivers = [...props.pricingDriver];
+                                        const currentValue = updatedDrivers[mainIndex]?.quantity?.[0]?.quantityFrom;
+                                        const decimalPlaces = updatedDrivers[mainIndex]?.quantity?.[0]?.quantityDecimalPlaces ?? 2;
+
+                                        if (currentValue && currentValue !== '') {
+                                          const numValue = parseFloat(currentValue);
+                                          if (!isNaN(numValue)) {
+                                            const formattedValue = decimalPlaces === 0
+                                              ? Math.floor(numValue).toString()
+                                              : numValue.toFixed(decimalPlaces);
+
+                                            const updatedQuantities = [...(updatedDrivers[mainIndex].quantity || [])];
+                                            updatedQuantities[0] = {
+                                              ...updatedQuantities[0],
+                                              quantityFrom: formattedValue,
+                                            };
+
+                                            updatedDrivers[mainIndex] = {
+                                              ...updatedDrivers[mainIndex],
+                                              quantity: updatedQuantities,
+                                            };
+
+                                            props.setPricingDriver(updatedDrivers);
+                                          }
+                                        }
+                                      }}
+                                      />
+                                    </div>
+                                  </div>
+                                </div>      
+                                <div className="col-lg-6">
+                                  <div className="mb-1">
+                                    <label className="form-label">To</label>
+                                    <div className="input-group">
+                                      <input
+                                       type="text"
+                                       className="input-text"
+                                       value={props.pricingDriver[mainIndex].quantity?.[0]?.quantityTo || ""}
+                                       onChange={(e) => props.OnQuantityChange(e.target.value,'to',mainIndex)}
+                                       onBlur={() => {
+                                        const updatedDrivers = [...props.pricingDriver];
+                                        const currentValue = updatedDrivers[mainIndex]?.quantity?.[0]?.quantityTo;
+                                        const decimalPlaces = updatedDrivers[mainIndex]?.quantity?.[0]?.quantityDecimalPlaces ?? 2;
+
+                                        if (currentValue && currentValue !== '') {
+                                          const numValue = parseFloat(currentValue);
+                                          if (!isNaN(numValue)) {
+                                            const formattedValue = decimalPlaces === 0
+                                              ? Math.floor(numValue).toString()
+                                              : numValue.toFixed(decimalPlaces);
+
+                                            const updatedQuantities = [...(updatedDrivers[mainIndex].quantity || [])];
+                                            updatedQuantities[0] = {
+                                              ...updatedQuantities[0],
+                                              quantityTo: formattedValue,
+                                            };
+
+                                            updatedDrivers[mainIndex] = {
+                                              ...updatedDrivers[mainIndex],
+                                              quantity: updatedQuantities,
+                                            };
+
+                                            props.setPricingDriver(updatedDrivers);
+                                          }
+                                        }
+                                      }}
+                                      />
+                                    </div>
+                                  </div>
+                                </div>
+                                {props.gdrivererror.quantityTypeError && (
+                                  <label className="text-danger">
+                                    Invalid Range
+                                  </label>
+                                )}     
+                              </div>
+                            </>
+                          )) ||
                           (props.pricingDriver[mainIndex].driverTypeID == 4 && (
                             <div class="row" id={`Slab_${mainIndex}`}>
                               <div style={{ padding: isMobile && "0px" }} class="col-xl-12 col-lg-12">
+                                <div className="row mb-3">
+                                <div className="col-lg-6">
+                                  <div className="mb-1">
+                                    <label className="form-label">
+                                      Decimal Places <span className="text-danger">*</span>
+                                    </label>
+                                    <div className="input-group">
+                                      <Select
+                                        className="user-role-select"
+                                        onChange={(selectedOption) =>
+                                          props.OnSlabChange(
+                                            mainIndex,
+                                            null,
+                                            "decimalPlaces",
+                                            selectedOption.value
+                                          )
+                                        }
+                                        isDisabled={
+                                          props.pricingDriver[mainIndex].parentGlobalPricingDriverKeyID
+                                        }
+                                        value={{
+                                          value: props.pricingDriver[mainIndex].slab?.[0]?.decimalPlaces ?? 0,
+                                          label: Utils.getDecimalPlaceLabel(
+                                            props.pricingDriver[mainIndex].slab?.[0]?.decimalPlaces ?? 0
+                                          ),
+                                        }}
+                                        options={Utils.DECIMAL_PLACE_OPTIONS}
+                                      />
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                              {props.gdrivererror
+                                .slabDecimalError &&
+                                props.pricingDriver[
+                                  mainIndex
+                                ]?.decimalPlaces ===
+                                "" ? (
+                                <label className="validation">
+                                  {ERROR_MESSAGES}
+                                </label>
+                              ) : (
+                                ""
+                              )}
                                 {props.gdrivererror.slabError &&
                                   props.pricingDriver[mainIndex].slab.length ===
                                   0 ? (
@@ -1727,12 +2599,15 @@ const PricingDriversComponent = (props) => {
                                   )}
                                 {props.pricingDriver[mainIndex].slab?.map(
                                   (i, index) => {
+                                    const decimalPlaces = props.pricingDriver[mainIndex].decimalPlaces || 2;
+                                    const pattern = decimalPlaces === 0 ? /^\d+$/ : new RegExp(`^\\d+(\\.\\d{0,${decimalPlaces}})?$`);
                                     return (
                                       <div
                                         id={`SlabDiv_${mainIndex}${index}`}
                                         class="card-1 pricing-box p-4 mt-3"
                                         key={index}
                                       >
+                                        {/* Decimal Places Dropdown - Add at the top */}
                                         <div class="col-lg-6 col-md-6">
                                           <p
                                             class="office-name font-weight"
@@ -1895,7 +2770,7 @@ const PricingDriversComponent = (props) => {
                                                       </span>
                                                     </label>
                                                     <div className="input-group input-height">
-                                                      <input
+                                                      {/* <input
                                                         type="text"
                                                         className="input-text"
                                                         placeholder="From"
@@ -1935,7 +2810,44 @@ const PricingDriversComponent = (props) => {
                                                             "slabFrom"
                                                           );
                                                         }}
-                                                      />
+                                                      /> */}
+                                                      <input
+                                                      type="text"
+                                                      className="input-text"
+                                                      placeholder="From"
+                                                      disabled={
+                                                        props.pricingDriver[mainIndex].parentGlobalPricingDriverKeyID
+                                                          ? true
+                                                          : index !== 0
+                                                      }
+                                                      value={
+                                                        props.pricingDriver[mainIndex].slab[index].slabFrom !== "" &&
+                                                        props.pricingDriver[mainIndex].slab[index].slabFrom !== null &&
+                                                        props.pricingDriver[mainIndex].slab[index].slabFrom !== undefined
+                                                          ? props.pricingDriver[mainIndex].slab[index].slabFrom.toString()
+                                                          : ""
+                                                      }
+                                                      onChange={(e) => {
+                                                        DriverValue(e, mainIndex, index, "slabFrom");
+                                                      }}
+                                                      onBlur={(e) => {
+                                                        const rawValue = e.target.value;
+                                                        if (rawValue && rawValue !== "") {
+                                                          const decimalPlaces = props.pricingDriver[mainIndex].slab[index]?.decimalPlaces ?? 2;
+                                                          let numeric = parseFloat(rawValue);
+                                                          
+                                                          if (!isNaN(numeric)) {
+                                                            const formatted = numeric.toFixed(decimalPlaces);
+                                                            DriverValue(
+                                                              { target: { value: formatted } },
+                                                              mainIndex,
+                                                              index,
+                                                              "slabFrom"
+                                                            );
+                                                          }
+                                                        }
+                                                      }}
+                                                    />
                                                     </div>
                                                     {props.gdrivererror
                                                       .slabtypevalueError &&
@@ -1960,7 +2872,7 @@ const PricingDriversComponent = (props) => {
                                                       </span>
                                                     </label>
                                                     <div className="input-group input-height">
-                                                      <input
+                                                      {/* <input
                                                         type="text"
                                                         className="input-text"
                                                         placeholder="To"
@@ -1997,7 +2909,47 @@ const PricingDriversComponent = (props) => {
                                                             "slabTo"
                                                           );
                                                         }}
-                                                      />
+                                                      /> */}
+                                                      <input
+                                                      type="text"
+                                                      className="input-text"
+                                                      placeholder="To"
+                                                      disabled={
+                                                        props.pricingDriver[
+                                                          mainIndex
+                                                        ]
+                                                          .parentGlobalPricingDriverKeyID
+                                                          ? true
+                                                          : false
+                                                      }
+                                                      value={
+                                                        props.pricingDriver[mainIndex].slab[index].slabTo !== "" &&
+                                                        props.pricingDriver[mainIndex].slab[index].slabTo !== null &&
+                                                        props.pricingDriver[mainIndex].slab[index].slabTo !== undefined
+                                                          ? props.pricingDriver[mainIndex].slab[index].slabTo.toString()
+                                                          : ""
+                                                      }
+                                                      onChange={(e) => {
+                                                        DriverValue(e, mainIndex, index, "slabTo");
+                                                      }}
+                                                      onBlur={(e) => {
+                                                        const rawValue = e.target.value;
+                                                        if (rawValue && rawValue !== "") {
+                                                          const decimalPlaces = props.pricingDriver[mainIndex].slab[index]?.decimalPlaces ?? 2;
+                                                          let numeric = parseFloat(rawValue);
+                                                          
+                                                          if (!isNaN(numeric)) {
+                                                            const formatted = numeric.toFixed(decimalPlaces);
+                                                            DriverValue(
+                                                              { target: { value: formatted } },
+                                                              mainIndex,
+                                                              index,
+                                                              "slabTo"
+                                                            );
+                                                          }
+                                                        }
+                                                      }}
+                                                    />
                                                     </div>
                                                     {props.gdrivererror
                                                       .slabToMinValue &&
@@ -2627,6 +3579,7 @@ const Add_Update_Service = (props) => {
   // A] States Declaration :
   const [serviceCategoryList, setServiceCategoryList] = useState([]);
   const [serviceChargeTypeList, setServiceChargeTypeList] = useState([]);
+  const [ServiceDependencyList,setServiceDependencyList] = useState([]);
   const [pricingTypeList, setPricingTypeList] = useState([]);
   const [NatureOfBusinessTypeLookupList, setNatureOfBusinessTypeLookupList] =
     useState([]);
@@ -2645,6 +3598,7 @@ const Add_Update_Service = (props) => {
     variationnameError: false,
     variationvalueError: false,
     slabtypeError: false,
+    slabDecimalError: false,
     slabtypevalueError: false,
     slabtypefromError: false,
     slabTypeToError: false,
@@ -2654,8 +3608,15 @@ const Add_Update_Service = (props) => {
     SelectVariation: false,
     SelectTempDriver: false,
     SelectTempVariation: false,
+    dateError: false,
+    toDateError: false,
+    dateValueError: false,
+    textValueError: false,
+    textLengthError: false,
+    quantityTypeError: false
   });
 
+  const [isServiceDependentandModified,setIsServiceDependentandModified] = useState(false);
   const [slabType, setSlabType] = useState([]);
   const [slabTypeVal, SetSlabTypeVal] = useState("");
   const [disable, setDisable] = useState(false);
@@ -2704,6 +3665,8 @@ const Add_Update_Service = (props) => {
     // serviceKeyID: location.state?.globalPricingDriverKeyID,
     clientBusinessTypeID: [],
     businessNatureID: [],
+    prerequisiteServicesID: [],
+    dependingServicesID: [],
     serviceKeyID: null,
     serviceName: "",
     serviceChargeTypeID: null,
@@ -2718,6 +3681,7 @@ const Add_Update_Service = (props) => {
     pricingFormulaGlobalPricingDriverList: [],
   });
 
+  const [originalServicesObj,setOriginalServicesObj]= useState({});
   const [openSuccessModal, setOpenSuccessModal] = React.useState(false);
   const [isCheck, setIsCheck] = useState(false);
   const [openDeleteDriverModel, setOpenDeleteDriverModel] =
@@ -2777,6 +3741,52 @@ const Add_Update_Service = (props) => {
   }, [isAddUpdateActionDone, common.organisationKeyID]);
 
   useEffect(() => {
+    const {
+      serviceChargeTypeID,
+      serviceCategoryList,
+      professionTypeList,
+      clientBusinessTypeID,
+      businessNatureID
+    } = servicesObj;
+  
+    // Only call if all required fields have valid values
+    const canCallDependencyAPI =
+      serviceChargeTypeID &&
+      serviceCategoryList &&
+      clientBusinessTypeID &&
+      businessNatureID;
+  
+    if (canCallDependencyAPI && common.organisationKeyID) {
+      const params = {
+        OrganisationKeyID: common.organisationKeyID,
+        UserKeyID: common.userKeyID,
+        ServiceKeyID: servicesObj.serviceKeyID ?? null,
+        ServiceName: servicesObj.serviceName ?? "",
+        ServiceChargeTypeID: servicesObj.serviceChargeTypeID ?? null,
+        professionTypeList: (servicesObj.professionTypeList || []).map((pt) => ({
+          professionTypeId: pt.professionTypeId,
+          professionTypeName: pt.professionTypeName,
+        })),
+        serviceCategoryList: (servicesObj.serviceCategoryList || []).map((sc) => ({
+          serviceCatKeyID: sc.serviceCatKeyID,
+          serviceCatName: sc.serviceCatName,
+        })),
+        BusinessTypeID: servicesObj.clientBusinessTypeID ?? [],
+        BusinessNatureID: servicesObj.businessNatureID ?? []
+      };
+      console.log(params);
+      GetServiceDependencyListData(params);
+    }
+  }, [
+    servicesObj.serviceChargeTypeID,
+    servicesObj.serviceCategoryList,
+    servicesObj.professionTypeList,
+    servicesObj.clientBusinessTypeID,
+    servicesObj.businessNatureID,
+    servicesObj.serviceKeyID
+  ]);
+
+  useEffect(() => {
     setModelAction(saveLocationState?.Action === null ? "Add" : "Update"); //Do not change this naming convention
     if (
       saveLocationState?.Action !== undefined &&
@@ -2791,12 +3801,14 @@ const Add_Update_Service = (props) => {
       // SetInitialModelData();
     }
     if (saveLocationState.ProfessionTypeId !== null) {
-      GetServiceCategoryListData();
+
     }
+    GetServiceCategoryListData();
   }, [saveLocationState]);
   //2) This useEffect will trigger when Global Pricing Driver state Changed
   useEffect(() => {
     if (globalPricingDrivers) {
+      console.log(pricingDriver);
       setServicesObj({
         ...servicesObj,
         pricingDriverList: pricingDriver,
@@ -2874,6 +3886,19 @@ const Add_Update_Service = (props) => {
     }
   };
   // Get GLobal pricing Driver List
+  
+  const formatQuantityValue = (value, decimalPlaces) => {
+    if (!value || value === '') return value;
+
+    const numValue = parseFloat(value);
+    if (isNaN(numValue)) return value;
+
+    if (decimalPlaces === 0) {
+      return Math.floor(numValue).toString();
+    } else {
+      return numValue.toFixed(decimalPlaces);
+    }
+  };
 
   //Get Service Model 
   const GetServiceModelData = async (id, GetSAChanges) => {
@@ -2910,21 +3935,52 @@ const Add_Update_Service = (props) => {
               }
               return updatedItem;
             });
-
-            setServicesObj({
+            const DependencyParams = {
+              OrganisationKeyID: common.organisationKeyID,
+              UserKeyID: common.userKeyID,
+              serviceKeyID: ModelData.serviceKeyID,
+              ServiceName: ModelData.serviceName,
+              serviceChargeTypeID: ModelData.serviceChargeTypeID,
+              professionTypeList: ModelData.professionTypeList,
+              serviceCategoryList: ModelData.serviceCategoryList,
+              businessNatureID: ModelData.businessNatureID,
+              businessTypeID: ModelData.businessTypeID,
+            }
+            // setServicesObj({
+            //   userKeyID: common.userKeyID,
+            //   organisationKeyID: common.organisationKeyID,
+            //   businessNatureID:
+            //     ModelData.businessNatureID === null
+            //       ? []
+            //       : ModelData.businessNatureID,
+            //   clientBusinessTypeID:
+            //     ModelData.businessTypeID === null
+            //       ? []
+            //       : ModelData.businessTypeID,
+            //   serviceKeyID: ModelData.serviceKeyID,
+            //   serviceName: ModelData.serviceName,
+            //   serviceChargeTypeID: ModelData.serviceChargeTypeID,
+            //   pricingTypeID: ModelData.pricingTypeID,
+            //   price: ModelData.price,
+            //   description: ModelData.description,
+            //   pricingFormula: ModelData.pricingFormula,
+            //   isPredefined: true,
+            //   professionTypeList: ModelData.professionTypeList,
+            //   serviceCategoryList: ModelData.serviceCategoryList,
+            //   pricingDriverList: updatedData,
+            //   pricingFormulaGlobalPricingDriverList:
+            //     ModelData.pricingFormulaGlobalPricingDriverList,
+            // });
+            const newServiceObj = {
               userKeyID: common.userKeyID,
               organisationKeyID: common.organisationKeyID,
-              businessNatureID:
-                ModelData.businessNatureID === null
-                  ? []
-                  : ModelData.businessNatureID,
-              clientBusinessTypeID:
-                ModelData.businessTypeID === null
-                  ? []
-                  : ModelData.businessTypeID,
+              businessNatureID: ModelData.businessNatureID ?? [],
+              clientBusinessTypeID: ModelData.businessTypeID ?? [],
               serviceKeyID: ModelData.serviceKeyID,
               serviceName: ModelData.serviceName,
               serviceChargeTypeID: ModelData.serviceChargeTypeID,
+              prerequisiteServicesID: ModelData.prerequisiteServicesID,
+              dependingServicesID: ModelData.dependingServicesID,
               pricingTypeID: ModelData.pricingTypeID,
               price: ModelData.price,
               description: ModelData.description,
@@ -2933,13 +3989,17 @@ const Add_Update_Service = (props) => {
               professionTypeList: ModelData.professionTypeList,
               serviceCategoryList: ModelData.serviceCategoryList,
               pricingDriverList: updatedData,
-              pricingFormulaGlobalPricingDriverList:
-                ModelData.pricingFormulaGlobalPricingDriverList,
-            });
+              pricingFormulaGlobalPricingDriverList: ModelData.pricingFormulaGlobalPricingDriverList,
+            };
+
+            setServicesObj(newServiceObj);
+            setOriginalServicesObj(JSON.parse(JSON.stringify(newServiceObj)));
+
             const ModalDataPricingDriverList = updatedData.map((i) => ({
               globalPricingDriverID: i.globalPricingDriverID,
               parentGlobalPricingDriverKeyID: i.parentGlobalPricingDriverKeyID,
               driverValue: i.driverValue,
+              textValue: i.textValue,
               driverTypeID: i.driverTypeID,
               temp_GlobalPricingDriverID_ForDependancy:
                 i.temp_GlobalPricingDriverID_ForDependancy,
@@ -2952,6 +4012,9 @@ const Add_Update_Service = (props) => {
                 i.dependant_GlobalPricingDriverKeyID,
               variation: i.variation,
               slab: i.slab,
+              text: i.text,
+              date: i.date,
+              quantity: i.quantity,
               globalPricingDriverKeyID: i.globalPricingDriverKeyID,
               driverName: i.driverName,
               isPredefined: i.isPredefined,
@@ -2982,9 +4045,19 @@ const Add_Update_Service = (props) => {
                   ...varItem,
                   variationValue: varItem.variationValue,
                 })),
+                text: driver.text?.map((txt) => ({
+                  ...txt,
+                  textValue: txt.textValue
+                })),
+                date: driver.date?.map((dt) => ({
+                  ...dt,
+                  dateValue: dt.dateValue
+                }))
               })
             );
-
+            {common.organisationKeyID &&
+            GetServiceDependencyListData(DependencyParams);
+            }
             setPricingDriver(pricingDriverList);
           }
         } else {
@@ -2994,6 +4067,75 @@ const Add_Update_Service = (props) => {
     } catch (error) {
       console.log(error);
     }
+  };
+
+  const getChangedDependencies = () => {
+    if (
+      !originalServicesObj || Object.keys(originalServicesObj).length === 0 ||
+      !servicesObj || Object.keys(servicesObj).length === 0
+    ) {
+      return { hasChanges: false, changedNames: [] };
+    }
+    const safeArray = (arr) => Array.isArray(arr) ? arr : [];
+
+    const arraysEqual = (a, b) =>
+      JSON.stringify([...safeArray(a)].sort()) ===
+      JSON.stringify([...safeArray(b)].sort());
+
+    let hasChanges = false;
+    const changed = [];
+
+    if (servicesObj.serviceChargeTypeID !== originalServicesObj.serviceChargeTypeID) {
+      changed.push("Service Charge Type");
+      hasChanges = true;
+    }
+
+    if (
+      !arraysEqual(
+        servicesObj.serviceCategoryList?.map(x => x.serviceCatKeyID),
+        originalServicesObj.serviceCategoryList?.map(x => x.serviceCatKeyID)
+      )
+    ) {
+      changed.push("Service Category");
+      hasChanges = true;
+    }
+
+    if (
+      !arraysEqual(
+        servicesObj.clientBusinessTypeID,
+        originalServicesObj.clientBusinessTypeID
+      )
+    ) {
+      changed.push("Prospect Type");
+      hasChanges = true;
+    }
+
+    if (
+      !arraysEqual(
+        servicesObj.businessNatureID,
+        originalServicesObj.businessNatureID
+      )
+    ) {
+      changed.push("Nature of Business");
+      hasChanges = true;
+    }
+
+    // Clean handling of dependent services
+    const dependentServiceNames =
+      Array.isArray(originalServicesObj.dependingServicesID)
+        ? originalServicesObj.dependingServicesID.map(x => x.serviceName)
+        : [];
+
+    const preRequisiteServiceNames =
+      Array.isArray(originalServicesObj.prerequisiteServicesID)
+        ? originalServicesObj.prerequisiteServicesID.map(x => x.serviceName)
+        : [];
+
+    return {
+      hasChanges,
+      dependingServices: dependentServiceNames,
+      prerequisiteServices: preRequisiteServiceNames
+    };
   };
 
   // 2) Global Pricing Driver Edit Data
@@ -3039,7 +4181,16 @@ const Add_Update_Service = (props) => {
             ? VarItem.variationValue
             : VarItem.variationValue,
       })),
+      text: driver.text && driver.text.length > 0 
+        ? driver.text.map((textItem) => ({
+          ...textItem,
+          // Ensure both are converted to decimal/float
+          textValue: parseFloat(textItem.textValue),
+          textLength: parseFloat(textItem.textLength || 0)
+        }))
+        : [],
     }));
+    console.log(servicesObj.pricingDriverList);
 
     const ApiRequest_ParamsObj = {
       organisationKeyID: common.organisationKeyID,
@@ -3049,11 +4200,16 @@ const Add_Update_Service = (props) => {
       businessNatureID: servicesObj.businessNatureID,
       serviceName: servicesObj.serviceName,
       serviceChargeTypeID: servicesObj.serviceChargeTypeID,
+      prerequisiteServicesID: ServiceDependencyValue.map(item => ({
+        serviceID: item.value,
+        serviceCatID: item.serviceCatID
+      })),
       pricingTypeID: servicesObj.pricingTypeID,
       price: servicesObj.price,
       description: servicesObj.description,
       pricingFormula: EditPricingFormulaValue,
       isPredefined: true,
+      isServiceDependentandModified: common.organisationKeyID !== null ? isServiceDependentandModified : null,
       acceptSAChanges: SAChanges === true ? SAChanges : undefined,
       professionTypeList:
         common.professionTypeLists?.length > 1 ||
@@ -3150,6 +4306,8 @@ const Add_Update_Service = (props) => {
             servicesObj.price === null)
         ) {
           scrollUpDownByElementID(`Price_Div`);
+        } else if (servicesObj.prerequisiteServicesID.length === 0 || servicesObj.prerequisiteServicesID === null) {
+          scrollUpDownByElementID(`ServiceDependency_Div`);
         }
         setActiveTabForm({
           ...activeTabForm,
@@ -3206,6 +4364,47 @@ const Add_Update_Service = (props) => {
         });
         setActiveTab(NextTab);
       } else if (NextTab === "create service") {
+                let dependingMessage = '';
+        let prerequisiteMessage = '';
+        let dependingList = [];
+        let prerequisiteList = [];
+        let hasAnyChanges = false;
+        if (common.organisationKeyID) {
+          const { hasChanges, dependingServices, prerequisiteServices } = getChangedDependencies();
+          var combinedMessage = ``;
+          var combinedDriverNameList = [];
+
+          if (hasChanges && dependingServices.length > 0) {
+              setIsServiceDependentandModified(true);
+              dependingMessage = `The following services depend on this service. Updating it will remove all dependencies:`;
+              dependingList = [...dependingServices];
+              hasAnyChanges = true;
+            }
+
+          // if (hasChanges && prerequisiteServices.length > 0) {
+          //   setIsServiceDependentandModified(true);
+          //   prerequisiteMessage = `This service depends on other services. Updating it will remove all dependencies:`;
+          //   prerequisiteList = [...prerequisiteServices];
+          //   hasAnyChanges = true;
+          // }
+
+          if (hasAnyChanges) {
+            setModelRequestData({
+              ...modelRequestData,
+              Action: "Warning",
+              message: '', // no pricing driver message here, so keep empty or remove
+              DriverName: [], // same here, or handle if needed
+              dependingMessage,
+              dependingList,
+              prerequisiteMessage,
+              prerequisiteList,
+            });
+            $("#ConfirmModel").modal("show");
+          } else {
+            AddUpdateServiceData(ApiRequest_ParamsObj);
+          }
+        }
+      } else if (NextTab == "ConfirmedToSave") {
         AddUpdateServiceData(ApiRequest_ParamsObj);
       } else {
         setActiveTabForm({
@@ -3241,6 +4440,8 @@ const Add_Update_Service = (props) => {
           slabtypefromError: false,
           slabTypeToError: false,
           slabToMinValue: false,
+          textValueError: false,
+          quantityTypeError: false
         });
         setActiveTab(NextTab);
       }
@@ -3340,6 +4541,30 @@ const Add_Update_Service = (props) => {
               activePricingDrivers: false,
             });
             return false;
+          } else if(pricingDriverCopy[index].driverTypeID === 2) {
+            if(pricingDriverCopy[index].quantity.length === 0) {
+              setGdriverError({quantityTypeError: true});
+              scrollUpDownByElementID(`Quantity_${index}`);
+              setActiveTabForm({
+                ...activeTabForm,
+                activeBasicInformationForm: true,
+                activeDescriptionForm: true,
+                activePricingDrivers: false,
+              });
+
+              hasError = true;
+            }
+            else if(pricingDriverCopy[index].quantity !== undefined || 
+              pricingDriverCopy[index].quantity !== null
+            ) {
+              if(pricingDriverCopy[index].quantity[0].quantityFrom  && 
+                pricingDriverCopy[index].quantity[0].quantityTo &&
+                Number(pricingDriverCopy[index].quantity[0].quantityFrom) > Number(pricingDriverCopy[index].quantity[0].quantityTo)
+              ) {
+                setGdriverError({quantityTypeError: true});
+                hasError = true;
+              }
+            }
           } else if (pricingDriverCopy[index].driverTypeID === 3) {
             if (pricingDriverCopy[index].variation.length === 0) {
               setGdriverError({ variationError: true });
@@ -3494,12 +4719,14 @@ const Add_Update_Service = (props) => {
                 } else if (
                   pricingDriverCopy[index].slab[slabIndex]?.slabTypeID === "" &&
                   pricingDriverCopy[index].slab[slabIndex]?.slabValue === "" &&
-                  pricingDriverCopy[index].slab[slabIndex]?.slabTo === ""
+                  pricingDriverCopy[index].slab[slabIndex]?.slabTo === "" &&
+                  pricingDriverCopy[index].slab[slabIndex]?.decimalPlaces === null
                 ) {
                   setGdriverError({
                     ...gdrivererror,
                     slabtypevalueError: true,
                     slabtypeError: true,
+                    slabDecimalError: true
                   });
                   scrollUpDownByElementID(`SlabDiv_${index}${slabIndex}`);
                   setActiveTabForm({
@@ -3539,6 +4766,104 @@ const Add_Update_Service = (props) => {
                   });
                   setGdriverError({ slabToMinValue: true });
                   hasError = true;
+                } else if (pricingDriverCopy[index].driverTypeID === 5) {
+                  // Text Driver Validation
+                  if (pricingDriverCopy[index].text.length === 0) {
+                    setGdriverError({ textError: true, textLengthError: true });
+                    scrollUpDownByElementID(`Text_${index}`);
+                    hasError = true;
+                    setActiveTabForm({
+                      ...activeTabForm,
+                      activeBasicInformationForm: true,
+                      activeDescriptionForm: true,
+                      activePricingDrivers: false,
+                    });
+                    return false;
+                  } else {
+                    for (let textIndex = 0; textIndex < pricingDriverCopy[index].text.length; textIndex++) {
+                      const textItem = pricingDriverCopy[index].text[textIndex];
+                      // if (
+                      //   textItem.textValue === "" ||
+                      //   textItem.textValue === null ||
+                      //   textItem.textValue === undefined
+                      // ) {
+                      //   setGdriverError({ textValueError: true });
+                      //   scrollUpDownByElementID(`TextDiv_${index}${textIndex}`);
+                      //   hasError = true;
+                      // } 
+                      if (
+                        textItem.textLength === "" ||
+                        textItem.textLength === null ||
+                        textItem.textLength === undefined
+                      ) {
+                        console.log(textItem);
+                        setGdriverError({ textLengthError: true });
+                        scrollUpDownByElementID(`TextDiv_${index}${textIndex}`);
+                        hasError = true;
+                      }
+                      // Check for duplicate text values
+                      // const duplicateText = pricingDriverCopy[index].text
+                      //   .slice(0, textIndex)
+                      //   .some(prevItem => prevItem.textValue === textItem.textValue);
+                      // if (duplicateText) {
+                      //   setErrorMessage(`Duplicate text value: ${textItem.textValue}`);
+                      //   setOpenErrorModal(true);
+                      //   hasError = true;
+                      //   break;
+                      // }
+                    }
+                  }
+                } else if (pricingDriverCopy[index].driverTypeID === 6) {
+                  const dateGroups = pricingDriverCopy[index].date;
+                  console.log(dateGroups);
+                  if (dateGroups == [] || dateGroups === null || dateGroups === undefined) {
+                    setGdriverError(prev => ({
+                      ...prev,
+                      dateError: true
+                    }))
+                    hasError = true;
+                    return;
+                  }
+
+                  const newErrors = { dateValueError: {}, toDateError: {} };
+
+                  for (let groupIndex = 0; groupIndex < dateGroups.length; groupIndex++) {
+                    const group = dateGroups[groupIndex];
+                    const blocks = group.blocks || [];
+
+                    for (let blockIndex = 0; blockIndex < blocks.length; blockIndex++) {
+                      const block = blocks[blockIndex];
+
+                      const fromDate = block.fromDate ? parseStoredDate(block.fromDate, group.dateFormat) : null;
+                      const toDate = block.toDate ? parseStoredDate(block.toDate, group.dateFormat) : null;
+
+                      // To Date earlier than From Date
+                      if (toDate && fromDate && toDate < fromDate) {
+                        if (!newErrors.toDateError[index]) newErrors.toDateError[index] = {};
+                        newErrors.toDateError[index][blockIndex] = true;
+                        scrollUpDownByElementID(`DateDiv_${index}${blockIndex}`);
+                        hasError = true;
+                      }
+                      // Both dates missing
+                      if (!block.fromDate && !block.toDate) {
+                        if (!newErrors.dateValueError[index]) newErrors.dateValueError[index] = {};
+                        newErrors.dateValueError[index][blockIndex] = true;
+                        scrollUpDownByElementID(`DateDiv_${index}${blockIndex}`);
+                        hasError = true;
+                      }
+                      if (blockIndex > 0 && (blocks[blockIndex - 1].toDate !== null && !toDate)) {
+                        if (!newErrors.toDateError[index]) newErrors.toDateError[index] = {};
+                        newErrors.toDateError[index][blockIndex] = true;
+                        scrollUpDownByElementID(`DateDiv_${index}${blockIndex}`);
+                        hasError = true;
+                      }
+                    }
+                  }
+
+                  setGdriverError(prev => ({
+                    ...prev,
+                    ...newErrors
+                  }));
                 }
               }
             }
@@ -3564,6 +4889,8 @@ const Add_Update_Service = (props) => {
             slabtypefromError: false,
             slabTypeToError: false,
             slabToMinValue: false,
+            slabDecimalPlaces: false,
+            textValueError: false
           });
           setActiveTab(NextTab);
         }
@@ -3588,6 +4915,8 @@ const Add_Update_Service = (props) => {
           slabtypefromError: false,
           slabTypeToError: false,
           slabToMinValue: false,
+          slabDecimalError: false,
+          textValueError: false
         });
         setActiveTab(NextTab);
       }
@@ -3734,20 +5063,65 @@ const Add_Update_Service = (props) => {
             remainingDriverNames.push(driver.driverName);
           }
         });
-        if (remainingDriverNames.length > 0) {
-          setModelRequestData({
-            ...modelRequestData,
-            Action: "Warning",
-            message: `Below Pricing Drivers are not included in the Pricing Formulae : `,
-            DriverName: remainingDriverNames,
-          });
+        if (remainingDriverNames.length > 0 || servicesObj.dependingServicesID != null || servicesObj.prerequisiteServicesID != null) {
+          // setModelRequestData({
+          //   ...modelRequestData,
+          //   Action: "Warning",
+          //   message: `Below Pricing Drivers are not included in the Pricing Formulae : `,
+          //   DriverName: remainingDriverNames,
+          // });
+          let combinedMessage = ``; // Initialize as empty
+          let combinedDriverNameList = [];
+          let dependingMessage = '';
+          let prerequisiteMessage = '';
+          let dependingList = [];
+          let prerequisiteList = [];
+          let hasAnyChanges = false;
+          if (remainingDriverNames.length > 0) {
+            combinedMessage += `Below Pricing Drivers are not included in the Pricing Formulae : `;
+            combinedDriverNameList.push(...remainingDriverNames);
+          }
 
-          if (NextTab === "ConfirmedToSave") {
+          if (common.organisationKeyID) {
+            const { hasChanges, dependingServices, prerequisiteServices } = getChangedDependencies();
+            console.log(dependingServices);
+
+            if (hasChanges && dependingServices.length > 0) {
+              setIsServiceDependentandModified(true);
+              dependingMessage = `The following services depend on this service. Updating it will remove all dependencies:`;
+              dependingList = [...dependingServices];
+              hasAnyChanges = true;
+            }
+
+            // if (hasChanges && prerequisiteServices.length > 0) {
+            //   setIsServiceDependentandModified(true);
+            //   prerequisiteMessage = `This service depends on other services. Updating it will remove all dependencies:`;
+            //   prerequisiteList = [...prerequisiteServices];
+            //   hasAnyChanges = true;
+            // }
+          }
+          if (hasAnyChanges) {
+            setModelRequestData({
+              ...modelRequestData,
+              Action: "Warning",
+              message: combinedMessage,
+              DriverName: combinedDriverNameList,
+              dependingMessage,
+              dependingList,
+              prerequisiteMessage,
+              prerequisiteList,
+            });
+
+            if (NextTab === "ConfirmedToSave") {
+              setserviceError({ pricingFormula: false });
+              AddUpdateServiceData(ApiRequest_ParamsObj);
+            } else {
+              $("#" + "ConfirmModel").modal("show");
+              setserviceError({ pricingFormula: false });
+            }
+          } else {
             setserviceError({ pricingFormula: false });
             AddUpdateServiceData(ApiRequest_ParamsObj);
-          } else {
-            $("#" + "ConfirmModel").modal("show");
-            setserviceError({ pricingFormula: false });
           }
         } else {
           setserviceError({ pricingFormula: false });
@@ -3951,6 +5325,22 @@ const Add_Update_Service = (props) => {
     } catch (error) { }
   };
 
+  //14) // Service Dependency List
+  const GetServiceDependencyListData = async(params) => {
+    try {
+      const data = await GetServiceDependencyList(params);
+      if(data?.data?.statusCode === 200) {
+        if(data?.data?.responseData?.data) {
+          const List = data?.data?.responseData?.data;
+          console.log(List)
+          setServiceDependencyList(List);
+        }
+      }
+    }
+    catch(error){
+      console.error(error);
+    }
+  }
   //on change Nature of business type
   const OnNOBChange = (selectedOptions) => {
     if (selectedOptions.filter((item) => item.value === null).length > 0) {
@@ -4054,6 +5444,23 @@ const Add_Update_Service = (props) => {
     })
   );
 
+  const ServiceDependencyLookupList = ServiceDependencyList?.map(
+    (item) => ({
+      value: item.serviceID,
+      label: `${item.serviceName} (${item.serviceCatName})`,
+      serviceCatID: item.serviceCatID
+    })
+  );
+  const ServiceDependencyValue = (servicesObj?.prerequisiteServicesID || [])
+    .map((prerequisiteID) => {
+      const matchingService = ServiceDependencyLookupList?.find(
+        (service) => service.value === prerequisiteID.serviceID && service.serviceCatID === prerequisiteID.serviceCatID
+      );
+      return matchingService || null;
+    })
+    .filter(Boolean);
+
+  console.log('Final ServiceDependencyValue:', ServiceDependencyValue);
   // D] handle Function :
   const HandleClose = async () => {
     if (isCheck) {
@@ -4112,6 +5519,8 @@ const Add_Update_Service = (props) => {
       slabtypefromError: false,
       slabTypeToError: false,
       slabToMinValue: false,
+      textValueError: false,
+      textLengthError: false
     });
     if (count === "PricingDriver") {
       const pricingDriverCopy = pricingDriver[pricingDriver.length - 1];
@@ -4136,6 +5545,9 @@ const Add_Update_Service = (props) => {
         pfList: null,
         variation: [],
         slab: [],
+        text: [],
+        textValue: "",
+        dateValue: null
       };
 
       const updatedPricingDriver = [...pricingDriver]; // Create a copy of the array
@@ -4240,6 +5652,24 @@ const Add_Update_Service = (props) => {
           } else {
             setPricingDriver(updatedPricingDriver);
           }
+        } else if (pricingDriverCopy.driverTypeID === 5) {
+          console.log(pricingDriverCopy.text);
+          // *** use the copy’s text array, not the outer array ***
+          if (pricingDriverCopy.text.length === 0) {
+            setGdriverError({ textValueError: true });
+            return;
+          }
+          const lastText = pricingDriverCopy.text[0];
+          // if (!lastText.textValue || lastText.textValue === "" || Number(lastText.textValue) == null) {
+          //   setGdriverError({ textValueError: true });
+          //   return;
+          // } 
+          if (!lastText.textLength || lastText.textLength === "" || Number(lastText.textLength) == null) {
+            setGdriverError({ textLengthError: true });
+            return;
+          }
+          // everything okay, now push the new driver
+          setPricingDriver(updatedPricingDriver);
         } else {
           setPricingDriver(updatedPricingDriver);
         }
@@ -4516,6 +5946,33 @@ const Add_Update_Service = (props) => {
       serviceCategoryList: updatedServiceCategoryList,
     });
   };
+  
+  // Service Dependencies Change
+  const OnServiceDependencyChange = (selectedOptions) => {
+  if (selectedOptions.some((item) => item.value === null)) {
+    // "All" selected
+    const updatedServiceDependencyList = ServiceDependencyList.map((option) => ({
+      serviceID: option.serviceID,
+      serviceCatID: option.serviceCatID,
+    }));
+    console.log(updatedServiceDependencyList);
+    setServicesObj({
+      ...servicesObj,
+      prerequisiteServicesID: updatedServiceDependencyList,
+    });
+  } else {
+    const updatedServiceDependencyList = selectedOptions.map((option) => ({
+      serviceID: option.value,
+      serviceCatID: option.serviceCatID,
+    }));
+    console.log(updatedServiceDependencyList);
+    setServicesObj({
+      ...servicesObj,
+      prerequisiteServicesID: updatedServiceDependencyList,
+    });
+  }
+};
+
   // Driver Type change 
   const OnDriverTypeChange = async (index, DriverType) => {
     // return false
@@ -4747,15 +6204,118 @@ const Add_Update_Service = (props) => {
       case 2:
         updatedVariations[index].variation = [];
         updatedVariations[index].slab = [];
+        updatedVariations[index].text = [];
+        updatedVariations[index].date = [];
         break;
       case 3:
         updatedVariations[index].slab = [];
+        updatedVariations[index].text = [];
+        updatedVariations[index].date = [];
         break;
       case 4:
         updatedVariations[index].variation = [];
+        updatedVariations[index].text = [];
+        updatedVariations[index].date = [];
         break;
+      case 5:
+          updatedVariations[index].variation = [];
+          updatedVariations[index].slab = [];
+          updatedVariations[index].date = [];
+        break;
+      case 6:
+          updatedVariations[index].variation = [];
+          updatedVariations[index].slab = [];
+          updatedVariations[index].text = [];
+          break;
       default:
         break;
+    }
+    
+    if (field === "TextValue" || field === "TextLength" || field === "AllowedSpecialCharacters") {
+      // Ensure text array and first object exist
+      if (!updatedVariations[index].text || !Array.isArray(updatedVariations[index].text)) {
+        updatedVariations[index].text = [{}];
+      } else if (!updatedVariations[index].text[0]) {
+        updatedVariations[index].text[0] = {};
+      }
+    
+      let cleanValue = value?.replace(/[^0-9.]/g, '');
+      const numericValue = parseFloat(value);
+    
+      if (field === "TextLength") {
+        updatedVariations[index].text[0].textLength = isNaN(cleanValue) ? "" : cleanValue;
+      } else if (field === "TextValue") {
+        updatedVariations[index].text[0].textValue = isNaN(cleanValue) ? "" : cleanValue;
+      } else if (field === "AllowedSpecialCharacters") {
+        updatedVariations[index].text[0].allowedSpecialCharacters = value;
+      }
+    
+      setPricingDriver(updatedVariations);
+      return;
+    }
+    if (field === "DateValue" || field === "DateFormat" || field === "defaultDateValue") {
+      // Ensure text array and first object exist
+      if (!updatedVariations[index].date || !Array.isArray(updatedVariations[index].date)) {
+        updatedVariations[index].date = [{}];
+      } else if (!updatedVariations[index].date[0]) {
+        updatedVariations[index].date[0] = {};
+      }
+    
+      let cleanValue = value?.replace(/[^0-9.]/g, '');
+      if (field === "DateValue") {
+        updatedVariations[index].date[0].blocks[0].dateValue = cleanValue;
+      } else if (!updatedVariations[index].date[0]) {
+        updatedVariations[index].date[0] = {};
+      } else if (field === "DateFormat") {
+        const newFormat = value;
+        const oldFormat = updatedVariations[index].date?.[0]?.dateFormat || Utils.dateFormats[0]?.value;
+        updatedVariations[index].date[0].blocks = updatedVariations[index].date[0].blocks || [];
+
+        updatedVariations[index].date = (updatedVariations[index].date || []).map(group => {
+          const hasBlocks = Array.isArray(group.blocks) && group.blocks.length > 0;
+
+          let updatedGroup = {
+            ...group,
+            dateFormat: newFormat,
+          };
+
+          // Only convert blocks if they exist
+          if (hasBlocks) {
+            const newBlocks = group.blocks.map(block => {
+              const fromDateObj = parseStoredDate(block.fromDate, oldFormat);
+              const toDateObj = parseStoredDate(block.toDate, oldFormat);
+
+              return {
+                ...block,
+                fromDate: fromDateObj ? formatToDisplay(fromDateObj, newFormat) : "",
+                toDate: toDateObj ? formatToDisplay(toDateObj, newFormat) : ""
+              };
+            });
+
+            updatedGroup.blocks = newBlocks;
+          }
+
+          return updatedGroup;
+        });
+
+        setPricingDriver(updatedVariations);
+        return;
+      } else if (field === "defaultDateValue") {
+        if (!Array.isArray(updatedVariations[index].date)) {
+          updatedVariations[index].date = [{}];
+        }
+        if (!updatedVariations[index].date[0]) {
+          updatedVariations[index].date[0] = {};
+        }
+      
+        updatedVariations[index].date[0].defaultDateValue = cleanValue;
+        updatedVariations[index].date[0].blocks = updatedVariations[index].date[0].blocks || [];
+      
+        setPricingDriver(updatedVariations);
+        return;
+      }
+      setPricingDriver(updatedVariations);
+      return;
     }
     // Check if the value is false
     if (value === false) {
@@ -4859,6 +6419,16 @@ const Add_Update_Service = (props) => {
     setPricingDriver(updatedPricingDriver);
   }
 
+  function OnDateRadioChange(mainIndex, selectedIndex) {
+    const updatedPricingDriver = [...pricingDriver]; // Create a copy of the state array
+    updatedPricingDriver[mainIndex].date.forEach((date, index) => {
+      // Update the isDefault property based on the selectedIndex
+      date.isDefault = index === selectedIndex;
+    });
+
+    // Update the state with the modified array
+    setPricingDriver(updatedPricingDriver);
+  }
   //find largest Variation Id
   const findLargest_Temp_VariationID_ForDependancy = (variationArray) => {
     let largest = 0;
@@ -5012,19 +6582,93 @@ const Add_Update_Service = (props) => {
   };
 
   //Handle change slab 
+  // const OnSlabChange = (mainIndex, index, field, value) => {
+  //   const updatedSlabs = [...pricingDriver];
+  //   if (
+  //     updatedSlabs[mainIndex] &&
+  //     updatedSlabs[mainIndex].slab &&
+  //     updatedSlabs[mainIndex].slab[index]
+  //   ) {
+  //     updatedSlabs[mainIndex].slab[index][field] = value;
+  //     setPricingDriver(updatedSlabs);
+  //   }
+  //   const slabTypeFilter = slabType.find(
+  //     (item) =>
+  //       item.slabTypeId === pricingDriver[mainIndex].slab[index]?.slabTypeID
+  //   );
+  //   const slabTypeValue = slabTypeFilter
+  //     ? { value: slabTypeFilter.slabTypeId, label: slabTypeFilter.slabTypeName }
+  //     : null;
+  //   SetSlabTypeVal(slabTypeValue);
+  // };
   const OnSlabChange = (mainIndex, index, field, value) => {
     const updatedSlabs = [...pricingDriver];
+
+    // Ensure the structure exists
     if (
       updatedSlabs[mainIndex] &&
       updatedSlabs[mainIndex].slab &&
       updatedSlabs[mainIndex].slab[index]
     ) {
       updatedSlabs[mainIndex].slab[index][field] = value;
-      setPricingDriver(updatedSlabs);
     }
+
+    if (field === "decimalPlaces") {
+      const decimalPlaces = Number(value);
+
+      const step = parseFloat((1 / Math.pow(10, decimalPlaces)).toFixed(decimalPlaces));
+
+      // Format all existing slabs according to new decimal places
+      updatedSlabs[mainIndex].slab = updatedSlabs[mainIndex].slab.map((slab, i) => {
+        const format = (num) => {
+          if (num === "" || num === null || num === undefined) return "";
+          const val = typeof num === "string" ? parseFloat(num.replace(/,/g, "")) : num;
+          if (isNaN(val)) return "";
+          return val.toFixed(decimalPlaces).toString();
+        };
+
+        const formattedSlab = {
+          ...slab,
+          slabFrom: format(slab.slabFrom),
+          slabTo: format(slab.slabTo),
+          decimalPlaces: decimalPlaces
+        };
+
+        return formattedSlab;
+      });
+
+      // Recalculate all slabFrom values based on previous slab's slabTo
+      for (let i = 1; i < updatedSlabs[mainIndex].slab.length; i++) {
+        const prevSlab = updatedSlabs[mainIndex].slab[i - 1];
+        if (prevSlab.slabTo && prevSlab.slabTo !== "") {
+          const prevTo = parseFloat(prevSlab.slabTo);
+          if (!isNaN(prevTo)) {
+            updatedSlabs[mainIndex].slab[i].slabFrom = (prevTo + step).toFixed(decimalPlaces);
+          }
+        }
+      }
+
+      setPricingDriver(updatedSlabs);
+      return;
+    }
+
+    // Handle slabTo changes - update next slab's slabFrom
+    if (field === "slabTo") {
+      const decimalPlaces = Number(updatedSlabs[mainIndex].slab[index].decimalPlaces ?? 2);
+      const step = parseFloat((1 / Math.pow(10, decimalPlaces)).toFixed(decimalPlaces));
+      const numericTo = parseFloat(value);
+
+      if (!isNaN(numericTo) && index + 1 < updatedSlabs[mainIndex].slab.length) {
+        const nextSlabFrom = parseFloat((numericTo + step).toFixed(decimalPlaces));
+        updatedSlabs[mainIndex].slab[index + 1].slabFrom = nextSlabFrom.toFixed(decimalPlaces);
+      }
+    }
+
+    setPricingDriver(updatedSlabs);
+
+    // Handle slab type selection
     const slabTypeFilter = slabType.find(
-      (item) =>
-        item.slabTypeId === pricingDriver[mainIndex].slab[index]?.slabTypeID
+      (item) => item.slabTypeId === updatedSlabs[mainIndex].slab[index]?.slabTypeID
     );
     const slabTypeValue = slabTypeFilter
       ? { value: slabTypeFilter.slabTypeId, label: slabTypeFilter.slabTypeName }
@@ -5032,6 +6676,135 @@ const Add_Update_Service = (props) => {
     SetSlabTypeVal(slabTypeValue);
   };
 
+  const OnQuantityChange = (e, field, mainIndex) => {
+    let rawValue = e;
+    // Allow only digits and one dot
+    rawValue = rawValue.replace(/[^0-9.]/g, '');
+
+    // If multiple dots, keep only the first
+    const firstDotIndex = rawValue.indexOf('.');
+    if (firstDotIndex !== -1) {
+      const beforeDot = rawValue.slice(0, firstDotIndex + 1);
+      const afterDot = rawValue.slice(firstDotIndex + 1).replace(/\./g, '');
+      rawValue = beforeDot + afterDot;
+    }
+
+    // Get allowed decimal places from quantity[0]
+    const decimalPlaces = pricingDriver[mainIndex]?.quantity?.[0]?.quantityDecimalPlaces ?? 0;
+
+    if (decimalPlaces === 0) {
+      // No dot allowed
+      rawValue = rawValue.replace(/\./g, '');
+    } else {
+      // Allow only first dot
+      const parts = rawValue.split('.');
+      rawValue = parts[0];
+      if (parts.length > 1) {
+        rawValue += '.' + parts[1].replace(/\./g, '').slice(0, decimalPlaces);
+      }
+    }
+
+    // Update
+    const updatedDrivers = [...pricingDriver];
+    const updatedQuantities = [...(updatedDrivers[mainIndex].quantity || [])];
+    if (field === 'to') {
+      updatedQuantities[0] = {
+        ...updatedQuantities[0],
+        quantityTo: rawValue,
+      };
+    }
+    if (field === 'from') {
+      updatedQuantities[0] = {
+        ...updatedQuantities[0],
+        quantityFrom: rawValue,
+      };
+    }
+    updatedDrivers[mainIndex] = {
+      ...updatedDrivers[mainIndex],
+      quantity: updatedQuantities,
+    };
+
+    setPricingDriver(updatedDrivers);
+  }
+
+  const OnDecimalPlacesChange = (selectedOption, mainIndex) => {
+    const newDecimalPlaces = selectedOption.value;
+    const updatedDrivers = [...pricingDriver];
+    const updatedQuantities = [...(updatedDrivers[mainIndex].quantity || [])];
+
+    // Ensure quantity object exists
+    if (!updatedQuantities[0]) {
+      updatedQuantities[0] = {};
+    }
+
+    // Get current values
+    const currentQuantityFrom = updatedQuantities[0].quantityFrom || '';
+    const currentQuantityTo = updatedQuantities[0].quantityTo || '';
+
+    // Update decimal places and format existing values
+    updatedQuantities[0] = {
+      ...updatedQuantities[0],
+      quantityDecimalPlaces: newDecimalPlaces,
+      quantityFrom: formatQuantityValue(currentQuantityFrom, newDecimalPlaces),
+      quantityTo: formatQuantityValue(currentQuantityTo, newDecimalPlaces),
+    };
+
+    updatedDrivers[mainIndex] = {
+      ...updatedDrivers[mainIndex],
+      quantity: updatedQuantities,
+    };
+
+    setPricingDriver(updatedDrivers);
+  };
+
+  //   const updatedDrivers = [...pricingDriver];
+  
+  //   // 1. Fix decimal places handling
+  //   if (field === "decimalPlaces") {
+  //     const decimalPlaces = Number(value);
+      
+  //     // Update driver-level decimal setting
+  //     updatedDrivers[mainIndex].decimalPlaces = decimalPlaces;
+      
+  //     // Format existing values without converting to strings
+  //     updatedDrivers[mainIndex].slab = updatedDrivers[mainIndex].slab.map(slab => ({
+  //       ...slab,
+  //       slabFrom: formatNumber(slab.slabFrom, decimalPlaces),
+  //       slabTo: formatNumber(slab.slabTo, decimalPlaces),
+  //       slabValue: formatNumber(slab.slabValue, decimalPlaces)
+  //     }));
+      
+  //     setPricingDriver(updatedDrivers);
+  //     return;
+  //   }
+  
+  //   // 2. Preserve existing slab update logic with number fix
+  //   if (updatedDrivers[mainIndex]?.slab?.[index]) {
+  //     const decimalPlaces = updatedDrivers[mainIndex].decimalPlaces || 2;
+      
+  //     // Update value with proper decimal handling
+  //     updatedDrivers[mainIndex].slab[index][field] = formatNumber(value, decimalPlaces);
+  
+  //     // 3. Add auto-update for next slab's from value
+  //     if (field === "slabTo" && index < updatedDrivers[mainIndex].slab.length - 1) {
+  //       const step = 1 / Math.pow(10, decimalPlaces);
+  //       updatedDrivers[mainIndex].slab[index + 1].slabFrom = 
+  //         formatNumber(Number(value) + step, decimalPlaces);
+  //     }
+  //   }
+  
+  //   // Keep existing slab type logic
+  //   const slabTypeFilter = slabType.find(
+  //     item => item.slabTypeId === updatedDrivers[mainIndex].slab[index]?.slabTypeID
+  //   );
+  //   SetSlabTypeVal(slabTypeFilter ? { 
+  //     value: slabTypeFilter.slabTypeId, 
+  //     label: slabTypeFilter.slabTypeName 
+  //   } : null);
+  
+  //   setPricingDriver(updatedDrivers);
+  // };
+  
   //Slab Radio Change 
   function OnSlabsRadioChange(mainIndex, selectedIndex) {
     const updatedPricingDriver = [...pricingDriver]; // Create a copy of the state array
@@ -5045,24 +6818,124 @@ const Add_Update_Service = (props) => {
   }
 
   // Add slab 
+  // const OnAddSlab = (mainIndex) => {
+  //   const pricingDriverCopy = pricingDriver[mainIndex];
+  //   var fromValueForNewSlab =
+  //     Number(
+  //       pricingDriver[mainIndex].slab[pricingDriver[mainIndex].slab.length - 1]
+  //         ?.slabTo
+  //     ) + 0.01;
+  //   fromValueForNewSlab = Math.round(fromValueForNewSlab * 100) / 100;
+  //   setCount(count + 1);
+  //   const newSlabs = {
+  //     slabKeyID: null,
+  //     slabTypeID: "",
+  //     parentSlabKeyID: null,
+  //     slabTypeName: null,
+  //     slabValue: "",
+  //     slabFrom:
+  //       pricingDriver[mainIndex]?.slab.length === 0 ? 0 : fromValueForNewSlab, //Number( pricingDriver[mainIndex].slab[pricingDriver[mainIndex].slab.length - 1].slabTo) + 0.01,
+  //     slabTo: pricingDriver[mainIndex]?.slab.length === 0 ? 0 : "",
+  //     isDefault: pricingDriver[mainIndex]?.slab.length === 0 ? true : false,
+  //   };
+
+  //   if (pricingDriverCopy?.slab?.length > 0) {
+  //     if (pricingDriverCopy?.slab?.length === 0) {
+  //       setGdriverError({ slabError: true });
+  //       return false;
+  //     } else if (
+  //       pricingDriver[mainIndex]?.slab[
+  //         pricingDriverCopy?.slab?.length - 1
+  //       ].slabTypeID === ""
+  //     ) {
+  //       setGdriverError({ slabtypeError: true });
+  //       return false;
+  //     } else if (
+  //       pricingDriver[mainIndex]?.slab[
+  //         pricingDriverCopy?.slab?.length - 1
+  //       ].slabValue === "" ||
+  //       pricingDriver[mainIndex]?.slab[
+  //         pricingDriverCopy?.slab.length - 1
+  //       ].slabFrom === "" ||
+  //       pricingDriver[mainIndex]?.slab[
+  //         pricingDriverCopy?.slab?.length - 1
+  //       ].slabTo === ""
+  //     ) {
+  //       setGdriverError({ slabtypevalueError: true });
+  //       return false;
+  //     } else if (
+  //       parseFloat(
+  //         pricingDriver[mainIndex]?.slab[
+  //           pricingDriverCopy.slab.length - 1
+  //         ]?.slabTo
+  //       ) <
+  //       parseFloat(
+  //         pricingDriver[mainIndex]?.slab[
+  //           pricingDriverCopy.slab.length - 1
+  //         ]?.slabFrom
+  //       )
+  //     ) {
+  //       setGdriverError({ slabToMinValue: true });
+  //       return false;
+  //     } else {
+  //       setGdriverError({ slabError: false });
+  //       setGdriverError({ slabtypeError: false });
+  //       setGdriverError({ slabtypevalueError: false });
+  //       setGdriverError({ slabToMinValue: false });
+  //       pricingDriver[mainIndex].slab.push(newSlabs);
+  //     }
+  //   } else {
+  //     setGdriverError({ slabError: false });
+  //     setGdriverError({ slabtypeError: false });
+  //     setGdriverError({ slabtypevalueError: false });
+  //     setGdriverError({ slabToMinValue: false });
+  //     pricingDriver[mainIndex].slab.push(newSlabs);
+  //   }
+  //   setTimeout(function () {
+  //     scrollUpDownByElementID(
+  //       `SlabDiv_${pricingDriver.length - 1}${pricingDriver[mainIndex].slab.length - 1
+  //       }`
+  //     );
+  //   }, 200);
+  // };
   const OnAddSlab = (mainIndex) => {
     const pricingDriverCopy = pricingDriver[mainIndex];
-    var fromValueForNewSlab =
-      Number(
-        pricingDriver[mainIndex].slab[pricingDriver[mainIndex].slab.length - 1]
-          ?.slabTo
-      ) + 0.01;
-    fromValueForNewSlab = Math.round(fromValueForNewSlab * 100) / 100;
+
+    // Get the decimal places for this driver (default to 2 if not set)
+    const decimalPlaces = Number(pricingDriver[mainIndex]?.slab?.[0]?.decimalPlaces ?? 0);
+
+    // Calculate the step based on decimal places
+    const step = parseFloat((1 / Math.pow(10, decimalPlaces)).toFixed(decimalPlaces));
+
+    // Calculate fromValueForNewSlab based on decimal places
+    let fromValueForNewSlab;
+    if (pricingDriver[mainIndex]?.slab.length === 0) {
+      fromValueForNewSlab = (0).toFixed(decimalPlaces);
+    } else {
+      const lastSlabTo = pricingDriver[mainIndex].slab[pricingDriver[mainIndex].slab.length - 1]?.slabTo;
+      if (lastSlabTo && lastSlabTo !== "" && !isNaN(parseFloat(lastSlabTo))) {
+        const lastToValue = parseFloat(lastSlabTo);
+        fromValueForNewSlab = (lastToValue + step).toFixed(decimalPlaces);
+      } else {
+        fromValueForNewSlab = (0).toFixed(decimalPlaces);
+      }
+    }
+
     setCount(count + 1);
+
     const newSlabs = {
       slabKeyID: null,
       slabTypeID: "",
+      decimalPlaces: decimalPlaces,
       parentSlabKeyID: null,
       slabTypeName: null,
       slabValue: "",
-      slabFrom:
-        pricingDriver[mainIndex]?.slab.length === 0 ? 0 : fromValueForNewSlab, //Number( pricingDriver[mainIndex].slab[pricingDriver[mainIndex].slab.length - 1].slabTo) + 0.01,
-      slabTo: pricingDriver[mainIndex]?.slab.length === 0 ? 0 : "",
+      slabFrom: pricingDriver[mainIndex]?.slab.length === 0
+        ? (0).toFixed(decimalPlaces)
+        : fromValueForNewSlab,
+      slabTo: pricingDriver[mainIndex]?.slab.length === 0
+        ? (0).toFixed(decimalPlaces)
+        : (0).toFixed(decimalPlaces),
       isDefault: pricingDriver[mainIndex]?.slab.length === 0 ? true : false,
     };
 
@@ -5109,19 +6982,27 @@ const Add_Update_Service = (props) => {
         setGdriverError({ slabtypeError: false });
         setGdriverError({ slabtypevalueError: false });
         setGdriverError({ slabToMinValue: false });
-        pricingDriver[mainIndex].slab.push(newSlabs);
+
+        // Create a copy of the pricingDriver array and update it properly
+        const updatedPricingDriver = [...pricingDriver];
+        updatedPricingDriver[mainIndex].slab.push(newSlabs);
+        setPricingDriver(updatedPricingDriver);
       }
     } else {
       setGdriverError({ slabError: false });
       setGdriverError({ slabtypeError: false });
       setGdriverError({ slabtypevalueError: false });
       setGdriverError({ slabToMinValue: false });
-      pricingDriver[mainIndex].slab.push(newSlabs);
+
+      // Create a copy of the pricingDriver array and update it properly
+      const updatedPricingDriver = [...pricingDriver];
+      updatedPricingDriver[mainIndex].slab.push(newSlabs);
+      setPricingDriver(updatedPricingDriver);
     }
+
     setTimeout(function () {
       scrollUpDownByElementID(
-        `SlabDiv_${pricingDriver.length - 1}${pricingDriver[mainIndex].slab.length - 1
-        }`
+        `SlabDiv_${pricingDriver.length - 1}${pricingDriver[mainIndex].slab.length - 1}`
       );
     }, 200);
   };
@@ -5334,6 +7215,21 @@ const Add_Update_Service = (props) => {
     }
   };
 
+  const parseStoredDate = (dateStr, formatStr) => {
+    if (!dateStr) return null;
+    try {
+      const parsed = parse(dateStr, formatStr, new Date());
+      return isValid(parsed) ? parsed : null;
+    } catch {
+      return null;
+    }
+  };
+  
+  // 2. Format Date object back to string using selected format
+  const formatToDisplay = (date, formatStr) => {
+    if (!isValid(date)) return "";
+    return format(date, formatStr);
+  };
   // Handle Tab Change 
   const handleChangeTab = (newTab, clickedTabID) => {
     setserviceError({
@@ -5510,6 +7406,9 @@ const Add_Update_Service = (props) => {
                               gdrivererror.drivernameError ||
                               gdrivererror.variationError ||
                               gdrivererror.drivertypeError ||
+                              gdrivererror.textValueError ||
+                              gdrivererror.textLengthError ||
+                              gdrivererror.dateValueError ||
                               gdrivererror.variationnameError ||
                               gdrivererror.variationvalueError ||
                               gdrivererror.slabtypeError ||
@@ -5556,6 +7455,10 @@ const Add_Update_Service = (props) => {
               {activeTab === ServiceHeader.BasicInformation && (
                 <BasicInformationComponent
                   servicesObj={servicesObj}
+                  ServiceDependencyList = {ServiceDependencyList}
+                  OnServiceDependencyChange = {OnServiceDependencyChange}
+                  ServiceDependencyLookupList = {ServiceDependencyLookupList}
+                  ServiceDependencyValue = {ServiceDependencyValue}
                   setModelRequestData={setModelRequestData}
                   modelRequestData={modelRequestData}
                   setServicesObj={setServicesObj}
@@ -5651,6 +7554,7 @@ const Add_Update_Service = (props) => {
                   setOpenSuccessModal={setOpenSuccessModal}
                   OnAddSlab={OnAddSlab}
                   slabTypeVal={slabTypeVal}
+                  OnDateRadioChange={OnDateRadioChange}
                   moduleName={moduleName}
                   OnVariationsRadioChange={OnVariationsRadioChange}
                   OnDeleteVariations={OnDeleteVariations}
@@ -5664,6 +7568,9 @@ const Add_Update_Service = (props) => {
                   getCrudButtonTextName={getCrudButtonTextName}
                   getCrudPopUpTitleName={getCrudPopUpTitleName}
                   setErrorMessage={setErrorMessage}
+                  setGDriverError={setGdriverError}
+                  parseStoredDate= {parseStoredDate}
+                  formatToDisplay={formatToDisplay}
                   setDisable={setDisable}
                   handleDeleteClick={handleDeleteClick}
                   addGBP={addGBP}
@@ -5683,6 +7590,8 @@ const Add_Update_Service = (props) => {
                   OnAdd={OnAdd}
                   OnSlabsRadioChange={OnSlabsRadioChange}
                   OnSlabChange={OnSlabChange}
+                  OnQuantityChange={OnQuantityChange}
+                  OnDecimalPlacesChange={OnDecimalPlacesChange}
                   slabType={slabType}
                   OnAddVariations={OnAddVariations}
                   DriverTypeValue={DriverTypeValue}
