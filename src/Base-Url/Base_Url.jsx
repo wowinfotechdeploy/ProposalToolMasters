@@ -5,7 +5,7 @@
 // export const Base_Url = "https://nifty-herschel.184-168-123-97.plesk.page/api"
 
 //Master Api
-export const Base_Url = "https://api.master.proposal.ust.outbooks.com/api"
+export const Base_Url = "https://api.master.proposal.ust.outbooks.com/api";
 
 // //temporyBAseURl;
 // export const Base_Url = "https://angry-blackburn.101-53-133-129.plesk.page/api"
@@ -15,7 +15,6 @@ export const Base_Url = "https://api.master.proposal.ust.outbooks.com/api"
 
 //Production Api
 // export const Base_Url = "https://api.app.proposal.ust.outbooks.com/api"
-
 
 //Local redirect
 // export const redirectUri = "http://localhost:3000";
@@ -45,17 +44,19 @@ export const redirectUri = "https://master.proposal.outbooks.com";
 // export const generatePdfUrl = "https://proposal.pdfapi.wowinfosolutions.com/generatePdf";
 // export const saveImage = "https://proposal.pdfapi.wowinfosolutions.com/save-image"
 
-export const mergePdfApiUrl = "https://master.proposal.wowinfosolutions.com/mergeUserPdfs";
-export const generatePdfUrl = "https://master.proposal.wowinfosolutions.com/generatePdf";
-export const saveImage = "https://master.proposal.wowinfosolutions.com/save-image"
-//Production Link 
+export const mergePdfApiUrl =
+  "https://master.proposal.wowinfosolutions.com/mergeUserPdfs";
+export const generatePdfUrl =
+  "https://master.proposal.wowinfosolutions.com/generatePdf";
+export const saveImage =
+  "https://master.proposal.wowinfosolutions.com/save-image";
+//Production Link
 // export const mergePdfApiUrl = "https://api.pdfgenration.proposal.ust.outbooks.com/mergeUserPdfs";
 // export const generatePdfUrl = "https://api.pdfgenration.proposal.ust.outbooks.com/generatePdf";
 // export const saveImage = "https://api.pdfgenration.proposal.ust.outbooks.com/save-image"
-export const CompaniesHouseBase_Url = "https://api.companieshouse.gov.uk"
+export const CompaniesHouseBase_Url = "https://api.companieshouse.gov.uk";
 
+export const OldOutbooksBaseUrl = "https://proposal.outbooks.com/api";
 
-export const OldOutbooksBaseUrl = "https://proposal.outbooks.com/api"
-
-
-export const AccessKeyBaseUrl = "https://api.api.master.proposal.ust.outbooks.com"
+export const AccessKeyBaseUrl =
+  "https://api.api.master.proposal.ust.outbooks.com";
