@@ -1234,7 +1234,7 @@ const Dashboard = () => {
     } else {
       formattedAmount = new Intl.NumberFormat("en-GB", {
         style: "currency",
-        currency: currencyID === 1 ? "GBP" : currencyID === 2 ? "EUR" : currencyID === 3 ? "Salex Tax" : "INR",
+        currency: currencyID === 1 ? "GBP" : currencyID === 2 ? "EUR" : currencyID === 3 ? "USD" : "INR",
         minimumFractionDigits: 0,
         maximumFractionDigits: 0,
       }).format(total);
