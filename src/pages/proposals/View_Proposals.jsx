@@ -108,7 +108,7 @@ const View_Proposals = () => {
     formatValue,
     isMobile,
     getTaxName,
-    getCurrencySymbol
+    getCurrencySymbol,
   } = useContext(AuthContextProvider);
   const navigate = useNavigate();
 
@@ -768,6 +768,28 @@ const View_Proposals = () => {
     return `${formattedDay}/${formattedMonth}/${year}`;
   };
 
+  const handleChangeFeesType = (e) => {
+    const isRecurringDiscounted =
+      Number(RecurringPricingInfo.DiscountedPrice) ===
+      Number(RecurringPricingInfo.OriginalPrice);
+    const isOneOffDiscounted =
+      Number(OneOffPricingInfo.DiscountedPrice) ===
+      Number(OneOffPricingInfo.OriginalPrice);
+
+    const updatedProposalObj = {
+      ...ProposalObject,
+      feeTypeId: e.value,
+    };
+
+    if (e.value == 2 && isRecurringDiscounted && isOneOffDiscounted) {
+      updatedProposalObj.DiscountLines = false;
+    } else {
+      updatedProposalObj.DiscountLines = true;
+    }
+
+    setProposalObject(updatedProposalObj);
+  };
+
   return (
     <div className="container">
       <div class="main-content">
@@ -778,7 +800,8 @@ const View_Proposals = () => {
                 <div className="col-md-6 col-sm-6 col-6">
                   <div class="prospects-title">
                     <h5>
-                      {proposalName}:{" "}
+                      {/* {proposalName}:{" "} */}
+                      Reference ID:
                       {isMobile
                         ? ProposalObject?.quotationName &&
                           ProposalObject?.quotationName.length > 15
@@ -1004,9 +1027,13 @@ const View_Proposals = () => {
                                               <div className="input-group">
                                                 {/* Add your Select component here */}
                                                 <Select
-                                                  isDisabled
+                                                  // isDisabled
                                                   className="phone-input-country-code selectDropDown Drop-down-width"
                                                   value={feeTypeValue}
+                                                  options={Utils.feeInProposal}
+                                                  onChange={
+                                                    handleChangeFeesType
+                                                  }
                                                 />
                                               </div>
                                             </div>
@@ -1874,7 +1901,9 @@ const View_Proposals = () => {
                                                     <>
                                                       <tr class="head-grey-row">
                                                         <td className="tr-table-class font-14 text-white">
-                                                          {getTaxName(ProposalObject.currencyID)}
+                                                          {getTaxName(
+                                                            ProposalObject.currencyID
+                                                          )}
                                                         </td>
                                                         <td
                                                           style={{
@@ -2788,7 +2817,9 @@ const View_Proposals = () => {
                                                     <>
                                                       <tr class="head-grey-row">
                                                         <td className="tr-table-class text-white">
-                                                          {getTaxName(ProposalObject.currencyID)}
+                                                          {getTaxName(
+                                                            ProposalObject.currencyID
+                                                          )}
                                                         </td>
                                                         <td
                                                           style={{
@@ -2947,9 +2978,11 @@ const View_Proposals = () => {
                                       <div className="input-group">
                                         {/* Add your Select component here */}
                                         <Select
-                                          isDisabled
+                                          // isDisabled
                                           className="phone-input-country-code selectDropDown Drop-down-width"
                                           value={feeTypeValue}
+                                          options={Utils.feeInProposal}
+                                          onChange={handleChangeFeesType}
                                         />
                                       </div>
                                     </div>
@@ -3006,7 +3039,11 @@ const View_Proposals = () => {
                                                 <div className="row fieldset">
                                                   <div className="col-md-2 col-sm-12  text-md-end">
                                                     <label className="fieldset-label">
-                                                      Original Price (${getCurrencySymbol(ProposalObject.currencyID)})
+                                                      Original Price ($
+                                                      {getCurrencySymbol(
+                                                        ProposalObject.currencyID
+                                                      )}
+                                                      )
                                                     </label>
                                                   </div>
                                                   <div className="col-md-4 col-sm-12">
@@ -3082,7 +3119,11 @@ const View_Proposals = () => {
                                                   >
                                                     <div class="mt-2 text-md-end">
                                                       <label class="form-label">
-                                                        Discounted Price (${getCurrencySymbol(ProposalObject.currencyID)})
+                                                        Discounted Price ($
+                                                        {getCurrencySymbol(
+                                                          ProposalObject.currencyID
+                                                        )}
+                                                        )
                                                       </label>
                                                     </div>
                                                   </div>
@@ -3091,7 +3132,9 @@ const View_Proposals = () => {
                                                       readonly=""
                                                       class="input-text"
                                                       type="text"
-                                                      placeholder={`Discounted Price (${getCurrencySymbol(ProposalObject.currencyID)})`}
+                                                      placeholder={`Discounted Price (${getCurrencySymbol(
+                                                        ProposalObject.currencyID
+                                                      )})`}
                                                       value={
                                                         Number(
                                                           Math.floor(
@@ -3126,7 +3169,11 @@ const View_Proposals = () => {
                                                     {ProposalObject.quoteTypeID !==
                                                       4 && (
                                                       <th className="tr-table-class text-white text-right">
-                                                        Fees (${getCurrencySymbol(ProposalObject.currencyID)})
+                                                        Fees ($
+                                                        {getCurrencySymbol(
+                                                          ProposalObject.currencyID
+                                                        )}
+                                                        )
                                                       </th>
                                                     )}
                                                   </tr>
@@ -3272,7 +3319,9 @@ const View_Proposals = () => {
                                                     <>
                                                       <tr class="head-grey-row">
                                                         <td className="tr-table-class text-white">
-                                                          {getTaxName(ProposalObject.currencyID)}
+                                                          {getTaxName(
+                                                            ProposalObject.currencyID
+                                                          )}
                                                         </td>
                                                         <td className="tr-table-class text-white text-right">
                                                           {" "}
@@ -3329,7 +3378,11 @@ const View_Proposals = () => {
                                                 <div className="row fieldset">
                                                   <div className="col-md-2 col-sm-12  text-md-end">
                                                     <label className="fieldset-label">
-                                                      Original Price (${getCurrencySymbol(ProposalObject.currencyID)})
+                                                      Original Price ($
+                                                      {getCurrencySymbol(
+                                                        ProposalObject.currencyID
+                                                      )}
+                                                      )
                                                     </label>
                                                   </div>
                                                   <div className="col-md-10 col-sm-12">
@@ -3401,7 +3454,11 @@ const View_Proposals = () => {
                                                   >
                                                     <div class="mb-1  text-md-end">
                                                       <label class="form-label">
-                                                        Discounted Price (${getCurrencySymbol(ProposalObject.currencyID)})
+                                                        Discounted Price ($
+                                                        {getCurrencySymbol(
+                                                          ProposalObject.currencyID
+                                                        )}
+                                                        )
                                                       </label>
                                                     </div>
                                                   </div>
@@ -3410,7 +3467,9 @@ const View_Proposals = () => {
                                                       readonly=""
                                                       class="input-text"
                                                       type="text"
-                                                      placeholder={`Discounted Price (${getCurrencySymbol(ProposalObject.currencyID)})`}
+                                                      placeholder={`Discounted Price (${getCurrencySymbol(
+                                                        ProposalObject.currencyID
+                                                      )})`}
                                                       value={
                                                         Number(
                                                           Math.floor(
@@ -3447,7 +3506,11 @@ const View_Proposals = () => {
                                                     {ProposalObject.quoteTypeID !==
                                                       4 && (
                                                       <th className="tr-table-class text-white text-right">
-                                                        Fees (${getCurrencySymbol(ProposalObject.currencyID)})
+                                                        Fees ($
+                                                        {getCurrencySymbol(
+                                                          ProposalObject.currencyID
+                                                        )}
+                                                        )
                                                       </th>
                                                     )}
                                                   </tr>
@@ -3586,7 +3649,9 @@ const View_Proposals = () => {
                                                     <>
                                                       <tr class="head-grey-row">
                                                         <td className="tr-table-class text-white">
-                                                          {getTaxName(ProposalObject.currencyID)}
+                                                          {getTaxName(
+                                                            ProposalObject.currencyID
+                                                          )}
                                                         </td>
                                                         <td className="tr-table-class text-white text-right">
                                                           {" "}
