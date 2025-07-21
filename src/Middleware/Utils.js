@@ -107,6 +107,7 @@ const VAT_Registered = [
     label: "No",
   },
 ];
+
 const IS_default = [
   {
     value: true,
@@ -674,19 +675,48 @@ const getDecimalPlaceLabel = (decimalPlaces) => {
 };
 
 const specialCharOptions = [
-  ".", "-", "+", ";", ":", "!", "@", "#", "$", "%", "^",
-  "&", "*", "(", ")", "_", "=", "{", "}", "[", "]",
-  "|", "\\", "/", "<", ">", "?", "~", "`", "'", '"', ","
+  ".",
+  "-",
+  "+",
+  ";",
+  ":",
+  "!",
+  "@",
+  "#",
+  "$",
+  "%",
+  "^",
+  "&",
+  "*",
+  "(",
+  ")",
+  "_",
+  "=",
+  "{",
+  "}",
+  "[",
+  "]",
+  "|",
+  "\\",
+  "/",
+  "<",
+  ">",
+  "?",
+  "~",
+  "`",
+  "'",
+  '"',
+  ",",
 ].map((char) => ({
   label: char,
-  value: char
+  value: char,
 }));
 
 const dateFormats = [
-  { label: 'ISO (YYYY-MM-DD)', value: 'yyyy-MM-dd' },
-  { label: 'US (MM/DD/YYYY)', value: 'MM/dd/yyyy' },
-  { label: 'European (DD/MM/YYYY)', value: 'dd/MM/yyyy' },
-  { label: 'UK (DD-MM-YYYY)', value: 'dd-MM-yyyy' }
+  { label: "ISO (YYYY-MM-DD)", value: "yyyy-MM-dd" },
+  { label: "US (MM/DD/YYYY)", value: "MM/dd/yyyy" },
+  { label: "European (DD/MM/YYYY)", value: "dd/MM/yyyy" },
+  { label: "UK (DD-MM-YYYY)", value: "dd-MM-yyyy" },
 ];
 // const FontSize = [
 //   { value: 1, label: "1px" },
