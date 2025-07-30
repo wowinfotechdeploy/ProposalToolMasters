@@ -247,50 +247,72 @@ export const SelectServices = (props) => {
     return changed ? updateRecursiveVisibility(updated, fullList) : updated;
   };
 
-useEffect(() => {
-  const list = props.oneOffServiceList || [];
-  const fullList = list.flatMap(c =>
-  c.servicesList.map(s => ({
-    ...s,
-    serviceCatID: c.serviceCatID, // Attach category ID to the service
-  }))
-);
+  useEffect(() => {
+    const list = props.oneOffServiceList || [];
+    const fullList = [
+      ...list.flatMap(c =>
+        c.servicesList.map(s => ({
+          ...s,
+          serviceCatID: c.serviceCatID,
+        }))
+      ),
+      ...(props.recurringServiceList || []).flatMap(c =>
+        c.servicesList.map(s => ({
+          ...s,
+          serviceCatID: c.serviceCatID,
+        }))
+      ),
+    ];
+    console.log(fullList);
+    const updated = list.map(category => ({
+      ...category,
+      servicesList: updateRecursiveVisibility(category.servicesList, fullList),
+    }));
 
-  const updated = list.map(category => ({
-    ...category,
-    servicesList: updateRecursiveVisibility(category.servicesList, fullList),
-  }));
+    // Let the latest selection apply before updating visibility
+    setTimeout(() => {
+      props.setOneOffServiceList(updated);
+    }, 0);
+  }, [
+    props.recurringServiceList?.flatMap(c =>
+      c.servicesList.map(s => `${s.serviceID}-${s.serviceCatID}-${s.isSelected}`)
+    ).join(","),
+    props.oneOffServiceList?.flatMap(c =>
+      c.servicesList.map(s => `${s.serviceID}-${s.serviceCatID}-${s.isSelected}`)
+    ).join(","),
+  ]);
 
-  // Let the latest selection apply before updating visibility
-  setTimeout(() => {
-    props.setOneOffServiceList(updated);
-  }, 0);
-}, [
-  props.oneOffServiceList?.flatMap(c =>
-    c.servicesList.map(s => `${s.serviceID}-${s.serviceCatID}-${s.isSelected}`)
-  ).join(","),
-]);
+  useEffect(() => {
+    const list = props.recurringServiceList || [];
+    const fullList = [
+      ...list.flatMap(c =>
+        c.servicesList.map(s => ({
+          ...s,
+          serviceCatID: c.serviceCatID,
+        }))
+      ),
+      ...(props.oneOffServiceList || []).flatMap(c =>
+        c.servicesList.map(s => ({
+          ...s,
+          serviceCatID: c.serviceCatID,
+        }))
+      ),
+    ];
 
-useEffect(() => {
-  const list = props.recurringServiceList || [];
-  const fullList = list.flatMap(c =>
-  c.servicesList.map(s => ({
-    ...s,
-    serviceCatID: c.serviceCatID, // Attach category ID to the service
-  }))
-);
+    const updated = list.map(category => ({
+      ...category,
+      servicesList: updateRecursiveVisibility(category.servicesList, fullList),
+    }));
 
-  const updated = list.map(category => ({
-    ...category,
-    servicesList: updateRecursiveVisibility(category.servicesList, fullList),
-  }));
-
-  props.setRecurringServiceList(updated);
-}, [
-  props.recurringServiceList?.flatMap(c =>
-    c.servicesList.map(s => `${s.serviceID}-${s.serviceCatID}-${s.isSelected}`)
-  ).join(","),
-]);
+    props.setRecurringServiceList(updated);
+  }, [
+    props.recurringServiceList?.flatMap(c =>
+      c.servicesList.map(s => `${s.serviceID}-${s.serviceCatID}-${s.isSelected}`)
+    ).join(","),
+    props.oneOffServiceList?.flatMap(c =>
+      c.servicesList.map(s => `${s.serviceID}-${s.serviceCatID}-${s.isSelected}`)
+    ).join(","),
+  ]);
 
   const handleRecurringServiceDependsServerClick = (
     recurringService,
@@ -506,7 +528,7 @@ useEffect(() => {
                         });
                         if (selectedBlock) {
                           driver.dateID = selectedBlock.dateID;
-                          driver.driverValue = selectedBlock.dateValue ? selectedBlock.dateValue : selectedBlock.defaultDateValue ? selectedBlock.defaultDateValue : 0;
+                          driver.driverValue = selectedBlock.dateValue ? selectedBlock.dateValue : selectedBlock.defaultDateValue ? selectedBlock.defaultDateValue : null;
                           driver.enteredDate = format(selectedDate,selectedBlock.dateFormat);
                           driver.enteredDateFormat = selectedBlock.dateFormat;
                           driver.date = driver.date.map((block) => ({
@@ -612,7 +634,7 @@ useEffect(() => {
                           })),
                         };
                       }
-                      else if (pricingList.driverTypeID === 6 && pricingList.date && pricingList.date.length > 0) {
+                      else if (pricingList.driverTypeID === 6 && pricingList.globalPricingDriverID === prevId.globalPricingDriverID) {
                         const dateFormat = pricingList.date?.[0]?.dateFormat || "yyyy-MM-dd";
                         const selectedDate = id instanceof Date ? id : parseStoredDate(id,dateFormat); // Support both raw Date or string
                         console.log(selectedDate);
@@ -741,7 +763,7 @@ useEffect(() => {
                           driver.slabID = defaultSlab.slabID;
                         }
                       }
-                       else if (driver.driverTypeID === 6) {
+                       else if (driver.driverTypeID === 6 && driver.globalPricingDriverID === prevId.globalPricingDriverID) {
                         const selectedDate = id instanceof Date ? id : parseStoredDate(id,driver?.date?.[0]?.dateFormat);
                         const sortedBlocks = [...driver.date].sort((a, b) => {
                           const aSpec = (a.fromDate ? 1 : 0) + (a.toDate ? 1 : 0);
@@ -756,7 +778,7 @@ useEffect(() => {
                         });
                         if (selectedBlock) {
                           driver.dateID = selectedBlock.dateID;
-                          driver.driverValue = selectedBlock.dateValue ? selectedBlock.dateValue : selectedBlock.defaultDateValue ? selectedBlock.defaultDateValue : 0;
+                          driver.driverValue = selectedBlock.dateValue ? selectedBlock.dateValue : selectedBlock.defaultDateValue ? selectedBlock.defaultDateValue : null;
                           driver.enteredDate = format(selectedDate,selectedBlock.dateFormat);
                           driver.enteredDateFormat = selectedBlock.dateFormat;
                           driver.date = driver.date.map((block) => ({
@@ -2723,7 +2745,7 @@ useEffect(() => {
 
                                                         const block = getMatchingBlock(date, i.date,i.date?.[0]?.dateFormat);
                                                         if (block) {
-                                                          i.driverValue = block.dateValue ?? block.defaultDateValue ?? 0;
+                                                          i.driverValue = block.dateValue ?? block.defaultDateValue;
                                                           i.dateID = block.dateID;
                                                         }
 

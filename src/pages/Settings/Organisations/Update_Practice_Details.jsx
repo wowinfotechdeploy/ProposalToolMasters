@@ -3170,7 +3170,12 @@ const Update_Practice_Details = () => {
                                     id="customerName-field"
                                     class="input-text"
                                     placeholder="Last Name"
-                                    value={officersForm[index].lastName}
+                                    value={
+                                      officersForm[index].lastName
+                                        ? officersForm[index].lastName.charAt(0).toUpperCase() +
+                                        officersForm[index].lastName.slice(1).toLowerCase()
+                                        : ""
+                                    }
                                     onChange={(e) => {
                                       const inputValue = e.target.value;
 
@@ -3510,7 +3515,12 @@ const Update_Practice_Details = () => {
                                     id="customerName-field"
                                     class="input-text"
                                     placeholder="Last Name"
-                                    value={officersForm[index]?.lastName}
+                                    value={
+                                      officersForm[index].lastName
+                                        ? officersForm[index].lastName.charAt(0).toUpperCase() +
+                                        officersForm[index].lastName.slice(1).toLowerCase()
+                                        : ""
+                                    }
                                     onChange={(e) => {
                                       let value = e.target.value;
                                       // Remove any non-alphabetic characters
@@ -3867,7 +3877,12 @@ const Update_Practice_Details = () => {
                                       id="customerName-field"
                                       class="input-text"
                                       placeholder="Last Name"
-                                      value={officersForm[index]?.lastName}
+                                      value={
+                                        officersForm[index].lastName
+                                          ? officersForm[index].lastName.charAt(0).toUpperCase() +
+                                          officersForm[index].lastName.slice(1).toLowerCase()
+                                          : ""
+                                      }
                                       onChange={(e) => {
                                         const inputValue = e.target.value;
 

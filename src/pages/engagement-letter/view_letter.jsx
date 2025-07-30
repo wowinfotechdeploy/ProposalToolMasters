@@ -917,7 +917,7 @@ const View_Engagement_Latter = () => {
                                           <div className="row fieldset">
                                             <div className="col-md-2 col-sm-12  text-md-end">
                                               <label className="fieldset-label">
-                                                Original Price ($
+                                                Original Price (
                                                 {getCurrencySymbol(
                                                   EngagementObj.currencyID
                                                 )}
@@ -992,7 +992,7 @@ const View_Engagement_Latter = () => {
                                             >
                                               <div class="mt-2 text-md-end">
                                                 <label class="form-label">
-                                                  Discounted Price ($
+                                                  Discounted Price (
                                                   {getCurrencySymbol(
                                                     EngagementObj.currencyID
                                                   )}
@@ -1034,7 +1034,7 @@ const View_Engagement_Latter = () => {
                                                     Services
                                                   </th>
                                                   <th className="tr-table-class text-white text-right">
-                                                    Fees ($
+                                                    Fees (
                                                     {getCurrencySymbol(
                                                       EngagementObj.currencyID
                                                     )}
@@ -1214,7 +1214,7 @@ const View_Engagement_Latter = () => {
                                           <div className="row fieldset">
                                             <div className="col-md-2 col-sm-12  text-md-end">
                                               <label className="fieldset-label">
-                                                Original Price ($
+                                                Original Price (
                                                 {getCurrencySymbol(
                                                   EngagementObj.currencyID
                                                 )}
@@ -1275,7 +1275,7 @@ const View_Engagement_Latter = () => {
                                             >
                                               <div class="mb-1  text-md-end">
                                                 <label class="form-label">
-                                                  Discounted Price ($
+                                                  Discounted Price (
                                                   {getCurrencySymbol(
                                                     EngagementObj.currencyID
                                                   )}
@@ -1317,7 +1317,7 @@ const View_Engagement_Latter = () => {
                                                     Services
                                                   </th>
                                                   <th className="tr-table-class text-white text-right">
-                                                    Fees ($
+                                                    Fees (
                                                     {getCurrencySymbol(
                                                       EngagementObj.currencyID
                                                     )}

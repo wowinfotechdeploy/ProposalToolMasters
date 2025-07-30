@@ -277,6 +277,7 @@ export default function PreviewComponentPdf(props) {
   const HeaderHeight = props.headerHeight;
   const FooterHeight = props.footerHeight;
   const showSeparatorLines = props.showSeparatorLines;
+  console.log(props.StatementOfFact);
   // console.log(props.selectedOneOffServiceList);
   // console.log(props.selectedRecurringServiceList);
   // console.log(props?.ProposalObject?.selectedProposalTypeValue);
@@ -2273,6 +2274,10 @@ export default function PreviewComponentPdf(props) {
                                               )}</strong>`
                                           : serviceCat.driverTypeID === 3
                                           ? `<strong>${serviceCat.variationName}</strong>`
+                                          : serviceCat.driverTypeID === 5 ? 
+                                            `<strong>${serviceCat?.enteredText}</strong>` ?? ""
+                                            : serviceCat.driverTypeID === 6 ? 
+                                              `<strong>${serviceCat?.enteredDate}</strong>`
                                           : `${
                                               serviceCat.driverName
                                             }: <strong>${props.formatValueWithoutCurrencySymbol(
@@ -2335,8 +2340,9 @@ export default function PreviewComponentPdf(props) {
                                     <strong> ${
                                       pricingDriver.driverTypeID === 2
                                         ? props.formatValueWithoutCurrencySymbol_v1(
-                                          pricingDriver.driverValue, getDecimalPlaces(pricingDriver)
-                                        )
+                                            pricingDriver.driverValue,
+                                            getDecimalPlaces(pricingDriver)
+                                          )
                                         : // Number(pricingDriver.driverValue).toFixed(2).toString().replace(
                                         //   /\B(?=(\d{3})+(?!\d))/g,
                                         //   ","
@@ -2352,9 +2358,18 @@ export default function PreviewComponentPdf(props) {
                                         ? subService?.pricingDriverList ==
                                           undefined
                                           ? pricingDriver.slabTypeID === 2
-                                            ? props.formatValueWithoutCurrencySymbol_v1(pricingDriver.driverValue,getDecimalPlaces(pricingDriver))
-                                            : props.formatValueWithoutCurrencySymbol_v1(pricingDriver.driverValue,getDecimalPlaces(pricingDriver)) -
-                                              props.formatValueWithoutCurrencySymbol_v1(pricingDriver.driverValue,getDecimalPlaces(pricingDriver))
+                                            ? props.formatValueWithoutCurrencySymbol_v1(
+                                                pricingDriver.driverValue,
+                                                getDecimalPlaces(pricingDriver)
+                                              )
+                                            : props.formatValueWithoutCurrencySymbol_v1(
+                                                pricingDriver.driverValue,
+                                                getDecimalPlaces(pricingDriver)
+                                              ) -
+                                              props.formatValueWithoutCurrencySymbol_v1(
+                                                pricingDriver.driverValue,
+                                                getDecimalPlaces(pricingDriver)
+                                              )
                                           : pricingDriver.slab.find(
                                               (item) => item.isDefault
                                             ).slabTypeID === 2
@@ -2374,7 +2389,9 @@ export default function PreviewComponentPdf(props) {
                                                 (item) => item.isDefault
                                               ).slabFrom
                                             )
-                                              .toFixed(getDecimalPlaces(pricingDriver))
+                                              .toFixed(
+                                                getDecimalPlaces(pricingDriver)
+                                              )
                                               .toString()
                                               .replace(
                                                 /\B(?=(\d{3})+(?!\d))/g,
@@ -2386,26 +2403,28 @@ export default function PreviewComponentPdf(props) {
                                                 (item) => item.isDefault
                                               ).slabTo
                                             )
-                                              .toFixed(getDecimalPlaces(pricingDriver))
+                                              .toFixed(
+                                                getDecimalPlaces(pricingDriver)
+                                              )
                                               .toString()
                                               .replace(
                                                 /\B(?=(\d{3})+(?!\d))/g,
                                                 ","
                                               )
-                                        : pricingDriver.driverTypeID === 5 ?
-                                          pricingDriver?.enteredText ?? ""
-                                          : pricingDriver.driverTypeID === 6
-                                            ? pricingDriver.enteredDate
-                                            // ? pricingDriver.date && pricingDriver.date.length > 0
-                                            //   ? (() => {
-                                            //     const inputFormat = pricingDriver.enteredDateFormat;
-                                            //     const outputFormat = pricingDriver.date[0]?.dateFormat;
-                                            //     const dateObj = convertAndParseDate(pricingDriver.enteredDate, inputFormat, outputFormat);
-                                            //     return dateObj && isValid(dateObj) ? format(dateObj, outputFormat) : "";
-                                            //   })()
-                                            //   : pricingDriver.enteredDate
-                                            // : ""
-                                            : ""
+                                        : pricingDriver.driverTypeID === 5
+                                        ? pricingDriver?.enteredText ?? ""
+                                        : pricingDriver.driverTypeID === 6
+                                        ? pricingDriver.enteredDate
+                                        : // ? pricingDriver.date && pricingDriver.date.length > 0
+                                          //   ? (() => {
+                                          //     const inputFormat = pricingDriver.enteredDateFormat;
+                                          //     const outputFormat = pricingDriver.date[0]?.dateFormat;
+                                          //     const dateObj = convertAndParseDate(pricingDriver.enteredDate, inputFormat, outputFormat);
+                                          //     return dateObj && isValid(dateObj) ? format(dateObj, outputFormat) : "";
+                                          //   })()
+                                          //   : pricingDriver.enteredDate
+                                          // : ""
+                                          ""
                                     }</strong>
                             </li>
                               `
@@ -2460,7 +2479,8 @@ export default function PreviewComponentPdf(props) {
                                     <strong> ${
                                       pricingDriver.driverTypeID === 2
                                         ? props.formatValueWithoutCurrencySymbol_v1(
-                                          pricingDriver.driverValue, getDecimalPlaces(pricingDriver)
+                                            pricingDriver.driverValue,
+                                            getDecimalPlaces(pricingDriver)
                                           )
                                         : // Number(pricingDriver.driverValue).toFixed(2).toString().replace(
                                         //   /\B(?=(\d{3})+(?!\d))/g,
@@ -2474,41 +2494,85 @@ export default function PreviewComponentPdf(props) {
                                               (item) => item.isDefault
                                             ).variationName
                                         : pricingDriver.driverTypeID === 4
-                                        ? subService?.pricingDriverList == undefined
-                                            ? pricingDriver.slabTypeID === 2
-                                              ? props.formatValueWithoutCurrencySymbol_v1(pricingDriver.driverValue, getDecimalPlaces(pricingDriver))
-                                              : props.formatValueWithoutCurrencySymbol_v1(pricingDriver.slabFrom, getDecimalPlaces(pricingDriver)) + "-" + props.formatValueWithoutCurrencySymbol_v1(pricingDriver.slabTo, getDecimalPlaces(pricingDriver))
-                                            : pricingDriver.slab?.find((item) => item.isDefault)?.slabTypeID === 2
-                                              ? Number(pricingDriver?.slab?.find((item) => item.isDefault)?.slabValue ?? pricingDriver.driverValue)
-                                                .toFixed(2)
-                                                .toString()
-                                                .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                                              : Number(pricingDriver.slab?.find((item) => item.isDefault)?.slabFrom ?? pricingDriver.driverValue)
-                                                .toFixed(pricingDriver?.slab?.[0]?.decimalPlaces ?? 2)
-                                                .toString()
-                                                .replace(/\B(?=(\d{3})+(?!\d))/g, ",") +
+                                        ? subService?.pricingDriverList ==
+                                          undefined
+                                          ? pricingDriver.slabTypeID === 2
+                                            ? props.formatValueWithoutCurrencySymbol_v1(
+                                                pricingDriver.driverValue,
+                                                getDecimalPlaces(pricingDriver)
+                                              )
+                                            : props.formatValueWithoutCurrencySymbol_v1(
+                                                pricingDriver.slabFrom,
+                                                getDecimalPlaces(pricingDriver)
+                                              ) +
                                               "-" +
-                                              Number(pricingDriver.slab?.find((item) => item.isDefault)?.slabTo ?? pricingDriver.driverValue)
-                                                .toFixed(pricingDriver?.slab?.[0]?.decimalPlaces ?? 2)
-                                                .toString()
-                                                .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                                            : pricingDriver.driverTypeID === 5 ? 
-                                              pricingDriver?.enteredText ?? ""
-                                            : pricingDriver.driverTypeID === 6 ? 
-                                              pricingDriver?.enteredDate
-                                              //  && pricingDriver?.enteredDateFormat
-                                              //   ? (() => {
-                                              //     const dateObj = convertAndParseDate(
-                                              //       pricingDriver.enteredDate,
-                                              //       pricingDriver.enteredDateFormat,
-                                              //       pricingDriver.date?.[0]?.dateFormat
-                                              //     );
-                                              //     return dateObj && isValid(dateObj)
-                                              //       ? format(dateObj, pricingDriver.date?.[0]?.dateFormat)
-                                              //       : "";
-                                              //   })()
-                                              //   : "" ?? ""
-                                            : ""
+                                              props.formatValueWithoutCurrencySymbol_v1(
+                                                pricingDriver.slabTo,
+                                                getDecimalPlaces(pricingDriver)
+                                              )
+                                          : pricingDriver.slab?.find(
+                                              (item) => item.isDefault
+                                            )?.slabTypeID === 2
+                                          ? Number(
+                                              pricingDriver?.slab?.find(
+                                                (item) => item.isDefault
+                                              )?.slabValue ??
+                                                pricingDriver.driverValue
+                                            )
+                                              .toFixed(2)
+                                              .toString()
+                                              .replace(
+                                                /\B(?=(\d{3})+(?!\d))/g,
+                                                ","
+                                              )
+                                          : Number(
+                                              pricingDriver.slab?.find(
+                                                (item) => item.isDefault
+                                              )?.slabFrom ??
+                                                pricingDriver.driverValue
+                                            )
+                                              .toFixed(
+                                                pricingDriver?.slab?.[0]
+                                                  ?.decimalPlaces ?? 2
+                                              )
+                                              .toString()
+                                              .replace(
+                                                /\B(?=(\d{3})+(?!\d))/g,
+                                                ","
+                                              ) +
+                                            "-" +
+                                            Number(
+                                              pricingDriver.slab?.find(
+                                                (item) => item.isDefault
+                                              )?.slabTo ??
+                                                pricingDriver.driverValue
+                                            )
+                                              .toFixed(
+                                                pricingDriver?.slab?.[0]
+                                                  ?.decimalPlaces ?? 2
+                                              )
+                                              .toString()
+                                              .replace(
+                                                /\B(?=(\d{3})+(?!\d))/g,
+                                                ","
+                                              )
+                                        : pricingDriver.driverTypeID === 5
+                                        ? pricingDriver?.enteredText ?? ""
+                                        : pricingDriver.driverTypeID === 6
+                                        ? pricingDriver?.enteredDate
+                                        : //  && pricingDriver?.enteredDateFormat
+                                          //   ? (() => {
+                                          //     const dateObj = convertAndParseDate(
+                                          //       pricingDriver.enteredDate,
+                                          //       pricingDriver.enteredDateFormat,
+                                          //       pricingDriver.date?.[0]?.dateFormat
+                                          //     );
+                                          //     return dateObj && isValid(dateObj)
+                                          //       ? format(dateObj, pricingDriver.date?.[0]?.dateFormat)
+                                          //       : "";
+                                          //   })()
+                                          //   : "" ?? ""
+                                          ""
                                     }</strong>
                             </li>
                               `
@@ -2547,6 +2611,15 @@ export default function PreviewComponentPdf(props) {
                       serviceCat.driverValue
                     )} </strong > 
                       </p>`
+                  : serviceCat.driverTypeID === 5 ||
+                    serviceCat.driverTypeID === 6
+                  ? `<p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
+      ${serviceCat.driverName}: <strong>${
+                      serviceCat.driverTypeID === 5
+                        ? serviceCat.enteredText ?? ""
+                        : serviceCat.enteredDate ?? ""
+                    }</strong>
+    </p>`
                   : (serviceCat.driverTypeID === 4
                       ? serviceCat.slab
                       : serviceCat.driverTypeID === 3
@@ -2786,6 +2859,10 @@ export default function PreviewComponentPdf(props) {
                                               )}</strong>`
                                           : serviceCat.driverTypeID === 3
                                           ? `<strong>${serviceCat.variationName}</strong>`
+                                          : serviceCat.driverTypID === 5 
+                                          ? `<strong>${serviceCat.enteredText}</strong>`
+                                          : serviceCat.driverTypID === 6
+                                          ? `<strong>${serviceCat.enteredDate}</strong>`
                                           : `${
                                               serviceCat.driverName
                                             }: <strong>${props.formatValueWithoutCurrencySymbol(
@@ -3015,6 +3092,10 @@ export default function PreviewComponentPdf(props) {
                                               /\B(?=(\d{3})+(?!\d))/g,
                                               ","
                                             )
+                                      : pricingDriver.driverTypeID === 5 ? 
+                                              pricingDriver?.enteredText ?? ""
+                                            : pricingDriver.driverTypeID === 6 ? 
+                                              pricingDriver?.enteredDate
                                       : ""
                                   }</strong>
                           </li>
@@ -3051,6 +3132,15 @@ export default function PreviewComponentPdf(props) {
                     serviceCat.driverValue
                   )} </strong > 
                     </p>`
+                : serviceCat.driverTypeID === 5 ||
+                    serviceCat.driverTypeID === 6
+                  ? `<p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
+      ${serviceCat.driverName}: <strong>${
+                      serviceCat.driverTypeID === 5
+                        ? serviceCat.enteredText ?? ""
+                        : serviceCat.enteredDate ?? ""
+                    }</strong>
+    </p>`
                 : (serviceCat.driverTypeID === 4
                     ? serviceCat.slab
                     : serviceCat.driverTypeID === 3
@@ -4841,7 +4931,7 @@ export default function PreviewComponentPdf(props) {
               <Select
                 menuPosition="auto"
                 className="phone-input-country-code selectDropDown"
-                options={Utils.PreviewSelection}
+                options={common.enableEL === 1 ? Utils.PreviewSelection : Utils.PreviewSelection.filter(x => x.value !== 1)}
                 onChange={handleFormate}
                 value={ProposalFormatValue}
               />

@@ -198,8 +198,8 @@ const Basic_information = (props) => {
       ...props.basicInfo,
       tradingName: "",
       tradingAddress: null,
-      VATReg: 1,
-      VATNumber: null,
+      // VATReg: 1,
+      // VATNumber: null,
       businessNatureID: [],
       website: null,
       businessTypeName: e.label,
@@ -858,7 +858,7 @@ const Basic_information = (props) => {
                       )}
                   </div>
                   <div className="mb-2"></div>
-                  <div class="col-md-3 col-sm-12 text-start text-md-end">
+                  {/* <div class="col-md-3 col-sm-12 text-start text-md-end">
                     <label class="fieldset-label required">
                       VAT Registered
                     </label>
@@ -912,7 +912,7 @@ const Basic_information = (props) => {
                         </div>
                       </div>
                     </>
-                  )}
+                  )} */}
                 </div>
               </div>
             )}
@@ -1285,7 +1285,7 @@ const Basic_information = (props) => {
                     </div>
                   </div>
                 </div>
-                <div className="row fieldset" id="VATRegDiv">
+                {/* <div className="row fieldset" id="VATRegDiv">
                   <div class="col-md-3 col-sm-12 text-start text-md-end">
                     <label class="fieldset-label required">
                       VAT Registered
@@ -1306,9 +1306,9 @@ const Basic_information = (props) => {
                       />
                     </div>
                   </div>
-                </div>
+                </div> */}
                 <div className="row fieldset" id="InCorporateIDDiv">
-                  {props.basicInfo.VATReg === 0 && (
+                  {/* {props.basicInfo.VATReg === 0 && (
                     <>
                       <div class="col-md-3 col-sm-12 text-start text-md-end">
                         <label class="fieldset-label required">
@@ -1341,7 +1341,7 @@ const Basic_information = (props) => {
                         </div>
                       </div>
                     </>
-                  )}
+                  )} */}
                   {/* .............Trading Detail------------- */}
                 </div>
                 {/* <div className="row fieldset" id="InCorporateIDDiv"> */}
@@ -1943,7 +1943,12 @@ const OfficerDetails = (props) => {
                               type="text"
                               class="input-text"
                               placeholder="First Name"
-                              value={props.officersForm[index]?.firstName}
+                              value={
+                                props.officersForm[index].firstName
+                                  ? props.officersForm[index].firstName.charAt(0).toUpperCase() +
+                                  props.officersForm[index].firstName.slice(1).toLowerCase()
+                                  : ""
+                              }
                               onChange={(e) => {
                                 const inputValue = e.target.value.trim();
                                 // Reject input if it contains numeric characters
@@ -1995,7 +2000,12 @@ const OfficerDetails = (props) => {
                               type="text"
                               class="input-text"
                               placeholder="Last Name"
-                              value={props.officersForm[index]?.lastName}
+                              value={
+                                props.officersForm[index].lastName
+                                  ? props.officersForm[index].lastName.charAt(0).toUpperCase() +
+                                  props.officersForm[index].lastName.slice(1).toLowerCase()
+                                  : ""
+                              }
                               onChange={(e) => {
                                 const inputValue = e.target.value;
 
@@ -2098,7 +2108,9 @@ const OfficerDetails = (props) => {
                           <div class="col-md-3 col-sm-12 text-start text-md-end">
                             <label class="fieldset-label required">
                               Email
-                              <span className="text-danger">*</span>
+                              {props.officersForm[index].isAuthorisedSignatory && 
+                                <span className="text-danger">*</span>
+                              } 
                             </label>
                           </div>
                           <div class="col-lg-9 col-md-8 col-sm-12">
@@ -2117,7 +2129,7 @@ const OfficerDetails = (props) => {
                               }
                             />
 
-                            {props.officerError &&
+                            {props.officerError && props.officersForm[index].isAuthorisedSignatory &&
                               (props.officersForm[index].emailID === null ||
                               props.officersForm[index].emailID === "" ? (
                                 <span className="validation">
@@ -2255,7 +2267,12 @@ const OfficerDetails = (props) => {
                               type="text"
                               class="input-text"
                               placeholder="First Name"
-                              value={props.officersForm[index]?.firstName}
+                              value={
+                                props.officersForm[index].firstName
+                                  ? props.officersForm[index].firstName.charAt(0).toUpperCase() +
+                                  props.officersForm[index].firstName.slice(1).toLowerCase()
+                                  : ""
+                              }
                               onChange={(e) => {
                                 const inputValue = e.target.value.trim();
                                 // Reject input if it contains numeric characters
@@ -2303,7 +2320,12 @@ const OfficerDetails = (props) => {
                               type="text"
                               class="input-text"
                               placeholder="Last Name"
-                              value={props.officersForm[index]?.lastName}
+                              value={
+                                props.officersForm[index].lastName
+                                  ? props.officersForm[index].lastName.charAt(0).toUpperCase() +
+                                  props.officersForm[index].lastName.slice(1).toLowerCase()
+                                  : ""
+                              }
                               onChange={(e) => {
                                 const inputValue = e.target.value;
 
@@ -2483,7 +2505,9 @@ const OfficerDetails = (props) => {
                           <div class="col-md-3 col-sm-12 text-start text-md-end">
                             <label class="fieldset-label required">
                               Email
-                              <span className="text-danger">*</span>
+                              {props.officersForm[index].isAuthorisedSignatory && 
+                                <span className="text-danger">*</span>
+                              } 
                             </label>
                           </div>
                           <div class="col-lg-9 col-md-8 col-sm-12">
@@ -2503,7 +2527,7 @@ const OfficerDetails = (props) => {
                                 )
                               }
                             />
-                            {props.officerError &&
+                            {props.officerError && props.officersForm[index].isAuthorisedSignatory &&
                               (props.officersForm[index].emailID === null ||
                               props.officersForm[index].emailID === "" ? (
                                 <span className="validation">
@@ -2727,8 +2751,8 @@ const Add_Update_prospect = () => {
     businessTypeName: "Individual",
     tradingName: null,
     tradingAddress: null,
-    VATReg: 1,
-    VATNumber: null,
+    // VATReg: 1,
+    // VATNumber: null,
     website: null,
     originalBusinessTypeID: 1,
   });
@@ -3064,8 +3088,8 @@ const Add_Update_prospect = () => {
                 ? []
                 : ModelData.businessNatureID,
             tradingAddress: AddressObj,
-            VATReg: ModelData.isVatRegistered,
-            VATNumber: ModelData.vatNumber,
+            // VATReg: ModelData.isVatRegistered,
+            // VATNumber: ModelData.vatNumber,
             website: ModelData.websiteName,
             originalBusinessTypeID: ModelData.originalBusinessTypeID,
           });
@@ -3235,9 +3259,9 @@ const Add_Update_prospect = () => {
       userKeyID: common.userKeyID,
       clientKeyID: basicInfo.clientKeyID,
       businessTypeID: basicInfo.businessTypeID,
-      vatNumber: basicInfo.VATNumber,
+      // vatNumber: basicInfo.VATNumber,
       addressID: basicInfo.tradingAddress?.addressId,
-      isVatRegistered: basicInfo.VATReg,
+      // isVatRegistered: basicInfo.VATReg,
       businessNatureID: basicInfo.businessNatureID,
       websiteName: basicInfo.website,
       tradingBusinessName: basicInfo.tradingName,
@@ -3351,8 +3375,8 @@ const Add_Update_prospect = () => {
       tradingName: null,
       tradingAddress: null,
       businessNatureID: [],
-      VATReg: 1,
-      VATNumber: null,
+      // VATReg: 1,
+      // VATNumber: null,
       website: null,
     });
     try {
@@ -3832,10 +3856,11 @@ const Add_Update_prospect = () => {
             officersForm[i].lastName === "" ||
             officersForm[i].lastName === null ||
             officersForm[i].lastName === undefined ||
-            officersForm[i].emailID === "" ||
-            officersForm[i].emailID === null ||
             authorizedRecords.length === 0 ||
-            !emailPattern.test(officersForm[i].emailID) ||
+            (officersForm[i].isAuthorisedSignatory &&
+            (officersForm[i].emailID === "" ||
+            officersForm[i].emailID === null ||
+            !emailPattern.test(officersForm[i].emailID))) ||
             concatenatedResidentialAddress[i]?.officersFullAddress === null ||
             concatenatedResidentialAddress[i]?.officersFullAddress === ""
           ) {
@@ -3936,14 +3961,15 @@ const Add_Update_prospect = () => {
             officersForm[i].lastName === "" ||
             officersForm[i].lastName === null ||
             officersForm[i].lastName === undefined ||
-            officersForm[i].emailID === "" ||
+            (officersForm[i].isAuthorisedSignatory &&
+            (officersForm[i].emailID === "" ||
             officersForm[i].emailID === null ||
+            !emailPattern.test(officersForm[i]?.emailID))) ||
             officersForm[i].officerRole === "" ||
             officersForm[i].officerRole === null ||
             officersForm[i]?.appointedOn === "" ||
             officersForm[i]?.appointedOn === null ||
             authorizedRecords.length === 0 ||
-            !emailPattern.test(officersForm[i]?.emailID) ||
             concatenatedResidentialAddress[i]?.officersFullAddress === null ||
             concatenatedResidentialAddress[i]?.officersFullAddress === ""
           ) {

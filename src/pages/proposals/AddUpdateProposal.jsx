@@ -11192,6 +11192,7 @@ const Add_Update_Proposal = (props) => {
                     ).variationValue ||
                     (driver.slab?.find((item) => item.isDefault === true) || {})
                       .slabValue ||
+                    (Array.isArray(driver.text) && driver.text.length > 0 ? driver.text[0].textValue : null) ||
                     (
                       Array.isArray(driver.date) && driver.date.length > 0
                         ? driver.date.find(d => d.dateValue === driver.driverValue)?.dateValue ??
@@ -11202,6 +11203,12 @@ const Add_Update_Proposal = (props) => {
                     (
                       (Array.isArray(driver.date) && driver.date.length > 0)
                         ? driver.date.find(d => d.isDefault === true)?.dateID
+                        : null
+                    ),
+                  textID:
+                    (
+                      (Array.isArray(driver.text) && driver.text.length > 0)
+                        ? driver.text.find(t => t.textValue === driver.driverValue)?.textID
                         : null
                     ),
                   variationID:
@@ -11242,6 +11249,7 @@ const Add_Update_Proposal = (props) => {
       oneOffServiceListData,
       2
     );
+    console.log(additionalInformationList);
     const AdditionalData = additionalInformationList
       ?.filter((item) => {
         if (item.driverTypeID === 2) {
@@ -11251,7 +11259,7 @@ const Add_Update_Proposal = (props) => {
         } else if (item.variation !== null) {
           return item.variation.some((variation) => variation.isDefault);
         } else if (item.driverTypeID === 6) {
-          return true;
+          return item.date.some((date) => date.isDefault);
         } else {
           return false;
         }
@@ -11269,6 +11277,10 @@ const Add_Update_Proposal = (props) => {
           item.slab !== null
             ? item.slab.find((slab) => slab.isDefault)?.slabID
             : null,
+        dateID:
+          item.date !== null
+            ? item.date.find((date) => date.isDefault)?.dateID
+            : null
       }))
       .flat();
 
@@ -11330,19 +11342,25 @@ const Add_Update_Proposal = (props) => {
                     (
                       driver.slab?.find(item => item.isDefault) || {}
                     ).slabValue ||
-                    (Array.isArray(driver.text) && driver.text.length > 0 ? driver.text[0].textValue : 0) ||
+                    (Array.isArray(driver.text) && driver.text.length > 0 ? driver.text[0].textValue : null) ||
                     (
                       driver.date !== null
                         ? driver.date?.length > 0
                           ? driver.date.find(d => d.isDefault === true)?.dateValue
                             || driver.date?.[0]?.defaultDateValue
-                          : 0
-                        : 0
+                          : null
+                        : null
                     ) || driver.driverValue,
                     dateID:
                       (
                         (Array.isArray(driver.date) && driver.date.length > 0)
                           ? driver.date.find(d => d.isDefault === true)?.dateID
+                          : null
+                      ),
+                    textID:
+                      (
+                        (Array.isArray(driver.text) && driver.text.length > 0)
+                          ? driver.text.find(d => d.textValue === driver.driverValue)?.textID
                           : null
                       ),
                     variationID:
@@ -11388,7 +11406,7 @@ const Add_Update_Proposal = (props) => {
       1
     );
     const oneOffServicesObj = await extractServiceData(oneOffServiceList, 2);
-
+    console.log(additionalInformationList);
     const AdditionalData = additionalInformationList
       ?.filter((item) => {
         if (item.driverTypeID === 2) {
@@ -11397,8 +11415,8 @@ const Add_Update_Proposal = (props) => {
           return item.slab.some((slab) => slab.isDefault);
         } else if (item.variation !== null) {
           return item.variation.some((variation) => variation.isDefault);
-        } else if (item.driverTypeID === 6) {
-          return true;
+        } else if (item.date !== null) {
+          return item.date.some((date) => date.isDefault);
         } else {
           return false;
         }
@@ -11415,6 +11433,10 @@ const Add_Update_Proposal = (props) => {
         slabID:
           item.slab !== null
             ? item.slab.find((slab) => slab.isDefault)?.slabID
+            : null,
+        dateID:
+          item.date !== null
+            ? item.date.find((date) => date.isDefault)?.dateID
             : null,
       }))
       .flat();
@@ -11450,7 +11472,7 @@ const Add_Update_Proposal = (props) => {
         ...AdditionalData,
       ],
     };
-
+    
     return ServicePricing;
   }
   function roundUpToSixDecimals(num) {
@@ -15850,18 +15872,35 @@ const Add_Update_Proposal = (props) => {
         (item) =>
           item.driverTypeID === 2 ||
           item.driverTypeID === 4 ||
-          item.driverTypeID === 3
+          item.driverTypeID === 3 ||
+          item.driverTypeID === 6
       );
 
       // Check if any of the filtered items have driverValue as null, empty string, or undefined
       const hasInvalidValues = filteredList.some(
-        (i) =>
+        (i) => {
+          if(i.driverTypeID === 5) {
+            return (
+              i.enteredText === null ||
+              i.enteredText === undefined ||
+              i.enteredText.trim() === ""
+            );
+          }
+          if(i.driverTypeID === 6) {
+            return (
+              i.enteredDate === null ||
+              i.enteredDate === undefined ||
+              i.enteredDate.trim() === ""
+            );
+          }
+          return (
           i.driverValue === null ||
           i.driverValue === "" ||
           i.driverValue === undefined ||
           i.driverValue === "." ||
           i.driverValue === "-"
-      );
+          );
+    });
       if (hasInvalidValues) {
         setRequireMessage(true);
         setIsValidForm({
@@ -16058,10 +16097,10 @@ const Add_Update_Proposal = (props) => {
                     ? driver.date?.length > 0
                       ? driver.date.find(d => d.dateValue === driver.driverValue)?.dateValue
                       ?? driver.date[0].defaultDateValue
-                      ?? 0
-                      : 0
+                      ?? null
+                      : null
                     : driver.text !== null
-                    ? driver.driverValue ?? driver.text?.find(d => d.textID === driver.textID)?.textValue ?? 0
+                    ? driver.driverValue ?? driver.text?.find(d => d.textID === driver.textID)?.textValue ?? null
                   : driver.driverValue,
               msgMapID: driver.msgMapID || null,
               msMapID: driver.msMapID || null,
@@ -16394,6 +16433,7 @@ const Add_Update_Proposal = (props) => {
           let driverValue;
           let slabID;
           let variationID;
+          let dateID;
           let msgMapID;
           let msMapID;
           if (item.slab && item.slab.some((slabItem) => slabItem.isDefault)) {
@@ -16415,6 +16455,17 @@ const Add_Update_Proposal = (props) => {
             variationID = defaultVariation.variationID;
             msgMapID = item.msgMapID;
             msMapID = item.msMapID;
+          } else if (
+            item.date &&
+            item.date.some((dateItem) => dateItem.isDefault)
+          ) {
+            const defaultDate = item.date.find(
+              (dateItem) => dateItem.isDefault
+            );
+            driverValue = defaultDate.dateValue ?? defaultDate.defaultDateValue ?? null;
+            dateID = defaultDate.dateID;
+            msgMapID = item.msgMapID;
+            msMapID = item.msMapID;
           } else if (item.driverTypeID === 2 || item.driverTypeID === 1) {
             driverValue = item.driverValue === null ? 0 : item.driverValue;
             slabID = item.slabID;
@@ -16429,6 +16480,10 @@ const Add_Update_Proposal = (props) => {
             driverValue,
             variationID,
             slabID,
+            dateID,
+            enteredText: item.enteredText,
+            enteredDate: item.enteredDate,
+            enteredDateFormat: item.enteredDateFormat
           };
         })
         .filter((item) => item.driverTypeID !== 1)
@@ -16663,8 +16718,6 @@ const Add_Update_Proposal = (props) => {
                 const pricingList = service.pricingDriverList[i];
                 if (
                   pricingList.driverVisibility &&
-                  pricingList.driverTypeID !== 5 &&
-                  pricingList.driverTypeID !== 6 &&
                   (pricingList.driverValue === undefined ||
                     pricingList.driverValue === null ||
                     pricingList.driverValue === "")
@@ -16701,8 +16754,6 @@ const Add_Update_Proposal = (props) => {
 
                 if (
                   pricingList.driverVisibility &&
-                  pricingList.driverTypeID !== 5 &&
-                  pricingList.driverTypeID !== 6 &&
                   (pricingList.driverValue === undefined ||
                     pricingList.driverValue === null ||
                     pricingList.driverValue === "")
@@ -17033,18 +17084,35 @@ const Add_Update_Proposal = (props) => {
         (item) =>
           item.driverTypeID === 2 ||
           item.driverTypeID === 4 ||
-          item.driverTypeID === 3
+          item.driverTypeID === 3 ||
+          item.driverTypeID === 6
       );
 
       // Check if any of the filtered items have driverValue as null, empty string, or undefined
       const hasInvalidValues = filteredList.some(
-        (i) =>
+        (i) => {
+          if(i.driverTypeID === 5) {
+            return (
+              i.enteredText === null ||
+              i.enteredText === undefined ||
+              i.enteredText.trim() === ""
+            );
+          }
+          if(i.driverTypeID === 6) {
+            return (
+              i.enteredDate === null ||
+              i.enteredDate === undefined ||
+              i.enteredDate.trim() === ""
+            );
+          }
+          return (
           i.driverValue === null ||
           i.driverValue === "" ||
           i.driverValue === undefined ||
           i.driverValue === "." ||
           i.driverValue === "-"
-      );
+          );
+    });
       if (hasInvalidValues) {
         setRequireMessage(true);
         setIsValidForm({
@@ -17199,6 +17267,7 @@ const Add_Update_Proposal = (props) => {
 
           const StatementOfFactsForStandardProposal =
             StatementOfFacts.data.responseData.data;
+            console.log(StatementOfFactsForStandardProposal);
           setStatementOfFacts(StatementOfFactsForStandardProposal);
           if (ProposalObject.selectedProposalTypeValue === 2) {
             const recurringServiceListData =
@@ -17693,7 +17762,7 @@ const Add_Update_Proposal = (props) => {
             setAdditionalInformationList(additionalInformationListData);
             if (
               additionalInformationListData.filter(
-                (item) => (item.driverTypeID !== 1 && item.driverTypeID !== 5 && item.driverTypeID !== 6)
+                (item) => (item.driverTypeID !== 1)
               ).length === 0
             ) {
               setTabHide(false);
@@ -17733,6 +17802,7 @@ const Add_Update_Proposal = (props) => {
                 setTabHide(false);
                 GetCalculatedServicesPriceData(ServicePricing, 6);
               }
+              console.log(additionalInformationList);
             } else {
               // if (ProposalObject.selectedProposalTypeValue === 4) {
               //   setActiveTab(3);
@@ -18748,6 +18818,7 @@ const Add_Update_Proposal = (props) => {
                   setOneOffPackagesTable={setOneOffPackagesTable}
                   vatPercentage={vatPercentage}
                   currencyID = {currencyID}
+                  taxName={taxName}
                   setVATPercentage={setVATPercentage}
                   selectedRecurringServiceList={selectedRecurringServiceList}
                   setSelectedRecurringServiceList={

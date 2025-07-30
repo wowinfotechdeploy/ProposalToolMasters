@@ -1354,8 +1354,8 @@ const OfficerDetails = (props) => {
                       <div class="row fieldset">
                         <div class="col-md-3 col-sm-12 text-start text-md-end">
                           <label class="fieldset-label required">
-                            Practice Email
-                            <span className="text-danger">*</span>
+                            Practice Email 
+                              <span className="text-danger">*</span>
                           </label>
                         </div>
                         <div class="col-lg-9 col-md-8 col-sm-12">
@@ -1539,7 +1539,12 @@ const OfficerDetails = (props) => {
                               style={{ padding: "5px" }}
                               class="input-text"
                               placeholder="First Name"
-                              value={props.officersForm[index]?.firstName}
+                              value={
+                                props.officersForm[index].firstName
+                                  ? props.officersForm[index].firstName.charAt(0).toUpperCase() +
+                                  props.officersForm[index].firstName.slice(1).toLowerCase()
+                                  : ""
+                              }
                               onChange={(e) => {
                                 const inputValue = e.target.value.trim();
                                 // Reject input if it contains numeric characters
@@ -1588,7 +1593,12 @@ const OfficerDetails = (props) => {
                               style={{ padding: "5px" }}
                               class="input-text"
                               placeholder="Last Name"
-                              value={props.officersForm[index]?.lastName}
+                              value={
+                                  props.officersForm[index].lastName
+                                    ? props.officersForm[index].lastName.charAt(0).toUpperCase() +
+                                    props.officersForm[index].lastName.slice(1).toLowerCase()
+                                    : ""
+                                }
                               onChange={(e) => {
                                 const inputValue = e.target.value;
 
@@ -1703,7 +1713,7 @@ const OfficerDetails = (props) => {
                           <div class="col-md-3 col-sm-12 text-start text-md-end">
                             <label class="fieldset-label required">
                               Email
-                              <span className="text-danger">*</span>
+                                <span className="text-danger">*</span>
                             </label>
                           </div>
                           <div class="col-md-9 col-sm-12">
@@ -1879,7 +1889,12 @@ const OfficerDetails = (props) => {
                                 style={{ padding: "5px" }}
                                 class="input-text"
                                 placeholder="First Name"
-                                value={props.officersForm[index]?.firstName}
+                                value={
+                                  props.officersForm[index].firstName
+                                    ? props.officersForm[index].firstName.charAt(0).toUpperCase() +
+                                    props.officersForm[index].firstName.slice(1).toLowerCase()
+                                    : ""
+                                }
                                 onChange={(e) => {
                                   const inputValue = e.target.value.trim();
                                   // Reject input if it contains numeric characters
@@ -1929,7 +1944,12 @@ const OfficerDetails = (props) => {
                                 style={{ padding: "5px" }}
                                 class="input-text"
                                 placeholder="Last Name"
-                                value={props.officersForm[index]?.lastName}
+                                value={
+                                  props.officersForm[index].lastName
+                                    ? props.officersForm[index].lastName.charAt(0).toUpperCase() +
+                                    props.officersForm[index].lastName.slice(1).toLowerCase()
+                                    : ""
+                                }
                                 onChange={(e) => {
                                   const inputValue = e.target.value;
 
@@ -2110,7 +2130,7 @@ const OfficerDetails = (props) => {
                             <div class="col-md-3 col-sm-12 text-start text-md-end">
                               <label class="fieldset-label required">
                                 Email
-                                <span className="text-danger">*</span>
+                                  <span className="text-danger">*</span>
                               </label>
                             </div>
                             <div class="col-md-9 col-sm-12">
@@ -2503,7 +2523,7 @@ const OtherInformation = (props) => {
                   </div>
                 </>
               )}
-              <div className="row fieldset">
+              {/* <div className="row fieldset">
                 <div class="col-md-3 col-sm-12 text-start text-md-end">
                   <label class="fieldset-label  required">
                     Preferred Currency
@@ -2533,7 +2553,7 @@ const OtherInformation = (props) => {
                     ""
                   )}
                 </div>
-              </div>
+              </div> */}
               <div className="row fieldset ">
                 <div class="col-md-3 col-sm-12 text-start text-md-end">
                   <label class="fieldset-label required">Website</label>

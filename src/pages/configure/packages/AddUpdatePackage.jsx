@@ -1911,6 +1911,7 @@ const AddUpdatePackage = (props) => {
       ?.map((item) => {
         let driverValue;
         let slabID;
+        let dateID;
         let variationID;
         let msgMapID;
         let msMapID;
@@ -1931,6 +1932,17 @@ const AddUpdatePackage = (props) => {
           variationID = defaultVariation.variationID;
           msgMapID = item.msgMapID;
           msMapID = item.msMapID;
+        } else if (
+          item.date &&
+          item.date.some((dateItem) => dateItem.isDefault)
+        ) {
+          const defaultDate = item.date.find(
+            (dateItem) => dateItem.isDefault
+          );
+          driverValue = defaultDate.dateValue ?? defaultDate.defaultDateValue ?? 0;
+          dateID = defaultDate.dateID;
+          msgMapID = item.msgMapID;
+          msMapID = item.msMapID;
         } else if (item.driverTypeID === 2) {
           driverValue = item.driverValue;
           slabID = item.slabID;
@@ -1945,6 +1957,9 @@ const AddUpdatePackage = (props) => {
           driverValue,
           variationID,
           slabID,
+          dateID,
+          enteredDate: item.enteredDate,
+          enteredDateFormat: item.enteredDateFormat
         };
       })
       .filter((item) => item.driverTypeID !== 1)
@@ -2564,6 +2579,8 @@ const AddUpdatePackage = (props) => {
           return item.slab.some((slab) => slab.isDefault);
         } else if (item.variation !== null) {
           return item.variation.some((variation) => variation.isDefault);
+        }  else if (item.date !== null) {
+          return item.date.some((date) => date.isDefault);
         } else {
           return false;
         }
@@ -2585,6 +2602,10 @@ const AddUpdatePackage = (props) => {
         slabID:
           item.slab !== null
             ? item.slab.find((slab) => slab.isDefault)?.slabID
+            : null,
+        dateID:
+          item.date !== null
+            ? item.date.find((date) => date.isDefault)?.dateID
             : null,
       }))
       .flat();
@@ -2702,7 +2723,6 @@ const AddUpdatePackage = (props) => {
                 const pricingList = service.pricingDriverList[i];
                 if (
                   pricingList.driverVisibility &&
-                  pricingList.driverTypeID !== 5 && pricingList.driverTypeID !== 6 &&
                   (pricingList.driverValue === undefined ||
                     pricingList.driverValue === null ||
                     pricingList.driverValue === "")
@@ -2739,7 +2759,6 @@ const AddUpdatePackage = (props) => {
 
                 if (
                   pricingList.driverVisibility &&
-                  pricingList.driverTypeID !== 5 && pricingList.driverTypeID !== 6 &&
                   (pricingList.driverValue === undefined ||
                     pricingList.driverValue === null ||
                     pricingList.driverValue === "")
@@ -3012,7 +3031,7 @@ const AddUpdatePackage = (props) => {
     } else if (activeTab === PackageHeader.AdditionalInformation) {
       // Filter the list based on driverTypeID being either 2 or 4
       const filteredList = additionalInformationList.filter(
-        (item) => item.driverTypeID === 2 || item.driverTypeID === 4 || item.driverTypeID === 3
+        (item) => item.driverTypeID === 2 || item.driverTypeID === 4 || item.driverTypeID === 3 || item.driverTypeID === 6
       );
       // Check if any of the filtered items have driverValue as null, empty string, or undefined
       const hasInvalidValues = filteredList.some(

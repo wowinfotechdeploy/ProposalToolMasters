@@ -3039,7 +3039,7 @@ const View_Proposals = () => {
                                                 <div className="row fieldset">
                                                   <div className="col-md-2 col-sm-12  text-md-end">
                                                     <label className="fieldset-label">
-                                                      Original Price ($
+                                                      Original Price (
                                                       {getCurrencySymbol(
                                                         ProposalObject.currencyID
                                                       )}
@@ -3119,7 +3119,7 @@ const View_Proposals = () => {
                                                   >
                                                     <div class="mt-2 text-md-end">
                                                       <label class="form-label">
-                                                        Discounted Price ($
+                                                        Discounted Price (
                                                         {getCurrencySymbol(
                                                           ProposalObject.currencyID
                                                         )}
@@ -3169,7 +3169,7 @@ const View_Proposals = () => {
                                                     {ProposalObject.quoteTypeID !==
                                                       4 && (
                                                       <th className="tr-table-class text-white text-right">
-                                                        Fees ($
+                                                        Fees (
                                                         {getCurrencySymbol(
                                                           ProposalObject.currencyID
                                                         )}
@@ -3378,7 +3378,7 @@ const View_Proposals = () => {
                                                 <div className="row fieldset">
                                                   <div className="col-md-2 col-sm-12  text-md-end">
                                                     <label className="fieldset-label">
-                                                      Original Price ($
+                                                      Original Price (
                                                       {getCurrencySymbol(
                                                         ProposalObject.currencyID
                                                       )}
@@ -3454,7 +3454,7 @@ const View_Proposals = () => {
                                                   >
                                                     <div class="mb-1  text-md-end">
                                                       <label class="form-label">
-                                                        Discounted Price ($
+                                                        Discounted Price (
                                                         {getCurrencySymbol(
                                                           ProposalObject.currencyID
                                                         )}
@@ -3506,7 +3506,7 @@ const View_Proposals = () => {
                                                     {ProposalObject.quoteTypeID !==
                                                       4 && (
                                                       <th className="tr-table-class text-white text-right">
-                                                        Fees ($
+                                                        Fees (
                                                         {getCurrencySymbol(
                                                           ProposalObject.currencyID
                                                         )}

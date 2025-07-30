@@ -111,7 +111,7 @@ function AddDeleteGlobalPricingDriverModal(props) {
           : null,
         date: GetGlobalPricingDriverData?.date
           ? GetGlobalPricingDriverData.date.map((item) => ({
-              dateKeyID: item.dateKeyID,
+              dateKeyID: null,
               dateFormat: item.dateFormat,
               defaultDateValue: item.defaultDateValue,
               blocks: item.blocks

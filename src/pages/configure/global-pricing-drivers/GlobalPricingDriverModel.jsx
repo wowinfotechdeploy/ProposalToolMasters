@@ -91,6 +91,7 @@ function Modal(props) {
       slabValue: "",
       slabFrom: 0,
       slabTo: 0,
+      decimalPlaces: null,
       isDefault: true,
     },
   ]);
@@ -154,6 +155,7 @@ function Modal(props) {
     getCrudPopUpTitleName,
     problematicInputRef,
     scrollUpDownByElementID,
+    formatNumberWithDecimals
   } = useContext(AuthContextProvider);
 
   //B] Initial useEffect : Will call when Add/Update button click from list page
@@ -250,6 +252,7 @@ function Modal(props) {
       slabValue: "",
       slabFrom: 0,
       slabTo: 0,
+      decimalPlaces: 2,
       isDefault: true,
     };
     slabs.push(newSlabs);
@@ -270,20 +273,57 @@ function Modal(props) {
   };
 
   //onchange For Change the Slab
+  // const OnSlabChange = (index, field, value) => {
+  //   let updatedSlabs = [...slabs];
+  //   updatedSlabs[index][field] = value;
+  //   if (value == 2) {
+  //     updatedSlabs[index][field] = value;
+  //     updatedSlabs.splice(index + 1);
+  //   }
+  //   setSlabs(updatedSlabs);
+  //   const slabTypeFilter = slabType.find(
+  //     (item) => item.slabTypeId === slabs[index].slabTypeID
+  //   );
+
+  // };
   const OnSlabChange = (index, field, value) => {
     let updatedSlabs = [...slabs];
+
+    if (field === "decimalPlaces") {
+      // Update decimalPlaces for ALL slabs
+      updatedSlabs = updatedSlabs.map(slab => {
+        const decimalPlaces = value;
+        const updatedSlab = {
+          ...slab,
+          decimalPlaces,
+        };
+
+        // Format slabFrom and slabTo to match the new decimal places
+        if (slab.slabFrom !== "") {
+          updatedSlab.slabFrom = parseFloat(slab.slabFrom).toFixed(decimalPlaces);
+        }
+
+        if (slab.slabTo !== "") {
+          updatedSlab.slabTo = parseFloat(slab.slabTo).toFixed(decimalPlaces);
+        }
+
+        return updatedSlab;
+      });
+
+      setSlabs(updatedSlabs);
+      return; // Exit early since handled
+    }
+
+    // Regular logic for other fields
     updatedSlabs[index][field] = value;
+
     if (value == 2) {
-      updatedSlabs[index][field] = value;
       updatedSlabs.splice(index + 1);
     }
+
     setSlabs(updatedSlabs);
-    const slabTypeFilter = slabType.find(
-      (item) => item.slabTypeId === slabs[index].slabTypeID
-    );
-
   };
-
+  
   function OnVariationsRadioChange(selectedIndex) {
     setErrorMessage("");
     const updatedVariations = variations.map((variation, index) => ({
@@ -312,6 +352,7 @@ function Modal(props) {
   const OnAddSlab = (i) => {
     setCount(count + 1);
     var fromValueForNewSlab = Number(slabs[slabs.length - 1].slabTo) + 0.01;
+    var existingDecimalPlaces = Number(slabs[slabs.length - 1].decimalPlaces) ?? 2;
     fromValueForNewSlab = Math.round(fromValueForNewSlab * 100) / 100;
     const newSlabs = {
       slabKeyID: null,
@@ -319,6 +360,7 @@ function Modal(props) {
       slabValue: "",
       slabFrom: fromValueForNewSlab, //Number(slabs[slabs.length - 1].slabTo) + 0.01,
       slabTo: "",
+      decimalPlaces: existingDecimalPlaces,
       isDefault: slabs.length === 0 ? true : false,
     };
 
@@ -1086,6 +1128,12 @@ function Modal(props) {
 
             const ModifySlab = ModelData.slab.map((item) => ({
               ...item,
+              slabFrom: item.slabFrom !== null && item.decimalPlaces !== undefined
+                ? parseFloat(item.slabFrom).toFixed(item.decimalPlaces ?? 2)
+                : item.slabFrom,
+              slabTo: item.slabTo !== null && item.decimalPlaces !== undefined
+                ? parseFloat(item.slabTo).toFixed(item.decimalPlaces ?? 2)
+                : item.slabTo,
               slabValue: item.slabValue,
             }));
 
@@ -1205,6 +1253,7 @@ function Modal(props) {
       quantity: quantityData,
       isDefault: globalPricingDriverObj.isDefault,
     };
+    console.log(ApiRequest_ParamsObj);
     //Check Validations if any
     //Return false if validation fails
     if (
@@ -1553,7 +1602,7 @@ function Modal(props) {
     const sanitizedInput = e.target.value
       .replace(/[^0-9.-]/g, "") // Allow only numeric, dot, and negative sign characters
       .slice(0, 16); // Limit to 8 characters (5 digits + 1 dot + 1 decimal + 1 negative sign)
-
+    const currentDecimalPlaces = slabs[index]?.decimalPlaces ?? 2;
     // Split the input into integer and decimal parts
     const [integerPart, decimalPart] = sanitizedInput.split(".");
 
@@ -2078,406 +2127,455 @@ function Modal(props) {
                         </button>
                       </p>
                     )} */}
+                    <div className="col-lg-6">
+                      <div className="mb-1">
+                        <label className="form-label">Decimal Places <span className="text-danger">*</span></label>
+                        <div className="input-group">
+                          <Select
+                            className="user-role-select"
+                            value={{
+                              value: slabs[0]?.decimalPlaces ?? 2,
+                              label: Utils.getDecimalPlaceLabel(slabs[0]?.decimalPlaces ?? 2),
+                            }}
+                            onChange={(selectedOption) =>
+                              OnSlabChange(0, "decimalPlaces", selectedOption.value)
+                            }
+                            options={Utils.DECIMAL_PLACE_OPTIONS}
+                          />
+                        </div>
+                      </div>
+                    </div>
                     {slabs?.map((i, index) => {
                       return (
-                        <div
-                          class="card-1 pricing-box p-4 mt-4"
-                          key={index}
-                          id={`Slab_Div_${index}`}
-                        >
-                          <div class="col-lg-6 col-md-6 ">
-                            <p
-                              class="office-name font-weight"
-                              style={{ width: "auto", zIndex: "0" }}
-                            >
-                              Slab{index + 1}
-                            </p>
-                          </div>
-
-                          <p
-                            class="delete delete-margin "
-                            style={{ marginBottom: "0", width: "auto" }}
+                        <>
+                          <div
+                            class="card-1 pricing-box p-4 mt-4"
+                            key={index}
+                            id={`Slab_Div_${index}`}
                           >
-                            <button
-                              disabled={props.disable}
-                              onClick={() => OnDeleteSlabs(index)}
-                              class="btn btn-sm btn-danger remove-item-btn d-flex gap-1 globalDriver"
-                            >
-                              <i class="ri-delete-bin-5-fill"></i>
-                              <p className="delete-margin font-12">
-                                Delete Slab
+                            <div class="col-lg-6 col-md-6 ">
+                              <p
+                                class="office-name font-weight"
+                                style={{ width: "auto", zIndex: "0" }}
+                              >
+                                Slab{index + 1}
                               </p>
-                            </button>
-                          </p>
-                          <div class="row mt-1">
-                            <div className="col-lg-6">
-                              <div className="mb-3 ">
-                                <label className="form-label">
-                                  Slab Type{" "}
-                                  <span className="text-danger">*</span>
-                                </label>
-                                <div className="input-group">
-                                  <Select
-                                    className="user-role-select"
-                                    onChange={(selectedOption) => {
-                                      setErrorMessage("");
-                                      OnSlabChange(
-                                        index,
-                                        "slabTypeID",
-                                        selectedOption.value
-                                      );
-                                    }}
-                                    value={slabType
-                                      ?.filter(
-                                        (item) =>
-                                          item.slabTypeId ===
-                                          slabs[index].slabTypeID
-                                      )
-                                      .map((i) => ({
-                                        value: i.slabTypeId,
-                                        label: i.slabTypeName,
-                                      }))}
-                                    options={slabType?.map((item) => ({
-                                      value: item.slabTypeId,
-                                      label: item.slabTypeName,
-                                    }))}
-                                    placeholder="Select..."
-                                  />
-                                </div>
-                                {slabError.slabType &&
-                                  slabs[index].slabTypeID === "" ? (
-                                  <label className="validation">
-                                    {ERROR_MESSAGES}
-                                  </label>
-                                ) : (
-                                  ""
-                                )}
-                              </div>
                             </div>
-                            {slabs && slabs[index]?.slabTypeID == "1" && (
-                              <>
-                                <div className="col-lg-6">
-                                  <div className="mb-3 ">
-                                    <label className="form-label">
-                                      Value{" "}
-                                      <span className="text-danger">*</span>
-                                    </label>
-                                    <div className="input-group">
-                                      <input
-                                        type="text"
-                                        className="input-text"
-                                        placeholder="Value"
-                                        value={
-                                          slabs[index].slabValue === ""
-                                            ? ""
-                                            : slabs[index].slabValue
-                                              .toString()
-                                              .replace(
-                                                /\B(?=(\d{3})+(?!\d))/g,
-                                                ","
-                                              )
-                                        }
-                                        onChange={(e) => {
-                                          DriverValue(e, index, "slabValue");
-                                        }}
-                                        onWheel={(e) => e.preventDefault()}
-                                      />
-                                    </div>
-                                    <div className="invalid-feedback">
-                                      Please enter Slab Value
-                                    </div>
-                                    {slabError.slabValue &&
-                                      slabs[index].slabValue === "" ? (
-                                      <label className="validation">
-                                        {ERROR_MESSAGES}
-                                      </label>
-                                    ) : (
-                                      ""
-                                    )}
-                                  </div>
-                                </div>
 
-                                <div className="col-lg-6">
-                                  <div className="mb-3 ">
-                                    <label
-                                      htmlFor="useremail"
-                                      className="form-label"
-                                    >
-                                      From{" "}
-                                      <span className="text-danger">*</span>
-                                    </label>
-                                    <div className="input-group">
-                                      <input
-                                        type="text"
-                                        className="input-text"
-                                        placeholder="From"
-                                        // disabled={props.disable}
-                                        disabled={index === 0 ? false : true}
-                                        value={
-                                          slabs[index].slabFrom === ""
-                                            ? ""
-                                            : slabs[index].slabFrom
-                                              .toString()
-                                              .replace(
-                                                /\B(?=(\d{3})+(?!\d))/g,
-                                                ","
-                                              )
-                                        }
-                                        // onChange={(e) => OnSlabChange(index, 'slabFrom', e.target.value)}
-                                        onChange={(e) => {
-                                          DriverValue(e, index, "slabFrom");
-                                        }}
-                                      />
-                                    </div>
-                                    <div className="invalid-feedback">
-                                      Please enter Slab Value
-                                    </div>
-                                    {slabError.slabValue &&
-                                      slabs[index].slabFrom === "" ? (
-                                      <label className="validation">
-                                        {ERROR_MESSAGES}
-                                      </label>
-                                    ) : (
-                                      ""
-                                    )}
+                            <p
+                              class="delete delete-margin "
+                              style={{ marginBottom: "0", width: "auto" }}
+                            >
+                              <button
+                                disabled={props.disable}
+                                onClick={() => OnDeleteSlabs(index)}
+                                class="btn btn-sm btn-danger remove-item-btn d-flex gap-1 globalDriver"
+                              >
+                                <i class="ri-delete-bin-5-fill"></i>
+                                <p className="delete-margin font-12">
+                                  Delete Slab
+                                </p>
+                              </button>
+                            </p>
+                            <div class="row mt-1">
+                              <div className="col-lg-6">
+                                <div className="mb-3 ">
+                                  <label className="form-label">
+                                    Slab Type{" "}
+                                    <span className="text-danger">*</span>
+                                  </label>
+                                  <div className="input-group">
+                                    <Select
+                                      className="user-role-select"
+                                      onChange={(selectedOption) => {
+                                        setErrorMessage("");
+                                        OnSlabChange(
+                                          index,
+                                          "slabTypeID",
+                                          selectedOption.value
+                                        );
+                                      }}
+                                      value={slabType
+                                        ?.filter(
+                                          (item) =>
+                                            item.slabTypeId ===
+                                            slabs[index].slabTypeID
+                                        )
+                                        .map((i) => ({
+                                          value: i.slabTypeId,
+                                          label: i.slabTypeName,
+                                        }))}
+                                      options={slabType?.map((item) => ({
+                                        value: item.slabTypeId,
+                                        label: item.slabTypeName,
+                                      }))}
+                                      placeholder="Select..."
+                                    />
                                   </div>
-                                </div>
-                                <div className="col-lg-6">
-                                  <div className="mb-3 ">
-                                    <label className="form-label">
-                                      To <span className="text-danger">*</span>
+                                  {slabError.slabType &&
+                                  slabs[index].slabTypeID === "" ? (
+                                    <label className="validation">
+                                      {ERROR_MESSAGES}
                                     </label>
-                                    <div className="input-group">
-                                      <input
-                                        type="text"
-                                        className="input-text"
-                                        disabled={props.disable}
-                                        placeholder="To"
-                                        value={
-                                          slabs[index].slabTo === ""
-                                            ? ""
-                                            : slabs[index].slabTo
-                                              .toString()
-                                              .replace(
-                                                /\B(?=(\d{3})+(?!\d))/g,
-                                                ","
-                                              )
-                                        }
-                                        onChange={(e) => {
-                                          DriverValue(e, index, "slabTo");
-                                        }}
-                                      />
+                                  ) : (
+                                    ""
+                                  )}
+                                </div>
+                              </div>
+                              {slabs && slabs[index]?.slabTypeID == "1" && (
+                                <>
+                                  <div className="col-lg-6">
+                                    <div className="mb-3 ">
+                                      <label className="form-label">
+                                        Value{" "}
+                                        <span className="text-danger">*</span>
+                                      </label>
+                                      <div className="input-group">
+                                        <input
+                                          type="text"
+                                          className="input-text"
+                                          placeholder="Value"
+                                          value={
+                                            slabs[index].slabValue === ""
+                                              ? ""
+                                              : slabs[index].slabValue
+                                                  .toString()
+                                                  .replace(
+                                                    /\B(?=(\d{3})+(?!\d))/g,
+                                                    ","
+                                                  )
+                                          }
+                                          onChange={(e) => {
+                                            DriverValue(e, index, "slabValue");
+                                          }}
+                                          onWheel={(e) => e.preventDefault()}
+                                        />
+                                      </div>
+                                      <div className="invalid-feedback">
+                                        Please enter Slab Value
+                                      </div>
+                                      {slabError.slabValue &&
+                                      slabs[index].slabValue === "" ? (
+                                        <label className="validation">
+                                          {ERROR_MESSAGES}
+                                        </label>
+                                      ) : (
+                                        ""
+                                      )}
                                     </div>
-                                    <div className="invalid-feedback">
-                                      Please enter Slab Value
+                                  </div>
+
+                                  <div className="col-lg-6">
+                                    <div className="mb-3 ">
+                                      <label
+                                        htmlFor="useremail"
+                                        className="form-label"
+                                      >
+                                        From{" "}
+                                        <span className="text-danger">*</span>
+                                      </label>
+                                      <div className="input-group">
+                                        <input
+                                          type="text"
+                                          className="input-text"
+                                          placeholder="From"
+                                          // disabled={props.disable}
+                                          disabled={index === 0 ? false : true}
+                                          value={
+                                            slabs[index].slabFrom === ""
+                                              ? ""
+                                              : slabs[index].slabFrom
+                                                .toString()
+                                                .replace(
+                                                  /\B(?=(\d{3})+(?!\d))/g,
+                                                  ","
+                                                )
+                                          }
+                                          // onChange={(e) => OnSlabChange(index, 'slabFrom', e.target.value)}
+                                          onChange={(e) => {
+                                            DriverValue(e, index, "slabFrom");
+                                          }}
+                                          onBlur={() => {
+                                            const updatedSlabs = [...slabs];
+                                            const userInput = updatedSlabs[index].slabFrom;
+                                            const numberValue = parseFloat(userInput);
+                                            const decimalPlaces = updatedSlabs[index].decimalPlaces ?? 2;
+
+                                            if (!isNaN(numberValue)) {
+                                              const roundedValue = numberValue.toFixed(decimalPlaces);
+                                              updatedSlabs[index].slabFrom = roundedValue;
+                                              setSlabs(updatedSlabs);
+                                            }
+                                          }}
+                                        />
+                                      </div>
+                                      <div className="invalid-feedback">
+                                        Please enter Slab Value
+                                      </div>
+                                      {slabError.slabValue &&
+                                      slabs[index].slabFrom === "" ? (
+                                        <label className="validation">
+                                          {ERROR_MESSAGES}
+                                        </label>
+                                      ) : (
+                                        ""
+                                      )}
                                     </div>
-                                    {slabError.slabValue &&
+                                  </div>
+                                  <div className="col-lg-6">
+                                    <div className="mb-3 ">
+                                      <label className="form-label">
+                                        To{" "}
+                                        <span className="text-danger">*</span>
+                                      </label>
+                                      <div className="input-group">
+                                        <input
+                                          type="text"
+                                          className="input-text"
+                                          disabled={props.disable}
+                                          placeholder="To"
+                                          value={
+                                            slabs[index].slabTo === ""
+                                              ? ""
+                                              : slabs[index].slabTo
+                                                  .toString()
+                                                  .replace(
+                                                    /\B(?=(\d{3})+(?!\d))/g,
+                                                    ","
+                                                  )
+                                          }
+                                          onChange={(e) => {
+                                            DriverValue(e, index, "slabTo");
+                                          }}
+                                          onBlur={() => {
+                                            const updatedSlabs = [...slabs];
+                                            const userInput = updatedSlabs[index].slabTo;
+                                            const numberValue = parseFloat(userInput);
+                                            const decimalPlaces = updatedSlabs[index].decimalPlaces ?? 2;
+
+                                            if (!isNaN(numberValue)) {
+                                              const roundedValue = numberValue.toFixed(decimalPlaces);
+                                              updatedSlabs[index].slabTo = roundedValue;
+                                              setSlabs(updatedSlabs);
+                                            }
+                                          }}
+                                        />
+                                      </div>
+                                      <div className="invalid-feedback">
+                                        Please enter Slab Value
+                                      </div>
+                                      {slabError.slabValue &&
                                       parseFloat(slabs[index].slabTo) <
-                                      parseFloat(slabs[index].slabFrom) ? (
-                                      <label className="validation">
-                                        The field must not be less than{" "}
-                                        {slabs[index].slabFrom}.
-                                      </label>
-                                    ) : (
-                                      ""
-                                    )}
-                                    {slabError.slabValue &&
+                                        parseFloat(slabs[index].slabFrom) ? (
+                                        <label className="validation">
+                                          The field must not be less than{" "}
+                                          {slabs[index].slabFrom}.
+                                        </label>
+                                      ) : (
+                                        ""
+                                      )}
+                                      {slabError.slabValue &&
                                       slabs[index].slabTo === "" ? (
-                                      <label className="validation">
-                                        {ERROR_MESSAGES}
-                                      </label>
-                                    ) : (
-                                      ""
-                                    )}
+                                        <label className="validation">
+                                          {ERROR_MESSAGES}
+                                        </label>
+                                      ) : (
+                                        ""
+                                      )}
+                                    </div>
                                   </div>
-                                </div>
-                                <div
-                                  className="col-lg-12 col-12"
-                                  style={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                  }}
-                                >
-                                  {" "}
-                                  <input
-                                    style={{ marginRight: "1rem" }}
-                                    type="radio"
-                                    id={`slab block${index}`}
-                                    disabled={props.disable}
-                                    checked={slabs[index].isDefault}
-                                    name="slabs"
-                                    onChange={(e) => OnSlabsRadioChange(index)}
-                                  />
-                                  <label
-                                    className="toggle"
-                                    name="slabs"
-                                    style={{ cursor: "pointer" }}
-                                    htmlFor={`slab block${index}`}
+                                  <div
+                                    className="col-lg-12 col-12"
+                                    style={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                    }}
                                   >
-                                    Set to Default
-                                  </label>
-                                </div>
-                              </>
-                            )}
-                            {slabs && slabs[index]?.slabTypeID == "2" && (
-                              <>
-                                <div className="col-lg-6">
-                                  <div className="mb-3 ">
+                                    {" "}
+                                    <input
+                                      style={{ marginRight: "1rem" }}
+                                      type="radio"
+                                      id={`slab block${index}`}
+                                      disabled={props.disable}
+                                      checked={slabs[index].isDefault}
+                                      name="slabs"
+                                      onChange={(e) =>
+                                        OnSlabsRadioChange(index)
+                                      }
+                                    />
                                     <label
-                                      htmlFor="useremail"
-                                      className="form-label"
+                                      className="toggle"
+                                      name="slabs"
+                                      style={{ cursor: "pointer" }}
+                                      htmlFor={`slab block${index}`}
                                     >
-                                      Increment Value By{" "}
-                                      <span className="text-danger">*</span>
+                                      Set to Default
                                     </label>
-                                    <div className="input-group">
-                                      <input
-                                        type="text"
-                                        className="input-text"
-                                        placeholder="Increment Value By"
-                                        value={
-                                          slabs[index].slabValue === ""
-                                            ? ""
-                                            : slabs[index].slabValue
-                                              .toString()
-                                              .replace(
-                                                /\B(?=(\d{3})+(?!\d))/g,
-                                                ","
-                                              )
-                                        }
-                                        onChange={(e) => {
-                                          DriverValue(e, index, "slabValue");
-                                        }}
-                                      />
-                                    </div>
-                                    <div className="invalid-feedback">
-                                      Please enter Slab Value
-                                    </div>
-                                    {slabError.slabValue &&
+                                  </div>
+                                </>
+                              )}
+                              {slabs && slabs[index]?.slabTypeID == "2" && (
+                                <>
+                                  <div className="col-lg-6">
+                                    <div className="mb-3 ">
+                                      <label
+                                        htmlFor="useremail"
+                                        className="form-label"
+                                      >
+                                        Increment Value By{" "}
+                                        <span className="text-danger">*</span>
+                                      </label>
+                                      <div className="input-group">
+                                        <input
+                                          type="text"
+                                          className="input-text"
+                                          placeholder="Increment Value By"
+                                          value={
+                                            slabs[index].slabValue === ""
+                                              ? ""
+                                              : slabs[index].slabValue
+                                                  .toString()
+                                                  .replace(
+                                                    /\B(?=(\d{3})+(?!\d))/g,
+                                                    ","
+                                                  )
+                                          }
+                                          onChange={(e) => {
+                                            DriverValue(e, index, "slabValue");
+                                          }}
+                                        />
+                                      </div>
+                                      <div className="invalid-feedback">
+                                        Please enter Slab Value
+                                      </div>
+                                      {slabError.slabValue &&
                                       slabs[index].slabValue === "" ? (
-                                      <label className="validation">
-                                        {ERROR_MESSAGES}
-                                      </label>
-                                    ) : (
-                                      ""
-                                    )}
-                                  </div>
-                                </div>
-
-                                <div className="col-lg-6">
-                                  <div className="mb-3 ">
-                                    <label className="form-label">
-                                      From{" "}
-                                      <span className="text-danger">*</span>
-                                    </label>
-                                    <div className="input-group">
-                                      <input
-                                        type="text"
-                                        className="input-text"
-                                        placeholder="From"
-                                        disabled={
-                                          slabs[index].isDefault === false
-                                            ? true
-                                            : false
-                                        }
-                                        value={
-                                          slabs[index].slabFrom === ""
-                                            ? 0
-                                            : slabs[index].slabFrom
-                                              .toString()
-                                              .replace(
-                                                /\B(?=(\d{3})+(?!\d))/g,
-                                                ","
-                                              )
-                                        }
-                                        onChange={(e) => {
-                                          DriverValue(e, index, "slabFrom");
-                                        }}
-                                      />
+                                        <label className="validation">
+                                          {ERROR_MESSAGES}
+                                        </label>
+                                      ) : (
+                                        ""
+                                      )}
                                     </div>
+                                  </div>
 
-                                    {slabError.slabValue &&
+                                  <div className="col-lg-6">
+                                    <div className="mb-3 ">
+                                      <label className="form-label">
+                                        From{" "}
+                                        <span className="text-danger">*</span>
+                                      </label>
+                                      <div className="input-group">
+                                        <input
+                                          type="text"
+                                          className="input-text"
+                                          placeholder="From"
+                                          disabled={
+                                            slabs[index].isDefault === false
+                                              ? true
+                                              : false
+                                          }
+                                          value={
+                                            slabs[index].slabFrom === ""
+                                              ? 0
+                                              : slabs[index].slabFrom
+                                                  .toString()
+                                                  .replace(
+                                                    /\B(?=(\d{3})+(?!\d))/g,
+                                                    ","
+                                                  )
+                                          }
+                                          onChange={(e) => {
+                                            DriverValue(e, index, "slabFrom");
+                                          }}
+                                        />
+                                      </div>
+
+                                      {slabError.slabValue &&
                                       slabs[index].slabFrom === "" ? (
-                                      <label className="validation">
-                                        {ERROR_MESSAGES}
-                                      </label>
-                                    ) : (
-                                      ""
-                                    )}
-                                  </div>
-                                </div>
-                                <div className="col-lg-6">
-                                  <div className="mb-3 ">
-                                    <label
-                                      htmlFor="useremail"
-                                      className="form-label"
-                                    >
-                                      Increment Slab By{" "}
-                                      <span className="text-danger">*</span>
-                                    </label>
-                                    <div className="input-group">
-                                      <input
-                                        type="text"
-                                        className="input-text"
-                                        placeholder="Increment Slab By"
-                                        disabled={props.disable}
-                                        value={
-                                          slabs[index].slabTo === ""
-                                            ? ""
-                                            : slabs[index].slabTo
-                                              .toString()
-                                              .replace(
-                                                /\B(?=(\d{3})+(?!\d))/g,
-                                                ","
-                                              )
-                                        }
-                                        // onChange={(e) => OnSlabChange(index, 'slabTo', e.target.value)}
-                                        onChange={(e) => {
-                                          DriverValue(e, index, "slabTo");
-                                        }}
-                                      />
+                                        <label className="validation">
+                                          {ERROR_MESSAGES}
+                                        </label>
+                                      ) : (
+                                        ""
+                                      )}
                                     </div>
-                                    {slabError.slabValue &&
-                                      slabs[index].slabTo === "" ? (
-                                      <label className="validation">
-                                        {ERROR_MESSAGES}
-                                      </label>
-                                    ) : (
-                                      ""
-                                    )}
                                   </div>
-                                </div>
-                                <div
-                                  className="col-lg-12 col-12"
-                                  style={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                  }}
-                                >
-                                  {" "}
-                                  <input
-                                    style={{ marginRight: "1rem" }}
-                                    type="radio"
-                                    id={`incremental slab${index}`}
-                                    disabled={props.disable}
-                                    defaultChecked
-                                    checked={slabs[index].isDefault}
-                                    name="slabs"
-                                    onChange={(e) => OnSlabsRadioChange(index)}
-                                  />
-                                  <label
-                                    className="toggle"
-                                    name="slabs"
-                                    style={{ cursor: "pointer" }}
-                                    htmlFor={`incremental slab${index}`}
+                                  <div className="col-lg-6">
+                                    <div className="mb-3 ">
+                                      <label
+                                        htmlFor="useremail"
+                                        className="form-label"
+                                      >
+                                        Increment Slab By{" "}
+                                        <span className="text-danger">*</span>
+                                      </label>
+                                      <div className="input-group">
+                                        <input
+                                          type="text"
+                                          className="input-text"
+                                          placeholder="Increment Slab By"
+                                          disabled={props.disable}
+                                          value={
+                                            slabs[index].slabTo === ""
+                                              ? ""
+                                              : slabs[index].slabTo
+                                                  .toString()
+                                                  .replace(
+                                                    /\B(?=(\d{3})+(?!\d))/g,
+                                                    ","
+                                                  )
+                                          }
+                                          // onChange={(e) => OnSlabChange(index, 'slabTo', e.target.value)}
+                                          onChange={(e) => {
+                                            DriverValue(e, index, "slabTo");
+                                          }}
+                                        />
+                                      </div>
+                                      {slabError.slabValue &&
+                                      slabs[index].slabTo === "" ? (
+                                        <label className="validation">
+                                          {ERROR_MESSAGES}
+                                        </label>
+                                      ) : (
+                                        ""
+                                      )}
+                                    </div>
+                                  </div>
+                                  <div
+                                    className="col-lg-12 col-12"
+                                    style={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                    }}
                                   >
-                                    Set to Default
-                                  </label>
-                                </div>
-                              </>
-                            )}
+                                    {" "}
+                                    <input
+                                      style={{ marginRight: "1rem" }}
+                                      type="radio"
+                                      id={`incremental slab${index}`}
+                                      disabled={props.disable}
+                                      defaultChecked
+                                      checked={slabs[index].isDefault}
+                                      name="slabs"
+                                      onChange={(e) =>
+                                        OnSlabsRadioChange(index)
+                                      }
+                                    />
+                                    <label
+                                      className="toggle"
+                                      name="slabs"
+                                      style={{ cursor: "pointer" }}
+                                      htmlFor={`incremental slab${index}`}
+                                    >
+                                      Set to Default
+                                    </label>
+                                  </div>
+                                </>
+                              )}
+                            </div>
                           </div>
-                        </div>
+                        </>
                       );
                     })}
                     {/* {slabs && slabs[slabs.length - 1]?.slabTypeID == "1" && (

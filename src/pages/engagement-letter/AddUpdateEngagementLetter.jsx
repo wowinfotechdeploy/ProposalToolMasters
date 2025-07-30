@@ -6122,7 +6122,7 @@ const Add_Update_Engagement_Letter = () => {
         } = ModelData.otherInformation;
         if(preferredCurrencyId === 1) {
           setTaxName("VAT");
-          setCurrencySymbol("{props.currencySymbol}");
+          setCurrencySymbol("£");
         } else if(preferredCurrencyId === 2) {
           setTaxName("EU VAT");
           setCurrencySymbol("€");
@@ -9081,6 +9081,7 @@ const Add_Update_Engagement_Letter = () => {
       ?.map((item) => {
         let driverValue;
         let slabID;
+        let dateID;
         let variationID;
         let msgMapID;
         let msMapID;
@@ -9101,6 +9102,17 @@ const Add_Update_Engagement_Letter = () => {
           variationID = defaultVariation.variationID;
           msgMapID = item.msgMapID;
           msMapID = item.msMapID;
+        } else if (
+          item.date &&
+          item.date.some((dateItem) => dateItem.isDefault)
+        ) {
+          const defaultDate = item.date.find(
+            (dateItem) => dateItem.isDefault
+          );
+          driverValue = defaultDate.dateValue ?? defaultDate.defaultDateValue ?? 0;
+          dateID = defaultDate.dateID;
+          msgMapID = item.msgMapID;
+          msMapID = item.msMapID;
         } else if (item.driverTypeID === 2 || item.driverTypeID === 1) {
           driverValue = item.driverValue === null ? 0 : item.driverValue;
           slabID = item.slabID;
@@ -9115,6 +9127,10 @@ const Add_Update_Engagement_Letter = () => {
           driverValue,
           variationID,
           slabID,
+          dateID,
+          enteredText: item.enteredText,
+          enteredDate: item.enteredDate,
+          enteredDateFormat: item.enteredDateFormat,
         };
       })
       .filter((item) => item.driverTypeID !== 1)
@@ -9450,36 +9466,36 @@ const Add_Update_Engagement_Letter = () => {
               }
               if (
                 pricingList.driverVisibility &&
-                (pricingList.driverTypeID === 5 && pricingList.text[0]?.textValue !== null) &&
+                (pricingList.driverTypeID === 5) &&
                 (pricingList.enteredText === undefined ||
                   pricingList.enteredText === null ||
                   pricingList.enteredText === "")
               ) {
                 hasUndefinedTextOrDateorquantityDriver = true;
               }
-              if (
-                pricingList.driverVisibility &&
-                pricingList.driverTypeID === 2 &&
-                Number(pricingList.driverValue)
-              ) {
-                const value = Number(pricingList.driverValue);
-                const from = pricingList.quantity?.[0]?.quantityFrom;
-                const to = pricingList.quantity?.[0]?.quantityTo;
+              // if (
+              //   pricingList.driverVisibility &&
+              //   pricingList.driverTypeID === 2 &&
+              //   Number(pricingList.driverValue)
+              // ) {
+              //   const value = Number(pricingList.driverValue);
+              //   const from = pricingList.quantity?.[0]?.quantityFrom;
+              //   const to = pricingList.quantity?.[0]?.quantityTo;
 
-                const parsedFrom = Number(from);
-                const parsedTo = Number(to);
+              //   const parsedFrom = Number(from);
+              //   const parsedTo = Number(to);
 
-                const hasFrom = from !== undefined && from !== null && from !== '' && !isNaN(parsedFrom);
-                const hasTo = to !== undefined && to !== null && to !== '' && !isNaN(parsedTo);
+              //   const hasFrom = from !== undefined && from !== null && from !== '' && !isNaN(parsedFrom);
+              //   const hasTo = to !== undefined && to !== null && to !== '' && !isNaN(parsedTo);
 
-                if (
-                  (hasFrom && hasTo && (value < parsedFrom || value > parsedTo)) ||
-                  (hasFrom && !hasTo && value < parsedFrom) ||
-                  (!hasFrom && hasTo && value > parsedTo)
-                ) {
-                  hasUndefinedTextOrDateorquantityDriver = true;
-                }
-              }
+              //   if (
+              //     (hasFrom && hasTo && (value < parsedFrom || value > parsedTo)) ||
+              //     (hasFrom && !hasTo && value < parsedFrom) ||
+              //     (!hasFrom && hasTo && value > parsedTo)
+              //   ) {
+              //     hasUndefinedTextOrDateorquantityDriver = true;
+              //   }
+              // }
               }
             }
           });
@@ -9536,29 +9552,29 @@ const Add_Update_Engagement_Letter = () => {
               ) {
                 hasUndefinedTextOrDateorquantityDriver = true;
               }
-              if (
-                pricingList.driverVisibility &&
-                pricingList.driverTypeID === 2 &&
-                Number(pricingList.driverValue)
-              ) {
-                const value = Number(pricingList.driverValue);
-                const from = pricingList.quantity?.[0]?.quantityFrom;
-                const to = pricingList.quantity?.[0]?.quantityTo;
+              // if (
+              //   pricingList.driverVisibility &&
+              //   pricingList.driverTypeID === 2 &&
+              //   Number(pricingList.driverValue)
+              // ) {
+              //   const value = Number(pricingList.driverValue);
+              //   const from = pricingList.quantity?.[0]?.quantityFrom;
+              //   const to = pricingList.quantity?.[0]?.quantityTo;
 
-                const parsedFrom = Number(from);
-                const parsedTo = Number(to);
+              //   const parsedFrom = Number(from);
+              //   const parsedTo = Number(to);
 
-                const hasFrom = from !== undefined && from !== null && from !== '' && !isNaN(parsedFrom);
-                const hasTo = to !== undefined && to !== null && to !== '' && !isNaN(parsedTo);
+              //   const hasFrom = from !== undefined && from !== null && from !== '' && !isNaN(parsedFrom);
+              //   const hasTo = to !== undefined && to !== null && to !== '' && !isNaN(parsedTo);
 
-                if (
-                  (hasFrom && hasTo && (value < parsedFrom || value > parsedTo)) ||
-                  (hasFrom && !hasTo && value < parsedFrom) ||
-                  (!hasFrom && hasTo && value > parsedTo)
-                ) {
-                  hasUndefinedTextOrDateorquantityDriver = true;
-                }
-              }
+              //   if (
+              //     (hasFrom && hasTo && (value < parsedFrom || value > parsedTo)) ||
+              //     (hasFrom && !hasTo && value < parsedFrom) ||
+              //     (!hasFrom && hasTo && value > parsedTo)
+              //   ) {
+              //     hasUndefinedTextOrDateorquantityDriver = true;
+              //   }
+              // }
               }
             }
           });
@@ -9575,6 +9591,7 @@ const Add_Update_Engagement_Letter = () => {
           RecurringServiceListLength.length >= 1 ||
           OnOffServiceListLength.length >= 1
         ) {
+          // console.log("Hee")
           setIsValidForm({
             ...isValidForm,
             BasicForm: true,
@@ -9940,13 +9957,14 @@ const Add_Update_Engagement_Letter = () => {
       }
     } else if (activeTab === EngagementLetterHeader.AdditionalInformation) {
       // Filter the list based on driverTypeID being either 2 or 4
-
+      console.log(additionalInformationList);
       let hasError = false;
       const filteredList = additionalInformationList.filter(
         (item) =>
           item.driverTypeID === 2 ||
           item.driverTypeID === 4 ||
-          item.driverTypeID === 3
+          item.driverTypeID === 3 ||
+          item.driverTypeID === 6
       );
       // Check if any of the filtered items have driverValue as null, empty string, or undefined
 
@@ -10568,6 +10586,8 @@ const Add_Update_Engagement_Letter = () => {
           return item.slab.some((slab) => slab.isDefault);
         } else if (item.variation !== null) {
           return item.variation.some((variation) => variation.isDefault);
+        } else if (item.date !== null) {
+          return item.date.some((date) => date.isDefault);
         } else {
           return false;
         }
@@ -10585,6 +10605,10 @@ const Add_Update_Engagement_Letter = () => {
           item.slab !== null
             ? item.slab.find((slab) => slab.isDefault)?.slabID
             : null,
+        dateID:
+          item.date !== null
+            ? item.date.find((date) => date.isDefault)?.dateID
+            : null
       }))
       .flat();
 
@@ -10691,6 +10715,8 @@ const Add_Update_Engagement_Letter = () => {
                   driverValue: null,
                   variationID: null,
                   slabID: null,
+                  dateID: null,
+                  textID: null
                 };
               }
             })
@@ -10714,6 +10740,8 @@ const Add_Update_Engagement_Letter = () => {
         return item.slab.some((slab) => slab.isDefault);
       } else if (item.variation !== null) {
         return item.variation.some((variation) => variation.isDefault);
+      } else if (item.date !== null) {
+          return item.date.some((date) => date.isDefault);
       } else {
         return false;
       }
@@ -10731,6 +10759,10 @@ const Add_Update_Engagement_Letter = () => {
           item.slab !== null
             ? item.slab.find((slab) => slab.isDefault)?.slabID
             : null,
+        dateID:
+          item.date !== null
+            ? item.date.find((date) => date.isDefault)?.dateID
+            : null
       }))
       .flat();
 
