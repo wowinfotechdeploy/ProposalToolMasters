@@ -11260,6 +11260,8 @@ const Add_Update_Proposal = (props) => {
           return item.variation.some((variation) => variation.isDefault);
         } else if (item.driverTypeID === 6) {
           return item.date.some((date) => date.isDefault);
+        } else if (item.driverTypeID === 5) {
+          return true;
         } else {
           return false;
         }
@@ -11280,7 +11282,11 @@ const Add_Update_Proposal = (props) => {
         dateID:
           item.date !== null
             ? item.date.find((date) => date.isDefault)?.dateID
-            : null
+            : null,
+        textID:
+          item.text !== null
+        ? item.text?.[0]?.textID ?? null
+        : null
       }))
       .flat();
 
@@ -11417,6 +11423,8 @@ const Add_Update_Proposal = (props) => {
           return item.variation.some((variation) => variation.isDefault);
         } else if (item.date !== null) {
           return item.date.some((date) => date.isDefault);
+        } else if (item.text !== null) {
+          return true;
         } else {
           return false;
         }
@@ -11438,6 +11446,10 @@ const Add_Update_Proposal = (props) => {
           item.date !== null
             ? item.date.find((date) => date.isDefault)?.dateID
             : null,
+       textID:
+          item.text !== null
+        ? item.text?.[0]?.textID ?? null
+        : null
       }))
       .flat();
 
@@ -15050,9 +15062,9 @@ const Add_Update_Proposal = (props) => {
         // If defaultTemplateObject is not constructed from filteredRecords, construct it from defaultTemplateOptions
         if (!defaultTemplateObject && defaultTemplateOptions.length > 0) {
           defaultTemplateObject = {
-            selectTemplateTypeId: defaultTemplateOptions[0]?.value,
-            templateID: defaultTemplateOptions[0].templateID,
-            fontFamilyID: defaultTemplateOptions[0]?.fontFamilyID,
+            selectTemplateTypeId: defaultTemplateOptions?.[0]?.value,
+            templateID: defaultTemplateOptions?.[0].templateID,
+            fontFamilyID: defaultTemplateOptions?.[0]?.fontFamilyID,
           };
         }
         // else if (!defaultTemplateObject) {

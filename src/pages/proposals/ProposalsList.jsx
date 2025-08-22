@@ -38,6 +38,7 @@ import FilterModel from "../../components/FilterModel";
 import * as XLSX from "xlsx";
 import { GetNOBTypeLookupList } from "../../redux/Services/Master/NOBTypeLookupListApi";
 import { GetProspectTypeVariationLookupList } from "../../redux/Services/Master/BusinessTypeLookupListApi";
+import { GetServiceUpdatedAfterSendingQuoteOrContract } from "../../redux/Services/Config/ServicesApi";
 import ViewPlan from "../../components/ViewPlan";
 import { Base_Url } from "../../Base-Url/Base_Url";
 import SuccessModal from "../../components/SuccessModal";
@@ -93,6 +94,7 @@ const Proposals = () => {
   const [fromDate, setFromDate] = useState(null);
   const [selectedRows, setSelectedRows] = useState([]);
   const [toDate, setToDate] = useState(null);
+  const [isCopyPending, setIsCopyPending] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [status, setStatus] = useState("");
   const [oldProposalListCount, setOldProposalListCount] = useState(0);
@@ -663,20 +665,117 @@ const Proposals = () => {
   };
 
   //handle Skip to El
-  const HandleSkippedToEL = (item) => {
-    // Update modelRequestData state
-    setModelRequestData((prevData) => ({
-      ...prevData,
-      quoteKeyID: item.quoteKeyID,
+  // const HandleSkippedToEL = (item) => {
+  //   // Update modelRequestData state
+  //   setModelRequestData((prevData) => ({
+  //     ...prevData,
+  //     quoteKeyID: item.quoteKeyID,
+  //   }));
+
+  //   // Create addEngagementLetterData
+  //   const addEngagementLetterData = item
+  //     ? { QuoteKeyID: item.quoteKeyID }
+  //     : { QuoteKeyID: null };
+
+  //   // Navigate to /add-engagement-letter with state
+  //   navigate("/add-engagement-letter", { state: addEngagementLetterData });
+  // };
+
+  const HandleSkippedToEL = async (item, confirmed = false) => {
+    // keep quoteKeyID in state for confirm use
+    setModelRequestData(prev => ({
+      ...prev,
+      quoteKeyID: item?.quoteKeyID ?? prev.quoteKeyID,
     }));
 
-    // Create addEngagementLetterData
-    const addEngagementLetterData = item
-      ? { QuoteKeyID: item.quoteKeyID }
-      : { QuoteKeyID: null };
+    try {
+      if (!confirmed) {
+        setLoader(true);
+        const checkRes = await GetServiceUpdatedAfterSendingQuoteOrContract(
+          item.quoteKeyID,
+          "Quotation" // or "Contract" if that’s the right module for your EL flow
+        );
+        setLoader(false);
 
-    // Navigate to /add-engagement-letter with state
-    navigate("/add-engagement-letter", { state: addEngagementLetterData });
+        if (checkRes?.data?.statusCode === 200) {
+          const {
+            isServiceUpdatedAfter: serviceUpdatedAfterSent,
+            isServiceDeletedAfter: serviceDeletedAfterSent,
+            isPackageUpdatedAfter: packageUpdatedAfterSent,
+            isPackageDeletedAfter: packageDeletedAfterSent,
+            updatedPackageNames,
+            deletedPackageNames,
+            deletedServiceNames,
+            updatedServiceNames,
+          } = checkRes.data?.responseData?.data || {};
+
+          // Build message using only \n (the modal already uses white-space: pre-wrap)
+          let message = "";
+
+          // If updated items exist
+          if (serviceUpdatedAfterSent || packageUpdatedAfterSent) {
+            message += "Following Services or Packages were updated which may affect the Engagement Letter. Do you want to proceed?\n";
+
+            if (serviceUpdatedAfterSent && updatedServiceNames?.length > 0) {
+              message += "\nServices:\n";
+              message += updatedServiceNames.map(s => `• ${s}`).join("\n") + "\n";
+            }
+
+            if (packageUpdatedAfterSent && updatedPackageNames?.length > 0) {
+              message += "\nPackages:\n";
+              message += updatedPackageNames.map(p => `• ${p}`).join("\n") + "\n";
+            }
+
+            message += "\n"; // spacer if both updated & deleted exist
+          }
+
+          // If deleted items exist
+          if (serviceDeletedAfterSent || packageDeletedAfterSent) {
+            message += "Following Services or Packages were deleted which may affect the Engagement Letter. Do you want to proceed?\n";
+
+            if (serviceDeletedAfterSent && deletedServiceNames?.length > 0) {
+              message += "\nServices:\n";
+              message += deletedServiceNames.map(s => `- ${s}`).join("\n") + "\n";
+            }
+
+            if (packageDeletedAfterSent && deletedPackageNames?.length > 0) {
+              message += "\nPackages:\n";
+              message += deletedPackageNames.map(p => `- ${p}`).join("\n") + "\n";
+            }
+          }
+
+          // If anything changed, open confirm modal for the EL flow
+          if (
+            serviceUpdatedAfterSent ||
+            serviceDeletedAfterSent ||
+            packageUpdatedAfterSent ||
+            packageDeletedAfterSent
+          ) {
+            setModelRequestData(prev => ({
+              ...prev,
+              Action: "ServiceWarningEL",
+              message,
+              quoteKeyID: item.quoteKeyID,
+            }));
+            $("#ConfirmModel").modal("show");
+            return;
+          }
+        } else {
+          setErrorMessage(checkRes?.data?.errorMessage || "Something went wrong.");
+          setOpenErrorModal(true);
+          return;
+        }
+      }
+
+      // Phase B: proceed (user clicked Yes or no warnings)
+      $("#ConfirmModel").modal("hide");
+      const addEngagementLetterData = { QuoteKeyID: item?.quoteKeyID || modelRequestData.quoteKeyID || null };
+      navigate("/add-engagement-letter", { state: addEngagementLetterData });
+    } catch (err) {
+      setLoader(false);
+      setErrorMessage(err?.message || String(err));
+      setOpenErrorModal(true);
+    }
   };
 
   //Handle Download the pdf
@@ -806,23 +905,149 @@ const Proposals = () => {
   };
 
   //Copy the Proposal
-  const CopyQuotationData = async (item) => {
+  // const CopyQuotationData = async (item) => {
+  //   if (!activeOrganizationSubscriptionPlan.prepareQuote) {
+  //     setShowModal(true);
+  //     return;
+  //   }
+  //   try {
+  //     const checkRes = await GetServiceUpdatedAfterSendingQuoteOrContract(modelRequestData.quoteKeyID, "Quotation");
+  //     const serviceUpdatedAfterSent = checkRes.data?.responseData?.data;
+  //     if (serviceUpdatedAfterSent) {
+  //       setModelRequestData({
+  //         Action: "ServiceWarning", // <-- Use ServiceWarning here
+  //         message: "Some Service/Services were updated which may affect the copied proposal",
+  //         ServiceName: serviceUpdatedAfterSent,
+  //         quoteKeyID: modelRequestData.quoteKeyID,
+  //         RefId: modelRequestData.RefId,
+  //       });
+  //       $("#ConfirmModel").modal("show");
+  //       return;
+  //     }
+  //     const CopyQuote = await CopyQuotation(
+  //       modelRequestData.quoteKeyID,
+  //       common.userKeyID
+  //     );
+  //     if (CopyQuote.data.statusCode === 200) {
+  //       setOpenSuccessModal(true);
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
+
+  const CopyQuotationData = async (item, confirmed = false) => {
+    // Add confirmed parameter
     if (!activeOrganizationSubscriptionPlan.prepareQuote) {
       setShowModal(true);
       return;
     }
     try {
-      const CopyQuote = await CopyQuotation(
+      if (!confirmed) {
+        // If not confirmed, check for service updates
+        const checkRes = await GetServiceUpdatedAfterSendingQuoteOrContract(
+          modelRequestData.quoteKeyID,
+          "Quotation"
+        );
+        setLoader(true);
+        if (checkRes.data?.statusCode === 200) {
+          setLoader(false);
+          const {
+            isServiceUpdatedAfter: serviceUpdatedAfterSent,
+            isServiceDeletedAfter: serviceDeletedAfterSent,
+            isPackageUpdatedAfter: packageUpdatedAfterSent,
+            isPackageDeletedAfter: packageDeletedAfterSent,
+            updatedPackageNames,
+            deletedPackageNames,
+            deletedServiceNames,
+            updatedServiceNames,
+          } = checkRes.data?.responseData?.data || {};
+
+          let message = "";
+
+          // If updated items exist
+          if (serviceUpdatedAfterSent || packageUpdatedAfterSent) {
+            message += "Following Services or Packages were updated which may affect the copied proposal. Do you want to proceed?\n";
+
+            if (serviceUpdatedAfterSent && updatedServiceNames?.length > 0) {
+              message += "\nServices:\n";
+              message += updatedServiceNames.map(s => `• ${s}`).join("\n") + "\n";
+            }
+
+            if (packageUpdatedAfterSent && updatedPackageNames?.length > 0) {
+              message += "\nPackages:\n";
+              message += updatedPackageNames.map(p => `• ${p}`).join("\n") + "\n";
+            }
+
+            message += "\n"; 
+          }
+
+          // If deleted items exist
+          if (serviceDeletedAfterSent || packageDeletedAfterSent) {
+            message += "Following Services or Packages were deleted which may affect the copied proposal. Do you want to proceed?\n";
+
+            if (serviceDeletedAfterSent && deletedServiceNames?.length > 0) {
+              message += "\nServices:\n";
+              message += deletedServiceNames.map(s => `• ${s}`).join("\n") + "\n";
+            }
+
+            if (packageDeletedAfterSent && deletedPackageNames?.length > 0) {
+              message += "\nPackages:\n";
+              message += deletedPackageNames.map(p => `• ${p}`).join("\n") + "\n";
+            }
+          }
+
+          if (serviceUpdatedAfterSent || serviceDeletedAfterSent || packageUpdatedAfterSent || packageDeletedAfterSent) {
+            setModelRequestData({
+              ...modelRequestData,
+              Action: "ServiceWarning",
+              message,
+              quoteKeyID: modelRequestData.quoteKeyID,
+              RefId: modelRequestData.RefId,
+            });
+            setIsCopyPending(true);
+            $("#ConfirmModel").modal("show");
+            return;
+          }
+        }
+        else {
+          setLoader(false);
+          setErrorMessage(checkRes.data?.errorMessage);
+          setOpenErrorModal(true);
+          return;
+        }
+    }
+      setLoader(true);
+      setModelRequestData({
+        ...modelRequestData,
+        Action: "Copy",
+      });
+      // If confirmed or no service updates, copy the quotation
+      const data = await CopyQuotation(
         modelRequestData.quoteKeyID,
         common.userKeyID
       );
-      if (CopyQuote.data.statusCode === 200) {
+      $("#ConfirmModel").modal("hide");
+      if(data) {
+      if (data.data?.statusCode === 200) {
+        setLoader(false);
         setOpenSuccessModal(true);
+      } else {
+        setLoader(false);
+        setErrorMessage(data?.response?.data?.errorMessage);
+        setOpenErrorModal(true);
       }
-    } catch (error) {
-      console.log(error);
+      setIsCopyPending(false); // Reset the flag
+    } 
+  } catch (error) {
+      console.log(error.message);
+      setLoader(false);
+      setErrorMessage(error.message);
+      setOpenErrorModal(true);
+      setIsCopyPending(false); // Reset the flag
     }
   };
+
   //handle close model function
   const handleClose = () => {
     setOpenSuccessModal(false);
@@ -2098,7 +2323,7 @@ const Proposals = () => {
                                                     <a
                                                       class="dropdown-item"
                                                       onClick={() => {
-                                                        HandleSkippedToEL(item);
+                                                        HandleSkippedToEL(item, false);
                                                         setTitle(
                                                           "Skipped To Engagement_letter"
                                                         );
@@ -2596,6 +2821,7 @@ const Proposals = () => {
       <ConfirmModel
         openSuccessModal={openSuccessModal}
         modelRequestData={modelRequestData}
+        setModelRequestData={setModelRequestData}
         UpdatedStatus={
           modelRequestData.Action === "ReminderStatus"
             ? ChangeQuoteStatusData
@@ -2603,6 +2829,11 @@ const Proposals = () => {
             ? handleResend
             : modelRequestData.Action === "Copy"
             ? CopyQuotationData
+            : modelRequestData.Action === "ServiceWarning"
+            ? () => CopyQuotationData(null, true)
+            : modelRequestData.Action === "ServiceWarningEL" // <-- add this
+            ? () => HandleSkippedToEL({ quoteKeyID: modelRequestData.quoteKeyID }, true)
+
             : DeleteQuotationData
         }
       />

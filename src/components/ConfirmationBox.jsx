@@ -6,6 +6,7 @@ function ConfirmModel({
   UpdatedStatus,
   openErrorModal,
   modelRequestData,
+  setModelRequestData,
   openSuccessModal,
   modelAction,
 }) {
@@ -190,6 +191,23 @@ function ConfirmModel({
                     Are you sure you want to copy this record?
                   </span>
                 )}
+                {modelRequestData.Action === "ServiceWarning" && (
+                  <div className="text-muted mb-1" style={{ whiteSpace: "pre-wrap", textAlign: "left" }}>
+                    {modelRequestData.message}
+                    <div>
+                      <ul className="mt-1" style={{textAlign: "left", display: "inline-block"}}>
+                        {modelRequestData.ServiceName?.map((name, index) => (
+                          <li key={index}>{name}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                )}
+                {modelRequestData.Action === "ServiceWarningEL" && (
+                  <div className="text-muted mb-1" style={{ whiteSpace: "pre-wrap", textAlign: "left" }}>
+                    {modelRequestData.message}
+                  </div>
+                )}
                 {modelRequestData.Action === "Upload" && (
                   <>
                     <span class="text-muted mb-3">
@@ -303,7 +321,7 @@ function ConfirmModel({
                   </>
                 )}
                 
-                {modelRequestData.Action === "ServiceWarning" && (
+                {/* {modelRequestData.Action === "ServiceWarning" && (
                   <>
                     <div>
                       <span class="text-muted mb-0">
@@ -321,7 +339,7 @@ function ConfirmModel({
                       </ul>
                     </div>
                   </>
-                )}
+                )} */}
                 {modelRequestData.Action === "PracticeWarning" && (
                   <>
                     <div>
@@ -360,7 +378,9 @@ function ConfirmModel({
                   <span>Cancel</span>
                 )}
               </button>
-              {(modelRequestData.Action === "UnpaidUser" ||
+              {(modelRequestData.Action === "UnpaidUser" || 
+                modelRequestData.Action === "ServiceWarning" ||
+                modelRequestData.Action === "ServiceWarningEL" ||
                 modelRequestData.Action === "Resend" ||
                 modelRequestData.Action === "PaidUser" ||
                 modelRequestData.Action === "Warning" ||
@@ -420,6 +440,8 @@ function ConfirmModel({
                     <span>Yes, Re-send It!</span>
                   )}
                   {modelRequestData.Action === "Warning" && <span>Yes</span>}
+                  {modelRequestData.Action === "ServiceWarning" && <span>Yes</span>}
+                  {modelRequestData.Action === "ServiceWarningEL" && <span>Yes</span>}
                   {modelRequestData.Action === "Copy" && <span>Yes! Copy</span>}
                   {(modelRequestData.Action == "PracticeWarning" ||
                     modelRequestData.Action === "Upload" ||

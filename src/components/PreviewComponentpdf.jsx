@@ -2680,6 +2680,14 @@ export default function PreviewComponentPdf(props) {
               ? `<p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
                 ${serviceCat.driverName}: <strong>${serviceCat.variationName}</strong>
             </p>`
+            : serviceCat.driverTypeID === 5
+              ? `<p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
+                ${serviceCat.driverName}: <strong>${serviceCat?.enteredText}</strong>
+            </p>`
+              : serviceCat.driverTypeID === 6
+              ? `<p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
+                ${serviceCat.driverName}: <strong>${serviceCat?.enteredDate}</strong>
+            </p>`
               : serviceCat.driverTypeID === 4
               ? `<p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
                 ${serviceCat.driverName}: ${

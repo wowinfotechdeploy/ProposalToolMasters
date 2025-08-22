@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { CountryName } from "../../redux/Services/CountryApi";
 import Select from "react-select";
 import { Box, Modal } from "@mui/material";
@@ -20,6 +20,7 @@ const style = {
 };
 
 function AddressModalComponent(props) {
+  const addressDebounceRef = useRef(null);
   const [requireErrorMessage, setRequireErrorMessage] = useState(false);
   const [fullAddress, setFullAddress] = useState("");
   const [predictions, setPredictions] = useState([]);
@@ -148,26 +149,60 @@ function AddressModalComponent(props) {
     }
   }, [props.openAddressPopUp]);
 
-  useEffect(() => {
+  // useEffect(() => {
+  //   if (query.trim() === "") {
+  //     setPredictions([]);
+  //     return;
+  //   }
+  //   const autocompleteService =
+  //     new window.google.maps.places.AutocompleteService();
+  //   autocompleteService.getPlacePredictions(
+  //     {
+  //       input: query,
+  //       componentRestrictions: { country: "uk" },
+  //     },
+  //     (predictions, status) => {
+  //       if (status === window.google.maps.places.PlacesServiceStatus.OK) {
+  //         setPredictions(predictions);
+  //       } else {
+  //         console.error("Error fetching predictions");
+  //       }
+  //     }
+  //   );
+  // }, [query]);
+
+useEffect(() => {
     if (query.trim() === "") {
       setPredictions([]);
       return;
     }
-    const autocompleteService =
-      new window.google.maps.places.AutocompleteService();
-    autocompleteService.getPlacePredictions(
-      {
-        input: query,
-        componentRestrictions: { country: "uk" },
-      },
-      (predictions, status) => {
-        if (status === window.google.maps.places.PlacesServiceStatus.OK) {
-          setPredictions(predictions);
-        } else {
-          console.error("Error fetching predictions");
-        }
+
+    const handler = setTimeout(async () => {
+      try {
+        const { AutocompleteSuggestion } = await window.google.maps.importLibrary("places");
+
+        // Fetch predictions
+        const { suggestions } = await AutocompleteSuggestion.fetchAutocompleteSuggestions({
+          input: query,
+          includedRegionCodes: ["gb"],
+        });
+
+        const formatted = suggestions.map((s) => ({
+          description: `${s.placePrediction.mainText.text}${s.placePrediction.secondaryText
+              ? ", " + s.placePrediction.secondaryText.text
+              : ""
+            }`,
+          place_id: s.placePrediction.placeId,
+        }));
+
+        setPredictions(formatted);
+      } catch (err) {
+        console.error("Error fetching predictions", err);
+        setPredictions([]);
       }
-    );
+    },700);
+    // cleanup
+    return () => clearTimeout(handler);
   }, [query]);
 
   const handleClearAddress = () => {
@@ -444,12 +479,12 @@ function AddressModalComponent(props) {
             {props.title}
           </label>
           <div className="row fieldset">
-            <div class="col-md-3 col-sm-12 text-start text-md-end">
+            <div class="col-md-3 col-sm-12 text-start text-md-end me-3">
               <label className="fieldset-label required SearchAddress-Modal">
                 Search Address
               </label>
             </div>
-            <div class="col-lg-9 col-md-9 ">
+            <div class="col-lg-8 col-md-8 ">
               <input
                 type="text"
                 className="input-text"
@@ -490,12 +525,12 @@ function AddressModalComponent(props) {
           </div>
 
           <div class="row fieldset">
-            <div class="col-md-3 col-sm-12 text-start text-md-end">
+            <div class="col-md-3 col-sm-12 text-start text-md-end me-3">
               <label class="fieldset-label required">
                 Premises Or Address Line 1
               </label>
             </div>
-            <div class="col-lg-9 col-md-9">
+           <div class="col-lg-8 col-md-8 ">
               <input
                 class="input-text"
                 placeholder="Premises Or Address Line 1"
@@ -515,10 +550,10 @@ function AddressModalComponent(props) {
           </div>
 
           <div class="row fieldset">
-            <div class="col-md-3 col-sm-12 text-start text-md-end">
+            <div class="col-md-3 col-sm-12 text-start text-md-end me-3">
               <label class="fieldset-label required">Address Line 2</label>
             </div>
-            <div class="col-lg-9 col-md-9">
+            <div class="col-lg-8 col-md-8 ">
               <input
                 class="input-text"
                 placeholder="Address Line 2"
@@ -537,10 +572,10 @@ function AddressModalComponent(props) {
             </div>
           </div>
           <div class="row fieldset">
-            <div class="col-md-3 col-sm-12 text-start text-md-end">
+            <div class="col-md-3 col-sm-12 text-start text-md-end me-3">
               <label class="fieldset-label required">Town Or City</label>
             </div>
-            <div class="col-lg-9 col-md-9">
+            <div class="col-lg-8 col-md-8 ">
               <input
                 class="input-text"
                 placeholder="Town Or City"
@@ -559,10 +594,10 @@ function AddressModalComponent(props) {
             </div>
           </div>
           <div class="row fieldset ">
-            <div class="col-md-3 col-sm-12 text-start text-md-end">
+            <div class="col-md-3 col-sm-12 text-start text-md-end me-3">
               <label class="fieldset-label required">Region Or County</label>
             </div>
-            <div class="col-lg-9 col-md-9">
+            <div class="col-lg-8 col-md-8 ">
               <input
                 class="input-text"
                 placeholder="Region Or County"
@@ -581,10 +616,10 @@ function AddressModalComponent(props) {
             </div>
           </div>
           <div class="row fieldset">
-            <div class="col-md-3 col-sm-12 text-start text-md-end">
+            <div class="col-md-3 col-sm-12 text-start text-md-end me-3">
               <label class="fieldset-label required">Country</label>
             </div>
-            <div class="col-lg-9 col-md-9">
+            <div class="col-lg-8 col-md-8">
               <div className="input-group">
                 <Select
                   defaultValue="Select..."
@@ -603,13 +638,13 @@ function AddressModalComponent(props) {
             </div>
           </div>
           <div class="row fieldset">
-            <div class="col-md-3 col-sm-12 text-start text-md-end">
+            <div class="col-md-3 col-sm-12 text-start text-md-end me-3">
               <label class="fieldset-label required">
                 Postcode
                 <span className="text-danger">*</span>
               </label>
             </div>
-            <div class="col-lg-9 col-md-9">
+            <div class="col-lg-8 col-md-8">
               <input
                 type="text"
                 class="input-text"

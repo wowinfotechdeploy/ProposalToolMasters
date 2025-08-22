@@ -2518,8 +2518,12 @@ const OtherInformation = (props) => {
                         type="text"
                         value={props.otherInfo.indirectTaxPercentage ?? 20.00}
                         onChange={handleChangeTaxPercentage}
+                        max={100}
                       />
                     </div>
+                    {props.requireOtherErrorMessage && props.otherInfo.indirectTaxPercentage > 100 &&
+                      <label className="text-danger text-center mt-1">Percentage cannot exceed 100</label>
+                    }
                   </div>
                 </>
               )}
@@ -3419,6 +3423,7 @@ const Create_practice_details = () => {
   const [BusinessTypeLookupList, setBusinessTypeLookupList] = useState([]);
   const navigate = useNavigate();
   const location = useLocation();
+  const companyDebounceRef = useRef(null);
   const [saveLocationState, setSaveLocationState] = useState(location.state);
   // B] Initial UseEffect
 
@@ -4053,6 +4058,9 @@ const Create_practice_details = () => {
 
   const handleCompanyInputChange = (e) => {
     const newValue = e.target.value.trim();
+    if (companyDebounceRef.current) {
+      clearTimeout(companyDebounceRef.current);
+    }
     if (newValue === "") {
       setCompanies([]);
       // Hide the autocomplete list here
@@ -4061,12 +4069,14 @@ const Create_practice_details = () => {
         autocompleteDiv.classList.remove("show");
       }
     } else {
+      companyDebounceRef.current = setTimeout(() => {
       getCompanies(newValue);
       // Show the autocomplete list here
       const autocompleteDiv = document.querySelector(".searchList");
       if (autocompleteDiv) {
         autocompleteDiv.classList.add("show");
       }
+      }, 700);
     }
   };
 
@@ -4551,6 +4561,17 @@ const Create_practice_details = () => {
         !phoneNumberRegex.test(otherInfo.contactPhone) ||
         !emailPattern.test(otherInfo.contactEmail)
       ) {
+        setRequireOtherErrorMessage(true);
+        return false;
+      } else if (
+        otherInfo.indirectTaxPercentage !== null &&
+        otherInfo.indirectTaxPercentage > 100
+      ) {
+        setIsValidForm({
+          ...isValidForm,
+          OfficerForm: true,
+          ChooseSubscriptionPlan: true
+        });
         setRequireOtherErrorMessage(true);
         return false;
       } else if (

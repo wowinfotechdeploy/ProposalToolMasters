@@ -169,7 +169,7 @@ export const GetContractDetailsForSignEasyList = async (GetContractKeyID) => {
 };
 export const CopyQuotation = async (GetQuoteKeyID, UserKeyID) => {
 
-    const res = await getListWithAuthenticated(
+    const res = await postApiWithAuthenticated(
         // `${TemplateBaseUrl}/GetMasterTemplateDetailsWithVariableValues?TemplateKeyID=${params.TemplateKeyID}&ClientKeyID=${params.clientID}`
         `${ProposalBaseUrlQuote}/CopyQuotation?QuoteKeyID=${GetQuoteKeyID}&UserKeyID=${UserKeyID}`
     );

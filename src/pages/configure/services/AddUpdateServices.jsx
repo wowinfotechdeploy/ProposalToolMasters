@@ -87,7 +87,8 @@ const BasicInformationComponent = (props) => {
       // Extract variationKeyIDs and slabKeyIDs for the current item
       let variationKeyIDs = [];
       let slabKeyIDs = [];
-
+      let dateKeyIDs = [];
+      let textKeyIDs = [];
       if (item.variation && item.variation.length > 0) {
         item.variation.forEach(variation => {
           variationKeyIDs.push(variation.variationKeyID);
@@ -100,16 +101,32 @@ const BasicInformationComponent = (props) => {
         });
       }
 
+      if (item.date && item.date.length > 0) {
+        item.date.forEach(date => {
+          dateKeyIDs.push(date.dateKeyID);
+        });
+      }
+
+      if (item.text && item.text.length > 0) {
+        item.text.forEach(text => {
+          textKeyIDs.push(text.textKeyID);
+        });
+      }
+
       // Join arrays into comma-separated strings
       variationKeyIDs = variationKeyIDs.join(',');
       slabKeyIDs = slabKeyIDs.join(',');
+      dateKeyIDs = dateKeyIDs.join(',');
+      textKeyIDs = textKeyIDs.join(',');
 
       const pricingDriverDelete = await GetPricingDriverUsedInModules(
         item.globalPricingDriverKeyID,
         props.common.userKeyID,
         props.servicesObj.serviceKeyID,
         variationKeyIDs,
-        slabKeyIDs
+        slabKeyIDs,
+        dateKeyIDs,
+        textKeyIDs
       );
 
       if (pricingDriverDelete.data.statusCode === 200) {
@@ -5434,8 +5451,10 @@ const Add_Update_Service = (props) => {
   //14) // Service Dependency List
   const GetServiceDependencyListData = async(params) => {
     try {
+      setLoader(true);
       const data = await GetServiceDependencyList(params);
       if(data?.data?.statusCode === 200) {
+        setLoader(false);
         if(data?.data?.responseData?.data) {
           const List = data?.data?.responseData?.data;
           console.log(List)
@@ -5445,6 +5464,7 @@ const Add_Update_Service = (props) => {
     }
     catch(error){
       console.error(error);
+      setLoader(false);
     }
   }
   //on change Nature of business type
@@ -5887,7 +5907,9 @@ const Add_Update_Service = (props) => {
             common.userKeyID,
             saveLocationState.serviceKeyID,
             null,
-            null
+            null,
+            null,
+            null,
           );
           if (pricingDriverDelete.data.statusCode === 200) {
             setLoader(false);
@@ -5928,7 +5950,9 @@ const Add_Update_Service = (props) => {
           common.userKeyID,
           saveLocationState.serviceKeyID,
           null,
-          null
+          null,
+          null,
+          null,
         );
         if (pricingDriverDelete.data.statusCode === 200) {
           setLoader(false);
@@ -6117,6 +6141,8 @@ const Add_Update_Service = (props) => {
     } else {
       let variationKeyIDs = null;
       let slabKeyIDs = null;
+      let textKeyIDs = null;
+      let dateKeyIDs = null;
       if (pricingDriver[index].driverTypeID === 4) {
         if (pricingDriver[index].slab.length > 0) {
           slabKeyIDs = pricingDriver[index].slab
@@ -6131,6 +6157,20 @@ const Add_Update_Service = (props) => {
             .join(",");
         }
       }
+      if (pricingDriver[index].driverTypeID === 5) {
+        if (pricingDriver[index].text.length > 0) {
+          textKeyIDs = pricingDriver[index].text
+            .map((text) => text.textKeyID)
+            .join(",");
+        }
+      }
+      if (pricingDriver[index].driverTypeID === 6) {
+        if (pricingDriver[index].date.length > 0) {
+          dateKeyIDs = pricingDriver[index].date
+            .map((date) => date.dateKeyID)
+            .join(",");
+        }
+      }
       if (pricingDriver[index].driverTypeID !== null && pricingDriver[index].globalPricingDriverKeyID !== null) {
         setLoader(true);
         const pricingDriverDelete = await GetPricingDriverUsedInModules(
@@ -6138,7 +6178,9 @@ const Add_Update_Service = (props) => {
           common.userKeyID,
           servicesObj.serviceKeyID,
           variationKeyIDs,
-          slabKeyIDs
+          slabKeyIDs,
+          dateKeyIDs,
+          textKeyIDs
         );
         if (pricingDriverDelete.data.statusCode === 200) {
           setLoader(false);

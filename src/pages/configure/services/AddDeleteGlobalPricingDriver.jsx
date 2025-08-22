@@ -109,6 +109,15 @@ function AddDeleteGlobalPricingDriverModal(props) {
               isDefault: item.isDefault,
             }))
           : null,
+        text: GetGlobalPricingDriverData?.text
+          ? GetGlobalPricingDriverData.text.map((item, index) => ({
+              textKeyID: null,
+              parentTextKeyID: item.textKeyID,
+              textLength: item.textLength,
+              textValue: item.textValue,
+              allowedSpecialCharacters: item.allowedSpecialCharacters,
+            }))
+          : null,
         date: GetGlobalPricingDriverData?.date
           ? GetGlobalPricingDriverData.date.map((item) => ({
               dateKeyID: null,

@@ -118,7 +118,7 @@ function Modal(props) {
   const [quantity, setQuantity] = useState([
       {
         quantityKeyID: null,
-        quantityDecimalPlaces: 2,
+        quantityDecimalPlaces: 0,
         quantityFrom: null,
         quantityTo: null
       }])
@@ -1456,7 +1456,7 @@ function Modal(props) {
           //   setTextError({ ...textError, textValue: true });
           //   isValidText = false;
           // } 
-          if(!textLength || textLength.trim() === "" || textLength === null) {
+          if(!textLength || textLength === null) {
             setTextError({ ...textError, textLength: true });
             isValidText = false;
           }
@@ -2883,9 +2883,9 @@ function Modal(props) {
                             setQuantity(updatedDrivers);
                           }}
                           value={{
-                            value: quantity[0]?.quantityDecimalPlaces ?? 2,
+                            value: quantity[0]?.quantityDecimalPlaces ?? 0,
                             label: (() => {
-                              const decimalPlaces = quantity[0]?.quantityDecimalPlaces ?? 2;
+                              const decimalPlaces = quantity[0]?.quantityDecimalPlaces ?? 0;
                               if (decimalPlaces === 0) return "No decimal places";
                               if (decimalPlaces === 1) return "1 decimal place";
                               return `${decimalPlaces} decimal places`;
@@ -2914,7 +2914,7 @@ function Modal(props) {
                             type="text"
                             value={quantity[0].quantityFrom || ""}
                             onChange={(e) => {
-                              const decimalPlaces = quantity[0]?.quantityDecimalPlaces ?? 2;
+                              const decimalPlaces = quantity[0]?.quantityDecimalPlaces ?? 0;
                               const sanitized = handleQuantityInput(e.target.value, decimalPlaces);
 
                               const updatedDrivers = [...quantity];
@@ -2926,7 +2926,7 @@ function Modal(props) {
                             }}
                             onBlur={() => {
                               const currentValue = quantity[0]?.quantityFrom;
-                              const decimalPlaces = quantity[0]?.quantityDecimalPlaces ?? 2;
+                              const decimalPlaces = quantity[0]?.quantityDecimalPlaces ?? 0;
 
                               // Only format if there's a valid number
                               if (currentValue && currentValue !== '' && !isNaN(parseFloat(currentValue))) {
@@ -2961,7 +2961,7 @@ function Modal(props) {
                             type="text"
                             value={quantity[0].quantityTo || ""}
                             onChange={(e) => {
-                              const decimalPlaces = quantity[0]?.quantityDecimalPlaces ?? 2;
+                             const decimalPlaces = quantity[0]?.quantityDecimalPlaces ?? 0;
                               const sanitized = handleQuantityInput(e.target.value, decimalPlaces);
 
                               const updatedDrivers = [...quantity];
@@ -2973,7 +2973,7 @@ function Modal(props) {
                             }}
                             onBlur={() => {
                               const currentValue = quantity[0]?.quantityTo;
-                              const decimalPlaces = quantity[0]?.quantityDecimalPlaces ?? 2;
+                              const decimalPlaces = quantity[0]?.quantityDecimalPlaces ?? 0;
 
                               // Only format if there's a valid number
                               if (currentValue && currentValue !== '' && !isNaN(parseFloat(currentValue))) {

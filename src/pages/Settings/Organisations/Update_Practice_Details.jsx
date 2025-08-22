@@ -1,5 +1,5 @@
 /* global $ */
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { AuthContextProvider } from "../../../AuthContext/AuthContext";
 import "../../configure/packages/Package.css";
 import "./Update-practice-details.css";
@@ -60,6 +60,7 @@ const Update_Practice_Details = () => {
   // A] Declare State
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const companyDebounceRef = useRef(null);
   const {
     setLoader,
     setTopbar,
@@ -860,6 +861,14 @@ const Update_Practice_Details = () => {
             hasError = true;
             return false;
           }
+        } else if (
+          otherInfo.indirectTaxPercentage !== null &&
+          otherInfo.indirectTaxPercentage > 100
+        ) {
+          scrollUpDownByElementID("Tax_Percentage");
+          setRequireErrorMessage(true);
+          hasError = true;
+          return false;
         }
         for (let i = 0; i < officersForm.length; i++) {
           if (basicInfo.businessTypeID === CLIENT_TYPES.Sole_Trader) {
@@ -1087,6 +1096,14 @@ const Update_Practice_Details = () => {
         setRequireErrorMessage(true);
         return false;
       } else {
+        if (
+          otherInfo.indirectTaxPercentage !== null &&
+          otherInfo.indirectTaxPercentage > 100
+        ) {
+          scrollUpDownByElementID("Tax_Percentage");
+          setRequireErrorMessage(true);
+          return false;
+        }
         for (let i = 0; i < officersForm.length; i++) {
           if (
             officersForm[i].firstName === "" ||
@@ -1577,6 +1594,9 @@ const Update_Practice_Details = () => {
 
   const handleCompanyInputChange = (e) => {
     const newValue = e.target.value.trim();
+    if (companyDebounceRef.current) {
+        clearTimeout(companyDebounceRef.current);
+    }
     if (newValue === "") {
       setCompanies([]);
       // Hide the autocomplete list here
@@ -1585,12 +1605,14 @@ const Update_Practice_Details = () => {
         autocompleteDiv.classList.remove("show");
       }
     } else {
+      companyDebounceRef.current = setTimeout(() => {
       getCompanies(newValue);
       // Show the autocomplete list here
       const autocompleteDiv = document.querySelector(".searchList");
       if (autocompleteDiv) {
         autocompleteDiv.classList.add("show");
       }
+      }, 700);
     }
   };
 
@@ -2820,7 +2842,7 @@ const Update_Practice_Details = () => {
                                 </div>
                               </div>
                                 <div className="col-lg-12">
-                                  <div className="row mb-3">
+                                  <div className="row mb-3" id="Tax_Percentage">
                                     <div class="col-md-3 col-sm-12 text-start text-md-end">
                                       <label className="form-label">{taxName} Percentage</label>
                                     </div>

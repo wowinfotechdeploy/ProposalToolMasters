@@ -100,3 +100,10 @@ export const CopyService = async (serviceKeyID, UserKeyID) => {
     );
     return res;
 };
+
+export const GetServiceUpdatedAfterSendingQuoteOrContract = async (moduleID, moduleName) =>  {
+    const res = await getListWithAuthenticated(
+        `${services}/GetServiceUpdatedAfterSendingQuoteOrContract?moduleID=${moduleID}&moduleName=${moduleName}`
+    );
+    return res;
+}

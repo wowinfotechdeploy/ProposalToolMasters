@@ -1755,7 +1755,7 @@ const AddUpdatePackage = (props) => {
 
             if (
               additionalInformationListData.filter(
-                (item) => (item.driverTypeID !== 1 && item.driverTypeID !== 5 && item.driverTypeID !== 6)
+                (item) => (item.driverTypeID !== 1)
               ).length === 0
             ) {
               setTabHide(false);
@@ -1912,6 +1912,7 @@ const AddUpdatePackage = (props) => {
         let driverValue;
         let slabID;
         let dateID;
+        let textID;
         let variationID;
         let msgMapID;
         let msMapID;
@@ -1943,6 +1944,13 @@ const AddUpdatePackage = (props) => {
           dateID = defaultDate.dateID;
           msgMapID = item.msgMapID;
           msMapID = item.msMapID;
+        } else if (
+          item.text !== null
+        ) {
+          driverValue = item.text?.[0]?.textValue
+          textID = item.text?.[0].textID;
+          msgMapID = item.msgMapID;
+          msMapID = item.msMapID;
         } else if (item.driverTypeID === 2) {
           driverValue = item.driverValue;
           slabID = item.slabID;
@@ -1958,13 +1966,15 @@ const AddUpdatePackage = (props) => {
           variationID,
           slabID,
           dateID,
+          textID,
+          enteredText: item.enteredText,
           enteredDate: item.enteredDate,
           enteredDateFormat: item.enteredDateFormat
         };
       })
       .filter((item) => item.driverTypeID !== 1)
       .flat();
-
+      console.log(additionalInformationList);
   // profession Type value
   const OnProfessionTypeChange = (ProfessionType) => {
     let updatedPfList;
@@ -2581,7 +2591,9 @@ const AddUpdatePackage = (props) => {
           return item.variation.some((variation) => variation.isDefault);
         }  else if (item.date !== null) {
           return item.date.some((date) => date.isDefault);
-        } else {
+        } else if (item.text !== null) {
+          return true;
+        }else {
           return false;
         }
       })
@@ -2607,6 +2619,10 @@ const AddUpdatePackage = (props) => {
           item.date !== null
             ? item.date.find((date) => date.isDefault)?.dateID
             : null,
+        textID:
+          item.text !== null
+            ? item.text?.[0]?.textID ?? null
+            : null
       }))
       .flat();
 
@@ -3019,6 +3035,7 @@ const AddUpdatePackage = (props) => {
         });
         setActiveTab(NextTab);
         setRequireMessage(false);
+        await GetAdditionalInformationListData(ServicesIDsElement);
       } else {
         setIsValidForm({
           ...isValidForm,
@@ -3031,7 +3048,7 @@ const AddUpdatePackage = (props) => {
     } else if (activeTab === PackageHeader.AdditionalInformation) {
       // Filter the list based on driverTypeID being either 2 or 4
       const filteredList = additionalInformationList.filter(
-        (item) => item.driverTypeID === 2 || item.driverTypeID === 4 || item.driverTypeID === 3 || item.driverTypeID === 6
+        (item) => item.driverTypeID === 2 || item.driverTypeID === 4 || item.driverTypeID === 3 || item.driverTypeID === 6 || item.driverTypeID === 5
       );
       // Check if any of the filtered items have driverValue as null, empty string, or undefined
       const hasInvalidValues = filteredList.some(

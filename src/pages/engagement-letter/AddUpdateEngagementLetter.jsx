@@ -10498,6 +10498,7 @@ const Add_Update_Engagement_Letter = () => {
 
   //14) Get Selected service and create object to send api for get calculation  price data
   async function handleSetCalculatedPackageData() {
+    console.log(recurringServiceList);
     setRequireMessage(false);
     const extractServiceData = (serviceList, serviceChargeTypeID) => {
       return serviceList
@@ -10588,6 +10589,8 @@ const Add_Update_Engagement_Letter = () => {
           return item.variation.some((variation) => variation.isDefault);
         } else if (item.date !== null) {
           return item.date.some((date) => date.isDefault);
+        } else if (item.text !== null) {
+          return true;
         } else {
           return false;
         }
@@ -10608,6 +10611,10 @@ const Add_Update_Engagement_Letter = () => {
         dateID:
           item.date !== null
             ? item.date.find((date) => date.isDefault)?.dateID
+            : null,
+        textID:
+          item.text !== null
+            ? item.text?.[0]?.textID ?? null
             : null
       }))
       .flat();
@@ -10742,6 +10749,8 @@ const Add_Update_Engagement_Letter = () => {
         return item.variation.some((variation) => variation.isDefault);
       } else if (item.date !== null) {
           return item.date.some((date) => date.isDefault);
+      } else if (item.text !== null) {
+          return true;
       } else {
         return false;
       }
@@ -10762,6 +10771,10 @@ const Add_Update_Engagement_Letter = () => {
         dateID:
           item.date !== null
             ? item.date.find((date) => date.isDefault)?.dateID
+            : null,
+        textID:
+          item.text !== null
+            ? item.text?.[0]?.textID ?? null
             : null
       }))
       .flat();
@@ -12020,9 +12033,12 @@ const Add_Update_Engagement_Letter = () => {
     (item) => engagementObj.selectSourceId == item.value
   );
 
-  const TemplateValue = templateLookUpOptions.find((item) => {
-    return engagementObj.templateID === item.templateID;
-  });
+  // const TemplateValue = templateLookUpOptions.find((item) => {
+  //   return engagementObj.templateID === item.templateID;
+  // });
+  const TemplateValue =
+    templateLookUpOptions.find(item => item.templateID === engagementObj.templateID) ||
+    templateLookUpOptions[0];
   //33)Change source Type
   const handleChangeSourceType = (e) => {
     DisableTabOnChange();
@@ -12170,6 +12186,7 @@ const Add_Update_Engagement_Letter = () => {
 
           let TemplateOption = [];
           if (ModelData.clientID !== null) {
+            console.log("hey");
             setLoader(true);
             const response = await GetTemplateListLookupList({
               TemplateTypeID: 2,
@@ -12190,6 +12207,7 @@ const Add_Update_Engagement_Letter = () => {
                 footerImage: item.footerImage,
                 headerHeight: item.headerHeight,
                 footerHeight: item.footerHeight,
+                showSeparatorLines: Boolean(item.showSeparatorLines),
               }));
               setTemplateLookUpOptions(TemplateOption);
             }
@@ -12216,14 +12234,19 @@ const Add_Update_Engagement_Letter = () => {
                 footerImage: item.footerImage,
                 headerHeight: item.headerHeight,
                 footerHeight: item.footerHeight,
+                showSeparatorLines: Boolean(item.showSeparatorLines),
               }));
               setTemplateLookUpOptions(TemplateOption);
             }
           }
 
-          const TemplateValue = TemplateOption.find((item) => {
-            return ModelData.templateID === item.templateID;
-          });
+          // const TemplateValue = TemplateOption.find((item) => {
+          //   return ModelData.templateID === item.templateID;
+          // });
+          const TemplateValue = TemplateOption.find(
+            item => item.templateID === ModelData.templateID
+          ) || TemplateOption[0];
+          console.log(TemplateValue);
           setFontFamily(getFontNameById(TemplateValue.fontFamilyID));
           setHeaderContent(TemplateValue.headerContent);
           setFooterContent(TemplateValue.footerContent);
@@ -12259,15 +12282,61 @@ const Add_Update_Engagement_Letter = () => {
             paymentGatewayID: ModelData.paymentGatewayID,
           });
 
-          if (ModelData.contractSignatorieList.length === 0) {
+          
+          // if (ModelData.contractSignatorieList.length === 0) {
+          //   setLoader(true);
+          //   GetOfficersForQuoteAndContractData({
+          //     ClientKeyID: ClientValue.clientKeyID,
+          //     QuoteKeyID: ModelData.quoteKeyID,
+          //   });
+          // }
+          // setLoader(true);
+          if (ModelData.clientKeyID !== null) {
             setLoader(true);
-            GetOfficersForQuoteAndContractData({
-              ClientKeyID: ClientValue.clientKeyID,
-              QuoteKeyID: ModelData.quoteKeyID,
-            });
+            try {
+              const data = await GetOfficersForQuoteAndContract({
+                                  ClientKeyID: ModelData.clientKeyID,
+                                  QuoteKeyID: ModelData.quoteKeyID
+                                });
+              if (data?.data?.statusCode === 200) {
+                setLoader(false);
+                if (data?.data?.responseData?.data) {
+                  const ModelData = data?.data?.responseData?.data;
+                  setContractSignatoriesList(ModelData);
+                }
+              } else {
+                setLoader(false);
+                setErrorMessage(data?.data?.errorMessage);
+              }
+            } catch (error) {
+              setLoader(false);
+              console.log(error);
+            };
+          } else if (ModelData.quoteKeyID !== null) {
+            setLoader(true);
+            try {
+              const data = await GetOfficersForQuoteAndContract({
+                                  ClientKeyID: ModelData.clientKeyID,
+                                  QuoteKeyID: ModelData.quoteKeyID
+                                });
+              if (data?.data?.statusCode === 200) {
+                setLoader(false);
+                if (data?.data?.responseData?.data) {
+                  const ModelData = data?.data?.responseData?.data;
+                  setContractSignatoriesList(ModelData);
+                }
+              } else {
+                setLoader(false);
+                setErrorMessage(data?.data?.errorMessage);
+              }
+            } catch (error) {
+              setLoader(false);
+              console.log(error);
+            };
           }
-          setLoader(true);
-          setContractSignatoriesList(ModelData.contractSignatorieList);
+
+          // setLoader(true);
+          // setContractSignatoriesList(ModelData.contractSignatorieList);
 
           if (ModelData.selectedServicesList.length !== 0) {
             if (

@@ -292,6 +292,37 @@ export const AdditionalInformation = (props) => {
 
         props.setAdditionalInformationList(updatedList);
     };
+  const HandleTextDriver = (e, globalPricingDriverID) => {
+    const inputValue = e.target.value;
+
+    const updatedList = props.additionalInformationList.map((info) => {
+      if (info.globalPricingDriverID !== globalPricingDriverID) return info;
+
+      const textBlock = info.text?.[0] ?? {};
+      const maxLength = textBlock.textLength ?? 100;
+      const allowedSpecial = textBlock.allowedSpecialCharacters ?? "";
+
+      // Escape any special characters for regex
+      const escapedAllowed = allowedSpecial.replace(
+        /[-[\]/{}()*+?.\\^$|]/g,
+        "\\$&"
+      );
+
+      // Only allow alphanumeric and defined special characters
+      const regex = new RegExp(`[^a-zA-Z0-9${escapedAllowed}]`, "g");
+
+      const cleanedValue = inputValue.replace(regex, "").slice(0, maxLength);
+
+      return {
+        ...info,
+        enteredText: cleanedValue,
+        driverValue: textBlock.textValue,
+        textID: textBlock.textID,
+      };
+    });
+
+    props.setAdditionalInformationList(updatedList);
+  };
 
     function getSelectedDateInfo(info) {
         const dateFormat = info.date?.[0]?.dateFormat || "dd-MM-yyyy";
@@ -667,7 +698,86 @@ export const AdditionalInformation = (props) => {
                                   </>
                                 )}
 
-                                {/* props.moduleName === "Package" */}
+                                {i.driverVisibility && i.driverTypeID === 5 && (
+                                  <>
+                                    <div
+                                      className={
+                                        props.moduleName === "Package" ||
+                                        props.moduleName === "Quote"
+                                          ? "col-md-5 col-sm-12 text-start text-md-start"
+                                          : "col-md-3 col-sm-12 text-start text-md-end"
+                                      }
+                                    >
+                                      <div class="">
+                                        <label class="form-label">
+                                          {isMobile ? (
+                                            <>
+                                              {i?.driverName
+                                                .substring(0, 30)
+                                                .replace(/\b\w/g, (l) =>
+                                                  l.toUpperCase()
+                                                )}
+                                            </>
+                                          ) : (
+                                            <>
+                                              {props.moduleName === "Package" ||
+                                              props.moduleName === "Quote" ? (
+                                                i?.driverName.replace(
+                                                  /\b\w/g,
+                                                  (l) => l.toUpperCase()
+                                                )
+                                              ) : i?.driverName.length > 20 ? (
+                                                <Tooltip title={i?.driverName}>
+                                                  {i?.driverName
+                                                    .substring(0, 25)
+                                                    .replace(/\b\w/g, (l) =>
+                                                      l.toUpperCase()
+                                                    ) + "..."}
+                                                </Tooltip>
+                                              ) : (
+                                                i?.driverName.replace(
+                                                  /\b\w/g,
+                                                  (l) => l.toUpperCase()
+                                                )
+                                              )}
+                                            </>
+                                          )}
+                                          {/* <span class="text-danger">*</span> */}
+                                        </label>
+                                      </div>
+                                    </div>
+                                    <div
+                                      id={`${i?.driverName}`}
+                                      className={
+                                        props.moduleName === "Package" ||
+                                        props.moduleName === "Quote"
+                                          ? "col-lg-7 col-md-9 col-sm-12"
+                                          : "col-lg-9 col-md-9 col-sm-12"
+                                      }
+                                    >
+                                      <div className="mb-1">
+                                        <div class="input-group">
+                                          <input 
+                                            className="input-text"
+                                            type="text"
+                                            value={i?.enteredText || null}
+                                            onChange={(e) => HandleTextDriver(e, i.globalPricingDriverID)}
+                                            placeholder="Enter Text"
+                                            maxLength={i?.text?.[0]?.textLength || 100}
+                                          />
+                                          {props.requireMessage &&
+                                            (i.enteredText === null ||
+                                              i.enteredText === undefined ||
+                                              i.enteredText === "") && (
+                                              <label className="validation">
+                                                {ERROR_MESSAGES}
+                                              </label>
+                                            )}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </>
+                                )}
 
                                 {/* working here  */}
                                 {i.driverVisibility && i.driverTypeID === 4 && (

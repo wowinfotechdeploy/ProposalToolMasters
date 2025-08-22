@@ -2677,6 +2677,7 @@ const OfficerDetails = (props) => {
 };
 
 const Add_Update_prospect = () => {
+  const companyDebounceRef = useRef(null);
   // A] Declare State
   const [emailError, setEmailError] = useState("");
   const [activeTab, setActiveTab] = useState(1);
@@ -3573,13 +3574,18 @@ const Add_Update_prospect = () => {
 
   const handleCompanyInputChange = (e) => {
     const inputValue = e.target.value;
+    if(companyDebounceRef.current) { 
+      clearTimeout(companyDebounceRef.current);
+    }
     setEmailError("");
     setErrorMessage("");
     setSearchCompany(inputValue);
     if (inputValue === "") {
       setCompanies([]); // Clear companies list if input is empty
     } else {
-      getCompanies(inputValue);
+      companyDebounceRef.current = setTimeout(() => {
+        getCompanies(inputValue);
+      },700);
     }
   };
 

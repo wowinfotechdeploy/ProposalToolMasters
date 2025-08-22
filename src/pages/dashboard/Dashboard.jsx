@@ -1232,8 +1232,8 @@ const Dashboard = () => {
       // formattedAmount = `£${formatWithCommas(value)}k`;
       formattedAmount = `${currencySymbol}${formatWithCommas(value)}k`;
     } else {
-      formattedAmount = new Intl.NumberFormat("en-GB", {
-        style: "currency",
+      formattedAmount = new Intl.NumberFormat(
+        currencyID === 3 ? "en-US" : "en-GB", {
         currency: currencyID === 1 ? "GBP" : currencyID === 2 ? "EUR" : currencyID === 3 ? "USD" : "INR",
         minimumFractionDigits: 0,
         maximumFractionDigits: 0,
