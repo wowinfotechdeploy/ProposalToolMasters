@@ -15075,13 +15075,13 @@ const Add_Update_Proposal = (props) => {
         // }
         console.log(defaultTemplateObject);
         setFontFamily(getFontNameById(defaultTemplateObject?.fontFamilyID));
-        setHeaderContent(defaultTemplateOptions[0]?.headerContent);
-        setFooterContent(defaultTemplateOptions[0]?.footerContent);
-        setHeaderImage(defaultTemplateOptions[0]?.headerImage);
-        setFooterImage(defaultTemplateOptions[0]?.footerImage);
-        setHeaderHeight(defaultTemplateOptions[0]?.headerHeight);
-        setFooterHeight(defaultTemplateOptions[0]?.footerHeight);
-        setShowSeparatorLines(defaultTemplateOptions[0]?.showSeparatorLine);
+        setHeaderContent(defaultTemplateOptions?.[0]?.headerContent);
+        setFooterContent(defaultTemplateOptions?.[0]?.footerContent);
+        setHeaderImage(defaultTemplateOptions?.[0]?.headerImage);
+        setFooterImage(defaultTemplateOptions?.[0]?.footerImage);
+        setHeaderHeight(defaultTemplateOptions?.[0]?.headerHeight);
+        setFooterHeight(defaultTemplateOptions?.[0]?.footerHeight);
+        setShowSeparatorLines(defaultTemplateOptions?.[0]?.showSeparatorLine);
         // console.log(getFontNameById(defaultTemplateObject?.fontFamilyID));
         // Set the state with the default template object
         setProposalObject((prevState) => ({
@@ -16112,7 +16112,7 @@ const Add_Update_Proposal = (props) => {
                       ?? null
                       : null
                     : driver.text !== null
-                    ? driver.driverValue ?? driver.text?.find(d => d.textID === driver.textID)?.textValue ?? null
+                    ? driver.driverValue ?? driver.text?.find(d => d.textID === driver.textID)?.textValue ?? 0
                   : driver.driverValue,
               msgMapID: driver.msgMapID || null,
               msMapID: driver.msMapID || null,
@@ -16500,10 +16500,10 @@ const Add_Update_Proposal = (props) => {
         })
         .filter((item) => item.driverTypeID !== 1)
         .flat();
-    const updatedTemplateList = await updateTemplateList(
-      ProposalObject.customizedEmailContent,
-      "CustomizeTemplate"
-    );
+    // const updatedTemplateList = await updateTemplateList(
+    //   ProposalObject.customizedEmailContent,
+    //   "CustomizeTemplate"
+    // );
     const ApiRequest_ParamsObj = {
       organisationKeyID: common.organisationKeyID,
       userKeyID: common.userKeyID,
@@ -16565,7 +16565,7 @@ const Add_Update_Proposal = (props) => {
       quoteFormatID: ProposalObject.ProposalFormate || null,
       recurringHtmlContent: ProposalObject.recurringHtmlContent || null,
       oneOffHtmlContent: ProposalObject.oneOffHtmlContent || null,
-      customizedEmailContent: updatedTemplateList || null,
+      customizedEmailContent: ProposalObject.customizedEmailContent || null,
       servicePackageID: selectedPackages || null,
       selectedServicesList: modifiedDraftArray.selectedServicesList || null,
       additionalInformationList: modifiedAdditionalServiceArray || null,

@@ -11215,10 +11215,10 @@ const Add_Update_Engagement_Letter = () => {
         });
       }
     }
-    const updatedTemplateList = await updateTemplateList(
-      engagementObj.customizedEmailContent,
-      "CustomizeTemplate"
-    );
+    // const updatedTemplateList = await updateTemplateList(
+    //   engagementObj.customizedEmailContent,
+    //   "CustomizeTemplate"
+    // );
     debugger;
     let Api_ObjectParam = {
       organisationKeyID: common.organisationKeyID,
@@ -11236,7 +11236,7 @@ const Add_Update_Engagement_Letter = () => {
       quoteID: engagementObj.quoteID,
       contractPDFUrl: MergePdfUrl,
       templateID: engagementObj.templateID,
-      customizedEmailContent: updatedTemplateList,
+      customizedEmailContent: engagementObj.customizedEmailContent,
       templatePDFKeyIDs: engagementObj.selectedAttachments,
       tnCTemplateID:
         engagementObj.tnCTemplateID == "" ? null : engagementObj.tnCTemplateID,
@@ -11313,7 +11313,7 @@ const Add_Update_Engagement_Letter = () => {
               moduleName: "Contract",
               contractKeyID: response.data.responseData.data,
               contractPDFUrl: MergePdfUrl,
-              customizedEmailContent: updatedTemplateList,
+              customizedEmailContent: engagementObj.customizedEmailContent,
             });
           } else {
             setOpenSuccessModal(true);

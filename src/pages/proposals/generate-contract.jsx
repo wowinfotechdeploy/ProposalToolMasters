@@ -432,7 +432,12 @@ function AcceptInvitation() {
                   </strong>`
                  : serviceCat.driverTypeID === 3 ? 
                  `<strong>${serviceCat.variationName}</strong>`
-                  : `${serviceCat.driverName}: <strong>${formatValueWithoutCurrencySymbol_v1(serviceCat.driverValue)}</strong>`}
+                 : serviceCat.driverTypeID === 5 ? 
+                 `<strong>${serviceCat.enteredText}</strong>`
+                 : serviceCat.driverTypeID === 6 ?
+                 `<strong>${serviceCat.enteredDate}</strong>`
+                 : `${serviceCat.driverName}: <strong>${formatValueWithoutCurrencySymbol_v1(serviceCat.driverValue)}</strong>`
+                }
             </p>
         </div>
     `

@@ -308,8 +308,8 @@ export const AdditionalInformation = (props) => {
         "\\$&"
       );
 
-      // Only allow alphanumeric and defined special characters
-      const regex = new RegExp(`[^a-zA-Z0-9${escapedAllowed}]`, "g");
+      // Only allow alphanumeric, spaces and defined special characters
+      const regex = new RegExp(`[^a-zA-Z0-9 ${escapedAllowed}]`, "g");
 
       const cleanedValue = inputValue.replace(regex, "").slice(0, maxLength);
 

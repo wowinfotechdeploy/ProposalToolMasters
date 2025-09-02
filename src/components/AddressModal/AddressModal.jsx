@@ -171,39 +171,68 @@ function AddressModalComponent(props) {
   //   );
   // }, [query]);
 
-useEffect(() => {
+  useEffect(() => {
     if (query.trim() === "") {
       setPredictions([]);
       return;
     }
 
-    const handler = setTimeout(async () => {
-      try {
-        const { AutocompleteSuggestion } = await window.google.maps.importLibrary("places");
+    const handler = setTimeout(() => {
+      const autocompleteService =
+        new window.google.maps.places.AutocompleteService();
 
-        // Fetch predictions
-        const { suggestions } = await AutocompleteSuggestion.fetchAutocompleteSuggestions({
+      autocompleteService.getPlacePredictions(
+        {
           input: query,
-          includedRegionCodes: ["gb"],
-        });
+          componentRestrictions: { country: "uk" },
+        },
+        (predictions, status) => {
+          if (status === window.google.maps.places.PlacesServiceStatus.OK) {
+            setPredictions(predictions);
+          } else {
+            console.error("Error fetching predictions");
+            setPredictions([]);
+          }
+        }
+      );
+    }, 700); // 700ms debounce
 
-        const formatted = suggestions.map((s) => ({
-          description: `${s.placePrediction.mainText.text}${s.placePrediction.secondaryText
-              ? ", " + s.placePrediction.secondaryText.text
-              : ""
-            }`,
-          place_id: s.placePrediction.placeId,
-        }));
-
-        setPredictions(formatted);
-      } catch (err) {
-        console.error("Error fetching predictions", err);
-        setPredictions([]);
-      }
-    },700);
-    // cleanup
     return () => clearTimeout(handler);
   }, [query]);
+
+// useEffect(() => {
+//     if (query.trim() === "") {
+//       setPredictions([]);
+//       return;
+//     }
+
+//     const handler = setTimeout(async () => {
+//       try {
+//         const { AutocompleteSuggestion } = await window.google.maps.importLibrary("places");
+
+//         // Fetch predictions
+//         const { suggestions } = await AutocompleteSuggestion.fetchAutocompleteSuggestions({
+//           input: query,
+//           includedRegionCodes: ["gb"],
+//         });
+
+//         const formatted = suggestions.map((s) => ({
+//           description: `${s.placePrediction.mainText.text}${s.placePrediction.secondaryText
+//               ? ", " + s.placePrediction.secondaryText.text
+//               : ""
+//             }`,
+//           place_id: s.placePrediction.placeId,
+//         }));
+
+//         setPredictions(formatted);
+//       } catch (err) {
+//         console.error("Error fetching predictions", err);
+//         setPredictions([]);
+//       }
+//     },700);
+//     // cleanup
+//     return () => clearTimeout(handler);
+//   }, [query]);
 
   const handleClearAddress = () => {
     setRequireErrorMessage(false);
