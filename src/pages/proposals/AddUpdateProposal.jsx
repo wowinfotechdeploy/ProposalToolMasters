@@ -11348,7 +11348,7 @@ const Add_Update_Proposal = (props) => {
                     (
                       driver.slab?.find(item => item.isDefault) || {}
                     ).slabValue ||
-                    (Array.isArray(driver.text) && driver.text.length > 0 ? driver.text[0].textValue : null) ||
+                    (Array.isArray(driver.text) && driver.text.length > 0 ? driver.text[0].textValue : 0) ||
                     (
                       driver.date !== null
                         ? driver.date?.length > 0
@@ -16109,8 +16109,8 @@ const Add_Update_Proposal = (props) => {
                     ? driver.date?.length > 0
                       ? driver.date.find(d => d.dateValue === driver.driverValue)?.dateValue
                       ?? driver.date[0].defaultDateValue
-                      ?? null
-                      : null
+                      ?? 0
+                      : 0
                     : driver.text !== null
                     ? driver.driverValue ?? driver.text?.find(d => d.textID === driver.textID)?.textValue ?? 0
                   : driver.driverValue,

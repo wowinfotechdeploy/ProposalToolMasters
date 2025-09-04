@@ -316,7 +316,7 @@ export const AdditionalInformation = (props) => {
       return {
         ...info,
         enteredText: cleanedValue,
-        driverValue: textBlock.textValue,
+        driverValue: textBlock.textValue ?? 0,
         textID: textBlock.textID,
       };
     });
@@ -742,7 +742,7 @@ export const AdditionalInformation = (props) => {
                                               )}
                                             </>
                                           )}
-                                          {/* <span class="text-danger">*</span> */}
+                                          <span class="text-danger">*</span>
                                         </label>
                                       </div>
                                     </div>

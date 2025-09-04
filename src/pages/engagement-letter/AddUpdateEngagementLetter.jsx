@@ -9718,18 +9718,23 @@ const Add_Update_Engagement_Letter = () => {
                   PricingInfo: true,
                 });
               }
-              if (
-                pricingList.driverVisibility &&
-                pricingList.driverTypeID === 6 &&
-                (pricingList.enteredDate === undefined ||
-                  pricingList.enteredDate === null ||
-                  pricingList.enteredDate === "")
-              ) {
-                hasUndefinedTextOrDateorquantityDriver = true;
+              if (pricingList.driverVisibility && pricingList.driverTypeID === 6) {
+                const isDateMandatory = pricingList.date?.some(
+                  (block) => block.dateValue != null || block.defaultDateValue != null
+                );
+
+                if (
+                  isDateMandatory &&
+                  (pricingList.enteredDate === undefined ||
+                    pricingList.enteredDate === null ||
+                    pricingList.enteredDate === "")
+                ) {
+                  hasUndefinedTextOrDateorquantityDriver = true;
+                }
               }
               if (
                 pricingList.driverVisibility &&
-                (pricingList.driverTypeID === 5) &&
+                (pricingList.driverTypeID === 5 && pricingList.text?.[0]?.textValue !== null) &&
                 (pricingList.enteredText === undefined ||
                   pricingList.enteredText === null ||
                   pricingList.enteredText === "")
@@ -9791,18 +9796,23 @@ const Add_Update_Engagement_Letter = () => {
                   PricingInfo: true,
                 });
               }
+             if (pricingList.driverVisibility && pricingList.driverTypeID === 6) {
+                const isDateMandatory = pricingList.date?.some(
+                  (block) => block.dateValue != null || block.defaultDateValue != null
+                );
+
+                if (
+                  isDateMandatory &&
+                  (pricingList.enteredDate === undefined ||
+                    pricingList.enteredDate === null ||
+                    pricingList.enteredDate === "")
+                ) {
+                  hasUndefinedTextOrDateorquantityDriver = true;
+                }
+              } 
               if (
                 pricingList.driverVisibility &&
-                pricingList.driverTypeID === 6 &&
-                (pricingList.enteredDate === undefined ||
-                  pricingList.enteredDate === null ||
-                  pricingList.enteredDate === "")
-              ) {
-                hasUndefinedTextOrDateorquantityDriver = true;
-              }
-              if (
-                pricingList.driverVisibility &&
-                (pricingList.driverTypeID === 5) &&
+                (pricingList.driverTypeID === 5&& pricingList.text?.[0]?.textValue !== null) &&
                 (pricingList.enteredText === undefined ||
                   pricingList.enteredText === null ||
                   pricingList.enteredText === "")

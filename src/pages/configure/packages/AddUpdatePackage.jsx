@@ -1947,7 +1947,7 @@ const AddUpdatePackage = (props) => {
         } else if (
           item.text !== null
         ) {
-          driverValue = item.text?.[0]?.textValue
+          driverValue = item.text?.[0]?.textValue ?? 0;
           textID = item.text?.[0].textID;
           msgMapID = item.msgMapID;
           msMapID = item.msMapID;
@@ -2530,7 +2530,7 @@ const AddUpdatePackage = (props) => {
                         driver.slab?.find((item) => item.isDefault === true) ||
                         {}
                       ).slabValue ||
-                      (Array.isArray(driver.text) ? driver.text[0].textValue : null) ||
+                      (Array.isArray(driver.text) ? driver.text[0].textValue : 0) ||
                         driver.date !== null
                         ? driver.date?.length > 0
                         ? driver.date.find(d => d.dateValue === driver.driverValue)?.dateValue ?? driver.date[0].defaultDateValue : 0
@@ -2605,6 +2605,9 @@ const AddUpdatePackage = (props) => {
             .variationValue ||
           (item.slab?.find((item) => item.isDefault === true) || {})
             .slabValue ||
+          (item.date?.find((item) => item.isDefault === true) || {})
+            .dateValue ||
+          (item.text?.[0].textValue ?? 0) ||
           item.driverValue,
         variationID:
           item.variation !== null

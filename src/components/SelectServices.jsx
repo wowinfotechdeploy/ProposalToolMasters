@@ -1119,7 +1119,7 @@ export const SelectServices = (props) => {
                     ) {
                       return {
                         ...driver,
-                        driverValue: sanitized === "" ? null : driver.text?.[0]?.textValue,
+                        driverValue: sanitized === "" ? 0 : driver.text?.[0]?.textValue,
                         enteredText: sanitized
                       };
                     }
@@ -1151,7 +1151,7 @@ export const SelectServices = (props) => {
                     ) {
                       return {
                         ...driver,
-                        driverValue: sanitized === "" ? null : driver.text?.[0]?.textValue,
+                        driverValue: sanitized === "" ? 0 : driver.text?.[0]?.textValue,
                         enteredText: sanitized
                       };
                     }
