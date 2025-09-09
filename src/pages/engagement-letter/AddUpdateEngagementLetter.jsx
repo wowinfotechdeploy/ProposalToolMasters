@@ -9082,6 +9082,7 @@ const Add_Update_Engagement_Letter = () => {
         let driverValue;
         let slabID;
         let dateID;
+        let textID;
         let variationID;
         let msgMapID;
         let msMapID;
@@ -9113,11 +9114,21 @@ const Add_Update_Engagement_Letter = () => {
           dateID = defaultDate.dateID;
           msgMapID = item.msgMapID;
           msMapID = item.msMapID;
+        } else if (
+          item.text &&
+          item.text.length > 0
+        ) {
+          driverValue = item.text?.[0]?.textValue ?? 0;
+          textID = item.text?.[0]?.textID;
+          msgMapID = item.msgMapID;
+          msMapID = item.msMapID;
         } else if (item.driverTypeID === 2 || item.driverTypeID === 1) {
           driverValue = item.driverValue === null ? 0 : item.driverValue;
           slabID = item.slabID;
           variationID = item.variationID;
           msgMapID = item.msgMapID;
+          textID = item.textID;
+          dateID = item.dateID;
           msMapID = item.msMapID;
         }
         return {
@@ -9128,6 +9139,7 @@ const Add_Update_Engagement_Letter = () => {
           variationID,
           slabID,
           dateID,
+          textID,
           enteredText: item.enteredText,
           enteredDate: item.enteredDate,
           enteredDateFormat: item.enteredDateFormat,
@@ -9598,8 +9610,8 @@ const Add_Update_Engagement_Letter = () => {
             SelectService: true,
           });
           setRequireMessage(false);
-          await GetAdditionalInformationListData(ServicesIDsElement);
         }
+        await GetAdditionalInformationListData(ServicesIDsElement);
       }
     }
     if (activeTab === EngagementLetterHeader.BasicInformation) {
@@ -10694,8 +10706,8 @@ const Add_Update_Engagement_Letter = () => {
                         driver.slab?.find((item) => item.isDefault === true) ||
                         {}
                       ).slabValue ||
-                      (Array.isArray(driver.text) && driver.text.length > 0 ? driver.text[0].textValue : null) ||
-                      driver.date?.find(d => d.dateValue === driver.driverValue)?.dateValue
+                      (Array.isArray(driver.text) && driver.text.length > 0 ? driver.text[0].textValue : 0) ||
+                      driver.date?.find(d => d.dateValue === driver.driverValue)?.dateValue || driver.date?.[0]?.defaultDateValue || 0
                         || driver.driverValue,
                     variationID:
                       (

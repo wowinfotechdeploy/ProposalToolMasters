@@ -11192,11 +11192,11 @@ const Add_Update_Proposal = (props) => {
                     ).variationValue ||
                     (driver.slab?.find((item) => item.isDefault === true) || {})
                       .slabValue ||
-                    (Array.isArray(driver.text) && driver.text.length > 0 ? driver.text[0].textValue : null) ||
+                    (Array.isArray(driver.text) && driver.text.length > 0 ? driver.text[0]?.textValue : 0) ||
                     (
                       Array.isArray(driver.date) && driver.date.length > 0
                         ? driver.date.find(d => d.dateValue === driver.driverValue)?.dateValue ??
-                        driver.date[0]?.defaultDateValue
+                        driver.date[0]?.defaultDateValue ?? 0
                         : null
                     ) || driver.driverValue,
                   dateID:
@@ -11354,7 +11354,7 @@ const Add_Update_Proposal = (props) => {
                         ? driver.date?.length > 0
                           ? driver.date.find(d => d.isDefault === true)?.dateValue
                             || driver.date?.[0]?.defaultDateValue
-                          : null
+                          : 0
                         : null
                     ) || driver.driverValue,
                     dateID:
@@ -16446,6 +16446,7 @@ const Add_Update_Proposal = (props) => {
           let slabID;
           let variationID;
           let dateID;
+          let textID;
           let msgMapID;
           let msMapID;
           if (item.slab && item.slab.some((slabItem) => slabItem.isDefault)) {
@@ -16474,14 +16475,24 @@ const Add_Update_Proposal = (props) => {
             const defaultDate = item.date.find(
               (dateItem) => dateItem.isDefault
             );
-            driverValue = defaultDate.dateValue ?? defaultDate.defaultDateValue ?? null;
+            driverValue = defaultDate.dateValue ?? defaultDate.defaultDateValue ?? 0;
             dateID = defaultDate.dateID;
+            msgMapID = item.msgMapID;
+            msMapID = item.msMapID;
+          } else if (
+            item.text &&
+            item.text.length > 0
+          ) {
+            driverValue = item.text?.[0]?.textValue ?? 0;
+            textID = item.text?.[0]?.textID;
             msgMapID = item.msgMapID;
             msMapID = item.msMapID;
           } else if (item.driverTypeID === 2 || item.driverTypeID === 1) {
             driverValue = item.driverValue === null ? 0 : item.driverValue;
             slabID = item.slabID;
             variationID = item.variationID;
+            dateID = item.dateID;
+            textID = item.textID;
             msgMapID = item.msgMapID;
             msMapID = item.msMapID;
           }
@@ -16493,6 +16504,7 @@ const Add_Update_Proposal = (props) => {
             variationID,
             slabID,
             dateID,
+            textID,
             enteredText: item.enteredText,
             enteredDate: item.enteredDate,
             enteredDateFormat: item.enteredDateFormat

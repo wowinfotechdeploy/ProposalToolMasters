@@ -238,12 +238,23 @@ export const AdditionalInformation = (props) => {
                 ? parseStoredDate(block.toDate, dateFormat)
                 : null;
 
-              if (!from || !to) return false;
+              // Case 1: both from & to
+              if (from && to) {
+                return (
+                  (isEqual(selectedDate, from) || isAfter(selectedDate, from)) &&
+                  (isEqual(selectedDate, to) || isBefore(selectedDate, to))
+                );
+              }
+              // Case 2: only from (open-ended future)
+              if (from && !to) {
+                return isEqual(selectedDate, from) || isAfter(selectedDate, from);
+              }
+              // Case 3: only to (open-ended past)
+              if (!from && to) {
+                return isEqual(selectedDate, to) || isBefore(selectedDate, to);
+              }
+              return false;
 
-              return (
-                (isEqual(selectedDate, from) || isAfter(selectedDate, from)) &&
-                (isEqual(selectedDate, to) || isBefore(selectedDate, to))
-              );
             });
 
             if (!matchedBlock) {
@@ -258,7 +269,7 @@ export const AdditionalInformation = (props) => {
                         enteredDate: null,
                         isDefault: false
                     })),
-                    driverValue: null,
+                    driverValue: 0,
                     dateID: null,
                     enteredDate: null,
                     enteredDateFormat: null

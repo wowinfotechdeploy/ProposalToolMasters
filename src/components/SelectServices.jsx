@@ -195,57 +195,128 @@ export const SelectServices = (props) => {
 
 //   return changed ? updateRecursiveVisibility(updated, fullList) : updated;
 // };
+// const updateRecursiveVisibility = (services, fullList) => {
+  //   let changed = false;
+
+  //   const updated = services.map(service => {
+  //     if (
+  //       Array.isArray(service.hasDependencies) &&
+  //       service.hasDependencies.length > 0
+  //     ) {
+  //       const shouldShow = service.hasDependencies.some(dep => {
+  //         const match = fullList.find(s => {
+  //           const serviceMatch =
+  //             s.serviceID === dep.serviceID &&
+  //             s.serviceCatID === dep.serviceCatID &&
+  //             s.isSelected === true;
+
+  //           // console.log("---- Dependency Check ----");
+  //           // console.log("Looking for:", dep.serviceID, "in category", dep.serviceCatID);
+  //           // console.log("Checking against selected service:", s.serviceID, "in category", s.serviceCatID, "| isSelected:", s.isSelected);
+  //           // console.log("Match result:", serviceMatch);
+
+  //           return serviceMatch;
+  //         });
+
+  //         return !!match;
+  //       });
+
+  //       if (!shouldShow && !service.isHidden) {
+  //         // console.log("hide");
+  //         changed = true;
+  //         return {
+  //           ...service,
+  //           isHidden: true,
+  //           isDisabled: true,
+  //           isSelected: false,
+  //         };
+  //       } else if (shouldShow && service.isHidden) {
+  //         // console.log("show");
+  //         changed = true;
+  //         return {
+  //           ...service,
+  //           isHidden: false,
+  //           isDisabled: false,
+  //         };
+  //       }
+  //     }
+
+  //     return service;
+  //   });
+
+  //   return changed ? updateRecursiveVisibility(updated, fullList) : updated;
+  // };
   const updateRecursiveVisibility = (services, fullList) => {
     let changed = false;
 
-    const updated = services.map(service => {
-      if (
-        Array.isArray(service.hasDependencies) &&
-        service.hasDependencies.length > 0
-      ) {
-        const shouldShow = service.hasDependencies.some(dep => {
-          const match = fullList.find(s => {
-            const serviceMatch =
-              s.serviceID === dep.serviceID &&
-              s.serviceCatID === dep.serviceCatID &&
-              s.isSelected === true;
+    const updated = services.map((service) => {
+      const hasDeps = Array.isArray(service.hasDependencies) && service.hasDependencies.length > 0;
 
-            // console.log("---- Dependency Check ----");
-            // console.log("Looking for:", dep.serviceID, "in category", dep.serviceCatID);
-            // console.log("Checking against selected service:", s.serviceID, "in category", s.serviceCatID, "| isSelected:", s.isSelected);
-            // console.log("Match result:", serviceMatch);
-
-            return serviceMatch;
-          });
-
-          return !!match;
+      if (hasDeps) {
+        // determine if any dependency parent is selected
+        const someDepsSelected = service.hasDependencies.some((dep) => {
+          if (dep && typeof dep === "object" && dep.serviceID != null && dep.serviceCatID != null) {
+            return fullList.some(
+              (s) =>
+                s.serviceID === dep.serviceID &&
+                s.serviceCatID === dep.serviceCatID &&
+                s.isSelected === true
+            );
+          }
+          const depId = Number(dep);
+          return Number.isFinite(depId) && fullList.some((s) => s.serviceID === depId && s.isSelected === true);
         });
 
-        if (!shouldShow && !service.isHidden) {
-          // console.log("hide");
+        const nextHidden = !someDepsSelected;
+        const nextDisabled = !someDepsSelected;
+        const nextSelected = someDepsSelected
+          ? !!service.isSelected
+          : (service.isSelected ? service.isSelected : false);
+
+        // ALWAYS create a new service object with derived values
+        const newService = {
+          ...service,
+          isHidden: nextHidden,
+          isDisabled: nextDisabled,
+          isSelected: nextSelected,
+        };
+
+        // mark changed if anything differs (so recursion continues until stable)
+        if (
+          service.isHidden !== nextHidden ||
+          service.isDisabled !== nextDisabled ||
+          service.isSelected !== nextSelected
+        ) {
           changed = true;
-          return {
-            ...service,
-            isHidden: true,
-            isDisabled: true,
-            isSelected: false,
-          };
-        } else if (shouldShow && service.isHidden) {
-          // console.log("show");
-          changed = true;
-          return {
-            ...service,
-            isHidden: false,
-            isDisabled: false,
-          };
         }
+
+        return newService;
       }
 
-      return service;
+      // Independent service — always visible and enabled
+      const newService = { ...service, isHidden: false, isDisabled: false };
+      if (service.isHidden !== false || service.isDisabled !== false) changed = true;
+      return newService;
     });
 
     return changed ? updateRecursiveVisibility(updated, fullList) : updated;
   };
+
+  const oneOffSignature = props.oneOffServiceList
+    ?.flatMap(c =>
+      c.servicesList.map(s =>
+        `${s.serviceID}-${s.serviceCatID}-${s.isSelected}-${s.isHidden}`
+      )
+    )
+    .join("|") || "";
+
+  const recurringSignature = props.recurringServiceList
+    ?.flatMap(c =>
+      c.servicesList.map(s =>
+        `${s.serviceID}-${s.serviceCatID}-${s.isSelected}-${s.isHidden}`
+      )
+    )
+    .join("|") || "";
 
   useEffect(() => {
     const list = props.oneOffServiceList || [];
@@ -263,23 +334,15 @@ export const SelectServices = (props) => {
         }))
       ),
     ];
-    console.log(fullList);
+
     const updated = list.map(category => ({
       ...category,
       servicesList: updateRecursiveVisibility(category.servicesList, fullList),
     }));
 
-    // Let the latest selection apply before updating visibility
-    setTimeout(() => {
-      props.setOneOffServiceList(updated);
-    }, 0);
+    props.setOneOffServiceList(updated);
   }, [
-    props.recurringServiceList?.flatMap(c =>
-      c.servicesList.map(s => `${s.serviceID}-${s.serviceCatID}-${s.isSelected}`)
-    ).join(","),
-    props.oneOffServiceList?.flatMap(c =>
-      c.servicesList.map(s => `${s.serviceID}-${s.serviceCatID}-${s.isSelected}`)
-    ).join(","),
+   oneOffSignature,recurringSignature
   ]);
 
   useEffect(() => {
@@ -306,12 +369,7 @@ export const SelectServices = (props) => {
 
     props.setRecurringServiceList(updated);
   }, [
-    props.recurringServiceList?.flatMap(c =>
-      c.servicesList.map(s => `${s.serviceID}-${s.serviceCatID}-${s.isSelected}`)
-    ).join(","),
-    props.oneOffServiceList?.flatMap(c =>
-      c.servicesList.map(s => `${s.serviceID}-${s.serviceCatID}-${s.isSelected}`)
-    ).join(","),
+    oneOffSignature,recurringSignature
   ]);
 
   const handleRecurringServiceDependsServerClick = (

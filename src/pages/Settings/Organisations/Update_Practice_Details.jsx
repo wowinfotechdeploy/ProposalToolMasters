@@ -2871,6 +2871,9 @@ const Update_Practice_Details = () => {
                                     </div>
                                   </div>
                                 </div>
+                                {requireErrorMessage && otherInfo.indirectTaxPercentage > 100 &&
+                                  <label className="text-danger text-center mt-1">Percentage cannot exceed 100</label>
+                                }
                               </>
                             )}
                             {/* <div class="col-lg-12">
