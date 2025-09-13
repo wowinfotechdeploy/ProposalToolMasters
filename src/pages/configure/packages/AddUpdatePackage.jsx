@@ -2138,7 +2138,7 @@ const AddUpdatePackage = (props) => {
           });
           if (currencyId === 1) {
             setTaxName("VAT");
-            setCurrencySymbol("{props.currencySymbol}");
+            setCurrencySymbol("£");
           } else if (currencyId === 2) {
             setTaxName("EU VAT");
             setCurrencySymbol("€");
