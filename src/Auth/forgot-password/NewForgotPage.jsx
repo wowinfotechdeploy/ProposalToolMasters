@@ -117,7 +117,7 @@ const NewForgotPage = () => {
                                             }}>Signup</a>
                                         </li>
                                         <li>
-                                            <a className="lna" href="https://calendly.com/amit-outbooks/outbooksproposal" target="_Blank">Book a Free Demo</a>
+                                            <a className="lna" href="https://outlook.office.com/bookwithme/user/4a35845a9f444012a9e5a4f2fbe159b2%40outbooks.com?anonymous&ismsaljsauthenabled=true" target="_Blank">Book a Free Demo</a>
                                         </li>
                                     </ul>
                                 </div>
@@ -146,7 +146,7 @@ const NewForgotPage = () => {
                         <div className="lnbtn lp-lnmenu">
                             <a onClick={() => navigate("/registration")} className="top3btn t3btn3">SIGNUP</a>
                             <a onClick={() => navigate("/login")} className="top3btn t3btn2">LOGIN</a>
-                            <a href="https://calendly.com/amit-outbooks/outbooksproposal" target="_blank" className="top3btn t3btn1">BOOK A FREE DEMO</a>
+                            <a href="https://outlook.office.com/bookwithme/user/4a35845a9f444012a9e5a4f2fbe159b2%40outbooks.com?anonymous&ismsaljsauthenabled=true" target="_blank" className="top3btn t3btn1">BOOK A FREE DEMO</a>
                         </div>
                     </div>
                 </header>
