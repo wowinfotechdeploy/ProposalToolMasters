@@ -1734,9 +1734,9 @@ const Engagement_Letter = () => {
                                   <td className="tr-table-class text-white">
                                     Documents
                                   </td>
-                                  <td className="tr-table-class text-white">
+                                  {/* <td className="tr-table-class text-white">
                                     Last Updated On
-                                  </td>
+                                  </td> */}
                                   <td className="tr-table-class text-white">
                                     Send Reminder
                                   </td>
@@ -1951,7 +1951,7 @@ const Engagement_Letter = () => {
                                                 </p>
                                               )}
                                           </td>
-                                          <td className="table-content-font">
+                                          {/* <td className="table-content-font">
                                             {engagement.statusID ===
                                               statusID.Signed ? (
                                               <span>
@@ -1983,7 +1983,7 @@ const Engagement_Letter = () => {
                                                 )}
                                               </span>
                                             ) : null}
-                                          </td>
+                                          </td> */}
 
                                           <td className="table-content-font">
                                             {engagement.statusID !==
@@ -2074,9 +2074,9 @@ const Engagement_Letter = () => {
                                                 <ul
                                                   style={{
                                                     padding: `${engagement.statusID ===
-                                                        statusID.Draft
-                                                        ? "2px 0px 2px 0px"
-                                                        : "6px 8px"
+                                                      statusID.Draft
+                                                      ? "2px 0px 2px 0px"
+                                                      : "6px 8px"
                                                       }`,
                                                   }}
                                                   class="dropdown-menu"

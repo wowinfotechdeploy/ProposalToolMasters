@@ -107,7 +107,6 @@ const VAT_Registered = [
     label: "No",
   },
 ];
-
 const IS_default = [
   {
     value: true,
@@ -663,61 +662,6 @@ const FontFamily = [
   { value: 30, label: "Comic Sans MS, cursive, sans-serif" },
 ];
 
-const DECIMAL_PLACE_OPTIONS = [
-  { value: 2, label: "2 decimal places" },
-  { value: 1, label: "1 decimal place" },
-  { value: 0, label: "No decimal places" },
-];
-const getDecimalPlaceLabel = (decimalPlaces) => {
-  if (decimalPlaces === 0) return "No decimal places";
-  if (decimalPlaces === 1) return "1 decimal place";
-  return `${decimalPlaces} decimal places`;
-};
-
-const specialCharOptions = [
-  ".",
-  "-",
-  "+",
-  ";",
-  ":",
-  "!",
-  "@",
-  "#",
-  "$",
-  "%",
-  "^",
-  "&",
-  "*",
-  "(",
-  ")",
-  "_",
-  "=",
-  "{",
-  "}",
-  "[",
-  "]",
-  "|",
-  "\\",
-  "/",
-  "<",
-  ">",
-  "?",
-  "~",
-  "`",
-  "'",
-  '"',
-  ",",
-].map((char) => ({
-  label: char,
-  value: char,
-}));
-
-const dateFormats = [
-  { label: "ISO (YYYY-MM-DD)", value: "yyyy-MM-dd" },
-  { label: "US (MM/DD/YYYY)", value: "MM/dd/yyyy" },
-  { label: "European (DD/MM/YYYY)", value: "dd/MM/yyyy" },
-  { label: "UK (DD-MM-YYYY)", value: "dd-MM-yyyy" },
-];
 // const FontSize = [
 //   { value: 1, label: "1px" },
 //   { value: 2, label: "2px" },
@@ -749,10 +693,6 @@ const FontSize = [
 
 export default {
   heightOptions,
-  DECIMAL_PLACE_OPTIONS,
-  getDecimalPlaceLabel,
-  specialCharOptions,
-  dateFormats,
   FontSize,
   FontFamily,
   emailTemplates,

@@ -2290,36 +2290,6 @@ const OtherInformation = (props) => {
   const currencyFilter = props.currencyType.find(
     (item) => props.otherInfo.preferredCurrency == item.value
   );
-
-  let taxName;
-  if (currencyFilter.value === 1) {
-    taxName = 'VAT';
-  } else if (currencyFilter.value === 2) {
-    taxName = 'EU VAT';
-  } else if (currencyFilter.value === 3) {
-    taxName = 'Sales Tax'
-  } else if (currencyFilter.value === 4) {
-    taxName = 'GST';
-  }
-
-  useEffect(() => {
-    let newVAT = 20;
-
-    if (props.otherInfo.preferredCurrency === 4) {
-      newVAT = 18;
-    } else if (props.otherInfo.preferredCurrency === 2) {
-      newVAT = 21;
-    } else if (props.otherInfo.preferredCurrency === 3) {
-      newVAT = 19;
-    }
-
-    props.setOtherInfo((prev) => ({
-      ...prev,
-      indirectTaxPercentage: newVAT
-    }));
-    console.log(newVAT);
-  }, [props.otherInfo.preferredCurrency]);
-
   const isValidPhoneNumber = (phoneNumber) => {
     const phoneNumberRegex = /^\d{10,15}$/; // Allow between 10 and 15 digits
     return phoneNumberRegex.test(phoneNumber);
@@ -2342,27 +2312,6 @@ const OtherInformation = (props) => {
     }
   };
   const [type, setType] = useState("");
-
-  const handleChangeTaxPercentage = (e) => {
-  let value = e.target.value;
-
-  let cleanValue = value.replace(/[^0-9.]/g, '');
-
-  // Prevent multiple dots:
-  const parts = cleanValue.split('.');
-  if (parts.length > 2) {
-    cleanValue = parts[0] + '.' + parts.slice(1).join('');
-  }
-
-  const regex = /^(\d{0,3}(\.\d{0,2})?)?$/;
-
-    if (regex.test(cleanValue)) {
-      props.setOtherInfo({
-        ...props.otherInfo,
-        indirectTaxPercentage: cleanValue,
-      });
-    }
-  };
 
   const handleImageUpload = () => {
     if (type == "Logo") {
@@ -2397,40 +2346,9 @@ const OtherInformation = (props) => {
         <div className="tab-content">
           <div className="row">
             <div className="col-xl-12 col-lg-12">
-              <div className="row fieldset">
-                <div class="col-md-3 col-sm-12 text-start text-md-end">
-                  <label class="fieldset-label  required">
-                    Preferred Currency
-                  </label>
-                  <span class="text-danger">*</span>
-                </div>
-                <div className="col-md-9 col-sm-12">
-                  <div className="input-group">
-                    <Select
-                      style={{ padding: "5px", width: "20%" }}
-                      className="CurrencySelect"
-                      options={props.currencyType}
-                      value={currencyFilter}
-                      onChange={(e) => {
-                        props.setOtherInfo({
-                          ...props.otherInfo,
-                          preferredCurrency: e.value,
-                        });
-                      }}
-                    />
-                  </div>
-                  {props.requireOtherErrorMessage &&
-                    (props.otherInfo.preferredCurrency === "" ||
-                      props.otherInfo.preferredCurrency === null) ? (
-                    <span className="validation">{ERROR_MESSAGES}</span>
-                  ) : (
-                    ""
-                  )}
-                </div>
-              </div>
               <div className="row fieldset mt-3">
                 <div class="col-md-3 col-sm-12 text-start text-md-end">
-                  <label class="fieldset-label required">{taxName} Registered</label>
+                  <label class="fieldset-label required">VAT Registered</label>
                 </div>
                 <div className="col-md-9 col-sm-12">
                   <div className="input-group">
@@ -2449,17 +2367,16 @@ const OtherInformation = (props) => {
                 </div>
               </div>
               {props.otherInfo.VATReg === 0 && (
-                <>
                 <div className="row fieldset mt-3">
                   <div class="col-md-3 col-sm-12 text-start text-md-end">
-                    <label class="fieldset-label required">{taxName} Number</label>
+                    <label class="fieldset-label required">VAT Number</label>
                   </div>
                   <div className="col-md-9 col-sm-12">
                     <div className="input-group">
                       <input
                         type="text"
                         className="input-text"
-                        placeholder={`${taxName} Number`}
+                        placeholder="VAT Number"
                         value={props.otherInfo.VATNumber}
                         onChange={(e) => {
                           const sanitizedInput = e.target.value
@@ -2474,34 +2391,6 @@ const OtherInformation = (props) => {
                     </div>
                   </div>
                 </div>
-                  <div className="row fieldset mt-3">
-                    <div class="col-md-3 col-sm-12 text-start text-md-end">
-                      <label class="fieldset-label required">{taxName} Percentage</label>
-                    </div>
-                    <div className="col-md-9 col-sm-12">
-                      {/* <Slider
-                        value={props.otherInfo.indirectTaxPercentage ?? 20}
-                        step={0.1}
-                        min={0}
-                        max={100}
-                        aria-label="Default"
-                        valueLabelDisplay="auto"
-                        onChange={(e, newValue) => {
-                          props.setOtherInfo({
-                            ...props.otherInfo,
-                            indirectTaxPercentage: newValue,
-                          });
-                        }}
-                      /> */}
-                      <input
-                        className="input-text"
-                        type="text"
-                        value={props.otherInfo.indirectTaxPercentage ?? 20.00}
-                        onChange={handleChangeTaxPercentage}
-                      />
-                    </div>
-                  </div>
-                </>
               )}
               <div className="row fieldset">
                 <div class="col-md-3 col-sm-12 text-start text-md-end">
@@ -3337,7 +3226,6 @@ const Create_practice_details = () => {
     VATReg: 1,
     VATNumber: null,
     preferredCurrency: 1,
-    indirectTaxPercentage: null,
     website: null,
     contactEmail: null,
     contactPhone: null,
@@ -3647,7 +3535,6 @@ const Create_practice_details = () => {
         signatureImageUrl: null,
         isVatRegistered: otherInfo.VATReg,
         vatNumber: otherInfo.VATNumber,
-        indirectTaxPercentage: otherInfo.indirectTaxPercentage,
         preferredCurrencyId: otherInfo.preferredCurrency,
         website: otherInfo.website,
         countryCodeID: otherInfo.countryCodeID?.value,

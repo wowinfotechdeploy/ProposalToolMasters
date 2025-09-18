@@ -1,13 +1,15 @@
 /* global $ */
-import React, { createContext, useEffect, useState, useRef } from "react";
+import React, {
+  createContext,
+  useEffect,
+  useState,
+  useRef,
+} from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { resetState, updateState } from "../redux/Persist";
 import { CalenderFilterEnum, ActiveDateFilterEnum } from "../Middleware/enums";
 import moment from "moment/moment";
 import { GetSaveImage } from "../redux/Services/SaveImage/SaveImageApi";
-// import DatePicker from "react-datepicker";
-// import "react-datepicker/dist/react-datepicker.css";
-import { format, parse, isValid } from "date-fns";
 const initialState = {
   loading: false,
 };
@@ -49,7 +51,7 @@ const AuthContext = ({ children }) => {
   const [isMobileRecords, setIsMobileRecords] = useState(1);
   const [desktopRecords, setDesktopRecords] = useState(1);
   const [isMobile, setIsMobile] = useState(false);
-  const [isMenuVisible, setMenuVisible] = useState(false);
+  const [isMenuVisible, setMenuVisible] = useState(false)
   const [orgLoaderList, setOrgLoaderList] = useState(false);
   const [DashboardCountListLoader, setDashboardCountListLoader] =
     useState(false);
@@ -354,7 +356,7 @@ const AuthContext = ({ children }) => {
     let timeoutId;
     if (logoutTimeUpModal.isPopupOpen) {
       timeoutId = setTimeout(() => {
-        CheckUsersIdleStateAfterSessionTimeoutPopUpOpen();
+        CheckUsersIdleStateAfterSessionTimeoutPopUpOpen()
       }, 10000);
     }
     // Cleanup the timeout if isPopupOpen becomes false or on component unmount
@@ -367,7 +369,8 @@ const AuthContext = ({ children }) => {
         clearTimeout(timeoutId);
       }
     };
-  }, [logoutTimeUpModal]);
+
+  }, [logoutTimeUpModal])
 
   useEffect(() => {
     localStorage.setItem("accessCount", accessCount);
@@ -396,6 +399,7 @@ const AuthContext = ({ children }) => {
         userThemeSettingLocalStorage === undefined ||
         userThemeSettingLocalStorage === null
       ) {
+
       } else {
         GetUserPersonalizeSettingDataFromLocalStorage();
       }
@@ -407,10 +411,9 @@ const AuthContext = ({ children }) => {
 
   const updateImageUrlsInHtml = async (htmlContent) => {
     // Regular expression to match base64 images
-    const base64ImageRegex =
-      /<img[^>]+src="data:image\/(png|jpeg|jpg);base64,([^"]*)"/g;
+    const base64ImageRegex = /<img[^>]+src="data:image\/(png|jpeg|jpg);base64,([^"]*)"/g;
     const matches = [...htmlContent.matchAll(base64ImageRegex)];
-    setLoader(true);
+    setLoader(true)
 
     const urlMap = new Map();
 
@@ -418,6 +421,7 @@ const AuthContext = ({ children }) => {
       const base64Data = match[2];
       const contentType = `image/${match[1]}`;
       const filename = `image-${index}.${match[1]}`;
+
 
       const userKeyID = common.userKeyID; // Ensure this is defined or passed in
       const ApiObject_param = { base64Data, contentType, filename, userKeyID };
@@ -429,10 +433,10 @@ const AuthContext = ({ children }) => {
 
           urlMap.set(base64Data, imgUrl);
         } else {
-          console.error("Server response not successful:", response.data);
+          console.error('Server response not successful:', response.data);
         }
       } catch (error) {
-        console.error("Error saving image:", error);
+        console.error('Error saving image:', error);
       }
     }
 
@@ -442,66 +446,55 @@ const AuthContext = ({ children }) => {
     urlMap.forEach((newUrl, base64Data) => {
       try {
         // Use a more generic approach to split and replace
-        updatedHtml = updatedHtml
-          .split(`data:image/png;base64,${base64Data}`)
-          .join(newUrl);
-        updatedHtml = updatedHtml
-          .split(`data:image/jpeg;base64,${base64Data}`)
-          .join(newUrl);
-        updatedHtml = updatedHtml
-          .split(`data:image/jpg;base64,${base64Data}`)
-          .join(newUrl);
+        updatedHtml = updatedHtml.split(`data:image/png;base64,${base64Data}`).join(newUrl);
+        updatedHtml = updatedHtml.split(`data:image/jpeg;base64,${base64Data}`).join(newUrl);
+        updatedHtml = updatedHtml.split(`data:image/jpg;base64,${base64Data}`).join(newUrl);
       } catch (error) {
-        console.error("Error replacing base64 data:", error);
+        console.error('Error replacing base64 data:', error);
       }
     });
 
-    setLoader(false);
+    setLoader(false)
     return updatedHtml;
   };
 
   const updateTemplateList = async (ListArray, ModuleName) => {
-    if (
-      ModuleName === "Email_Template" ||
-      ModuleName === "Super_Admin_Email_Template"
-    ) {
+    if (ModuleName === "Email_Template" || ModuleName === "Super_Admin_Email_Template") {
       try {
-        const updatedTemplate = await Promise.all(
-          ListArray.map(async (item) => {
-            return {
-              ...item,
-              htmlContent: await updateImageUrlsInHtml(item.htmlContent),
-            };
-          })
-        );
+        const updatedTemplate = await Promise.all(ListArray.map(async (item) => {
+          return {
+            ...item,
+            htmlContent: await updateImageUrlsInHtml(item.htmlContent)
+          };
+        }));
         return updatedTemplate;
       } catch (error) {
-        console.error("Error updating template list:", error);
+        console.error('Error updating template list:', error);
       }
     }
     if (ModuleName === "CustomizeTemplate") {
       try {
-        const updatedTemplate = await updateImageUrlsInHtml(ListArray);
+        const updatedTemplate = await updateImageUrlsInHtml(ListArray)
         return updatedTemplate;
       } catch (error) {
-        console.error("Error updating template list:", error);
+        console.error('Error updating template list:', error);
       }
     }
   };
 
   const CheckUsersIdleStateAfterSessionTimeoutPopUpOpen = () => {
     if (logoutTimeUpModal.isPopupOpen) {
-      Logout();
+      Logout()
     }
-  };
+  }
 
   const Logout = () => {
     localStorage.clear();
     dispatch(resetState());
-    handleReloadClick();
+    handleReloadClick()
     window.location.reload(true);
     // navigate("/login");
-  };
+  }
   const handleReloadClick = () => {
     const broadcastChannel = new BroadcastChannel("reloadChannel");
     broadcastChannel.postMessage("reload");
@@ -509,26 +502,18 @@ const AuthContext = ({ children }) => {
 
   const scrollUptoCurrentPosition = (e, scrollbarContainerDivRef) => {
     const activeElement = document.activeElement;
-    const isReactSelectInput =
-      activeElement &&
-      activeElement.id.startsWith("react-select-") &&
-      activeElement.tagName === "INPUT";
+    const isReactSelectInput = activeElement && activeElement.id.startsWith('react-select-') && activeElement.tagName === 'INPUT';
 
     if (isReactSelectInput && scrollbarContainerDivRef.current) {
-      const containerRect =
-        scrollbarContainerDivRef.current.getBoundingClientRect();
+      const containerRect = scrollbarContainerDivRef.current.getBoundingClientRect();
       const clickedPosition = e.clientY - containerRect.top;
       const containerHeight = containerRect.height;
 
       // Calculate the target scroll position
-      let targetScroll =
-        scrollbarContainerDivRef.current.scrollTop +
-        clickedPosition -
-        containerHeight / 2;
+      let targetScroll = scrollbarContainerDivRef.current.scrollTop + clickedPosition - containerHeight / 2;
 
       // Ensure we don't scroll past the bottom
-      const maxScroll =
-        scrollbarContainerDivRef.current.scrollHeight - containerHeight;
+      const maxScroll = scrollbarContainerDivRef.current.scrollHeight - containerHeight;
       targetScroll = Math.min(targetScroll, maxScroll);
 
       // Ensure we don't scroll above the top
@@ -540,8 +525,7 @@ const AuthContext = ({ children }) => {
         const animateScroll = (currentTime) => {
           const elapsedTime = currentTime - startTime;
           const progress = Math.min(elapsedTime / duration, 1);
-          scrollbarContainerDivRef.current.scrollTop =
-            start + (end - start) * progress;
+          scrollbarContainerDivRef.current.scrollTop = start + (end - start) * progress;
 
           if (progress < 1) {
             requestAnimationFrame(animateScroll);
@@ -1093,18 +1077,15 @@ const AuthContext = ({ children }) => {
 
     // Determine the currency symbol based on the id
     let currencySymbol = "";
-    switch (id) {
+    switch (1) {
       case 1:
         currencySymbol = "£"; // Pound
         break;
       case 2:
-        currencySymbol = "€";
-        break;
-      case 3:
         currencySymbol = "$"; // Dollar
         break;
-      case 4:
-        currencySymbol = "₹"; // Euro
+      case 3:
+        currencySymbol = "€"; // Euro
         break;
       // Add more cases for different currency symbols as needed
       default:
@@ -1112,46 +1093,13 @@ const AuthContext = ({ children }) => {
     }
 
     // Format the value with comma separators
-    const formattedValue = `${currencySymbol}${Number(
-      valueWithExactTwoPrecision
-    )
+    const formattedValue = `${currencySymbol}${Number(valueWithExactTwoPrecision)
       .toFixed(2)
       .toString()
       .replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
 
+
     return `${formattedValue}`;
-  }
-
-  function getTaxName(id) {
-    if (!id) return "";
-    switch (id) {
-      case 1:
-        return "VAT";
-      case 2:
-        return "EU VAT";
-      case 3:
-        return "Salex Tax";
-      case 4:
-        return "GST";
-      default:
-        return "";
-    }
-  }
-
-  function getCurrencySymbol(id) {
-    if (!id) return "";
-    switch (id) {
-      case 1:
-        return "£";
-      case 2:
-        return "€";
-      case 3:
-        return "$";
-      case 4:
-        return "₹";
-      default:
-        return "£";
-    }
   }
 
   function formatValueWithoutCurrencySymbol(value, id) {
@@ -1178,64 +1126,17 @@ const AuthContext = ({ children }) => {
       valueWithExactTwoPrecision = (Math.floor(value * 100) / 100).toFixed(2);
     }
 
+
     // Format the value with comma separators
     const formattedValue = `${Number(valueWithExactTwoPrecision)
       .toFixed(2)
       .toString()
       .replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
 
-    return `${formattedValue}`;
-  }
-
-  function formatValueWithoutCurrencySymbol_v1(value, decimalPlace) {
-    // Ensure value is not null
-    value = value == null ? 0 : value;
-
-    // Split the value into integer and decimal parts
-    let valueArray = value.toString().split(".");
-    let valueLength = "";
-
-    // Ensure valueArray[1] is defined and is a string
-    if (
-      valueArray &&
-      valueArray.length > 1 &&
-      typeof valueArray[1] === "string"
-    ) {
-      valueLength = valueArray[1];
-    }
-
-    let valueWithExactPrecision = value.toString();
-
-    // Check if valueLength is defined and has a length of at least 2
-    if (valueLength && valueLength.length > decimalPlace) {
-      valueWithExactPrecision = (Math.floor(value * 100) / 100).toFixed(
-        decimalPlace
-      );
-    }
-
-    // Format the value with comma separators
-    const formattedValue = `${Number(valueWithExactPrecision)
-      .toFixed(decimalPlace)
-      .toString()
-      .replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
 
     return `${formattedValue}`;
   }
 
-  const convertAndParseDate = (dateStr, sourceFormat, targetFormat) => {
-    if (!dateStr || !sourceFormat) return null;
-
-    try {
-      // Parse using the source format
-      const parsedDate = parse(dateStr, sourceFormat, new Date());
-
-      // Return the Date object (no need to convert to string for DatePicker)
-      return isValid(parsedDate) ? parsedDate : null;
-    } catch (err) {
-      console.error("Date conversion error:", err);
-      return null;
-    }
-  };
   const GetTwoDecimalValueWithoutRoundOff = (value) => {
     value = value == null ? 0 : value;
     let valueArray = value.toString().split(".");
@@ -1254,18 +1155,14 @@ const AuthContext = ({ children }) => {
 
     // Check if valueLength is defined and has a length of at least 2
     if (valueLength && valueLength.length > 2) {
-      valueWithExactTwoPrecision = Number(
-        Math.floor(value * 100) / 100
-      ).toFixed(2);
+      valueWithExactTwoPrecision = Number(Math.floor(value * 100) / 100).toFixed(2);
     }
-    return Number(valueWithExactTwoPrecision);
-  };
+    return Number(valueWithExactTwoPrecision)
+  }
   function hasHyphenAfterNumber(text) {
     const pattern = /(\d)-/g;
-    let sanitizedText = text.replace(pattern, "$1"); // Remove hyphen if it follows a digit
-    sanitizedText = sanitizedText.replace(/-/g, (match, index) =>
-      index === 0 ? match : ""
-    ); // Keep hyphen only at the start
+    let sanitizedText = text.replace(pattern, '$1'); // Remove hyphen if it follows a digit
+    sanitizedText = sanitizedText.replace(/-/g, (match, index) => (index === 0 ? match : "")); // Keep hyphen only at the start
     return sanitizedText;
   }
 
@@ -1289,14 +1186,12 @@ const AuthContext = ({ children }) => {
       defaultDiscount !== "" &&
       defaultDiscount !== null &&
       defaultDiscount !== undefined &&
-      (parsedDefaultDiscount < minDiscount ||
-        parsedDefaultDiscount > maxDiscount)
+      (parsedDefaultDiscount < minDiscount || parsedDefaultDiscount > maxDiscount)
     ) {
       return (
         <>
           <span className="validation">
-            The discount (%) should be between {minDiscount}% and {maxDiscount}
-            %.
+            The discount (%) should be between {minDiscount}% and {maxDiscount}%.
           </span>
           <button
             style={{
@@ -1320,53 +1215,45 @@ const AuthContext = ({ children }) => {
 
   function getFontStylesFromHtml(htmlContent) {
     // Create a temporary DOM element to parse the HTML content
-    const tempElement = document.createElement("div");
+    const tempElement = document.createElement('div');
     tempElement.innerHTML = htmlContent;
 
     // Use querySelectorAll to find all elements with the 'style' attribute containing 'font-family' or 'font-size'
-    const elementsWithFontStyles = tempElement.querySelectorAll(
-      '[style*="font-family"], [style*="font-size"]'
-    );
+    const elementsWithFontStyles = tempElement.querySelectorAll('[style*="font-family"], [style*="font-size"]');
 
     // Extract the font-family and font-size values
-    const fontStyles = Array.from(elementsWithFontStyles).map((element) => {
+    const fontStyles = Array.from(elementsWithFontStyles).map(element => {
       const fontFamily = element.style.fontFamily || null;
       const fontSize = element.style.fontSize || null;
 
       // Convert fontSize to a numeric value for comparison
       let numericFontSize = fontSize ? parseFloat(fontSize) : null;
-      if (fontSize && fontSize.includes("em")) {
+      if (fontSize && fontSize.includes('em')) {
         // Convert 'em' values to pixels assuming 1em = 16px as a general rule
         numericFontSize *= 16;
       }
 
       let fontSizeCategory = null;
       if (numericFontSize) {
-        fontSizeCategory = numericFontSize > 16 ? "large" : "small";
+        fontSizeCategory = numericFontSize > 16 ? 'large' : 'small';
       }
 
       return { fontFamily, fontSize, fontSizeCategory };
     });
 
     // Convert to a comma-separated string of unique font-family values, removing both single and double quotes
-    const uniqueFontFamilies = [
-      ...new Set(fontStyles.map((style) => style.fontFamily).filter(Boolean)),
-    ]
-      .join(", ")
-      .replace(/['"]/g, ""); // Remove both single and double quotes
+    const uniqueFontFamilies = [...new Set(fontStyles.map(style => style.fontFamily).filter(Boolean))]
+      .join(', ')
+      .replace(/['"]/g, ''); // Remove both single and double quotes
 
     // Categorize and collect font sizes based on 'large' or 'small' classification
-    const largeFontSizes = fontStyles
-      .filter((style) => style.fontSizeCategory === "large")
-      .map((style) => style.fontSize);
-    const smallFontSizes = fontStyles
-      .filter((style) => style.fontSizeCategory === "small")
-      .map((style) => style.fontSize);
+    const largeFontSizes = fontStyles.filter(style => style.fontSizeCategory === 'large').map(style => style.fontSize);
+    const smallFontSizes = fontStyles.filter(style => style.fontSizeCategory === 'small').map(style => style.fontSize);
 
     return {
       uniqueFontFamilies,
-      largeFontSizes: largeFontSizes.join(", "),
-      smallFontSizes: smallFontSizes.join(", "),
+      largeFontSizes: largeFontSizes.join(', '),
+      smallFontSizes: smallFontSizes.join(', ')
     };
   }
 
@@ -1377,28 +1264,24 @@ const AuthContext = ({ children }) => {
       return false; // Not a valid number
     }
     // Convert to a string without scientific notation
-    let numberString = number?.toLocaleString("fullwide", {
-      useGrouping: false,
-    });
+    let numberString = number?.toLocaleString('fullwide', { useGrouping: false });
 
     // Split the string to separate the part before and after the decimal point
     const [integerPart] = numberString?.split(".");
 
     // Regular expression to validate up to 16 digits before the decimal
-    let validRange = true;
+    let validRange = true
     if (integerPart?.length > 16) {
-      validRange = false;
+      validRange = false
     }
     // Test only the integer part against the regex
     return validRange;
   }
 
-  //Variable Replace Functions
-  const SingleServiceWithCombinedTableView = (
-    Type,
-    RecurringValue,
-    OneOffValue
-  ) => {
+
+
+  //Variable Replace Functions                                                                        
+  const SingleServiceWithCombinedTableView = (Type, RecurringValue, OneOffValue) => {
     return `
       <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
         Recurring Service
@@ -1406,11 +1289,7 @@ const AuthContext = ({ children }) => {
       <table style="border-collapse: collapse; width: 100%; page-break-inside: avoid; break-inside: avoid;">
         <tr>
           <td style="border: 1px solid black; padding: 8px; width: 50%;">${Type}</td>
-          <td style="border: 1px solid black; padding: 8px; width: 50%;text-align: right;">${
-            RecurringValue === null
-              ? formatValue(0)
-              : formatValue(RecurringValue)
-          }</td>
+          <td style="border: 1px solid black; padding: 8px; width: 50%;text-align: right;">${RecurringValue === null ? formatValue(0) : formatValue(RecurringValue)}</td>
         </tr>
       </table>
       <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
@@ -1419,9 +1298,7 @@ const AuthContext = ({ children }) => {
       <table style="border-collapse: collapse; width: 100%; page-break-inside: avoid; break-inside: avoid;">
         <tr>
           <td style="border: 1px solid black; padding: 8px; width: 50%;">${Type}</td>
-          <td style="border: 1px solid black; padding: 8px; width: 50%;text-align: right;">${
-            OneOffValue === null ? formatValue(0) : formatValue(OneOffValue)
-          }</td>
+          <td style="border: 1px solid black; padding: 8px; width: 50%;text-align: right;">${OneOffValue === null ? formatValue(0) : formatValue(OneOffValue)}</td>
         </tr>
       </table>
     `;
@@ -1439,19 +1316,19 @@ const AuthContext = ({ children }) => {
     if (Type === "Net Total") {
       PackageOneValue = Number(
         RecurringPricingInfo.packageOneNetTotal >
-          Number(RecurringPricingInfo.packageOneDisCountedTotal)
+        Number(RecurringPricingInfo.packageOneDisCountedTotal)
       )
         ? RecurringPricingInfo.packageOneNetTotal
         : RecurringPricingInfo.packageOneDisCountedTotal;
       PackageTwoValue = Number(
         RecurringPricingInfo.packageTwoNetTotal >
-          Number(RecurringPricingInfo.packageTwoDisCountedTotal)
+        Number(RecurringPricingInfo.packageTwoDisCountedTotal)
       )
         ? RecurringPricingInfo.packageTwoNetTotal
         : RecurringPricingInfo.packageTwoDisCountedTotal;
       PackageThreeValue = Number(
         RecurringPricingInfo.packageThreeNetTotal >
-          Number(RecurringPricingInfo.packageThreeDisCountedTotal)
+        Number(RecurringPricingInfo.packageThreeDisCountedTotal)
       )
         ? RecurringPricingInfo.packageThreeNetTotal
         : RecurringPricingInfo.packageThreeDisCountedTotal;
@@ -1500,23 +1377,23 @@ const AuthContext = ({ children }) => {
     } else if (servicePackageList.length === 2) {
       rowValues = `
         <td style="border: 1px solid black; padding: 8px;text-align:right;width: 25%;">${formatValue(
-          PackageOneValue
-        )}</td>
+        PackageOneValue
+      )}</td>
         <td style="border: 1px solid black; padding: 8px;text-align:right;width: 25%;">${formatValue(
-          PackageTwoValue
-        )}</td>
+        PackageTwoValue
+      )}</td>
       `;
     } else if (servicePackageList.length === 3) {
       rowValues = `
         <td style="border: 1px solid black; padding: 8px;text-align: right;width: 25%;">${formatValue(
-          PackageOneValue
-        )}</td>
+        PackageOneValue
+      )}</td>
         <td style="border: 1px solid black; padding: 8px;text-align: right;width: 25%;">${formatValue(
-          PackageTwoValue
-        )}</td>
+        PackageTwoValue
+      )}</td>
         <td style="border: 1px solid black; padding: 8px;text-align: right;width: 25%;">${formatValue(
-          PackageThreeValue
-        )}</td>
+        PackageThreeValue
+      )}</td>
       `;
     }
     return `
@@ -1547,41 +1424,42 @@ const AuthContext = ({ children }) => {
     let PackageThreeOneOffValue = null;
 
     if (Type === "Net Total") {
-      PackageOneValue =
-        Number(RecurringPricingInfo.packageOneNetTotal) >
+      PackageOneValue = Number(
+        RecurringPricingInfo.packageOneNetTotal) >
         Number(RecurringPricingInfo.packageOneDisCountedTotal)
-          ? RecurringPricingInfo.packageOneNetTotal
-          : RecurringPricingInfo.packageOneDisCountedTotal;
+        ? RecurringPricingInfo.packageOneNetTotal
+        : RecurringPricingInfo.packageOneDisCountedTotal;
 
-      PackageTwoValue =
-        Number(RecurringPricingInfo.packageTwoNetTotal) >
+      PackageTwoValue = Number(
+        RecurringPricingInfo.packageTwoNetTotal) >
         Number(RecurringPricingInfo.packageTwoDisCountedTotal)
-          ? RecurringPricingInfo.packageTwoNetTotal
-          : RecurringPricingInfo.packageTwoDisCountedTotal;
+        ? RecurringPricingInfo.packageTwoNetTotal
+        : RecurringPricingInfo.packageTwoDisCountedTotal;
 
-      PackageThreeValue =
-        Number(RecurringPricingInfo.packageThreeNetTotal) >
+      PackageThreeValue = Number(
+        RecurringPricingInfo.packageThreeNetTotal) >
         Number(RecurringPricingInfo.packageThreeDisCountedTotal)
-          ? RecurringPricingInfo.packageThreeNetTotal
-          : RecurringPricingInfo.packageThreeDisCountedTotal;
+        ? RecurringPricingInfo.packageThreeNetTotal
+        : RecurringPricingInfo.packageThreeDisCountedTotal;
 
-      PackageOneOneOffValue =
-        Number(OneOffPricingInfo.packageOneNetTotal) >
+
+      PackageOneOneOffValue = Number(
+        OneOffPricingInfo.packageOneNetTotal) >
         Number(OneOffPricingInfo.packageOneDisCountedTotal)
-          ? OneOffPricingInfo.packageOneNetTotal
-          : OneOffPricingInfo.packageOneDisCountedTotal;
+        ? OneOffPricingInfo.packageOneNetTotal
+        : OneOffPricingInfo.packageOneDisCountedTotal;
 
-      PackageTwoOneOffValue =
-        Number(OneOffPricingInfo.packageTwoNetTotal) >
+      PackageTwoOneOffValue = Number(
+        OneOffPricingInfo.packageTwoNetTotal) >
         Number(OneOffPricingInfo.packageTwoDisCountedTotal)
-          ? OneOffPricingInfo.packageTwoNetTotal
-          : OneOffPricingInfo.packageTwoDisCountedTotal;
+        ? OneOffPricingInfo.packageTwoNetTotal
+        : OneOffPricingInfo.packageTwoDisCountedTotal;
 
-      PackageThreeOneOffValue =
-        Number(OneOffPricingInfo.packageThreeNetTotal) >
+      PackageThreeOneOffValue = Number(
+        OneOffPricingInfo.packageThreeNetTotal) >
         Number(OneOffPricingInfo.packageThreeDisCountedTotal)
-          ? OneOffPricingInfo.packageThreeNetTotal
-          : RecurringPricingInfo.packageThreeDisCountedTotal;
+        ? OneOffPricingInfo.packageThreeNetTotal
+        : RecurringPricingInfo.packageThreeDisCountedTotal;
     } else if (Type === "Discount") {
       PackageOneValue = RecurringPricingInfo.packageOneDisCount;
       PackageTwoValue = RecurringPricingInfo.packageTwoDisCount;
@@ -1629,8 +1507,7 @@ const AuthContext = ({ children }) => {
 
       PackageOneOneOffValue = OneOffPricingInfo.DiscountPercentagePackageOne;
       PackageTwoOneOffValue = OneOffPricingInfo.DiscountPercentagePackageTwo;
-      PackageThreeOneOffValue =
-        OneOffPricingInfo.DiscountPercentagePackageThree;
+      PackageThreeOneOffValue = OneOffPricingInfo.DiscountPercentagePackageThree;
     } else if (Type === "Discounted Price") {
       PackageOneValue = RecurringPricingInfo.packageOneDisCountedTotal;
       PackageTwoValue = RecurringPricingInfo.packageTwoDisCountedTotal;
@@ -1695,6 +1572,7 @@ const AuthContext = ({ children }) => {
       </table>`;
   };
 
+
   const GetReplaceValueByWithComma = (
     RecurringValue,
     OneOffValue,
@@ -1703,51 +1581,53 @@ const AuthContext = ({ children }) => {
     Type
   ) => {
     if (selectedProposalTypeValue === 3) {
-      return `Recurring Services: ${formatValue(
-        RecurringValue
-      )}, One-Off Services: ${formatValue(OneOffValue)}`;
+      return `Recurring Services: ${formatValue(RecurringValue)}, One-Off Services: ${formatValue(
+        OneOffValue
+      )}`;
     } else {
-      let PackageOneValue = "";
-      let PackageTwoValue = "";
-      let PackageThreeValue = "";
-      let PackageOneOneOffValue = "";
-      let PackageTwoOneOffValue = "";
-      let PackageThreeOneOffValue = "";
+      let PackageOneValue = ""
+      let PackageTwoValue = ""
+      let PackageThreeValue = ""
+      let PackageOneOneOffValue = ""
+      let PackageTwoOneOffValue = ""
+      let PackageThreeOneOffValue = ""
       if (Type === "Net Total") {
         PackageOneValue = Number(
           RecurringValue.packageOneNetTotal >
-            Number(RecurringValue.packageOneDisCountedTotal)
+          Number(RecurringValue.packageOneDisCountedTotal)
         )
           ? RecurringValue.packageOneNetTotal
           : RecurringValue.packageOneDisCountedTotal;
         PackageTwoValue = Number(
           RecurringValue.packageTwoNetTotal >
-            Number(RecurringValue.packageTwoDisCountedTotal)
+          Number(RecurringValue.packageTwoDisCountedTotal)
         )
           ? RecurringValue.packageTwoNetTotal
           : RecurringValue.packageTwoDisCountedTotal;
         PackageThreeValue = Number(
           RecurringValue.packageThreeNetTotal >
-            Number(RecurringValue.packageThreeDisCountedTotal)
+          Number(RecurringValue.packageThreeDisCountedTotal)
         )
           ? RecurringValue.packageThreeNetTotal
           : RecurringValue.packageThreeDisCountedTotal;
 
+
+
         PackageOneOneOffValue = Number(
           OneOffValue.packageOneNetTotal >
-            Number(OneOffValue.packageOneDisCountedTotal)
+          Number(OneOffValue.packageOneDisCountedTotal)
         )
           ? OneOffValue.packageOneNetTotal
           : OneOffValue.packageOneDisCountedTotal;
         PackageTwoOneOffValue = Number(
           OneOffValue.packageTwoNetTotal >
-            Number(OneOffValue.packageTwoDisCountedTotal)
+          Number(OneOffValue.packageTwoDisCountedTotal)
         )
           ? OneOffValue.packageTwoNetTotal
           : OneOffValue.packageTwoDisCountedTotal;
         PackageThreeOneOffValue = Number(
           OneOffValue.packageThreeNetTotal >
-            Number(OneOffValue.packageThreeDisCountedTotal)
+          Number(OneOffValue.packageThreeDisCountedTotal)
         )
           ? OneOffValue.packageThreeNetTotal
           : OneOffValue.packageThreeDisCountedTotal;
@@ -1809,19 +1689,14 @@ const AuthContext = ({ children }) => {
         PackageThreeOneOffValue = OneOffValue.packageThreeDisCountedTotal;
       }
 
+
       return servicePackageList
         .map(
           (item, index) =>
-            `<b>${
-              item.servicePackageName
-            }</b>: Recurring Services: ${formatValue(
+            `<b>${item.servicePackageName}</b>: Recurring Services: ${formatValue(
               [PackageOneValue, PackageTwoValue, PackageThreeValue][index]
             )}, One-Off Services: ${formatValue(
-              [
-                PackageOneOneOffValue,
-                PackageTwoOneOffValue,
-                PackageThreeOneOffValue,
-              ][index]
+              [PackageOneOneOffValue, PackageTwoOneOffValue, PackageThreeOneOffValue][index]
             )}`
         )
         .join(", ");
@@ -1843,47 +1718,51 @@ const AuthContext = ({ children }) => {
         </ul>
       `;
     } else {
-      let PackageOneValue = "";
-      let PackageTwoValue = "";
-      let PackageThreeValue = "";
-      let PackageOneOneOffValue = "";
-      let PackageTwoOneOffValue = "";
-      let PackageThreeOneOffValue = "";
+
+
+      let PackageOneValue = ""
+      let PackageTwoValue = ""
+      let PackageThreeValue = ""
+      let PackageOneOneOffValue = ""
+      let PackageTwoOneOffValue = ""
+      let PackageThreeOneOffValue = ""
       if (Type === "Net Total") {
         PackageOneValue = Number(
           RecurringValue.packageOneNetTotal >
-            Number(RecurringValue.packageOneDisCountedTotal)
+          Number(RecurringValue.packageOneDisCountedTotal)
         )
           ? RecurringValue.packageOneNetTotal
           : RecurringValue.packageOneDisCountedTotal;
         PackageTwoValue = Number(
           RecurringValue.packageTwoNetTotal >
-            Number(RecurringValue.packageTwoDisCountedTotal)
+          Number(RecurringValue.packageTwoDisCountedTotal)
         )
           ? RecurringValue.packageTwoNetTotal
           : RecurringValue.packageTwoDisCountedTotal;
         PackageThreeValue = Number(
           RecurringValue.packageThreeNetTotal >
-            Number(RecurringValue.packageThreeDisCountedTotal)
+          Number(RecurringValue.packageThreeDisCountedTotal)
         )
           ? RecurringValue.packageThreeNetTotal
           : RecurringValue.packageThreeDisCountedTotal;
 
+
+
         PackageOneOneOffValue = Number(
           OneOffValue.packageOneNetTotal >
-            Number(OneOffValue.packageOneDisCountedTotal)
+          Number(OneOffValue.packageOneDisCountedTotal)
         )
           ? OneOffValue.packageOneNetTotal
           : OneOffValue.packageOneDisCountedTotal;
         PackageTwoOneOffValue = Number(
           OneOffValue.packageTwoNetTotal >
-            Number(OneOffValue.packageTwoDisCountedTotal)
+          Number(OneOffValue.packageTwoDisCountedTotal)
         )
           ? OneOffValue.packageTwoNetTotal
           : OneOffValue.packageTwoDisCountedTotal;
         PackageThreeOneOffValue = Number(
           OneOffValue.packageThreeNetTotal >
-            Number(OneOffValue.packageThreeDisCountedTotal)
+          Number(OneOffValue.packageThreeDisCountedTotal)
         )
           ? OneOffValue.packageThreeNetTotal
           : OneOffValue.packageThreeDisCountedTotal;
@@ -1947,20 +1826,16 @@ const AuthContext = ({ children }) => {
       return `
         <ul>
           ${servicePackageList
-            .map(
-              (item, index) => `
+          .map(
+            (item, index) => `
             <li>${item.servicePackageName}: Recurring Services: ${formatValue(
-                [PackageOneValue, PackageTwoValue, PackageThreeValue][index]
-              )}, One-Off Services: ${formatValue(
-                [
-                  PackageOneOneOffValue,
-                  PackageTwoOneOffValue,
-                  PackageThreeOneOffValue,
-                ][index]
-              )}</li>
+              [PackageOneValue, PackageTwoValue, PackageThreeValue][index]
+            )}, One-Off Services: ${formatValue(
+              [PackageOneOneOffValue, PackageTwoOneOffValue, PackageThreeOneOffValue][index]
+            )}</li>
           `
-            )
-            .join("")}
+          )
+          .join("")}
         </ul>
       `;
     }
@@ -1988,34 +1863,29 @@ const AuthContext = ({ children }) => {
     }
   };
 
-  const ReplaceVariable_WithTableView = (
-    SelectedServiceList,
-    PricingInfo,
-    selectedProposalTypeValue,
-    SelectedPackageList,
-    Type
-  ) => {
+  const ReplaceVariable_WithTableView = (SelectedServiceList, PricingInfo, selectedProposalTypeValue, SelectedPackageList, Type) => {
     if (!SelectedServiceList || SelectedServiceList.length === 0) {
       return "";
     }
     if (selectedProposalTypeValue === 3) {
       const conditionalRecurringNetTotal =
-        Number(PricingInfo.OriginalPrice) < Number(PricingInfo.DiscountedPrice)
+        Number(PricingInfo.OriginalPrice) <
+          Number(PricingInfo.DiscountedPrice)
           ? PricingInfo.DiscountedPrice
           : PricingInfo.OriginalPrice;
       const rows = [
-        { label: "Net Total", value: conditionalRecurringNetTotal },
-        { label: "Discount", value: PricingInfo.Discount },
-        { label: "Discounted Price", value: PricingInfo.DiscountedTotal },
-        { label: "VAT", value: PricingInfo.VATPrice },
-        { label: "Grand Total", value: PricingInfo.GrandTotal },
+        { label: 'Net Total', value: conditionalRecurringNetTotal },
+        { label: 'Discount', value: PricingInfo.Discount },
+        { label: 'Discounted Price', value: PricingInfo.DiscountedTotal },
+        { label: 'VAT', value: PricingInfo.VATPrice },
+        { label: 'Grand Total', value: PricingInfo.GrandTotal },
       ];
 
       return `
             <table style="border-collapse: collapse; width: 100%; margin-bottom: 16px; page-break-inside: avoid; break-inside: avoid;">
               ${rows
-                .map(
-                  ({ label, value }) => `
+          .map(
+            ({ label, value }) => `
                     <tr>
                       <td style="font-weight: 600; border: 1px solid rgb(10, 10, 10); padding: 8px; font-size: 16px; text-align: left; width: 60%;">
                         ${label}
@@ -2025,10 +1895,11 @@ const AuthContext = ({ children }) => {
                       </td>
                     </tr>
                   `
-                )
-                .join("")}
+          )
+          .join('')}
             </table>
           `;
+
     } else {
       const packageData = [
         {
@@ -2068,9 +1939,8 @@ const AuthContext = ({ children }) => {
       return `
   <table style="border-collapse: collapse; width: 100%; margin-bottom: 16px; page-break-inside: avoid; break-inside: avoid;">
     <!-- Package Names Row -->
-    ${
-      Type !== "WithOutName"
-        ? `
+    ${Type !== "WithOutName"
+          ? `
         <tr>
           <th style="border: 1px solid rgb(10, 10, 10); padding: 8px; text-align: left; width: 25%;">Package Name</th>
           ${SelectedPackageList.map(
@@ -2082,73 +1952,63 @@ const AuthContext = ({ children }) => {
           ).join("")}
         </tr>
       `
-        : ""
-    }
+          : ""
+        }
 
     <!-- Data Rows -->
    
           <tr>
             <td style="border: 1px solid rgb(10, 10, 10); padding: 8px; text-align: left; width: 25%;">Net Total</td>
-            ${SelectedPackageList.map(
-              (pkg, index) => `
+            ${SelectedPackageList.map((pkg, index) => `
               <td style="border: 1px solid rgb(10, 10, 10); padding: 8px; text-align: right; width: 25%;">
                 ${formatValue(packageData[index]?.netTotal || 0)}
               </td>
-            `
-            ).join("")}
+            `).join("")}
           </tr>
           <tr>
             <td style="border: 1px solid rgb(10, 10, 10); padding: 8px; text-align: left; width: 25%;">Discount</td>
-            ${SelectedPackageList.map(
-              (pkg, index) => `
+            ${SelectedPackageList.map((pkg, index) => `
               <td style="border: 1px solid rgb(10, 10, 10); padding: 8px; text-align: right; width: 25%;">
                 ${formatValue(packageData[index]?.discount || 0)}
               </td>
-            `
-            ).join("")}
+            `).join("")}
           </tr>
           <tr>
             <td style="border: 1px solid rgb(10, 10, 10); padding: 8px; text-align: left; width: 25%;">Discounted Price</td>
-            ${SelectedPackageList.map(
-              (pkg, index) => `
+            ${SelectedPackageList.map((pkg, index) => `
               <td style="border: 1px solid rgb(10, 10, 10); padding: 8px; text-align: right; width: 25%;">
                 ${formatValue(packageData[index]?.discountedTotal || 0)}
               </td>
-            `
-            ).join("")}
+            `).join("")}
           </tr>
           <tr>
             <td style="border: 1px solid rgb(10, 10, 10); padding: 8px; text-align: left; width: 25%;">VAT</td>
-            ${SelectedPackageList.map(
-              (pkg, index) => `
+            ${SelectedPackageList.map((pkg, index) => `
               <td style="border: 1px solid rgb(10, 10, 10); padding: 8px; text-align: right; width: 25%;">
                 ${formatValue(packageData[index]?.vatPrice || 0)}
               </td>
-            `
-            ).join("")}
+            `).join("")}
           </tr>
           <tr>
             <td style="border: 1px solid rgb(10, 10, 10); padding: 8px; text-align: left; width: 25%;">Grand Total</td>
-            ${SelectedPackageList.map(
-              (pkg, index) => `
+            ${SelectedPackageList.map((pkg, index) => `
               <td style="border: 1px solid rgb(10, 10, 10); padding: 8px; text-align: right; width: 25%;">
                 ${formatValue(packageData[index]?.grandTotal || 0)}
               </td>
-            `
-            ).join("")}
+            `).join("")}
           </tr>
         
         
   </table>
 `;
+
+
     }
-  };
+
+
+  }
   //single and package service list variable replace function.
-  const GetReplaceServiceWithTableView = (
-    selectedRecurringServiceList,
-    selectedOneOffServiceList,
-    servicePackageList
-  ) => {
+  const GetReplaceServiceWithTableView = (selectedRecurringServiceList, selectedOneOffServiceList, servicePackageList) => {
     const generateTableRows = (serviceList) => {
       if (!servicePackageList) {
         // When there is no servicePackageList
@@ -2161,10 +2021,10 @@ const AuthContext = ({ children }) => {
 </td>     
                     </tr>
            ${serviceList
-             .map((item) =>
-               item.servicesList
-                 .map(
-                   (subService) => `
+            .map(item =>
+              item.servicesList
+                .map(
+                  subService => `
                  
                     <tr>
                       <td style="border: 1px solid rgb(10, 10, 10); padding: 8px; font-size: 16px; text-align: left; width: 60%;">
@@ -2174,10 +2034,10 @@ const AuthContext = ({ children }) => {
                     </tr>
                     
                   `
-                 )
-                 .join("")
-             )
-             .join("")}
+                )
+                .join('')
+            )
+            .join('')}
             </table>
         `;
       } else {
@@ -2185,35 +2045,30 @@ const AuthContext = ({ children }) => {
         if (!serviceList || serviceList?.length === 0) return "";
         return `
         ${servicePackageList
-          .slice(0, 3) // Limit to maximum of 3 packages
-          .map((servicePackage, packageIndex) => {
-            // Filter services for the current package
-            const validServices = serviceList.flatMap((serviceCat) =>
-              serviceCat.servicesList.filter((subService) => {
-                return (
-                  (packageIndex === 0 &&
-                    subService?.servicePackageIDs.includes(
-                      subService.packageOneID
-                    ) &&
-                    subService.packageOneValue !== null) ||
-                  (packageIndex === 1 &&
-                    subService?.servicePackageIDs.includes(
-                      subService.packageTwoID
-                    ) &&
-                    subService.packageTwoValue !== null) ||
-                  (packageIndex === 2 &&
-                    subService?.servicePackageIDs.includes(
-                      subService.packageThreeID
-                    ) &&
-                    subService.packageThreeValue !== null)
+            .slice(0, 3) // Limit to maximum of 3 packages
+            .map((servicePackage, packageIndex) => {
+              // Filter services for the current package
+              const validServices = serviceList
+                .flatMap((serviceCat) =>
+                  serviceCat.servicesList.filter((subService) => {
+                    return (
+                      (packageIndex === 0 &&
+                        subService?.servicePackageIDs.includes(subService.packageOneID) &&
+                        subService.packageOneValue !== null) ||
+                      (packageIndex === 1 &&
+                        subService?.servicePackageIDs.includes(subService.packageTwoID) &&
+                        subService.packageTwoValue !== null) ||
+                      (packageIndex === 2 &&
+                        subService?.servicePackageIDs.includes(subService.packageThreeID) &&
+                        subService.packageThreeValue !== null)
+                    );
+                  })
                 );
-              })
-            );
 
-            // Skip rendering the package if no services are available
-            if (validServices.length === 0) return "";
+              // Skip rendering the package if no services are available
+              if (validServices.length === 0) return '';
 
-            return `
+              return `
               <table style="border-collapse: collapse; width: 100%; margin-bottom: 16px;page-break-inside: avoid; break-inside: avoid;">
     
               <tr>
@@ -2239,12 +2094,14 @@ const AuthContext = ({ children }) => {
                       </tr>
                     `
                   )
-                  .join("")}
+                  .join('')}
               </table>
             `;
-          })
-          .join("")}
+            })
+            .join('')}
       `;
+
+
       }
     };
 
@@ -2265,13 +2122,10 @@ const AuthContext = ({ children }) => {
   `;
   };
 
-  const GetReplaceServiceWithTableViewWithPrice = (
-    selectedRecurringServiceList,
-    selectedOneOffServiceList,
-    servicePackageList
-  ) => {
+  const GetReplaceServiceWithTableViewWithPrice = (selectedRecurringServiceList, selectedOneOffServiceList, servicePackageList) => {
     const generateTableRows = (serviceList) => {
       if (!servicePackageList) {
+
         // When there is no servicePackageList
         if (!serviceList || serviceList?.length === 0) return "";
         return ` 
@@ -2287,29 +2141,29 @@ const AuthContext = ({ children }) => {
                       
                     </tr>
           ${serviceList
-            .map((item) =>
+            .map(item =>
               item.servicesList
                 .map(
-                  (subService) => `
+                  subService => `
              
                     <tr>
                       <td style="border: 1px solid rgb(10, 10, 10); padding: 8px; font-size: 16px; text-align: left; width: 60%;">
                         ${subService.serviceName}
                       </td>
                       <td style="border: 1px solid rgb(10, 10, 10); padding: 8px; font-size: 16px; text-align: right; width: 30%;">
-                          ${
-                            subService.price == undefined
-                              ? formatValue(subService.quotationPrice)
-                              : formatValue(subService.price)
-                          }
+                          ${subService.price == undefined
+                      ? formatValue(
+                        subService.quotationPrice
+                      )
+                      : formatValue(subService.price)}
                         </td>
                     </tr>
                   
                   `
                 )
-                .join("")
+                .join('')
             )
-            .join("")}
+            .join('')}
               </table>
         `;
       } else {
@@ -2317,35 +2171,30 @@ const AuthContext = ({ children }) => {
         if (!serviceList || serviceList?.length === 0) return "";
         return `
         ${servicePackageList
-          .slice(0, 3) // Limit to maximum of 3 packages
-          .map((servicePackage, packageIndex) => {
-            // Filter services for the current package
-            const validServices = serviceList.flatMap((serviceCat) =>
-              serviceCat.servicesList.filter((subService) => {
-                return (
-                  (packageIndex === 0 &&
-                    subService?.servicePackageIDs.includes(
-                      subService.packageOneID
-                    ) &&
-                    subService.packageOneValue !== null) ||
-                  (packageIndex === 1 &&
-                    subService?.servicePackageIDs.includes(
-                      subService.packageTwoID
-                    ) &&
-                    subService.packageTwoValue !== null) ||
-                  (packageIndex === 2 &&
-                    subService?.servicePackageIDs.includes(
-                      subService.packageThreeID
-                    ) &&
-                    subService.packageThreeValue !== null)
+            .slice(0, 3) // Limit to maximum of 3 packages
+            .map((servicePackage, packageIndex) => {
+              // Filter services for the current package
+              const validServices = serviceList
+                .flatMap((serviceCat) =>
+                  serviceCat.servicesList.filter((subService) => {
+                    return (
+                      (packageIndex === 0 &&
+                        subService?.servicePackageIDs.includes(subService.packageOneID) &&
+                        subService.packageOneValue !== null) ||
+                      (packageIndex === 1 &&
+                        subService?.servicePackageIDs.includes(subService.packageTwoID) &&
+                        subService.packageTwoValue !== null) ||
+                      (packageIndex === 2 &&
+                        subService?.servicePackageIDs.includes(subService.packageThreeID) &&
+                        subService.packageThreeValue !== null)
+                    );
+                  })
                 );
-              })
-            );
 
-            // Skip rendering the package if no services are available
-            if (validServices.length === 0) return "";
+              // Skip rendering the package if no services are available
+              if (validServices.length === 0) return '';
 
-            return `
+              return `
               <table style="border-collapse: collapse; width: 100%; margin-bottom: 16px;page-break-inside: avoid; break-inside: avoid;">
                 <tr>
                   <th colspan="2" style="border: 1px solid rgb(10, 10, 10); padding: 8px; font-size: 18px; text-align: center;">
@@ -2368,8 +2217,8 @@ const AuthContext = ({ children }) => {
                       packageIndex === 0
                         ? subService.packageOneValue
                         : packageIndex === 1
-                        ? subService.packageTwoValue
-                        : subService.packageThreeValue;
+                          ? subService.packageTwoValue
+                          : subService.packageThreeValue;
 
                     return `
      
@@ -2383,12 +2232,13 @@ const AuthContext = ({ children }) => {
                       </tr>
                     `;
                   })
-                  .join("")}
+                  .join('')}
               </table>
             `;
-          })
-          .join("")}
+            })
+            .join('')}
       `;
+
       }
     };
 
@@ -2409,11 +2259,7 @@ const AuthContext = ({ children }) => {
   `;
   };
 
-  const GetReplaceServiceWithCommaView = (
-    selectedRecurringServiceList,
-    selectedOneOffServiceList,
-    servicePackageList
-  ) => {
+  const GetReplaceServiceWithCommaView = (selectedRecurringServiceList, selectedOneOffServiceList, servicePackageList) => {
     const generateTableRows = (serviceList) => {
       if (!servicePackageList) {
         // When there is no servicePackageList
@@ -2421,59 +2267,53 @@ const AuthContext = ({ children }) => {
         return `
         <p style="margin: 8px 0; line-height: 1.5;">
           ${serviceList
-            .map((item) =>
+            .map(item =>
               item.servicesList
-                .map((subService) => subService.serviceName)
-                .join(", ")
+                .map(subService => subService.serviceName)
+                .join(', ')
             )
-            .join(", ")}
+            .join(', ')}
         </p>
       `;
+
       } else {
         // When servicePackageList is present
         if (!serviceList || serviceList?.length === 0) return "";
         return `
         ${servicePackageList
-          .slice(0, 3) // Limit to a maximum of 3 packages
-          .map((servicePackage, packageIndex) => {
-            // Filter services for the current package
-            const validServices = serviceList.flatMap((serviceCat) =>
-              serviceCat.servicesList.filter((subService) => {
-                return (
-                  (packageIndex === 0 &&
-                    subService?.servicePackageIDs.includes(
-                      subService.packageOneID
-                    ) &&
-                    subService.packageOneValue !== null) ||
-                  (packageIndex === 1 &&
-                    subService?.servicePackageIDs.includes(
-                      subService.packageTwoID
-                    ) &&
-                    subService.packageTwoValue !== null) ||
-                  (packageIndex === 2 &&
-                    subService?.servicePackageIDs.includes(
-                      subService.packageThreeID
-                    ) &&
-                    subService.packageThreeValue !== null)
+            .slice(0, 3) // Limit to a maximum of 3 packages
+            .map((servicePackage, packageIndex) => {
+              // Filter services for the current package
+              const validServices = serviceList
+                .flatMap((serviceCat) =>
+                  serviceCat.servicesList.filter((subService) => {
+                    return (
+                      (packageIndex === 0 &&
+                        subService?.servicePackageIDs.includes(subService.packageOneID) &&
+                        subService.packageOneValue !== null) ||
+                      (packageIndex === 1 &&
+                        subService?.servicePackageIDs.includes(subService.packageTwoID) &&
+                        subService.packageTwoValue !== null) ||
+                      (packageIndex === 2 &&
+                        subService?.servicePackageIDs.includes(subService.packageThreeID) &&
+                        subService.packageThreeValue !== null)
+                    );
+                  })
                 );
-              })
-            );
 
-            // Skip rendering the package if no services are available
-            if (validServices.length === 0) return "";
+              // Skip rendering the package if no services are available
+              if (validServices.length === 0) return '';
 
-            return `
+              return `
               <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
                  ${servicePackage.servicePackageName}
               </p>
               <p style="margin: 8px 0;line-height: 1.5;">
-                ${validServices
-                  .map((subService) => subService.serviceName)
-                  .join(", ")}
+                ${validServices.map((subService) => subService.serviceName).join(', ')}
               </p>
             `;
-          })
-          .join("")}
+            })
+            .join('')}
       `;
       }
     };
@@ -2495,11 +2335,7 @@ const AuthContext = ({ children }) => {
   `;
   };
 
-  const GetReplaceServiceWithCommaViewWithPrice = (
-    selectedRecurringServiceList,
-    selectedOneOffServiceList,
-    servicePackageList
-  ) => {
+  const GetReplaceServiceWithCommaViewWithPrice = (selectedRecurringServiceList, selectedOneOffServiceList, servicePackageList) => {
     const generateTableRows = (serviceList) => {
       if (!servicePackageList) {
         // When there is no servicePackageList
@@ -2507,74 +2343,68 @@ const AuthContext = ({ children }) => {
         return `
         <p style="margin: 8px 0;line-height: 1.5;">
           ${serviceList
-            .map((item) =>
+            .map(item =>
               item.servicesList
-                .map(
-                  (subService) =>
-                    `${subService.serviceName}: ${
-                      subService.price == undefined
-                        ? formatValue(subService.quotationPrice)
-                        : formatValue(subService.price)
-                    }`
-                )
-                .join(", ")
+                .map(subService => `${subService.serviceName}: ${subService.price == undefined
+                  ? formatValue(
+                    subService.quotationPrice
+                  )
+                  : formatValue(subService.price)}`)
+                .join(', ')
             )
-            .join(", ")}
+            .join(', ')}
         </p>
       `;
+
       } else {
         // When servicePackageList is present
         if (!serviceList || serviceList?.length === 0) return "";
         return `
         ${servicePackageList
-          .slice(0, 3) // Limit to a maximum of 3 packages
-          .map((servicePackage, packageIndex) => {
-            // Filter services for the current package
-            const validServices = serviceList.flatMap((serviceCat) =>
-              serviceCat.servicesList.filter((subService) => {
-                return (
-                  (packageIndex === 0 &&
-                    subService?.servicePackageIDs.includes(
-                      subService.packageOneID
-                    ) &&
-                    subService.packageOneValue !== null) ||
-                  (packageIndex === 1 &&
-                    subService?.servicePackageIDs.includes(
-                      subService.packageTwoID
-                    ) &&
-                    subService.packageTwoValue !== null) ||
-                  (packageIndex === 2 &&
-                    subService?.servicePackageIDs.includes(
-                      subService.packageThreeID
-                    ) &&
-                    subService.packageThreeValue !== null)
+            .slice(0, 3) // Limit to a maximum of 3 packages
+            .map((servicePackage, packageIndex) => {
+              // Filter services for the current package
+              const validServices = serviceList
+                .flatMap((serviceCat) =>
+                  serviceCat.servicesList.filter((subService) => {
+                    return (
+                      (packageIndex === 0 &&
+                        subService?.servicePackageIDs.includes(subService.packageOneID) &&
+                        subService.packageOneValue !== null) ||
+                      (packageIndex === 1 &&
+                        subService?.servicePackageIDs.includes(subService.packageTwoID) &&
+                        subService.packageTwoValue !== null) ||
+                      (packageIndex === 2 &&
+                        subService?.servicePackageIDs.includes(subService.packageThreeID) &&
+                        subService.packageThreeValue !== null)
+                    );
+                  })
                 );
-              })
-            );
 
-            // Skip rendering the package if no services are available
-            if (validServices.length === 0) return "";
+              // Skip rendering the package if no services are available
+              if (validServices.length === 0) return '';
 
-            return `
+              return `
   <p style="margin: 8px 0; line-height: 1.5;">
    <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
     ${servicePackage.servicePackageName}:
   </p>  ${validServices
-    .map((subService) => {
-      const packageValue =
-        packageIndex === 0
-          ? subService.packageOneValue
-          : packageIndex === 1
-          ? subService.packageTwoValue
-          : subService.packageThreeValue;
+                  .map((subService) => {
+                    const packageValue =
+                      packageIndex === 0
+                        ? subService.packageOneValue
+                        : packageIndex === 1
+                          ? subService.packageTwoValue
+                          : subService.packageThreeValue;
 
-      return `${subService.serviceName}: ${formatValue(packageValue)}`;
-    })
-    .join(", ")}
+                    return `${subService.serviceName}: ${formatValue(packageValue)}`;
+                  })
+                  .join(', ')}
   </p>
 `;
-          })
-          .join("")}
+
+            })
+            .join('')}
       `;
       }
     };
@@ -2596,11 +2426,7 @@ const AuthContext = ({ children }) => {
     `;
   };
 
-  const GetReplaceServiceWithBulletListView = (
-    selectedRecurringServiceList,
-    selectedOneOffServiceList,
-    servicePackageList
-  ) => {
+  const GetReplaceServiceWithBulletListView = (selectedRecurringServiceList, selectedOneOffServiceList, servicePackageList) => {
     const generateTableRows = (serviceList) => {
       if (!servicePackageList) {
         // When there is no servicePackageList
@@ -2608,63 +2434,60 @@ const AuthContext = ({ children }) => {
         return `
   <ul style="margin: 8px 0; font-size: 16px; line-height: 1.5;">
     ${serviceList
-      .map((item) =>
-        item.servicesList
-          .map((subService) => `<li>${subService.serviceName}</li>`)
-          .join("")
-      )
-      .join("")}
+            .map(item =>
+              item.servicesList
+                .map(subService => `<li>${subService.serviceName}</li>`)
+                .join('')
+            )
+            .join('')}
   </ul>
 `;
+
+
       } else {
         // When servicePackageList is present
         if (!serviceList || serviceList?.length === 0) return "";
         return `
         ${servicePackageList
-          .slice(0, 3) // Limit to a maximum of 3 packages
-          .map((servicePackage, packageIndex) => {
-            // Filter services for the current package
-            const validServices = serviceList.flatMap((serviceCat) =>
-              serviceCat.servicesList.filter((subService) => {
-                return (
-                  (packageIndex === 0 &&
-                    subService?.servicePackageIDs.includes(
-                      subService.packageOneID
-                    ) &&
-                    subService.packageOneValue !== null) ||
-                  (packageIndex === 1 &&
-                    subService?.servicePackageIDs.includes(
-                      subService.packageTwoID
-                    ) &&
-                    subService.packageTwoValue !== null) ||
-                  (packageIndex === 2 &&
-                    subService?.servicePackageIDs.includes(
-                      subService.packageThreeID
-                    ) &&
-                    subService.packageThreeValue !== null)
+            .slice(0, 3) // Limit to a maximum of 3 packages
+            .map((servicePackage, packageIndex) => {
+              // Filter services for the current package
+              const validServices = serviceList
+                .flatMap((serviceCat) =>
+                  serviceCat.servicesList.filter((subService) => {
+                    return (
+                      (packageIndex === 0 &&
+                        subService?.servicePackageIDs.includes(subService.packageOneID) &&
+                        subService.packageOneValue !== null) ||
+                      (packageIndex === 1 &&
+                        subService?.servicePackageIDs.includes(subService.packageTwoID) &&
+                        subService.packageTwoValue !== null) ||
+                      (packageIndex === 2 &&
+                        subService?.servicePackageIDs.includes(subService.packageThreeID) &&
+                        subService.packageThreeValue !== null)
+                    );
+                  })
                 );
-              })
-            );
 
-            // Skip rendering the package if no services are available
-            if (validServices.length === 0) return "";
+              // Skip rendering the package if no services are available
+              if (validServices.length === 0) return '';
 
-            return `
+              return `
               <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
                  ${servicePackage.servicePackageName}
               </p>
               <ul style="margin: 8px 0; font-size: 16px; line-height: 1.5;">
     ${serviceList
-      .map((item) =>
-        item.servicesList
-          .map((subService) => `<li>${subService.serviceName}</li>`)
-          .join("")
-      )
-      .join("")}
+                  .map(item =>
+                    item.servicesList
+                      .map(subService => `<li>${subService.serviceName}</li>`)
+                      .join('')
+                  )
+                  .join('')}
   </ul>
             `;
-          })
-          .join("")}
+            })
+            .join('')}
       `;
       }
     };
@@ -2686,11 +2509,7 @@ const AuthContext = ({ children }) => {
   `;
   };
 
-  const GetReplaceServiceWithBulletListViewWithPrice = (
-    selectedRecurringServiceList,
-    selectedOneOffServiceList,
-    servicePackageList
-  ) => {
+  const GetReplaceServiceWithBulletListViewWithPrice = (selectedRecurringServiceList, selectedOneOffServiceList, servicePackageList) => {
     const generateTableRows = (serviceList) => {
       if (!servicePackageList) {
         // When there is no servicePackageList
@@ -2698,77 +2517,74 @@ const AuthContext = ({ children }) => {
         return `
         <ul style="margin: 8px 0; font-size: 16px; line-height: 1.5;">
           ${serviceList
-            .map((item) =>
+            .map(item =>
               item.servicesList
-                .map(
-                  (subService) =>
-                    `<li>${subService.serviceName}: ${
-                      subService.price == undefined
-                        ? formatValue(subService.quotationPrice)
-                        : formatValue(subService.price)
-                    }</li>`
-                )
-                .join("")
+                .map(subService => `<li>${subService.serviceName}: ${subService.price == undefined
+                  ? formatValue(
+                    subService.quotationPrice
+                  )
+                  : formatValue(subService.price)}</li>`)
+                .join('')
             )
-            .join("")}
+            .join('')}
         </ul>
       `;
+
+
+
+
       } else {
         // When servicePackageList is present
         if (!serviceList || serviceList?.length === 0) return "";
         return `
         ${servicePackageList
-          .slice(0, 3) // Limit to a maximum of 3 packages
-          .map((servicePackage, packageIndex) => {
-            // Filter services for the current package
-            const validServices = serviceList.flatMap((serviceCat) =>
-              serviceCat.servicesList.filter((subService) => {
-                return (
-                  (packageIndex === 0 &&
-                    subService?.servicePackageIDs.includes(
-                      subService.packageOneID
-                    ) &&
-                    subService.packageOneValue !== null) ||
-                  (packageIndex === 1 &&
-                    subService?.servicePackageIDs.includes(
-                      subService.packageTwoID
-                    ) &&
-                    subService.packageTwoValue !== null) ||
-                  (packageIndex === 2 &&
-                    subService?.servicePackageIDs.includes(
-                      subService.packageThreeID
-                    ) &&
-                    subService.packageThreeValue !== null)
+            .slice(0, 3) // Limit to a maximum of 3 packages
+            .map((servicePackage, packageIndex) => {
+              // Filter services for the current package
+              const validServices = serviceList
+                .flatMap((serviceCat) =>
+                  serviceCat.servicesList.filter((subService) => {
+                    return (
+                      (packageIndex === 0 &&
+                        subService?.servicePackageIDs.includes(subService.packageOneID) &&
+                        subService.packageOneValue !== null) ||
+                      (packageIndex === 1 &&
+                        subService?.servicePackageIDs.includes(subService.packageTwoID) &&
+                        subService.packageTwoValue !== null) ||
+                      (packageIndex === 2 &&
+                        subService?.servicePackageIDs.includes(subService.packageThreeID) &&
+                        subService.packageThreeValue !== null)
+                    );
+                  })
                 );
-              })
-            );
 
-            // Skip rendering the package if no services are available
-            if (validServices.length === 0) return "";
+              // Skip rendering the package if no services are available
+              if (validServices.length === 0) return '';
 
-            return `
+              return `
  
    <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
     ${servicePackage.servicePackageName}:
   </p>
    <ul style="margin: 8px 0; font-size: 16px; line-height: 1.5;">
   ${validServices
-    .map((subService) => {
-      const packageValue =
-        packageIndex === 0
-          ? subService.packageOneValue
-          : packageIndex === 1
-          ? subService.packageTwoValue
-          : subService.packageThreeValue;
+                  .map((subService) => {
+                    const packageValue =
+                      packageIndex === 0
+                        ? subService.packageOneValue
+                        : packageIndex === 1
+                          ? subService.packageTwoValue
+                          : subService.packageThreeValue;
 
-      return `<li>${subService.serviceName}: ${formatValue(packageValue)}</li>`;
-    })
-    .join(", ")}
+                    return `<li>${subService.serviceName}: ${formatValue(packageValue)}</li>`;
+                  })
+                  .join(', ')}
                    </ul>
  
 `;
-          })
-          .join("")}
+
+            })
+            .join('')}
       `;
       }
     };
@@ -2802,85 +2618,31 @@ const AuthContext = ({ children }) => {
     let ResultTotalVariablesWithValues = {};
     const conditionalRecurringNetTotal =
       Number(RecurringPricingInfo.OriginalPrice) <
-      Number(RecurringPricingInfo.DiscountedPrice)
+        Number(RecurringPricingInfo.DiscountedPrice)
         ? RecurringPricingInfo.DiscountedPrice
         : RecurringPricingInfo.OriginalPrice;
     const conditionalOneOffNetTotal =
       Number(OneOffPricingInfo.OriginalPrice) <
-      Number(OneOffPricingInfo.DiscountedPrice)
+        Number(OneOffPricingInfo.DiscountedPrice)
         ? OneOffPricingInfo.DiscountedPrice
         : OneOffPricingInfo.OriginalPrice;
     //selectProposalTypeValue 3= single(Custumized)
     if (selectedProposalTypeValue === 3) {
       ResultTotalVariablesWithValues = {
         // All Total result variable with table view
-        AllRecuringResultTotalVariable_WithPackageName:
-          ReplaceVariable_WithTableView(
-            selectedRecurringServiceList,
-            RecurringPricingInfo,
-            selectedProposalTypeValue,
-            null,
-            null
-          ),
-        AllOneOffResultTotalVariable_WithPackageName:
-          ReplaceVariable_WithTableView(
-            selectedOneOffServiceList,
-            OneOffPricingInfo,
-            selectedProposalTypeValue,
-            null,
-            null
-          ),
-        AllRecurringResultTotalVariable_WithoutPackageName:
-          ReplaceVariable_WithTableView(
-            selectedRecurringServiceList,
-            RecurringPricingInfo,
-            selectedProposalTypeValue,
-            null,
-            null
-          ),
-        AllOneOffResultTotalVariable_WithoutPackageName:
-          ReplaceVariable_WithTableView(
-            selectedOneOffServiceList,
-            OneOffPricingInfo,
-            selectedProposalTypeValue,
-            null,
-            null
-          ),
+        AllRecuringResultTotalVariable_WithPackageName: ReplaceVariable_WithTableView(selectedRecurringServiceList, RecurringPricingInfo, selectedProposalTypeValue, null, null),
+        AllOneOffResultTotalVariable_WithPackageName: ReplaceVariable_WithTableView(selectedOneOffServiceList, OneOffPricingInfo, selectedProposalTypeValue, null, null),
+        AllRecurringResultTotalVariable_WithoutPackageName: ReplaceVariable_WithTableView(selectedRecurringServiceList, RecurringPricingInfo, selectedProposalTypeValue, null, null),
+        AllOneOffResultTotalVariable_WithoutPackageName: ReplaceVariable_WithTableView(selectedOneOffServiceList, OneOffPricingInfo, selectedProposalTypeValue, null, null),
         //service Variable
-        AllServices_WithTableView: GetReplaceServiceWithTableView(
-          selectedRecurringServiceList,
-          selectedOneOffServiceList,
-          null
-        ),
-        AllServicesWithPrice_WithTableView:
-          GetReplaceServiceWithTableViewWithPrice(
-            selectedRecurringServiceList,
-            selectedOneOffServiceList,
-            null
-          ),
+        AllServices_WithTableView: GetReplaceServiceWithTableView(selectedRecurringServiceList, selectedOneOffServiceList, null),
+        AllServicesWithPrice_WithTableView: GetReplaceServiceWithTableViewWithPrice(selectedRecurringServiceList, selectedOneOffServiceList, null),
 
-        AllServices_WithComma: GetReplaceServiceWithCommaView(
-          selectedRecurringServiceList,
-          selectedOneOffServiceList,
-          null
-        ),
-        AllServicesWithPrice_WithComma: GetReplaceServiceWithCommaViewWithPrice(
-          selectedRecurringServiceList,
-          selectedOneOffServiceList,
-          null
-        ),
+        AllServices_WithComma: GetReplaceServiceWithCommaView(selectedRecurringServiceList, selectedOneOffServiceList, null),
+        AllServicesWithPrice_WithComma: GetReplaceServiceWithCommaViewWithPrice(selectedRecurringServiceList, selectedOneOffServiceList, null),
 
-        AllServices_WithBulletList: GetReplaceServiceWithBulletListView(
-          selectedRecurringServiceList,
-          selectedOneOffServiceList,
-          null
-        ),
-        AllServicesWithPrice_WithBulletList:
-          GetReplaceServiceWithBulletListViewWithPrice(
-            selectedRecurringServiceList,
-            selectedOneOffServiceList,
-            null
-          ),
+        AllServices_WithBulletList: GetReplaceServiceWithBulletListView(selectedRecurringServiceList, selectedOneOffServiceList, null),
+        AllServicesWithPrice_WithBulletList: GetReplaceServiceWithBulletListViewWithPrice(selectedRecurringServiceList, selectedOneOffServiceList, null),
 
         //Other services
         Net_Total_Recurring: formatValue(conditionalRecurringNetTotal),
@@ -2890,9 +2652,7 @@ const AuthContext = ({ children }) => {
         ),
         VAT_Recurring: formatValue(RecurringPricingInfo.VATPrice),
         Grand_Total_Recurring: formatValue(RecurringPricingInfo.GrandTotal),
-        Original_Price_Recurring: formatValue(
-          RecurringPricingInfo.OriginalPrice
-        ),
+        Original_Price_Recurring: formatValue(RecurringPricingInfo.OriginalPrice),
         Discount_Percentage_Recurring: formatValue(
           RecurringPricingInfo.DefaultDiscount
         ),
@@ -2920,37 +2680,37 @@ const AuthContext = ({ children }) => {
         Discount_WithTableView: SingleServiceWithCombinedTableView(
           "Discount",
           RecurringPricingInfo.Discount,
-          OneOffPricingInfo.Discount
+          OneOffPricingInfo.Discount,
         ),
         Discounted_Total_WithTableView: SingleServiceWithCombinedTableView(
           "Discounted Total",
           RecurringPricingInfo.DiscountedTotal,
-          OneOffPricingInfo.DiscountedTotal
+          OneOffPricingInfo.DiscountedTotal,
         ),
         VAT_WithTableView: SingleServiceWithCombinedTableView(
           "VAT",
           RecurringPricingInfo.VATPrice,
-          OneOffPricingInfo.VATPrice
+          OneOffPricingInfo.VATPrice,
         ),
         Grand_Total_WithTableView: SingleServiceWithCombinedTableView(
           "Grand Total",
           RecurringPricingInfo.GrandTotal,
-          OneOffPricingInfo.GrandTotal
+          OneOffPricingInfo.GrandTotal,
         ),
         Original_Price_WithTableView: SingleServiceWithCombinedTableView(
           "Original Price",
           RecurringPricingInfo.OriginalPrice,
-          OneOffPricingInfo.OriginalPrice
+          OneOffPricingInfo.OriginalPrice,
         ),
         Discount_Percentage_WithTableView: SingleServiceWithCombinedTableView(
           "Default Percentage",
           RecurringPricingInfo.DefaultDiscount,
-          OneOffPricingInfo.DefaultDiscount
+          OneOffPricingInfo.DefaultDiscount,
         ),
         Discounted_Price_WithTableView: SingleServiceWithCombinedTableView(
           "Discounted Price",
           RecurringPricingInfo.DiscountedPrice,
-          OneOffPricingInfo.DiscountedPrice
+          OneOffPricingInfo.DiscountedPrice,
         ),
         //Comma Seprated
         Net_Total_WithComma: GetReplaceValueByWithComma(
@@ -3054,73 +2814,19 @@ const AuthContext = ({ children }) => {
     } else {
       ResultTotalVariablesWithValues = {
         // All Total result variable with table view
-        AllRecuringResultTotalVariable_WithPackageName:
-          ReplaceVariable_WithTableView(
-            selectedRecurringServiceList,
-            RecurringPricingInfo,
-            selectedProposalTypeValue,
-            servicePackageList,
-            null
-          ),
-        AllOneOffResultTotalVariable_WithPackageName:
-          ReplaceVariable_WithTableView(
-            selectedOneOffServiceList,
-            OneOffPricingInfo,
-            selectedProposalTypeValue,
-            servicePackageList,
-            null
-          ),
-        AllRecurringResultTotalVariable_WithoutPackageName:
-          ReplaceVariable_WithTableView(
-            selectedRecurringServiceList,
-            RecurringPricingInfo,
-            selectedProposalTypeValue,
-            servicePackageList,
-            "WithOutName"
-          ),
-        AllOneOffResultTotalVariable_WithoutPackageName:
-          ReplaceVariable_WithTableView(
-            selectedOneOffServiceList,
-            OneOffPricingInfo,
-            selectedProposalTypeValue,
-            servicePackageList,
-            "WithOutName"
-          ),
+        AllRecuringResultTotalVariable_WithPackageName: ReplaceVariable_WithTableView(selectedRecurringServiceList, RecurringPricingInfo, selectedProposalTypeValue, servicePackageList, null),
+        AllOneOffResultTotalVariable_WithPackageName: ReplaceVariable_WithTableView(selectedOneOffServiceList, OneOffPricingInfo, selectedProposalTypeValue, servicePackageList, null),
+        AllRecurringResultTotalVariable_WithoutPackageName: ReplaceVariable_WithTableView(selectedRecurringServiceList, RecurringPricingInfo, selectedProposalTypeValue, servicePackageList, "WithOutName"),
+        AllOneOffResultTotalVariable_WithoutPackageName: ReplaceVariable_WithTableView(selectedOneOffServiceList, OneOffPricingInfo, selectedProposalTypeValue, servicePackageList, "WithOutName"),
         //service Price replace variables
-        AllServices_WithTableView: GetReplaceServiceWithTableView(
-          selectedRecurringServiceList,
-          selectedOneOffServiceList,
-          servicePackageList
-        ),
-        AllServicesWithPrice_WithTableView:
-          GetReplaceServiceWithTableViewWithPrice(
-            selectedRecurringServiceList,
-            selectedOneOffServiceList,
-            servicePackageList
-          ),
+        AllServices_WithTableView: GetReplaceServiceWithTableView(selectedRecurringServiceList, selectedOneOffServiceList, servicePackageList),
+        AllServicesWithPrice_WithTableView: GetReplaceServiceWithTableViewWithPrice(selectedRecurringServiceList, selectedOneOffServiceList, servicePackageList),
 
-        AllServices_WithComma: GetReplaceServiceWithCommaView(
-          selectedRecurringServiceList,
-          selectedOneOffServiceList,
-          servicePackageList
-        ),
-        AllServicesWithPrice_WithComma: GetReplaceServiceWithCommaViewWithPrice(
-          selectedRecurringServiceList,
-          selectedOneOffServiceList,
-          servicePackageList
-        ),
+        AllServices_WithComma: GetReplaceServiceWithCommaView(selectedRecurringServiceList, selectedOneOffServiceList, servicePackageList),
+        AllServicesWithPrice_WithComma: GetReplaceServiceWithCommaViewWithPrice(selectedRecurringServiceList, selectedOneOffServiceList, servicePackageList),
 
-        AllServices_WithBulletList: GetReplaceServiceWithBulletListView(
-          selectedRecurringServiceList,
-          selectedOneOffServiceList,
-          servicePackageList
-        ),
-        AllServicesWithPrice_WithBulletList:
-          GetReplaceServiceWithBulletListViewWithPrice(
-            selectedRecurringServiceList,
-            selectedOneOffServiceList,
-            servicePackageList
-          ),
+        AllServices_WithBulletList: GetReplaceServiceWithBulletListView(selectedRecurringServiceList, selectedOneOffServiceList, servicePackageList),
+        AllServicesWithPrice_WithBulletList: GetReplaceServiceWithBulletListViewWithPrice(selectedRecurringServiceList, selectedOneOffServiceList, servicePackageList),
         //Other Values
         Net_Total_Recurring: GetReplacePackageTableView(
           RecurringPricingInfo,
@@ -3261,14 +2967,14 @@ const AuthContext = ({ children }) => {
           OneOffPricingInfo,
           selectedProposalTypeValue,
           servicePackageList,
-          "Net Total"
+          "Net Total",
         ),
         Discount_WithComma: GetReplaceValueByWithComma(
           RecurringPricingInfo,
           OneOffPricingInfo,
           selectedProposalTypeValue,
           servicePackageList,
-          "Discount"
+          "Discount",
         ),
         Discounted_Total_WithComma: GetReplaceValueByWithComma(
           RecurringPricingInfo,
@@ -3302,14 +3008,14 @@ const AuthContext = ({ children }) => {
           OneOffPricingInfo,
           selectedProposalTypeValue,
           servicePackageList,
-          "Default Percentage"
+          "Default Percentage",
         ),
         Discounted_Price_WithComma: GetReplaceValueByWithComma(
           RecurringPricingInfo,
           OneOffPricingInfo,
           selectedProposalTypeValue,
           servicePackageList,
-          "Default Price"
+          "Default Price",
         ),
 
         Net_Total_WithBulletList: GetReplaceValueByWithBulletList(
@@ -3317,14 +3023,14 @@ const AuthContext = ({ children }) => {
           OneOffPricingInfo,
           selectedProposalTypeValue,
           servicePackageList,
-          "Net Total"
+          "Net Total",
         ),
         Discount_WithBulletList: GetReplaceValueByWithBulletList(
           RecurringPricingInfo,
           OneOffPricingInfo,
           selectedProposalTypeValue,
           servicePackageList,
-          "Discount"
+          "Discount",
         ),
         Discounted_Total_WithBulletList: GetReplaceValueByWithBulletList(
           RecurringPricingInfo,
@@ -3358,14 +3064,14 @@ const AuthContext = ({ children }) => {
           OneOffPricingInfo,
           selectedProposalTypeValue,
           servicePackageList,
-          "Default Percentage"
+          "Default Percentage",
         ),
         Discounted_Price_WithBulletList: GetReplaceValueByWithBulletList(
           RecurringPricingInfo,
           OneOffPricingInfo,
           selectedProposalTypeValue,
           servicePackageList,
-          "Default Price"
+          "Default Price",
         ),
       };
     }
@@ -3405,20 +3111,14 @@ const AuthContext = ({ children }) => {
     });
   };
 
-  const isValueGreaterThan20000 = (
-    RecurringPricingInfo,
-    OneOffPricingInfo,
-    vatPercentage,
-    selectedPackagesList
-  ) => {
+  const isValueGreaterThan20000 = (RecurringPricingInfo, OneOffPricingInfo, vatPercentage, selectedPackagesList) => {
     // Check main grand totals and discounted values
     if (selectedPackagesList?.length == 0) {
       if (vatPercentage && RecurringPricingInfo.GrandTotal > 20000) {
         return true;
       }
       if (
-        (RecurringPricingInfo.DefaultDiscount !== 0 ||
-          !RecurringPricingInfo.DefaultDiscount) &&
+        (RecurringPricingInfo.DefaultDiscount !== 0 || !RecurringPricingInfo.DefaultDiscount) &&
         RecurringPricingInfo.DiscountedTotal > 20000
       ) {
         return true;
@@ -3430,8 +3130,7 @@ const AuthContext = ({ children }) => {
         return true;
       }
       if (
-        (OneOffPricingInfo.DefaultDiscount !== 0 ||
-          !OneOffPricingInfo.DefaultDiscount) &&
+        (OneOffPricingInfo.DefaultDiscount !== 0 || !OneOffPricingInfo.DefaultDiscount) &&
         OneOffPricingInfo.DiscountedTotal > 20000
       ) {
         return true;
@@ -3439,6 +3138,7 @@ const AuthContext = ({ children }) => {
       if (OneOffPricingInfo.DiscountedPrice > 20000) {
         return true;
       }
+
     } else {
       // Check all three package values for RecurringPricingInfo and OneOffPricingInfo
       const packageLabels = ["One", "Two", "Three"];
@@ -3447,13 +3147,11 @@ const AuthContext = ({ children }) => {
         const label = packageLabels[i];
 
         if (
-          (vatPercentage &&
-            RecurringPricingInfo[`Package${label}GrandTotal`] > 20000) ||
+          (vatPercentage && RecurringPricingInfo[`Package${label}GrandTotal`] > 20000) ||
           (RecurringPricingInfo[`DiscountPercentagePackage${label}`] >= 0 &&
             RecurringPricingInfo[`package${label}DisCountedTotal`] > 20000) ||
           RecurringPricingInfo[`package${label}DisCountedTotal`] > 20000 ||
-          (vatPercentage &&
-            OneOffPricingInfo[`Package${label}GrandTotal`] > 20000) ||
+          (vatPercentage && OneOffPricingInfo[`Package${label}GrandTotal`] > 20000) ||
           (OneOffPricingInfo[`DiscountPercentagePackage${label}`] >= 0 &&
             OneOffPricingInfo[`package${label}DisCountedTotal`] > 20000) ||
           OneOffPricingInfo[`package${label}DisCountedTotal`] > 20000
@@ -3461,19 +3159,20 @@ const AuthContext = ({ children }) => {
           return true;
         }
       }
+
     }
     return false;
   };
   const formatUKPhoneNumberLocal = (number, countryCode) => {
-    if (!number) return "";
+    if (!number) return '';
 
     // If it's not +44, return the number as-is
-    if (countryCode !== "+44") {
+    if (countryCode !== '+44') {
       return number;
     }
 
     // Remove all spaces just in case
-    const cleaned = number.replace(/\s+/g, "");
+    const cleaned = number.replace(/\s+/g, '');
 
     // If number is less than or equal to 4 digits, return as is
     if (cleaned.length <= 4) {
@@ -3486,6 +3185,8 @@ const AuthContext = ({ children }) => {
 
     return `${firstFour} ${rest}`;
   };
+
+
 
   /* -------------- Set All Function Used Globally Throughout The Project ------------ */
   return (
@@ -3512,12 +3213,8 @@ const AuthContext = ({ children }) => {
         setLoginLoader,
         isMobile,
         totalPage,
-        getCurrencySymbol,
-        getTaxName,
         formatValue,
         formatValueWithoutCurrencySymbol,
-        formatValueWithoutCurrencySymbol_v1,
-        convertAndParseDate,
         isValidEmail,
         setListCount,
         accessCount,
@@ -3582,8 +3279,7 @@ const AuthContext = ({ children }) => {
         isMenuVisible,
         setMenuVisible,
         toggleMenuVisibility,
-        maxCountToRecallApi,
-        setMaxCountToRecallApi,
+        maxCountToRecallApi, setMaxCountToRecallApi
       }}
     >
       {children}

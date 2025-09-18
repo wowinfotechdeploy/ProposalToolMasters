@@ -109,23 +109,6 @@ function AddDeleteGlobalPricingDriverModal(props) {
               isDefault: item.isDefault,
             }))
           : null,
-        date: GetGlobalPricingDriverData?.date
-          ? GetGlobalPricingDriverData.date.map((item) => ({
-              dateKeyID: item.dateKeyID,
-              dateFormat: item.dateFormat,
-              defaultDateValue: item.defaultDateValue,
-              blocks: item.blocks
-                ? item.blocks.map((block) => ({
-                    dateKeyID: null,
-                    parentDateKeyID: block.dateKeyID,
-                    fromDate: block.fromDate,
-                    toDate: block.toDate,
-                    dateValue: block.dateValue,
-                    isDefault: block.isDefault ?? null,
-                  }))
-                : [],
-            }))
-          : null
       };
       const updatedArray = [...props.pricingDriver, SetGlobalPricingDriverData];
       props.setPricingDriver(updatedArray);
