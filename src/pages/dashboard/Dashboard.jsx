@@ -1759,9 +1759,9 @@ const Dashboard = () => {
                               </div>
 
                               {/* Void EL hidden */}
-
-                              {/* <div
-                                className={`col-xl-3 col-lg-3 col-md-4 dashboard-box col-sm-12  ${
+                              {dashboardCount?.contractVoid > 0 && (                
+                              <div
+                                className={`col-xl-4 col-lg-4 col-md-4 dashboard-box col-sm-12  ${
                                   common.organisationKeyID !== null
                                     ? "cursor-pointer"
                                     : ""
@@ -1812,7 +1812,8 @@ const Dashboard = () => {
                                     </div>
                                   </div>
                                 </div>
-                              </div> */}
+                              </div>
+                              )}
 
                               <div
                                 className={`col-xl-4 col-lg-4 col-md-4 dashboard-box col-sm-12  ${

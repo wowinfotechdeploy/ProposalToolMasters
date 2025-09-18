@@ -87,7 +87,7 @@ function Setting() {
 
   const [setting, setSetting] = useState({
     paymentGatewayID: 1,
-    isContractEnabled: true,
+    isContractEnabled: common.enableEL,
     openSuccessUrlInNewTab: true,
     openCancelUrlInNewTab: true,
     isDeleteClient: true,
@@ -1710,6 +1710,7 @@ function Setting() {
                                                     checked={
                                                       setting.isContractEnabled
                                                     }
+                                                    disabled={common.enableEL === 0}
                                                     onChange={() =>
                                                       setSetting({
                                                         ...setting,

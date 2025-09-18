@@ -10788,6 +10788,8 @@ const Add_Update_Proposal = (props) => {
     maxDiscountForQC: null,
     PaymentFrequency: null,
     enableMasterProposalType: null,
+    defaultProposalFormatID: null,
+    remainingESignatures: null
   });
   const [modelRequestData, setModelRequestData] = useState({
     Action: null,
@@ -17885,6 +17887,8 @@ const Add_Update_Proposal = (props) => {
             organisationKeyID: ModelData.organisationKeyID,
             PaymentFrequency: ModelData.paymentFrequencyID,
             enableMasterProposalType: ModelData.enableMasterProposalType,
+            defaultProposalFormatID: ModelData.defaultProposalFormatID,
+            remainingESignatures: ModelData.remainingESignatures
           });
 
           if (
@@ -18917,6 +18921,7 @@ const Add_Update_Proposal = (props) => {
                   taxName={taxName}
                   currencySymbol = {currencySymbol}
                   feeTypeId={ProposalObject.feeTypeId}
+                  pricingSettingObj={pricingSettingObj}
                   selectedRecurringServiceList={selectedRecurringServiceList}
                   selectedOneOffServiceList={selectedOneOffServiceList}
                   templateElementList={templateElementList}

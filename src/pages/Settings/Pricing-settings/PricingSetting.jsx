@@ -28,7 +28,8 @@ const Pricing_Settings = () => {
     minMonthlyPriceForQC: "",
     maxDiscountForQC: null,
     paymentFrequencyID:null,
-    enableMasterProposalType: false
+    enableMasterProposalType: false,
+    defaultProposalFormatID: null,
   });
 // const ProposalObject = {
   //   Payment_Frequency: 2 // Example initial value, adjust as needed
@@ -48,7 +49,9 @@ const Pricing_Settings = () => {
     minMonthlyPriceForQC: "",
     maxDiscountForQC: "",
     paymentFrequencyID:null,
-    enableMasterProposalType: false
+    enableMasterProposalType: false,
+    defaultProposalFormatID: null,
+    remainingESignatures: null
   });
   const [errorMessage, setErrorMessage] = useState("");
   const {
@@ -72,6 +75,20 @@ const Pricing_Settings = () => {
     }
   }, [common.organisationKeyID]);
 
+  const getProposalFormatOptions = () => {
+    if (PrevPricingSettingObj.defaultProposalFormatID === 2) {
+      return Utils.PreviewSelection.filter(x => x.value === 2);
+    }
+    return Utils.PreviewSelection;
+  }
+  
+  // const getProposalFormatValue = () => {
+  //   if(common.enableEL === 1 && activeOrganizationSubscriptionPlan?.prepareContract === true) {
+  //     return Utils.PreviewSelection.find(x => x.value === (pricingSettingObj.defaultProposalFormatID ?? 1));
+  //   }
+  //   return Utils.PreviewSelection.find(x => x.value === 2);
+  // }
+
   // F] Calling CRUD Api here
   // 1) Get Model Data Api
   const GetPricingSettingModelData = async (id) => {
@@ -93,6 +110,8 @@ const Pricing_Settings = () => {
             organisationKeyID: ModelData.organisationKeyID,
             paymentFrequencyID: ModelData.paymentFrequencyID,
             enableMasterProposalType: ModelData.enableMasterProposalType,
+            defaultProposalFormatID: ModelData.defaultProposalFormatID,
+            remainingESignatures: ModelData.remainingESignatures
           });
           setPrevPricingSettingObj({
             ...pricingSettingObj,
@@ -103,6 +122,8 @@ const Pricing_Settings = () => {
             organisationKeyID: ModelData.organisationKeyID,
             paymentFrequencyID: ModelData.paymentFrequencyID,
             enableMasterProposalType: ModelData.enableMasterProposalType,
+            defaultProposalFormatID: ModelData.defaultProposalFormatID,
+            remainingESignatures: ModelData.remainingESignatures
           });
         }
       } else {
@@ -125,8 +146,9 @@ const Pricing_Settings = () => {
       pricingSettingObj.paymentFrequencyID ==
         PrevPricingSettingObj.paymentFrequencyID &&
       pricingSettingObj.enableMasterProposalType ==
-        PrevPricingSettingObj.enableMasterProposalType
-        
+        PrevPricingSettingObj.enableMasterProposalType &&
+      pricingSettingObj.defaultProposalFormatID ==
+        PrevPricingSettingObj.defaultProposalFormatID  
     ) {
       SetPrevError(true);
       return false;
@@ -142,6 +164,7 @@ const Pricing_Settings = () => {
       maxDiscountForQC: pricingSettingObj.maxDiscountForQC || null,
       paymentFrequencyID: pricingSettingObj.paymentFrequencyID || null,
       enableMasterProposalType: pricingSettingObj.enableMasterProposalType || false,
+      defaultProposalFormatID: pricingSettingObj.defaultProposalFormatID,
     };
 
     setErrorMessage("");
@@ -365,7 +388,7 @@ const Pricing_Settings = () => {
                           <div class="col-lg-2 col-md-4 col-sm-12"></div>
                         </div>
                       </div>
-                      <div class="fieldset col-12">
+                      <div class="fieldset col-6">
                             <label class=" fieldset-label pe-2">Enable {masterProposalType}</label>
                             <input
                               type="checkbox"
@@ -380,6 +403,22 @@ const Pricing_Settings = () => {
                               }}
                             />
                       </div>
+                       <div class="fieldset col-6">
+                            <label class=" fieldset-label pe-2">Default Proposal Format</label>
+                            <Select
+                              className="phone-input-country-code selectDropDown Drop-down-width pt-2"
+                              options={getProposalFormatOptions()}
+                              value={Utils.PreviewSelection.find(x => x.value === pricingSettingObj.defaultProposalFormatID)}
+                              // isDisabled={PrevPricingSettingObj.defaultProposalFormatID === 2}
+                              onChange={(selectedOption) => {
+                                setPricingSettingObj({
+                                  ...pricingSettingObj,
+                                  defaultProposalFormatID: selectedOption.value
+                                })
+                              }}
+                            />
+                      </div>
+                      
                       <div className="text-center">
                         {prevError && (
                           <label className="validation">
