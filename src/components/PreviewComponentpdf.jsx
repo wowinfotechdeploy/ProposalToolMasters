@@ -146,17 +146,37 @@ export default function PreviewComponentPdf(props) {
     }
   }, [isPopUpVisible, props?.ProposalObject?.ProposalFormate]);
 
+  useEffect(() => {
+    if (props?.pricingSettingObj?.defaultProposalFormatID != null) {
+      props.setProposalObject(prev => ({
+        ...prev,
+        ProposalFormate: props?.pricingSettingObj.defaultProposalFormatID,
+      }));
+    }
+  }, [props.pricingSettingObj]);
+
   const handleFormate = (selectedOption) => {
     props.setProposalObject({
       ...props.ProposalObject,
-      ProposalFormate: selectedOption.value === 1 ? 1 : 2,
+      ProposalFormate: selectedOption.value,
     });
     props.setRequireMessage(false);
   };
+  // const handleFormate = (selectedOption) => {
+  //   props.setProposalObject({
+  //     ...props.ProposalObject,
+  //     ProposalFormate: selectedOption.value === 1 ? 1 : 2,
+  //   });
+  //   props.setRequireMessage(false);
+  // };
 
-  const ProposalFormatValue = Utils?.PreviewSelection.find(
-    (item) => props?.ProposalObject?.ProposalFormate == item.value
+  // const ProposalFormatValue = Utils?.PreviewSelection.find(
+  //   (item) => props?.ProposalObject?.ProposalFormate == item.value
+  // );
+  const ProposalFormatValue = Utils.PreviewSelection.find(
+    x => x.value === props.ProposalObject.ProposalFormate
   );
+  // const ProposalFormatValue = Utils.PreviewSelection.find(x => x.value === props.pricingSettingObj?.defaultProposalFormatID);
   // useEffect(() => {
   //   return () => {
   //       // Cleanup: Reset HTML content when unmounting (e.g., navigating back)
@@ -4939,7 +4959,11 @@ export default function PreviewComponentPdf(props) {
               <Select
                 menuPosition="auto"
                 className="phone-input-country-code selectDropDown"
-                options={common.enableEL === 1 ? Utils.PreviewSelection : Utils.PreviewSelection.filter(x => x.value !== 1)}
+                options={
+                  (!common.enableEL || !props?.pricingSettingObj?.remainingESignatures)
+                    ? Utils.PreviewSelection.filter(x => x.value === 2) // only PDF
+                    : Utils.PreviewSelection
+                }
                 onChange={handleFormate}
                 value={ProposalFormatValue}
               />

@@ -63,6 +63,7 @@ const Engagement_Letter = () => {
     isSigned: null,
   });
   const [totalRecords, setTotalRecords] = useState(-1);
+  const [remainingESignatures,setRemainingESignatures] = useState(null);
   const [totalSingleRecords, setTotalSingleRecords] = useState(-1);
   const [emailError, setEmailError] = useState("");
   const [showModal, setShowModal] = useState(false);
@@ -252,6 +253,7 @@ const Engagement_Letter = () => {
       });
 
       if (data) {
+        setRemainingESignatures(data?.data?.responseData?.remainingESignatures);
         if (data?.data?.statusCode === 200) {
           setLoader(false);
           getEngagementListApiCallCount = 0;
@@ -594,7 +596,7 @@ const Engagement_Letter = () => {
   };
 
   const new_letter = () => {
-    if (activeOrganizationSubscriptionPlan?.prepareContract !== true) {
+    if (activeOrganizationSubscriptionPlan?.prepareContract !== true || remainingESignatures <= 0) {
       setShowModal(true);
       return;
     }
@@ -1004,7 +1006,7 @@ const Engagement_Letter = () => {
   
   const CopyContractData = async (item, confirmed = false) => {
     // Add confirmed parameter
-    if (!activeOrganizationSubscriptionPlan.prepareQuote) {
+    if (!activeOrganizationSubscriptionPlan.prepareQuote || remainingESignatures <= 0) {
       setShowModal(true);
       return;
     }
@@ -3167,6 +3169,7 @@ const Engagement_Letter = () => {
           toDate={toDate}
           status={status}
           ModuleName={EngagementName}
+          engagementList = {engagementList}
           ApplyFilter={ApplyFilter}
           businessNatureID={businessNatureID}
           setBusinessNatureID={setBusinessNatureID}

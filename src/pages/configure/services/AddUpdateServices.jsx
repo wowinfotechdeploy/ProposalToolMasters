@@ -442,8 +442,61 @@ const BasicInformationComponent = (props) => {
                 <div className="invalid-feedback">Please enter email</div>
               </div>
             </div>
+            <div className="col-lg-6 col-md-6 col-sm-6 col-xsm-12">
+            {props.common.organisationKeyID !== null && props.ServiceDependencyLookupList.length > 0 && (
+              <>
+                <div id="ServiceDependency_Div">
+                  <div className="mb-3 ">
+                    <label className="form-label" style={{ paddingRight: "4px" }}>
+                      Depends on Services
+                    </label>
+                    <input
+                      type="checkbox"
+                      id="enableDropdown"
+                      checked={props.isDropdownEnabled}
+                      onChange={(e) => {
+                        const isChecked = e.target.checked;
+                        props.setIsDropdownEnabled(isChecked);
+                        if (!isChecked || props.ServiceDependencyValue.length === 0) {
+                          props.OnServiceDependencyChange([]);
+                          props.setServicesObj((prev) => ({
+                            ...prev,
+                            prerequisiteServicesID: []
+                          }));
+                        }
+                      }}
+                      style={{ verticalAlign: "middle", cursor: "pointer" }}
+                    />
+            
+                    {(props.isDropdownEnabled || props.ServiceDependencyValue.length > 0) && (
+                      <>
+                        <div className="input-group">
+                          <Select
+                            isMulti
+                            value={props.ServiceDependencyValue}
+                            options={props.ServiceDependencyLookupList}
+                            className="user-role-select"
+                            onChange={props?.OnServiceDependencyChange}
+                            styles={{
+                              option: (styles) => ({ ...styles, cursor: 'pointer' }),
+                            }}
+                            placeholder="Select..."
+                          />
+                        </div>
+                        {props.serviceError.basicInformationError &&
+                          (!props.ServiceDependencyList || props.ServiceDependencyList === "") && (
+                            <label className="validation">{ERROR_MESSAGES}</label>
+                        )}
+                      </>
+                    )}
+                  </div>
+                </div>
+              </>
+            )}
+            </div>
+            <div className="col-lg-6">
             {props.servicesObj.pricingTypeID === 1 && (
-              <div className="col-lg-6" id="Price_Div">
+              <div id="Price_Div">
                 <div className="mb-3 ">
                   <label className="form-label">
                     Price <span className="text-danger">*</span>
@@ -493,56 +546,7 @@ const BasicInformationComponent = (props) => {
                 </div>
               </div>
             )}
-            {props.common.organisationKeyID !== null && props.ServiceDependencyLookupList.length > 0 && (
-              <>
-                <div className="col-lg-6" id="ServiceDependency_Div">
-                  <div className="mb-3 ">
-                    <label className="form-label" style={{ paddingRight: "4px" }}>
-                      Depends on Services
-                    </label>
-                    <input
-                      type="checkbox"
-                      id="enableDropdown"
-                      checked={props.isDropdownEnabled}
-                      onChange={(e) => {
-                        const isChecked = e.target.checked;
-                        props.setIsDropdownEnabled(isChecked);
-                        if (!isChecked || props.ServiceDependencyValue.length === 0) {
-                          props.OnServiceDependencyChange([]);
-                          props.setServicesObj((prev) => ({
-                            ...prev,
-                            prerequisiteServicesID: []
-                          }));
-                        }
-                      }}
-                      style={{ verticalAlign: "middle", cursor: "pointer" }}
-                    />
-            
-                    {(props.isDropdownEnabled || props.ServiceDependencyValue.length > 0) && (
-                      <>
-                        <div className="input-group">
-                          <Select
-                            isMulti
-                            value={props.ServiceDependencyValue}
-                            options={props.ServiceDependencyLookupList}
-                            className="user-role-select"
-                            onChange={props?.OnServiceDependencyChange}
-                            styles={{
-                              option: (styles) => ({ ...styles, cursor: 'pointer' }),
-                            }}
-                            placeholder="Select..."
-                          />
-                        </div>
-                        {props.serviceError.basicInformationError &&
-                          (!props.ServiceDependencyList || props.ServiceDependencyList === "") && (
-                            <label className="validation">{ERROR_MESSAGES}</label>
-                        )}
-                      </>
-                    )}
-                  </div>
-                </div>
-              </>
-            )}
+            </div>
           </div>
           {/* <!-- end tab row --> */}
         </div>
@@ -4131,7 +4135,15 @@ const Add_Update_Service = (props) => {
               slab: i.slab,
               text: i.text,
               date: i.date,
-              quantity: i.quantity,
+              quantity: Array.isArray(i.quantity) && i.quantity.length === 0
+                ? [
+                  {
+                    quantityDecimalPlaces: 0,
+                    quantityFrom: "",
+                    quantityTo: "",
+                  },
+                ]
+                : i.quantity,
               globalPricingDriverKeyID: i.globalPricingDriverKeyID,
               driverName: i.driverName,
               isPredefined: i.isPredefined,

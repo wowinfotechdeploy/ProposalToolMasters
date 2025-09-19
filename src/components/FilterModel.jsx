@@ -75,6 +75,15 @@ function Filter(props) {
     props.setStatus(status.value);
   };
 
+  const hasVoidedEL = props?.engagementList?.some((el) => el.statusID === 8);
+  const EngagementLetterStatusOptions = Utils.EngagementLetterStatus.filter(el => {
+    if(hasVoidedEL)  {
+      return true;
+    } else {
+      return el.value !== 8;
+    }
+  })
+
   const handleChangeBusinessTypeID = (status) => {
     props?.setProspectType(status ? status.value : null);
   };
@@ -581,7 +590,7 @@ function Filter(props) {
                                   <div className="input-group">
                                     <Select
                                       className="phone-input-country-code selectDropDown Drop-down-width"
-                                      options={props.ModuleName === EngagementName ? Utils.EngagementLetterStatus : Utils.ProposalStatus}
+                                      options={props.ModuleName === EngagementName ? EngagementLetterStatusOptions : Utils.ProposalStatus}
                                       value={selectedOption || null}
                                       onChange={handleStatus}
                                     />

@@ -2,6 +2,7 @@ import { useState } from "react";
 
 export default function EditableCell({ value, displayValue, onSave }) {
   const [isEditing, setIsEditing] = useState(false);
+  const [isMouseHover, setIsMouseHover] = useState(false);
   const [text, setText] = useState(value); // Always use full value for editing
 
   const handleSave = () => {
@@ -34,7 +35,11 @@ export default function EditableCell({ value, displayValue, onSave }) {
   </svg>
 
   return (
-    <div style={{ display: "flex", alignItems: "center" }}>
+    <div 
+    style={{ display: "flex", alignItems: "center" }}
+    onMouseEnter={() => setIsMouseHover(true)}
+    onMouseLeave={() => setIsMouseHover(false)}
+    >
       {isEditing ? (
         <input
           type="text"
@@ -46,8 +51,13 @@ export default function EditableCell({ value, displayValue, onSave }) {
           style={{ width: "100%" }}
         />
       ) : (
-        <span onClick={() => setIsEditing(true)} style={{ cursor: "pointer" }}>
-          {displayValue || text} {pencilLogo}
+        <span style={{display: "flex", alignItems: "center"}}>
+          {displayValue || text}
+          {isMouseHover && (
+            <span onClick={() => setIsEditing(true)} style={{ cursor: "pointer" }}>
+            {pencilLogo}
+            </span>
+          )}
         </span>
       )}
     </div>

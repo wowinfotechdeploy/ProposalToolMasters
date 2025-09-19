@@ -250,6 +250,29 @@ export const SelectServices = (props) => {
     let changed = false;
 
     const updated = services.map((service) => {
+      const selectedElsewhere = fullList.some(
+        (s) =>
+          s.serviceID === service.serviceID &&
+          s.serviceChargeTypeName !== service.serviceChargeTypeName &&
+          s.isSelected === true
+      );
+      // console.log(fullList);
+      if (selectedElsewhere) {
+        const newService = {
+          ...service,
+          isDisabled: true,
+          isSelected: false,
+          isHidden: false,
+        };
+        if (
+          newService.isDisabled !== service.isDisabled ||
+          newService.isSelected !== service.isSelected ||
+          newService.isHidden !== service.isHidden
+        ) {
+          changed = true;
+        }
+        return newService;
+      }
       const hasDeps = Array.isArray(service.hasDependencies) && service.hasDependencies.length > 0;
 
       if (hasDeps) {
@@ -325,12 +348,14 @@ export const SelectServices = (props) => {
         c.servicesList.map(s => ({
           ...s,
           serviceCatID: c.serviceCatID,
+          serviceChargeTypeName: s.serviceChargeTypeName,
         }))
       ),
       ...(props.recurringServiceList || []).flatMap(c =>
         c.servicesList.map(s => ({
           ...s,
           serviceCatID: c.serviceCatID,
+          serviceChargeTypeName: s.serviceChargeTypeName,
         }))
       ),
     ];
@@ -352,12 +377,14 @@ export const SelectServices = (props) => {
         c.servicesList.map(s => ({
           ...s,
           serviceCatID: c.serviceCatID,
+          serviceChargeTypeName: s.serviceChargeTypeName,
         }))
       ),
       ...(props.oneOffServiceList || []).flatMap(c =>
         c.servicesList.map(s => ({
           ...s,
           serviceCatID: c.serviceCatID,
+          serviceChargeTypeName: s.serviceChargeTypeName,
         }))
       ),
     ];
