@@ -37,6 +37,7 @@ import FilterModel from "../../components/FilterModel";
 import * as XLSX from "xlsx";
 import { GetProspectTypeVariationLookupList } from "../../redux/Services/Master/BusinessTypeLookupListApi";
 import { GetNOBTypeLookupList } from "../../redux/Services/Master/NOBTypeLookupListApi";
+import { GetServiceUpdatedAfterSendingQuoteOrContract } from "../../redux/Services/Config/ServicesApi";
 import {
   DownloadDocumentAsZip,
   ResendContract,
@@ -81,6 +82,7 @@ const Engagement_Letter = () => {
   const common = useSelector((state) => state.Storage);
   const [title, setTitle] = useState("");
   const [isAddUpdateActionDone, setIsAddUpdateActionDone] = useState(false);
+  const [isCopyPending, setIsCopyPending] = useState(false);
   const [engagementList, setEngagementList] = useState([]);
   const [OldEngagementList, setOldEngagementList] = useState([]);
   const [SingleEngagementList, setSingleEngagementList] = useState([]);
@@ -982,23 +984,136 @@ const Engagement_Letter = () => {
     setSelectedOption(null);
     setFromDate(null);
   };
-  const CopyContractData = async (item) => {
-    if (!activeOrganizationSubscriptionPlan.prepareContract) {
+  // const CopyContractData = async (item) => {
+  //   if (!activeOrganizationSubscriptionPlan.prepareContract) {
+  //     setShowModal(true);
+  //     return;
+  //   }
+  //   try {
+  //     const CopyQuote = await CopyContract(
+  //       modelRequestData.contractKeyID,
+  //       common.userKeyID
+  //     );
+  //     if (CopyQuote.data.statusCode === 200) {
+  //       setOpenSuccessModal(true);
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
+  
+  const CopyContractData = async (item, confirmed = false) => {
+    // Add confirmed parameter
+    if (!activeOrganizationSubscriptionPlan.prepareQuote) {
       setShowModal(true);
       return;
     }
     try {
-      const CopyQuote = await CopyContract(
+      if (!confirmed) {
+        // If not confirmed, check for service updates
+        const checkRes = await GetServiceUpdatedAfterSendingQuoteOrContract(
+          modelRequestData.contractKeyID,
+          "Contract"
+        );
+        if (checkRes.data?.statusCode === 200) {
+          setLoader(false);
+          const {
+            isServiceUpdatedAfter: serviceUpdatedAfterSent,
+            isServiceDeletedAfter: serviceDeletedAfterSent,
+            isPackageUpdatedAfter: packageUpdatedAfterSent,
+            isPackageDeletedAfter: packageDeletedAfterSent,
+            updatedPackageNames,
+            deletedPackageNames,
+            deletedServiceNames,
+            updatedServiceNames,
+          } = checkRes.data?.responseData?.data || {};
+
+          let message = "";
+
+          // If updated items exist
+          if (serviceUpdatedAfterSent || packageUpdatedAfterSent) {
+            message += "Following Services or Packages were updated which may affect the copied Engagement Letter. Do you want to proceed?\n";
+
+            if (serviceUpdatedAfterSent && updatedServiceNames?.length > 0) {
+              message += "\nServices:\n";
+              message += updatedServiceNames.map(s => `- ${s}`).join("\n") + "\n";
+            }
+
+            if (packageUpdatedAfterSent && updatedPackageNames?.length > 0) {
+              message += "\nPackages:\n";
+              message += updatedPackageNames.map(p => `- ${p}`).join("\n") + "\n";
+            }
+
+            message += "\n";
+          }
+
+          // If deleted items exist
+          if (serviceDeletedAfterSent || packageDeletedAfterSent) {
+            message += "Following Services or Packages were deleted which may affect the copied Engagement Letter. Do you want to proceed?\n";
+
+            if (serviceDeletedAfterSent && deletedServiceNames?.length > 0) {
+              message += "\nServices:\n";
+              message += deletedServiceNames.map(s => `- ${s}`).join("\n") + "\n";
+            }
+
+            if (packageDeletedAfterSent && deletedPackageNames?.length > 0) {
+              message += "\nPackages:\n";
+              message += deletedPackageNames.map(p => `- ${p}`).join("\n") + "\n";
+            }
+          }
+
+          if (serviceUpdatedAfterSent || serviceDeletedAfterSent || packageUpdatedAfterSent || packageDeletedAfterSent) {
+            setModelRequestData({
+              ...modelRequestData,
+              Action: "ServiceWarning",
+              message,
+              quoteKeyID: modelRequestData.contractKeyID,
+              RefId: modelRequestData.refId,
+            });
+            setIsCopyPending(true);
+            $("#ConfirmModel").modal("show");
+            return;
+          }
+        }
+      else {
+        setLoader(false);
+        setErrorMessage(checkRes.data?.errorMessage);
+        setOpenErrorModal(true);
+        return;
+      }
+      }
+      setLoader(true);
+      setModelRequestData({
+        ...modelRequestData,
+        Action: "Copy",
+      });
+      // If confirmed or no service updates, copy the contract
+      const response = await CopyContract(
         modelRequestData.contractKeyID,
         common.userKeyID
       );
-      if (CopyQuote.data.statusCode === 200) {
+      $("#ConfirmModel").modal("hide");
+      console.log(response);
+      if(response) {
+      if (response.data.statusCode === 200) {
+        setLoader(false);
         setOpenSuccessModal(true);
+      } else {
+        setLoader(false);
+        setErrorMessage(response?.data?.errorMessage);
+        setOpenErrorModal(true);
       }
-    } catch (error) {
+      setIsCopyPending(false); // Reset the flag
+    } 
+  } catch (error) {
+      setLoader(false);
+      setErrorMessage(error.message);
+      setOpenErrorModal(true);
       console.log(error);
+      setIsCopyPending(false); // Reset the flag
     }
   };
+
   const handleClose = () => {
     setOpenSuccessModal(false);
     $("#" + "ConfirmModel").modal("hide");
@@ -1734,9 +1849,9 @@ const Engagement_Letter = () => {
                                   <td className="tr-table-class text-white">
                                     Documents
                                   </td>
-                                  {/* <td className="tr-table-class text-white">
+                                  <td className="tr-table-class text-white">
                                     Last Updated On
-                                  </td> */}
+                                  </td>
                                   <td className="tr-table-class text-white">
                                     Send Reminder
                                   </td>
@@ -1951,7 +2066,7 @@ const Engagement_Letter = () => {
                                                 </p>
                                               )}
                                           </td>
-                                          {/* <td className="table-content-font">
+                                          <td className="table-content-font">
                                             {engagement.statusID ===
                                               statusID.Signed ? (
                                               <span>
@@ -1983,7 +2098,7 @@ const Engagement_Letter = () => {
                                                 )}
                                               </span>
                                             ) : null}
-                                          </td> */}
+                                          </td>
 
                                           <td className="table-content-font">
                                             {engagement.statusID !==
@@ -2074,9 +2189,9 @@ const Engagement_Letter = () => {
                                                 <ul
                                                   style={{
                                                     padding: `${engagement.statusID ===
-                                                      statusID.Draft
-                                                      ? "2px 0px 2px 0px"
-                                                      : "6px 8px"
+                                                        statusID.Draft
+                                                        ? "2px 0px 2px 0px"
+                                                        : "6px 8px"
                                                       }`,
                                                   }}
                                                   class="dropdown-menu"
@@ -2995,7 +3110,10 @@ const Engagement_Letter = () => {
                     ? DeleteSingleApiContractData
                     : modelRequestData.Action === "DeleteContract"
                       ? HandleDeleteDraftContractData
-                      : CopyContractData
+                      : modelRequestData.Action === "Copy"
+                      ? CopyContractData
+                      : () => CopyContractData(null, true)
+
           }
         />
         <SuccessModal

@@ -7,7 +7,38 @@ import { AuthContextProvider } from "../AuthContext/AuthContext";
 import { Tooltip } from "@mui/material";
 import Text_Editor from "./Text_Editor";
 import { statusID } from "../Middleware/enums";
+import DatePicker from "react-datepicker";
+import { parse, isValid, format, isAfter, isBefore, isEqual } from 'date-fns';
+import "react-datepicker/dist/react-datepicker.css";
+import "react-calendar/dist/Calendar.css";
+import dayjs from 'dayjs';
 export const AdditionalInformation = (props) => {
+
+    useEffect(() => {
+        if (!props.additionalInformationList || props.additionalInformationList.length === 0) {
+            return;
+        }
+
+        props.additionalInformationList.forEach((info) => {
+            if (
+                info.driverTypeID === 6 &&
+                info.enteredDate
+            ) {
+                // Try to parse the entered date using its format (or fallback to default)
+                const formatToUse = info.enteredDateFormat || info.date?.[0]?.dateFormat || "dd-MM-yyyy";
+                const parsedDate = parseStoredDate(info.enteredDate, formatToUse);
+
+                // If the parsed date is valid, trigger the main handler
+                if (parsedDate) {
+                    // setTimeout is used to safely run it after render
+                    setTimeout(() => {
+                        HandleDateDriver(parsedDate, info.globalPricingDriverID);
+                    }, 0);
+                }
+            }
+        });
+    }, []);
+
     const moduleNameForSaveAsDraft = "AdditionalInformation"
     const { isValidEmail, isMobile } =
         useContext(AuthContextProvider);
@@ -160,6 +191,203 @@ export const AdditionalInformation = (props) => {
         props.setAdditionalInformationList(updatedAdditionalInformationList);
     }
 
+    const parseStoredDate = (dateStr, formatStr) => {
+        if (!dateStr) return null;
+
+        try {
+            const parsed = parse(dateStr, formatStr, new Date());
+            return isValid(parsed) ? parsed : null;
+        } catch (err) {
+            console.error("Invalid date string:", dateStr, "with format:", formatStr);
+            return null;
+        }
+    };
+
+    const getMinDate = (blocks, formatStr) => {
+        if (!blocks?.length) return null;
+        const firstBlock = blocks[0];
+        const fromDate = firstBlock.fromDate
+            ? parseStoredDate(firstBlock.fromDate, formatStr)
+            : null;
+        return fromDate instanceof Date && !isNaN(fromDate) ? fromDate : null;
+    };
+
+    const getMaxDate = (blocks, formatStr) => {
+        if (!blocks?.length) return null;
+        const lastBlock = blocks[blocks.length - 1];
+        const toDate = lastBlock.toDate
+            ? parseStoredDate(lastBlock.toDate, formatStr)
+            : null;
+        return toDate instanceof Date && !isNaN(toDate) ? toDate : null;
+    };
+
+    const HandleDateDriver = (selectedDate, globalPricingDriverID) => {
+        props.DisableTabOnChange();
+
+        const updatedList = props.additionalInformationList.map(info => {
+            if (info.globalPricingDriverID !== globalPricingDriverID) return info;
+
+            const dateFormat = info.date?.[0]?.dateFormat || "dd-MM-yyyy";
+            const formattedDate = format(selectedDate, dateFormat);
+            const defaultValue = info.date?.[0]?.defaultDateValue;
+            let matchedBlock = info.date.find((block) => {
+              const from = block.fromDate
+                ? parseStoredDate(block.fromDate, dateFormat)
+                : null;
+              const to = block.toDate
+                ? parseStoredDate(block.toDate, dateFormat)
+                : null;
+
+              // Case 1: both from & to
+              if (from && to) {
+                return (
+                  (isEqual(selectedDate, from) || isAfter(selectedDate, from)) &&
+                  (isEqual(selectedDate, to) || isBefore(selectedDate, to))
+                );
+              }
+              // Case 2: only from (open-ended future)
+              if (from && !to) {
+                return isEqual(selectedDate, from) || isAfter(selectedDate, from);
+              }
+              // Case 3: only to (open-ended past)
+              if (!from && to) {
+                return isEqual(selectedDate, to) || isBefore(selectedDate, to);
+              }
+              return false;
+
+            });
+
+            if (!matchedBlock) {
+                matchedBlock = info.date.find(block => block.isDefault === true);
+            }
+
+            if (!matchedBlock) {
+                return {
+                    ...info,
+                    date: info.date.map(block => ({
+                        ...block,
+                        enteredDate: null,
+                        isDefault: false
+                    })),
+                    driverValue: 0,
+                    dateID: null,
+                    enteredDate: null,
+                    enteredDateFormat: null
+                };
+            }
+
+            const updatedDateBlocks = info.date.map(block => ({
+                ...block,
+                isDefault: block.dateID === matchedBlock.dateID ? true : false,
+                enteredDate: block.dateID === matchedBlock.dateID ? formattedDate : null
+            }));
+            console.log(matchedBlock);
+            const info1 = {
+                ...info,
+                date: updatedDateBlocks,
+                driverValue: matchedBlock.dateValue ?? matchedBlock.defaultDateValue ?? 0,
+                dateID: matchedBlock.dateID,
+                enteredDate: formattedDate,
+                enteredDateFormat: matchedBlock.dateFormat || dateFormat
+            }
+            console.log(info1);
+            return {
+                ...info,
+                date: updatedDateBlocks,
+                driverValue: matchedBlock.dateValue ?? matchedBlock.defaultDateValue ?? 0,
+                dateID: matchedBlock.dateID,
+                enteredDate: formattedDate,
+                enteredDateFormat: matchedBlock.dateFormat || dateFormat
+            };
+        });
+
+        props.setAdditionalInformationList(updatedList);
+    };
+  const HandleTextDriver = (e, globalPricingDriverID) => {
+    const inputValue = e.target.value;
+
+    const updatedList = props.additionalInformationList.map((info) => {
+      if (info.globalPricingDriverID !== globalPricingDriverID) return info;
+
+      const textBlock = info.text?.[0] ?? {};
+      const maxLength = textBlock.textLength ?? 100;
+      const allowedSpecial = textBlock.allowedSpecialCharacters ?? "";
+
+      // Escape any special characters for regex
+      const escapedAllowed = allowedSpecial.replace(
+        /[-[\]/{}()*+?.\\^$|]/g,
+        "\\$&"
+      );
+
+      // Only allow alphanumeric, spaces and defined special characters
+      const regex = new RegExp(`[^a-zA-Z0-9 ${escapedAllowed}]`, "g");
+
+      const cleanedValue = inputValue.replace(regex, "").slice(0, maxLength);
+
+      return {
+        ...info,
+        enteredText: cleanedValue,
+        driverValue: textBlock.textValue ?? 0,
+        textID: textBlock.textID,
+      };
+    });
+
+    props.setAdditionalInformationList(updatedList);
+  };
+
+    function getSelectedDateInfo(info) {
+        const dateFormat = info.date?.[0]?.dateFormat || "dd-MM-yyyy";
+        const enteredDateStr = info.enteredDate;
+        const enteredDate = enteredDateStr
+            ? parseStoredDate(enteredDateStr, info.enteredDateFormat || dateFormat)
+            : null;
+
+        if (!enteredDate) return null;
+
+        // Try to match a block based on enteredDate
+        let matchedBlock = info.date.find((block) => {
+            const from = block.fromDate
+                ? parseStoredDate(block.fromDate, dateFormat)
+                : null;
+            const to = block.toDate
+                ? parseStoredDate(block.toDate, dateFormat)
+                : null;
+
+            if (!from || !to) return false;
+
+            return (
+                (isEqual(enteredDate, from) || isAfter(enteredDate, from)) &&
+                (isEqual(enteredDate, to) || isBefore(enteredDate, to))
+            );
+        });
+
+        // Fallback to default block
+        if (!matchedBlock) {
+            matchedBlock = info.date.find((block) => block.isDefault === true);
+        }
+
+        // Still fallback to 0 value block
+        if (!matchedBlock && info.date?.[0]?.defaultDateValue != null) {
+            return {
+                driverValue: info.date?.[0].defaultDateValue,
+                matchedBlock: null,
+                enteredDate,
+                dateFormat,
+            };
+        }
+
+        if (!matchedBlock) return null;
+
+        return {
+            driverValue:
+                matchedBlock.dateValue ?? matchedBlock.defaultDateValue ?? 0,
+            matchedBlock,
+            enteredDate,
+            dateFormat,
+        };
+    }
+
+
     const handleSignatoryBlock = (index, field, e) => {
         props.DisableTabOnChange()
         const updatedSignatoriesList = [...props?.contractSignatoriesList]; // Create a copy of the existing list
@@ -187,271 +415,586 @@ export const AdditionalInformation = (props) => {
                     <div class="tab-pane p-3 active">
                         {props.additionalInformationList?.filter(item => item.driverTypeID !== 1)?.map((i) => {
                             return (
-                                <div class="row fieldset add-new-package">
-                                    {i.driverVisibility && i.driverTypeID === 2 && (
-                                        <>
-                                            <div className={(props.moduleName === "Package" || props.moduleName === "Quote") ? "col-md-5 col-sm-12 text-start text-md-start" : "col-md-3 col-sm-12 text-start text-md-end"}
-                                            >
-                                                <div class="">
-                                                    <label class="form-label">
-                                                        {isMobile ? (
-                                                            <>
-                                                                {i?.driverName.substring(0, 30).replace(/\b\w/g, l => l.toUpperCase())}
-                                                            </>
-                                                        ) : (
-                                                            <>
-                                                                {(props.moduleName === "Package" || props.moduleName === "Quote") ? (
-                                                                    i?.driverName.replace(/\b\w/g, l => l.toUpperCase())
-                                                                ) : (
-                                                                    i?.driverName.length > 20 ? (
-                                                                        <Tooltip title={i?.driverName}>
-                                                                            {i?.driverName.substring(0, 25).replace(/\b\w/g, l => l.toUpperCase()) + '...'}
-                                                                        </Tooltip>
-                                                                    ) : (
-                                                                        i?.driverName.replace(/\b\w/g, l => l.toUpperCase())
-                                                                    )
-                                                                )}
-                                                            </>
-                                                        )}
-                                                        <span class="text-danger">*</span>
-                                                    </label>
-                                                </div>
-                                            </div>
+                              <div class="row fieldset add-new-package">
+                                {i.driverVisibility && i.driverTypeID === 2 && (
+                                  <>
+                                    <div
+                                      className={
+                                        props.moduleName === "Package" ||
+                                        props.moduleName === "Quote"
+                                          ? "col-md-5 col-sm-12 text-start text-md-start"
+                                          : "col-md-3 col-sm-12 text-start text-md-end"
+                                      }
+                                    >
+                                      <div class="">
+                                        <label class="form-label">
+                                          {isMobile ? (
+                                            <>
+                                              {i?.driverName
+                                                .substring(0, 30)
+                                                .replace(/\b\w/g, (l) =>
+                                                  l.toUpperCase()
+                                                )}
+                                            </>
+                                          ) : (
+                                            <>
+                                              {props.moduleName === "Package" ||
+                                              props.moduleName === "Quote" ? (
+                                                i?.driverName.replace(
+                                                  /\b\w/g,
+                                                  (l) => l.toUpperCase()
+                                                )
+                                              ) : i?.driverName.length > 20 ? (
+                                                <Tooltip title={i?.driverName}>
+                                                  {i?.driverName
+                                                    .substring(0, 25)
+                                                    .replace(/\b\w/g, (l) =>
+                                                      l.toUpperCase()
+                                                    ) + "..."}
+                                                </Tooltip>
+                                              ) : (
+                                                i?.driverName.replace(
+                                                  /\b\w/g,
+                                                  (l) => l.toUpperCase()
+                                                )
+                                              )}
+                                            </>
+                                          )}
+                                          <span class="text-danger">*</span>
+                                        </label>
+                                      </div>
+                                    </div>
 
-                                            <div id={`${i?.driverName}`} className={(props.moduleName === "Package" || props.moduleName === "Quote") ? "col-lg-7 col-md-9 col-sm-12" : "col-lg-9 col-md-9 col-sm-12"}>
-                                                <div class="mb-1">
-                                                    <div class="input-group">
-                                                        <input
-                                                            type="text"
-                                                            class="input-text"
-                                                            placeholder={i?.driverName}
-                                                            value={i.driverValue === null ? "" : i.driverValue}
-                                                            onChange={(e) =>
-                                                                HandleAdditionalInformation(
-                                                                    e.target.value,
-                                                                    i.globalPricingDriverID
-                                                                )
-                                                            }
-                                                        />
-                                                        {props.requireMessage &&
-                                                            (i.driverValue === null ||
-                                                                i.driverValue === undefined ||
-                                                                i.driverValue === "") ? (
-                                                            <label className="validation">
-                                                                {ERROR_MESSAGES}
-                                                            </label>
-                                                        ) : (
-                                                            ""
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </>
-                                    )}
-                                    {i.driverVisibility && i.driverTypeID === 3 && (
-                                        <>
+                                    <div
+                                      id={`${i?.driverName}`}
+                                      className={
+                                        props.moduleName === "Package" ||
+                                        props.moduleName === "Quote"
+                                          ? "col-lg-7 col-md-9 col-sm-12"
+                                          : "col-lg-9 col-md-9 col-sm-12"
+                                      }
+                                    >
+                                      <div class="mb-1">
+                                        <div class="input-group">
+                                          <input
+                                            type="text"
+                                            class="input-text"
+                                            placeholder={i?.driverName}
+                                            value={
+                                              i.driverValue === null
+                                                ? ""
+                                                : i.driverValue
+                                            }
+                                            onChange={(e) =>
+                                              HandleAdditionalInformation(
+                                                e.target.value,
+                                                i.globalPricingDriverID
+                                              )
+                                            }
+                                          />
+                                          {props.requireMessage &&
+                                          (i.driverValue === null ||
+                                            i.driverValue === undefined ||
+                                            i.driverValue === "") ? (
+                                            <label className="validation">
+                                              {ERROR_MESSAGES}
+                                            </label>
+                                          ) : (
+                                            ""
+                                          )}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </>
+                                )}
+                                {i.driverVisibility && i.driverTypeID === 3 && (
+                                  <>
+                                    <div
+                                      className={
+                                        props.moduleName === "Package" ||
+                                        props.moduleName === "Quote"
+                                          ? "col-md-5 col-sm-12 text-start text-md-start"
+                                          : "col-md-3 col-sm-12 text-start text-md-end"
+                                      }
+                                    >
+                                      <div class="">
+                                        <label class="form-label">
+                                          {isMobile ? (
+                                            <>
+                                              {i?.driverName
+                                                .substring(0, 30)
+                                                .replace(/\b\w/g, (l) =>
+                                                  l.toUpperCase()
+                                                )}
+                                            </>
+                                          ) : (
+                                            <>
+                                              {props.moduleName === "Package" ||
+                                              props.moduleName === "Quote" ? (
+                                                i?.driverName.replace(
+                                                  /\b\w/g,
+                                                  (l) => l.toUpperCase()
+                                                )
+                                              ) : i?.driverName.length > 20 ? (
+                                                <Tooltip title={i?.driverName}>
+                                                  {i?.driverName
+                                                    .substring(0, 25)
+                                                    .replace(/\b\w/g, (l) =>
+                                                      l.toUpperCase()
+                                                    ) + "..."}
+                                                </Tooltip>
+                                              ) : (
+                                                i?.driverName.replace(
+                                                  /\b\w/g,
+                                                  (l) => l.toUpperCase()
+                                                )
+                                              )}
+                                            </>
+                                          )}
+                                          <span class="text-danger">*</span>
+                                        </label>
+                                      </div>
+                                    </div>
+                                    <div
+                                      id={`${i?.driverName}`}
+                                      className={
+                                        props.moduleName === "Package" ||
+                                        props.moduleName === "Quote"
+                                          ? "col-lg-7 col-md-9 col-sm-12"
+                                          : "col-lg-9 col-md-9 col-sm-12"
+                                      }
+                                    >
+                                      <div class="mb-1 ">
+                                        <div class="input-group">
+                                          <Select
+                                            options={i.variation?.map(
+                                              (item) => ({
+                                                value: item.variationID,
+                                                label: item.variationName,
+                                                variationValue:
+                                                  item.variationValue,
+                                              })
+                                            )}
+                                            value={i?.variation
+                                              .filter(
+                                                (variation) =>
+                                                  variation.isDefault === true
+                                              )
+                                              .map((i) => ({
+                                                value: i.variationID,
+                                                label: i.variationName,
+                                              }))}
+                                            onChange={(value) =>
+                                              HandleAdditionalInformation(
+                                                value,
+                                                i.globalPricingDriverID,
+                                                value.value,
+                                                i
+                                              )
+                                            }
+                                          />
+                                          {props.requireMessage &&
+                                          (i.driverValue === null ||
+                                            i.driverValue === undefined ||
+                                            i.driverValue === "") ? (
+                                            <label className="validation">
+                                              {ERROR_MESSAGES}
+                                            </label>
+                                          ) : (
+                                            ""
+                                          )}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </>
+                                )}
+                                {i.driverVisibility && i.driverTypeID === 6 && (
+                                  <>
+                                    <div
+                                      className={
+                                        props.moduleName === "Package" ||
+                                        props.moduleName === "Quote"
+                                          ? "col-md-5 col-sm-12 text-start text-md-start"
+                                          : "col-md-3 col-sm-12 text-start text-md-end"
+                                      }
+                                    >
+                                      <div class="">
+                                        <label class="form-label">
+                                          {isMobile ? (
+                                            <>
+                                              {i?.driverName
+                                                .substring(0, 30)
+                                                .replace(/\b\w/g, (l) =>
+                                                  l.toUpperCase()
+                                                )}
+                                            </>
+                                          ) : (
+                                            <>
+                                              {props.moduleName === "Package" ||
+                                              props.moduleName === "Quote" ? (
+                                                i?.driverName.replace(
+                                                  /\b\w/g,
+                                                  (l) => l.toUpperCase()
+                                                )
+                                              ) : i?.driverName.length > 20 ? (
+                                                <Tooltip title={i?.driverName}>
+                                                  {i?.driverName
+                                                    .substring(0, 25)
+                                                    .replace(/\b\w/g, (l) =>
+                                                      l.toUpperCase()
+                                                    ) + "..."}
+                                                </Tooltip>
+                                              ) : (
+                                                i?.driverName.replace(
+                                                  /\b\w/g,
+                                                  (l) => l.toUpperCase()
+                                                )
+                                              )}
+                                            </>
+                                          )}
+                                          <span class="text-danger">*</span>
+                                        </label>
+                                      </div>
+                                    </div>
+                                    <div
+                                      id={`${i?.driverName}`}
+                                      className={
+                                        props.moduleName === "Package" ||
+                                        props.moduleName === "Quote"
+                                          ? "col-lg-7 col-md-9 col-sm-12"
+                                          : "col-lg-9 col-md-9 col-sm-12"
+                                      }
+                                    >
+                                      <div className="mb-1">
+                                        <div class="input-group">
+                                          <DatePicker
+                                            className="input-text"
+                                            selected={
+                                              i.enteredDate
+                                                ? getSelectedDateInfo(i)
+                                                    ?.enteredDate
+                                                : null
+                                            }
+                                            dateFormat={
+                                              i.date?.[0]?.dateFormat ||
+                                              "dd-MM-yyyy"
+                                            }
+                                            onChange={(date) =>
+                                              HandleDateDriver(
+                                                date,
+                                                i.globalPricingDriverID
+                                              )
+                                            }
+                                            minDate={getMinDate(
+                                              i.date,
+                                              i.date?.[0]?.dateFormat
+                                            )}
+                                            maxDate={getMaxDate(
+                                              i.date,
+                                              i.date?.[0]?.dateFormat
+                                            )}
+                                            placeholderText="Select any date"
+                                          />
+                                          {props.requireMessage &&
+                                            (i.enteredDate === null ||
+                                              i.enteredDate === undefined ||
+                                              i.enteredDate === "") && (
+                                              <label className="validation">
+                                                {ERROR_MESSAGES}
+                                              </label>
+                                            )}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </>
+                                )}
 
-                                            <div className={(props.moduleName === "Package" || props.moduleName === "Quote") ? "col-md-5 col-sm-12 text-start text-md-start" : "col-md-3 col-sm-12 text-start text-md-end"}>
-                                                <div class="">
-                                                    <label class="form-label">
-                                                        {isMobile ? (
-                                                            <>
-                                                                {i?.driverName.substring(0, 30).replace(/\b\w/g, l => l.toUpperCase())}
-                                                            </>
-                                                        ) : (
-                                                            <>
-                                                                {(props.moduleName === "Package" || props.moduleName === "Quote") ? (
-                                                                    i?.driverName.replace(/\b\w/g, l => l.toUpperCase())
-                                                                ) : (
-                                                                    i?.driverName.length > 20 ? (
-                                                                        <Tooltip title={i?.driverName}>
-                                                                            {i?.driverName.substring(0, 25).replace(/\b\w/g, l => l.toUpperCase()) + '...'}
-                                                                        </Tooltip>
-                                                                    ) : (
-                                                                        i?.driverName.replace(/\b\w/g, l => l.toUpperCase())
-                                                                    )
-                                                                )}
-                                                            </>
-                                                        )}
-                                                        <span class="text-danger">*</span>
-                                                    </label>
-                                                </div>
-                                            </div>
-                                            <div id={`${i?.driverName}`} className={(props.moduleName === "Package" || props.moduleName === "Quote") ? "col-lg-7 col-md-9 col-sm-12" : "col-lg-9 col-md-9 col-sm-12"} >
-                                                <div class="mb-1 ">
-                                                    <div class="input-group">
-                                                        <Select
-                                                            options={i.variation?.map((item) => ({
-                                                                value: item.variationID,
-                                                                label: item.variationName,
-                                                                variationValue: item.variationValue,
-                                                            }))}
-                                                            value={
-                                                                i?.variation.filter((variation) => variation.isDefault === true).map((i) => ({
-                                                                    value: i.variationID,
-                                                                    label: i.variationName
-                                                                }))
-                                                            }
-                                                            onChange={(value) =>
-                                                                HandleAdditionalInformation(
-                                                                    value,
-                                                                    i.globalPricingDriverID,
-                                                                    value.value,
-                                                                    i
-                                                                )
-                                                            }
-                                                        />
-                                                        {props.requireMessage &&
-                                                            (i.driverValue === null ||
-                                                                i.driverValue === undefined ||
-                                                                i.driverValue === "") ? (
-                                                            <label className="validation">
-                                                                {ERROR_MESSAGES}
-                                                            </label>
-                                                        ) : (
-                                                            ""
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </>
-                                    )}
-                                    {/* props.moduleName === "Package" */}
+                                {i.driverVisibility && i.driverTypeID === 5 && (
+                                  <>
+                                    <div
+                                      className={
+                                        props.moduleName === "Package" ||
+                                        props.moduleName === "Quote"
+                                          ? "col-md-5 col-sm-12 text-start text-md-start"
+                                          : "col-md-3 col-sm-12 text-start text-md-end"
+                                      }
+                                    >
+                                      <div class="">
+                                        <label class="form-label">
+                                          {isMobile ? (
+                                            <>
+                                              {i?.driverName
+                                                .substring(0, 30)
+                                                .replace(/\b\w/g, (l) =>
+                                                  l.toUpperCase()
+                                                )}
+                                            </>
+                                          ) : (
+                                            <>
+                                              {props.moduleName === "Package" ||
+                                              props.moduleName === "Quote" ? (
+                                                i?.driverName.replace(
+                                                  /\b\w/g,
+                                                  (l) => l.toUpperCase()
+                                                )
+                                              ) : i?.driverName.length > 20 ? (
+                                                <Tooltip title={i?.driverName}>
+                                                  {i?.driverName
+                                                    .substring(0, 25)
+                                                    .replace(/\b\w/g, (l) =>
+                                                      l.toUpperCase()
+                                                    ) + "..."}
+                                                </Tooltip>
+                                              ) : (
+                                                i?.driverName.replace(
+                                                  /\b\w/g,
+                                                  (l) => l.toUpperCase()
+                                                )
+                                              )}
+                                            </>
+                                          )}
+                                          <span class="text-danger">*</span>
+                                        </label>
+                                      </div>
+                                    </div>
+                                    <div
+                                      id={`${i?.driverName}`}
+                                      className={
+                                        props.moduleName === "Package" ||
+                                        props.moduleName === "Quote"
+                                          ? "col-lg-7 col-md-9 col-sm-12"
+                                          : "col-lg-9 col-md-9 col-sm-12"
+                                      }
+                                    >
+                                      <div className="mb-1">
+                                        <div class="input-group">
+                                          <input 
+                                            className="input-text"
+                                            type="text"
+                                            value={i?.enteredText || null}
+                                            onChange={(e) => HandleTextDriver(e, i.globalPricingDriverID)}
+                                            placeholder="Enter Text"
+                                            maxLength={i?.text?.[0]?.textLength || 100}
+                                          />
+                                          {props.requireMessage &&
+                                            (i.enteredText === null ||
+                                              i.enteredText === undefined ||
+                                              i.enteredText === "") && (
+                                              <label className="validation">
+                                                {ERROR_MESSAGES}
+                                              </label>
+                                            )}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </>
+                                )}
 
-                                    {/* working here  */}
-                                    {i.driverVisibility && i.driverTypeID === 4 && (
-                                        <>
-                                            <div className={(props.moduleName === "Package" || props.moduleName === "Quote") ? "col-md-5 col-sm-12 text-start text-md-start" : "col-md-3 col-sm-12 text-start text-md-end"}>
-
-                                                {/* <div class="col-md-5 col-sm-12 text-start text-md-start"> */}
-                                                <div class="">
-                                                    <label class="form-label">
-                                                        {isMobile ? (
-                                                            <>
-                                                                {i?.driverName.substring(0, 30).replace(/\b\w/g, l => l.toUpperCase())}
-                                                            </>
-                                                        ) : (
-                                                            <>
-                                                                {(props.moduleName === "Package" || props.moduleName === "Quote") ? (
-                                                                    i?.driverName.replace(/\b\w/g, l => l.toUpperCase())
-                                                                ) : (
-                                                                    i?.driverName.length > 20 ? (
-                                                                        <Tooltip title={i?.driverName}>
-                                                                            {i?.driverName.substring(0, 25).replace(/\b\w/g, l => l.toUpperCase()) + '...'}
-                                                                        </Tooltip>
-                                                                    ) : (
-                                                                        i?.driverName.replace(/\b\w/g, l => l.toUpperCase())
-                                                                    )
-                                                                )}
-                                                            </>
-                                                        )}
-                                                        <span class="text-danger">*</span>
-                                                    </label>
+                                {/* working here  */}
+                                {i.driverVisibility && i.driverTypeID === 4 && (
+                                  <>
+                                    <div
+                                      className={
+                                        props.moduleName === "Package" ||
+                                        props.moduleName === "Quote"
+                                          ? "col-md-5 col-sm-12 text-start text-md-start"
+                                          : "col-md-3 col-sm-12 text-start text-md-end"
+                                      }
+                                    >
+                                      {/* <div class="col-md-5 col-sm-12 text-start text-md-start"> */}
+                                      <div class="">
+                                        <label class="form-label">
+                                          {isMobile ? (
+                                            <>
+                                              {i?.driverName
+                                                .substring(0, 30)
+                                                .replace(/\b\w/g, (l) =>
+                                                  l.toUpperCase()
+                                                )}
+                                            </>
+                                          ) : (
+                                            <>
+                                              {props.moduleName === "Package" ||
+                                              props.moduleName === "Quote" ? (
+                                                i?.driverName.replace(
+                                                  /\b\w/g,
+                                                  (l) => l.toUpperCase()
+                                                )
+                                              ) : i?.driverName.length > 20 ? (
+                                                <Tooltip title={i?.driverName}>
+                                                  {i?.driverName
+                                                    .substring(0, 25)
+                                                    .replace(/\b\w/g, (l) =>
+                                                      l.toUpperCase()
+                                                    ) + "..."}
+                                                </Tooltip>
+                                              ) : (
+                                                i?.driverName.replace(
+                                                  /\b\w/g,
+                                                  (l) => l.toUpperCase()
+                                                )
+                                              )}
+                                            </>
+                                          )}
+                                          <span class="text-danger">*</span>
+                                        </label>
+                                      </div>
+                                    </div>
+                                    <div
+                                      id={`${i?.driverName}`}
+                                      className={
+                                        props.moduleName === "Package" ||
+                                        props.moduleName === "Quote"
+                                          ? "col-lg-7 col-md-9 col-sm-12"
+                                          : "col-lg-9 col-md-9 col-sm-12"
+                                      }
+                                    >
+                                      <div class="mb-1 ">
+                                        <div class="input-group">
+                                          <Select
+                                            options={i.slab?.map((item) => ({
+                                              value: item.slabID,
+                                              label:
+                                                item.slabTypeID === 2
+                                                  ? "Other"
+                                                  : `${item.slabFrom
+                                                      .toString()
+                                                      .replace(
+                                                        /\B(?=(\d{3})+(?!\d))/g,
+                                                        ","
+                                                      )} - ${item.slabTo
+                                                      .toString()
+                                                      .replace(
+                                                        /\B(?=(\d{3})+(?!\d))/g,
+                                                        ","
+                                                      )}`,
+                                              variationValue: item.slabValue,
+                                            }))}
+                                            value={i?.slab
+                                              ?.filter(
+                                                (slab) =>
+                                                  slab.isDefault === true
+                                              )
+                                              .map((i) => ({
+                                                value: i.slabID,
+                                                label:
+                                                  i.slabTypeID === 2
+                                                    ? "Other"
+                                                    : `${i.slabFrom
+                                                        .toString()
+                                                        .replace(
+                                                          /\B(?=(\d{3})+(?!\d))/g,
+                                                          ","
+                                                        )} - ${i.slabTo
+                                                        .toString()
+                                                        .replace(
+                                                          /\B(?=(\d{3})+(?!\d))/g,
+                                                          ","
+                                                        )}`,
+                                              }))}
+                                            onChange={(value) =>
+                                              HandleAdditionalInformation(
+                                                value,
+                                                i.globalPricingDriverID
+                                              )
+                                            }
+                                          />
+                                          {props.requireMessage &&
+                                          i?.slab?.some(
+                                            (slab) =>
+                                              slab.isDefault &&
+                                              slab.slabTypeID !== 2
+                                          ) &&
+                                          (i.driverValue === null ||
+                                            i.driverValue === undefined ||
+                                            i.driverValue === "") ? (
+                                            <label className="validation">
+                                              {ERROR_MESSAGES}
+                                            </label>
+                                          ) : (
+                                            ""
+                                          )}
+                                        </div>
+                                      </div>
+                                    </div>
+                                    {i?.slab
+                                      ?.filter(
+                                        (slab) => slab.isDefault === true
+                                      )
+                                      .map((item) => {
+                                        if (item.slabTypeID === 2) {
+                                          return (
+                                            <React.Fragment key={i?.driverName}>
+                                              <div
+                                                className={
+                                                  props.moduleName ===
+                                                    "Package" ||
+                                                  props.moduleName === "Quote"
+                                                    ? "col-md-5 col-sm-12 text-start text-md-start"
+                                                    : "col-md-3 col-sm-12 text-start text-md-end"
+                                                }
+                                              >
+                                                <div>
+                                                  <label className="form-label"></label>
                                                 </div>
-                                            </div>
-                                            <div id={`${i?.driverName}`} className={(props.moduleName === "Package" || props.moduleName === "Quote") ? "col-lg-7 col-md-9 col-sm-12" : "col-lg-9 col-md-9 col-sm-12"}>
-                                                <div class="mb-1 ">
-                                                    <div class="input-group">
-                                                        <Select
-                                                            options={i.slab?.map((item) => ({
-                                                                value: item.slabID,
-                                                                label: item.slabTypeID === 2 ? "Other" : `${item.slabFrom.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")} - ${item.slabTo.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`,
-                                                                variationValue: item.slabValue,
-                                                            }))}
-                                                            value={
-                                                                i?.slab?.filter((slab) => slab.isDefault === true).map((i) => ({
-                                                                    value: i.slabID,
-                                                                    label: i.slabTypeID === 2 ? "Other" : `${i.slabFrom.toString()
-                                                                        .replace(
-                                                                            /\B(?=(\d{3})+(?!\d))/g,
-                                                                            ","
-                                                                        )} - ${i.slabTo.toString()
-                                                                            .replace(
-                                                                                /\B(?=(\d{3})+(?!\d))/g,
-                                                                                ","
-                                                                            )}`
-                                                                }))
-                                                            }
-                                                            onChange={(value) =>
-                                                                HandleAdditionalInformation(
-                                                                    value,
-                                                                    i.globalPricingDriverID
-                                                                )
-                                                            }
-                                                        />
-                                                        {props.requireMessage && i?.slab?.some(slab => slab.isDefault && slab.slabTypeID !== 2) &&
-                                                            (i.driverValue === null ||
-                                                                i.driverValue === undefined ||
-                                                                i.driverValue === "") ? (
-                                                            <label className="validation">
-                                                                {ERROR_MESSAGES}
-                                                            </label>
-                                                        ) : (
-                                                            ""
+                                              </div>
+                                              <div
+                                                id={`${i?.driverName}`}
+                                                className={
+                                                  props.moduleName ===
+                                                    "Package" ||
+                                                  props.moduleName === "Quote"
+                                                    ? "col-lg-7 col-md-9 col-sm-12"
+                                                    : "col-lg-9 col-md-9 col-sm-12"
+                                                }
+                                              >
+                                                <div className="mb-1 d-flex flex-column justify-content-end h-100">
+                                                  <div className="input-group">
+                                                    <input
+                                                      type="text"
+                                                      value={i?.driverValue
+                                                        ?.toString()
+                                                        ?.replace(
+                                                          /\B(?=(\d{3})+(?!\d))/g,
+                                                          ","
                                                         )}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            {i?.slab
-                                                ?.filter((slab) => slab.isDefault === true)
-                                                .map((item) => {
-                                                    if (item.slabTypeID === 2) {
-                                                        return (
-                                                            <React.Fragment key={i?.driverName}>
-                                                                <div
-                                                                    className={
-                                                                        props.moduleName === "Package" || props.moduleName === "Quote"
-                                                                            ? "col-md-5 col-sm-12 text-start text-md-start"
-                                                                            : "col-md-3 col-sm-12 text-start text-md-end"
-                                                                    }
-                                                                >
-                                                                    <div>
-                                                                        <label className="form-label"></label>
-                                                                    </div>
-                                                                </div>
-                                                                <div
-                                                                    id={`${i?.driverName}`}
-                                                                    className={
-                                                                        props.moduleName === "Package" || props.moduleName === "Quote"
-                                                                            ? "col-lg-7 col-md-9 col-sm-12"
-                                                                            : "col-lg-9 col-md-9 col-sm-12"
-                                                                    }
-                                                                >
-                                                                    <div className="mb-1 d-flex flex-column justify-content-end h-100">
-                                                                        <div className="input-group">
-                                                                            <input
-                                                                                type="text"
-                                                                                value={i?.driverValue
-                                                                                    ?.toString()
-                                                                                    ?.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-                                                                                onChange={(e) => {
-                                                                                    OnIncrementalValueChange(i, e.target.value);
-                                                                                }}
-                                                                                className="input-text mt-2"
-                                                                                placeholder={i.driverName}
-                                                                            />
-                                                                        </div>
-                                                                        {props.requireMessage &&
-                                                                            (i.driverValue === null ||
-                                                                                i.driverValue === undefined ||
-                                                                                i.driverValue === "") && (
-                                                                                <label className="validation">{ERROR_MESSAGES}</label>
-                                                                            )}
-                                                                        {props.requireMessage &&
-                                                                            (i.driverValue === "." || i.driverValue === "-") && (
-                                                                                <label className="validation">Invalid Value</label>
-                                                                            )}
-                                                                    </div>
-                                                                </div>
-                                                            </React.Fragment>
+                                                      onChange={(e) => {
+                                                        OnIncrementalValueChange(
+                                                          i,
+                                                          e.target.value
                                                         );
-                                                    }
-                                                    return null;
-                                                })}
-
-                                        </>
-                                    )}
-                                </div>
+                                                      }}
+                                                      className="input-text mt-2"
+                                                      placeholder={i.driverName}
+                                                    />
+                                                  </div>
+                                                  {props.requireMessage &&
+                                                    (i.driverValue === null ||
+                                                      i.driverValue ===
+                                                        undefined ||
+                                                      i.driverValue === "") && (
+                                                      <label className="validation">
+                                                        {ERROR_MESSAGES}
+                                                      </label>
+                                                    )}
+                                                  {props.requireMessage &&
+                                                    (i.driverValue === "." ||
+                                                      i.driverValue ===
+                                                        "-") && (
+                                                      <label className="validation">
+                                                        Invalid Value
+                                                      </label>
+                                                    )}
+                                                </div>
+                                              </div>
+                                            </React.Fragment>
+                                          );
+                                        }
+                                        return null;
+                                      })}
+                                  </>
+                                )}
+                              </div>
                             );
                         })}
 

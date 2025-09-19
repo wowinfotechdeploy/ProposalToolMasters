@@ -197,6 +197,7 @@ function Add_New_Templates_Pdf(props) {
       setLoader(true);
       const data = await GetTemplatePdfModel(TemplatePdfKeyID, GetSAChanges);
       if (data?.data?.statusCode === 200) {
+        debugger;
         if (data?.data?.responseData?.data) {
           const ModelData = data?.data?.responseData?.data;
           setTemplateObj({
@@ -475,9 +476,9 @@ function Add_New_Templates_Pdf(props) {
                           />
                         </div>
                         {requireErrorMessage &&
-                          (TemplateObj.templatePdfTitle === "" ||
-                            TemplateObj.templatePdfTitle === null ||
-                            TemplateObj.templatePdfTitle === undefined) ? (
+                        (TemplateObj.templatePdfTitle === "" ||
+                          TemplateObj.templatePdfTitle === null ||
+                          TemplateObj.templatePdfTitle === undefined) ? (
                           <label className="validation">{ERROR_MESSAGES}</label>
                         ) : (
                           ""
@@ -627,8 +628,8 @@ function Add_New_Templates_Pdf(props) {
                                 (.xls, .xlsx) up to a file size of 10MB.
                               </div>
                               {requireErrorMessage &&
-                                !selectedFile.fileName &&
-                                TemplateObj.pdf === null ? (
+                              !selectedFile.fileName &&
+                              TemplateObj.pdf === null ? (
                                 <label className="validation">
                                   {ERROR_MESSAGES}
                                 </label>
@@ -660,9 +661,9 @@ function Add_New_Templates_Pdf(props) {
               >
                 {/* {errorMessage} */}
                 {common.professionTypeLists?.length <= 1 &&
-                  errorMessage?.includes(
-                    `Please don't choose this profession type`
-                  )
+                errorMessage?.includes(
+                  `Please don't choose this profession type`
+                )
                   ? errorMessage.split(".")[0]
                   : errorMessage}
               </label>

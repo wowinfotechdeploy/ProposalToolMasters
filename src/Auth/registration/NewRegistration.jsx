@@ -380,7 +380,7 @@ const NewRegistration = () => {
                     <li>
                       <a
                         className="lna"
-                        href="https://calendly.com/amit-outbooks/outbooksproposal"
+                        href="https://outlook.office.com/bookwithme/user/4a35845a9f444012a9e5a4f2fbe159b2%40outbooks.com?anonymous&ismsaljsauthenabled=true"
                         target="_Blank"
                       >
                         Book a Free Demo
@@ -461,7 +461,7 @@ const NewRegistration = () => {
                 LOGIN
               </a>
               <a
-                href="https://calendly.com/amit-outbooks/outbooksproposal"
+                href="https://outlook.office.com/bookwithme/user/4a35845a9f444012a9e5a4f2fbe159b2%40outbooks.com?anonymous&ismsaljsauthenabled=true"
                 target="_blank"
                 className="top3btn t3btn1"
               >

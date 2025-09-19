@@ -83,7 +83,7 @@ const Dashboard = () => {
     formatValue,
     maxCountToRecallApi,
     setActiveOrganization,
-
+    getCurrencySymbol,
     setDashboardCountListLoader,
     setDashboardActivityLogLoader,
     loader,
@@ -93,6 +93,7 @@ const Dashboard = () => {
   const { cardBackgroundColor, cardStyle } = useContext(ColorContext);
   const [showDatePicker, setShowDatePicker] = useState(false);
 
+  const [currencyID,setCurrencyID] = useState(1);
   const [selectedOption, setSelectedOption] = useState(Utils.CalenderFilter[0]);
   const [showUserModal, setShowUserModal] = useState(false);
   const [fromDate, setFromDate] = useState(dayjs());
@@ -634,6 +635,12 @@ const Dashboard = () => {
           setDashboardCountListLoader(true);
           if (startDate !== undefined && endDate !== undefined) {
             setLoader(false);
+          }
+          if(response?.data?.responseData?.currencyID) {
+            const currency = response?.data?.responseData?.currencyID;
+            setCurrencyID(currency);
+          } else {
+            setCurrencyID(1);
           }
           if (response?.data?.responseData?.data) {
             const DashboardNumb = response?.data?.responseData?.data;
@@ -1199,7 +1206,7 @@ const Dashboard = () => {
 
   const calculateGBPAmount = (onOffValue, recurringValue) => {
     const total = onOffValue + recurringValue;
-
+    const currencySymbol = getCurrencySymbol(currencyID);
     const formatWithCommas = (value) => {
       return new Intl.NumberFormat("en-GB", {
         minimumFractionDigits: 0,
@@ -1210,20 +1217,24 @@ const Dashboard = () => {
     let formattedAmount;
     if (total >= 1_000_000_000_000) {
       const value = Math.ceil((total / 1_000_000_000_000) * 10) / 10;
-      formattedAmount = `£${formatWithCommas(value)}t`;
+      // formattedAmount = `£${formatWithCommas(value)}t`;
+      formattedAmount = `${currencySymbol}${formatWithCommas(value)}t`;
     } else if (total >= 1_000_000_000) {
       const value = Math.ceil((total / 1_000_000_000) * 10) / 10;
-      formattedAmount = `£${formatWithCommas(value)}b`;
+      // formattedAmount = `£${formatWithCommas(value)}b`;
+      formattedAmount = `${currencySymbol}${formatWithCommas(value)}b`;
     } else if (total >= 1_000_000) {
       const value = Math.ceil((total / 1_000_000) * 10) / 10;
-      formattedAmount = `£${formatWithCommas(value)}m`;
+      // formattedAmount = `£${formatWithCommas(value)}m`;
+      formattedAmount = `${currencySymbol}${formatWithCommas(value)}m`;
     } else if (total >= 1_000) {
       const value = Math.ceil((total / 1_000) * 10) / 10;
-      formattedAmount = `£${formatWithCommas(value)}k`;
+      // formattedAmount = `£${formatWithCommas(value)}k`;
+      formattedAmount = `${currencySymbol}${formatWithCommas(value)}k`;
     } else {
-      formattedAmount = new Intl.NumberFormat("en-GB", {
-        style: "currency",
-        currency: "GBP",
+      formattedAmount = new Intl.NumberFormat(
+        currencyID === 3 ? "en-US" : "en-GB", {
+        currency: currencyID === 1 ? "GBP" : currencyID === 2 ? "EUR" : currencyID === 3 ? "USD" : "INR",
         minimumFractionDigits: 0,
         maximumFractionDigits: 0,
       }).format(total);

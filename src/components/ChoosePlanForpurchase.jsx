@@ -517,7 +517,7 @@ const ChoosePlanForPurchase = (props) => {
                                                                   PurchasePlanList?.yearlyValuePlan /
                                                                   12
                                                                 )}/${discount.firstValue +
-                                                                1
+                                                                  1
                                                                   } months`;
                                                               }
 
@@ -625,7 +625,7 @@ const ChoosePlanForPurchase = (props) => {
                                                                 return `${formatValue(
                                                                   PurchasePlanList?.yearlyValuePlan
                                                                 )}/${discount.firstValue +
-                                                                12
+                                                                  12
                                                                   } months`;
                                                               }
 

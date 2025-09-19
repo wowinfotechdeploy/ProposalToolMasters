@@ -177,6 +177,7 @@ const Services = () => {
 
   //Handle Change Status Data and Delete Data
   const serviceChangeStatusDataAndDeleteData = async () => {
+    console.log(modelRequestData.Action);
     setLoader(true);
     if (modelRequestData.Action === "Status") {
       try {
@@ -187,29 +188,49 @@ const Services = () => {
         if (Data) {
           setLoader(false);
           if (Data?.data?.statusCode === 200) {
-            if (Data?.data?.responseData.serviceExistInPackage.length !== 0) {
-              const servicePackageNames =
-                Data?.data?.responseData.serviceExistInPackage
-                  .map((item) => item.servicePackageName)
-                  .slice(0, 5);
+            const servicePackageNames = Data?.data?.responseData.serviceExistInPackage.map((item) => item.servicePackageName).slice(0, 5);
+            const moduleNamesForQuote = Data?.data?.responseData.serviceExistinQuote.map((item) => item.refID).slice(0, 5);
+            const moduleNamesForContract = Data?.data?.responseData.serviceExistinContract.map((item) => item.refID).slice(0, 5);
+
+            if (servicePackageNames.length > 0 || moduleNamesForQuote.length > 0 || moduleNamesForContract.length > 0) {
+              let warningMessage = `Following modules are linked to the selected ${moduleName.toLowerCase()}. You must remove these before attempting to mark it as InActive.\n`;
+
+              if (servicePackageNames.length > 0) {
+                warningMessage += "\nPackages:\n";
+                warningMessage += servicePackageNames.map(x => `• ${x}`).join("\n");
+              }
+
+              if (moduleNamesForQuote.length > 0) {
+                warningMessage += "\nProposals:\n";
+                warningMessage += moduleNamesForQuote.map(x => `• ${x}`).join("\n");
+              }
+
+              if (moduleNamesForContract.length > 0) {
+                warningMessage += "\nEngagement Letters:\n";
+                warningMessage += moduleNamesForContract.map(x => `• ${x}`).join("\n");
+              }
+
               setModelRequestData({
                 ...modelRequestData,
                 Action: "ServiceWarning",
-                message: `Following packages are assigned to the selected ${moduleName.toLowerCase()}.You must remove the packages from this ${moduleName.toLowerCase()} before attempting to mark it as InActive.`,
-                ServiceName: servicePackageNames,
+                
+                message: warningMessage,
+                ServiceName: [],
               });
-              $("#" + "ConfirmModel").modal("hide");
-              $("#" + "RecordsAvailablePopupModel").modal("show");
-              //  GetServiceListData(null, null, null);
+              setErrorMessage(warningMessage);
+              setOpenErrorModal(true);
+              // $("#" + "RecordsAvailablePopupModel").modal("show");
+
             } else {
               GetServiceListData(null, null, null);
-              setOpenSuccessModal(true);
             }
+            // GetServiceListData(null, null, null);
           } else {
             setErrorMessage(Data?.response?.data?.errorMessage);
             GetServiceListData(null, null, null);
             setOpenErrorModal(true);
           }
+          $("#ConfirmModel").modal("hide");
         }
       } catch (error) {
         console.log(error);
@@ -296,7 +317,7 @@ const Services = () => {
   const handleClose = () => {
     $("#" + "ConfirmModel").modal("hide");
     $("#" + "RecordsAvailablePopupModel").modal("hide");
-    if (openErrorModal && formattedErrorMessage.includes("default state")) {
+    if (openErrorModal && formattedErrorMessage?.includes("default state")) {
       GetServiceListData(searchKeyword, businessNatureID, prospectType);
     }
     setOpenSuccessModal(false);

@@ -69,10 +69,12 @@ const View_Engagement_Latter = () => {
   const [EngagementObj, setEngagementObj] = useState({
     sourceName: null,
     contractKeyID: null,
+    contractName: null,
     quoteKeyID: null,
     clientName: null,
     templateName: null,
     Payment_Frequency: null,
+    currencyID: null,
     feeTypeId: null,
     feesInQuoteName: null,
     DiscountLines: null,
@@ -117,6 +119,8 @@ const View_Engagement_Latter = () => {
     formatValue,
     proposalName,
     isMobile,
+    getTaxName,
+    getCurrencySymbol,
   } = useContext(AuthContextProvider);
   const navigate = useNavigate();
   const location = useLocation();
@@ -229,6 +233,7 @@ const View_Engagement_Latter = () => {
             contractName: ModelData.contractName,
             sourceName: ModelData.sourceName,
             contractName: ModelData.contractName,
+            currencyID: ModelData.currencyID,
             draftOn: ModelData.createdOn,
             sentOn: ModelData.sentOn,
             signedOn: ModelData.signedOn,
@@ -545,6 +550,28 @@ const View_Engagement_Latter = () => {
     return `${day}/${month}/${year}`;
   };
 
+  const handleChangeFeesType = (e) => {
+    const isRecurringDiscounted =
+      Number(RecurringPricingInfo.DiscountedPrice) ===
+      Number(RecurringPricingInfo.OriginalPrice);
+    const isOneOffDiscounted =
+      Number(OneOffPricingInfo.DiscountedPrice) ===
+      Number(OneOffPricingInfo.OriginalPrice);
+
+    const updatedEngagementObj = {
+      ...EngagementObj,
+      feeTypeId: e.value,
+    };
+
+    if (e.value == 2 && isRecurringDiscounted && isOneOffDiscounted) {
+      updatedEngagementObj.DiscountLines = false;
+    } else {
+      updatedEngagementObj.DiscountLines = true;
+    }
+
+    setEngagementObj(updatedEngagementObj);
+  };
+
   return (
     <div className="container">
       <div class="main-content">
@@ -554,7 +581,8 @@ const View_Engagement_Latter = () => {
               <div className="row">
                 <div className="col-md-6 col-sm-6 col-6">
                   <div class="prospects-title">
-                    <h5>
+                    <h5>Reference ID: {EngagementObj.contractName}</h5>
+                    {/* <h5>
                       {EngagementName}:{" "}
                       {isMobile
                         ? EngagementObj.clientName &&
@@ -562,7 +590,7 @@ const View_Engagement_Latter = () => {
                           ? `${EngagementObj.clientName.substring(0, 15)}...`
                           : EngagementObj.clientName
                         : EngagementObj.clientName}
-                    </h5>
+                    </h5> */}
                   </div>
                 </div>
 
@@ -585,17 +613,17 @@ const View_Engagement_Latter = () => {
                     {(EngagementObj.statusID !== statusID.Signed ||
                       (EngagementObj.statusID === statusID.Signed &&
                         EngagementObj.manuallySignedContractDocUrl !==
-                        null)) && (
-                        <Tooltip title={`View Pdf`}>
-                          <button
-                            className="btn btn-md btn-success create-item-btn"
-                            onClick={handleDownload}
-                          >
-                            <i class="bi bi-eye"></i>{" "}
-                            <span className="d-none d-sm-inline">View Pdf</span>
-                          </button>
-                        </Tooltip>
-                      )}
+                          null)) && (
+                      <Tooltip title={`View Pdf`}>
+                        <button
+                          className="btn btn-md btn-success create-item-btn"
+                          onClick={handleDownload}
+                        >
+                          <i class="bi bi-eye"></i>{" "}
+                          <span className="d-none d-sm-inline">View Pdf</span>
+                        </button>
+                      </Tooltip>
+                    )}
 
                     <Tooltip title={`Back`}>
                       <button
@@ -685,21 +713,21 @@ const View_Engagement_Latter = () => {
                             )}
                             {(EngagementObj.statusID === statusID.Sent ||
                               EngagementObj.statusID ===
-                              statusID.Awaiting_Signature ||
+                                statusID.Awaiting_Signature ||
                               EngagementObj.manuallySignedContractDocUrl !==
-                              null) && (
-                                <li class="nav-item">
-                                  <a
-                                    class="nav-link tab_nav"
-                                    data-bs-toggle="tab"
-                                    href="#SignManually"
-                                    role="tab"
-                                    aria-selected="false"
-                                  >
-                                    Sign Manually
-                                  </a>
-                                </li>
-                              )}
+                                null) && (
+                              <li class="nav-item">
+                                <a
+                                  class="nav-link tab_nav"
+                                  data-bs-toggle="tab"
+                                  href="#SignManually"
+                                  role="tab"
+                                  aria-selected="false"
+                                >
+                                  Sign Manually
+                                </a>
+                              </li>
+                            )}
                           </ul>
 
                           <div class="tab-content  text-muted">
@@ -734,7 +762,7 @@ const View_Engagement_Latter = () => {
                                       {EngagementObj.templateName}
                                     </td>
                                   </tr>
-                                  {/* {EngagementObj.draftOn && (
+                                  {EngagementObj.draftOn && (
                                     <tr>
                                       <td>Drafted On</td>
                                       <td class="text-end">
@@ -766,8 +794,8 @@ const View_Engagement_Latter = () => {
                                         {GetOnlyDate(EngagementObj.VoidOn)}
                                       </td>
                                     </tr>
-                                  )} */}
-                                  {/* <tr>
+                                  )}
+                                  <tr>
                                     <td>Linked Proposal</td>
                                     <td
                                       class="text-end"
@@ -786,7 +814,7 @@ const View_Engagement_Latter = () => {
                                     >
                                       View Proposal
                                     </td>
-                                  </tr> */}
+                                  </tr>
 
                                   {/* <tr>
                                     <td>Select ProposalType</td>
@@ -815,9 +843,11 @@ const View_Engagement_Latter = () => {
                                     <div className="input-group">
                                       {/* Add your Select component here */}
                                       <Select
-                                        isDisabled
+                                        // isDisabled
                                         className="phone-input-country-code selectDropDown Drop-down-width"
                                         value={feeTypeValue}
+                                        options={Utils.feeInProposal}
+                                        onChange={handleChangeFeesType}
                                       />
                                     </div>
                                   </div>
@@ -887,7 +917,11 @@ const View_Engagement_Latter = () => {
                                           <div className="row fieldset">
                                             <div className="col-md-2 col-sm-12  text-md-end">
                                               <label className="fieldset-label">
-                                                Original Price (£)
+                                                Original Price (
+                                                {getCurrencySymbol(
+                                                  EngagementObj.currencyID
+                                                )}
+                                                )
                                               </label>
                                             </div>
                                             <div className="col-md-4 col-sm-12">
@@ -902,7 +936,7 @@ const View_Engagement_Latter = () => {
                                                   Number(
                                                     Math.floor(
                                                       RecurringPricingInfo.OriginalPrice *
-                                                      100
+                                                        100
                                                     ) / 100
                                                   )
                                                     .toFixed(2)
@@ -958,7 +992,11 @@ const View_Engagement_Latter = () => {
                                             >
                                               <div class="mt-2 text-md-end">
                                                 <label class="form-label">
-                                                  Discounted Price (£)
+                                                  Discounted Price (
+                                                  {getCurrencySymbol(
+                                                    EngagementObj.currencyID
+                                                  )}
+                                                  )
                                                 </label>
                                               </div>
                                             </div>
@@ -967,11 +1005,13 @@ const View_Engagement_Latter = () => {
                                                 readonly=""
                                                 class="input-text"
                                                 type="text"
-                                                placeholder="Discounted Price (£)"
+                                                placeholder={`Discounted Price (${getCurrencySymbol(
+                                                  EngagementObj.currencyID
+                                                )})`}
                                                 value={Number(
                                                   Math.floor(
                                                     RecurringPricingInfo.DiscountedPrice *
-                                                    100
+                                                      100
                                                   ) / 100
                                                 )
                                                   .toFixed(2)
@@ -994,7 +1034,11 @@ const View_Engagement_Latter = () => {
                                                     Services
                                                   </th>
                                                   <th className="tr-table-class text-white text-right">
-                                                    Fees (£)
+                                                    Fees (
+                                                    {getCurrencySymbol(
+                                                      EngagementObj.currencyID
+                                                    )}
+                                                    )
                                                   </th>
                                                 </tr>
                                               </thead>
@@ -1018,11 +1062,12 @@ const View_Engagement_Latter = () => {
                                                             return (
                                                               <tr
                                                                 key={subIndex}
-                                                                className={` ${subService?.isAdditionalService ===
+                                                                className={` ${
+                                                                  subService?.isAdditionalService ===
                                                                   true
-                                                                  ? "bg-info  text-white"
-                                                                  : ""
-                                                                  }`}
+                                                                    ? "bg-info  text-white"
+                                                                    : ""
+                                                                }`}
                                                               >
                                                                 {/* */}
                                                                 <td>
@@ -1036,17 +1081,17 @@ const View_Engagement_Latter = () => {
                                                                 <td className="text-right">
                                                                   {EngagementObj.feeTypeId ===
                                                                     1 && (
-                                                                      <>
-                                                                        {" "}
-                                                                        {formatValue(
-                                                                          subService.contractPrice
-                                                                        )}
-                                                                      </>
-                                                                    )}
+                                                                    <>
+                                                                      {" "}
+                                                                      {formatValue(
+                                                                        subService.contractPrice
+                                                                      )}
+                                                                    </>
+                                                                  )}
                                                                   {EngagementObj.feeTypeId ===
                                                                     2 && (
-                                                                      <span className="fa fa-check"></span>
-                                                                    )}
+                                                                    <span className="fa fa-check"></span>
+                                                                  )}
                                                                 </td>
                                                               </tr>
                                                             );
@@ -1069,20 +1114,20 @@ const View_Engagement_Latter = () => {
                                                         Number(
                                                           RecurringPricingInfo.DiscountedPrice
                                                         ) ||
-                                                        (Number(
-                                                          RecurringPricingInfo.Discount
-                                                        ) > 0 &&
-                                                          !EngagementObj.DiscountLines)
+                                                      (Number(
+                                                        RecurringPricingInfo.Discount
+                                                      ) > 0 &&
+                                                        !EngagementObj.DiscountLines)
                                                         ? formatValue(
-                                                          RecurringPricingInfo.DiscountedPrice
-                                                        )
+                                                            RecurringPricingInfo.DiscountedPrice
+                                                          )
                                                         : // Number(RecurringPricingInfo.DiscountedPrice)
-                                                        //     .toFixed(2)
-                                                        //     .toString()
-                                                        //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                                                        formatValue(
-                                                          RecurringPricingInfo.OriginalPrice
-                                                        )
+                                                          //     .toFixed(2)
+                                                          //     .toString()
+                                                          //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                                          formatValue(
+                                                            RecurringPricingInfo.OriginalPrice
+                                                          )
                                                       // Number(RecurringPricingInfo.OriginalPrice)
                                                       //     .toFixed(2)
                                                       //     .toString()
@@ -1124,7 +1169,9 @@ const View_Engagement_Latter = () => {
                                                   <>
                                                     <tr class="head-grey-row">
                                                       <td className="tr-table-class font-14 text-white">
-                                                        VAT
+                                                        {getTaxName(
+                                                          EngagementObj.currencyID
+                                                        )}
                                                       </td>
                                                       <td className="tr-table-class text-white font-14 text-right">
                                                         {" "}
@@ -1167,7 +1214,11 @@ const View_Engagement_Latter = () => {
                                           <div className="row fieldset">
                                             <div className="col-md-2 col-sm-12  text-md-end">
                                               <label className="fieldset-label">
-                                                Original Price (£)
+                                                Original Price (
+                                                {getCurrencySymbol(
+                                                  EngagementObj.currencyID
+                                                )}
+                                                )
                                               </label>
                                             </div>
                                             <div className="col-md-10 col-sm-12">
@@ -1182,7 +1233,7 @@ const View_Engagement_Latter = () => {
                                                   Number(
                                                     Math.floor(
                                                       OneOffPricingInfo.OriginalPrice *
-                                                      100
+                                                        100
                                                     ) / 100
                                                   )
                                                     .toFixed(2)
@@ -1224,7 +1275,11 @@ const View_Engagement_Latter = () => {
                                             >
                                               <div class="mb-1  text-md-end">
                                                 <label class="form-label">
-                                                  Discounted Price (£)
+                                                  Discounted Price (
+                                                  {getCurrencySymbol(
+                                                    EngagementObj.currencyID
+                                                  )}
+                                                  )
                                                 </label>
                                               </div>
                                             </div>
@@ -1233,11 +1288,13 @@ const View_Engagement_Latter = () => {
                                                 readonly=""
                                                 class="input-text"
                                                 type="text"
-                                                placeholder="Discounted Price (£)"
+                                                placeholder={`Discounted Price (${getCurrencySymbol(
+                                                  EngagementObj.currencyID
+                                                )})`}
                                                 value={Number(
                                                   Math.floor(
                                                     OneOffPricingInfo.DiscountedPrice *
-                                                    100
+                                                      100
                                                   ) / 100
                                                 )
                                                   .toFixed(2)
@@ -1260,7 +1317,11 @@ const View_Engagement_Latter = () => {
                                                     Services
                                                   </th>
                                                   <th className="tr-table-class text-white text-right">
-                                                    Fees (£)
+                                                    Fees (
+                                                    {getCurrencySymbol(
+                                                      EngagementObj.currencyID
+                                                    )}
+                                                    )
                                                   </th>
                                                 </tr>
                                               </thead>
@@ -1284,11 +1345,12 @@ const View_Engagement_Latter = () => {
                                                             return (
                                                               <tr
                                                                 key={subIndex}
-                                                                className={` ${subService?.isAdditionalService ===
+                                                                className={` ${
+                                                                  subService?.isAdditionalService ===
                                                                   true
-                                                                  ? "bg-info  text-white"
-                                                                  : ""
-                                                                  }`}
+                                                                    ? "bg-info  text-white"
+                                                                    : ""
+                                                                }`}
                                                               >
                                                                 {/* */}
                                                                 <td>
@@ -1302,17 +1364,17 @@ const View_Engagement_Latter = () => {
                                                                 <td className="text-right">
                                                                   {EngagementObj.feeTypeId ===
                                                                     1 && (
-                                                                      <>
-                                                                        {" "}
-                                                                        {formatValue(
-                                                                          subService.contractPrice
-                                                                        )}
-                                                                      </>
-                                                                    )}
+                                                                    <>
+                                                                      {" "}
+                                                                      {formatValue(
+                                                                        subService.contractPrice
+                                                                      )}
+                                                                    </>
+                                                                  )}
                                                                   {EngagementObj.feeTypeId ===
                                                                     2 && (
-                                                                      <span className="fa fa-check"></span>
-                                                                    )}
+                                                                    <span className="fa fa-check"></span>
+                                                                  )}
                                                                 </td>
                                                               </tr>
                                                             );
@@ -1335,20 +1397,20 @@ const View_Engagement_Latter = () => {
                                                         Number(
                                                           OneOffPricingInfo.DiscountedPrice
                                                         ) ||
-                                                        (Number(
-                                                          OneOffPricingInfo.Discount
-                                                        ) > 0 &&
-                                                          !EngagementObj.DiscountLines)
+                                                      (Number(
+                                                        OneOffPricingInfo.Discount
+                                                      ) > 0 &&
+                                                        !EngagementObj.DiscountLines)
                                                         ? formatValue(
-                                                          OneOffPricingInfo.DiscountedPrice
-                                                        )
+                                                            OneOffPricingInfo.DiscountedPrice
+                                                          )
                                                         : // Number(OneOffPricingInfo.DiscountedPrice)
-                                                        //     .toFixed(2)
-                                                        //     .toString()
-                                                        //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                                                        formatValue(
-                                                          OneOffPricingInfo.OriginalPrice
-                                                        )
+                                                          //     .toFixed(2)
+                                                          //     .toString()
+                                                          //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                                          formatValue(
+                                                            OneOffPricingInfo.OriginalPrice
+                                                          )
                                                       //  Number(OneOffPricingInfo.OriginalPrice)
                                                       //     .toFixed(2)
                                                       //     .toString()
@@ -1390,7 +1452,9 @@ const View_Engagement_Latter = () => {
                                                   <>
                                                     <tr class="head-grey-row">
                                                       <td className="tr-table-class font-14 text-white">
-                                                        VAT
+                                                        {getTaxName(
+                                                          EngagementObj.currencyID
+                                                        )}
                                                       </td>
                                                       <td className="tr-table-class font-14 text-white text-right">
                                                         {" "}
@@ -1464,16 +1528,16 @@ const View_Engagement_Latter = () => {
                                           {signatory.emailID}
                                         </td>
                                       </tr>
-                                      {/* <tr>
+                                      <tr>
                                         <td>Signed on</td>
                                         <td className="text-right">
                                           {signatory.isSigned
                                             ? formatDateToDDMMYYYY(
-                                              signatory.isSigned
-                                            )
+                                                signatory.isSigned
+                                              )
                                             : "-"}
                                         </td>
-                                      </tr> */}
+                                      </tr>
                                     </tbody>
                                   </table>
                                 )
@@ -1499,27 +1563,27 @@ const View_Engagement_Latter = () => {
                                           {(EngagementObj.clientMasterBusinessTypeID ===
                                             3 ||
                                             EngagementObj.clientMasterBusinessTypeID ===
-                                            4 ||
+                                              4 ||
                                             EngagementObj.clientMasterBusinessTypeID ===
-                                            5) && (
-                                              <>
-                                                <td>Authorised </td>
-                                                <td className="text-end">
-                                                  {officersForm[index]
-                                                    ?.isAuthorisedSignatory
-                                                    ? "Yes"
-                                                    : "NO"}
-                                                  <Switch
-                                                    checked={
-                                                      officersForm[index]
-                                                        ?.isAuthorisedSignatory
-                                                    }
-                                                    disabled
-                                                    color="primary"
-                                                  />
-                                                </td>
-                                              </>
-                                            )}
+                                              5) && (
+                                            <>
+                                              <td>Authorised </td>
+                                              <td className="text-end">
+                                                {officersForm[index]
+                                                  ?.isAuthorisedSignatory
+                                                  ? "Yes"
+                                                  : "NO"}
+                                                <Switch
+                                                  checked={
+                                                    officersForm[index]
+                                                      ?.isAuthorisedSignatory
+                                                  }
+                                                  disabled
+                                                  color="primary"
+                                                />
+                                              </td>
+                                            </>
+                                          )}
                                         </tr>
 
                                         <tr>
@@ -1627,7 +1691,7 @@ const View_Engagement_Latter = () => {
                               {" "}
                               <div>
                                 {EngagementObj.manuallySignedContractDocUrl ===
-                                  null ? (
+                                null ? (
                                   <>
                                     <span className="text-muted p-2">
                                       <p style={{ padding: "5px" }}>
@@ -1718,7 +1782,7 @@ const View_Engagement_Latter = () => {
                                                     .PDF up to a file size of
                                                     10MB.
                                                     {requireErrorMessage &&
-                                                      pdfUrl === null ? (
+                                                    pdfUrl === null ? (
                                                       <label className="validation">
                                                         {ERROR_MESSAGES}
                                                       </label>

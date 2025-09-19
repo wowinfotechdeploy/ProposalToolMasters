@@ -27,6 +27,13 @@ export const ServiceCategoryList = async (KeyID, ProfessionTypeIDs) => {
 };
 
 
+export const GetServiceDependencyList = async (params) => {
+    const res = await postApiWithAuthenticated(
+        `${services}/GetServiceDependencyList`,
+        params
+    );
+    return res;
+}
 
 export const GetServicesList = async (params) => {
     const res = await postApiWithAuthenticated(
@@ -93,3 +100,10 @@ export const CopyService = async (serviceKeyID, UserKeyID) => {
     );
     return res;
 };
+
+export const GetServiceUpdatedAfterSendingQuoteOrContract = async (moduleID, moduleName) =>  {
+    const res = await getListWithAuthenticated(
+        `${services}/GetServiceUpdatedAfterSendingQuoteOrContract?moduleID=${moduleID}&moduleName=${moduleName}`
+    );
+    return res;
+}

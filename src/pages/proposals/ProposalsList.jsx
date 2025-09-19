@@ -38,6 +38,7 @@ import FilterModel from "../../components/FilterModel";
 import * as XLSX from "xlsx";
 import { GetNOBTypeLookupList } from "../../redux/Services/Master/NOBTypeLookupListApi";
 import { GetProspectTypeVariationLookupList } from "../../redux/Services/Master/BusinessTypeLookupListApi";
+import { GetServiceUpdatedAfterSendingQuoteOrContract } from "../../redux/Services/Config/ServicesApi";
 import ViewPlan from "../../components/ViewPlan";
 import { Base_Url } from "../../Base-Url/Base_Url";
 import SuccessModal from "../../components/SuccessModal";
@@ -93,6 +94,7 @@ const Proposals = () => {
   const [fromDate, setFromDate] = useState(null);
   const [selectedRows, setSelectedRows] = useState([]);
   const [toDate, setToDate] = useState(null);
+  const [isCopyPending, setIsCopyPending] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [status, setStatus] = useState("");
   const [oldProposalListCount, setOldProposalListCount] = useState(0);
@@ -123,15 +125,15 @@ const Proposals = () => {
   const pageSize = isMobile
     ? isMobileRecords
     : desktopRecords > 5 && window.innerHeight == 652
-      ? 5
-      : desktopRecords;
+    ? 5
+    : desktopRecords;
 
   const totalOldProposalPage = isMobile
     ? Math.ceil(oldProposalListCount / isMobileRecords)
     : Math.ceil(
-      oldProposalListCount /
-      (desktopRecords > 5 && window.innerHeight == 652 ? 5 : desktopRecords)
-    );
+        oldProposalListCount /
+          (desktopRecords > 5 && window.innerHeight == 652 ? 5 : desktopRecords)
+      );
   // B] Initial useEffect :
   // 1) Will Call Initial Api Like List Api
   useEffect(() => {
@@ -326,10 +328,12 @@ const Proposals = () => {
           const modifiedProposalListData = ProposalListData.map((item) => ({
             "Ref Id": item.prefix,
             [proposal]: item.clientName,
-            "One Off Price": `£ ${item.oneOffPrice !== null ? item.oneOffPrice : "0.00"
-              }`,
-            "Recurring Price": `£ ${item.recurringPrice !== null ? item.recurringPrice : "0.00"
-              }`,
+            "One Off Price": `£ ${
+              item.oneOffPrice !== null ? item.oneOffPrice : "0.00"
+            }`,
+            "Recurring Price": `£ ${
+              item.recurringPrice !== null ? item.recurringPrice : "0.00"
+            }`,
             "Status Name": item.statusName,
             [proposalPdf]: item.quotePDFUrl,
             "Last Updated On": item.lastUpdatedOn,
@@ -661,20 +665,117 @@ const Proposals = () => {
   };
 
   //handle Skip to El
-  const HandleSkippedToEL = (item) => {
-    // Update modelRequestData state
-    setModelRequestData((prevData) => ({
-      ...prevData,
-      quoteKeyID: item.quoteKeyID,
+  // const HandleSkippedToEL = (item) => {
+  //   // Update modelRequestData state
+  //   setModelRequestData((prevData) => ({
+  //     ...prevData,
+  //     quoteKeyID: item.quoteKeyID,
+  //   }));
+
+  //   // Create addEngagementLetterData
+  //   const addEngagementLetterData = item
+  //     ? { QuoteKeyID: item.quoteKeyID }
+  //     : { QuoteKeyID: null };
+
+  //   // Navigate to /add-engagement-letter with state
+  //   navigate("/add-engagement-letter", { state: addEngagementLetterData });
+  // };
+
+  const HandleSkippedToEL = async (item, confirmed = false) => {
+    // keep quoteKeyID in state for confirm use
+    setModelRequestData(prev => ({
+      ...prev,
+      quoteKeyID: item?.quoteKeyID ?? prev.quoteKeyID,
     }));
 
-    // Create addEngagementLetterData
-    const addEngagementLetterData = item
-      ? { QuoteKeyID: item.quoteKeyID }
-      : { QuoteKeyID: null };
+    try {
+      if (!confirmed) {
+        setLoader(true);
+        const checkRes = await GetServiceUpdatedAfterSendingQuoteOrContract(
+          item.quoteKeyID,
+          "Quotation" // or "Contract" if that’s the right module for your EL flow
+        );
+        setLoader(false);
 
-    // Navigate to /add-engagement-letter with state
-    navigate("/add-engagement-letter", { state: addEngagementLetterData });
+        if (checkRes?.data?.statusCode === 200) {
+          const {
+            isServiceUpdatedAfter: serviceUpdatedAfterSent,
+            isServiceDeletedAfter: serviceDeletedAfterSent,
+            isPackageUpdatedAfter: packageUpdatedAfterSent,
+            isPackageDeletedAfter: packageDeletedAfterSent,
+            updatedPackageNames,
+            deletedPackageNames,
+            deletedServiceNames,
+            updatedServiceNames,
+          } = checkRes.data?.responseData?.data || {};
+
+          // Build message using only \n (the modal already uses white-space: pre-wrap)
+          let message = "";
+
+          // If updated items exist
+          if (serviceUpdatedAfterSent || packageUpdatedAfterSent) {
+            message += "Following Services or Packages were updated which may affect the Engagement Letter. Do you want to proceed?\n";
+
+            if (serviceUpdatedAfterSent && updatedServiceNames?.length > 0) {
+              message += "\nServices:\n";
+              message += updatedServiceNames.map(s => `• ${s}`).join("\n") + "\n";
+            }
+
+            if (packageUpdatedAfterSent && updatedPackageNames?.length > 0) {
+              message += "\nPackages:\n";
+              message += updatedPackageNames.map(p => `• ${p}`).join("\n") + "\n";
+            }
+
+            message += "\n"; // spacer if both updated & deleted exist
+          }
+
+          // If deleted items exist
+          if (serviceDeletedAfterSent || packageDeletedAfterSent) {
+            message += "Following Services or Packages were deleted which may affect the Engagement Letter. Do you want to proceed?\n";
+
+            if (serviceDeletedAfterSent && deletedServiceNames?.length > 0) {
+              message += "\nServices:\n";
+              message += deletedServiceNames.map(s => `- ${s}`).join("\n") + "\n";
+            }
+
+            if (packageDeletedAfterSent && deletedPackageNames?.length > 0) {
+              message += "\nPackages:\n";
+              message += deletedPackageNames.map(p => `- ${p}`).join("\n") + "\n";
+            }
+          }
+
+          // If anything changed, open confirm modal for the EL flow
+          if (
+            serviceUpdatedAfterSent ||
+            serviceDeletedAfterSent ||
+            packageUpdatedAfterSent ||
+            packageDeletedAfterSent
+          ) {
+            setModelRequestData(prev => ({
+              ...prev,
+              Action: "ServiceWarningEL",
+              message,
+              quoteKeyID: item.quoteKeyID,
+            }));
+            $("#ConfirmModel").modal("show");
+            return;
+          }
+        } else {
+          setErrorMessage(checkRes?.data?.errorMessage || "Something went wrong.");
+          setOpenErrorModal(true);
+          return;
+        }
+      }
+
+      // Phase B: proceed (user clicked Yes or no warnings)
+      $("#ConfirmModel").modal("hide");
+      const addEngagementLetterData = { QuoteKeyID: item?.quoteKeyID || modelRequestData.quoteKeyID || null };
+      navigate("/add-engagement-letter", { state: addEngagementLetterData });
+    } catch (err) {
+      setLoader(false);
+      setErrorMessage(err?.message || String(err));
+      setOpenErrorModal(true);
+    }
   };
 
   //Handle Download the pdf
@@ -804,23 +905,149 @@ const Proposals = () => {
   };
 
   //Copy the Proposal
-  const CopyQuotationData = async (item) => {
+  // const CopyQuotationData = async (item) => {
+  //   if (!activeOrganizationSubscriptionPlan.prepareQuote) {
+  //     setShowModal(true);
+  //     return;
+  //   }
+  //   try {
+  //     const checkRes = await GetServiceUpdatedAfterSendingQuoteOrContract(modelRequestData.quoteKeyID, "Quotation");
+  //     const serviceUpdatedAfterSent = checkRes.data?.responseData?.data;
+  //     if (serviceUpdatedAfterSent) {
+  //       setModelRequestData({
+  //         Action: "ServiceWarning", // <-- Use ServiceWarning here
+  //         message: "Some Service/Services were updated which may affect the copied proposal",
+  //         ServiceName: serviceUpdatedAfterSent,
+  //         quoteKeyID: modelRequestData.quoteKeyID,
+  //         RefId: modelRequestData.RefId,
+  //       });
+  //       $("#ConfirmModel").modal("show");
+  //       return;
+  //     }
+  //     const CopyQuote = await CopyQuotation(
+  //       modelRequestData.quoteKeyID,
+  //       common.userKeyID
+  //     );
+  //     if (CopyQuote.data.statusCode === 200) {
+  //       setOpenSuccessModal(true);
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
+
+  const CopyQuotationData = async (item, confirmed = false) => {
+    // Add confirmed parameter
     if (!activeOrganizationSubscriptionPlan.prepareQuote) {
       setShowModal(true);
       return;
     }
     try {
-      const CopyQuote = await CopyQuotation(
+      if (!confirmed) {
+        // If not confirmed, check for service updates
+        const checkRes = await GetServiceUpdatedAfterSendingQuoteOrContract(
+          modelRequestData.quoteKeyID,
+          "Quotation"
+        );
+        setLoader(true);
+        if (checkRes.data?.statusCode === 200) {
+          setLoader(false);
+          const {
+            isServiceUpdatedAfter: serviceUpdatedAfterSent,
+            isServiceDeletedAfter: serviceDeletedAfterSent,
+            isPackageUpdatedAfter: packageUpdatedAfterSent,
+            isPackageDeletedAfter: packageDeletedAfterSent,
+            updatedPackageNames,
+            deletedPackageNames,
+            deletedServiceNames,
+            updatedServiceNames,
+          } = checkRes.data?.responseData?.data || {};
+
+          let message = "";
+
+          // If updated items exist
+          if (serviceUpdatedAfterSent || packageUpdatedAfterSent) {
+            message += "Following Services or Packages were updated which may affect the copied proposal. Do you want to proceed?\n";
+
+            if (serviceUpdatedAfterSent && updatedServiceNames?.length > 0) {
+              message += "\nServices:\n";
+              message += updatedServiceNames.map(s => `• ${s}`).join("\n") + "\n";
+            }
+
+            if (packageUpdatedAfterSent && updatedPackageNames?.length > 0) {
+              message += "\nPackages:\n";
+              message += updatedPackageNames.map(p => `• ${p}`).join("\n") + "\n";
+            }
+
+            message += "\n"; 
+          }
+
+          // If deleted items exist
+          if (serviceDeletedAfterSent || packageDeletedAfterSent) {
+            message += "Following Services or Packages were deleted which may affect the copied proposal. Do you want to proceed?\n";
+
+            if (serviceDeletedAfterSent && deletedServiceNames?.length > 0) {
+              message += "\nServices:\n";
+              message += deletedServiceNames.map(s => `• ${s}`).join("\n") + "\n";
+            }
+
+            if (packageDeletedAfterSent && deletedPackageNames?.length > 0) {
+              message += "\nPackages:\n";
+              message += deletedPackageNames.map(p => `• ${p}`).join("\n") + "\n";
+            }
+          }
+
+          if (serviceUpdatedAfterSent || serviceDeletedAfterSent || packageUpdatedAfterSent || packageDeletedAfterSent) {
+            setModelRequestData({
+              ...modelRequestData,
+              Action: "ServiceWarning",
+              message,
+              quoteKeyID: modelRequestData.quoteKeyID,
+              RefId: modelRequestData.RefId,
+            });
+            setIsCopyPending(true);
+            $("#ConfirmModel").modal("show");
+            return;
+          }
+        }
+        else {
+          setLoader(false);
+          setErrorMessage(checkRes.data?.errorMessage);
+          setOpenErrorModal(true);
+          return;
+        }
+    }
+      setLoader(true);
+      setModelRequestData({
+        ...modelRequestData,
+        Action: "Copy",
+      });
+      // If confirmed or no service updates, copy the quotation
+      const data = await CopyQuotation(
         modelRequestData.quoteKeyID,
         common.userKeyID
       );
-      if (CopyQuote.data.statusCode === 200) {
+      $("#ConfirmModel").modal("hide");
+      if(data) {
+      if (data.data?.statusCode === 200) {
+        setLoader(false);
         setOpenSuccessModal(true);
+      } else {
+        setLoader(false);
+        setErrorMessage(data?.response?.data?.errorMessage);
+        setOpenErrorModal(true);
       }
-    } catch (error) {
-      console.log(error);
+      setIsCopyPending(false); // Reset the flag
+    } 
+  } catch (error) {
+      console.log(error.message);
+      setLoader(false);
+      setErrorMessage(error.message);
+      setOpenErrorModal(true);
+      setIsCopyPending(false); // Reset the flag
     }
   };
+
   //handle close model function
   const handleClose = () => {
     setOpenSuccessModal(false);
@@ -991,8 +1218,9 @@ const Proposals = () => {
                   <ul className="nav nav-tabs" role="tablist">
                     <li className="nav-item">
                       <a
-                        className={`nav-link tab_nav ${activeTab === "Proposal" ? "active" : ""
-                          }`}
+                        className={`nav-link tab_nav ${
+                          activeTab === "Proposal" ? "active" : ""
+                        }`}
                         data-bs-toggle="tab"
                         href="#Proposal"
                         role="tab"
@@ -1009,8 +1237,9 @@ const Proposals = () => {
                     {oldProposalList.length > 0 && (
                       <li className="nav-item">
                         <a
-                          className={`nav-link tab_nav ${activeTab === "Old Proposal" ? "active" : ""
-                            }`}
+                          className={`nav-link tab_nav ${
+                            activeTab === "Old Proposal" ? "active" : ""
+                          }`}
                           data-bs-toggle="tab"
                           href="#Old Proposal"
                           role="tab"
@@ -1027,8 +1256,9 @@ const Proposals = () => {
                     {SingleProposalList?.length > 0 && (
                       <li className="nav-item">
                         <a
-                          className={`nav-link tab_nav ${activeTab === "Web Proposal" ? "active" : ""
-                            }`}
+                          className={`nav-link tab_nav ${
+                            activeTab === "Web Proposal" ? "active" : ""
+                          }`}
                           data-bs-toggle="tab"
                           href="#Web Proposal"
                           role="tab"
@@ -1076,9 +1306,9 @@ const Proposals = () => {
                                     isMobile
                                       ? "Search"
                                       : getPlaceholderTextName(
-                                        "Search",
-                                        proposalName
-                                      )
+                                          "Search",
+                                          proposalName
+                                        )
                                   }
                                 />
                               </div>
@@ -1105,9 +1335,9 @@ const Proposals = () => {
                                       isMobile
                                         ? "Search"
                                         : getPlaceholderTextName(
-                                          "Search",
-                                          proposalName
-                                        )
+                                            "Search",
+                                            proposalName
+                                          )
                                     }
                                   />
                                 </div>
@@ -1202,9 +1432,9 @@ const Proposals = () => {
                                         isMobile
                                           ? "Search"
                                           : getPlaceholderTextName(
-                                            "Search",
-                                            proposalName
-                                          )
+                                              "Search",
+                                              proposalName
+                                            )
                                       }
                                     />
                                   </div>
@@ -1333,7 +1563,7 @@ const Proposals = () => {
                                         });
                                         ProposalAddBtnClicked();
                                       }}
-                                    // onclick={() => ProposalAddBtnClicked()}
+                                      // onclick={() => ProposalAddBtnClicked()}
                                     />
                                   )}
 
@@ -1347,8 +1577,9 @@ const Proposals = () => {
                         {/* Table Of Template and Template Pdf */}
 
                         <div
-                          className={`tab-pane ${activeTab === "Old Proposal" ? "active" : ""
-                            }`}
+                          className={`tab-pane ${
+                            activeTab === "Old Proposal" ? "active" : ""
+                          }`}
                           id="base-justified-home"
                         >
                           {activeTab === "Old Proposal" && (
@@ -1432,56 +1663,56 @@ const Proposals = () => {
                                         )}
                                         {item.status ===
                                           statusNames.Accepted && (
-                                            <>
-                                              <td className="table-content-font">
-                                                <p
-                                                  className=" p-1 text-center text-white rounded"
-                                                  style={{
-                                                    background: "#008000",
-                                                  }}
-                                                >
-                                                  {item.status
-                                                    ?.charAt(0)
-                                                    ?.toUpperCase() +
-                                                    item.status?.slice(1)}
-                                                </p>
-                                              </td>
-                                            </>
-                                          )}
+                                          <>
+                                            <td className="table-content-font">
+                                              <p
+                                                className=" p-1 text-center text-white rounded"
+                                                style={{
+                                                  background: "#008000",
+                                                }}
+                                              >
+                                                {item.status
+                                                  ?.charAt(0)
+                                                  ?.toUpperCase() +
+                                                  item.status?.slice(1)}
+                                              </p>
+                                            </td>
+                                          </>
+                                        )}
                                         {item.status ===
                                           statusNames.Awaiting_Signature && (
-                                            <>
-                                              <td className="table-content-font">
-                                                <p
-                                                  className=" p-1 text-center text-white rounded"
-                                                  style={{
-                                                    background: "#626ED4",
-                                                  }}
-                                                >
-                                                  {/* Awaiting Response */}
-                                                  {item.statusName}
-                                                </p>
-                                              </td>
-                                            </>
-                                          )}
+                                          <>
+                                            <td className="table-content-font">
+                                              <p
+                                                className=" p-1 text-center text-white rounded"
+                                                style={{
+                                                  background: "#626ED4",
+                                                }}
+                                              >
+                                                {/* Awaiting Response */}
+                                                {item.statusName}
+                                              </p>
+                                            </td>
+                                          </>
+                                        )}
                                         {item.status ===
                                           statusNames.Declined && (
-                                            <>
-                                              <td className="table-content-font">
-                                                <p
-                                                  className=" p-1 text-center text-white rounded"
-                                                  style={{
-                                                    background: "#FF0000",
-                                                  }}
-                                                >
-                                                  {item.status
-                                                    ?.charAt(0)
-                                                    ?.toUpperCase() +
-                                                    item.status?.slice(1)}
-                                                </p>
-                                              </td>
-                                            </>
-                                          )}
+                                          <>
+                                            <td className="table-content-font">
+                                              <p
+                                                className=" p-1 text-center text-white rounded"
+                                                style={{
+                                                  background: "#FF0000",
+                                                }}
+                                              >
+                                                {item.status
+                                                  ?.charAt(0)
+                                                  ?.toUpperCase() +
+                                                  item.status?.slice(1)}
+                                              </p>
+                                            </td>
+                                          </>
+                                        )}
                                         {item.status === statusNames.Signed && (
                                           <>
                                             <td className="table-content-font">
@@ -1501,22 +1732,22 @@ const Proposals = () => {
                                         )}
                                         {item.status ===
                                           statusNames.Skipped && (
-                                            <>
-                                              <td className="table-content-font">
-                                                <p
-                                                  className=" p-1 text-center text-white rounded"
-                                                  style={{
-                                                    background: "#38A4F8",
-                                                  }}
-                                                >
-                                                  {item.status
-                                                    ?.charAt(0)
-                                                    ?.toUpperCase() +
-                                                    item.status?.slice(1)}
-                                                </p>
-                                              </td>
-                                            </>
-                                          )}
+                                          <>
+                                            <td className="table-content-font">
+                                              <p
+                                                className=" p-1 text-center text-white rounded"
+                                                style={{
+                                                  background: "#38A4F8",
+                                                }}
+                                              >
+                                                {item.status
+                                                  ?.charAt(0)
+                                                  ?.toUpperCase() +
+                                                  item.status?.slice(1)}
+                                              </p>
+                                            </td>
+                                          </>
+                                        )}
                                         {/* {item.packagesNames !== null && (
                                         <td>
                                           <p className="mb-0">
@@ -1551,25 +1782,25 @@ const Proposals = () => {
                                         <td>
                                           {item.status !==
                                             statusNames.Draft && (
-                                              <p className="mb-0">
-                                                Recurring:{" "}
-                                                <b>
-                                                  {formatValue(
-                                                    item.recurringTotal
-                                                  )}
-                                                </b>
-                                              </p>
-                                            )}
+                                            <p className="mb-0">
+                                              Recurring:{" "}
+                                              <b>
+                                                {formatValue(
+                                                  item.recurringTotal
+                                                )}
+                                              </b>
+                                            </p>
+                                          )}
                                           {item.status !==
                                             statusNames.Draft && (
-                                              <p className="mb-0">
-                                                {" "}
-                                                OneOff :{" "}
-                                                <b>
-                                                  {formatValue(item.oneOffTotal)}
-                                                </b>
-                                              </p>
-                                            )}
+                                            <p className="mb-0">
+                                              {" "}
+                                              OneOff :{" "}
+                                              <b>
+                                                {formatValue(item.oneOffTotal)}
+                                              </b>
+                                            </p>
+                                          )}
                                         </td>
 
                                         <td className="table-content-font">
@@ -1581,7 +1812,7 @@ const Proposals = () => {
                                           {item.status !== statusNames.Draft &&
                                             item.pdfUrl &&
                                             item.status !==
-                                            statusNames.Signed && (
+                                              statusNames.Signed && (
                                               <p
                                                 onClick={() => {
                                                   handleViewOldProposalPdf(
@@ -1600,7 +1831,7 @@ const Proposals = () => {
                                           {item.status !== statusNames.Draft &&
                                             item.pdfUrl &&
                                             item.status ===
-                                            statusNames.Signed && (
+                                              statusNames.Signed && (
                                               <p
                                                 onClick={() => {
                                                   handleViewOldProposalPdf(
@@ -1623,8 +1854,9 @@ const Proposals = () => {
                           )}
                         </div>
                         <div
-                          className={`tab-pane ${activeTab === "Proposal" ? "active" : ""
-                            }`}
+                          className={`tab-pane ${
+                            activeTab === "Proposal" ? "active" : ""
+                          }`}
                           id="base-justified-home"
                         >
                           {activeTab === "Proposal" && (
@@ -1649,9 +1881,9 @@ const Proposals = () => {
                                   <td className="tr-table-class text-white">
                                     Documents
                                   </td>
-                                  {/* <td className="tr-table-class text-white">
+                                  <td className="tr-table-class text-white">
                                     Last Updated
-                                  </td> */}
+                                  </td>
                                   <td className="tr-table-class text-white">
                                     Send Reminder
                                   </td>
@@ -1716,18 +1948,18 @@ const Proposals = () => {
                                       )}
                                       {item.statusID ===
                                         statusID.Awaiting_Signature && (
-                                          <>
-                                            <td className="table-content-font">
-                                              <p
-                                                className=" p-1 text-center text-white rounded"
-                                                style={{ background: "#626ED4" }}
-                                              >
-                                                {/* Awaiting Response */}
-                                                {item.statusName}
-                                              </p>
-                                            </td>
-                                          </>
-                                        )}
+                                        <>
+                                          <td className="table-content-font">
+                                            <p
+                                              className=" p-1 text-center text-white rounded"
+                                              style={{ background: "#626ED4" }}
+                                            >
+                                              {/* Awaiting Response */}
+                                              {item.statusName}
+                                            </p>
+                                          </td>
+                                        </>
+                                      )}
                                       {item.statusID === statusID.Declined && (
                                         <>
                                           <td className="table-content-font">
@@ -1784,8 +2016,8 @@ const Proposals = () => {
                                                     isSinglePackage
                                                       ? 45
                                                       : isDoublePackage
-                                                        ? 25
-                                                        : 15;
+                                                      ? 25
+                                                      : 15;
 
                                                   return name.length >
                                                     maxLength ? (
@@ -1878,7 +2110,7 @@ const Proposals = () => {
                                       </td>
                                       {/* Status updated on */}
 
-                                      {/* <td className="table-content-font">
+                                      <td className="table-content-font">
                                         {item.statusID === statusID.Accepted ? (
                                           <span>
                                             Accepted on:{" "}
@@ -1902,7 +2134,7 @@ const Proposals = () => {
                                             {GetOnlyDate(item.lastUpdatedOn)}
                                           </span>
                                         ) : null}
-                                      </td> */}
+                                      </td>
 
                                       <td className="table-content-font">
                                         {item.statusID !== statusID.Draft && (
@@ -1915,8 +2147,8 @@ const Proposals = () => {
                                                 item.enableReminder
                                                   ? item.reminderName
                                                     ? getCrudButtonToolTipName(
-                                                      item.reminderName
-                                                    )
+                                                        item.reminderName
+                                                      )
                                                     : "No reminder found"
                                                   : ""
                                               }
@@ -1984,11 +2216,12 @@ const Proposals = () => {
                                             </button>
                                             <ul
                                               style={{
-                                                padding: `${item.statusID ===
-                                                    statusID.Draft
+                                                padding: `${
+                                                  item.statusID ===
+                                                  statusID.Draft
                                                     ? "2px 0px 2px 0px"
                                                     : "6px 8px"
-                                                  }`,
+                                                }`,
                                                 inset: "auto 0px 0px auto",
                                               }}
                                               class="dropdown-menu"
@@ -2059,11 +2292,11 @@ const Proposals = () => {
                                               {(item.statusID ===
                                                 statusID.Accepted ||
                                                 item.statusID ===
-                                                statusID.Declined ||
+                                                  statusID.Declined ||
                                                 item.statusID ===
-                                                statusID.Sent ||
+                                                  statusID.Sent ||
                                                 item.statusID ===
-                                                statusID.Skipped) &&
+                                                  statusID.Skipped) &&
                                                 userAccessData.Admin_Proposal_CanView && (
                                                   <li>
                                                     <a
@@ -2082,7 +2315,7 @@ const Proposals = () => {
                                               {(item.statusID ===
                                                 statusID.Sent ||
                                                 item.statusID ===
-                                                statusID.Skipped) &&
+                                                  statusID.Skipped) &&
                                                 common.enableEL == 1 &&
                                                 userAccessData.Admin_Engagement_Latter_CanAdd &&
                                                 userAccessData.Admin_Engagement_Latter_CanView && (
@@ -2090,7 +2323,7 @@ const Proposals = () => {
                                                     <a
                                                       class="dropdown-item"
                                                       onClick={() => {
-                                                        HandleSkippedToEL(item);
+                                                        HandleSkippedToEL(item, false);
                                                         setTitle(
                                                           "Skipped To Engagement_letter"
                                                         );
@@ -2105,26 +2338,26 @@ const Proposals = () => {
                                               {/* Copy button */}
                                               {item.statusID !==
                                                 statusID.Draft && (
-                                                  <li>
-                                                    <a
-                                                      class="dropdown-item"
-                                                      data-bs-toggle="modal"
-                                                      data-bs-target="#ConfirmModel"
-                                                      onClick={() => {
-                                                        setModelRequestData({
-                                                          ...modelRequestData,
-                                                          Action: "Copy",
-                                                          quoteKeyID:
-                                                            item.quoteKeyID,
-                                                          RefId: item.prefix,
-                                                        });
-                                                      }}
-                                                    >
-                                                      <i class="fa-solid fa-copy"></i>{" "}
-                                                      Copy {proposalName}
-                                                    </a>
-                                                  </li>
-                                                )}
+                                                <li>
+                                                  <a
+                                                    class="dropdown-item"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#ConfirmModel"
+                                                    onClick={() => {
+                                                      setModelRequestData({
+                                                        ...modelRequestData,
+                                                        Action: "Copy",
+                                                        quoteKeyID:
+                                                          item.quoteKeyID,
+                                                        RefId: item.prefix,
+                                                      });
+                                                    }}
+                                                  >
+                                                    <i class="fa-solid fa-copy"></i>{" "}
+                                                    Copy {proposalName}
+                                                  </a>
+                                                </li>
+                                              )}
 
                                               {/* Resend Proposal */}
                                               {item.statusID ===
@@ -2163,8 +2396,9 @@ const Proposals = () => {
                           )}
                         </div>
                         <div
-                          className={`tab-pane ${activeTab === "Web Proposal" ? "active" : ""
-                            }`}
+                          className={`tab-pane ${
+                            activeTab === "Web Proposal" ? "active" : ""
+                          }`}
                           id="base-justified-home"
                         >
                           {activeTab === "Web Proposal" && (
@@ -2270,18 +2504,18 @@ const Proposals = () => {
                                       )}
                                       {item.statusID ===
                                         statusID.Awaiting_Signature && (
-                                          <>
-                                            <td className="table-content-font">
-                                              <p
-                                                className=" p-1 text-center text-white rounded"
-                                                style={{ background: "#626ED4" }}
-                                              >
-                                                {/* Awaiting Response */}
-                                                {item.statusName}
-                                              </p>
-                                            </td>
-                                          </>
-                                        )}
+                                        <>
+                                          <td className="table-content-font">
+                                            <p
+                                              className=" p-1 text-center text-white rounded"
+                                              style={{ background: "#626ED4" }}
+                                            >
+                                              {/* Awaiting Response */}
+                                              {item.statusName}
+                                            </p>
+                                          </td>
+                                        </>
+                                      )}
                                       {item.statusID === statusID.Declined && (
                                         <>
                                           <td className="table-content-font">
@@ -2338,8 +2572,8 @@ const Proposals = () => {
                                                     isSinglePackage
                                                       ? 45
                                                       : isDoublePackage
-                                                        ? 25
-                                                        : 15;
+                                                      ? 25
+                                                      : 15;
 
                                                   return name.length >
                                                     maxLength ? (
@@ -2509,12 +2743,12 @@ const Proposals = () => {
                             isMobile
                               ? Math.ceil(listCount / isMobileRecords)
                               : Math.ceil(
-                                listCount /
-                                (desktopRecords > 5 &&
-                                  window.innerHeight == 652
-                                  ? 5
-                                  : desktopRecords)
-                              )
+                                  listCount /
+                                    (desktopRecords > 5 &&
+                                    window.innerHeight == 652
+                                      ? 5
+                                      : desktopRecords)
+                                )
                           }
                           currentPage={currentPage}
                           onPageChange={handlePageChange}
@@ -2542,15 +2776,15 @@ const Proposals = () => {
                           totalPages={
                             isMobile
                               ? Math.ceil(
-                                SingleProposalListCount / isMobileRecords
-                              )
+                                  SingleProposalListCount / isMobileRecords
+                                )
                               : Math.ceil(
-                                SingleProposalListCount /
-                                (desktopRecords > 5 &&
-                                  window.innerHeight == 652
-                                  ? 5
-                                  : desktopRecords)
-                              )
+                                  SingleProposalListCount /
+                                    (desktopRecords > 5 &&
+                                    window.innerHeight == 652
+                                      ? 5
+                                      : desktopRecords)
+                                )
                           }
                           currentPage={SingleProposalCurrentPage}
                           onPageChange={handlePageChangeSingleProposal}
@@ -2587,14 +2821,20 @@ const Proposals = () => {
       <ConfirmModel
         openSuccessModal={openSuccessModal}
         modelRequestData={modelRequestData}
+        setModelRequestData={setModelRequestData}
         UpdatedStatus={
           modelRequestData.Action === "ReminderStatus"
             ? ChangeQuoteStatusData
             : modelRequestData.Action === "Resend"
-              ? handleResend
-              : modelRequestData.Action === "Copy"
-                ? CopyQuotationData
-                : DeleteQuotationData
+            ? handleResend
+            : modelRequestData.Action === "Copy"
+            ? CopyQuotationData
+            : modelRequestData.Action === "ServiceWarning"
+            ? () => CopyQuotationData(null, true)
+            : modelRequestData.Action === "ServiceWarningEL" // <-- add this
+            ? () => HandleSkippedToEL({ quoteKeyID: modelRequestData.quoteKeyID }, true)
+
+            : DeleteQuotationData
         }
       />
       <SuccessModal
@@ -2608,12 +2848,12 @@ const Proposals = () => {
               ? proposalName
               : `${modelRequestData.RefId}`
             : modelRequestData.Action === "Copy"
-              ? `The Copy of ${modelRequestData.RefId} has been created successfully! `
-              : modelRequestData.Action === "ReminderStatus"
-                ? "Status has been changed successfully!"
-                : modelRequestData.Action === "Resend"
-                  ? proposalName
-                  : ""
+            ? `The Copy of ${modelRequestData.RefId} has been created successfully! `
+            : modelRequestData.Action === "ReminderStatus"
+            ? "Status has been changed successfully!"
+            : modelRequestData.Action === "Resend"
+            ? proposalName
+            : ""
         }
         refIdStore={modelRequestData.RefId}
       />

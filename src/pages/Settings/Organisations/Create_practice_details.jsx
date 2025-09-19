@@ -1354,8 +1354,8 @@ const OfficerDetails = (props) => {
                       <div class="row fieldset">
                         <div class="col-md-3 col-sm-12 text-start text-md-end">
                           <label class="fieldset-label required">
-                            Practice Email
-                            <span className="text-danger">*</span>
+                            Practice Email 
+                              <span className="text-danger">*</span>
                           </label>
                         </div>
                         <div class="col-lg-9 col-md-8 col-sm-12">
@@ -1539,7 +1539,12 @@ const OfficerDetails = (props) => {
                               style={{ padding: "5px" }}
                               class="input-text"
                               placeholder="First Name"
-                              value={props.officersForm[index]?.firstName}
+                              value={
+                                props.officersForm[index].firstName
+                                  ? props.officersForm[index].firstName.charAt(0).toUpperCase() +
+                                  props.officersForm[index].firstName.slice(1).toLowerCase()
+                                  : ""
+                              }
                               onChange={(e) => {
                                 const inputValue = e.target.value.trim();
                                 // Reject input if it contains numeric characters
@@ -1588,7 +1593,12 @@ const OfficerDetails = (props) => {
                               style={{ padding: "5px" }}
                               class="input-text"
                               placeholder="Last Name"
-                              value={props.officersForm[index]?.lastName}
+                              value={
+                                  props.officersForm[index].lastName
+                                    ? props.officersForm[index].lastName.charAt(0).toUpperCase() +
+                                    props.officersForm[index].lastName.slice(1).toLowerCase()
+                                    : ""
+                                }
                               onChange={(e) => {
                                 const inputValue = e.target.value;
 
@@ -1703,7 +1713,7 @@ const OfficerDetails = (props) => {
                           <div class="col-md-3 col-sm-12 text-start text-md-end">
                             <label class="fieldset-label required">
                               Email
-                              <span className="text-danger">*</span>
+                                <span className="text-danger">*</span>
                             </label>
                           </div>
                           <div class="col-md-9 col-sm-12">
@@ -1879,7 +1889,12 @@ const OfficerDetails = (props) => {
                                 style={{ padding: "5px" }}
                                 class="input-text"
                                 placeholder="First Name"
-                                value={props.officersForm[index]?.firstName}
+                                value={
+                                  props.officersForm[index].firstName
+                                    ? props.officersForm[index].firstName.charAt(0).toUpperCase() +
+                                    props.officersForm[index].firstName.slice(1).toLowerCase()
+                                    : ""
+                                }
                                 onChange={(e) => {
                                   const inputValue = e.target.value.trim();
                                   // Reject input if it contains numeric characters
@@ -1929,7 +1944,12 @@ const OfficerDetails = (props) => {
                                 style={{ padding: "5px" }}
                                 class="input-text"
                                 placeholder="Last Name"
-                                value={props.officersForm[index]?.lastName}
+                                value={
+                                  props.officersForm[index].lastName
+                                    ? props.officersForm[index].lastName.charAt(0).toUpperCase() +
+                                    props.officersForm[index].lastName.slice(1).toLowerCase()
+                                    : ""
+                                }
                                 onChange={(e) => {
                                   const inputValue = e.target.value;
 
@@ -2110,7 +2130,7 @@ const OfficerDetails = (props) => {
                             <div class="col-md-3 col-sm-12 text-start text-md-end">
                               <label class="fieldset-label required">
                                 Email
-                                <span className="text-danger">*</span>
+                                  <span className="text-danger">*</span>
                               </label>
                             </div>
                             <div class="col-md-9 col-sm-12">
@@ -2290,6 +2310,36 @@ const OtherInformation = (props) => {
   const currencyFilter = props.currencyType.find(
     (item) => props.otherInfo.preferredCurrency == item.value
   );
+
+  let taxName;
+  if (currencyFilter.value === 1) {
+    taxName = 'VAT';
+  } else if (currencyFilter.value === 2) {
+    taxName = 'EU VAT';
+  } else if (currencyFilter.value === 3) {
+    taxName = 'Sales Tax'
+  } else if (currencyFilter.value === 4) {
+    taxName = 'GST';
+  }
+
+  useEffect(() => {
+    let newVAT = 20;
+
+    if (props.otherInfo.preferredCurrency === 4) {
+      newVAT = 18;
+    } else if (props.otherInfo.preferredCurrency === 2) {
+      newVAT = 21;
+    } else if (props.otherInfo.preferredCurrency === 3) {
+      newVAT = 19;
+    }
+
+    props.setOtherInfo((prev) => ({
+      ...prev,
+      indirectTaxPercentage: newVAT
+    }));
+    console.log(newVAT);
+  }, [props.otherInfo.preferredCurrency]);
+
   const isValidPhoneNumber = (phoneNumber) => {
     const phoneNumberRegex = /^\d{10,15}$/; // Allow between 10 and 15 digits
     return phoneNumberRegex.test(phoneNumber);
@@ -2312,6 +2362,27 @@ const OtherInformation = (props) => {
     }
   };
   const [type, setType] = useState("");
+
+  const handleChangeTaxPercentage = (e) => {
+  let value = e.target.value;
+
+  let cleanValue = value.replace(/[^0-9.]/g, '');
+
+  // Prevent multiple dots:
+  const parts = cleanValue.split('.');
+  if (parts.length > 2) {
+    cleanValue = parts[0] + '.' + parts.slice(1).join('');
+  }
+
+  const regex = /^(\d{0,3}(\.\d{0,2})?)?$/;
+
+    if (regex.test(cleanValue)) {
+      props.setOtherInfo({
+        ...props.otherInfo,
+        indirectTaxPercentage: cleanValue,
+      });
+    }
+  };
 
   const handleImageUpload = () => {
     if (type == "Logo") {
@@ -2346,52 +2417,6 @@ const OtherInformation = (props) => {
         <div className="tab-content">
           <div className="row">
             <div className="col-xl-12 col-lg-12">
-              <div className="row fieldset mt-3">
-                <div class="col-md-3 col-sm-12 text-start text-md-end">
-                  <label class="fieldset-label required">VAT Registered</label>
-                </div>
-                <div className="col-md-9 col-sm-12">
-                  <div className="input-group">
-                    <Select
-                      className="CurrencySelect"
-                      options={Utils.VAT_Registered}
-                      value={VATRegFilter}
-                      onChange={(e) =>
-                        props.setOtherInfo({
-                          ...props.otherInfo,
-                          VATReg: e.value,
-                        })
-                      }
-                    />
-                  </div>
-                </div>
-              </div>
-              {props.otherInfo.VATReg === 0 && (
-                <div className="row fieldset mt-3">
-                  <div class="col-md-3 col-sm-12 text-start text-md-end">
-                    <label class="fieldset-label required">VAT Number</label>
-                  </div>
-                  <div className="col-md-9 col-sm-12">
-                    <div className="input-group">
-                      <input
-                        type="text"
-                        className="input-text"
-                        placeholder="VAT Number"
-                        value={props.otherInfo.VATNumber}
-                        onChange={(e) => {
-                          const sanitizedInput = e.target.value
-                            .trimStart()
-                            .slice(0, 12);
-                          props.setOtherInfo({
-                            ...props.otherInfo,
-                            VATNumber: sanitizedInput.toUpperCase(),
-                          });
-                        }}
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
               <div className="row fieldset">
                 <div class="col-md-3 col-sm-12 text-start text-md-end">
                   <label class="fieldset-label  required">
@@ -2423,6 +2448,116 @@ const OtherInformation = (props) => {
                   )}
                 </div>
               </div>
+              <div className="row fieldset mt-3">
+                <div class="col-md-3 col-sm-12 text-start text-md-end">
+                  <label class="fieldset-label required">{taxName} Registered</label>
+                </div>
+                <div className="col-md-9 col-sm-12">
+                  <div className="input-group">
+                    <Select
+                      className="CurrencySelect"
+                      options={Utils.VAT_Registered}
+                      value={VATRegFilter}
+                      onChange={(e) =>
+                        props.setOtherInfo({
+                          ...props.otherInfo,
+                          VATReg: e.value,
+                        })
+                      }
+                    />
+                  </div>
+                </div>
+              </div>
+              {props.otherInfo.VATReg === 0 && (
+                <>
+                <div className="row fieldset mt-3">
+                  <div class="col-md-3 col-sm-12 text-start text-md-end">
+                    <label class="fieldset-label required">{taxName} Number</label>
+                  </div>
+                  <div className="col-md-9 col-sm-12">
+                    <div className="input-group">
+                      <input
+                        type="text"
+                        className="input-text"
+                        placeholder={`${taxName} Number`}
+                        value={props.otherInfo.VATNumber}
+                        onChange={(e) => {
+                          const sanitizedInput = e.target.value
+                            .trimStart()
+                            .slice(0, 12);
+                          props.setOtherInfo({
+                            ...props.otherInfo,
+                            VATNumber: sanitizedInput.toUpperCase(),
+                          });
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+                  <div className="row fieldset mt-3">
+                    <div class="col-md-3 col-sm-12 text-start text-md-end">
+                      <label class="fieldset-label required">{taxName} Percentage</label>
+                    </div>
+                    <div className="col-md-9 col-sm-12">
+                      {/* <Slider
+                        value={props.otherInfo.indirectTaxPercentage ?? 20}
+                        step={0.1}
+                        min={0}
+                        max={100}
+                        aria-label="Default"
+                        valueLabelDisplay="auto"
+                        onChange={(e, newValue) => {
+                          props.setOtherInfo({
+                            ...props.otherInfo,
+                            indirectTaxPercentage: newValue,
+                          });
+                        }}
+                      /> */}
+                      <input
+                        className="input-text"
+                        type="text"
+                        value={props.otherInfo.indirectTaxPercentage ?? 20.00}
+                        onChange={handleChangeTaxPercentage}
+                        max={100}
+                      />
+                    </div>
+                    {props.requireOtherErrorMessage && props.otherInfo.indirectTaxPercentage > 100 &&
+                      <label className="text-danger text-center mt-1">Percentage cannot exceed 100</label>
+                    }
+                  </div>
+                </>
+              )}
+              {/* <div className="row fieldset">
+                <div class="col-md-3 col-sm-12 text-start text-md-end">
+                  <label class="fieldset-label  required">
+                    Preferred Currency
+                  </label>
+                  <span class="text-danger">*</span>
+                </div>
+                <div className="col-md-9 col-sm-12">
+                  <div className="input-group">
+                    <Select
+                      style={{ padding: "5px", width: "20%" }}
+                      className="CurrencySelect"
+                      options={props.currencyType}
+                      value={currencyFilter}
+                      onChange={(e) => {
+                        props.setOtherInfo({
+                          ...props.otherInfo,
+                          preferredCurrency: e.value,
+                        });
+                      }}
+                    />
+                  </div>
+                  {props.requireOtherErrorMessage &&
+                    (props.otherInfo.preferredCurrency === "" ||
+                      props.otherInfo.preferredCurrency === null) ? (
+                    <span className="validation">{ERROR_MESSAGES}</span>
+                  ) : (
+                    ""
+                  )}
+                </div>
+              </div> */}
               <div className="row fieldset ">
                 <div class="col-md-3 col-sm-12 text-start text-md-end">
                   <label class="fieldset-label required">Website</label>
@@ -3226,6 +3361,7 @@ const Create_practice_details = () => {
     VATReg: 1,
     VATNumber: null,
     preferredCurrency: 1,
+    indirectTaxPercentage: null,
     website: null,
     contactEmail: null,
     contactPhone: null,
@@ -3287,6 +3423,7 @@ const Create_practice_details = () => {
   const [BusinessTypeLookupList, setBusinessTypeLookupList] = useState([]);
   const navigate = useNavigate();
   const location = useLocation();
+  const companyDebounceRef = useRef(null);
   const [saveLocationState, setSaveLocationState] = useState(location.state);
   // B] Initial UseEffect
 
@@ -3535,6 +3672,7 @@ const Create_practice_details = () => {
         signatureImageUrl: null,
         isVatRegistered: otherInfo.VATReg,
         vatNumber: otherInfo.VATNumber,
+        indirectTaxPercentage: otherInfo.indirectTaxPercentage,
         preferredCurrencyId: otherInfo.preferredCurrency,
         website: otherInfo.website,
         countryCodeID: otherInfo.countryCodeID?.value,
@@ -3920,6 +4058,9 @@ const Create_practice_details = () => {
 
   const handleCompanyInputChange = (e) => {
     const newValue = e.target.value.trim();
+    if (companyDebounceRef.current) {
+      clearTimeout(companyDebounceRef.current);
+    }
     if (newValue === "") {
       setCompanies([]);
       // Hide the autocomplete list here
@@ -3928,12 +4069,14 @@ const Create_practice_details = () => {
         autocompleteDiv.classList.remove("show");
       }
     } else {
+      companyDebounceRef.current = setTimeout(() => {
       getCompanies(newValue);
       // Show the autocomplete list here
       const autocompleteDiv = document.querySelector(".searchList");
       if (autocompleteDiv) {
         autocompleteDiv.classList.add("show");
       }
+      }, 700);
     }
   };
 
@@ -4418,6 +4561,17 @@ const Create_practice_details = () => {
         !phoneNumberRegex.test(otherInfo.contactPhone) ||
         !emailPattern.test(otherInfo.contactEmail)
       ) {
+        setRequireOtherErrorMessage(true);
+        return false;
+      } else if (
+        otherInfo.indirectTaxPercentage !== null &&
+        otherInfo.indirectTaxPercentage > 100
+      ) {
+        setIsValidForm({
+          ...isValidForm,
+          OfficerForm: true,
+          ChooseSubscriptionPlan: true
+        });
         setRequireOtherErrorMessage(true);
         return false;
       } else if (

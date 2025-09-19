@@ -512,7 +512,7 @@ export const PricingInformation = (props) => {
                   <div className="row fieldset">
                     <div class="col-md-2 col-sm-12 text-start text-md-end">
                       <label class="fieldset-label required">
-                        Original Price (£)
+                        Original Price ({props.currencySymbol})
                       </label>
                     </div>
                     <div className="col-md-10 col-sm-12">
@@ -566,7 +566,7 @@ export const PricingInformation = (props) => {
                     </div>
                     <div class="col-lg-2 col-md-2 col-sm-12 text-md-end">
                       <label class="fieldset-label mt-2 required">
-                        Default Price (£)
+                        Default Price ({props.currencySymbol})
                         <span class="text-danger">*</span>
                       </label>
                     </div>
@@ -576,7 +576,7 @@ export const PricingInformation = (props) => {
                           <input
                             class="input-text"
                             type="text"
-                            placeholder="Default Price (£)"
+                            placeholder={`Default Price (${props.currencySymbol})`}
                             value={props.RecurringPricingInfo.DefaultPrice.toString().replace(
                               /\B(?=(\d{3})+(?!\d))/g,
                               ","
@@ -661,7 +661,7 @@ export const PricingInformation = (props) => {
                     </div>
                     <div class="col-lg-2 col-md-2 col-sm-12 text-md-end">
                       <label class="fieldset-label mt-2 required">
-                        Min Price (£)
+                        Min Price ({props.currencySymbol})
                         <span class="text-danger">*</span>
                       </label>
                     </div>
@@ -669,7 +669,7 @@ export const PricingInformation = (props) => {
                       <input
                         class="input-text"
                         type="text"
-                        placeholder="Min Price (£)"
+                        placeholder={`Min Price (${props.currencySymbol})`}
                         value={props.RecurringPricingInfo.MinPrice.toString().replace(
                           /\B(?=(\d{3})+(?!\d))/g,
                           ","
@@ -723,7 +723,7 @@ export const PricingInformation = (props) => {
                       <tr class="head-row">
                         <td className="tr-table-class  font-14 text-white">Services</td>
                         <td className="tr-table-class font-14 text-white text-right">
-                          Fees (£)
+                          Fees ({props.currencySymbol})
                         </td>
                       </tr>
                     </thead>
@@ -743,7 +743,7 @@ export const PricingInformation = (props) => {
                                     <div className="package-variables"></div>
                                   </td>
                                   <td className="text-right">
-                                    £
+                                    {props.currencySymbol}
                                     {Number(service.price)
                                       .toFixed(2)
                                       .toString()
@@ -758,7 +758,7 @@ export const PricingInformation = (props) => {
                       <tr className="head-row">
                         <td className="tr-table-class font-14 text-white">Net Total</td>
                         <td className="tr-table-class  font-14 text-white text-right">
-                          £
+                          {props.currencySymbol}
                           {Number(props.RecurringPricingInfo.OriginalPrice) <
                             Number(props.RecurringPricingInfo.DefaultPrice)
                             ? Number(props.RecurringPricingInfo.DefaultPrice)
@@ -778,7 +778,7 @@ export const PricingInformation = (props) => {
                               Discount
                             </td>
                             <td className="tr-table-class font-14 text-white text-right">
-                              (-) £
+                              (-) {props.currencySymbol}
                               {Number(props.RecurringPricingInfo.Discount)
                                 .toFixed(2)
                                 .toString()
@@ -790,7 +790,7 @@ export const PricingInformation = (props) => {
                               Discounted Total
                             </td>
                             <td className="tr-table-class font-14 text-white text-right">
-                              £
+                              {props.currencySymbol}
                               {Number(
                                 props.RecurringPricingInfo.DiscountedTotal
                               )
@@ -805,9 +805,9 @@ export const PricingInformation = (props) => {
                       {props.vatPercentage && (
                         <>
                           <tr class="head-grey-row">
-                            <td className="tr-table-class font-14 text-white">VAT</td>
+                            <td className="tr-table-class font-14 text-white">{props.taxName}</td>
                             <td className="tr-table-class font-14 text-white text-right">
-                              £
+                              {props.currencySymbol}
                               {Number(props.RecurringPricingInfo.VATPrice)
                                 .toFixed(2)
                                 .toString()
@@ -819,7 +819,7 @@ export const PricingInformation = (props) => {
                               Grand Total
                             </td>
                             <td className="tr-table-class font-14 text-white text-right">
-                              £
+                              {props.currencySymbol}
                               {Number(props.RecurringPricingInfo.GrandTotal)
                                 .toFixed(2)
                                 .toString()
@@ -844,7 +844,7 @@ export const PricingInformation = (props) => {
                   <div class="separator mb-3"></div>
                   <div className="row fieldset">
                     <div class="col-md-2 col-sm-12 text-md-end">
-                      <label class="form-label">Original Price (£)</label>
+                      <label class="form-label">Original Price ({props.currencySymbol})</label>
                     </div>
                     <div className="col-md-10 col-sm-12">
                       <div class="mb-1">
@@ -895,7 +895,7 @@ export const PricingInformation = (props) => {
                     </div>
                     <div class="col-lg-2 col-md-2 col-sm-12 text-md-end">
                       <label class="fieldset-label mt-2 required">
-                        Default Price (£)
+                        Default Price ({props.currencySymbol})
                         <span class="text-danger">*</span>
                       </label>
                     </div>
@@ -905,7 +905,7 @@ export const PricingInformation = (props) => {
                           <input
                             class="input-text"
                             type="text"
-                            placeholder="Default Price (£)"
+                            placeholder={`Default Price (${props.currencySymbol})`}
                             value={props.OneOffPricingInfo.DefaultPrice.toString().replace(
                               /\B(?=(\d{3})+(?!\d))/g,
                               ","
@@ -981,7 +981,7 @@ export const PricingInformation = (props) => {
                     </div>
                     <div class="col-lg-2 col-md-2 col-sm-12 text-md-end">
                       <label class="fieldset-label mt-2 required">
-                        Min Price (£)
+                        Min Price ({props.currencySymbol})
                         <span class="text-danger">*</span>
                       </label>
                     </div>
@@ -1037,7 +1037,7 @@ export const PricingInformation = (props) => {
                       <tr class="head-row">
                         <td className="tr-table-class font-14 text-white">Services</td>
                         <td className="tr-table-class font-14 text-white text-right">
-                          Fees (£)
+                          Fees ({props.currencySymbol})
                         </td>
                       </tr>
                     </thead>
@@ -1057,7 +1057,7 @@ export const PricingInformation = (props) => {
                                     <div className="package-variables"></div>
                                   </td>
                                   <td className="text-right">
-                                    £
+                                    {props.currencySymbol}
                                     {Number(service.price)
                                       .toFixed(2)
                                       .toString()
@@ -1072,7 +1072,7 @@ export const PricingInformation = (props) => {
                       <tr className="head-row">
                         <td className="tr-table-class font-14 text-white">Net Total</td>
                         <td className="tr-table-class font-14 text-white text-right">
-                          £
+                          {props.currencySymbol}
                           {Number(props.OneOffPricingInfo.OriginalPrice) <
                             Number(props.OneOffPricingInfo.DefaultPrice)
                             ? Number(props.OneOffPricingInfo.DefaultPrice)
@@ -1093,7 +1093,7 @@ export const PricingInformation = (props) => {
                               Discount
                             </td>
                             <td className="tr-table-class font-14 text-white text-right">
-                              (-) £
+                              (-) {props.currencySymbol}
                               {Number(props.OneOffPricingInfo.Discount)
                                 .toFixed(2)
                                 .toString()
@@ -1105,7 +1105,7 @@ export const PricingInformation = (props) => {
                               Discounted Total
                             </td>
                             <td className="tr-table-class text-white text-right">
-                              £
+                              {props.currencySymbol}
                               {Number(props.OneOffPricingInfo.DiscountedTotal)
                                 .toFixed(2)
                                 .toString()
@@ -1117,7 +1117,7 @@ export const PricingInformation = (props) => {
                       {props.vatPercentage && (
                         <>
                           <tr class="head-grey-row">
-                            <td className="tr-table-class font-14 text-white">VAT</td>
+                            <td className="tr-table-class font-14 text-white">{props.taxName}</td>
                             <td className="tr-table-class font-14 text-white text-right">
                               £{" "}
                               {Number(props.OneOffPricingInfo.VATPrice)
@@ -1131,7 +1131,7 @@ export const PricingInformation = (props) => {
                               Grand Total
                             </td>
                             <td className="tr-table-class font-14 text-white text-right">
-                              £
+                              {props.currencySymbol}
                               {Number(props.OneOffPricingInfo.GrandTotal)
                                 .toFixed(2)
                                 .toString()
@@ -1258,6 +1258,9 @@ const AddUpdatePackage = (props) => {
     businessNatureID: [],
   });
   const [vatPercentage, setVATPercentage] = useState("");
+    const [preferredCurrencyId, setPreferredCurrencyId] = useState(null);
+  const [taxName,setTaxName] = useState("");
+  const [currencySymbol,setCurrencySymbol] = useState("£");
   const [RecurringPricingInfo, setRecurringPricingInfo] = useState({
     OriginalPrice: 0.0,
     DefaultDiscount: 0.0,
@@ -1401,6 +1404,22 @@ const AddUpdatePackage = (props) => {
                             if (defaultSlab) {
                               driver.driverValue = defaultSlab.slabValue;
                               driver.slabID = defaultSlab.slabID;
+                            }
+                          }
+                          else if (driver.driverTypeID === 5) {
+                            // Find the default date
+                              driver.driverValue = driver.text[0].textValue;
+                              driver.textID = driver.text[0].textID;
+                          }
+                          else if (driver.driverTypeID === 6) {
+                            // Find the default date
+                            const defaultDate = driver.date.find(
+                              (date) => date.dateValue === driver.driverValue
+                            );
+                            // Update driverValue and dateID if defaultDate exists
+                            if (defaultDate) {
+                              driver.driverValue = defaultDate.dateValue;
+                              driver.dateID = defaultDate.dateID;
                             }
                           }
 
@@ -1547,7 +1566,22 @@ const AddUpdatePackage = (props) => {
                               driver.slabID = defaultSlab.slabID;
                             }
                           }
-
+                          else if (driver.driverTypeID === 5) {
+                            // Find the default date
+                              driver.driverValue = driver.text[0].textValue;
+                              driver.textID = driver.text[0].textID;
+                          }
+                          else if (driver.driverTypeID === 6) {
+                            // Find the default date
+                            const defaultDate = driver.date.find(
+                              (date) => date.dateValue === driver.driverValue
+                            );
+                            // Update driverValue and dateID if defaultDate exists
+                            if (defaultDate) {
+                              driver.driverValue = defaultDate.dateValue;
+                              driver.dateID = defaultDate.dateID;
+                            }
+                          }
                           // Check if dependsOnGlobalPricingDriverID and dependsOnVariationID are not null
                           if (
                             driver.dependsOnGlobalPricingDriverID !== null &&
@@ -1721,7 +1755,7 @@ const AddUpdatePackage = (props) => {
 
             if (
               additionalInformationListData.filter(
-                (item) => item.driverTypeID !== 1
+                (item) => (item.driverTypeID !== 1)
               ).length === 0
             ) {
               setTabHide(false);
@@ -1822,6 +1856,14 @@ const AddUpdatePackage = (props) => {
                 : driver.slab !== null
                   ? driver.slab?.filter((item) => item.isDefault === true)[0]
                     ?.slabValue
+                    : driver.date !== null
+                    ? driver.date?.length > 0
+                      ? driver.date.find(d => d.dateValue === driver.driverValue)?.dateValue
+                      ?? driver.date[0].defaultDateValue
+                      ?? 0
+                      : 0
+                    : driver.text !== null
+                    ? driver.driverValue ?? driver.text?.find(d => d.textID === driver.textID)?.textValue ?? 0
                   : driver.driverValue,
             msgMapID: driver.msgMapID || null,
             msMapID: driver.msMapID || null,
@@ -1833,6 +1875,15 @@ const AddUpdatePackage = (props) => {
             slabID: driver.slab
               ? driver.slab.filter((item) => item.isDefault === true)[0]?.slabID
               : null,
+            textID: driver.driverTypeID === 5
+                ? driver.textID || driver.text?.find(d => d.textValue === driver.driverValue)?.textID || null
+                : null,
+            dateID: driver.date
+                ? driver.date.filter((item) => item.isDefault === true)?.dateID
+                : null,
+            enteredText: driver.enteredText || null,
+            enteredDate: driver.enteredDate || null,
+            enteredDateFormat: driver.enteredDateFormat || null
           }));
 
         return {
@@ -1860,6 +1911,8 @@ const AddUpdatePackage = (props) => {
       ?.map((item) => {
         let driverValue;
         let slabID;
+        let dateID;
+        let textID;
         let variationID;
         let msgMapID;
         let msMapID;
@@ -1880,6 +1933,24 @@ const AddUpdatePackage = (props) => {
           variationID = defaultVariation.variationID;
           msgMapID = item.msgMapID;
           msMapID = item.msMapID;
+        } else if (
+          item.date &&
+          item.date.some((dateItem) => dateItem.isDefault)
+        ) {
+          const defaultDate = item.date.find(
+            (dateItem) => dateItem.isDefault
+          );
+          driverValue = defaultDate.dateValue ?? defaultDate.defaultDateValue ?? 0;
+          dateID = defaultDate.dateID;
+          msgMapID = item.msgMapID;
+          msMapID = item.msMapID;
+        } else if (
+          item.text !== null
+        ) {
+          driverValue = item.text?.[0]?.textValue ?? 0;
+          textID = item.text?.[0].textID;
+          msgMapID = item.msgMapID;
+          msMapID = item.msMapID;
         } else if (item.driverTypeID === 2) {
           driverValue = item.driverValue;
           slabID = item.slabID;
@@ -1894,11 +1965,16 @@ const AddUpdatePackage = (props) => {
           driverValue,
           variationID,
           slabID,
+          dateID,
+          textID,
+          enteredText: item.enteredText,
+          enteredDate: item.enteredDate,
+          enteredDateFormat: item.enteredDateFormat
         };
       })
       .filter((item) => item.driverTypeID !== 1)
       .flat();
-
+      console.log(additionalInformationList);
   // profession Type value
   const OnProfessionTypeChange = (ProfessionType) => {
     let updatedPfList;
@@ -2026,7 +2102,9 @@ const AddUpdatePackage = (props) => {
         if (data?.data?.responseData?.data) {
           const PricingData = data?.data?.responseData?.data;
           const vatPercentage = data?.data?.responseData?.vatPercentage;
+          const currencyId = data?.data?.responseData?.currencyID;  
           setVATPercentage(vatPercentage);
+          setPreferredCurrencyId(currencyId);
           //route additional information to  calculate page
           const RecurringServicePrices = {};
           const OneOffServicePrices = {};
@@ -2058,7 +2136,19 @@ const AddUpdatePackage = (props) => {
             }
             OneOffServicePrices[service.serviceCatID][service.serviceID] = service.price;
           });
-
+          if (currencyId === 1) {
+            setTaxName("VAT");
+            setCurrencySymbol("£");
+          } else if (currencyId === 2) {
+            setTaxName("EU VAT");
+            setCurrencySymbol("€");
+          } else if (currencyId === 3) {
+            setTaxName("Salex Tax");
+            setCurrencySymbol("$");
+          } else if (currencyId === 4) {
+            setTaxName("GST");
+            setCurrencySymbol("₹");
+          }
           if (hasError) {
             showModal(
               `The result of this operation is too large to be processed. Please check the following services.`,
@@ -2440,7 +2530,11 @@ const AddUpdatePackage = (props) => {
                         driver.slab?.find((item) => item.isDefault === true) ||
                         {}
                       ).slabValue ||
-                      driver.driverValue,
+                      (Array.isArray(driver.text) ? driver.text[0].textValue : 0) ||
+                        driver.date !== null
+                        ? driver.date?.length > 0
+                        ? driver.date.find(d => d.dateValue === driver.driverValue)?.dateValue ?? driver.date[0].defaultDateValue : 0
+                        : driver.driverValue,
                     variationID:
                       (
                         driver.variation?.find(
@@ -2452,6 +2546,16 @@ const AddUpdatePackage = (props) => {
                         driver.slab?.find((item) => item.isDefault === true) ||
                         {}
                       ).slabID || null,
+                    textID:
+                      (
+                        (Array.isArray(driver.text) && driver.text.length > 0)
+                          ? driver.text[0].textID
+                          : null
+                      ),
+                    dateID: driver.date
+                      ? driver.date.filter((item) => item.isDefault === true)
+                        ?.dateID
+                      : null,
                     serviceChargeTypeID: serviceChargeTypeID,
                     serviceCatID: recurringItem.serviceCatID,
                   }));
@@ -2464,6 +2568,8 @@ const AddUpdatePackage = (props) => {
                   driverValue: null,
                   variationID: null,
                   slabID: null,
+                  textID: null,
+                  dateID: null
                 };
               }
             })
@@ -2483,7 +2589,11 @@ const AddUpdatePackage = (props) => {
           return item.slab.some((slab) => slab.isDefault);
         } else if (item.variation !== null) {
           return item.variation.some((variation) => variation.isDefault);
-        } else {
+        }  else if (item.date !== null) {
+          return item.date.some((date) => date.isDefault);
+        } else if (item.text !== null) {
+          return true;
+        }else {
           return false;
         }
       })
@@ -2495,6 +2605,9 @@ const AddUpdatePackage = (props) => {
             .variationValue ||
           (item.slab?.find((item) => item.isDefault === true) || {})
             .slabValue ||
+          (item.date?.find((item) => item.isDefault === true) || {})
+            .dateValue ||
+          (item.text?.[0].textValue ?? 0) ||
           item.driverValue,
         variationID:
           item.variation !== null
@@ -2505,6 +2618,14 @@ const AddUpdatePackage = (props) => {
           item.slab !== null
             ? item.slab.find((slab) => slab.isDefault)?.slabID
             : null,
+        dateID:
+          item.date !== null
+            ? item.date.find((date) => date.isDefault)?.dateID
+            : null,
+        textID:
+          item.text !== null
+            ? item.text?.[0]?.textID ?? null
+            : null
       }))
       .flat();
 
@@ -2743,6 +2864,7 @@ const AddUpdatePackage = (props) => {
     } else if (activeTab === PackageHeader.SelectServices) {
       let hasUndefinedDriver = false;
       let hasUndefinedDriver2 = false;
+      let hasUndefinedTextOrDateorquantityDriver = false;
 
       recurringServiceList.some((rService) => {
         return rService.servicesList?.some((service) => {
@@ -2751,6 +2873,7 @@ const AddUpdatePackage = (props) => {
               const pricingList = service.pricingDriverList[i];
               if (
                 service.pricingDriverList[i].driverVisibility &&
+                service.pricingDriverList[i].driverTypeID !== 5 && service.pricingDriverList[i].driverTypeID !== 6 &&
                 (service.pricingDriverList[i].driverValue === undefined ||
                   service.pricingDriverList[i].driverValue === null ||
                   service.pricingDriverList[i].driverValue === "")
@@ -2773,6 +2896,47 @@ const AddUpdatePackage = (props) => {
                   PricingInfo: true,
                 });
               }
+              if (
+                pricingList.driverVisibility &&
+                pricingList.driverTypeID === 6 &&
+                (pricingList.enteredDate === undefined ||
+                  pricingList.enteredDate === null ||
+                  pricingList.enteredDate === "")
+              ) {
+                hasUndefinedTextOrDateorquantityDriver = true;
+              }
+              if (
+                pricingList.driverVisibility &&
+                (pricingList.driverTypeID === 5) &&
+                (pricingList.enteredText === undefined ||
+                  pricingList.enteredText === null ||
+                  pricingList.enteredText === "")
+              ) {
+                hasUndefinedTextOrDateorquantityDriver = true;
+              }
+              if (
+                pricingList.driverVisibility &&
+                pricingList.driverTypeID === 2 &&
+                Number(pricingList.driverValue)
+              ) {
+                const value = Number(pricingList.driverValue);
+                const from = pricingList.quantity?.[0]?.quantityFrom;
+                const to = pricingList.quantity?.[0]?.quantityTo;
+
+                const parsedFrom = Number(from);
+                const parsedTo = Number(to);
+
+                const hasFrom = from !== undefined && from !== null && from !== '' && !isNaN(parsedFrom);
+                const hasTo = to !== undefined && to !== null && to !== '' && !isNaN(parsedTo);
+
+                if (
+                  (hasFrom && hasTo && (value < parsedFrom || value > parsedTo)) ||
+                  (hasFrom && !hasTo && value < parsedFrom) ||
+                  (!hasFrom && hasTo && value > parsedTo)
+                ) {
+                  hasUndefinedTextOrDateorquantityDriver = true;
+                }
+              }
             }
           }
         });
@@ -2784,6 +2948,7 @@ const AddUpdatePackage = (props) => {
               const pricingList = service.pricingDriverList[i];
               if (
                 service.pricingDriverList[i].driverVisibility &&
+                service.pricingDriverList[i].driverTypeID !== 5 && service.pricingDriverList[i].driverTypeID !== 6 &&
                 (service.pricingDriverList[i].driverValue === undefined ||
                   service.pricingDriverList[i].driverValue === null ||
                   service.pricingDriverList[i].driverValue === "")
@@ -2808,12 +2973,53 @@ const AddUpdatePackage = (props) => {
                   PricingInfo: true,
                 });
               }
+              if (
+                pricingList.driverVisibility &&
+                pricingList.driverTypeID === 6 &&
+                (pricingList.enteredDate === undefined ||
+                  pricingList.enteredDate === null ||
+                  pricingList.enteredDate === "")
+              ) {
+                hasUndefinedTextOrDateorquantityDriver = true;
+              }
+              if (
+                pricingList.driverVisibility &&
+                (pricingList.driverTypeID === 5) &&
+                (pricingList.enteredText === undefined ||
+                  pricingList.enteredText === null ||
+                  pricingList.enteredText === "")
+              ) {
+                hasUndefinedTextOrDateorquantityDriver = true;
+              }
+              if (
+                pricingList.driverVisibility &&
+                pricingList.driverTypeID === 2 &&
+                Number(pricingList.driverValue)
+              ) {
+                const value = Number(pricingList.driverValue);
+                const from = pricingList.quantity?.[0]?.quantityFrom;
+                const to = pricingList.quantity?.[0]?.quantityTo;
+
+                const parsedFrom = Number(from);
+                const parsedTo = Number(to);
+
+                const hasFrom = from !== undefined && from !== null && from !== '' && !isNaN(parsedFrom);
+                const hasTo = to !== undefined && to !== null && to !== '' && !isNaN(parsedTo);
+
+                if (
+                  (hasFrom && hasTo && (value < parsedFrom || value > parsedTo)) ||
+                  (hasFrom && !hasTo && value < parsedFrom) ||
+                  (!hasFrom && hasTo && value > parsedTo)
+                ) {
+                  hasUndefinedTextOrDateorquantityDriver = true;
+                }
+              }
             }
           }
         });
       });
 
-      if (hasUndefinedDriver || hasUndefinedDriver2) {
+      if (hasUndefinedDriver || hasUndefinedDriver2 || hasUndefinedTextOrDateorquantityDriver) {
         setRequireMessage(true);
         setIsValidForm({
           ...isValidForm,
@@ -2832,6 +3038,7 @@ const AddUpdatePackage = (props) => {
         });
         setActiveTab(NextTab);
         setRequireMessage(false);
+        await GetAdditionalInformationListData(ServicesIDsElement);
       } else {
         setIsValidForm({
           ...isValidForm,
@@ -2844,7 +3051,7 @@ const AddUpdatePackage = (props) => {
     } else if (activeTab === PackageHeader.AdditionalInformation) {
       // Filter the list based on driverTypeID being either 2 or 4
       const filteredList = additionalInformationList.filter(
-        (item) => item.driverTypeID === 2 || item.driverTypeID === 4 || item.driverTypeID === 3
+        (item) => item.driverTypeID === 2 || item.driverTypeID === 4 || item.driverTypeID === 3 || item.driverTypeID === 6 || item.driverTypeID === 5
       );
       // Check if any of the filtered items have driverValue as null, empty string, or undefined
       const hasInvalidValues = filteredList.some(
@@ -3404,6 +3611,9 @@ const AddUpdatePackage = (props) => {
                   setOneOffServiceObj={setOneOffServiceObj}
                   setVATPercentage={setVATPercentage}
                   vatPercentage={vatPercentage}
+                  taxName={taxName}
+                  currencySymbol={currencySymbol}
+                  preferredCurrencyId = {preferredCurrencyId}
                   // HandleSubmission={HandleSubmission}
                   errorMessage={errorMessage}
                   selectedRecurringServiceList={selectedRecurringServiceList}

@@ -45,7 +45,7 @@ const ErrorModel = (props) => {
                   {props.errorMessageTitle ? (
                     <h4>{props.errorMessageTitle} </h4>
                   ) : null}
-                  <p class="text-muted mb-0">
+                  <p class="text-muted mb-0" style={{whiteSpace: "pre-wrap", textAlign: "left"}}>
                     {props.ErrorMessage === ""
                       ? props?.emailError !== null ? props?.emailError :
                         "Something Went Wrong"

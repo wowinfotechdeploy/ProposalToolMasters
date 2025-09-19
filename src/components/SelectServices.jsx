@@ -1,17 +1,376 @@
 import Select from "react-select";
+import { useEffect } from "react";
 import { ERROR_MESSAGES } from "./GlobalMessage";
 import { Tooltip } from "@mui/material";
 import { AuthContextProvider } from "../AuthContext/AuthContext";
 import { useContext } from "react";
 import { statusID } from "../Middleware/enums";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import "react-calendar/dist/Calendar.css";
+import { format, parse, isValid } from "date-fns";
 export const SelectServices = (props) => {
   const {
     isMobile,
     getCrudButtonTextName,
+    convertAndParseDate
   } = useContext(AuthContextProvider);
 
   const moduleNameForSaveAsDraft = "SelectServices";
   const notAllowed = "not-allowed";
+  console.log(props.requireMessage);
+  // useEffect(() => {
+  //   // Don’t run if list is still undefined/empty
+  //   if (!props.recurringServiceList?.length) return;
+  
+  //   // The same recursive‐hide function you already have
+  //   const updateRecursiveVisibility = (services) => {
+  //     let updated = [...services];
+  //     let changed = false;
+  
+  //     updated = updated.map(service => {
+  //       if (service.hasDependencies) {
+  //         const dependencyIds = Array.isArray(service.hasDependencies)
+  //           ? service.hasDependencies.map(Number)
+  //           : typeof service.hasDependencies === "string" && service.hasDependencies.trim().length > 0
+  //             ? service.hasDependencies.split(",").map(Number)
+  //             : [];
+  
+  //         const someDepsSelected = dependencyIds.some(depId => {
+  //           const parent = updated.find(s => s.serviceID === depId);
+  //           return parent && parent.isSelected;
+  //         });
+  
+  //         if (!someDepsSelected && !service.isHidden && service.serviceChargeTypeID !== 4) {
+  //           changed = true;
+  //           return {
+  //             ...service,
+  //             isHidden: true,
+  //             isDisabled: true,
+  //             isSelected: false,
+  //           };
+  //         }
+  //       }
+  //       return service;
+  //     });
+  
+  //     return changed ? updateRecursiveVisibility(updated) : updated;
+  //   };
+  //   // Apply it to each category
+  //   const updatedAll = props.recurringServiceList.map(category => ({
+  //     ...category,
+  //     servicesList: updateRecursiveVisibility(category.servicesList)
+  //   }));
+  
+  //   props.setRecurringServiceList(updatedAll);
+  // }, [props.recurringServiceList, props.setRecurringServiceList]);
+
+  // useEffect(() => {
+  //   // Don’t run if list is still undefined/empty
+  //   if (!props.oneOffServiceList?.length) return;
+  
+  //   // The same recursive‐hide function you already have
+  //   const updateRecursiveVisibility = (services) => {
+  //     let updated = [...services];
+  //     let changed = false;
+  
+  //     updated = updated.map(service => {
+  //       if (service.hasDependencies) {
+  //         const dependencyIds = Array.isArray(service.hasDependencies)
+  //           ? service.hasDependencies.map(Number)
+  //           : typeof service.hasDependencies === "string" && service.hasDependencies.trim().length > 0
+  //             ? service.hasDependencies.split(",").map(Number)
+  //             : [];
+  
+  //         const someDepsSelected = dependencyIds.some(depId => {
+  //           const parent = updated.find(s => s.serviceID === depId);
+  //           return parent && parent.isSelected;
+  //         });
+  
+  //         if (!someDepsSelected && !service.isHidden && service.serviceChargeTypeID !== 4) {
+  //           changed = true;
+  //           return {
+  //             ...service,
+  //             isHidden: true,
+  //             isDisabled: true,
+  //             isSelected: false,
+  //           };
+  //         }
+  //       }
+  //       return service;
+  //     });
+  
+  //     return changed ? updateRecursiveVisibility(updated) : updated;
+  //   };
+  
+  //   // Apply it to each category
+  //   const updatedAll = props.oneOffServiceList.map(category => ({
+  //     ...category,
+  //     servicesList: updateRecursiveVisibility(category.servicesList)
+  //   }));
+  
+  //   props.setOneOffServiceList(updatedAll);
+  // }, [props.oneOffServiceList, props.setOneOffServiceList]);
+  
+  // const updateRecursiveVisibility = (services) => {
+  //   let updated = [...services];
+  //   let changed = false;
+
+  //   updated = updated.map(service => {
+  //     if (service.hasDependencies) {
+  //       const dependencyIds = Array.isArray(service.hasDependencies)
+  //         ? service.hasDependencies.map(Number)
+  //         : typeof service.hasDependencies === "string" && service.hasDependencies.trim().length > 0
+  //           ? service.hasDependencies.split(",").map(Number)
+  //           : [];
+
+  //       const someDepsSelected = dependencyIds.some(depId => {
+  //         const parent = updated.find(s => s.serviceID === depId);
+  //         return parent && parent.isSelected;
+  //       });
+
+  //       if (!someDepsSelected && !service.isHidden && service.serviceChargeTypeID !== 4) {
+  //         changed = true;
+  //         return {
+  //           ...service,
+  //           isHidden: true,
+  //           isDisabled: true,
+  //           isSelected: false,
+  //         };
+  //       }
+  //     }
+  //     return service;
+  //   });
+
+  //   return changed ? updateRecursiveVisibility(updated) : updated;
+  // };
+
+//   const updateRecursiveVisibility = (services, fullList) => {
+//   let updated = [...services];
+//   let changed = false;
+
+//   updated = updated.map((service) => {
+//     if (service.hasDependencies) {
+//       const dependencies = Array.isArray(service.hasDependencies)
+//         ? service.hasDependencies
+//         : typeof service.hasDependencies === "string" && service.hasDependencies.trim().length > 0
+//         ? service.hasDependencies.split(",").map(Number)
+//         : [];
+
+//       const someDepsSelected = dependencies.some((dep) => {
+//         if (typeof dep === "object" && dep.serviceID && dep.serviceCatID) {
+//           return fullList.find(
+//             (s) =>
+//               s.serviceID === dep.serviceID &&
+//               s.serviceCatID === dep.serviceCatID &&
+//               s.isSelected
+//           );
+//         }
+//         const parent = fullList.find((s) => s.serviceID === Number(dep));
+//         return parent && parent.isSelected;
+//       });
+
+//       if (!someDepsSelected && !service.isHidden && service.serviceChargeTypeID !== 4) {
+//         changed = true;
+//         return {
+//           ...service,
+//           isHidden: true,
+//           isDisabled: true,
+//           isSelected: false,
+//         };
+//       }
+
+//       if (someDepsSelected && service.isHidden) {
+//         changed = true;
+//         return {
+//           ...service,
+//           isHidden: false,
+//           isDisabled: false,
+//         };
+//       }
+//     }
+
+//     return service;
+//   });
+
+//   return changed ? updateRecursiveVisibility(updated, fullList) : updated;
+// };
+// const updateRecursiveVisibility = (services, fullList) => {
+  //   let changed = false;
+
+  //   const updated = services.map(service => {
+  //     if (
+  //       Array.isArray(service.hasDependencies) &&
+  //       service.hasDependencies.length > 0
+  //     ) {
+  //       const shouldShow = service.hasDependencies.some(dep => {
+  //         const match = fullList.find(s => {
+  //           const serviceMatch =
+  //             s.serviceID === dep.serviceID &&
+  //             s.serviceCatID === dep.serviceCatID &&
+  //             s.isSelected === true;
+
+  //           // console.log("---- Dependency Check ----");
+  //           // console.log("Looking for:", dep.serviceID, "in category", dep.serviceCatID);
+  //           // console.log("Checking against selected service:", s.serviceID, "in category", s.serviceCatID, "| isSelected:", s.isSelected);
+  //           // console.log("Match result:", serviceMatch);
+
+  //           return serviceMatch;
+  //         });
+
+  //         return !!match;
+  //       });
+
+  //       if (!shouldShow && !service.isHidden) {
+  //         // console.log("hide");
+  //         changed = true;
+  //         return {
+  //           ...service,
+  //           isHidden: true,
+  //           isDisabled: true,
+  //           isSelected: false,
+  //         };
+  //       } else if (shouldShow && service.isHidden) {
+  //         // console.log("show");
+  //         changed = true;
+  //         return {
+  //           ...service,
+  //           isHidden: false,
+  //           isDisabled: false,
+  //         };
+  //       }
+  //     }
+
+  //     return service;
+  //   });
+
+  //   return changed ? updateRecursiveVisibility(updated, fullList) : updated;
+  // };
+  const updateRecursiveVisibility = (services, fullList) => {
+    let changed = false;
+
+    const updated = services.map((service) => {
+      const hasDeps = Array.isArray(service.hasDependencies) && service.hasDependencies.length > 0;
+
+      if (hasDeps) {
+        // determine if any dependency parent is selected
+        const someDepsSelected = service.hasDependencies.some((dep) => {
+          if (dep && typeof dep === "object" && dep.serviceID != null && dep.serviceCatID != null) {
+            return fullList.some(
+              (s) =>
+                s.serviceID === dep.serviceID &&
+                s.serviceCatID === dep.serviceCatID &&
+                s.isSelected === true
+            );
+          }
+          const depId = Number(dep);
+          return Number.isFinite(depId) && fullList.some((s) => s.serviceID === depId && s.isSelected === true);
+        });
+
+        const nextHidden = !someDepsSelected;
+        const nextDisabled = !someDepsSelected;
+        const nextSelected = someDepsSelected
+          ? !!service.isSelected
+          : (service.isSelected ? service.isSelected : false);
+
+        // ALWAYS create a new service object with derived values
+        const newService = {
+          ...service,
+          isHidden: nextHidden,
+          isDisabled: nextDisabled,
+          isSelected: nextSelected,
+        };
+
+        // mark changed if anything differs (so recursion continues until stable)
+        if (
+          service.isHidden !== nextHidden ||
+          service.isDisabled !== nextDisabled ||
+          service.isSelected !== nextSelected
+        ) {
+          changed = true;
+        }
+
+        return newService;
+      }
+
+      // Independent service — always visible and enabled
+      const newService = { ...service, isHidden: false, isDisabled: false };
+      if (service.isHidden !== false || service.isDisabled !== false) changed = true;
+      return newService;
+    });
+
+    return changed ? updateRecursiveVisibility(updated, fullList) : updated;
+  };
+
+  const oneOffSignature = props.oneOffServiceList
+    ?.flatMap(c =>
+      c.servicesList.map(s =>
+        `${s.serviceID}-${s.serviceCatID}-${s.isSelected}-${s.isHidden}`
+      )
+    )
+    .join("|") || "";
+
+  const recurringSignature = props.recurringServiceList
+    ?.flatMap(c =>
+      c.servicesList.map(s =>
+        `${s.serviceID}-${s.serviceCatID}-${s.isSelected}-${s.isHidden}`
+      )
+    )
+    .join("|") || "";
+
+  useEffect(() => {
+    const list = props.oneOffServiceList || [];
+    const fullList = [
+      ...list.flatMap(c =>
+        c.servicesList.map(s => ({
+          ...s,
+          serviceCatID: c.serviceCatID,
+        }))
+      ),
+      ...(props.recurringServiceList || []).flatMap(c =>
+        c.servicesList.map(s => ({
+          ...s,
+          serviceCatID: c.serviceCatID,
+        }))
+      ),
+    ];
+
+    const updated = list.map(category => ({
+      ...category,
+      servicesList: updateRecursiveVisibility(category.servicesList, fullList),
+    }));
+
+    props.setOneOffServiceList(updated);
+  }, [
+   oneOffSignature,recurringSignature
+  ]);
+
+  useEffect(() => {
+    const list = props.recurringServiceList || [];
+    const fullList = [
+      ...list.flatMap(c =>
+        c.servicesList.map(s => ({
+          ...s,
+          serviceCatID: c.serviceCatID,
+        }))
+      ),
+      ...(props.oneOffServiceList || []).flatMap(c =>
+        c.servicesList.map(s => ({
+          ...s,
+          serviceCatID: c.serviceCatID,
+        }))
+      ),
+    ];
+
+    const updated = list.map(category => ({
+      ...category,
+      servicesList: updateRecursiveVisibility(category.servicesList, fullList),
+    }));
+
+    props.setRecurringServiceList(updated);
+  }, [
+    oneOffSignature,recurringSignature
+  ]);
 
   const handleRecurringServiceDependsServerClick = (
     recurringService,
@@ -79,8 +438,55 @@ export const SelectServices = (props) => {
                             isDefault: slab.slabID === id.value,
                           })),
                         };
-                      }
+                      } else if (pricingList.driverTypeID === 6 && pricingList.globalPricingDriverID === prevId.globalPricingDriverID) {
+                        const dateFormat = pricingList.date?.[0]?.dateFormat || "yyyy-MM-dd";
+                        const selectedDate = id instanceof Date ? id : parseStoredDate(id,dateFormat); // Support both raw Date or string
+                        // Detect which block the selected date belongs to
+                        const sortedDateBlocks = [...pricingList.date].sort((a, b) => {
+                          const aSpec = (a.fromDate ? 1 : 0) + (a.toDate ? 1 : 0);
+                          const bSpec = (b.fromDate ? 1 : 0) + (b.toDate ? 1 : 0);
+                          return bSpec - aSpec;
+                        });
 
+                        const selectedBlock = sortedDateBlocks.find(block => {
+                          const from = block.fromDate ? parseStoredDate(block.fromDate, dateFormat) : null;
+                          const to = block.toDate ? parseStoredDate(block.toDate, dateFormat) : null;
+                          return (!from || selectedDate >= from) && (!to || selectedDate <= to);
+                        });
+                        // console.log(selectedBlock.defaultDateValue);
+                          console.log(pricingList.date);
+                          console.log(selectedBlock);
+                        if (selectedBlock) {
+                          return {
+                            ...pricingList,
+                            driverVisibility: true,
+                            dateID: selectedBlock.dateID,
+                            driverValue: selectedBlock.dateValue ?? selectedBlock.defaultDateValue ?? null,
+                            enteredDate: format(selectedDate,selectedBlock.dateFormat),
+                            enteredDateFormat: selectedBlock.dateFormat,
+                            date: pricingList.date.map((block) => ({
+                              ...block,
+                              isDefault: block.dateID === selectedBlock.dateID ? true : false,
+                              enteredDate:
+                                block.dateID === selectedBlock.dateID
+                                  ? !block.fromDate && !block.toDate
+                                    ? "Default"
+                                    : block.fromDate && (!block.toDate || block.toDate === "")
+                                      ? `${block.fromDate} to Present`
+                                      : `${block.fromDate} to ${block.toDate}`
+                                  : block.enteredDate ?? "",
+                            })),
+                          };
+                        }
+                        
+                        // fallback if no block matched (maybe due to error)
+                        return {
+                          ...pricingList,
+                          dateID: null,
+                          driverValue: null,
+                          enteredDate: null,
+                        };
+                    }
                       if (pricingList.dependsOnVariationID === id.value) {
 
                         return {
@@ -164,6 +570,35 @@ export const SelectServices = (props) => {
                               : defaultSlab.slabValue;
                           driver.slabID = defaultSlab.slabID;
                         }
+                      }
+                      else if (driver.driverTypeID === 6 && driver.globalPricingDriverID === prevId.globalPricingDriverID) {
+                        const selectedDate = id instanceof Date ? id : parseStoredDate(id,driver?.date?.[0]?.dateFormat);
+                        const sortedBlocks = [...driver.date].sort((a, b) => {
+                          const aSpec = (a.fromDate ? 1 : 0) + (a.toDate ? 1 : 0);
+                          const bSpec = (b.fromDate ? 1 : 0) + (b.toDate ? 1 : 0);
+                          return bSpec - aSpec;
+                        });
+
+                        const selectedBlock = sortedBlocks.find((block) => {
+                          const from = block.fromDate ? parseStoredDate(block.fromDate, block.dateFormat) : null;
+                          const to = block.toDate ? parseStoredDate(block.toDate, block.dateFormat) : null;
+                          return (!from || selectedDate >= from) && (!to || selectedDate <= to);
+                        });
+                        if (selectedBlock) {
+                          driver.dateID = selectedBlock.dateID;
+                          driver.driverValue = selectedBlock.dateValue ? selectedBlock.dateValue : selectedBlock.defaultDateValue ? selectedBlock.defaultDateValue : null;
+                          driver.enteredDate = format(selectedDate,selectedBlock.dateFormat);
+                          driver.enteredDateFormat = selectedBlock.dateFormat;
+                          driver.date = driver.date.map((block) => ({
+                            ...block,
+                              isDefault: block.dateID === selectedBlock.dateID ? true : false,
+                            enteredDate:
+                              block.dateID === selectedBlock.dateID
+                                ? driver.enteredDate
+                                : block.enteredDate ?? "",
+                          }));
+                        }
+                        console.log(driver.driverValue);
                       }
                       // Check if dependsOnGlobalPricingDriverID and dependsOnVariationID are not null
                       if (
@@ -257,6 +692,54 @@ export const SelectServices = (props) => {
                           })),
                         };
                       }
+                      else if (pricingList.driverTypeID === 6 && pricingList.globalPricingDriverID === prevId.globalPricingDriverID) {
+                        const dateFormat = pricingList.date?.[0]?.dateFormat || "yyyy-MM-dd";
+                        const selectedDate = id instanceof Date ? id : parseStoredDate(id,dateFormat); // Support both raw Date or string
+                        console.log(selectedDate);
+                        // Detect which block the selected date belongs to
+                         const sortedDateBlocks = [...pricingList.date].sort((a, b) => {
+                          const aSpec = (a.fromDate ? 1 : 0) + (a.toDate ? 1 : 0);
+                          const bSpec = (b.fromDate ? 1 : 0) + (b.toDate ? 1 : 0);
+                          return bSpec - aSpec;
+                        });
+
+                        const selectedBlock = sortedDateBlocks.find(block => {
+                          const from = block.fromDate ? parseStoredDate(block.fromDate, dateFormat) : null;
+                          const to = block.toDate ? parseStoredDate(block.toDate, dateFormat) : null;
+                          return (!from || selectedDate >= from) && (!to || selectedDate <= to);
+                        });
+                        if (selectedBlock) {
+                          return {
+                            ...pricingList,
+                            driverVisibility: true,
+                            dateID: selectedBlock.dateID,
+                            driverValue: selectedBlock.dateValue ? selectedBlock.dateValue : selectedBlock.defaultDateValue ? selectedBlock.defaultDateValue : null,
+                            enteredDate: format(selectedDate,selectedBlock.dateFormat),
+                            enteredDateFormat: selectedBlock.dateFormat,
+                            date: pricingList.date.map((block) => ({
+                              ...block,
+                              isDefault: block.dateID == selectedBlock.dateID ? true : false,
+                              enteredDate:
+                                block.dateID === selectedBlock.dateID
+                                  ? !block.fromDate && !block.toDate
+                                    ? "Default"
+                                    : block.fromDate && (!block.toDate || block.toDate === "")
+                                      ? `${block.fromDate} to Present`
+                                      : `${block.fromDate} to ${block.toDate}`
+                                  : block.enteredDate ?? "",
+                            })),
+                          };
+                        }
+                      
+                        // fallback if no block matched (maybe due to error)
+                        return {
+                          ...pricingList,
+                          driverVisibility: false,
+                          dateID: null,
+                          driverValue: null,
+                          enteredDate: null,
+                        };
+                      }
 
                       if (pricingList.dependsOnVariationID === id.value) {
                         return {
@@ -337,6 +820,35 @@ export const SelectServices = (props) => {
                               : defaultSlab.slabValue;
                           driver.slabID = defaultSlab.slabID;
                         }
+                      }
+                       else if (driver.driverTypeID === 6 && driver.globalPricingDriverID === prevId.globalPricingDriverID) {
+                        const selectedDate = id instanceof Date ? id : parseStoredDate(id,driver?.date?.[0]?.dateFormat);
+                        const sortedBlocks = [...driver.date].sort((a, b) => {
+                          const aSpec = (a.fromDate ? 1 : 0) + (a.toDate ? 1 : 0);
+                          const bSpec = (b.fromDate ? 1 : 0) + (b.toDate ? 1 : 0);
+                          return bSpec - aSpec;
+                        });
+
+                        const selectedBlock = sortedBlocks.find((block) => {
+                          const from = block.fromDate ? parseStoredDate(block.fromDate, block.dateFormat) : null;
+                          const to = block.toDate ? parseStoredDate(block.toDate, block.dateFormat) : null;
+                          return (!from || selectedDate >= from) && (!to || selectedDate <= to);
+                        });
+                        if (selectedBlock) {
+                          driver.dateID = selectedBlock.dateID;
+                          driver.driverValue = selectedBlock.dateValue ? selectedBlock.dateValue : selectedBlock.defaultDateValue ? selectedBlock.defaultDateValue : null;
+                          driver.enteredDate = format(selectedDate,selectedBlock.dateFormat);
+                          driver.enteredDateFormat = selectedBlock.dateFormat;
+                          driver.date = driver.date.map((block) => ({
+                            ...block,
+                            isDefault: block.dateID == selectedBlock.dateID ? true : false,
+                            enteredDate:
+                              block.dateID === selectedBlock.dateID
+                                ? driver.enteredDate
+                                : block.enteredDate ?? "",
+                          }));
+                        }
+                        console.log(driver.enteredDate);
                       }
                       // Check if dependsOnGlobalPricingDriverID and dependsOnVariationID are not null
                       if (
@@ -509,7 +1021,8 @@ export const SelectServices = (props) => {
     subRecurringService,
     prevId,
     value,
-    Type
+    Type,
+    quantityDecimalPlaces
   ) => {
     props.DisableTabOnChange();
     // Ensure that the input only contains numeric characters
@@ -525,18 +1038,19 @@ export const SelectServices = (props) => {
       return;
     }
     let formattedInput;
+    const decimalPlaces = Number(quantityDecimalPlaces) ?? 0;
     if (decimalPart !== undefined) {
       if (integerPart.includes("-")) {
         // For negative values, ensure 5 digits after the negative sign
         formattedInput = `-${integerPart.slice(1, 13)}.${decimalPart.slice(
           0,
-          2
+          decimalPlaces
         )}`;
       } else {
         // For positive values, limit to 5 digits before the decimal point
         formattedInput = `${integerPart.slice(0, 12)}.${decimalPart.slice(
           0,
-          2
+          decimalPlaces
         )}`;
       }
     } else {
@@ -620,6 +1134,276 @@ export const SelectServices = (props) => {
         return category;
       });
       props.setOneOffServiceList(updatedRecurringList);
+    }
+  };
+
+  const OnTextValueChange = (
+    recurringService,
+    subRecurringService,
+    prevId,
+    value,
+    Type
+  ) => {
+    props.DisableTabOnChange();
+
+    const maxLength = prevId?.text?.[0]?.textLength || 100;
+    const allowed = (prevId?.text?.[0]?.allowedSpecialCharacters || "")
+      .split(",")
+      .map((c) => c.trim())
+      .filter(Boolean);
+
+    const escapeRegexChar = (char) =>
+      char.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&");
+
+    const allowedSpecialPattern = allowed.map(escapeRegexChar).join("");
+    const allowedRegex = new RegExp(`[^a-zA-Z0-9 ${allowedSpecialPattern}]`, "g");
+
+    const sanitized = value.replace(allowedRegex, "").slice(0, maxLength);
+
+    if (Type === "RecurringService") {
+      const updatedList = props.recurringServiceList?.map((category) => {
+        if (category?.serviceCatID === recurringService?.serviceCatID) {
+          return {
+            ...category,
+            servicesList: category.servicesList?.map((service) => {
+              if (service.serviceID === subRecurringService?.serviceID) {
+                return {
+                  ...service,
+                  pricingDriverList: service.pricingDriverList?.map((driver) => {
+                    if (
+                      driver.globalPricingDriverID ===
+                      prevId.globalPricingDriverID &&
+                      driver.driverTypeID === 5
+                    ) {
+                      return {
+                        ...driver,
+                        driverValue: sanitized === "" ? 0 : driver.text?.[0]?.textValue,
+                        enteredText: sanitized
+                      };
+                    }
+                    return driver;
+                  }),
+                };
+              }
+              return service;
+            }),
+          };
+        }
+        return category;
+      });
+      props.setRecurringServiceList(updatedList);
+    } else if (Type === "OneOffService") {
+      const updatedList = props.oneOffServiceList?.map((category) => {
+        if (category?.serviceCatID === recurringService?.serviceCatID) {
+          return {
+            ...category,
+            servicesList: category.servicesList?.map((service) => {
+              if (service.serviceID === subRecurringService?.serviceID) {
+                return {
+                  ...service,
+                  pricingDriverList: service.pricingDriverList?.map((driver) => {
+                    if (
+                      driver.globalPricingDriverID ===
+                      prevId.globalPricingDriverID &&
+                      driver.driverTypeID === 5
+                    ) {
+                      return {
+                        ...driver,
+                        driverValue: sanitized === "" ? 0 : driver.text?.[0]?.textValue,
+                        enteredText: sanitized
+                      };
+                    }
+                    return driver;
+                  }),
+                };
+              }
+              return service;
+            }),
+          };
+        }
+        return category;
+      });
+      props.setOneOffServiceList(updatedList);
+    }
+  };
+
+  const handleDateBoundaryChange = (value, driverItem, fieldType) => {
+    const updateServiceList = (list, setter) => {
+      const updatedList = list.map((cat) => ({
+        ...cat,
+        servicesList: cat.servicesList.map((service) => ({
+          ...service,
+          pricingDriverList: service.pricingDriverList.map((driver) => {
+            if (driver.globalPricingDriverID === driverItem.globalPricingDriverID) {
+              return {
+                ...driver,
+                driverValue: driver.date?.[0]?.dateValue ?? null,
+                enteredDate: value,
+                date: [
+                  {
+                    ...driver.date?.[0],
+                  },
+                ],
+              };
+            }
+            return driver;
+          }),
+        })),
+      }));
+      setter(updatedList);
+    };
+
+    updateServiceList(props.recurringServiceList, props.setRecurringServiceList);
+    updateServiceList(props.oneOffServiceList, props.setOneOffServiceList);
+  };
+
+  const getMinDate = (blocks, formatStr) => {
+    if (!blocks?.length) return null;
+    const firstBlock = blocks[0];
+    const fromDate = firstBlock.fromDate
+      ? parseStoredDate(firstBlock.fromDate, formatStr)
+      : null;
+    return fromDate instanceof Date && !isNaN(fromDate) ? fromDate : null;
+  };
+
+  const getMaxDate = (blocks, formatStr) => {
+    if (!blocks?.length) return null;
+    const lastBlock = blocks[blocks.length - 1];
+    const toDate = lastBlock.toDate
+      ? parseStoredDate(lastBlock.toDate, formatStr)
+      : null;
+    return toDate instanceof Date && !isNaN(toDate) ? toDate : null;
+  };
+
+  const getMatchingBlock = (date, blocks, formatStr) => {
+    return blocks.find(block => {
+      const from = block.fromDate ? parseStoredDate(block.fromDate, formatStr) : null;
+      const to = block.toDate ? parseStoredDate(block.toDate, formatStr) : null;
+
+      return (!from || date >= from) && (!to || date <= to);
+    });
+  };
+
+  const parseStoredDate = (dateStr, formatStr) => {
+    if (!dateStr) return null;
+    try {
+      // Try the specified format first
+      if (formatStr) {
+        return parse(dateStr, formatStr, new Date());
+      }
+      // Fallback to ISO format
+      return parse(dateStr, 'yyyy-MM-dd', new Date());
+    } catch (err) {
+      console.error("Invalid date string:", dateStr, "with format:", formatStr);
+      return null;
+    }
+  };
+
+  const convertToInputValue = (formattedDate, dateFormat = "dd/MM/yyyy") => {
+    if (!formattedDate) return "";
+
+    const separator = dateFormat.includes("/") ? "/" : "-";
+    const formatParts = dateFormat.split(separator); // e.g. ["dd", "MM", "yyyy"]
+    const dateParts = formattedDate.split(separator); // e.g. ["16", "05", "2025"]
+
+    if (formatParts.length !== 3 || dateParts.length !== 3) return "";
+
+    let day, month, year;
+
+    formatParts.forEach((part, index) => {
+      switch (part) {
+        case "dd":
+          day = dateParts[index];
+          break;
+        case "MM":
+          month = dateParts[index];
+          break;
+        case "yyyy":
+          year = dateParts[index];
+          break;
+        // You can extend for other tokens if needed
+      }
+    });
+
+    if (!year || !month || !day) return "";
+
+    return `${year.padStart(4, "0")}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+  };
+  
+// Function to update date value in the lists, similar to your OnTextValueChange
+  const OnDateValueChange = (
+    recurringService,
+    subRecurringService,
+    prevId,
+    value,
+    Type,
+    dateFormat
+  ) => {
+    props.DisableTabOnChange();
+
+    // Simply update dateValue as the raw input string, no parsing or validation
+    if (Type === "RecurringService") {
+      const updatedList = props.recurringServiceList?.map((category) => {
+        if (category?.serviceCatID === recurringService?.serviceCatID) {
+          return {
+            ...category,
+            servicesList: category.servicesList?.map((service) => {
+              if (service.serviceID === subRecurringService?.serviceID) {
+                return {
+                  ...service,
+                  pricingDriverList: service.pricingDriverList?.map((driver) => {
+                    if (
+                      driver.globalPricingDriverID === prevId.globalPricingDriverID &&
+                      driver.driverTypeID === 6 // date type
+                    ) {
+                      return {
+                        ...driver,
+                        driverValue: driver?.date?.[0]?.dateValue,
+                        enteredDate: dateFormat
+                      };
+                    }
+                    return driver;
+                  }),
+                };
+              }
+              return service;
+            }),
+          };
+        }
+        return category;
+      });
+      props.setRecurringServiceList(updatedList);
+    } else if (Type === "OneOffService") {
+      const updatedList = props.oneOffServiceList?.map((category) => {
+        if (category?.serviceCatID === recurringService?.serviceCatID) {
+          return {
+            ...category,
+            servicesList: category.servicesList?.map((service) => {
+              if (service.serviceID === subRecurringService?.serviceID) {
+                return {
+                  ...service,
+                  pricingDriverList: service.pricingDriverList?.map((driver) => {
+                    if (
+                      driver.globalPricingDriverID === prevId.globalPricingDriverID &&
+                      driver.driverTypeID === 6
+                    ) {
+                      return {
+                        ...driver,
+                        driverValue: driver?.date?.[0]?.dateValue,
+                        enteredDate: dateFormat
+                      };
+                    }
+                    return driver;
+                  }),
+                };
+              }
+              return service;
+            }),
+          };
+        }
+        return category;
+      });
+      props.setOneOffServiceList(updatedList);
     }
   };
 
@@ -827,6 +1611,8 @@ export const SelectServices = (props) => {
                             (subRecurringService, index) => {
                               return (
                                 <tr>
+                                  {subRecurringService?.isHidden ? null : (
+                                    <>
                                   <td>
                                     <div
                                       class="select-row align-center"
@@ -908,6 +1694,9 @@ export const SelectServices = (props) => {
                                       subRecurringService?.isSelected &&
                                       subRecurringService?.pricingDriverList.map(
                                         (i) => {
+                                          const isMandatory = i.date?.some(
+                                            (block) => block.dateValue != null || block.defaultDateValue != null
+                                          );
                                           return (
                                             <div
                                               style={{
@@ -1085,7 +1874,8 @@ export const SelectServices = (props) => {
                                                           subRecurringService,
                                                           i,
                                                           e.target.value,
-                                                          "RecurringService"
+                                                          "RecurringService",
+                                                          i.quantity?.[0]?.quantityDecimalPlaces ?? 0
                                                         );
                                                       }}
                                                       className="input-text"
@@ -1105,7 +1895,291 @@ export const SelectServices = (props) => {
                                                           {ERROR_MESSAGES}
                                                         </label>
                                                       )}
+                                                      {props.requireMessage && i?.driverValue && (() => {
+                                                    const driverValue = Number(i.driverValue);
+                                                    const quantityDetails = i.quantity?.[0];
+                                                    if (!quantityDetails) {
+                                                      return null;
+                                                    }
+                                                    const { quantityFrom, quantityTo, quantityDecimalPlaces = 0 } = quantityDetails;
+
+                                                    const parseAndValidateValue = (value) => {
+                                                      if (value === null || value === undefined || value === "") {
+                                                        return { exists: false, numValue: NaN };
+                                                      }
+                                                      const num = Number(value);
+                                                      return { exists: !isNaN(num), numValue: num };
+                                                    };
+                                                    const { exists: hasFrom, numValue: fromNum } = parseAndValidateValue(quantityFrom);
+                                                    const { exists: hasTo, numValue: toNum } = parseAndValidateValue(quantityTo);
+
+                                                    let showError = false;
+                                                    let message = "";
+
+                                                    if (hasFrom && hasTo) {
+                                                      if (driverValue < fromNum || driverValue > toNum) {
+                                                        showError = true;
+                                                        message = `Value must be between ${fromNum.toFixed(quantityDecimalPlaces)} and ${toNum.toFixed(quantityDecimalPlaces)}`;
+                                                      }
+                                                    } else if (hasFrom) {
+                                                      if (driverValue < fromNum) {
+                                                        showError = true;
+                                                        message = `Value must be greater than or equal to ${fromNum.toFixed(quantityDecimalPlaces)}`;
+                                                      }
+                                                    } else if (hasTo) {
+                                                      if (driverValue > toNum) {
+                                                        showError = true;
+                                                        message = `Value must be less than or equal to ${toNum.toFixed(quantityDecimalPlaces)}`;
+                                                      }
+                                                    }
+                                                    if (!showError) {
+                                                      return null;
+                                                    }
+
+                                                    return <label className="text-danger">{message}</label>;
+                                                  })()}
                                                   </div>
+                                                )}
+                                                {i?.driverTypeID === 5 &&
+                                              i?.driverVisibility && (
+                                                <div
+                                                  style={{
+                                                    display: "flex",
+                                                    flexDirection: "column",
+                                                  }}
+                                                  id={`SelectServiceText_${i.driverName}`}
+                                                >
+                                                  <label className="mt-2">
+                                                    <strong>
+                                                      {isMobile ? (
+                                                        <>
+                                                          {i?.driverName
+                                                            .substring(0, 10)
+                                                            .replace(
+                                                              /\b\w/g,
+                                                              (l) =>
+                                                                l.toUpperCase()
+                                                            ) + "..."}
+                                                        </>
+                                                      ) : (
+                                                        <>
+                                                          {i?.driverName
+                                                            .length > 38 ? (
+                                                            <Tooltip
+                                                              title={
+                                                                i?.driverName
+                                                              }
+                                                            >
+                                                              {i?.driverName
+                                                                .substring(
+                                                                  0,
+                                                                  38
+                                                                )
+                                                                .replace(
+                                                                  /\b\w/g,
+                                                                  (l) =>
+                                                                    l.toUpperCase()
+                                                                ) + "..."}
+                                                            </Tooltip>
+                                                          ) : (
+                                                            <>
+                                                              {i?.driverName
+                                                                .replace(
+                                                                  /\b\w/g,
+                                                                  (l) =>
+                                                                    l.toUpperCase()
+                                                                )}
+                                                            </>
+                                                          )}
+                                                        </>
+                                                      )}
+                                                    </strong>
+                                                    {i?.text?.[0]?.textValue !== null &&
+                                                      <span className="text-danger">
+                                                      *
+                                                    </span>
+                                                    }
+                                                  </label>
+                                                  <input
+                                                    type="text"
+                                                    value={i?.enteredText || null}
+                                                    onBeforeInput={(e) => {
+                                                      const char = e.data;
+                                                      if (!char) return;
+                                                  
+                                                      // Get allowed special characters from comma-separated string
+                                                      const allowed = (i?.text?.[0]?.allowedSpecialCharacters || "")
+                                                        .split(",")
+                                                        .map((c) => c.trim())
+                                                        .filter(Boolean);
+                                                  
+                                                      const isAlphanumeric = /^[a-zA-Z0-9 ]$/.test(char);
+                                                      const isAllowedSpecial = allowed.includes(char);
+                                                  
+                                                      if (!isAlphanumeric && !isAllowedSpecial) {
+                                                        e.preventDefault(); // Block disallowed characters
+                                                      }
+                                                    }}
+                                                    onChange={(e) => {
+                                                      const rawInput = e.target.value;
+                                                      const maxLength = i?.text?.[0]?.textLength || 100;
+                                                  
+                                                      // Allowed special characters from string
+                                                      const allowed = (i?.text?.[0]?.allowedSpecialCharacters || "")
+                                                        .split(",")
+                                                        .map((c) => c.trim())
+                                                        .filter(Boolean);
+                                                  
+                                                      // Escape special characters for regex
+                                                      const escapeRegexChar = (char) =>
+                                                        char.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&");
+                                                  
+                                                      const allowedSpecialPattern = allowed.map(escapeRegexChar).join("");
+                                                  
+                                                      // Allow only alphanumeric + space + allowed special characters
+                                                      const allowedRegex = new RegExp(`[^a-zA-Z0-9 ${allowedSpecialPattern}]`, "g");
+                                                  
+                                                      const sanitized = rawInput.replace(allowedRegex, "").slice(0, maxLength);
+                                                  
+                                                      OnTextValueChange(
+                                                        recurringService,
+                                                        subRecurringService,
+                                                        i,
+                                                        sanitized,
+                                                        "RecurringService"
+                                                      );
+                                                    }}
+                                                    className="input-text"
+                                                    placeholder={i?.driverName}
+                                                    maxLength={i?.text?.[0]?.textLength || 100}
+                                                  />
+                                                
+                                                  {props.requireMessage && i?.text?.[0]?.textValue !== null && 1?.text?.[0]?.textValue !== 0 &&
+                                                    (!i?.enteredText ||
+                                                      i?.enteredText === "" ||
+                                                      i?.enteredText === null ||
+                                                      i?.enteredText === undefined) &&
+                                                    i?.driverTypeID === 5 && (
+                                                      <label className="text-danger">
+                                                        {ERROR_MESSAGES}
+                                                      </label>
+                                                    )}
+                                                </div>
+                                              )}
+                                              {i?.driverTypeID === 6 &&
+                                                i?.driverVisibility && (
+                                                  <>
+                                                  <div
+                                                  style={{
+                                                    display: "flex",
+                                                    flexDirection: "column",
+                                                  }}
+                                                  id={`SelectServiceDate_${i.driverName}`}
+                                                >
+                                                  <label className="mt-2">
+                                                    <strong>
+                                                      {isMobile ? (
+                                                        <>
+                                                          {i?.driverName
+                                                            .substring(0, 10)
+                                                            .replace(
+                                                              /\b\w/g,
+                                                              (l) =>
+                                                                l.toUpperCase()
+                                                            ) + "..."}
+                                                        </>
+                                                      ) : (
+                                                        <>
+                                                          {i?.driverName
+                                                            .length > 38 ? (
+                                                            <Tooltip
+                                                              title={
+                                                                i?.driverName
+                                                              }
+                                                            >
+                                                              {i?.driverName
+                                                                .substring(
+                                                                  0,
+                                                                  38
+                                                                )
+                                                                .replace(
+                                                                  /\b\w/g,
+                                                                  (l) =>
+                                                                    l.toUpperCase()
+                                                                ) + "..."}
+                                                            </Tooltip>
+                                                          ) : (
+                                                            <>
+                                                              {i?.driverName
+                                                                .replace(
+                                                                  /\b\w/g,
+                                                                  (l) =>
+                                                                    l.toUpperCase()
+                                                                )}
+                                                            </>
+                                                          )}
+                                                        </>
+                                                      )}
+                                                    </strong>
+                                                    {isMandatory && <span className="text-danger">*</span>}
+                                                    </label>
+                                                    <DatePicker
+                                                      className="input-text"
+                                                      selected={
+                                                        i.enteredDate ? (() => {
+                                                          const userDate = convertAndParseDate(
+                                                            i.enteredDate,
+                                                            i.enteredDateFormat,
+                                                            i.date?.[0]?.dateFormat
+                                                          );
+                                                      
+                                                          const matchingDateBlock = getMatchingBlock(
+                                                            userDate,
+                                                            i.date,
+                                                            i.date?.[0]?.dateFormat
+                                                          );
+                                                      
+                                                          if (matchingDateBlock) {
+                                                            i.driverValue = matchingDateBlock.dateValue ?? matchingDateBlock.defaultDateValue;
+                                                            i.dateID = matchingDateBlock.dateID;
+                                                          }
+                                                      
+                                                          return userDate;
+                                                        })() : (() => {
+                                                          i.driverValue = null;
+                                                          i.dateID = null;
+                                                          return null;
+                                                        })()
+                                                      }
+                                                      onChange={(date) => {
+                                                        i.enteredDate = format(date,i.date?.[0]?.dateFormat);
+
+                                                        const block = getMatchingBlock(date, i.date,i.date?.[0]?.dateFormat);
+                                                        if (block) {
+                                                          i.driverValue = block.dateValue ?? block.defaultDateValue;
+                                                          i.dateID = block.dateID;
+                                                        }
+
+                                                        handleRecurringServiceDependsServerClick(
+                                                          recurringService,
+                                                          subRecurringService,
+                                                          date, 
+                                                          i,
+                                                          "RecurringService"
+                                                        );
+                                                      }}
+                                                      dateFormat={i.date?.[0]?.dateFormat}
+                                                      minDate={getMinDate(i.date, i.date?.[0]?.dateFormat)}
+                                                      maxDate={getMaxDate(i.date, i.date?.[0]?.dateFormat)}
+                                                      placeholderText="Select a valid date"
+                                                      showMonthDropdown
+                                                      dropdownMode="select"
+                                                    />
+                                                    </div>
+                                                  {props.requireMessage && isMandatory && (typeof i.enteredDate !== 'string' || i.enteredDate.trim() === '') && (
+                                                    <label className="text-danger">{ERROR_MESSAGES}</label>
+                                                  )}
+                                                  </>
                                                 )}
                                               {i?.driverTypeID === 4 &&
                                                 i?.driverVisibility && (
@@ -1165,52 +2239,59 @@ export const SelectServices = (props) => {
                                                         *
                                                       </span>
                                                     </label>
-                                                    <Select
-                                                      options={i.slab.map(
-                                                        (i) => ({
-                                                          value: i.slabID,
+                                                     <Select
+                                                      // options={i.slab.map(
+                                                      //   (i) => ({
+                                                      //     value: i.slabID,
+                                                      //     label:
+                                                      //       i.slabTypeID === 2
+                                                      //         ? "Other"
+                                                      //         : `${i.slabFrom
+                                                      //           .toString()
+                                                      //           .replace(
+                                                      //             /\B(?=(\d{3})+(?!\d))/g,
+                                                      //             ","
+                                                      //           )} - ${i.slabTo
+                                                      //             .toString()
+                                                      //             .replace(
+                                                      //               /\B(?=(\d{3})+(?!\d))/g,
+                                                      //               ","
+                                                      //             )}`,
+                                                      //     variationValue:
+                                                      //       i.slabValue,
+                                                      //   })
+                                                      // )}
+                                                      options={i.slab.map((slab) => {
+                                                        const decimalPlaces = slab.decimalPlaces ?? 0;
+                                                        return {
+                                                          value: slab.slabID,
                                                           label:
-                                                            i.slabTypeID === 2
+                                                            slab.slabTypeID === 2
                                                               ? "Other"
-                                                              : `${i.slabFrom
-                                                                .toString()
-                                                                .replace(
-                                                                  /\B(?=(\d{3})+(?!\d))/g,
-                                                                  ","
-                                                                )} - ${i.slabTo
-                                                                  .toString()
-                                                                  .replace(
-                                                                    /\B(?=(\d{3})+(?!\d))/g,
-                                                                    ","
-                                                                  )}`,
-                                                          variationValue:
-                                                            i.slabValue,
-                                                        })
-                                                      )}
+                                                              : `${Number(slab.slabFrom).toFixed(decimalPlaces)
+                                                                .replace(/\B(?=(\d{3})+(?!\d))/g, ",")} - ${Number(slab.slabTo)
+                                                                  .toFixed(decimalPlaces)
+                                                                  .replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`,
+                                                          variationValue: slab.slabValue,
+                                                        };
+                                                      })}
                                                       // value={slabSelectedRecValue}
                                                       value={i?.slab
-                                                        ?.filter(
-                                                          (slab) =>
-                                                            slab.isDefault ===
-                                                            true
-                                                        )
-                                                        .map((i) => ({
-                                                          value: i.slabID,
-                                                          label:
-                                                            i.slabTypeID === 2
-                                                              ? "Other"
-                                                              : `${i.slabFrom
-                                                                .toString()
-                                                                .replace(
-                                                                  /\B(?=(\d{3})+(?!\d))/g,
-                                                                  ","
-                                                                )} - ${i.slabTo
-                                                                  .toString()
-                                                                  .replace(
-                                                                    /\B(?=(\d{3})+(?!\d))/g,
-                                                                    ","
-                                                                  )}`,
-                                                        }))}
+                                                        ?.filter((slab) => slab.isDefault === true)
+                                                        .map((slab) => {
+                                                          const decimalPlaces = slab.decimalPlaces ?? 0;
+                                                          return {
+                                                            value: slab.slabID,
+                                                            label:
+                                                              slab.slabTypeID === 2
+                                                                ? "Other"
+                                                                : `${Number(slab.slabFrom)
+                                                                  .toFixed(decimalPlaces)
+                                                                  .replace(/\B(?=(\d{3})+(?!\d))/g, ",")} -
+                                                                   ${Number(slab.slabTo)
+                                                                    .toFixed(decimalPlaces).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`,
+                                                          };
+                                                        })}
                                                       onChange={(
                                                         selectOption
                                                       ) =>
@@ -1275,6 +2356,8 @@ export const SelectServices = (props) => {
                                         }
                                       )}
                                   </td>
+                                  </>
+                                  )}
                                 </tr>
                               );
                             }
@@ -1331,6 +2414,7 @@ export const SelectServices = (props) => {
                             (subOneOff, index) => {
                               return (
                                 <tr>
+                                  {subOneOff?.isHidden ? null : (
                                   <td>
                                     <div class="select-row align-center">
                                       <input
@@ -1399,6 +2483,9 @@ export const SelectServices = (props) => {
                                     {subOneOff?.pricingDriverList.length >= 1 &&
                                       subOneOff?.isSelected &&
                                       subOneOff?.pricingDriverList.map((i) => {
+                                        const isMandatory = i.date?.some(
+                                          (block) => block.dateValue != null || block.defaultDateValue != null
+                                        );
                                         return (
                                           <div
                                             style={{
@@ -1500,6 +2587,248 @@ export const SelectServices = (props) => {
                                                     )}
                                                 </div>
                                               )}
+                                              {i?.driverTypeID === 5 &&
+                                              i?.driverVisibility && (
+                                                <div
+                                                  style={{
+                                                    display: "flex",
+                                                    flexDirection: "column",
+                                                  }}
+                                                  id={`SelectServiceText_${i.driverName}`}
+                                                >
+                                                  <label className="mt-2">
+                                                    <strong>
+                                                      {isMobile ? (
+                                                        <>
+                                                          {i?.driverName
+                                                            .substring(0, 10)
+                                                            .replace(
+                                                              /\b\w/g,
+                                                              (l) =>
+                                                                l.toUpperCase()
+                                                            ) + "..."}
+                                                        </>
+                                                      ) : (
+                                                        <>
+                                                          {i?.driverName
+                                                            .length > 38 ? (
+                                                            <Tooltip
+                                                              title={
+                                                                i?.driverName
+                                                              }
+                                                            >
+                                                              {i?.driverName
+                                                                .substring(
+                                                                  0,
+                                                                  38
+                                                                )
+                                                                .replace(
+                                                                  /\b\w/g,
+                                                                  (l) =>
+                                                                    l.toUpperCase()
+                                                                ) + "..."}
+                                                            </Tooltip>
+                                                          ) : (
+                                                            <>
+                                                              {i?.driverName
+                                                                .replace(
+                                                                  /\b\w/g,
+                                                                  (l) =>
+                                                                    l.toUpperCase()
+                                                                )}
+                                                            </>
+                                                          )}
+                                                        </>
+                                                      )}
+                                                    </strong>
+                                                    {i?.text?.[0]?.textValue !== null &&
+                                                      <span className="text-danger">
+                                                      *
+                                                    </span>
+                                                    }
+                                                  </label>
+                                                  <input
+                                                    type="text"
+                                                    value={i?.enteredText || null}
+                                                    onBeforeInput={(e) => {
+                                                      const char = e.data;
+                                                      if (!char) return;
+                                                  
+                                                      // Get allowed special characters from comma-separated string
+                                                      const allowed = (i?.text?.[0]?.allowedSpecialCharacters || "")
+                                                        .split(",")
+                                                        .map((c) => c.trim())
+                                                        .filter(Boolean);
+                                                  
+                                                      const isAlphanumeric = /^[a-zA-Z0-9 ]$/.test(char);
+                                                      const isAllowedSpecial = allowed.includes(char);
+                                                  
+                                                      if (!isAlphanumeric && !isAllowedSpecial) {
+                                                        e.preventDefault(); // Block disallowed characters
+                                                      }
+                                                    }}
+                                                    onChange={(e) => {
+                                                      const rawInput = e.target.value;
+                                                      const maxLength = i?.text?.[0]?.textLength || 100;
+                                                  
+                                                      // Allowed special characters from string
+                                                      const allowed = (i?.text?.[0]?.allowedSpecialCharacters || "")
+                                                        .split(",")
+                                                        .map((c) => c.trim())
+                                                        .filter(Boolean);
+                                                  
+                                                      // Escape special characters for regex
+                                                      const escapeRegexChar = (char) =>
+                                                        char.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&");
+                                                  
+                                                      const allowedSpecialPattern = allowed.map(escapeRegexChar).join("");
+                                                  
+                                                      // Allow only alphanumeric + space + allowed special characters
+                                                      const allowedRegex = new RegExp(`[^a-zA-Z0-9 ${allowedSpecialPattern}]`, "g");
+                                                  
+                                                      const sanitized = rawInput.replace(allowedRegex, "").slice(0, maxLength);
+                                                  
+                                                      OnTextValueChange(
+                                                        oneOffService,
+                                                        subOneOff,
+                                                        i,
+                                                        sanitized,
+                                                        "OneOffService"
+                                                      );
+                                                    }}
+                                                    className="input-text"
+                                                    placeholder={i?.driverName}
+                                                    maxLength={i?.text?.[0]?.textLength || 100}
+                                                  />
+                                                
+                                                  {props.requireMessage && i?.text?.[0]?.textValue !== null &&
+                                                    (!i?.enteredText ||
+                                                      i?.enteredText === "" ||
+                                                      i?.enteredText === null ||
+                                                      i?.enteredText === undefined) &&
+                                                    i?.driverTypeID === 5 && (
+                                                      <label className="text-danger">
+                                                        {ERROR_MESSAGES}
+                                                      </label>
+                                                    )}
+                                                </div>
+                                              )}
+                                              {i?.driverTypeID === 6 &&
+                                                i?.driverVisibility && (
+                                                  <>
+                                                  <div
+                                                  style={{
+                                                    display: "flex",
+                                                    flexDirection: "column",
+                                                  }}
+                                                  id={`SelectServiceText_${i.driverName}`}
+                                                >
+                                                  <label className="mt-2">
+                                                    <strong>
+                                                      {isMobile ? (
+                                                        <>
+                                                          {i?.driverName
+                                                            .substring(0, 10)
+                                                            .replace(
+                                                              /\b\w/g,
+                                                              (l) =>
+                                                                l.toUpperCase()
+                                                            ) + "..."}
+                                                        </>
+                                                      ) : (
+                                                        <>
+                                                          {i?.driverName
+                                                            .length > 38 ? (
+                                                            <Tooltip
+                                                              title={
+                                                                i?.driverName
+                                                              }
+                                                            >
+                                                              {i?.driverName
+                                                                .substring(
+                                                                  0,
+                                                                  38
+                                                                )
+                                                                .replace(
+                                                                  /\b\w/g,
+                                                                  (l) =>
+                                                                    l.toUpperCase()
+                                                                ) + "..."}
+                                                            </Tooltip>
+                                                          ) : (
+                                                            <>
+                                                              {i?.driverName
+                                                                .replace(
+                                                                  /\b\w/g,
+                                                                  (l) =>
+                                                                    l.toUpperCase()
+                                                                )}
+                                                            </>
+                                                          )}
+                                                        </>
+                                                      )}
+                                                    </strong>
+                                                    {isMandatory && <span className="text-danger">*</span>}
+                                                    </label>
+                                                    <DatePicker
+                                                      className="input-text"
+                                                      selected={
+                                                        i.enteredDate ? (() => {
+                                                          const userDate = convertAndParseDate(
+                                                            i.enteredDate,
+                                                            i.enteredDateFormat,
+                                                            i.date?.[0]?.dateFormat
+                                                          );
+                                                      
+                                                          const matchingDateBlock = getMatchingBlock(
+                                                            userDate,
+                                                            i.date,
+                                                            i.date?.[0]?.dateFormat
+                                                          );
+                                                      
+                                                          if (matchingDateBlock) {
+                                                            i.driverValue = matchingDateBlock.dateValue ?? matchingDateBlock.defaultDateValue;
+                                                            i.dateID = matchingDateBlock.dateID;
+                                                          }
+                                                      
+                                                          return userDate;
+                                                        })() : null
+                                                      }
+                                                      onChange={(date) => {
+                                                        if (date && i.date?.[0]?.dateFormat) {
+                                                          i.enteredDate = format(date, i.date[0].dateFormat);
+                                                        } else {
+                                                          i.enteredDate = null;
+                                                        }
+
+                                                        const block = getMatchingBlock(date, i.date,i.date?.[0]?.dateFormat);
+                                                        if (block) {
+                                                          i.driverValue = block.dateValue ?? block.defaultDateValue;
+                                                          i.dateID = block.dateID;
+                                                        }
+
+                                                        handleRecurringServiceDependsServerClick(
+                                                          oneOffService,
+                                                          subOneOff,
+                                                          date, 
+                                                          i,
+                                                          "OneOffService"
+                                                        );
+                                                      }}
+                                                      dateFormat={i.date?.[0]?.dateFormat}
+                                                      minDate={getMinDate(i.date, i.date?.[0]?.dateFormat)}
+                                                      maxDate={getMaxDate(i.date, i.date?.[0]?.dateFormat)}
+                                                      placeholderText="Select a valid date"
+                                                      showMonthDropdown
+                                                      showYearDropdown
+                                                      dropdownMode="select"
+                                                    />
+                                                    </div>
+                                                  {props.requireMessage && isMandatory && (typeof i.enteredDate !== 'string' || i.enteredDate.trim() === '') && (
+                                                    <label className="text-danger">{ERROR_MESSAGES}</label>
+                                                  )}
+                                                  </>
+                                                )}
                                             {i?.driverTypeID === 2 &&
                                               i?.driverVisibility && (
                                                 <div
@@ -1572,7 +2901,8 @@ export const SelectServices = (props) => {
                                                         subOneOff,
                                                         i,
                                                         e.target.value,
-                                                        "OneOffService"
+                                                        "OneOffService",
+                                                        i.quantity?.[0]?.quantityDecimalPlaces ?? 0
                                                       );
                                                     }}
                                                     className="input-text"
@@ -1588,6 +2918,49 @@ export const SelectServices = (props) => {
                                                         {ERROR_MESSAGES}
                                                       </label>
                                                     )}
+                                                    {props.requireMessage && i?.driverValue && (() => {
+                                                  const driverValue = Number(i.driverValue);
+                                                  const quantityDetails = i.quantity?.[0];
+                                                  if (!quantityDetails) {
+                                                    return null;
+                                                  }
+                                                  const { quantityFrom, quantityTo, quantityDecimalPlaces = 0 } = quantityDetails;
+
+                                                  const parseAndValidateValue = (value) => {
+                                                    if (value === null || value === undefined || value === "") {
+                                                      return { exists: false, numValue: NaN };
+                                                    }
+                                                    const num = Number(value);
+                                                    return { exists: !isNaN(num), numValue: num };
+                                                  };
+                                                  const { exists: hasFrom, numValue: fromNum } = parseAndValidateValue(quantityFrom);
+                                                  const { exists: hasTo, numValue: toNum } = parseAndValidateValue(quantityTo);
+
+                                                  let showError = false;
+                                                  let message = "";
+
+                                                  if (hasFrom && hasTo) {
+                                                    if (driverValue < fromNum || driverValue > toNum) {
+                                                      showError = true;
+                                                      message = `Value must be between ${fromNum.toFixed(quantityDecimalPlaces)} and ${toNum.toFixed(quantityDecimalPlaces)}`;
+                                                    }
+                                                  } else if (hasFrom) {
+                                                    if (driverValue < fromNum) {
+                                                      showError = true;
+                                                      message = `Value must be greater than or equal to ${fromNum.toFixed(quantityDecimalPlaces)}`;
+                                                    }
+                                                  } else if (hasTo) {
+                                                    if (driverValue > toNum) {
+                                                      showError = true;
+                                                      message = `Value must be less than or equal to ${toNum.toFixed(quantityDecimalPlaces)}`;
+                                                    }
+                                                  }
+                                                  if (!showError) {
+                                                    return null;
+                                                  }
+
+                                                  return <label className="text-danger">{message}</label>;
+                                                })()}
                                                 </div>
                                               )}
 
@@ -1650,51 +3023,78 @@ export const SelectServices = (props) => {
                                                     </span>
                                                   </label>
                                                   <Select
-                                                    options={i.slab.map(
-                                                      (i) => ({
-                                                        value: i.slabID,
+                                                    // options={i.slab.map(
+                                                    //   (i) => ({
+                                                    //     value: i.slabID,
+                                                    //     label:
+                                                    //       i.slabTypeID === 2
+                                                    //         ? "Other"
+                                                    //         : `${i.slabFrom
+                                                    //           .toString()
+                                                    //           .replace(
+                                                    //             /\B(?=(\d{3})+(?!\d))/g,
+                                                    //             ","
+                                                    //           )} - ${i.slabTo
+                                                    //             .toString()
+                                                    //             .replace(
+                                                    //               /\B(?=(\d{3})+(?!\d))/g,
+                                                    //               ","
+                                                    //             )}`,
+                                                    //     variationValue:
+                                                    //       i.slabValue,
+                                                    //   })
+                                                    // )}
+                                                    options={i.slab.map((slab) => {
+                                                      const decimalPlaces = slab.decimalPlaces ?? 0;
+                                                      return {
+                                                        value: slab.slabID,
                                                         label:
-                                                          i.slabTypeID === 2
+                                                          slab.slabTypeID === 2
                                                             ? "Other"
-                                                            : `${i.slabFrom
-                                                              .toString()
-                                                              .replace(
-                                                                /\B(?=(\d{3})+(?!\d))/g,
-                                                                ","
-                                                              )} - ${i.slabTo
-                                                                .toString()
-                                                                .replace(
-                                                                  /\B(?=(\d{3})+(?!\d))/g,
-                                                                  ","
-                                                                )}`,
-                                                        variationValue:
-                                                          i.slabValue,
-                                                      })
-                                                    )}
+                                                            : `${Number(slab.slabFrom).toFixed(decimalPlaces).replace(/\B(?=(\d{3})+(?!\d))/g, ",")} - ${Number(slab.slabTo).toFixed(decimalPlaces).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`,
+                                                        variationValue: slab.slabValue,
+                                                      };
+                                                    })}
                                                     // value={slabSelectedRecValue}
+                                                    // value={i?.slab
+                                                    //   ?.filter(
+                                                    //     (slab) =>
+                                                    //       slab.isDefault ===
+                                                    //       true
+                                                    //   )
+                                                    //   .map((i) => ({
+                                                    //     value: i.slabID,
+                                                    //     label:
+                                                    //       i.slabTypeID === 2
+                                                    //         ? "Other"
+                                                    //         : `${i.slabFrom
+                                                    //           .toString()
+                                                    //           .replace(
+                                                    //             /\B(?=(\d{3})+(?!\d))/g,
+                                                    //             ","
+                                                    //           )} - ${i.slabTo
+                                                    //             .toString()
+                                                    //             .replace(
+                                                    //               /\B(?=(\d{3})+(?!\d))/g,
+                                                    //               ","
+                                                    //             )}`,
+                                                    //   }))}
                                                     value={i?.slab
-                                                      ?.filter(
-                                                        (slab) =>
-                                                          slab.isDefault ===
-                                                          true
-                                                      )
-                                                      .map((i) => ({
-                                                        value: i.slabID,
-                                                        label:
-                                                          i.slabTypeID === 2
-                                                            ? "Other"
-                                                            : `${i.slabFrom
-                                                              .toString()
-                                                              .replace(
-                                                                /\B(?=(\d{3})+(?!\d))/g,
-                                                                ","
-                                                              )} - ${i.slabTo
-                                                                .toString()
-                                                                .replace(
-                                                                  /\B(?=(\d{3})+(?!\d))/g,
-                                                                  ","
-                                                                )}`,
-                                                      }))}
+                                                      ?.filter((slab) => slab.isDefault === true)
+                                                      .map((slab) => {
+                                                        const decimalPlaces = slab.decimalPlaces ?? 0;
+                                                        return {
+                                                          value: slab.slabID,
+                                                          label:
+                                                            slab.slabTypeID === 2
+                                                              ? "Other"
+                                                              : `${Number(slab.slabFrom).
+                                                                toFixed(decimalPlaces).
+                                                                replace(/\B(?=(\d{3})+(?!\d))/g, ",")} - 
+                                                                ${Number(slab.slabTo)
+                                                                  .toFixed(decimalPlaces).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`,
+                                                        };
+                                                      })}
                                                     onChange={(selectOption) =>
                                                       handleRecurringServiceDependsServerClick(
                                                         oneOffService,
@@ -1753,6 +3153,7 @@ export const SelectServices = (props) => {
                                         );
                                       })}
                                   </td>
+                                  )}
                                 </tr>
                               );
                             }
