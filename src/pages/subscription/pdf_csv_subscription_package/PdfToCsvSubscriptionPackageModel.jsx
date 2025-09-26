@@ -152,17 +152,17 @@ function PdfToCsvSubscriptionPackageModel(props) {
     } else {
       setRequireErrorMessage(""); // Clear the error message if there are no errors.
     }
-    if (
-      subscriptionPackageObj.packageDiscountedPrice === undefined ||
-      subscriptionPackageObj.packageDiscountedPrice === "" ||
-      subscriptionPackageObj.packageDiscountedPrice === null
-    ) {
-      scrollUpDownByElementID("discountedPrice");
-      setRequireErrorMessage(true);
-      return false; // Return false or handle your error logic here if needed.
-    } else {
-      setRequireErrorMessage(""); // Clear the error message if there are no errors.
-    }
+    // if (
+    //   subscriptionPackageObj.packageDiscountedPrice === undefined ||
+    //   subscriptionPackageObj.packageDiscountedPrice === "" ||
+    //   subscriptionPackageObj.packageDiscountedPrice === null
+    // ) {
+    //   scrollUpDownByElementID("discountedPrice");
+    //   setRequireErrorMessage(true);
+    //   return false;
+    // } else {
+    //   setRequireErrorMessage("");
+    // }
     if (
       subscriptionPackageObj.validityID === undefined ||
       subscriptionPackageObj.validityID === "" ||
@@ -220,9 +220,7 @@ function PdfToCsvSubscriptionPackageModel(props) {
       packageName: subscriptionPackageObj.packageName,
       validityID: subscriptionPackageObj.validityID,
       price: parseNumber(subscriptionPackageObj.packagePrice),
-      discountedPrice: parseNumber(
-        subscriptionPackageObj.packageDiscountedPrice
-      ),
+      discountedPrice: parseNumber(subscriptionPackageObj.packagePrice),
       pages: parseInteger(subscriptionPackageObj.pages),
       months:
         subscriptionPackageObj.validityID === 1
@@ -406,46 +404,6 @@ function PdfToCsvSubscriptionPackageModel(props) {
                         Package Parameters
                       </label>
                       <div class="row" id="validity">
-                        <div
-                          class="col-2 text-right"
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            paddingBottom: "10px",
-                          }}
-                        >
-                          <label
-                            htmlFor="serviceCategoryNameField"
-                            class="fieldset-label required"
-                          >
-                            Validity<span className="text-danger">*</span>
-                          </label>
-                        </div>
-                        <div class="col-4" style={{ paddingBottom: "10px" }}>
-                          <div className="input-group new-user-select">
-                            <DropDown
-                              className="phone-input-country-code selectDropDown Drop-down-width"
-                              options={PdfToCsvValidityList}
-                              value={PdfToCsvValidityList.find(
-                                (item) =>
-                                  item.value ===
-                                  subscriptionPackageObj.validityID
-                              )}
-                              onChange={handleSelectChange}
-                            />
-                            {requireErrorMessage &&
-                            (subscriptionPackageObj.validityID === "" ||
-                              subscriptionPackageObj.validityID === undefined ||
-                              subscriptionPackageObj.validityID === null) ? (
-                              <label className="validation">
-                                {ERROR_MESSAGES}
-                              </label>
-                            ) : (
-                              ""
-                            )}
-                          </div>
-                        </div>
                         {/* Pages */}
                         <div
                           className="col-2"
@@ -455,10 +413,17 @@ function PdfToCsvSubscriptionPackageModel(props) {
                             justifyContent: "center",
                           }}
                         >
-                          <label className="text-center">
-                            Pages
-                            <span className="text-danger">*</span>
-                          </label>
+                          {PdfToCsvValidityList.value === 1 ? (
+                            <label className="text-center">
+                              Monthly Pages
+                              <span className="text-danger">*</span>
+                            </label>
+                          ) : (
+                            <label className="text-center">
+                              Pages
+                              <span className="text-danger">*</span>
+                            </label>
+                          )}
                         </div>
                         <div className="col-4 ">
                           <input
@@ -521,8 +486,114 @@ function PdfToCsvSubscriptionPackageModel(props) {
                             ""
                           )}
                         </div>
+                        <div
+                          class="col-2 text-right"
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            paddingBottom: "10px",
+                          }}
+                        >
+                          <label
+                            htmlFor="serviceCategoryNameField"
+                            class="fieldset-label required"
+                          >
+                            Validity<span className="text-danger">*</span>
+                          </label>
+                        </div>
+                        <div class="col-4" style={{ paddingBottom: "10px" }}>
+                          <div className="input-group new-user-select">
+                            <DropDown
+                              className="phone-input-country-code selectDropDown Drop-down-width"
+                              options={PdfToCsvValidityList}
+                              value={PdfToCsvValidityList.find(
+                                (item) =>
+                                  item.value ===
+                                  subscriptionPackageObj.validityID
+                              )}
+                              onChange={handleSelectChange}
+                            />
+                            {requireErrorMessage &&
+                            (subscriptionPackageObj.validityID === "" ||
+                              subscriptionPackageObj.validityID === undefined ||
+                              subscriptionPackageObj.validityID === null) ? (
+                              <label className="validation">
+                                {ERROR_MESSAGES}
+                              </label>
+                            ) : (
+                              ""
+                            )}
+                          </div>
+                        </div>
                       </div>
                       <div className="row" id="discountedPrice">
+                        {/* Months */}
+                        {subscriptionPackageObj.validityID === 1 && (
+                          <>
+                            <div
+                              className="col-2"
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                              }}
+                            >
+                              <label className="text-center">
+                                Months
+                                <span className="text-danger">*</span>
+                              </label>
+                            </div>
+                            <div className="col-4 ">
+                              <input
+                                type="text"
+                                className="input-text"
+                                placeholder="Months"
+                                value={
+                                  subscriptionPackageObj?.months
+                                    ? subscriptionPackageObj?.months
+                                    : null
+                                }
+                                onChange={(e) => {
+                                  setErrorMessage("");
+                                  let inputValue = e.target.value;
+
+                                  // Remove non-digit characters
+                                  inputValue = inputValue.replace(/[^\d]/g, "");
+
+                                  // Convert to number to validate the range
+                                  const numericValue = parseInt(inputValue, 10);
+
+                                  // Allow clearing or valid month (1–12)
+                                  if (
+                                    inputValue === "" ||
+                                    (!isNaN(numericValue) &&
+                                      numericValue >= 1 &&
+                                      numericValue <= 12)
+                                  ) {
+                                    setSubscriptionPackageObj({
+                                      ...subscriptionPackageObj,
+                                      months: inputValue, // Keep the user input as string
+                                    });
+                                  }
+                                }}
+                              />
+
+                              {requireErrorMessage &&
+                              subscriptionPackageObj.validityID === 1 &&
+                              (subscriptionPackageObj.months === "" ||
+                                subscriptionPackageObj.months === undefined ||
+                                subscriptionPackageObj.months === null) ? (
+                                <label className="validation">
+                                  {ERROR_MESSAGES}
+                                </label>
+                              ) : (
+                                ""
+                              )}
+                            </div>
+                          </>
+                        )}
+
                         {/* Price */}
                         <div
                           className="col-2"
@@ -604,7 +675,7 @@ function PdfToCsvSubscriptionPackageModel(props) {
                           )}
                         </div>
                         {/* Discounted price */}
-                        <div
+                        {/* <div
                           className="col-2"
                           style={{
                             display: "flex",
@@ -686,11 +757,11 @@ function PdfToCsvSubscriptionPackageModel(props) {
                           ) : (
                             ""
                           )}
-                        </div>
+                        </div> */}
                       </div>
 
                       {/* Months */}
-                      {subscriptionPackageObj.validityID === 1 && (
+                      {/* {subscriptionPackageObj.validityID === 1 && (
                         <div className="row mb-2" id="months">
                           <div
                             className="col-2"
@@ -753,7 +824,7 @@ function PdfToCsvSubscriptionPackageModel(props) {
                             )}
                           </div>
                         </div>
-                      )}
+                      )} */}
                     </div>
                   </div>
                 </div>

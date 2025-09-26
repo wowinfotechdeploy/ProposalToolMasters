@@ -3,7 +3,9 @@ import BackButtonSvg from "../../../components/BackButtonSvg";
 import { useNavigate } from "react-router-dom";
 import { Card, CardBody, Col, Row } from "reactstrap";
 import { AuthContextProvider } from "../../../AuthContext/AuthContext";
-import { Select } from "@mui/material";
+import { Tooltip } from "@mui/material";
+import Select from "react-select";
+import dayjs from "dayjs";
 import axios from "axios";
 import {
   ChoosePlanApi,
@@ -13,6 +15,8 @@ import {
   BuyPDFToCSVPlan,
   ChoosePDFToCSVPlanApi,
   getPreviouslyConvertedList,
+  GetSubscriptionHistoryAPI,
+  remainingPageCountAPI,
   uploadPdfForConversion,
 } from "../../../redux/Services/PDFToCSVAPI/PDFToCSVAPI";
 import { useSelector } from "react-redux";
@@ -23,22 +27,43 @@ import NoSubscriptionModal from "../../../components/NoSubscriptionModal";
 import * as pdfjsLib from "pdfjs-dist";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { GetOrganisationLookupList } from "../../../redux/Services/Master/OrganisationLookupList";
+import { CalenderFilterEnum, PDFToCSVToggle } from "../../../Middleware/enums";
+import Utils from "../../../Middleware/Utils";
+import DatePicker from "react-date-picker";
+import CurruptedFileFormate from "../../../components/CurruptedFileFormate";
 
 function PdfToCsvConvertorModel(props) {
   const [pdfFile, setPdfFile] = useState(null);
   const [csvData, setCsvData] = useState(null);
   const [hasSubcription, setHasSubcription] = useState(true);
+  const [toggleID, setToggleID] = useState(1);
   const [convertablePageCount, setConvertablePageCount] = useState(10);
   const [previouslyConvertedFiles, setPreviouslyConvertedFiles] = useState([]);
+  const [pdfToCSVSubscriptionHistory, setPDFToCSVSubscriptionHistory] =
+    useState([]);
   const [totalRecords, setTotalRecords] = useState(-1);
+  const [totalMontlyRemainingPages, setTotalMontlyRemainingPages] = useState(0);
+  const [totalOneOffRemainingPages, setTotalOneOffRemainingPages] = useState(0);
   const [currentPage, setCurrentPage] = useState(0);
   const [pagesInUploadedPDF, setPagesInUploadedPDF] = useState(null);
   const [enoughPages, setEnoughPages] = useState(true);
   const [openSuccessModal, setOpenSuccessModal] = useState(false);
   const [openNosubscriptionModal, setOpenNosubscriptionModal] = useState(false);
+  const [openCurruptedFileModal, setOpenCurruptedFileModal] = useState(false);
   const [remainingCount, setRemainingCount] = useState(null);
+  const [totalPagesUsed, setTotalPagesUsed] = useState(null);
   const [visibleCount, setVisibleCount] = useState(10);
   const [pagesPackages, setPagesPackages] = useState([]);
+  const [selectedOption, setSelectedOption] = useState(Utils.CalenderFilter[0]);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [fromDateForFilter, setFromDateForFilter] = useState(null);
+  const [toDateForFilter, setToDateForFilter] = useState(null);
+
+  const [pdfToCSVSubscriptionStatus, setPDFToCSVSubscriptionStatus] =
+    useState(null); // Basically tells us if the user ever purchased the pages package or they ran out of the pages.
+
+  const [fromDate, setFromDate] = useState(dayjs());
+  const [toDate, setToDate] = useState(dayjs().add(0, "day"));
   const {
     setLoader,
     EngagementName,
@@ -51,6 +76,7 @@ function PdfToCsvConvertorModel(props) {
     isMobileRecords,
     desktopRecords,
     setTopbar,
+    GetCustomDate,
   } = useContext(AuthContextProvider);
   //   const [convertedFiles, setConvertedFiles] = useState([]);
   const [isConverting, setIsConverting] = useState(false);
@@ -87,15 +113,19 @@ function PdfToCsvConvertorModel(props) {
   // }, [enoughPages]);
 
   useEffect(() => {
+    RemainingPageCount(common.organisationKeyID);
     GetPreviouslyConvertedFilesList();
   }, [conversionCompleted]);
+
+  useEffect(() => {
+    GetSubscriptionHistory(common.organisationKeyID);
+  }, []);
 
   const setInitialData = () => {
     setPdfFile(null);
   };
 
   const OrganisationLookupList = async () => {
-    debugger;
     try {
       const res = await GetOrganisationLookupList(common.userKeyID);
       if (res?.data?.statusCode === 200) {
@@ -105,7 +135,11 @@ function PdfToCsvConvertorModel(props) {
             (item) => item.organisationKeyID === common.organisationKeyID
           );
           setRemainingCount(
-            CurrentOrganisation.subscriptionPlan.remaningPDFtoCSVPages
+            CurrentOrganisation.subscriptionPlan
+              .availablePages_SubscriptionPackage
+          );
+          setPDFToCSVSubscriptionStatus(
+            CurrentOrganisation.subscriptionPlan.enablePdfToCsv
           );
         }
       }
@@ -158,13 +192,12 @@ function PdfToCsvConvertorModel(props) {
   };
 
   const handleConvert = async () => {
-    debugger;
     if (!pdfFile) {
       setError("No file selected.");
       return;
     }
     setLoader(true);
-
+    setConversionCompleted(false);
     setIsConverting(true);
     setError("");
 
@@ -184,6 +217,8 @@ function PdfToCsvConvertorModel(props) {
         setOpenSuccessModal(true);
 
         console.log(res);
+      } else {
+        setOpenCurruptedFileModal(true);
       }
     } catch (error) {
       setLoader(false);
@@ -191,7 +226,8 @@ function PdfToCsvConvertorModel(props) {
     }
   };
 
-  const GetPreviouslyConvertedFilesList = async () => {
+  const GetPreviouslyConvertedFilesList = async (startDate, endDate) => {
+    // debugger;
     setLoader(true);
     // const pageNoList = i - 1;
     try {
@@ -201,12 +237,20 @@ function PdfToCsvConvertorModel(props) {
         organisationKeyID: common.organisationKeyID,
         searchKeyword: null,
         userKeyID: common.userKeyID,
-        fromDate: null,
-        toDate: null,
+        fromDate: startDate ? dayjs(startDate).format("YYYY-MM-DD") : null,
+        toDate: endDate ? dayjs(endDate).format("YYYY-MM-DD") : null,
       });
       if (res.status === 200) {
         setLoader(false);
         const listData = res.data.responseData.data;
+        const totalConsumed = listData.reduce(
+          (sum, item) => sum + item.pagesProcessed,
+          0
+        );
+
+        setTotalPagesUsed(totalConsumed);
+        // setTotalMontlyRemainingPages(res.data.remainingMainPackagePages);
+        // setTotalOneOffRemainingPages(res.data.remainingTopupPackagePages);
 
         // if (pageNo > 0 && listData.length === 0) {
         //   let newPaneNo = Number(pageNoList);
@@ -291,7 +335,6 @@ function PdfToCsvConvertorModel(props) {
   };
 
   const BuyPlanData = async (i, pcspKeyID) => {
-    debugger;
     setLoader(true);
     try {
       const data = await BuyPDFToCSVPlan({
@@ -316,6 +359,44 @@ function PdfToCsvConvertorModel(props) {
 
         // setOpenSuccessModal(true); // Open success modal upon successful purchase
         // Additional logic if needed
+      } else {
+        setLoader(false);
+        setErrorMessage(data?.data?.errorMessage);
+      }
+    } catch (error) {
+      setLoader(false);
+      console.log(error);
+    }
+  };
+
+  const RemainingPageCount = async (organisationKeyID) => {
+    setLoader(true);
+    // debugger;
+    try {
+      const res = await remainingPageCountAPI(organisationKeyID);
+      if (res.status === 200) {
+        setLoader(false);
+        const counts = res.data.responseData.data;
+
+        setTotalMontlyRemainingPages(counts.remainingMainPackagePages);
+        setTotalOneOffRemainingPages(counts.remainingTopupPackagePages);
+      }
+    } catch (error) {
+      setLoader(false);
+      console.log(error);
+    }
+  };
+
+  const GetSubscriptionHistory = async (organisationKeyID) => {
+    // debugger;
+    setLoader(true);
+    try {
+      const data = await GetSubscriptionHistoryAPI(organisationKeyID);
+
+      if (data && data?.data?.statusCode === 200) {
+        setLoader(false);
+
+        setPDFToCSVSubscriptionHistory(data.data.responseData.data);
       } else {
         setLoader(false);
         setErrorMessage(data?.data?.errorMessage);
@@ -447,6 +528,7 @@ function PdfToCsvConvertorModel(props) {
   const upgradeBtnClicked = () => {
     setOpenNosubscriptionModal(false);
     setHasSubcription(false);
+    setToggleID(PDFToCSVToggle.Upgrade);
   };
 
   const handleButtonClick = async (i, pcspKeyID) => {
@@ -468,10 +550,266 @@ function PdfToCsvConvertorModel(props) {
     setVisibleCount((prev) => prev + 10);
   };
 
+  const subScriptionPlanList = [
+    {
+      email: "john.doe@example.com",
+      mobileNumber: "Package_test",
+      packageName: "Basic Plan",
+      packagePrice: 999,
+      subscriptionStartDate: "2025-01-01",
+      // nextRenewalDate: "2026-01-01",
+      // finalBillingAmount: 999,
+      // paymentStatus: "Paid",
+      // hostedInvoiceUrl: "https://example.com/invoice/john",
+      subscriptionStatus: "Active",
+    },
+    {
+      email: "jane.smith@example.com",
+      mobileNumber: "Package1",
+      packageName: "Standard Plan",
+      packagePrice: 1999,
+      subscriptionStartDate: "2024-07-01",
+      // nextRenewalDate: "2025-07-01",
+      // finalBillingAmount: 1999,
+      // paymentStatus: "Unpaid",
+      // hostedInvoiceUrl: null,
+      subscriptionStatus: "Pending",
+    },
+    {
+      email: "alex.johnson@example.com",
+      mobileNumber: "Page_Package",
+      packageName: "Premium Plan",
+      packagePrice: 2999,
+      subscriptionStartDate: null,
+      // nextRenewalDate: null,
+      // finalBillingAmount: 0,
+      // paymentStatus: "Free",
+      // hostedInvoiceUrl: null,
+      subscriptionStatus: "InActive",
+    },
+    {
+      email: "maria.garcia@example.com",
+      mobileNumber: "Page Package test",
+      packageName: "Enterprise Plan",
+      packagePrice: 4999,
+      subscriptionStartDate: "2024-05-15",
+      // nextRenewalDate: "2025-05-15",
+      // finalBillingAmount: 4999,
+      // paymentStatus: "Paid",
+      // hostedInvoiceUrl: "https://example.com/invoice/maria",
+      subscriptionStatus: "Expired",
+    },
+    {
+      email: "david.lee@example.com",
+      mobileNumber: "test package",
+      packageName: "Startup Plan",
+      packagePrice: 1499,
+      subscriptionStartDate: "2025-03-10",
+      // nextRenewalDate: "2026-03-10",
+      // finalBillingAmount: 1499,
+      // paymentStatus: "Unpaid",
+      // hostedInvoiceUrl: null,
+      subscriptionStatus: "Active",
+    },
+  ];
+
+  const formatWithCommas = (value) => {
+    return new Intl.NumberFormat("en-GB", {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 1,
+    }).format(value);
+  };
+
+  const handleCalenderFilterChange = (selectedOption) => {
+    const dateFormat = "mm-dd-yyyy";
+    setSelectedOption(selectedOption);
+    switch (selectedOption.value) {
+      case CalenderFilterEnum.All:
+        GetPreviouslyConvertedFilesList(null, null);
+        setShowDatePicker(false);
+        break;
+      case CalenderFilterEnum.This_Week:
+        setFromDateForFilter(
+          GetCustomDate(dateFormat, CalenderFilterEnum.This_Week).fromDate
+        );
+        setToDateForFilter(
+          GetCustomDate(dateFormat, CalenderFilterEnum.This_Week).toDate
+        );
+
+        GetPreviouslyConvertedFilesList(
+          GetCustomDate(dateFormat, CalenderFilterEnum.This_Week).fromDate,
+          GetCustomDate(dateFormat, CalenderFilterEnum.This_Week).toDate
+        );
+        setShowDatePicker(false);
+        break;
+      case CalenderFilterEnum.Last_Week:
+        setFromDateForFilter(
+          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Week).fromDate
+        );
+        setToDateForFilter(
+          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Week).toDate
+        );
+        GetPreviouslyConvertedFilesList(
+          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Week).fromDate,
+          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Week).toDate
+        );
+        setShowDatePicker(false);
+        break;
+      case CalenderFilterEnum.This_Month:
+        setFromDateForFilter(
+          GetCustomDate(dateFormat, CalenderFilterEnum.This_Month).fromDate
+        );
+        setToDateForFilter(
+          GetCustomDate(dateFormat, CalenderFilterEnum.This_Month).toDate
+        );
+        GetPreviouslyConvertedFilesList(
+          GetCustomDate(dateFormat, CalenderFilterEnum.This_Month).fromDate,
+          GetCustomDate(dateFormat, CalenderFilterEnum.This_Month).toDate
+        );
+        setShowDatePicker(false);
+        break;
+      case CalenderFilterEnum.Last_Month:
+        setFromDateForFilter(
+          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Month).fromDate
+        );
+        setToDateForFilter(
+          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Month).toDate
+        );
+        GetPreviouslyConvertedFilesList(
+          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Month).fromDate,
+          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Month).toDate
+        );
+        setShowDatePicker(false);
+        break;
+      case CalenderFilterEnum.This_Quarter:
+        setFromDateForFilter(
+          GetCustomDate(dateFormat, CalenderFilterEnum.This_Quarter).fromDate
+        );
+        setToDateForFilter(
+          GetCustomDate(dateFormat, CalenderFilterEnum.This_Quarter).toDate
+        );
+        GetPreviouslyConvertedFilesList(
+          GetCustomDate(dateFormat, CalenderFilterEnum.This_Quarter).fromDate,
+          GetCustomDate(dateFormat, CalenderFilterEnum.This_Quarter).toDate
+        );
+        setShowDatePicker(false);
+        break;
+      case CalenderFilterEnum.Last_Quarter:
+        setFromDateForFilter(
+          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Quarter).fromDate
+        );
+        setToDateForFilter(
+          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Quarter).toDate
+        );
+        GetPreviouslyConvertedFilesList(
+          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Quarter).fromDate,
+          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Quarter).toDate
+        );
+        setShowDatePicker(false);
+        break;
+      case CalenderFilterEnum.This_6_Months:
+        setFromDateForFilter(
+          GetCustomDate(dateFormat, CalenderFilterEnum.This_6_Months).fromDate
+        );
+        setToDateForFilter(
+          GetCustomDate(dateFormat, CalenderFilterEnum.This_6_Months).toDate
+        );
+        GetPreviouslyConvertedFilesList(
+          GetCustomDate(dateFormat, CalenderFilterEnum.This_6_Months).fromDate,
+          GetCustomDate(dateFormat, CalenderFilterEnum.This_6_Months).toDate
+        );
+        setShowDatePicker(false);
+        break;
+      case CalenderFilterEnum.Last_6_Months:
+        setFromDateForFilter(
+          GetCustomDate(dateFormat, CalenderFilterEnum.Last_6_Months).fromDate
+        );
+        setToDateForFilter(
+          GetCustomDate(dateFormat, CalenderFilterEnum.Last_6_Months).toDate
+        );
+        GetPreviouslyConvertedFilesList(
+          GetCustomDate(dateFormat, CalenderFilterEnum.Last_6_Months).fromDate,
+          GetCustomDate(dateFormat, CalenderFilterEnum.Last_6_Months).toDate
+        );
+        setShowDatePicker(false);
+        break;
+      case CalenderFilterEnum.This_Year:
+        setFromDateForFilter(
+          GetCustomDate(dateFormat, CalenderFilterEnum.This_Year).fromDate
+        );
+        setToDateForFilter(
+          GetCustomDate(dateFormat, CalenderFilterEnum.This_Year).toDate
+        );
+        GetPreviouslyConvertedFilesList(
+          GetCustomDate(dateFormat, CalenderFilterEnum.This_Year).fromDate,
+          GetCustomDate(dateFormat, CalenderFilterEnum.This_Year).toDate
+        );
+        setShowDatePicker(false);
+        break;
+      case CalenderFilterEnum.Last_Year:
+        const dates = GetCustomDate(dateFormat, selectedOption.value);
+        setFromDateForFilter(dates.fromDate);
+        setToDateForFilter(dates.toDate);
+        GetPreviouslyConvertedFilesList(dates.fromDate, dates.toDate);
+        setShowDatePicker(false);
+        setFromDateForFilter(
+          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Year).fromDate
+        );
+        setToDateForFilter(
+          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Year).toDate
+        );
+        GetPreviouslyConvertedFilesList(
+          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Year).fromDate,
+          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Year).toDate
+        );
+        setShowDatePicker(false);
+        break;
+      case CalenderFilterEnum.Custom_Date_Range:
+        setShowDatePicker(true);
+        // Handle custom date range selection, if needed
+        break;
+      default:
+        // Handle default case
+        break;
+    }
+    // GetPreviouslyConvertedFilesList(fromDate, toDate);
+  };
+
+  const handleFromDateChange = (newValue) => {
+    if (dayjs(newValue).isValid()) {
+      const newFromDate = dayjs(newValue);
+      setFromDate(newFromDate);
+      setFromDateForFilter(newFromDate);
+      // setFromDateForExport(newFromDate);
+      if (newFromDate.isAfter(toDate)) {
+        const newToDate = newFromDate.add(1, "day");
+        setToDate(newToDate);
+        setToDateForFilter(newToDate);
+        // setToDateForExport(newToDate);
+      }
+      // DashboardCountData(newFromDate, toDate);
+    }
+  };
+  const handleToDateChange = (newValue) => {
+    if (dayjs(newValue).isValid()) {
+      const newToDate = dayjs(newValue);
+      setToDate(newToDate);
+      setToDateForFilter(newToDate);
+      // setToDateForExport(newToDate);
+      if (newToDate.isBefore(fromDate)) {
+        const newFromDate = newToDate.subtract(1, "day");
+        setFromDate(newFromDate);
+        setFromDateForFilter(newFromDate);
+        // setFromDateForExport(newFromDate);
+      }
+      // DashboardCountData(fromDate, newToDate);
+    }
+  };
+
   return (
     <div style={{ marginTop: "110px" }}>
       <div className="container-fluid new-item-page-container mt-4">
-        {hasSubcription ? (
+        {toggleID === PDFToCSVToggle.Convertor ? (
           <div className="new-item-page-content">
             <div className="row form-row">
               <div className="col-lg-12">
@@ -484,16 +822,28 @@ function PdfToCsvConvertorModel(props) {
                 >
                   <h3 className="modal-title">
                     <BackButtonSvg onClick={() => navigate("/")} />
-                    Convert PDF To CSV File
+                    PDF To CSV
                   </h3>
-                  <button
-                    className="btn btn-md btn-success create-item-btn"
-                    onClick={() => setHasSubcription(false)}
-                    // disabled={isConverting}
-                  >
-                    {/* <i className="bi bi-plus-circle "></i> */}
-                    Upgrade
-                  </button>
+                  <div className="d-flex gap-3">
+                    <button
+                      className="btn btn-md btn-success create-item-btn"
+                      onClick={() => setToggleID(PDFToCSVToggle.MySubscription)}
+                      // onClick={() => setHasSubcription(false)}
+                      // disabled={isConverting}
+                    >
+                      {/* <i className="bi bi-plus-circle "></i> */}
+                      PDF To CSV Subscription
+                    </button>
+                    <button
+                      className="btn btn-md btn-success create-item-btn"
+                      onClick={() => setToggleID(PDFToCSVToggle.Upgrade)}
+                      // onClick={() => setHasSubcription(false)}
+                      // disabled={isConverting}
+                    >
+                      {/* <i className="bi bi-plus-circle "></i> */}
+                      Upgrade
+                    </button>
+                  </div>
                 </div>
                 <div className="separator mb-3" />
 
@@ -545,14 +895,64 @@ function PdfToCsvConvertorModel(props) {
                 <hr />
 
                 {/* Previously Converted Files Table */}
-                {previouslyConvertedFiles.length > 0 && (
-                  <div className="mt-4">
-                    <div className="d-flex align-items-center justify-content-between">
-                      <h5 className="mb-1">Previously Converted Files</h5>
-                      <h6 className="mb-1">
-                        Total Remaining Pages: {remainingCount}
-                      </h6>
-                    </div>
+                <div className="mt-4">
+                  <div className="d-flex align-items-center justify-content-between">
+                    <h5 className="mb-1">Previously Converted Files</h5>
+
+                    <h6 className="mb-1">Total Pages Used: {totalPagesUsed}</h6>
+                  </div>
+                  <div className="d-flex align-items-center justify-content-between mt-2">
+                    <Select
+                      className="user-role-select phone-input-country-code"
+                      options={Utils.CalenderFilter}
+                      value={selectedOption}
+                      onChange={(selectedOption) =>
+                        handleCalenderFilterChange(selectedOption)
+                      }
+                      styles={{
+                        container: (provided) => ({
+                          ...provided,
+                          width: "240px", // 👈 custom width
+                        }),
+                      }}
+                    />
+                    {showDatePicker && (
+                      <>
+                        <div className="col-lg-2 col-md-5 col-sm-5 mt-1">
+                          <DatePicker
+                            label="From Date"
+                            value={fromDate.toDate()} // Convert to JavaScript Date object
+                            maxDate={toDate.subtract(0, "day").toDate()} // Convert to JavaScript Date object
+                            onChange={handleFromDateChange}
+                            renderInput={(params) => (
+                              <input {...params.inputProps} />
+                            )}
+                            popperPlacement="bottom-start"
+                          />
+                        </div>
+                        <div className="col-lg-2 col-md-5 col-sm-5 mt-1">
+                          <DatePicker
+                            label="To Date"
+                            value={toDate.toDate()} // Convert to JavaScript Date object
+                            minDate={fromDate.toDate()} // Convert to JavaScript Date object
+                            maxDate={dayjs().toDate()} // Convert to JavaScript Date object
+                            onChange={handleToDateChange}
+                            renderInput={(params) => (
+                              <input {...params.inputProps} />
+                            )}
+                            popperPlacement="bottom-start"
+                          />
+                        </div>
+                      </>
+                    )}
+                    <h6 className="mb-1">
+                      Remaining Monthly Pages: {totalMontlyRemainingPages}
+                    </h6>
+                    <h6 className="mb-1">
+                      Remaining One-off Pages: {totalOneOffRemainingPages}
+                    </h6>
+                  </div>
+                  {previouslyConvertedFiles.length > 0 && (
                     <div
                       className="table-responsive"
                       style={{ marginTop: "30px" }}
@@ -563,6 +963,7 @@ function PdfToCsvConvertorModel(props) {
                             <th className="text-white">Sr No.</th>
                             <th className="text-white">PDF File</th>
                             <th className="text-white">CSV File</th>
+                            <th className="text-white">Pages Converted</th>
                             <th className="text-white">Converted On</th>
                           </tr>
                         </thead>
@@ -579,7 +980,7 @@ function PdfToCsvConvertorModel(props) {
                                     target="_blank"
                                     rel="noopener noreferrer"
                                   >
-                                    Uploaded PDF File
+                                    {file.pdfFileName}
                                   </a>
                                 </td>
 
@@ -589,9 +990,13 @@ function PdfToCsvConvertorModel(props) {
                                     target="_blank"
                                     rel="noopener noreferrer"
                                   >
-                                    Converted CSV File
+                                    {file?.pdfFileName?.replace(
+                                      /\.pdf$/,
+                                      ".csv"
+                                    )}
                                   </a>
                                 </td>
+                                <td>{file.pagesProcessed}</td>
                                 <td>
                                   {formatDateToDDMMYYYY(file.createdOnDate)}
                                 </td>
@@ -603,15 +1008,15 @@ function PdfToCsvConvertorModel(props) {
                         <div className="text-center mt-3">
                           <button
                             onClick={handleShowMore}
-                            className="btn btn-primary"
+                            className="btn btn-md btn-success create-item-btn"
                           >
                             Show More
                           </button>
                         </div>
                       )}
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
               <div>
                 {totalRecords <= 0 && (
@@ -633,7 +1038,7 @@ function PdfToCsvConvertorModel(props) {
               </div> */}
             </div>
           </div>
-        ) : (
+        ) : toggleID === PDFToCSVToggle.Upgrade ? (
           <div class="container">
             {/* Cards for subscription */}
             <div class="row form-row">
@@ -646,13 +1051,15 @@ function PdfToCsvConvertorModel(props) {
                   }}
                 >
                   <h3 className="modal-title">
-                    <BackButtonSvg onClick={() => navigate("/")} />
-                    Convert PDF To CSV File
+                    {/* <BackButtonSvg
+                      onClick={() => setToggleID(PDFToCSVToggle.Convertor)}
+                    /> */}
+                    Purchase Pages
                   </h3>
                   {convertablePageCount > 0 && (
                     <button
                       className="btn btn-md btn-success create-item-btn"
-                      onClick={() => setHasSubcription(true)}
+                      onClick={() => setToggleID(PDFToCSVToggle.Convertor)}
                       // disabled={isConverting}
                     >
                       Back
@@ -710,9 +1117,9 @@ function PdfToCsvConvertorModel(props) {
 
                                                       <div>
                                                         £
-                                                        {
+                                                        {formatWithCommas(
                                                           PurchasePlanList?.discountedPrice
-                                                        }
+                                                        )}
                                                       </div>
                                                     </div>
                                                   </div>
@@ -801,6 +1208,256 @@ function PdfToCsvConvertorModel(props) {
             </div>
             {/* end modal  */}
           </div>
+        ) : (
+          <div className="container">
+            <div className="row">
+              <div className="col-lg-12">
+                <div className="card">
+                  <div className="card-body">
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        marginBottom: "10px",
+                      }}
+                    >
+                      <h3 className="modal-title">
+                        {/* <BackButtonSvg
+                          onClick={() => setToggleID(PDFToCSVToggle.Convertor)}
+                        /> */}
+                        PDF To CSV Subscription
+                      </h3>
+                      {convertablePageCount > 0 && (
+                        <button
+                          className="btn btn-md btn-success create-item-btn"
+                          onClick={() => setToggleID(PDFToCSVToggle.Convertor)}
+                          // disabled={isConverting}
+                        >
+                          Back
+                        </button>
+                      )}
+                    </div>
+                    <div
+                      className="table-container"
+                      style={{ maxHeight: "500px", overflowY: "auto" }}
+                    >
+                      <table className="table table-striped">
+                        <thead>
+                          <tr>
+                            <th
+                              scope="col"
+                              className="tr-table-class text-white"
+                              style={{ whiteSpace: "nowrap" }}
+                            >
+                              Package Name
+                            </th>
+                            <th
+                              scope="col"
+                              className="tr-table-class text-white"
+                              style={{ whiteSpace: "nowrap" }}
+                            >
+                              Validity
+                            </th>
+                            <th
+                              scope="col"
+                              className="tr-table-class text-white"
+                              style={{ whiteSpace: "nowrap" }}
+                            >
+                              Price
+                            </th>
+                            <th
+                              scope="col"
+                              className="tr-table-class text-white"
+                              style={{ whiteSpace: "nowrap" }}
+                            >
+                              Pages Purchased
+                            </th>
+                            {/* <th
+                              scope="col"
+                              className="tr-table-class text-white"
+                              style={{ whiteSpace: "nowrap" }}
+                            >
+                              Next Renewal Date
+                            </th>
+                            <th
+                              scope="col"
+                              className="tr-table-class text-white"
+                              style={{ whiteSpace: "nowrap" }}
+                            >
+                              Payable Amount
+                            </th>
+                            <th
+                              scope="col"
+                              className="tr-table-class text-white"
+                              style={{ whiteSpace: "nowrap" }}
+                            >
+                              Payment Status
+                            </th> */}
+                            <th
+                              scope="col"
+                              className="tr-table-class text-white"
+                              style={{ whiteSpace: "nowrap" }}
+                            >
+                              Subscription Status
+                            </th>
+                            {/* <th
+                              scope="col"
+                              className="tr-table-class text-white"
+                              style={{ whiteSpace: "nowrap" }}
+                            >
+                              Action
+                            </th> */}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {pdfToCSVSubscriptionHistory.map(
+                            (subscription, index) => (
+                              <tr key={index}>
+                                <td className="table-content-font">
+                                  {subscription.packageName}
+                                </td>
+                                <td className="table-content-font align-items-center text-left">
+                                  {subscription.validity}
+                                </td>
+                                <td className="table-content-font align-items-center text-left">
+                                  {formatValue(subscription.price)}
+                                </td>
+                                <td className="table-content-font align-items-center text-left">
+                                  {subscription.pages}
+                                </td>
+                                {/* <td className="table-content-font align-items-center text-left">
+                                  {subscription.subscriptionStartDate === null
+                                    ? "_"
+                                    : subscription.subscriptionStartDate}
+                                </td> */}
+                                {/* <td className="table-content-font align-items-center text-center">
+                                {subscription.nextRenewalDate === null
+                                  ? "_"
+                                  : subscription.nextRenewalDate}
+                              </td>
+                              <td className="table-content-font ">
+                                {formatValue(subscription.finalBillingAmount)}
+                              </td> */}
+                                {/* <td className="table-content-font align-items-center text-center">
+                                {subscription.paymentStatus === "Unpaid" && (
+                                  <Tooltip title={`Pay Now`}>
+                                    <button
+                                      style={{
+                                        width: "80px",
+                                        marginTop: "5px",
+                                    
+                                        display: "inline-block", 
+                                      }}
+                                      className="btn btn-md btn-success create-item-btn view"
+                                    >
+                                      <span>Pay Now</span>
+                                    </button>
+                                  </Tooltip>
+                                )}
+                                {subscription.paymentStatus === "Paid" && (
+                                  <Tooltip title={`Download`}>
+                                    <a
+                                      style={{
+                                        width: "60px",
+                                        padding: "2px 2px 2px 2px", // Add padding to the button
+                                        display: "inline-block", // Ensure button stays in line
+                                        borderRadius: "0.5rem",
+                                      }}
+                                      href={subscription.hostedInvoiceUrl}
+                                      className="btn btn-secondary btn-xs"
+                                    >
+                                      <i className="fa fa-download"></i>
+                                    </a>
+                                  </Tooltip>
+                                )}
+                                {subscription.paymentStatus === "Free" && (
+                                  <p
+                                    style={{
+                                      background: "#DAA520",
+                                      width: "100px",
+                                      padding: "4px 5px",
+                                      display: "inline-block",
+                                      borderRadius: "0.5rem",
+                                    }}
+                                  >
+                                    Free
+                                  </p>
+                                )}
+                              </td> */}
+                                <td className="Switch">
+                                  <div
+                                    style={{ alignItems: "none" }}
+                                    className="d-flex gap-2"
+                                  >
+                                    <div style={{ marginTop: "9px" }}>
+                                      <div
+                                        className="mb-1 text-center  text-white rounded text-nowrap"
+                                        style={{
+                                          background:
+                                            subscription.subscriptionStatus ===
+                                            "Active"
+                                              ? "#008000"
+                                              : subscription.subscriptionStatus ===
+                                                "Expired"
+                                              ? "#FF0000"
+                                              : subscription.subscriptionStatus ===
+                                                "Pending"
+                                              ? "#DAA520"
+                                              : subscription.subscriptionStatus ===
+                                                "InActive"
+                                              ? "#772424"
+                                              : "gray",
+                                          width: "100px",
+                                          padding: "5px 8px 6px 5px", // Add padding to the button
+                                          display: "inline-block", // Ensure button stays in line
+                                          borderRadius: "0.5rem", // Adjust border radius
+                                        }}
+                                      >
+                                        {subscription.subscriptionStatus}
+                                      </div>
+                                    </div>
+                                  </div>
+                                </td>
+
+                                {/* <td>
+                                <div class="view text-nowrap mt-1">
+                                  <Tooltip title={`View Subscription`}>
+                                    <div class="view">
+                                      <button
+                                        class="btn btn-md btn-success create-item-btn view"
+                                        // onClick={() =>
+                                        //   handleOpenSubscriptionModel(subscription)
+                                        // }
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#addSubscriptionViewModalUser"
+                                      >
+                                        <span>View</span>{" "}
+                                        <span className="mt-4">
+                                          {" "}
+                                          <i class="bi bi-eye "></i>
+                                        </span>
+                                      </button>
+                                    </div>
+                                  </Tooltip>
+                                </div>
+                              </td> */}
+                              </tr>
+                            )
+                          )}
+                        </tbody>
+                      </table>
+                      {totalRecords <= 0 && (
+                        <NoResultFoundModel
+                          name={"Subscription"}
+                          totalRecords={totalRecords}
+                        />
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         )}
       </div>
       <SuccessModal
@@ -815,6 +1472,13 @@ function PdfToCsvConvertorModel(props) {
         open={openNosubscriptionModal}
         handleClose={handleCloseNoSubscriptionModal}
         upgradeBtn={upgradeBtnClicked}
+        isBackDropDisplay={true}
+        pdfToCSVSubscriptionStatus={pdfToCSVSubscriptionStatus}
+      />
+
+      <CurruptedFileFormate
+        open={openCurruptedFileModal}
+        handleClose={() => setOpenCurruptedFileModal(false)}
         isBackDropDisplay={true}
       />
     </div>
