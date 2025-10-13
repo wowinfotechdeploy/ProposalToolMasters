@@ -174,7 +174,7 @@ export default function PreviewComponentPdf(props) {
   //   (item) => props?.ProposalObject?.ProposalFormate == item.value
   // );
   const ProposalFormatValue = Utils.PreviewSelection.find(
-    x => x.value === props.ProposalObject.ProposalFormate
+    x => x.value === props.ProposalObject?.ProposalFormate
   );
   // const ProposalFormatValue = Utils.PreviewSelection.find(x => x.value === props.pricingSettingObj?.defaultProposalFormatID);
   // useEffect(() => {

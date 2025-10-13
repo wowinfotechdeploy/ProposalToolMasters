@@ -182,6 +182,8 @@ function SubscriptionPackageModel(props) {
             eSignaturePerMonth: ModelData.eSignaturePerMonth,
             yearlyValuePlan: ModelData.yearlyValuePlan,
             isMailBox: ModelData.isMailBox,
+            enablePdfToCsv: ModelData.enablePdfToCsv,
+            pages: ModelData.noOfPages,
             discountPercentageYear:
               discountPercentageYear === undefined ? 0 : discountPercentageYear,
             discountPercentageYearCheck:
@@ -346,7 +348,7 @@ function SubscriptionPackageModel(props) {
       sendQuote: subscriptionPackageObj.sendQuote,
       prepareContract: subscriptionPackageObj.prepareContract,
       enablePdfToCsv: subscriptionPackageObj.enablePdfToCsv,
-      pages: subscriptionPackageObj.pages,
+      noOfPages: subscriptionPackageObj.pages,
       sendContract: subscriptionPackageObj.sendContract,
       signContract: subscriptionPackageObj.sendContract,
       isMailBox: subscriptionPackageObj.isMailBox,
@@ -833,7 +835,61 @@ function SubscriptionPackageModel(props) {
                           />
                         </FormGroup>
                       </div>
-                      <div
+
+                      {/* Pages per month Current */}
+
+                      <div class="col-lg-6 col-md-6 col-sm-6 text-start text-md-end mt-2 p-2">
+                        <TextField
+                          label={<span>Pages per month </span>}
+                          id="outlined-basic"
+                          variant="outlined"
+                          type="text"
+                          InputLabelProps={{
+                            sx: {
+                              fontWeight: "bold",
+                            },
+                          }}
+                          size="small"
+                          // value={subscriptionPackageObj?.pages}
+                          value={
+                            subscriptionPackageObj?.pages === "" ||
+                            subscriptionPackageObj?.pages === null
+                              ? 0
+                              : subscriptionPackageObj?.pages
+                                  ?.toString()
+                                  .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                          }
+                          onChange={(e) => {
+                            setErrorMessage("");
+                            let inputValue = e.target.value;
+
+                            // Remove all non-digit characters (including decimal point)
+                            inputValue = inputValue.replace(/\D/g, ""); // \D = anything not a digit
+
+                            // Remove leading zeros
+                            inputValue = inputValue.replace(/^0+/, "");
+
+                            // Limit to maximum 7 digits (or any limit you want)
+                            inputValue = inputValue.slice(0, 7);
+
+                            setSubscriptionPackageObj({
+                              ...subscriptionPackageObj,
+                              pages: inputValue,
+                            });
+                          }}
+                        />
+                        {requireErrorMessage &&
+                        (subscriptionPackageObj.pages === "" ||
+                          subscriptionPackageObj.pages === undefined ||
+                          subscriptionPackageObj.pages === null) ? (
+                          <label className="validation">{ERROR_MESSAGES}</label>
+                        ) : (
+                          ""
+                        )}
+                      </div>
+
+                      {/* Pages per month E# */}
+                      {/* <div
                         className="col-2"
                         style={{
                           display: "flex",
@@ -880,7 +936,7 @@ function SubscriptionPackageModel(props) {
                         ) : (
                           ""
                         )}
-                      </div>
+                      </div> */}
                     </div>
                   </div>
                   {/* PDF TO CSV Ends */}

@@ -62,6 +62,12 @@ export const VAT_Reg = {
   No: 0,
 };
 
+export const PDFToCSVToggle = {
+  Convertor: 1,
+  Upgrade: 2,
+  MySubscription: 3,
+};
+
 export const PackageHeader = {
   BasicInformation: 1,
   SelectServices: 2,

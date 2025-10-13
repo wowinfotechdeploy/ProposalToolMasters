@@ -1993,7 +1993,7 @@ const Topbar = () => {
 
                           {/* PDF to CSV section starts */}
 
-                          {/* <li class="nav-item">
+                          <li class="nav-item">
                             <NavLink
                               to="/pdf-to-csv"
                               onClick={() => {
@@ -2019,12 +2019,9 @@ const Topbar = () => {
                                   marginRight: "5px",
                                 }}
                               />
-                              <span data-key="t-dashboard">
-                                {" "}
-                                Convert PDF To CSV
-                              </span>{" "}
+                              <span data-key="t-dashboard"> PDF To CSV</span>{" "}
                             </NavLink>
-                          </li> */}
+                          </li>
 
                           {/* PDF to CSV section ends */}
                         </ul>
@@ -2585,7 +2582,7 @@ const Topbar = () => {
                                         </NavLink>
                                       </li>
                                     )}
-                                    {/* {userAccessData.SuperAdmin_Config_Subscription_Package_CanView && (
+                                    {userAccessData.SuperAdmin_Config_Subscription_Package_CanView && (
                                       <li class="nav-item">
                                         <NavLink
                                           onClick={() => {
@@ -2599,7 +2596,7 @@ const Topbar = () => {
                                           PDF to CSV Subscription Packages
                                         </NavLink>
                                       </li>
-                                    )} */}
+                                    )}
                                     {userAccessData.SuperAdmin_Config_Subscription_User_CanView && (
                                       <li class="nav-item">
                                         <NavLink

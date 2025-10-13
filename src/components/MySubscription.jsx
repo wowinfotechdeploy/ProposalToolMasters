@@ -366,7 +366,7 @@ const MySubscription = () => {
                                     <CardBody
                                       style={{
                                         padding: "10px",
-                                        height: "50vh",
+                                        height: "55vh",
                                       }}
                                     >
                                       <div className="media ">
@@ -504,6 +504,15 @@ const MySubscription = () => {
                                             ? 0
                                             : subScriptionActiveList.remainingESignatures}
                                         </p>
+                                        <p className="mt-0 mb-1 text-dark">
+                                          <b>Remaining Pages</b>:{" "}
+                                          {subScriptionActiveList.noOfPages <
+                                            0 ||
+                                          subScriptionActiveList.noOfPages ===
+                                            null
+                                            ? 0
+                                            : subScriptionActiveList.noOfPages}
+                                        </p>
                                       </div>
                                     </CardBody>
                                   </div>
@@ -513,7 +522,7 @@ const MySubscription = () => {
                                     <CardBody
                                       style={{
                                         padding: "10px",
-                                        height: "50vh",
+                                        height: "55vh",
                                       }}
                                     >
                                       <div className="media ">
@@ -675,6 +684,29 @@ const MySubscription = () => {
                                           <span style={{ marginLeft: "10px" }}>
                                             {" "}
                                             Personalized Outgoing Mailbox
+                                          </span>
+                                        </p>
+                                        <p className="mt-0 mb-1 text-dark">
+                                          {subScriptionActiveList?.enablePdfToCsv ===
+                                            null ||
+                                          !subScriptionActiveList?.enablePdfToCsv ? (
+                                            <span
+                                              style={{
+                                                color: "red",
+                                                marginRight: "2px",
+                                              }}
+                                              className="fa fa-times"
+                                            ></span>
+                                          ) : (
+                                            <span
+                                              style={{ color: "green" }}
+                                              className="fa fa-check"
+                                            ></span>
+                                          )}
+                                          {"  "}
+                                          <span style={{ marginLeft: "10px" }}>
+                                            {" "}
+                                            PDF To CSV
                                           </span>
                                         </p>
                                       </div>

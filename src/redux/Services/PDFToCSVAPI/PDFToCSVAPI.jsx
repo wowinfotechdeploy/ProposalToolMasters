@@ -58,3 +58,15 @@ export const BuyPDFToCSVPlan = async (params) => {
   const res = await postApiWithAuthenticated(url, params);
   return res;
 };
+
+export const remainingPageCountAPI = async (organisationKeyID) => {
+  const url = `${Base_Url}/PDFtoCSV/GetPDFToCSVPagesCount?OrganisationKeyID=${organisationKeyID}`;
+  const res = await getListWithAuthenticated(url);
+  return res;
+};
+
+export const GetSubscriptionHistoryAPI = async (organisationKeyID) => {
+  const url = `${Base_Url}/PDFtoCSVSubscriptionPackage/OrganisationPDFtoCSVSubscriptionPackageList?OrganisationKeyID=${organisationKeyID}`;
+  const res = await getListWithAuthenticated(url);
+  return res;
+};
