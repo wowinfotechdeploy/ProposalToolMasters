@@ -344,127 +344,128 @@ const Services = () => {
 
   //Design part :
   return (
-    <div>
-
-      <div class="main-content">
+     <div className="container-fluid">
+      {/* <div class="main-content"> */}
         <div class="services page-background">
-          <div class="page-info-header page-info-strip">
-            <div class="container">
-              <div className="row">
-                <div className="col-md-6 col-6">
+          <div class="">
+            <div class="row">
+              <div class="col-lg-12">
+                <div class="card">
+                  {/* end card header  */}
+                  <div class="card-body mb-2">
+                    <div id="customerList" style={{ marginTop: "3rem" }}>
+                      <div class="bg-light border-bottom px-2">
+                          <div className="row">
+                            <div className="col-md-6 p-0 ">
                   <div class="page-title-cls">Services</div>
-                </div>
-                <div className="col-md-6 col-6">
-                  <div className="d-flex justify-content-sm-end add-new-btn">
-                    {((userAccessData.Admin_Config_Service_CanAdd &&
-                      common.organisationKeyID !== null) ||
-                      (userAccessData.SuperAdmin_Config_Service_CanAdd &&
-                        common.organisationKeyID === null)) && (
-                        <CommonButtonComponent
-                          title={getCrudButtonToolTipName("Add", moduleName)}
-                          name={getCrudButtonTextName("Add", moduleName)}
-
-                          AddBtn={() => AddServiceBtn()}
-                        />
-                      )}
                   </div>
-                </div>
-                <div className="div">
-                  <div class="search-box ms-2 width-searchbox  ">
-                    <div className="row">
-                      <div className="col-lg-12 col-md-12 col-sm-12 ">
-                        <div className="row align-items-center mt-2">
-                          <div className="col-md-3 col-7 mb-2">
-                            <div class="search-box w-100 width-searchbox mb-2">
-                              <i class="ri-search-line search-icon"></i>
-                              <input
-                                type="text"
-                                value={searchKeyword}
-                                onChange={(e) => {
-                                  handleSearch(e);
-                                }}
-                                className="form-control search"
-                                placeholder={
-                                  isMobile
-                                    ? "Search"
-                                    : getPlaceholderTextName(
-                                      "Search",
-                                      moduleName
-                                    )
-                                }
-                              />
+                            <div className="col-auto ms-auto">
+                              {((userAccessData.Admin_Config_Service_CanAdd &&
+                                common.organisationKeyID !== null) ||
+                                (userAccessData.SuperAdmin_Config_Service_CanAdd &&
+                                  common.organisationKeyID === null)) && (
+                                  <CommonButtonComponent
+                                    title={getCrudButtonToolTipName("Add", moduleName)}
+                                    name={getCrudButtonTextName("Add", moduleName)}
+
+                                    AddBtn={() => AddServiceBtn()}
+                                  />
+                                )}
                             </div>
-                          </div>
-                          <div className="col-md-6 col-3 d-flex align-items-start justify-content-start mb-3">
-                            {/* <div className="row"> */}
-                            {/* <div className="col-3"> */}
-                            <Tooltip
-                              title={getCrudButtonToolTipName(
-                                "Filter",
-                                moduleName
-                              )}
-                            >
-                              <div>
-                                <button
-                                  className={
-                                    isFilterApply
-                                      ? "btn btn-md btn-success create-item-btn filter me-2"
-                                      : "btn btn-md btn-success create-item-btn-apply filter me-2"
-                                  }
-                                  data-bs-toggle="modal"
-                                  data-bs-target="#FilterModel"
-                                >
-                                  {/* <i class="ri-pencil-fill"></i> */}
-
-                                  <i
-                                    className={
-                                      isFilterApply
-                                        ? "ri-filter-fill align-bottom "
-                                        : "ri-filter-fill align-bottom Filter-apply-color"
-                                    }
-                                  ></i>
-                                </button>
-                              </div>
-                            </Tooltip>
-                            {/* </div> */}
-                            {/* <div className="col-9"> */}
-                            {isFilterApply ? (
-                              <Tooltip title={"Clear Filter"}>
-                                <div>
-                                  <button
-                                    className="btn btn-md btn-success create-Filter-item-btn text-nowrap"
-                                    onClick={ClearFilter} // Corrected from onclick to onClick
-                                  >
-                                    <span>Clear Filter</span>
-                                  </button>
-                                </div>
-                              </Tooltip>
-                            ) : (
-                              ""
-                            )}
-                            {/* </div> */}
-
-                            {/* </div> */}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                </div>
                 </div>
               </div>
-            </div>
-          </div>
-          <div class="container" id="tablesections">
+          <div class="" id="tablesections">
             <div class="row">
               <div class="col-lg-12">
                 <div class="card ">
                   <div class="card-body">
                     <div id="customerList">
                       <div class="row g-4 mb-3"></div>
-                      <div class="table-responsive table-card  mb-3 table-padding"
-                        style={{ marginTop: '208px' }}
+                      <div class="table-responsive table-card mt-2 mb-3 table-padding"
                       >
+                                <div className="div">
+                                  <div class="search-box ms-2 width-searchbox  ">
+                                    <div className="row">
+                                      <div className="col-lg-12 col-md-12 col-sm-12 ">
+                                        <div className="row align-items-center mt-2">
+                                          <div className="col-md-3 col-7">
+                                            <div class="search-box w-100 width-searchbox">
+                                              <i class="ri-search-line search-icon"></i>
+                                              <input
+                                                type="text"
+                                                value={searchKeyword}
+                                                onChange={(e) => {
+                                                  handleSearch(e);
+                                                }}
+                                                className="form-control search"
+                                                placeholder={
+                                                  isMobile
+                                                    ? "Search"
+                                                    : getPlaceholderTextName(
+                                                      "Search",
+                                                      moduleName
+                                                    )
+                                                }
+                                              />
+                                            </div>
+                                          </div>
+                                          <div className="col-md-6 col-3 d-flex align-items-start justify-content-start">
+                                            {/* <div className="row"> */}
+                                            {/* <div className="col-3"> */}
+                                            <Tooltip
+                                              title={getCrudButtonToolTipName(
+                                                "Filter",
+                                                moduleName
+                                              )}
+                                            >
+                                              <div>
+                                                <button
+                                                  className={
+                                                    isFilterApply
+                                                      ? "btn btn-md btn-success create-item-btn filter me-2"
+                                                      : "btn btn-md btn-success create-item-btn-apply filter me-2"
+                                                  }
+                                                  data-bs-toggle="modal"
+                                                  data-bs-target="#FilterModel"
+                                                >
+                                                  {/* <i class="ri-pencil-fill"></i> */}
 
+                                                  <i
+                                                    className={
+                                                      isFilterApply
+                                                        ? "ri-filter-fill align-bottom "
+                                                        : "ri-filter-fill align-bottom Filter-apply-color"
+                                                    }
+                                                  ></i>
+                                                </button>
+                                              </div>
+                                            </Tooltip>
+                                            {/* </div> */}
+                                            {/* <div className="col-9"> */}
+                                            {isFilterApply ? (
+                                              <Tooltip title={"Clear Filter"}>
+                                                <div>
+                                                  <button
+                                                    className="btn btn-md btn-success create-Filter-item-btn text-nowrap"
+                                                    onClick={ClearFilter} // Corrected from onclick to onClick
+                                                  >
+                                                    <span>Clear Filter</span>
+                                                  </button>
+                                                </div>
+                                              </Tooltip>
+                                            ) : (
+                                              ""
+                                            )}
+                                            {/* </div> */}
+
+                                            {/* </div> */}
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
                         <table
                           class="table align-middle table-nowrap  mt-2"
                           style={{ width: "100%" }}
@@ -889,11 +890,16 @@ const Services = () => {
               modelRequestData={modelRequestData}
             />
           </div>
+          </div>
+          </div>
+          </div>
+          </div>
+          </div>
           {/* container-fluid  */}
         </div>
         {/* End Page-content */}
         <Footer />
-      </div>
+      {/* </div> */}
       <FilterModel
         class="modal fade"
         id="FilterModel"

@@ -77,6 +77,7 @@ const ViewPdf = () => {
             src={MergePdfUrl}
             // width="100%"
             // height="700px"
+            loading="lazy"
             style={{ width: '100%', height: '100vh', border: 'none' }}
           ></iframe>
       )}

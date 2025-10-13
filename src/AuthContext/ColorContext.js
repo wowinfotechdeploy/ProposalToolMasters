@@ -7,6 +7,7 @@ import {
 import { useSelector } from "react-redux";
 import { AuthContextProvider } from "./AuthContext";
 import SuccessModal from "../components/SuccessModal";
+import { set } from "date-fns";
 
 const initialState = {
   loading: false,
@@ -20,10 +21,11 @@ export const ColorProvider = ({ children }) => {
   /* -------------------------------------------------------------------------- */
   
   let getUserPersonalizeSettingApiCallCount = 0;
-  const [currentCardColor, setCurrentCardColor] = useState("#626ed4");
-  const [currentTopbarColor, setCurrentTopbarColor] = useState("#333547");
+  const [currentCardColor, setCurrentCardColor] = useState("#fff");
+  const [currentTopbarColor, setCurrentTopbarColor] = useState("#5a2eca");
+  const [cardBgColor, setCardBgColor] = useState("#5a2eca");
   const [currentTopbarTextColor, setCurrentTopbarTextColor] =
-    useState("#8d8d8d");
+    useState("#ffc058");
   const [CloseModal, setCloseModal] = useState(false);
   const [isAddUpdateDone, setIsAddUpdateDone] = useState(false);
   const [dismissModal, setDismissModal] = useState(null);
@@ -101,6 +103,7 @@ export const ColorProvider = ({ children }) => {
         setCardColor(AppearanceDashboardCardBgColorSetting?.settingValue);
         setTopbarTextColor(AppearanceNavbarMenuListColorSetting?.settingValue);
         setTopbarColor(AppearanceHeaderBgColorSetting?.settingValue);
+        setCardBgColor(AppearanceDashboardCardBgColorSetting?.settingValue);
       }
     }
   };
@@ -141,7 +144,7 @@ export const ColorProvider = ({ children }) => {
             AppearanceNavbarMenuListColorSetting?.settingValue
           );
           setCurrentTopbarColor(AppearanceHeaderBgColorSetting?.settingValue);
-
+          setCardBgColor(AppearanceDashboardCardBgColorSetting?.settingValue);
           setCardColor(AppearanceDashboardCardBgColorSetting?.settingValue);
           setTopbarTextColor(
             AppearanceNavbarMenuListColorSetting?.settingValue
@@ -187,7 +190,7 @@ export const ColorProvider = ({ children }) => {
         },
         {
           settingName: "AppearanceDashboardCardBgColor",
-          settingValue: currentCardColor,
+          settingValue: cardBgColor,
         },
       ];
     } else {
@@ -249,6 +252,7 @@ export const ColorProvider = ({ children }) => {
   //topbar Function
   const OnChangeTopbarColor = (event) => {
     const newColor = event.target.value;
+    console.log(newColor);
     setCurrentTopbarColor(newColor);
   };
 
@@ -271,14 +275,16 @@ export const ColorProvider = ({ children }) => {
   };
 
   const handleSetDefault = () => {
-    setCurrentCardColor("#626ed4");
-    setCurrentTopbarColor("#333547");
-    setCurrentTopbarTextColor("#8d8d8d");
+    setCurrentCardColor("#fff");
+    setCurrentTopbarColor("#5a2eca");
+    setCardBgColor("#5a2eca");
+    setCurrentTopbarTextColor("#ffc058");
   };
 
   const handleOnChangeCard = (event) => {
     const newColor = event.target.value;
     setCurrentCardColor(newColor);
+    setCardBgColor(newColor);
   };
   const handleClose = () => {
     $("#" + "SetPersonalizeSettingModal").modal("hide");
@@ -290,6 +296,7 @@ export const ColorProvider = ({ children }) => {
     <ColorContext.Provider
       value={{
         cardStyle,
+        cardBgColor,
         CloseModal,
         TopbarStyle,
         TopTextColor,

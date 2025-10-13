@@ -547,6 +547,7 @@ function Add_New_Templates_Pdf(props) {
                                         src={URL.createObjectURL(file)}
                                         width="100%"
                                         height="600px"
+                                        loading="lazy"
                                       ></iframe>
                                     );
                                   }
@@ -646,6 +647,7 @@ function Add_New_Templates_Pdf(props) {
                               src={TemplateObj.pdf}
                               width="100%"
                               height="500px" // You can adjust the height as needed
+                              loading="lazy"
                             ></iframe>
                           </div>
                         </>

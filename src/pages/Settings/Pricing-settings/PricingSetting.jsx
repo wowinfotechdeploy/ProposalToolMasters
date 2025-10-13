@@ -218,13 +218,10 @@ const Pricing_Settings = () => {
   //Design part :
   return (
     <div>
-      <div class="main-content">
-        <div class="page-content page-background">
-          <div class="page-info-header page-info-strip">
+        <div class="page-content mt-2 page-background">
             <div class="container">
               <div class="page-title-cls">Pricing Settings</div>
             </div>
-          </div>
           <div class="container">
             <div class="row">
               <div class="col-12 pricing_settings Pricing-container-card" >
@@ -448,7 +445,6 @@ const Pricing_Settings = () => {
           </div>
         </div>
         <Footer />
-      </div>
       <button class="btn btn-danger btn-icon" id="back-to-top">
         <i class="ri-arrow-up-line"></i>
       </button>

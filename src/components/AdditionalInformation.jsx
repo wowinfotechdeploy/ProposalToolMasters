@@ -1192,6 +1192,7 @@ export const AdditionalInformation = (props) => {
                                             src={props?.engagementObj?.pdf}
                                             width="100%"
                                             height="600px"
+                                            loading="lazy"
                                         ></iframe>
                                     </div>
                                 ) : props?.engagementObj?.tnCTemplateContent !== null ? (

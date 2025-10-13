@@ -5,7 +5,8 @@ import { OutBooksTitle } from "../components/GlobalMessage";
 import "../App.css";
 
 // -------------------------------Common Topbar----------------------------------------------------
-import Topbar from "../components/Topbar";
+// import TopbarClone from "../components/TopbarClone";
+// import Topbar from "../components/Topbar";
 
 // --------------------------------Routes----------------------------------------------------------
 import {
@@ -25,16 +26,57 @@ import LoginPageLoader from "../loader/LoginPageLoader";
 import { resetState } from "../redux/Persist";
 import Login from "../Auth/login/Login";
 
-import AddUpdateReminderTemplate from "../pages/configure/Reminder/ReminderEmailTemplate/AddReminderTemplateModel";
-import SuperAdminReminderTemplateList from "../pages/Settings/SuperAdminReminder/SuperAdminReminderEmailTemplate/SuperAdminReminderTemplateList";
-import AddUpdateSuperAdminReminderTemplate from "../pages/Settings/SuperAdminReminder/SuperAdminReminderEmailTemplate/AddUpdateSuperAdminReminderTemplate";
-import UpdateUnPaidAccount from "../pages/Settings/SuperAdminReminder/LoginToOutbooks/UpdateLoginToOutbooksReminder";
-// import UserSubscriptionPackageTab from "../pages/subscription/User/UserSubscriptionPackageModel";
-import SuperAdminMarketingReminderList from "../pages/Settings/SuperAdminReminder/SuperAdminMarketingReminder/SuperAdminMarketingReminderList";
-import SuperAdminMarketingReminderAddUpdate from "../pages/Settings/SuperAdminReminder/SuperAdminMarketingReminder/SuperAdminMarketingReminderAddUpdate";
+// import AddUpdateReminderTemplate from "../pages/configure/Reminder/ReminderEmailTemplate/AddReminderTemplateModel";
+// import SuperAdminReminderTemplateList from "../pages/Settings/SuperAdminReminder/SuperAdminReminderEmailTemplate/SuperAdminReminderTemplateList";
+// import AddUpdateSuperAdminReminderTemplate from "../pages/Settings/SuperAdminReminder/SuperAdminReminderEmailTemplate/AddUpdateSuperAdminReminderTemplate";
+// import UpdateUnPaidAccount from "../pages/Settings/SuperAdminReminder/LoginToOutbooks/UpdateLoginToOutbooksReminder";
+// // import UserSubscriptionPackageTab from "../pages/subscription/User/UserSubscriptionPackageModel";
+// import SuperAdminMarketingReminderList from "../pages/Settings/SuperAdminReminder/SuperAdminMarketingReminder/SuperAdminMarketingReminderList";
+// import SuperAdminMarketingReminderAddUpdate from "../pages/Settings/SuperAdminReminder/SuperAdminMarketingReminder/SuperAdminMarketingReminderAddUpdate";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 
 // ------------------------------------Pages with loader--------------------------------------------
+export const Topbar = Loadable(lazy(() => import("../components/Topbar")));
+export const TopbarClone = Loadable(lazy(() => import("../components/TopbarClone")));
+export const AddUpdateReminderTemplate = Loadable(
+  lazy(() =>
+    import("../pages/configure/Reminder/ReminderEmailTemplate/AddReminderTemplateModel")
+  )
+);
+
+export const SuperAdminReminderTemplateList = Loadable(
+  lazy(() =>
+    import("../pages/Settings/SuperAdminReminder/SuperAdminReminderEmailTemplate/SuperAdminReminderTemplateList")
+  )
+);
+
+export const AddUpdateSuperAdminReminderTemplate = Loadable(
+  lazy(() =>
+    import("../pages/Settings/SuperAdminReminder/SuperAdminReminderEmailTemplate/AddUpdateSuperAdminReminderTemplate")
+  )
+);
+
+export const UpdateUnPaidAccount = Loadable(
+  lazy(() =>
+    import("../pages/Settings/SuperAdminReminder/LoginToOutbooks/UpdateLoginToOutbooksReminder")
+  )
+);
+
+// export const UserSubscriptionPackageTab = Loadable(
+//   lazy(() => import("../pages/subscription/User/UserSubscriptionPackageModel"))
+// );
+
+export const SuperAdminMarketingReminderList = Loadable(
+  lazy(() =>
+    import("../pages/Settings/SuperAdminReminder/SuperAdminMarketingReminder/SuperAdminMarketingReminderList")
+  )
+);
+
+export const SuperAdminMarketingReminderAddUpdate = Loadable(
+  lazy(() =>
+    import("../pages/Settings/SuperAdminReminder/SuperAdminMarketingReminder/SuperAdminMarketingReminderAddUpdate")
+  )
+);
 const Logout = Loadable(lazy(() => import("../components/Logout")));
 const SuccessPage = Loadable(lazy(() => import("../components/SuccessPage")));
 const Setting = Loadable(
@@ -121,7 +163,7 @@ const Access_Keys = Loadable(
 const Services = Loadable(
   lazy(() => import("../pages/configure/services/ServicesList"))
 );
-const Dashboard = Loadable(lazy(() => import("../pages/dashboard/Dashboard")));
+const Dashboard = Loadable(lazy(() => import("../pages/dashboard/NewDashboard")));
 const DashboardClone = Loadable(
   lazy(() => import("../pages/dashboard/DashbordClone"))
 );
@@ -1004,10 +1046,19 @@ function Index() {
               {common.token &&
                 (common.organisationCount > 0 || common.roleTypeId === 1) && (
                   <ColorProvider>
-                    <Topbar
+                  <div className={window.innerWidth > 1040 ? "app-layout app-layout-clone" : "app-layout"}>
+                  {window.innerWidth > 1040 ? (
+                  <TopbarClone
                       Email={common.email}
                       moduleName={"DashBoardClone"}
                     />
+                  ) : 
+                  <Topbar
+                      Email={common.email}
+                      moduleName={"DashBoardClone"}
+                    />
+                  }
+                    <div className= {(window.innerWidth <= 1040) ? "page-content" : "main-content"}>
                     <Routes>
                       <Route
                         path="/marketing-reminder"
@@ -1272,7 +1323,9 @@ function Index() {
                         element={<MySubscription />}
                       />
                     </Routes>
+                    </div>
                     <AppContent />
+                    </div>
                   </ColorProvider>
                 )}
 

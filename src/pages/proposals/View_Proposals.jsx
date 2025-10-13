@@ -792,9 +792,9 @@ const View_Proposals = () => {
 
   return (
     <div className="container">
-      <div class="main-content">
+      {/* <div class="main-content"> */}
         <div class="page-content page-background prospect-bg">
-          <div class="page-info-header page-info-strip">
+          {/* <div class="page-info-header page-info-strip"> */}
             <div class="container">
               <div className="row">
                 <div className="col-md-6 col-sm-6 col-6">
@@ -856,7 +856,7 @@ const View_Proposals = () => {
                 </div>
               </div>
             </div>
-          </div>
+          {/* </div> */}
           <div class="container-fluid ">
             <div class="row">
               <div class="col-lg-12">
@@ -3839,7 +3839,7 @@ const View_Proposals = () => {
         {/* End Page-content */}
 
         <Footer />
-      </div>
+      {/* </div> */}
 
       {/* start back-to-top */}
       <button

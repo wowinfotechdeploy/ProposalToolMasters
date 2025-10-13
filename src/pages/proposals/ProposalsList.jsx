@@ -125,15 +125,15 @@ const Proposals = () => {
   const pageSize = isMobile
     ? isMobileRecords
     : desktopRecords > 5 && window.innerHeight == 652
-    ? 5
-    : desktopRecords;
+      ? 5
+      : desktopRecords;
 
   const totalOldProposalPage = isMobile
     ? Math.ceil(oldProposalListCount / isMobileRecords)
     : Math.ceil(
-        oldProposalListCount /
-          (desktopRecords > 5 && window.innerHeight == 652 ? 5 : desktopRecords)
-      );
+      oldProposalListCount /
+      (desktopRecords > 5 && window.innerHeight == 652 ? 5 : desktopRecords)
+    );
   // B] Initial useEffect :
   // 1) Will Call Initial Api Like List Api
   useEffect(() => {
@@ -328,12 +328,10 @@ const Proposals = () => {
           const modifiedProposalListData = ProposalListData.map((item) => ({
             "Ref Id": item.prefix,
             [proposal]: item.clientName,
-            "One Off Price": `£ ${
-              item.oneOffPrice !== null ? item.oneOffPrice : "0.00"
-            }`,
-            "Recurring Price": `£ ${
-              item.recurringPrice !== null ? item.recurringPrice : "0.00"
-            }`,
+            "One Off Price": `£ ${item.oneOffPrice !== null ? item.oneOffPrice : "0.00"
+              }`,
+            "Recurring Price": `£ ${item.recurringPrice !== null ? item.recurringPrice : "0.00"
+              }`,
             "Status Name": item.statusName,
             [proposalPdf]: item.quotePDFUrl,
             "Last Updated On": item.lastUpdatedOn,
@@ -979,7 +977,7 @@ const Proposals = () => {
               message += updatedPackageNames.map(p => `• ${p}`).join("\n") + "\n";
             }
 
-            message += "\n"; 
+            message += "\n";
           }
 
           // If deleted items exist
@@ -1016,7 +1014,7 @@ const Proposals = () => {
           setOpenErrorModal(true);
           return;
         }
-    }
+      }
       setLoader(true);
       setModelRequestData({
         ...modelRequestData,
@@ -1028,18 +1026,18 @@ const Proposals = () => {
         common.userKeyID
       );
       $("#ConfirmModel").modal("hide");
-      if(data) {
-      if (data.data?.statusCode === 200) {
-        setLoader(false);
-        setOpenSuccessModal(true);
-      } else {
-        setLoader(false);
-        setErrorMessage(data?.response?.data?.errorMessage);
-        setOpenErrorModal(true);
+      if (data) {
+        if (data.data?.statusCode === 200) {
+          setLoader(false);
+          setOpenSuccessModal(true);
+        } else {
+          setLoader(false);
+          setErrorMessage(data?.response?.data?.errorMessage);
+          setOpenErrorModal(true);
+        }
+        setIsCopyPending(false); // Reset the flag
       }
-      setIsCopyPending(false); // Reset the flag
-    } 
-  } catch (error) {
+    } catch (error) {
       console.log(error.message);
       setLoader(false);
       setErrorMessage(error.message);
@@ -1208,1592 +1206,1597 @@ const Proposals = () => {
   };
 
   return (
-    <div className="container">
-      <div class="main-content">
+    <div className="container-fluid">
+      {/* <div class="main-content"> */}
         <div class="services page-background">
-          <div class="page-info-header page-info-strip">
-            <div class="container">
-              <div className="row">
-                <div className="col-md-12 ">
-                  <ul className="nav nav-tabs" role="tablist">
-                    <li className="nav-item">
-                      <a
-                        className={`nav-link tab_nav ${
-                          activeTab === "Proposal" ? "active" : ""
-                        }`}
-                        data-bs-toggle="tab"
-                        href="#Proposal"
-                        role="tab"
-                        aria-selected={activeTab === "Proposal"}
-                        onClick={() => {
-                          setActiveTab("Proposal");
-                          setSelectedRows([]);
-                          TabHandle("Proposal");
-                        }}
-                      >
-                        <b>{proposalName} </b>
-                      </a>
-                    </li>
-                    {oldProposalList.length > 0 && (
-                      <li className="nav-item">
-                        <a
-                          className={`nav-link tab_nav ${
-                            activeTab === "Old Proposal" ? "active" : ""
-                          }`}
-                          data-bs-toggle="tab"
-                          href="#Old Proposal"
-                          role="tab"
-                          aria-selected={activeTab === "Old Proposal"}
-                          onClick={() => {
-                            setSelectedRows([]);
-                            TabHandle("Old Proposal");
-                          }}
-                        >
-                          <b>Migrated {proposalName}</b>
-                        </a>
-                      </li>
-                    )}
-                    {SingleProposalList?.length > 0 && (
-                      <li className="nav-item">
-                        <a
-                          className={`nav-link tab_nav ${
-                            activeTab === "Web Proposal" ? "active" : ""
-                          }`}
-                          data-bs-toggle="tab"
-                          href="#Web Proposal"
-                          role="tab"
-                          aria-selected={activeTab === "Web Proposal"}
-                          onClick={() => {
-                            setActiveTab("Web Proposal");
-                            TabHandle("Web Proposal");
-                          }}
-                        >
-                          <b>API {proposalName} </b>
-                        </a>
-                      </li>
-                    )}
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
           <div class="">
             <div class="row">
               <div class="col-lg-12">
                 <div class="card">
                   {/* end card header  */}
-                  <div class="card-body">
-                    <div id="customerList">
-                      <div class="row g-4 mb-3"></div>
-                      <div class="table-responsive table-card mb-3 table-padding">
-                        <div className="row">
-                          {/* <div class="col-md-6 col-lg-6 col-9  mb-2"> */}
-                          {activeTab === "Old Proposal" && (
-                            <div class="col-md-6 col-lg-6 col-9  mb-2">
-                              <div
-                                class="search-box col-md-5 col-8 width-searchbox "
-                                style={{}}
-                              >
-                                <i className="ri-search-line search-icon"></i>
-                                <input
-                                  type="text"
-                                  class="form-control search"
-                                  value={ProposalSearchKeyword}
-                                  onChange={(e) => {
-                                    handleSearchOldProposal(e);
-                                  }}
-                                  placeholder={
-                                    isMobile
-                                      ? "Search"
-                                      : getPlaceholderTextName(
-                                          "Search",
-                                          proposalName
-                                        )
-                                  }
-                                />
-                              </div>
-                            </div>
-                          )}
-
-                          {activeTab === "Proposal" && (
-                            <div class="col-md-6 col-lg-6 col-9  mb-2">
-                              <div className="d-flex justify-content-start">
-                                <div
-                                  class="search-box  width-searchbox "
-                                  id="w-100"
-                                  style={{ marginRight: "10px" }}
-                                >
-                                  <i className="ri-search-line search-icon"></i>
-                                  <input
-                                    type="text"
-                                    class="form-control search"
-                                    value={searchKeyword}
-                                    onChange={(e) => {
-                                      handleSearch(e);
+                  <div class="card-body mb-2">
+                    <div id="customerList" style={{ marginTop: "3rem" }}>
+                      <div class="bg-light border-bottom px-2">
+                        <div className="container">
+                          <div className="row">
+                            <div className="col-md-12 p-0 ">
+                              <ul className="nav nav-tabs" role="tablist">
+                                <li className="nav-item">
+                                  <a
+                                    className={`nav-link tab_nav ${activeTab === "Proposal" ? "active" : ""
+                                      }`}
+                                    data-bs-toggle="tab"
+                                    href="#Proposal"
+                                    role="tab"
+                                    aria-selected={activeTab === "Proposal"}
+                                    onClick={() => {
+                                      setActiveTab("Proposal");
+                                      setSelectedRows([]);
+                                      TabHandle("Proposal");
                                     }}
-                                    placeholder={
-                                      isMobile
-                                        ? "Search"
-                                        : getPlaceholderTextName(
-                                            "Search",
-                                            proposalName
-                                          )
-                                    }
-                                  />
-                                </div>
-                                <div className=" d-flex align-items-start justify-content-start ">
-                                  <Tooltip
-                                    title={getCrudButtonToolTipName(
-                                      "Export",
-                                      proposalName
-                                    )}
                                   >
-                                    <div>
-                                      <button
-                                        class="btn btn-md btn-success create-item-btn-apply filter me-2"
-                                        onClick={handleExport}
-                                      >
-                                        {/* <i class="ri-pencil-fill"></i> */}
-                                        <span
-                                          style={{
-                                            marginRight: "0px",
-                                            width: "42px",
-                                            fontSize: "15px",
-                                          }}
-                                        ></span>
-                                        <i class="ri-file-excel-2-fill  Filter-apply-color"></i>
-                                      </button>
-                                    </div>
-                                  </Tooltip>
-                                  <Tooltip
-                                    title={getCrudButtonToolTipName(
-                                      "Filter",
-                                      proposalName
-                                    )}
-                                  >
-                                    <div>
-                                      <button
-                                        className={
-                                          isFilterApply
-                                            ? "btn btn-md btn-success create-item-btn filter me-2"
-                                            : "btn btn-md btn-success create-item-btn-apply filter me-2"
-                                        }
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#FilterModel"
-                                      >
-                                        <i
-                                          className={
-                                            isFilterApply
-                                              ? "ri-filter-fill align-bottom "
-                                              : "ri-filter-fill align-bottom Filter-apply-color"
-                                          }
-                                        ></i>
-                                      </button>
-                                    </div>
-                                  </Tooltip>
-                                  {isFilterApply ? (
-                                    <Tooltip title={"Clear Filter"}>
-                                      <div>
-                                        <button
-                                          className="btn btn-md btn-success create-Filter-item-btn "
-                                          onClick={ClearFilter} // Corrected from onclick to onClick
-                                        >
-                                          <span className="text-nowrap">
-                                            Clear Filter
-                                          </span>
-                                        </button>
-                                      </div>
-                                    </Tooltip>
-                                  ) : (
-                                    ""
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          )}
-                          {activeTab === "Web Proposal" && (
-                            <div class="col-md-3 col-lg-3 col-12  mb-2">
-                              <div className="d-flex justify-content-between">
-                                <div className="d-flex justify-content-start">
-                                  <div
-                                    class="search-box  width-searchbox "
-                                    id="w-100"
-                                    style={{ marginRight: "10px" }}
-                                  >
-                                    <i className="ri-search-line search-icon"></i>
-                                    <input
-                                      type="text"
-                                      class="form-control search"
-                                      value={searchKeyword}
-                                      onChange={(e) => {
-                                        handleSearch(e);
+                                    <b>{proposalName} </b>
+                                  </a>
+                                </li>
+                                {oldProposalList.length > 0 && (
+                                  <li className="nav-item">
+                                    <a
+                                      className={`nav-link tab_nav ${activeTab === "Old Proposal" ? "active" : ""
+                                        }`}
+                                      data-bs-toggle="tab"
+                                      href="#Old Proposal"
+                                      role="tab"
+                                      aria-selected={activeTab === "Old Proposal"}
+                                      onClick={() => {
+                                        setSelectedRows([]);
+                                        TabHandle("Old Proposal");
                                       }}
-                                      placeholder={
-                                        isMobile
-                                          ? "Search"
-                                          : getPlaceholderTextName(
-                                              "Search",
-                                              proposalName
-                                            )
-                                      }
-                                    />
-                                  </div>
-                                  {/* Export button */}
-                                  <Tooltip
-                                    title={getCrudButtonToolTipName(
-                                      "Export",
-                                      proposalName
-                                    )}
-                                  >
-                                    <div>
-                                      <button
-                                        class="btn btn-md btn-success create-item-btn-apply filter me-2"
-                                        onClick={handleExport}
-                                      >
-                                        {/* <i class="ri-pencil-fill"></i> */}
-                                        <span
-                                          style={{
-                                            marginRight: "0px",
-                                            width: "42px",
-                                            fontSize: "15px",
-                                          }}
-                                        ></span>
-                                        <i class="ri-file-excel-2-fill  Filter-apply-color"></i>
-                                      </button>
-                                    </div>
-                                  </Tooltip>
-                                  {/* Filter button */}
-                                  <Tooltip
-                                    title={getCrudButtonToolTipName(
-                                      "Filter",
-                                      proposalName
-                                    )}
-                                  >
-                                    <div>
-                                      <button
-                                        className={
-                                          isFilterApply
-                                            ? "btn btn-md btn-success create-item-btn filter me-2"
-                                            : "btn btn-md btn-success create-item-btn-apply filter me-2"
-                                        }
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#FilterModel"
-                                      >
-                                        <i
-                                          className={
-                                            isFilterApply
-                                              ? "ri-filter-fill align-bottom "
-                                              : "ri-filter-fill align-bottom Filter-apply-color"
-                                          }
-                                        ></i>
-                                      </button>
-                                    </div>
-                                  </Tooltip>
-                                  {isFilterApply ? (
-                                    <Tooltip title={"Clear Filter"}>
-                                      <div>
-                                        <button
-                                          className="btn btn-md btn-success create-Filter-item-btn me-2"
-                                          onClick={ClearFilter} // Corrected from onclick to onClick
-                                        >
-                                          <span className="text-nowrap">
-                                            Clear Filter
-                                          </span>
-                                        </button>
-                                      </div>
-                                    </Tooltip>
-                                  ) : (
-                                    ""
-                                  )}
-                                </div>
-                                <div className="d-flex justify-content-start">
-                                  {/* Delete button */}
-                                  <Tooltip
-                                    title={getCrudButtonToolTipName(
-                                      `Delete Selected ${proposalName}`
-                                    )}
-                                  >
-                                    <div>
-                                      <button
-                                        className={
-                                          selectedRows.length !== 0
-                                            ? "btn btn-md btn-success create-item-btn filter me-2"
-                                            : "btn btn-md btn-success create-item-btn-apply filter me-2"
-                                        }
-                                        disabled={selectedRows.length === 0}
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#ConfirmModel"
-                                        onClick={() =>
-                                          setModelRequestData({
-                                            ...modelRequestData,
-                                            Action: "Delete",
-                                          })
-                                        }
-                                      >
-                                        <i
-                                          className={
-                                            selectedRows.length !== 0
-                                              ? "ri-delete-bin-5-fill align-bottom "
-                                              : "ri-delete-bin-5-fill align-bottom Filter-apply-color"
-                                          }
-                                        ></i>
-                                      </button>
-                                    </div>
-                                  </Tooltip>
-                                </div>
-                              </div>
-                            </div>
-                          )}
-                          {/* </div> */}
-                          {activeTab === "Proposal" && (
-                            <div class="col-lg-6 col-md-6 col-3 text-nowrap mb-2">
-                              {userAccessData.Admin_Proposal_CanAdd && (
-                                <div className="d-flex justify-content-sm-end add-new-btn">
-                                  {activeTab === "Proposal" && (
-                                    <CommonButtonComponent
-                                      setTitle={setTitle}
-                                      name={`Add ${proposalName}`}
-                                      title={`Add ${proposalName}`}
-                                      AddBtn={() => {
-                                        setModelRequestData({
-                                          ...modelRequestData,
-                                          ProposalId: null,
-                                          keyID: null,
-                                          quoteKeyID: null,
-                                        });
-                                        ProposalAddBtnClicked();
+                                    >
+                                      <b>Migrated {proposalName}</b>
+                                    </a>
+                                  </li>
+                                )}
+                                {SingleProposalList?.length > 0 && (
+                                  <li className="nav-item">
+                                    <a
+                                      className={`nav-link tab_nav ${activeTab === "Web Proposal" ? "active" : ""
+                                        }`}
+                                      data-bs-toggle="tab"
+                                      href="#Web Proposal"
+                                      role="tab"
+                                      aria-selected={activeTab === "Web Proposal"}
+                                      onClick={() => {
+                                        setActiveTab("Web Proposal");
+                                        TabHandle("Web Proposal");
                                       }}
-                                      // onclick={() => ProposalAddBtnClicked()}
-                                    />
-                                  )}
-
-                                  {/* </div> */}
-                                </div>
-                              )}
+                                    >
+                                      <b>API {proposalName} </b>
+                                    </a>
+                                  </li>
+                                )}
+                              </ul>
                             </div>
-                          )}
+                          </div>
                         </div>
-
-                        {/* Table Of Template and Template Pdf */}
-
-                        <div
-                          className={`tab-pane ${
-                            activeTab === "Old Proposal" ? "active" : ""
-                          }`}
-                          id="base-justified-home"
-                        >
-                          {activeTab === "Old Proposal" && (
-                            <table
-                              class="table align-middle table-nowrap"
-                              id="customerTable"
-                            >
-                              <thead class="table-light table-header-font">
-                                <tr className="head-row">
-                                  <td className="tr-table-class text-white">
-                                    Ref ID
-                                  </td>
-                                  <td className="tr-table-class text-white">
-                                    {prospectName} Name
-                                  </td>
-                                  <td className="tr-table-class text-white">
-                                    Status
-                                  </td>
-                                  <td className="tr-table-class text-white">
-                                    Value
-                                  </td>
-                                  <td className="tr-table-class text-white">
-                                    Documents
-                                  </td>
-                                  {/* <td className="tr-table-class text-white text-center">
-                                  {userAccessData.Admin_Proposal_CanView && (
-                                    <>Action</>
-                                  )}
-                                </td> */}
-                                </tr>
-                              </thead>
-                              <tbody class="list form-check-all">
-                                {oldProposalList
-                                  .slice(
-                                    0,
-                                    isMobile ? isMobileRecords : desktopRecords
-                                  )
-                                  .map((item) => {
-                                    return (
-                                      <tr class="table_new">
-                                        <td className="table-content-font">
-                                          {item.refID}
-                                        </td>
-                                        <td className="table-content-font">
-                                          {item.clientName}
-                                        </td>
-
-                                        {item.status === statusNames.Draft && (
-                                          <>
-                                            <td className="table-content-font ">
-                                              <p
-                                                className="  p-1 text-center text-white rounded"
-                                                style={{
-                                                  background: "#DAA520",
-                                                }}
-                                              >
-                                                {item.status
-                                                  ?.charAt(0)
-                                                  ?.toUpperCase() +
-                                                  item.status?.slice(1)}
-                                              </p>
-                                            </td>
-                                          </>
-                                        )}
-                                        {item.status === statusNames.Sent && (
-                                          <>
-                                            <td className="table-content-font">
-                                              <p
-                                                className=" p-1 text-center text-white rounded"
-                                                style={{
-                                                  background: " #626ED4",
-                                                }}
-                                              >
-                                                {item.status
-                                                  ?.charAt(0)
-                                                  ?.toUpperCase() +
-                                                  item.status?.slice(1)}
-                                              </p>
-                                            </td>
-                                          </>
-                                        )}
-                                        {item.status ===
-                                          statusNames.Accepted && (
-                                          <>
-                                            <td className="table-content-font">
-                                              <p
-                                                className=" p-1 text-center text-white rounded"
-                                                style={{
-                                                  background: "#008000",
-                                                }}
-                                              >
-                                                {item.status
-                                                  ?.charAt(0)
-                                                  ?.toUpperCase() +
-                                                  item.status?.slice(1)}
-                                              </p>
-                                            </td>
-                                          </>
-                                        )}
-                                        {item.status ===
-                                          statusNames.Awaiting_Signature && (
-                                          <>
-                                            <td className="table-content-font">
-                                              <p
-                                                className=" p-1 text-center text-white rounded"
-                                                style={{
-                                                  background: "#626ED4",
-                                                }}
-                                              >
-                                                {/* Awaiting Response */}
-                                                {item.statusName}
-                                              </p>
-                                            </td>
-                                          </>
-                                        )}
-                                        {item.status ===
-                                          statusNames.Declined && (
-                                          <>
-                                            <td className="table-content-font">
-                                              <p
-                                                className=" p-1 text-center text-white rounded"
-                                                style={{
-                                                  background: "#FF0000",
-                                                }}
-                                              >
-                                                {item.status
-                                                  ?.charAt(0)
-                                                  ?.toUpperCase() +
-                                                  item.status?.slice(1)}
-                                              </p>
-                                            </td>
-                                          </>
-                                        )}
-                                        {item.status === statusNames.Signed && (
-                                          <>
-                                            <td className="table-content-font">
-                                              <p
-                                                className=" p-1 text-center text-white rounded"
-                                                style={{
-                                                  background: "#008000",
-                                                }}
-                                              >
-                                                {item.status
-                                                  ?.charAt(0)
-                                                  ?.toUpperCase() +
-                                                  item.status?.slice(1)}
-                                              </p>
-                                            </td>
-                                          </>
-                                        )}
-                                        {item.status ===
-                                          statusNames.Skipped && (
-                                          <>
-                                            <td className="table-content-font">
-                                              <p
-                                                className=" p-1 text-center text-white rounded"
-                                                style={{
-                                                  background: "#38A4F8",
-                                                }}
-                                              >
-                                                {item.status
-                                                  ?.charAt(0)
-                                                  ?.toUpperCase() +
-                                                  item.status?.slice(1)}
-                                              </p>
-                                            </td>
-                                          </>
-                                        )}
-                                        {/* {item.packagesNames !== null && (
-                                        <td>
-                                          <p className="mb-0">
-                                            <b>
-                                              {item.packagesNames
-                                                .split(",")
-                                                .map((name, index) =>
-                                                  name.length > 7 ? (
-                                                    <Tooltip
-                                                      key={index}
-                                                      title={name}
-                                                    >
-                                                      <span>
-                                                        {name.substring(0, 7) +
-                                                          "..."}
-                                                      </span>
-                                                    </Tooltip>
-                                                  ) : (
-                                                    name
-                                                  )
-                                                )
-                                                .reduce((prev, curr) => [
-                                                  prev,
-                                                  ", ",
-                                                  curr,
-                                                ])}
-                                            </b>
-                                          </p>
-                                        </td>
-                                      )} */}
-
-                                        <td>
-                                          {item.status !==
-                                            statusNames.Draft && (
-                                            <p className="mb-0">
-                                              Recurring:{" "}
-                                              <b>
-                                                {formatValue(
-                                                  item.recurringTotal
-                                                )}
-                                              </b>
-                                            </p>
-                                          )}
-                                          {item.status !==
-                                            statusNames.Draft && (
-                                            <p className="mb-0">
-                                              {" "}
-                                              OneOff :{" "}
-                                              <b>
-                                                {formatValue(item.oneOffTotal)}
-                                              </b>
-                                            </p>
-                                          )}
-                                        </td>
-
-                                        <td className="table-content-font">
-                                          {/* <a
-                                        // href="https://teststaging.outbooks.com/api/quote/preview-pdf/b8c4365d-d32a-40ef-9835-f90800aa476b"
-                                        href={item.quotePDFUrl}
-                                        target="_blank"
-                                      > */}{" "}
-                                          {item.status !== statusNames.Draft &&
-                                            item.pdfUrl &&
-                                            item.status !==
-                                              statusNames.Signed && (
-                                              <p
-                                                onClick={() => {
-                                                  handleViewOldProposalPdf(
-                                                    item.pdfUrl
-                                                  );
-                                                  setTitle("View proposals");
-                                                }}
-                                                style={{
-                                                  cursor: "pointer",
-                                                  color: "blue",
-                                                }}
-                                              >
-                                                {proposalName} PDF
-                                              </p>
-                                            )}
-                                          {item.status !== statusNames.Draft &&
-                                            item.pdfUrl &&
-                                            item.status ===
-                                              statusNames.Signed && (
-                                              <p
-                                                onClick={() => {
-                                                  handleViewOldProposalPdf(
-                                                    item.pdfUrl
-                                                  );
-                                                  setTitle("View proposals");
-                                                }}
-                                                style={{ cursor: "pointer" }}
-                                              >
-                                                {proposalName} PDF
-                                              </p>
-                                            )}
-                                          {/* </a> */}
-                                        </td>
-                                      </tr>
-                                    );
-                                  })}
-                              </tbody>
-                            </table>
-                          )}
-                        </div>
-                        <div
-                          className={`tab-pane ${
-                            activeTab === "Proposal" ? "active" : ""
-                          }`}
-                          id="base-justified-home"
-                        >
-                          {activeTab === "Proposal" && (
-                            <table
-                              class="table align-middle table-nowrap"
-                              id="customerTable"
-                            >
-                              <thead class="table-light table-header-font">
-                                <tr className="head-row">
-                                  <td className="tr-table-class text-white">
-                                    Ref ID
-                                  </td>
-                                  <td className="tr-table-class text-white">
-                                    {prospectName} Name
-                                  </td>
-                                  <td className="tr-table-class text-white">
-                                    Status
-                                  </td>
-                                  <td className="tr-table-class text-white">
-                                    Value
-                                  </td>
-                                  <td className="tr-table-class text-white">
-                                    Documents
-                                  </td>
-                                  <td className="tr-table-class text-white">
-                                    Last Updated
-                                  </td>
-                                  <td className="tr-table-class text-white">
-                                    Send Reminder
-                                  </td>
-                                  <td className="tr-table-class text-white">
-                                    {userAccessData.Admin_Proposal_CanView && (
-                                      <>Action</>
-                                    )}
-                                  </td>
-                                </tr>
-                              </thead>
-                              <tbody class="list form-check-all">
-                                {ProposalList.slice(
-                                  0,
-                                  isMobile ? isMobileRecords : desktopRecords
-                                ).map((item, index) => {
-                                  return (
-                                    <tr class="table_new">
-                                      <td className="table-content-font">
-                                        {item.prefix}
-                                      </td>
-                                      <td className="table-content-font">
-                                        {item.clientName}
-                                      </td>
-
-                                      {item.statusID === statusID.Draft && (
-                                        <>
-                                          <td className="table-content-font ">
-                                            <p
-                                              className="  p-1 text-center text-white rounded"
-                                              style={{ background: "#DAA520" }}
-                                            >
-                                              {item.statusName}
-                                            </p>
-                                          </td>
-                                        </>
-                                      )}
-                                      {item.statusID === statusID.Sent && (
-                                        <>
-                                          <td className="table-content-font">
-                                            <p
-                                              className=" p-1 text-center text-white rounded"
-                                              style={{
-                                                background: " #626ED4",
-                                              }}
-                                            >
-                                              {item.statusName}
-                                            </p>
-                                          </td>
-                                        </>
-                                      )}
-                                      {item.statusID === statusID.Accepted && (
-                                        <>
-                                          <td className="table-content-font">
-                                            <p
-                                              className=" p-1 text-center text-white rounded"
-                                              style={{ background: "#008000" }}
-                                            >
-                                              {item.statusName}
-                                            </p>
-                                          </td>
-                                        </>
-                                      )}
-                                      {item.statusID ===
-                                        statusID.Awaiting_Signature && (
-                                        <>
-                                          <td className="table-content-font">
-                                            <p
-                                              className=" p-1 text-center text-white rounded"
-                                              style={{ background: "#626ED4" }}
-                                            >
-                                              {/* Awaiting Response */}
-                                              {item.statusName}
-                                            </p>
-                                          </td>
-                                        </>
-                                      )}
-                                      {item.statusID === statusID.Declined && (
-                                        <>
-                                          <td className="table-content-font">
-                                            <p
-                                              className=" p-1 text-center text-white rounded"
-                                              style={{ background: "#FF0000" }}
-                                            >
-                                              {item.statusName}
-                                            </p>
-                                          </td>
-                                        </>
-                                      )}
-                                      {item.statusID === statusID.Signed && (
-                                        <>
-                                          <td className="table-content-font">
-                                            <p
-                                              className=" p-1 text-center text-white rounded"
-                                              style={{ background: "#008000" }}
-                                            >
-                                              {item.statusName}
-                                            </p>
-                                          </td>
-                                        </>
-                                      )}
-                                      {item.statusID === statusID.Skipped && (
-                                        <>
-                                          <td className="table-content-font">
-                                            <p
-                                              className=" p-1 text-center text-white rounded"
-                                              style={{ background: "#38A4F8" }}
-                                            >
-                                              {item.statusName}
-                                            </p>
-                                          </td>
-                                        </>
-                                      )}
-                                      {item.packagesNames !== null && (
-                                        <td class="table-content-font">
-                                          <p className="mb-0">
-                                            <b>
-                                              {item.packagesNames
-                                                .split(",")
-                                                .map((name, index, array) => {
-                                                  // Remove extra spaces and trim the name
-                                                  name = name.trim();
-
-                                                  // Check if there's only one package
-                                                  const isSinglePackage =
-                                                    array.length === 1;
-                                                  const isDoublePackage =
-                                                    array.length === 2;
-                                                  // Define the length limit based on the number of packages
-                                                  const maxLength =
-                                                    isSinglePackage
-                                                      ? 45
-                                                      : isDoublePackage
-                                                      ? 25
-                                                      : 15;
-
-                                                  return name.length >
-                                                    maxLength ? (
-                                                    <Tooltip
-                                                      key={index}
-                                                      title={name}
-                                                    >
-                                                      <span>
-                                                        {name.substring(
-                                                          0,
-                                                          maxLength
-                                                        ) + "..."}
-                                                      </span>
-                                                    </Tooltip>
-                                                  ) : (
-                                                    name
-                                                  );
-                                                })
-                                                .reduce((prev, curr) => [
-                                                  prev,
-                                                  ", ",
-                                                  curr,
-                                                ])}
-                                            </b>
-                                          </p>
-                                        </td>
-                                      )}
-
-                                      {item.packagesNames === null && (
-                                        <td class="table-content-font">
-                                          {item.statusID !== statusID.Draft && (
-                                            <p className="mb-0">
-                                              Recurring:{" "}
-                                              <b>
-                                                {formatValue(
-                                                  item.recurringPrice
-                                                )}
-                                              </b>
-                                            </p>
-                                          )}
-                                          {item.statusID !== statusID.Draft && (
-                                            <p className="mb-0">
-                                              {" "}
-                                              OneOff :{" "}
-                                              <b>
-                                                {formatValue(item.oneOffPrice)}
-                                              </b>
-                                            </p>
-                                          )}
-                                        </td>
-                                      )}
-
-                                      {/* Document download */}
-                                      <td className="table-content-font">
-                                        {/* <a
-                                      // href="https://teststaging.outbooks.com/api/quote/preview-pdf/b8c4365d-d32a-40ef-9835-f90800aa476b"
-                                      href={item.quotePDFUrl}
-                                      target="_blank"
-                                    > */}{" "}
-                                        {item.statusID !== statusID.Draft &&
-                                          item.quotePDFUrl &&
-                                          item.statusID !== statusID.Signed && (
-                                            <p
-                                              onClick={() => {
-                                                handleViewPdf(item);
-                                                setTitle("View proposals");
-                                              }}
-                                              style={{
-                                                cursor: "pointer",
-                                                color: "blue",
-                                              }}
-                                            >
-                                              {proposalName} PDF
-                                            </p>
-                                          )}
-                                        {item.statusID !== statusID.Draft &&
-                                          item.quotePDFUrl &&
-                                          item.statusID === statusID.Signed && (
-                                            <p
-                                              onClick={() => {
-                                                handleDownload(item, "zip");
-                                                // downloadPdfFromAws(item.quotePDFUrl);
-                                              }}
-                                              style={{ cursor: "pointer" }}
-                                            >
-                                              {proposalName} PDF
-                                            </p>
-                                          )}
-                                        {/* </a> */}
-                                      </td>
-                                      {/* Status updated on */}
-
-                                      <td className="table-content-font">
-                                        {item.statusID === statusID.Accepted ? (
-                                          <span>
-                                            Accepted on:{" "}
-                                            {GetOnlyDate(
-                                              item.acceptDeclineDate
-                                            )}
-                                          </span>
-                                        ) : item.statusID === statusID.Sent ? (
-                                          <span>
-                                            Sent on: {GetOnlyDate(item.sentOn)}
-                                          </span>
-                                        ) : item.statusID === statusID.Draft ? (
-                                          <span>
-                                            Drafted on:{" "}
-                                            {GetOnlyDate(item.createdOn)}
-                                          </span>
-                                        ) : item.statusID ===
-                                          statusID.Skipped ? (
-                                          <span>
-                                            Skipped on:{" "}
-                                            {GetOnlyDate(item.lastUpdatedOn)}
-                                          </span>
-                                        ) : null}
-                                      </td>
-
-                                      <td className="table-content-font">
-                                        {item.statusID !== statusID.Draft && (
+                      </div>
+                      <div class="">
+                        <div class="row">
+                          <div class="col-lg-12">
+                            <div class="card">
+                              {/* end card header  */}
+                              <div class="card-body">
+                                <div id="customerList">
+                                  <div class="row g-4 mb-3"></div>
+                                  <div class="table-responsive table-card mb-3 mt-2 table-padding">
+                                    <div className="row">
+                                      {/* <div class="col-md-6 col-lg-6 col-9  mb-2"> */}
+                                      {activeTab === "Old Proposal" && (
+                                        <div class="col-md-6 col-lg-6 col-9  mb-2">
                                           <div
-                                            style={{ alignItems: "none" }}
-                                            class="d-flex gap-2"
+                                            class="search-box col-md-5 col-8 width-searchbox "
+                                            style={{}}
                                           >
-                                            <Tooltip
-                                              title={
-                                                item.enableReminder
-                                                  ? item.reminderName
-                                                    ? getCrudButtonToolTipName(
-                                                        item.reminderName
-                                                      )
-                                                    : "No reminder found"
-                                                  : ""
+                                            <i className="ri-search-line search-icon"></i>
+                                            <input
+                                              type="text"
+                                              class="form-control search"
+                                              value={ProposalSearchKeyword}
+                                              onChange={(e) => {
+                                                handleSearchOldProposal(e);
+                                              }}
+                                              placeholder={
+                                                isMobile
+                                                  ? "Search"
+                                                  : getPlaceholderTextName(
+                                                    "Search",
+                                                    proposalName
+                                                  )
                                               }
+                                            />
+                                          </div>
+                                        </div>
+                                      )}
+
+                                      {activeTab === "Proposal" && (
+                                        <div class="col-md-6 col-lg-6 col-9  mb-2">
+                                          <div className="d-flex justify-content-start">
+                                            <div
+                                              class="search-box  width-searchbox "
+                                              id="w-100"
+                                              style={{ marginRight: "10px" }}
                                             >
-                                              <div style={{ width: "40px" }}>
-                                                {item.enableReminder
-                                                  ? "Enable"
-                                                  : "Disable"}
-                                              </div>
-                                            </Tooltip>
-                                            <Tooltip
-                                              title={getCrudButtonToolTipName(
-                                                "Change Status"
+                                              <i className="ri-search-line search-icon"></i>
+                                              <input
+                                                type="text"
+                                                class="form-control search"
+                                                value={searchKeyword}
+                                                onChange={(e) => {
+                                                  handleSearch(e);
+                                                }}
+                                                placeholder={
+                                                  isMobile
+                                                    ? "Search"
+                                                    : getPlaceholderTextName(
+                                                      "Search",
+                                                      proposalName
+                                                    )
+                                                }
+                                              />
+                                            </div>
+                                            <div className=" d-flex align-items-start justify-content-start ">
+                                              <Tooltip
+                                                title={getCrudButtonToolTipName(
+                                                  "Export",
+                                                  proposalName
+                                                )}
+                                              >
+                                                <div>
+                                                  <button
+                                                    class="btn btn-md create-item-btn-apply filter me-2"
+                                                    onClick={handleExport}
+                                                  >
+                                                    {/* <i class="ri-pencil-fill"></i> */}
+                                                    <span
+                                                      style={{
+                                                        marginRight: "0px",
+                                                        width: "42px",
+                                                        fontSize: "15px",
+                                                      }}
+                                                    ></span>
+                                                    <i class="ri-file-excel-2-fill  Filter-apply-color"></i>
+                                                  </button>
+                                                </div>
+                                              </Tooltip>
+                                              <Tooltip
+                                                title={getCrudButtonToolTipName(
+                                                  "Filter",
+                                                  proposalName
+                                                )}
+                                              >
+                                                <div>
+                                                  <button
+                                                    className={
+                                                      isFilterApply
+                                                        ? "btn btn-md create-item-btn filter me-2"
+                                                        : "btn btn-md create-item-btn-apply filter me-2"
+                                                    }
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#FilterModel"
+                                                  >
+                                                    <i
+                                                      className={
+                                                        isFilterApply
+                                                          ? "ri-filter-fill align-bottom "
+                                                          : "ri-filter-fill align-bottom Filter-apply-color"
+                                                      }
+                                                    ></i>
+                                                  </button>
+                                                </div>
+                                              </Tooltip>
+                                              {isFilterApply ? (
+                                                <Tooltip title={"Clear Filter"}>
+                                                  <div>
+                                                    <button
+                                                      className="btn btn-md btn-success create-Filter-item-btn "
+                                                      onClick={ClearFilter} // Corrected from onclick to onClick
+                                                    >
+                                                      <span className="text-nowrap">
+                                                        Clear Filter
+                                                      </span>
+                                                    </button>
+                                                  </div>
+                                                </Tooltip>
+                                              ) : (
+                                                ""
                                               )}
-                                            >
-                                              <FormGroup>
-                                                <FormControlLabel
-                                                  control={
-                                                    <Android12Switch
-                                                      onClick={() =>
-                                                        setModelRequestData({
-                                                          ...modelRequestData,
-                                                          status:
-                                                            item.enableReminder
-                                                              ? "Enable"
-                                                              : "Disable",
-                                                          quoteKeyID:
-                                                            item?.quoteKeyID,
-                                                          userKeyID:
-                                                            common.userKeyID,
-                                                          StatusType: null,
-                                                          Action:
-                                                            "ReminderStatus",
-                                                        })
-                                                      }
-                                                      checked={
-                                                        item.enableReminder
-                                                      }
-                                                      data-bs-toggle="modal"
-                                                      data-bs-target="#ConfirmModel"
-                                                    />
+                                            </div>
+                                          </div>
+                                        </div>
+                                      )}
+                                      {activeTab === "Web Proposal" && (
+                                        <div class="col-md-3 col-lg-3 col-12  mb-2">
+                                          <div className="d-flex justify-content-between">
+                                            <div className="d-flex justify-content-start">
+                                              <div
+                                                class="search-box  width-searchbox "
+                                                id="w-100"
+                                                style={{ marginRight: "10px" }}
+                                              >
+                                                <i className="ri-search-line search-icon"></i>
+                                                <input
+                                                  type="text"
+                                                  class="form-control search"
+                                                  value={searchKeyword}
+                                                  onChange={(e) => {
+                                                    handleSearch(e);
+                                                  }}
+                                                  placeholder={
+                                                    isMobile
+                                                      ? "Search"
+                                                      : getPlaceholderTextName(
+                                                        "Search",
+                                                        proposalName
+                                                      )
                                                   }
                                                 />
-                                              </FormGroup>
-                                            </Tooltip>
-                                          </div>
-                                        )}
-                                      </td>
-                                      {/*buttons */}
-                                      <td className="table-content-font">
-                                        <div class="d-flex gap-2">
-                                          {/* Dropdown for all actions */}
-                                          <div class="dropdown">
-                                            <button
-                                              class="btn btn-md btn-success create-item-btn"
-                                              type="button"
-                                              id="dropdownMenuButton"
-                                              data-bs-toggle="dropdown"
-                                              aria-expanded="false"
-                                            >
-                                              <span>
-                                                Actions
-                                                <ExpandMoreIcon />
-                                              </span>
-                                            </button>
-                                            <ul
-                                              style={{
-                                                padding: `${
-                                                  item.statusID ===
-                                                  statusID.Draft
-                                                    ? "2px 0px 2px 0px"
-                                                    : "6px 8px"
-                                                }`,
-                                                inset: "auto 0px 0px auto",
-                                              }}
-                                              class="dropdown-menu"
-                                              aria-labelledby="dropdownMenuButton"
-                                            >
-                                              {/* Draft button */}
-                                              {item.statusID ===
-                                                statusID.Draft &&
-                                                userAccessData.Admin_Proposal_CanEdit && (
-                                                  <>
-                                                    <li>
-                                                      {/* <Tooltip title={`Edit ${proposalName}`} placement="right"> */}
-                                                      <a
-                                                        className="dropdown-item"
-                                                        onClick={() => {
-                                                          handleEditProposal(
-                                                            item
-                                                          );
-                                                          setTitle(
-                                                            "Edit proposals"
-                                                          );
-                                                        }}
-                                                      >
-                                                        <i
-                                                          className="ri-pencil-fill custom-pencil-icon"
-                                                          style={{
-                                                            marginRight: "2px",
-                                                          }}
-                                                        ></i>{" "}
-                                                        Edit {proposalName}
-                                                      </a>
-                                                      {/* </Tooltip> */}
-                                                    </li>
-                                                    <li>
-                                                      {/* <Tooltip title={`Delete ${proposalName}`} placement="right"> */}
-                                                      <a
-                                                        class="dropdown-item"
-                                                        data-bs-toggle="modal"
-                                                        data-bs-target="#ConfirmModel"
-                                                        onClick={() => {
-                                                          setModelRequestData({
-                                                            ...modelRequestData,
-                                                            Action: "Delete",
-                                                            RefId: item.prefix,
-                                                            quoteKeyID:
-                                                              item.quoteKeyID,
-                                                            userKeyID:
-                                                              common.userKeyID,
-                                                            message:
-                                                              "Are you sure you want to delete this quote?",
-                                                          });
-                                                        }}
-                                                      >
-                                                        <i
-                                                          className="ri-delete-bin-5-fill"
-                                                          style={{
-                                                            marginRight: "2px",
-                                                          }}
-                                                        ></i>{" "}
-                                                        Delete {proposalName}
-                                                      </a>
-                                                      {/* </Tooltip> */}
-                                                    </li>
-                                                  </>
+                                              </div>
+                                              {/* Export button */}
+                                              <Tooltip
+                                                title={getCrudButtonToolTipName(
+                                                  "Export",
+                                                  proposalName
                                                 )}
-
-                                              {/* View button */}
-                                              {(item.statusID ===
-                                                statusID.Accepted ||
-                                                item.statusID ===
-                                                  statusID.Declined ||
-                                                item.statusID ===
-                                                  statusID.Sent ||
-                                                item.statusID ===
-                                                  statusID.Skipped) &&
-                                                userAccessData.Admin_Proposal_CanView && (
-                                                  <li>
-                                                    <a
-                                                      class="dropdown-item"
-                                                      onClick={() =>
-                                                        handleView(item)
-                                                      }
-                                                    >
-                                                      <i class="bi bi-eye"></i>{" "}
-                                                      View {proposalName}
-                                                    </a>
-                                                  </li>
-                                                )}
-
-                                              {/* Generate Contract button */}
-                                              {(item.statusID ===
-                                                statusID.Sent ||
-                                                item.statusID ===
-                                                  statusID.Skipped) &&
-                                                common.enableEL == 1 &&
-                                                userAccessData.Admin_Engagement_Latter_CanAdd &&
-                                                userAccessData.Admin_Engagement_Latter_CanView && (
-                                                  <li>
-                                                    <a
-                                                      class="dropdown-item"
-                                                      onClick={() => {
-                                                        HandleSkippedToEL(item, false);
-                                                        setTitle(
-                                                          "Skipped To Engagement_letter"
-                                                        );
+                                              >
+                                                <div>
+                                                  <button
+                                                    class="btn btn-md btn-success create-item-btn-apply filter me-2"
+                                                    onClick={handleExport}
+                                                  >
+                                                    {/* <i class="ri-pencil-fill"></i> */}
+                                                    <span
+                                                      style={{
+                                                        marginRight: "0px",
+                                                        width: "42px",
+                                                        fontSize: "15px",
                                                       }}
-                                                    >
-                                                      <i class="bi bi-gear-fill"></i>{" "}
-                                                      Generate {EngagementName}
-                                                    </a>
-                                                  </li>
+                                                    ></span>
+                                                    <i class="ri-file-excel-2-fill  Filter-apply-color"></i>
+                                                  </button>
+                                                </div>
+                                              </Tooltip>
+                                              {/* Filter button */}
+                                              <Tooltip
+                                                title={getCrudButtonToolTipName(
+                                                  "Filter",
+                                                  proposalName
                                                 )}
-
-                                              {/* Copy button */}
-                                              {item.statusID !==
-                                                statusID.Draft && (
-                                                <li>
-                                                  <a
-                                                    class="dropdown-item"
+                                              >
+                                                <div>
+                                                  <button
+                                                    className={
+                                                      isFilterApply
+                                                        ? "btn btn-md btn-success create-item-btn filter me-2"
+                                                        : "btn btn-md btn-success create-item-btn-apply filter me-2"
+                                                    }
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#FilterModel"
+                                                  >
+                                                    <i
+                                                      className={
+                                                        isFilterApply
+                                                          ? "ri-filter-fill align-bottom "
+                                                          : "ri-filter-fill align-bottom Filter-apply-color"
+                                                      }
+                                                    ></i>
+                                                  </button>
+                                                </div>
+                                              </Tooltip>
+                                              {isFilterApply ? (
+                                                <Tooltip title={"Clear Filter"}>
+                                                  <div>
+                                                    <button
+                                                      className="btn btn-md btn-success create-Filter-item-btn me-2"
+                                                      onClick={ClearFilter} // Corrected from onclick to onClick
+                                                    >
+                                                      <span className="text-nowrap">
+                                                        Clear Filter
+                                                      </span>
+                                                    </button>
+                                                  </div>
+                                                </Tooltip>
+                                              ) : (
+                                                ""
+                                              )}
+                                            </div>
+                                            <div className="d-flex justify-content-start">
+                                              {/* Delete button */}
+                                              <Tooltip
+                                                title={getCrudButtonToolTipName(
+                                                  `Delete Selected ${proposalName}`
+                                                )}
+                                              >
+                                                <div>
+                                                  <button
+                                                    className={
+                                                      selectedRows.length !== 0
+                                                        ? "btn btn-md btn-success create-item-btn filter me-2"
+                                                        : "btn btn-md btn-success create-item-btn-apply filter me-2"
+                                                    }
+                                                    disabled={selectedRows.length === 0}
                                                     data-bs-toggle="modal"
                                                     data-bs-target="#ConfirmModel"
-                                                    onClick={() => {
+                                                    onClick={() =>
                                                       setModelRequestData({
                                                         ...modelRequestData,
-                                                        Action: "Copy",
-                                                        quoteKeyID:
-                                                          item.quoteKeyID,
-                                                        RefId: item.prefix,
-                                                      });
-                                                    }}
+                                                        Action: "Delete",
+                                                      })
+                                                    }
                                                   >
-                                                    <i class="fa-solid fa-copy"></i>{" "}
-                                                    Copy {proposalName}
-                                                  </a>
-                                                </li>
-                                              )}
-
-                                              {/* Resend Proposal */}
-                                              {item.statusID ===
-                                                statusID.Sent &&
-                                                userAccessData.Admin_Proposal_CanEdit && (
-                                                  <li>
-                                                    <a
-                                                      class="dropdown-item"
-                                                      data-bs-toggle="modal"
-                                                      data-bs-target="#ConfirmModel"
-                                                      onClick={() => {
-                                                        setModelRequestData({
-                                                          ...modelRequestData,
-                                                          quoteKeyID:
-                                                            item.quoteKeyID,
-                                                          message: `Are you sure you want to re-send ${proposalName}`,
-                                                          RefId: item.prefix,
-                                                          Action: "Resend",
-                                                        });
-                                                      }}
-                                                    >
-                                                      <i class="fas fa-redo"></i>{" "}
-                                                      Re-send {proposalName}
-                                                    </a>
-                                                  </li>
-                                                )}
-                                            </ul>
+                                                    <i
+                                                      className={
+                                                        selectedRows.length !== 0
+                                                          ? "ri-delete-bin-5-fill align-bottom "
+                                                          : "ri-delete-bin-5-fill align-bottom Filter-apply-color"
+                                                      }
+                                                    ></i>
+                                                  </button>
+                                                </div>
+                                              </Tooltip>
+                                            </div>
                                           </div>
                                         </div>
-                                      </td>
-                                    </tr>
-                                  );
-                                })}
-                              </tbody>
-                            </table>
-                          )}
-                        </div>
-                        <div
-                          className={`tab-pane ${
-                            activeTab === "Web Proposal" ? "active" : ""
-                          }`}
-                          id="base-justified-home"
-                        >
-                          {activeTab === "Web Proposal" && (
-                            <table
-                              class="table align-middle table-nowrap"
-                              id="customerTable"
-                            >
-                              <thead class="table-light table-header-font">
-                                <tr className="head-row">
-                                  <td className="tr-table-class text-white">
-                                    <input
-                                      type="checkbox"
-                                      className="me-2"
-                                      checked={
-                                        selectedRows.length ===
-                                        visibleRows.length
-                                      }
-                                      onChange={handleSelectAll}
-                                    />{" "}
-                                    Ref ID
-                                  </td>
-                                  <td className="tr-table-class text-white">
-                                    {prospectName} Name
-                                  </td>
-                                  <td className="tr-table-class text-white">
-                                    Status
-                                  </td>
-                                  <td className="tr-table-class text-white">
-                                    Value
-                                  </td>
-                                  <td className="tr-table-class text-white">
-                                    Documents
-                                  </td>
+                                      )}
+                                      {/* </div> */}
+                                      {activeTab === "Proposal" && (
+                                        <div class="col-lg-6 col-md-6 col-3 text-nowrap mb-2">
+                                          {userAccessData.Admin_Proposal_CanAdd && (
+                                            <div className="d-flex justify-content-sm-end add-new-btn">
+                                              {activeTab === "Proposal" && (
+                                                <CommonButtonComponent
+                                                  setTitle={setTitle}
+                                                  name={`Add ${proposalName}`}
+                                                  title={`Add ${proposalName}`}
+                                                  AddBtn={() => {
+                                                    setModelRequestData({
+                                                      ...modelRequestData,
+                                                      ProposalId: null,
+                                                      keyID: null,
+                                                      quoteKeyID: null,
+                                                    });
+                                                    ProposalAddBtnClicked();
+                                                  }}
+                                                // onclick={() => ProposalAddBtnClicked()}
+                                                />
+                                              )}
 
-                                  <td className="tr-table-class text-white">
-                                    {userAccessData.Admin_Proposal_CanView && (
-                                      <>Action</>
-                                    )}
-                                  </td>
-                                </tr>
-                              </thead>
-                              <tbody class="list form-check-all">
-                                {SingleProposalList.slice(
-                                  0,
-                                  isMobile ? isMobileRecords : desktopRecords
-                                ).map((item, index) => {
-                                  return (
-                                    <tr class="table_new">
-                                      <td className="table-content-font">
-                                        <input
-                                          type="checkbox"
-                                          className="me-2"
-                                          checked={selectedRows.includes(
-                                            item.quoteKeyID
-                                          )}
-                                          onChange={() =>
-                                            handleRowSelect(item.quoteKeyID)
-                                          }
-                                        />{" "}
-                                        {item.prefix}
-                                      </td>
-                                      <td className="table-content-font">
-                                        {item.clientName}
-                                      </td>
-
-                                      {item.statusID === statusID.Draft && (
-                                        <>
-                                          <td className="table-content-font ">
-                                            <p
-                                              className="  p-1 text-center text-white rounded"
-                                              style={{ background: "#DAA520" }}
-                                            >
-                                              {item.statusName}
-                                            </p>
-                                          </td>
-                                        </>
-                                      )}
-                                      {item.statusID === statusID.Sent && (
-                                        <>
-                                          <td className="table-content-font">
-                                            <p
-                                              className=" p-1 text-center text-white rounded"
-                                              style={{
-                                                background: " #626ED4",
-                                              }}
-                                            >
-                                              {item.statusName}
-                                            </p>
-                                          </td>
-                                        </>
-                                      )}
-                                      {item.statusID === statusID.Accepted && (
-                                        <>
-                                          <td className="table-content-font">
-                                            <p
-                                              className=" p-1 text-center text-white rounded"
-                                              style={{ background: "#008000" }}
-                                            >
-                                              {item.statusName}
-                                            </p>
-                                          </td>
-                                        </>
-                                      )}
-                                      {item.statusID ===
-                                        statusID.Awaiting_Signature && (
-                                        <>
-                                          <td className="table-content-font">
-                                            <p
-                                              className=" p-1 text-center text-white rounded"
-                                              style={{ background: "#626ED4" }}
-                                            >
-                                              {/* Awaiting Response */}
-                                              {item.statusName}
-                                            </p>
-                                          </td>
-                                        </>
-                                      )}
-                                      {item.statusID === statusID.Declined && (
-                                        <>
-                                          <td className="table-content-font">
-                                            <p
-                                              className=" p-1 text-center text-white rounded"
-                                              style={{ background: "#FF0000" }}
-                                            >
-                                              {item.statusName}
-                                            </p>
-                                          </td>
-                                        </>
-                                      )}
-                                      {item.statusID === statusID.Signed && (
-                                        <>
-                                          <td className="table-content-font">
-                                            <p
-                                              className=" p-1 text-center text-white rounded"
-                                              style={{ background: "#008000" }}
-                                            >
-                                              {item.statusName}
-                                            </p>
-                                          </td>
-                                        </>
-                                      )}
-                                      {item.statusID === statusID.Skipped && (
-                                        <>
-                                          <td className="table-content-font">
-                                            <p
-                                              className=" p-1 text-center text-white rounded"
-                                              style={{ background: "#38A4F8" }}
-                                            >
-                                              {item.statusName}
-                                            </p>
-                                          </td>
-                                        </>
-                                      )}
-                                      {item.packagesNames !== null && (
-                                        <td class="table-content-font">
-                                          <p className="mb-0">
-                                            <b>
-                                              {item.packagesNames
-                                                .split(",")
-                                                .map((name, index, array) => {
-                                                  // Remove extra spaces and trim the name
-                                                  name = name.trim();
-
-                                                  // Check if there's only one package
-                                                  const isSinglePackage =
-                                                    array.length === 1;
-                                                  const isDoublePackage =
-                                                    array.length === 2;
-                                                  // Define the length limit based on the number of packages
-                                                  const maxLength =
-                                                    isSinglePackage
-                                                      ? 45
-                                                      : isDoublePackage
-                                                      ? 25
-                                                      : 15;
-
-                                                  return name.length >
-                                                    maxLength ? (
-                                                    <Tooltip
-                                                      key={index}
-                                                      title={name}
-                                                    >
-                                                      <span>
-                                                        {name.substring(
-                                                          0,
-                                                          maxLength
-                                                        ) + "..."}
-                                                      </span>
-                                                    </Tooltip>
-                                                  ) : (
-                                                    name
-                                                  );
-                                                })
-                                                .reduce((prev, curr) => [
-                                                  prev,
-                                                  ", ",
-                                                  curr,
-                                                ])}
-                                            </b>
-                                          </p>
-                                        </td>
-                                      )}
-
-                                      {item.packagesNames === null && (
-                                        <td class="table-content-font">
-                                          {item.statusID !== statusID.Draft && (
-                                            <p className="mb-0">
-                                              Recurring:{" "}
-                                              <b>
-                                                {formatValue(
-                                                  item.recurringPrice
-                                                )}
-                                              </b>
-                                            </p>
-                                          )}
-                                          {item.statusID !== statusID.Draft && (
-                                            <p className="mb-0">
-                                              {" "}
-                                              OneOff :{" "}
-                                              <b>
-                                                {formatValue(item.oneOffPrice)}
-                                              </b>
-                                            </p>
-                                          )}
-                                        </td>
-                                      )}
-
-                                      <td className="table-content-font">
-                                        {/* <a
-                                      // href="https://teststaging.outbooks.com/api/quote/preview-pdf/b8c4365d-d32a-40ef-9835-f90800aa476b"
-                                      href={item.quotePDFUrl}
-                                      target="_blank"
-                                    > */}{" "}
-                                        {item.statusID !== statusID.Draft &&
-                                          item.quotePDFUrl &&
-                                          item.statusID !== statusID.Signed && (
-                                            <p
-                                              onClick={() => {
-                                                handleViewPdf(item);
-                                                setTitle("View proposals");
-                                              }}
-                                              style={{
-                                                cursor: "pointer",
-                                                color: "blue",
-                                              }}
-                                            >
-                                              {proposalName} PDF
-                                            </p>
-                                          )}
-                                        {item.statusID !== statusID.Draft &&
-                                          item.quotePDFUrl &&
-                                          item.statusID === statusID.Signed && (
-                                            <p
-                                              onClick={() => {
-                                                handleDownload(item, "zip");
-                                                // downloadPdfFromAws(item.quotePDFUrl);
-                                              }}
-                                              style={{ cursor: "pointer" }}
-                                            >
-                                              {proposalName} PDF
-                                            </p>
-                                          )}
-                                        {/* </a> */}
-                                      </td>
-                                      {/*Delete buttons */}
-
-                                      <td>
-                                        <div class="d-flex gap-2">
-                                          <Tooltip
-                                            title={getCrudButtonToolTipName(
-                                              "Delete",
-                                              { proposalName }
-                                            )}
-                                          >
-                                            <div class="remove">
-                                              <button
-                                                class="btn btn-sm btn-danger remove-item-btn actionButtonsStyle"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#ConfirmModel"
-                                                onClick={() =>
-                                                  setModelRequestData({
-                                                    ...modelRequestData,
-                                                    quoteKeyID: item.quoteKeyID,
-                                                    clientName: item.clientName,
-                                                    userKeyID: common.userKeyID,
-                                                    Action: "Delete",
-                                                  })
-                                                }
-                                              >
-                                                <i class="ri-delete-bin-5-fill"></i>
-                                              </button>
+                                              {/* </div> */}
                                             </div>
-                                          </Tooltip>
+                                          )}
                                         </div>
-                                      </td>
-                                    </tr>
-                                  );
-                                })}
-                              </tbody>
-                            </table>
-                          )}
+                                      )}
+                                    </div>
+
+                                    {/* Table Of Template and Template Pdf */}
+
+                                    <div
+                                      className={`tab-pane ${activeTab === "Old Proposal" ? "active" : ""
+                                        }`}
+                                      id="base-justified-home"
+                                    >
+                                      {activeTab === "Old Proposal" && (
+                                        <table
+                                          class="table align-middle table-nowrap"
+                                          id="customerTable"
+                                        >
+                                          <thead class="table-light table-header-font">
+                                            <tr className="head-row">
+                                              <td className="tr-table-class text-white">
+                                                Ref ID
+                                              </td>
+                                              <td className="tr-table-class text-white">
+                                                {prospectName} Name
+                                              </td>
+                                              <td className="tr-table-class text-white">
+                                                Status
+                                              </td>
+                                              <td className="tr-table-class text-white">
+                                                Value
+                                              </td>
+                                              <td className="tr-table-class text-white">
+                                                Documents
+                                              </td>
+                                              {/* <td className="tr-table-class text-white text-center">
+                                          {userAccessData.Admin_Proposal_CanView && (
+                                            <>Action</>
+                                          )}
+                                        </td> */}
+                                            </tr>
+                                          </thead>
+                                          <tbody class="list form-check-all">
+                                            {oldProposalList
+                                              .slice(
+                                                0,
+                                                isMobile ? isMobileRecords : desktopRecords
+                                              )
+                                              .map((item) => {
+                                                return (
+                                                  <tr class="table_new">
+                                                    <td className="table-content-font">
+                                                      {item.refID}
+                                                    </td>
+                                                    <td className="table-content-font">
+                                                      {item.clientName}
+                                                    </td>
+
+                                                    {item.status === statusNames.Draft && (
+                                                      <>
+                                                        <td className="table-content-font ">
+                                                          <p
+                                                            className="  p-1 text-center text-white rounded"
+                                                            style={{
+                                                              background: "#DAA520",
+                                                            }}
+                                                          >
+                                                            {item.status
+                                                              ?.charAt(0)
+                                                              ?.toUpperCase() +
+                                                              item.status?.slice(1)}
+                                                          </p>
+                                                        </td>
+                                                      </>
+                                                    )}
+                                                    {item.status === statusNames.Sent && (
+                                                      <>
+                                                        <td className="table-content-font">
+                                                          <p
+                                                            className=" p-1 text-center text-white rounded"
+                                                            style={{
+                                                              background: " #626ED4",
+                                                            }}
+                                                          >
+                                                            {item.status
+                                                              ?.charAt(0)
+                                                              ?.toUpperCase() +
+                                                              item.status?.slice(1)}
+                                                          </p>
+                                                        </td>
+                                                      </>
+                                                    )}
+                                                    {item.status ===
+                                                      statusNames.Accepted && (
+                                                        <>
+                                                          <td className="table-content-font">
+                                                            <p
+                                                              className=" p-1 text-center text-white rounded"
+                                                              style={{
+                                                                background: "#008000",
+                                                              }}
+                                                            >
+                                                              {item.status
+                                                                ?.charAt(0)
+                                                                ?.toUpperCase() +
+                                                                item.status?.slice(1)}
+                                                            </p>
+                                                          </td>
+                                                        </>
+                                                      )}
+                                                    {item.status ===
+                                                      statusNames.Awaiting_Signature && (
+                                                        <>
+                                                          <td className="table-content-font">
+                                                            <p
+                                                              className=" p-1 text-center text-white rounded"
+                                                              style={{
+                                                                background: "#626ED4",
+                                                              }}
+                                                            >
+                                                              {/* Awaiting Response */}
+                                                              {item.statusName}
+                                                            </p>
+                                                          </td>
+                                                        </>
+                                                      )}
+                                                    {item.status ===
+                                                      statusNames.Declined && (
+                                                        <>
+                                                          <td className="table-content-font">
+                                                            <p
+                                                              className=" p-1 text-center text-white rounded"
+                                                              style={{
+                                                                background: "#FF0000",
+                                                              }}
+                                                            >
+                                                              {item.status
+                                                                ?.charAt(0)
+                                                                ?.toUpperCase() +
+                                                                item.status?.slice(1)}
+                                                            </p>
+                                                          </td>
+                                                        </>
+                                                      )}
+                                                    {item.status === statusNames.Signed && (
+                                                      <>
+                                                        <td className="table-content-font">
+                                                          <p
+                                                            className=" p-1 text-center text-white rounded"
+                                                            style={{
+                                                              background: "#008000",
+                                                            }}
+                                                          >
+                                                            {item.status
+                                                              ?.charAt(0)
+                                                              ?.toUpperCase() +
+                                                              item.status?.slice(1)}
+                                                          </p>
+                                                        </td>
+                                                      </>
+                                                    )}
+                                                    {item.status ===
+                                                      statusNames.Skipped && (
+                                                        <>
+                                                          <td className="table-content-font">
+                                                            <p
+                                                              className=" p-1 text-center text-white rounded"
+                                                              style={{
+                                                                background: "#38A4F8",
+                                                              }}
+                                                            >
+                                                              {item.status
+                                                                ?.charAt(0)
+                                                                ?.toUpperCase() +
+                                                                item.status?.slice(1)}
+                                                            </p>
+                                                          </td>
+                                                        </>
+                                                      )}
+                                                    {/* {item.packagesNames !== null && (
+                                                <td>
+                                                  <p className="mb-0">
+                                                    <b>
+                                                      {item.packagesNames
+                                                        .split(",")
+                                                        .map((name, index) =>
+                                                          name.length > 7 ? (
+                                                            <Tooltip
+                                                              key={index}
+                                                              title={name}
+                                                            >
+                                                              <span>
+                                                                {name.substring(0, 7) +
+                                                                  "..."}
+                                                              </span>
+                                                            </Tooltip>
+                                                          ) : (
+                                                            name
+                                                          )
+                                                        )
+                                                        .reduce((prev, curr) => [
+                                                          prev,
+                                                          ", ",
+                                                          curr,
+                                                        ])}
+                                                    </b>
+                                                  </p>
+                                                </td>
+                                              )} */}
+
+                                                    <td>
+                                                      {item.status !==
+                                                        statusNames.Draft && (
+                                                          <p className="mb-0">
+                                                            Recurring:{" "}
+                                                            <b>
+                                                              {formatValue(
+                                                                item.recurringTotal
+                                                              )}
+                                                            </b>
+                                                          </p>
+                                                        )}
+                                                      {item.status !==
+                                                        statusNames.Draft && (
+                                                          <p className="mb-0">
+                                                            {" "}
+                                                            OneOff :{" "}
+                                                            <b>
+                                                              {formatValue(item.oneOffTotal)}
+                                                            </b>
+                                                          </p>
+                                                        )}
+                                                    </td>
+
+                                                    <td className="table-content-font">
+                                                      {/* <a
+                                                // href="https://teststaging.outbooks.com/api/quote/preview-pdf/b8c4365d-d32a-40ef-9835-f90800aa476b"
+                                                href={item.quotePDFUrl}
+                                                target="_blank"
+                                              > */}{" "}
+                                                      {item.status !== statusNames.Draft &&
+                                                        item.pdfUrl &&
+                                                        item.status !==
+                                                        statusNames.Signed && (
+                                                          <p
+                                                            onClick={() => {
+                                                              handleViewOldProposalPdf(
+                                                                item.pdfUrl
+                                                              );
+                                                              setTitle("View proposals");
+                                                            }}
+                                                            style={{
+                                                              cursor: "pointer",
+                                                              color: "blue",
+                                                            }}
+                                                          >
+                                                            {proposalName} PDF
+                                                          </p>
+                                                        )}
+                                                      {item.status !== statusNames.Draft &&
+                                                        item.pdfUrl &&
+                                                        item.status ===
+                                                        statusNames.Signed && (
+                                                          <p
+                                                            onClick={() => {
+                                                              handleViewOldProposalPdf(
+                                                                item.pdfUrl
+                                                              );
+                                                              setTitle("View proposals");
+                                                            }}
+                                                            style={{ cursor: "pointer" }}
+                                                          >
+                                                            {proposalName} PDF
+                                                          </p>
+                                                        )}
+                                                      {/* </a> */}
+                                                    </td>
+                                                  </tr>
+                                                );
+                                              })}
+                                          </tbody>
+                                        </table>
+                                      )}
+                                    </div>
+                                    <div
+                                      className={`tab-pane ${activeTab === "Proposal" ? "active" : ""
+                                        }`}
+                                      id="base-justified-home"
+                                    >
+                                      {activeTab === "Proposal" && (
+                                        <table
+                                          class="table align-middle table-nowrap"
+                                          id="customerTable"
+                                        >
+                                          <thead class="table-light table-header-font">
+                                            <tr className="head-row">
+                                              <td className="tr-table-class text-white">
+                                                Ref ID
+                                              </td>
+                                              <td className="tr-table-class text-white">
+                                                {prospectName} Name
+                                              </td>
+                                              <td className="tr-table-class text-white">
+                                                Status
+                                              </td>
+                                              <td className="tr-table-class text-white">
+                                                Value
+                                              </td>
+                                              <td className="tr-table-class text-white">
+                                                Documents
+                                              </td>
+                                              <td className="tr-table-class text-white">
+                                                Last Updated
+                                              </td>
+                                              <td className="tr-table-class text-white">
+                                                Send Reminder
+                                              </td>
+                                              <td className="tr-table-class text-white">
+                                                {userAccessData.Admin_Proposal_CanView && (
+                                                  <>Action</>
+                                                )}
+                                              </td>
+                                            </tr>
+                                          </thead>
+                                          <tbody class="list form-check-all">
+                                            {ProposalList.slice(
+                                              0,
+                                              isMobile ? isMobileRecords : desktopRecords
+                                            ).map((item, index) => {
+                                              return (
+                                                <tr class="table_new">
+                                                  <td className="table-content-font">
+                                                    {item.prefix}
+                                                  </td>
+                                                  <td className="table-content-font">
+                                                    {item.clientName}
+                                                  </td>
+
+                                                  {item.statusID === statusID.Draft && (
+                                                    <>
+                                                      <td className="table-content-font ">
+                                                        <p
+                                                          className="  p-1 text-center text-white rounded"
+                                                          style={{ background: "#DAA520" }}
+                                                        >
+                                                          {item.statusName}
+                                                        </p>
+                                                      </td>
+                                                    </>
+                                                  )}
+                                                  {item.statusID === statusID.Sent && (
+                                                    <>
+                                                      <td className="table-content-font">
+                                                        <p
+                                                          className=" p-1 text-center text-white rounded"
+                                                          style={{
+                                                            background: " #626ED4",
+                                                          }}
+                                                        >
+                                                          {item.statusName}
+                                                        </p>
+                                                      </td>
+                                                    </>
+                                                  )}
+                                                  {item.statusID === statusID.Accepted && (
+                                                    <>
+                                                      <td className="table-content-font">
+                                                        <p
+                                                          className=" p-1 text-center text-white rounded"
+                                                          style={{ background: "#008000" }}
+                                                        >
+                                                          {item.statusName}
+                                                        </p>
+                                                      </td>
+                                                    </>
+                                                  )}
+                                                  {item.statusID ===
+                                                    statusID.Awaiting_Signature && (
+                                                      <>
+                                                        <td className="table-content-font">
+                                                          <p
+                                                            className=" p-1 text-center text-white rounded"
+                                                            style={{ background: "#626ED4" }}
+                                                          >
+                                                            {/* Awaiting Response */}
+                                                            {item.statusName}
+                                                          </p>
+                                                        </td>
+                                                      </>
+                                                    )}
+                                                  {item.statusID === statusID.Declined && (
+                                                    <>
+                                                      <td className="table-content-font">
+                                                        <p
+                                                          className=" p-1 text-center text-white rounded"
+                                                          style={{ background: "#FF0000" }}
+                                                        >
+                                                          {item.statusName}
+                                                        </p>
+                                                      </td>
+                                                    </>
+                                                  )}
+                                                  {item.statusID === statusID.Signed && (
+                                                    <>
+                                                      <td className="table-content-font">
+                                                        <p
+                                                          className=" p-1 text-center text-white rounded"
+                                                          style={{ background: "#008000" }}
+                                                        >
+                                                          {item.statusName}
+                                                        </p>
+                                                      </td>
+                                                    </>
+                                                  )}
+                                                  {item.statusID === statusID.Skipped && (
+                                                    <>
+                                                      <td className="table-content-font">
+                                                        <p
+                                                          className=" p-1 text-center text-white rounded"
+                                                          style={{ background: "#38A4F8" }}
+                                                        >
+                                                          {item.statusName}
+                                                        </p>
+                                                      </td>
+                                                    </>
+                                                  )}
+                                                  {item.packagesNames !== null && (
+                                                    <td class="table-content-font">
+                                                      <p className="mb-0">
+                                                        <b>
+                                                          {item.packagesNames
+                                                            .split(",")
+                                                            .map((name, index, array) => {
+                                                              // Remove extra spaces and trim the name
+                                                              name = name.trim();
+
+                                                              // Check if there's only one package
+                                                              const isSinglePackage =
+                                                                array.length === 1;
+                                                              const isDoublePackage =
+                                                                array.length === 2;
+                                                              // Define the length limit based on the number of packages
+                                                              const maxLength =
+                                                                isSinglePackage
+                                                                  ? 45
+                                                                  : isDoublePackage
+                                                                    ? 25
+                                                                    : 15;
+
+                                                              return name.length >
+                                                                maxLength ? (
+                                                                <Tooltip
+                                                                  key={index}
+                                                                  title={name}
+                                                                >
+                                                                  <span>
+                                                                    {name.substring(
+                                                                      0,
+                                                                      maxLength
+                                                                    ) + "..."}
+                                                                  </span>
+                                                                </Tooltip>
+                                                              ) : (
+                                                                name
+                                                              );
+                                                            })
+                                                            .reduce((prev, curr) => [
+                                                              prev,
+                                                              ", ",
+                                                              curr,
+                                                            ])}
+                                                        </b>
+                                                      </p>
+                                                    </td>
+                                                  )}
+
+                                                  {item.packagesNames === null && (
+                                                    <td class="table-content-font">
+                                                      {item.statusID !== statusID.Draft && (
+                                                        <p className="mb-0">
+                                                          Recurring:{" "}
+                                                          <b>
+                                                            {formatValue(
+                                                              item.recurringPrice
+                                                            )}
+                                                          </b>
+                                                        </p>
+                                                      )}
+                                                      {item.statusID !== statusID.Draft && (
+                                                        <p className="mb-0">
+                                                          {" "}
+                                                          OneOff :{" "}
+                                                          <b>
+                                                            {formatValue(item.oneOffPrice)}
+                                                          </b>
+                                                        </p>
+                                                      )}
+                                                    </td>
+                                                  )}
+
+                                                  {/* Document download */}
+                                                  <td className="table-content-font">
+                                                    {/* <a
+                                              // href="https://teststaging.outbooks.com/api/quote/preview-pdf/b8c4365d-d32a-40ef-9835-f90800aa476b"
+                                              href={item.quotePDFUrl}
+                                              target="_blank"
+                                            > */}{" "}
+                                                    {item.statusID !== statusID.Draft &&
+                                                      item.quotePDFUrl &&
+                                                      item.statusID !== statusID.Signed && (
+                                                        <p
+                                                          onClick={() => {
+                                                            handleViewPdf(item);
+                                                            setTitle("View proposals");
+                                                          }}
+                                                          style={{
+                                                            cursor: "pointer",
+                                                            color: "blue",
+                                                          }}
+                                                        >
+                                                          {proposalName} PDF
+                                                        </p>
+                                                      )}
+                                                    {item.statusID !== statusID.Draft &&
+                                                      item.quotePDFUrl &&
+                                                      item.statusID === statusID.Signed && (
+                                                        <p
+                                                          onClick={() => {
+                                                            handleDownload(item, "zip");
+                                                            // downloadPdfFromAws(item.quotePDFUrl);
+                                                          }}
+                                                          style={{ cursor: "pointer" }}
+                                                        >
+                                                          {proposalName} PDF
+                                                        </p>
+                                                      )}
+                                                    {/* </a> */}
+                                                  </td>
+                                                  {/* Status updated on */}
+
+                                                  <td className="table-content-font">
+                                                    {item.statusID === statusID.Accepted ? (
+                                                      <span>
+                                                        Accepted on:{" "}
+                                                        {GetOnlyDate(
+                                                          item.acceptDeclineDate
+                                                        )}
+                                                      </span>
+                                                    ) : item.statusID === statusID.Sent ? (
+                                                      <span>
+                                                        Sent on: {GetOnlyDate(item.sentOn)}
+                                                      </span>
+                                                    ) : item.statusID === statusID.Draft ? (
+                                                      <span>
+                                                        Drafted on:{" "}
+                                                        {GetOnlyDate(item.createdOn)}
+                                                      </span>
+                                                    ) : item.statusID ===
+                                                      statusID.Skipped ? (
+                                                      <span>
+                                                        Skipped on:{" "}
+                                                        {GetOnlyDate(item.lastUpdatedOn)}
+                                                      </span>
+                                                    ) : null}
+                                                  </td>
+
+                                                  <td className="table-content-font">
+                                                    {item.statusID !== statusID.Draft && (
+                                                      <div
+                                                        style={{ alignItems: "none" }}
+                                                        class="d-flex gap-2"
+                                                      >
+                                                        <Tooltip
+                                                          title={
+                                                            item.enableReminder
+                                                              ? item.reminderName
+                                                                ? getCrudButtonToolTipName(
+                                                                  item.reminderName
+                                                                )
+                                                                : "No reminder found"
+                                                              : ""
+                                                          }
+                                                        >
+                                                          <div style={{ width: "40px" }}>
+                                                            {item.enableReminder
+                                                              ? "Enable"
+                                                              : "Disable"}
+                                                          </div>
+                                                        </Tooltip>
+                                                        <Tooltip
+                                                          title={getCrudButtonToolTipName(
+                                                            "Change Status"
+                                                          )}
+                                                        >
+                                                          <FormGroup>
+                                                            <FormControlLabel
+                                                              control={
+                                                                <Android12Switch
+                                                                  onClick={() =>
+                                                                    setModelRequestData({
+                                                                      ...modelRequestData,
+                                                                      status:
+                                                                        item.enableReminder
+                                                                          ? "Enable"
+                                                                          : "Disable",
+                                                                      quoteKeyID:
+                                                                        item?.quoteKeyID,
+                                                                      userKeyID:
+                                                                        common.userKeyID,
+                                                                      StatusType: null,
+                                                                      Action:
+                                                                        "ReminderStatus",
+                                                                    })
+                                                                  }
+                                                                  checked={
+                                                                    item.enableReminder
+                                                                  }
+                                                                  data-bs-toggle="modal"
+                                                                  data-bs-target="#ConfirmModel"
+                                                                />
+                                                              }
+                                                            />
+                                                          </FormGroup>
+                                                        </Tooltip>
+                                                      </div>
+                                                    )}
+                                                  </td>
+                                                  {/*buttons */}
+                                                  <td className="table-content-font">
+                                                    <div class="d-flex gap-2">
+                                                      {/* Dropdown for all actions */}
+                                                      <div class="dropdown">
+                                                        <button
+                                                          class="btn btn-md btn-success create-item-btn"
+                                                          type="button"
+                                                          id="dropdownMenuButton"
+                                                          data-bs-toggle="dropdown"
+                                                          aria-expanded="false"
+                                                        >
+                                                          <span>
+                                                            Actions
+                                                            <ExpandMoreIcon />
+                                                          </span>
+                                                        </button>
+                                                        <ul
+                                                          style={{
+                                                            padding: `${item.statusID ===
+                                                              statusID.Draft
+                                                              ? "2px 0px 2px 0px"
+                                                              : "6px 8px"
+                                                              }`,
+                                                            inset: "auto 0px 0px auto",
+                                                          }}
+                                                          class="dropdown-menu"
+                                                          aria-labelledby="dropdownMenuButton"
+                                                        >
+                                                          {/* Draft button */}
+                                                          {item.statusID ===
+                                                            statusID.Draft &&
+                                                            userAccessData.Admin_Proposal_CanEdit && (
+                                                              <>
+                                                                <li>
+                                                                  {/* <Tooltip title={`Edit ${proposalName}`} placement="right"> */}
+                                                                  <a
+                                                                    className="dropdown-item"
+                                                                    onClick={() => {
+                                                                      handleEditProposal(
+                                                                        item
+                                                                      );
+                                                                      setTitle(
+                                                                        "Edit proposals"
+                                                                      );
+                                                                    }}
+                                                                  >
+                                                                    <i
+                                                                      className="ri-pencil-fill custom-pencil-icon"
+                                                                      style={{
+                                                                        marginRight: "2px",
+                                                                      }}
+                                                                    ></i>{" "}
+                                                                    Edit {proposalName}
+                                                                  </a>
+                                                                  {/* </Tooltip> */}
+                                                                </li>
+                                                                <li>
+                                                                  {/* <Tooltip title={`Delete ${proposalName}`} placement="right"> */}
+                                                                  <a
+                                                                    class="dropdown-item"
+                                                                    data-bs-toggle="modal"
+                                                                    data-bs-target="#ConfirmModel"
+                                                                    onClick={() => {
+                                                                      setModelRequestData({
+                                                                        ...modelRequestData,
+                                                                        Action: "Delete",
+                                                                        RefId: item.prefix,
+                                                                        quoteKeyID:
+                                                                          item.quoteKeyID,
+                                                                        userKeyID:
+                                                                          common.userKeyID,
+                                                                        message:
+                                                                          "Are you sure you want to delete this quote?",
+                                                                      });
+                                                                    }}
+                                                                  >
+                                                                    <i
+                                                                      className="ri-delete-bin-5-fill"
+                                                                      style={{
+                                                                        marginRight: "2px",
+                                                                      }}
+                                                                    ></i>{" "}
+                                                                    Delete {proposalName}
+                                                                  </a>
+                                                                  {/* </Tooltip> */}
+                                                                </li>
+                                                              </>
+                                                            )}
+
+                                                          {/* View button */}
+                                                          {(item.statusID ===
+                                                            statusID.Accepted ||
+                                                            item.statusID ===
+                                                            statusID.Declined ||
+                                                            item.statusID ===
+                                                            statusID.Sent ||
+                                                            item.statusID ===
+                                                            statusID.Skipped) &&
+                                                            userAccessData.Admin_Proposal_CanView && (
+                                                              <li>
+                                                                <a
+                                                                  class="dropdown-item"
+                                                                  onClick={() =>
+                                                                    handleView(item)
+                                                                  }
+                                                                >
+                                                                  <i class="bi bi-eye"></i>{" "}
+                                                                  View {proposalName}
+                                                                </a>
+                                                              </li>
+                                                            )}
+
+                                                          {/* Generate Contract button */}
+                                                          {(item.statusID ===
+                                                            statusID.Sent ||
+                                                            item.statusID ===
+                                                            statusID.Skipped) &&
+                                                            common.enableEL == 1 &&
+                                                            userAccessData.Admin_Engagement_Latter_CanAdd &&
+                                                            userAccessData.Admin_Engagement_Latter_CanView && (
+                                                              <li>
+                                                                <a
+                                                                  class="dropdown-item"
+                                                                  onClick={() => {
+                                                                    HandleSkippedToEL(item, false);
+                                                                    setTitle(
+                                                                      "Skipped To Engagement_letter"
+                                                                    );
+                                                                  }}
+                                                                >
+                                                                  <i class="bi bi-gear-fill"></i>{" "}
+                                                                  Generate {EngagementName}
+                                                                </a>
+                                                              </li>
+                                                            )}
+
+                                                          {/* Copy button */}
+                                                          {item.statusID !==
+                                                            statusID.Draft && (
+                                                              <li>
+                                                                <a
+                                                                  class="dropdown-item"
+                                                                  data-bs-toggle="modal"
+                                                                  data-bs-target="#ConfirmModel"
+                                                                  onClick={() => {
+                                                                    setModelRequestData({
+                                                                      ...modelRequestData,
+                                                                      Action: "Copy",
+                                                                      quoteKeyID:
+                                                                        item.quoteKeyID,
+                                                                      RefId: item.prefix,
+                                                                    });
+                                                                  }}
+                                                                >
+                                                                  <i class="fa-solid fa-copy"></i>{" "}
+                                                                  Copy {proposalName}
+                                                                </a>
+                                                              </li>
+                                                            )}
+
+                                                          {/* Resend Proposal */}
+                                                          {item.statusID ===
+                                                            statusID.Sent &&
+                                                            userAccessData.Admin_Proposal_CanEdit && (
+                                                              <li>
+                                                                <a
+                                                                  class="dropdown-item"
+                                                                  data-bs-toggle="modal"
+                                                                  data-bs-target="#ConfirmModel"
+                                                                  onClick={() => {
+                                                                    setModelRequestData({
+                                                                      ...modelRequestData,
+                                                                      quoteKeyID:
+                                                                        item.quoteKeyID,
+                                                                      message: `Are you sure you want to re-send ${proposalName}`,
+                                                                      RefId: item.prefix,
+                                                                      Action: "Resend",
+                                                                    });
+                                                                  }}
+                                                                >
+                                                                  <i class="fas fa-redo"></i>{" "}
+                                                                  Re-send {proposalName}
+                                                                </a>
+                                                              </li>
+                                                            )}
+                                                        </ul>
+                                                      </div>
+                                                    </div>
+                                                  </td>
+                                                </tr>
+                                              );
+                                            })}
+                                          </tbody>
+                                        </table>
+                                      )}
+                                    </div>
+                                    <div
+                                      className={`tab-pane ${activeTab === "Web Proposal" ? "active" : ""
+                                        }`}
+                                      id="base-justified-home"
+                                    >
+                                      {activeTab === "Web Proposal" && (
+                                        <table
+                                          class="table align-middle table-nowrap"
+                                          id="customerTable"
+                                        >
+                                          <thead class="table-light table-header-font">
+                                            <tr className="head-row">
+                                              <td className="tr-table-class text-white">
+                                                <input
+                                                  type="checkbox"
+                                                  className="me-2"
+                                                  checked={
+                                                    selectedRows.length ===
+                                                    visibleRows.length
+                                                  }
+                                                  onChange={handleSelectAll}
+                                                />{" "}
+                                                Ref ID
+                                              </td>
+                                              <td className="tr-table-class text-white">
+                                                {prospectName} Name
+                                              </td>
+                                              <td className="tr-table-class text-white">
+                                                Status
+                                              </td>
+                                              <td className="tr-table-class text-white">
+                                                Value
+                                              </td>
+                                              <td className="tr-table-class text-white">
+                                                Documents
+                                              </td>
+
+                                              <td className="tr-table-class text-white">
+                                                {userAccessData.Admin_Proposal_CanView && (
+                                                  <>Action</>
+                                                )}
+                                              </td>
+                                            </tr>
+                                          </thead>
+                                          <tbody class="list form-check-all">
+                                            {SingleProposalList.slice(
+                                              0,
+                                              isMobile ? isMobileRecords : desktopRecords
+                                            ).map((item, index) => {
+                                              return (
+                                                <tr class="table_new">
+                                                  <td className="table-content-font">
+                                                    <input
+                                                      type="checkbox"
+                                                      className="me-2"
+                                                      checked={selectedRows.includes(
+                                                        item.quoteKeyID
+                                                      )}
+                                                      onChange={() =>
+                                                        handleRowSelect(item.quoteKeyID)
+                                                      }
+                                                    />{" "}
+                                                    {item.prefix}
+                                                  </td>
+                                                  <td className="table-content-font">
+                                                    {item.clientName}
+                                                  </td>
+
+                                                  {item.statusID === statusID.Draft && (
+                                                    <>
+                                                      <td className="table-content-font ">
+                                                        <p
+                                                          className="  p-1 text-center text-white rounded"
+                                                          style={{ background: "#DAA520" }}
+                                                        >
+                                                          {item.statusName}
+                                                        </p>
+                                                      </td>
+                                                    </>
+                                                  )}
+                                                  {item.statusID === statusID.Sent && (
+                                                    <>
+                                                      <td className="table-content-font">
+                                                        <p
+                                                          className=" p-1 text-center text-white rounded"
+                                                          style={{
+                                                            background: " #626ED4",
+                                                          }}
+                                                        >
+                                                          {item.statusName}
+                                                        </p>
+                                                      </td>
+                                                    </>
+                                                  )}
+                                                  {item.statusID === statusID.Accepted && (
+                                                    <>
+                                                      <td className="table-content-font">
+                                                        <p
+                                                          className=" p-1 text-center text-white rounded"
+                                                          style={{ background: "#008000" }}
+                                                        >
+                                                          {item.statusName}
+                                                        </p>
+                                                      </td>
+                                                    </>
+                                                  )}
+                                                  {item.statusID ===
+                                                    statusID.Awaiting_Signature && (
+                                                      <>
+                                                        <td className="table-content-font">
+                                                          <p
+                                                            className=" p-1 text-center text-white rounded"
+                                                            style={{ background: "#626ED4" }}
+                                                          >
+                                                            {/* Awaiting Response */}
+                                                            {item.statusName}
+                                                          </p>
+                                                        </td>
+                                                      </>
+                                                    )}
+                                                  {item.statusID === statusID.Declined && (
+                                                    <>
+                                                      <td className="table-content-font">
+                                                        <p
+                                                          className=" p-1 text-center text-white rounded"
+                                                          style={{ background: "#FF0000" }}
+                                                        >
+                                                          {item.statusName}
+                                                        </p>
+                                                      </td>
+                                                    </>
+                                                  )}
+                                                  {item.statusID === statusID.Signed && (
+                                                    <>
+                                                      <td className="table-content-font">
+                                                        <p
+                                                          className=" p-1 text-center text-white rounded"
+                                                          style={{ background: "#008000" }}
+                                                        >
+                                                          {item.statusName}
+                                                        </p>
+                                                      </td>
+                                                    </>
+                                                  )}
+                                                  {item.statusID === statusID.Skipped && (
+                                                    <>
+                                                      <td className="table-content-font">
+                                                        <p
+                                                          className=" p-1 text-center text-white rounded"
+                                                          style={{ background: "#38A4F8" }}
+                                                        >
+                                                          {item.statusName}
+                                                        </p>
+                                                      </td>
+                                                    </>
+                                                  )}
+                                                  {item.packagesNames !== null && (
+                                                    <td class="table-content-font">
+                                                      <p className="mb-0">
+                                                        <b>
+                                                          {item.packagesNames
+                                                            .split(",")
+                                                            .map((name, index, array) => {
+                                                              // Remove extra spaces and trim the name
+                                                              name = name.trim();
+
+                                                              // Check if there's only one package
+                                                              const isSinglePackage =
+                                                                array.length === 1;
+                                                              const isDoublePackage =
+                                                                array.length === 2;
+                                                              // Define the length limit based on the number of packages
+                                                              const maxLength =
+                                                                isSinglePackage
+                                                                  ? 45
+                                                                  : isDoublePackage
+                                                                    ? 25
+                                                                    : 15;
+
+                                                              return name.length >
+                                                                maxLength ? (
+                                                                <Tooltip
+                                                                  key={index}
+                                                                  title={name}
+                                                                >
+                                                                  <span>
+                                                                    {name.substring(
+                                                                      0,
+                                                                      maxLength
+                                                                    ) + "..."}
+                                                                  </span>
+                                                                </Tooltip>
+                                                              ) : (
+                                                                name
+                                                              );
+                                                            })
+                                                            .reduce((prev, curr) => [
+                                                              prev,
+                                                              ", ",
+                                                              curr,
+                                                            ])}
+                                                        </b>
+                                                      </p>
+                                                    </td>
+                                                  )}
+
+                                                  {item.packagesNames === null && (
+                                                    <td class="table-content-font">
+                                                      {item.statusID !== statusID.Draft && (
+                                                        <p className="mb-0">
+                                                          Recurring:{" "}
+                                                          <b>
+                                                            {formatValue(
+                                                              item.recurringPrice
+                                                            )}
+                                                          </b>
+                                                        </p>
+                                                      )}
+                                                      {item.statusID !== statusID.Draft && (
+                                                        <p className="mb-0">
+                                                          {" "}
+                                                          OneOff :{" "}
+                                                          <b>
+                                                            {formatValue(item.oneOffPrice)}
+                                                          </b>
+                                                        </p>
+                                                      )}
+                                                    </td>
+                                                  )}
+
+                                                  <td className="table-content-font">
+                                                    {/* <a
+                                              // href="https://teststaging.outbooks.com/api/quote/preview-pdf/b8c4365d-d32a-40ef-9835-f90800aa476b"
+                                              href={item.quotePDFUrl}
+                                              target="_blank"
+                                            > */}{" "}
+                                                    {item.statusID !== statusID.Draft &&
+                                                      item.quotePDFUrl &&
+                                                      item.statusID !== statusID.Signed && (
+                                                        <p
+                                                          onClick={() => {
+                                                            handleViewPdf(item);
+                                                            setTitle("View proposals");
+                                                          }}
+                                                          style={{
+                                                            cursor: "pointer",
+                                                            color: "blue",
+                                                          }}
+                                                        >
+                                                          {proposalName} PDF
+                                                        </p>
+                                                      )}
+                                                    {item.statusID !== statusID.Draft &&
+                                                      item.quotePDFUrl &&
+                                                      item.statusID === statusID.Signed && (
+                                                        <p
+                                                          onClick={() => {
+                                                            handleDownload(item, "zip");
+                                                            // downloadPdfFromAws(item.quotePDFUrl);
+                                                          }}
+                                                          style={{ cursor: "pointer" }}
+                                                        >
+                                                          {proposalName} PDF
+                                                        </p>
+                                                      )}
+                                                    {/* </a> */}
+                                                  </td>
+                                                  {/*Delete buttons */}
+
+                                                  <td>
+                                                    <div class="d-flex gap-2">
+                                                      <Tooltip
+                                                        title={getCrudButtonToolTipName(
+                                                          "Delete",
+                                                          { proposalName }
+                                                        )}
+                                                      >
+                                                        <div class="remove">
+                                                          <button
+                                                            class="btn btn-sm btn-danger remove-item-btn actionButtonsStyle"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#ConfirmModel"
+                                                            onClick={() =>
+                                                              setModelRequestData({
+                                                                ...modelRequestData,
+                                                                quoteKeyID: item.quoteKeyID,
+                                                                clientName: item.clientName,
+                                                                userKeyID: common.userKeyID,
+                                                                Action: "Delete",
+                                                              })
+                                                            }
+                                                          >
+                                                            <i class="ri-delete-bin-5-fill"></i>
+                                                          </button>
+                                                        </div>
+                                                      </Tooltip>
+                                                    </div>
+                                                  </td>
+                                                </tr>
+                                              );
+                                            })}
+                                          </tbody>
+                                        </table>
+                                      )}
+                                    </div>
+                                    {activeTab === "Proposal" && (
+                                      <div>
+                                        {totalRecords <= 0 && (
+                                          <NoResultFoundModel
+                                            name={proposalName}
+                                            totalRecords={totalRecords}
+                                          />
+                                        )}
+                                      </div>
+                                    )}
+                                    {activeTab === "old Proposal" && (
+                                      <div>
+                                        {OldtotalRecords <= 0 && (
+                                          <NoResultFoundModel
+                                            name={proposalName}
+                                            totalRecords={OldtotalRecords}
+                                          />
+                                        )}
+                                      </div>
+                                    )}
+                                    {activeTab === "Web Proposal" && (
+                                      <div>
+                                        {SingletotalRecords <= 0 && (
+                                          <NoResultFoundModel
+                                            name={proposalName}
+                                            totalRecords={SingletotalRecords}
+                                          />
+                                        )}
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                                {activeTab === "Proposal" && (
+                                <div>
+                                  {listCount > Number(pageSize) && (
+                                    <PaginationComponent
+                                      totalCount={listCount}
+                                      totalPages={
+                                        isMobile
+                                          ? Math.ceil(listCount / isMobileRecords)
+                                          : Math.ceil(
+                                            listCount /
+                                            (desktopRecords > 5 &&
+                                              window.innerHeight == 652
+                                              ? 5
+                                              : desktopRecords)
+                                          )
+                                      }
+                                      currentPage={currentPage}
+                                      onPageChange={handlePageChange}
+                                    />
+                                  )}
+                                </div>
+                              )}
+                              {activeTab === "Old Proposal" && (
+                                <div>
+                                  {oldProposalListCount > Number(pageSize) && (
+                                    <PaginationComponent
+                                      totalCount={oldProposalListCount}
+                                      totalPages={totalOldProposalPage}
+                                      currentPage={OldProposalCurrentPage}
+                                      onPageChange={handlePageChangeOldProposal}
+                                    />
+                                  )}
+                                </div>
+                              )}
+                              {activeTab === "Web Proposal" && (
+                                <div>
+                                  {SingleProposalListCount > Number(pageSize) && (
+                                    <PaginationComponent
+                                      totalCount={SingleProposalListCount}
+                                      totalPages={
+                                        isMobile
+                                          ? Math.ceil(
+                                            SingleProposalListCount / isMobileRecords
+                                          )
+                                          : Math.ceil(
+                                            SingleProposalListCount /
+                                            (desktopRecords > 5 &&
+                                              window.innerHeight == 652
+                                              ? 5
+                                              : desktopRecords)
+                                          )
+                                      }
+                                      currentPage={SingleProposalCurrentPage}
+                                      onPageChange={handlePageChangeSingleProposal}
+                                    />
+                                  )}
+                                </div>
+                              )}
+                              </div>
+                              {/* */}
+                            </div>
+                          </div>
                         </div>
-                        {activeTab === "Proposal" && (
-                          <div>
-                            {totalRecords <= 0 && (
-                              <NoResultFoundModel
-                                name={proposalName}
-                                totalRecords={totalRecords}
-                              />
-                            )}
-                          </div>
-                        )}
-                        {activeTab === "old Proposal" && (
-                          <div>
-                            {OldtotalRecords <= 0 && (
-                              <NoResultFoundModel
-                                name={proposalName}
-                                totalRecords={OldtotalRecords}
-                              />
-                            )}
-                          </div>
-                        )}
-                        {activeTab === "Web Proposal" && (
-                          <div>
-                            {SingletotalRecords <= 0 && (
-                              <NoResultFoundModel
-                                name={proposalName}
-                                totalRecords={SingletotalRecords}
-                              />
-                            )}
-                          </div>
-                        )}
                       </div>
                     </div>
                   </div>
-                  {activeTab === "Proposal" && (
-                    <div>
-                      {listCount > Number(pageSize) && (
-                        <PaginationComponent
-                          totalCount={listCount}
-                          totalPages={
-                            isMobile
-                              ? Math.ceil(listCount / isMobileRecords)
-                              : Math.ceil(
-                                  listCount /
-                                    (desktopRecords > 5 &&
-                                    window.innerHeight == 652
-                                      ? 5
-                                      : desktopRecords)
-                                )
-                          }
-                          currentPage={currentPage}
-                          onPageChange={handlePageChange}
-                        />
-                      )}
-                    </div>
-                  )}
-                  {activeTab === "Old Proposal" && (
-                    <div>
-                      {oldProposalListCount > Number(pageSize) && (
-                        <PaginationComponent
-                          totalCount={oldProposalListCount}
-                          totalPages={totalOldProposalPage}
-                          currentPage={OldProposalCurrentPage}
-                          onPageChange={handlePageChangeOldProposal}
-                        />
-                      )}
-                    </div>
-                  )}
-                  {activeTab === "Web Proposal" && (
-                    <div>
-                      {SingleProposalListCount > Number(pageSize) && (
-                        <PaginationComponent
-                          totalCount={SingleProposalListCount}
-                          totalPages={
-                            isMobile
-                              ? Math.ceil(
-                                  SingleProposalListCount / isMobileRecords
-                                )
-                              : Math.ceil(
-                                  SingleProposalListCount /
-                                    (desktopRecords > 5 &&
-                                    window.innerHeight == 652
-                                      ? 5
-                                      : desktopRecords)
-                                )
-                          }
-                          currentPage={SingleProposalCurrentPage}
-                          onPageChange={handlePageChangeSingleProposal}
-                        />
-                      )}
-                    </div>
-                  )}
-                  {/* */}
-
                   {/* end card  */}
                 </div>
                 {/* end col */}
@@ -2805,7 +2808,7 @@ const Proposals = () => {
           {/* container-fluid  */}
         </div>
         {/* End Page-content */}
-      </div>
+      {/* </div> */}
       <ViewPlan
         moduleName={"Contract"}
         showModal={showModal}
@@ -2826,15 +2829,15 @@ const Proposals = () => {
           modelRequestData.Action === "ReminderStatus"
             ? ChangeQuoteStatusData
             : modelRequestData.Action === "Resend"
-            ? handleResend
-            : modelRequestData.Action === "Copy"
-            ? CopyQuotationData
-            : modelRequestData.Action === "ServiceWarning"
-            ? () => CopyQuotationData(null, true)
-            : modelRequestData.Action === "ServiceWarningEL" // <-- add this
-            ? () => HandleSkippedToEL({ quoteKeyID: modelRequestData.quoteKeyID }, true)
+              ? handleResend
+              : modelRequestData.Action === "Copy"
+                ? CopyQuotationData
+                : modelRequestData.Action === "ServiceWarning"
+                  ? () => CopyQuotationData(null, true)
+                  : modelRequestData.Action === "ServiceWarningEL" // <-- add this
+                    ? () => HandleSkippedToEL({ quoteKeyID: modelRequestData.quoteKeyID }, true)
 
-            : DeleteQuotationData
+                    : DeleteQuotationData
         }
       />
       <SuccessModal
@@ -2848,12 +2851,12 @@ const Proposals = () => {
               ? proposalName
               : `${modelRequestData.RefId}`
             : modelRequestData.Action === "Copy"
-            ? `The Copy of ${modelRequestData.RefId} has been created successfully! `
-            : modelRequestData.Action === "ReminderStatus"
-            ? "Status has been changed successfully!"
-            : modelRequestData.Action === "Resend"
-            ? proposalName
-            : ""
+              ? `The Copy of ${modelRequestData.RefId} has been created successfully! `
+              : modelRequestData.Action === "ReminderStatus"
+                ? "Status has been changed successfully!"
+                : modelRequestData.Action === "Resend"
+                  ? proposalName
+                  : ""
         }
         refIdStore={modelRequestData.RefId}
       />
@@ -2887,7 +2890,7 @@ const Proposals = () => {
         toDateCalenderForExport={toDateCalenderForExport}
         setToDateCalenderForExport={setToDateCalenderForExport}
       />
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 };

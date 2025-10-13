@@ -1151,12 +1151,19 @@ function Predefined_Templates() {
   };
 
   return (
-    <div className="container">
-      <div class="main-content">
+    <div className="container-fluid">
+      {/* <div class="main-content"> */}
         <div class="services page-background">
-          <div class="page-info-header page-info-strip">
-            <div class="container">
-              <div className="row">
+          <div class="">
+            <div class="row">
+              <div class="col-lg-12">
+                <div class="card">
+                  {/* end card header  */}
+                  <div class="card-body mb-2">
+                    <div id="customerList" style={{ marginTop: "3rem" }}>
+                      <div class="bg-light border-bottom px-2">
+                        <div className="container">
+                          <div className="row">
                 <div className="col-md-12 ">
                   <ul className="nav nav-tabs" role="tablist">
                     <li className="nav-item">
@@ -1219,7 +1226,7 @@ function Predefined_Templates() {
                   <div class="card-body">
                     <div id="customerList">
                       <div class="row g-4 mb-3"></div>
-                      <div class="table-responsive table-card  mb-3 table-padding">
+                      <div class="table-responsive table-card mt-2 mb-3 table-padding">
                         <div className="row pt-3 pb-2">
                           <div class="col-md-6 col-lg-6 col-7  mb-2">
                             {activeTab === "Templates PDF" && (
@@ -2942,7 +2949,7 @@ function Predefined_Templates() {
                         )}
                       </div>
                     </div>
-                  </div>
+                  
                   {activeTab === "Templates" && (
                     <div>
                       {listCount > Number(pageSize) && (
@@ -2992,7 +2999,7 @@ function Predefined_Templates() {
                     </div>
                   )}
                   {/* */}
-
+                  </div>
                   {/* end card  */}
                 </div>
                 {/* end col */}
@@ -3142,7 +3149,11 @@ function Predefined_Templates() {
         {/* Success Modal  */}
 
         {/* End Page-content */}
-
+        </div>
+        </div>
+        </div>
+        </div>
+        </div>
         <Footer />
       </div>
 

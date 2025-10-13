@@ -1774,29 +1774,41 @@ const Update_Practice_Details = () => {
     },
   });
   return (
-    <div>
-      <div class="main-content">
-        <div class="update-practice-content page-background">
-          <div class="page-info-header page-info-strip">
-            <div class="container">
-              <div className="col-md-6 col-6">
+    <div className="container-fluid">
+      {/* <div class="main-content"> */}
+        <div class="services page-background">
+              <div class="col-lg-12">
+                <div class="card">
+                  {/* end card header  */}
+                  <div class="card-body mb-2">
+                    <div id="customerList" style={{ marginTop: "3rem" }}>
+                      <div class="bg-light border-bottom px-2">
+                        <div className="container">
+                          <div className="row">
+                            <div className="col-md-12 p-0 ">
                 <div class="page-title-cls">Update Practice Details</div>
               </div>
             </div>
-          </div>
-          <div class="container margin-bottom col-xl-8">
+            </div>
+            </div>
+            </div>
+            </div>
+            </div>
+            </div>
+          {/* </div> */}
+          <div class="container mt-5 col-xl-8">
             <div class="row mb-100">
               <div class="col-lg-12 slider-scroll">
                 <div class="card">
                   {/* end card header  */}
-                  <div class="card-body practice-detail Update-Scroll-res">
+                  <div class="card-body practice-detail Update-Scroll-res mt-0">
                     <div class="row">
                       <div class="col-xl-12 col-lg-12">
                         <div class=" pricing-box p-4  mt-0">
                           <div class="row" id="BasicInformation">
                             <div class="col-lg-12">
                               <div class="row mb-3">
-                                <div className="page-title-cls">
+                                <div className="page-title-cls mb-3">
                                   Basic Information
                                 </div>
                                 <div class="col-lg-12">
@@ -4297,11 +4309,9 @@ const Update_Practice_Details = () => {
             instructions={instructions}
           // alertMessage={alertMessage} // Pass alert message to InstructionModal
           />
-        </div>
         {/* End Page-content */}
-
+        </div>              
         <Footer />
-      </div>
 
       {/* end back-to-top */}
     </div>

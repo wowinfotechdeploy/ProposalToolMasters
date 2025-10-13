@@ -305,3 +305,187 @@ h6 {
   align-items: center;
   height: 75vh;
 }
+
+.main-content-center {
+  margin-left: 305px;         
+  width: calc(100% - 300px);   
+  padding: 20px;
+  transition: all 0.3s ease;  
+}
+
+@media (max-width: 1040px) {
+  .main-content-center {
+    margin-top: 100px;
+    margin-left: 0;    
+    width: 100%;   
+  }
+}
+
+/* Container that provides spacing from page edges if you want */
+.dashboard-header-wrap {
+  padding: 1rem 0 0 1rem;
+}
+
+/* The purple rounded header */
+.dashboard-header {
+  /* background: linear-gradient(90deg, #5513e0 0%, #7a4bff 50%, #5a2cf0 100%); */
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(90, 22, 170, 0.18);
+  padding: 14px 20px;
+  color: #fff;             /* center horizontally */
+}
+
+/* Title block */
+.dashboard-title .page-title-cls {
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.dashboard-title .dashboard-sub {
+  font-size: 12px;
+  color: rgba(255,255,255,0.85);
+  margin-top: 4px;
+}
+
+/* Controls on right */
+.header-controls .select-wrap .user-role-select {
+  min-width: 220px;
+  background: rgba(255,255,255,0.07);
+  border-radius: 8px;
+  padding: 2px;
+}
+
+/* If react-select, tweak its internal classes if needed */
+.user-role-select .react-select__control {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  min-height: 36px;
+}
+
+/* Date inputs */
+.date-wrap input {
+  /* min-width: 120px; */
+  padding: 6px 8px;
+  border-radius: 8px;
+  border: none;
+  background: rgba(255,255,255,0.08);
+  color: #000000;
+  height: 36px;
+}
+
+/* Export button style */
+.export-btn {
+  background: rgba(255,255,255,0.12);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 18px;
+  padding: 6px 16px;
+  font-weight: 600;
+  box-shadow: none;
+  transition: transform .08s ease, background .12s ease;
+}
+
+/* Stronger button variant like in your image (white text, pill) */
+.export-btn:hover {
+  transform: translateY(-1px);
+  background: rgba(255,255,255,0.18);
+}
+
+/* Responsive: stack vertically on small screens */
+@media (max-width: 768px) {
+  .dashboard-header {
+    padding: 12px;
+  }
+  .header-controls {
+    flex-direction: column;
+    gap: 8px;
+    align-items: stretch;
+  }
+  .header-controls .select-wrap,
+  .header-controls .date-wrap,
+  .header-controls .ms-2 {
+    width: 100%;
+  }
+  .user-role-select {
+    min-width: 100% !important;
+  }
+}
+
+
+/* new card */
+
+.stat-card {
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  opacity: 0.85;
+  gap: 4px !important;
+  transition: all 0.15s ease;
+
+  /* responsive sizing */
+  width: 100%;         /* take full available width in column */
+  margin: 8px;
+  /* max-width: 240px;    */
+  /*min-width: 160px;    /* prevent being too small */
+  --hover-bg-color: #5a2eca;
+}
+
+.stat-card:hover {
+  /* background-color: #5a2eca; */
+  background-color: var(--hover-bg-color);
+  color: #fff;
+}
+
+.stat-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.stat-icon img {
+  width: 28px;
+  height: 28px;
+  filter: drop-shadow(1px 0 0 #302f2f)
+          drop-shadow(-1px 0 0 #302f2f)
+          drop-shadow(0 1px 0 #302f2f)
+          drop-shadow(0 -1px 0 #302f2f);
+}
+
+.stat-amount {
+  font-weight: 600;
+  font-size: 16px;
+  color: #5a2eca; /* purple */
+  border: 1px solid #d5c8f7;
+  padding: 4px 12px;
+  border-radius: 20px;
+  background: #faf9ff;
+}
+
+.stat-card-body {
+  margin-top: 12px;
+}
+
+.stat-title {
+  margin: 0;
+  font-weight: 600;
+  font-size: 16px;
+  color: #5a2eca; /* purple */
+}
+
+.stat-subtitle {
+  margin: 0;
+  font-size: 14px;
+  color: #6c757d;
+}
+
+.dashboard-box .stat-card {
+  margin-bottom: 16px;
+}
+.stat-card:hover .stat-title {
+  color: #fff;
+}

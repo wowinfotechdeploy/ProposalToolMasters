@@ -406,17 +406,22 @@ function AccountDeletionReminder() {
 
   return (
     <>
-      <div className="container">
-        <div class="main-content">
-          <div class="services page-background">
-            <div class="page-info-header page-info-strip">
-              <div class="container">
-                <div className="row">
+      <div className="container-fluid">
+      {/* <div class="main-content"> */}
+        <div class="services page-background">
+          <div class="">
+            <div class="row">
+              <div class="col-lg-12">
+                <div class="card">
+                  {/* end card header  */}
+                  <div class="card-body mb-2">
+                    <div id="customerList" style={{ marginTop: "3rem" }}>
+                      <div class="bg-light border-bottom px-2">
+                          <div className="row">
                   <div className="col-md-6 col-6">
                     <div class="page-title-cls">Account Login/Deletion</div>
                   </div>
                 </div>
-              </div>
             </div>
             <div>
               <div class="row">
@@ -427,7 +432,7 @@ function AccountDeletionReminder() {
                     <div class="card-body">
                       <div id="customerList">
                         <div class="row g-4 mb-3"></div>
-                        <div class="table-responsive table-card  table-padding">
+                        <div class="table-responsive mt-2 table-card  table-padding">
 
                           <div className="row">
                             <div className="col-md-4 col-4">
@@ -814,6 +819,11 @@ function AccountDeletionReminder() {
             modelAction={modelRequestData.Action}
             message={"Status has been changed successfully!"}
           />
+          </div>
+          </div>
+          </div>
+          </div>
+          </div>
           <Footer />
         </div>
         {/* end back-to-top */}
