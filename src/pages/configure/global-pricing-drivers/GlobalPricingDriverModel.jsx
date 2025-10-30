@@ -1990,7 +1990,7 @@ function Modal(props) {
                                         capitalizedValue
                                       );
                                     }}
-                                    maxLength={50}
+                                    maxLength={200}
                                   />
                                 </div>
                                 {variationError?.variationName &&
