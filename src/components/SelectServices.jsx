@@ -15,7 +15,6 @@ export const SelectServices = (props) => {
 
   const moduleNameForSaveAsDraft = "SelectServices";
   const notAllowed = "not-allowed";
-  console.log(props.requireMessage);
   // useEffect(() => {
   //   // Don’t run if list is still undefined/empty
   //   if (!props.recurringServiceList?.length) return;

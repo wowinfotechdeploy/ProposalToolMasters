@@ -81,10 +81,7 @@ function VariationDragDrop(props) {
                   }}
                 >
                   {" "}
-                  <i
-                    class="bi bi-trash3"
-                    style={{ marginRight: props.isMobile ? "0px" : "5px" }}
-                  ></i>
+                  <i class="bi bi-trash3" style={{ marginRight: props.isMobile ? "0px" : "5px" }}></i>
                   <span class="d-none d-sm-inline-block">Delete Variation</span>
                 </button>
                 <div
@@ -106,8 +103,8 @@ function VariationDragDrop(props) {
                               VariationIndex
                             ]
                               ? props.pricingDriver[props.mainIndex].variation[
-                                  VariationIndex
-                                ].variationName
+                                VariationIndex
+                              ].variationName
                               : ""
                           }
                           disabled={
@@ -132,7 +129,7 @@ function VariationDragDrop(props) {
                               (item, index) =>
                                 index !== props.mainIndex &&
                                 item.variationName.toUpperCase() ===
-                                  capitalizedValue.toUpperCase()
+                                capitalizedValue.toUpperCase()
                             );
                             // if (isDuplicate) {
                             //     props.seDuplicateName(true)
@@ -147,16 +144,16 @@ function VariationDragDrop(props) {
                               capitalizedValue
                             );
                           }}
-                          maxLength={200}
+                          maxLength={50}
                         />
                       </div>
                       {props.gdrivererror.variationnameError &&
-                      (props.pricingDriver[props.mainIndex].variation[
-                        VariationIndex
-                      ].variationName === "" ||
-                        props.pricingDriver[props.mainIndex].variation[
+                        (props.pricingDriver[props.mainIndex].variation[
                           VariationIndex
-                        ].variationName === null) ? (
+                        ].variationName === "" ||
+                          props.pricingDriver[props.mainIndex].variation[
+                            VariationIndex
+                          ].variationName === null) ? (
                         <label className="validation">{ERROR_MESSAGES}</label>
                       ) : (
                         ""
@@ -192,10 +189,10 @@ function VariationDragDrop(props) {
                             ]?.variationValue === ""
                               ? ""
                               : props.pricingDriver[props.mainIndex].variation[
-                                  VariationIndex
-                                ]?.variationValue
-                                  .toString()
-                                  .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                VariationIndex
+                              ]?.variationValue
+                                .toString()
+                                .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
                           }
                           onChange={(e) => {
                             props.DriverValue(
@@ -209,9 +206,9 @@ function VariationDragDrop(props) {
                         />
                       </div>
                       {props.gdrivererror.variationvalueError &&
-                      props.pricingDriver[props.mainIndex].variation[
-                        VariationIndex
-                      ]?.variationValue === "" ? (
+                        props.pricingDriver[props.mainIndex].variation[
+                          VariationIndex
+                        ]?.variationValue === "" ? (
                         <label className="validation">{ERROR_MESSAGES}</label>
                       ) : (
                         ""
@@ -265,7 +262,7 @@ function VariationDragDrop(props) {
           }
         )}
         {props.gdrivererror.variationError &&
-        props.pricingDriver[props.mainIndex].variation.length === 0 ? (
+          props.pricingDriver[props.mainIndex].variation.length === 0 ? (
           <div className="text-center">
             <label className="validation">
               At least 1 Variation is required.
@@ -284,12 +281,11 @@ function VariationDragDrop(props) {
                 props.OnAddVariations(props.mainIndex);
               }
             }}
-            class={`btn btn-sm ${
-              props.pricingDriver[props.mainIndex]
-                .parentGlobalPricingDriverKeyID
-                ? "create-item-btn-2"
-                : "create-item-btn"
-            } d-flex gap-1`}
+            class={`btn btn-sm ${props.pricingDriver[props.mainIndex]
+              .parentGlobalPricingDriverKeyID
+              ? "create-item-btn-2"
+              : "create-item-btn"
+              } d-flex gap-1`}
           >
             <i class="bi bi-plus-circle"></i>
             <span>Add Variation</span>

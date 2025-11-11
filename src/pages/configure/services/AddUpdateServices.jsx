@@ -59,11 +59,11 @@ import {
   getTime,
 } from "date-fns";
 import Utils from "../../../Middleware/Utils";
+import { FormControlLabel, FormGroup, Tooltip } from "@mui/material";
+import Android12Switch from "../../../components/AndroidSwitch";
 //Tab Custom Component Created
 const BasicInformationComponent = (props) => {
   const ServiceDivContainerRef = useRef(null);
-  console.log("dropDown: ", props.ServiceDependencyValue);
-  console.log("dropDown: ", props.isDropdownEnabled);
   const { scrollUptoCurrentPosition } = useContext(AuthContextProvider);
   const serviceChargeTypeFilter = props.serviceChargeTypeList?.find(
     (item) => item.serviceChargeTypeID === props.servicesObj.serviceChargeTypeID
@@ -175,6 +175,32 @@ const BasicInformationComponent = (props) => {
     }
     props.setLoader(false);
   };
+
+  const organisationList = JSON.parse(
+    localStorage.getItem("OrganisationLocalList") || "[]"
+  );
+
+  const proposalPersist = JSON.parse(
+    localStorage.getItem("persist:Proposal Tool") || "{}"
+  );
+
+  // Clean up all quoted JSON string fields
+  const proposalData = Object.fromEntries(
+    Object.entries(proposalPersist).map(([key, value]) => {
+      try {
+        return [key, JSON.parse(value)];
+      } catch {
+        return [key, value];
+      }
+    })
+  );
+
+  const vatStatus = organisationList.find(
+    (item) => item.organisationKeyID === proposalData.organisationKeyID
+  );
+
+  console.log("Cleaned proposalData:", proposalData);
+  console.log("vatStatus:", vatStatus);
 
   return (
     <>
@@ -448,6 +474,101 @@ const BasicInformationComponent = (props) => {
                 <div className="invalid-feedback">Please enter email</div>
               </div>
             </div>
+
+            {/* Service wise VAT Parameters */}
+
+            <div className="col-lg-6">
+              <div className="d-flex align-items-center justify-content-between">
+                {/* VATable Toggle (Left) */}
+                <div className="d-flex flex-column align-items-center justify-content-center">
+                  <label className="form-label mb-0 me-2">
+                    VATable <span className="text-danger">*</span>
+                  </label>
+                  <Tooltip title="Change VAT Status">
+                    <FormGroup>
+                      <FormControlLabel
+                        control={
+                          <Android12Switch
+                            // onClick={() =>
+                            //   props.setServicesObj((prev) => ({
+                            //     ...prev,
+                            //     vatStatus: !props.servicesObj.vatStatus,
+                            //   }))
+                            // }
+                            onClick={() =>
+                              props.setModelRequestData({
+                                ...props.modelRequestData,
+                                Action: "vatStatus",
+                              })
+                            }
+                            checked={props.servicesObj.vatStatus === true}
+                            data-bs-toggle="modal"
+                            data-bs-target="#ConfirmModel"
+                            disabled={vatStatus?.isVatRegistered === true}
+                            // vatStatus?.isVatRegistered == true, means the vat status on org level is off, else if it is false then that means it is on
+                          />
+                        }
+                      />
+                    </FormGroup>
+                  </Tooltip>
+                </div>
+
+                {/* VAT Percentage Input (Right) */}
+                {props.servicesObj.vatStatus && (
+                  <div className="ms-4" style={{ width: "250px" }}>
+                    <label className="form-label mb-1">
+                      VAT Percentage <span className="text-danger">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Enter VAT Percentage"
+                      className="input-text"
+                      value={
+                        props.servicesObj.vatPercentage !== undefined &&
+                        props.servicesObj.vatPercentage !== null
+                          ? props.servicesObj.vatPercentage.toString()
+                          : "20"
+                      }
+                      onChange={(e) => {
+                        let value = e.target.value;
+
+                        if (!/^\d*\.?\d{0,2}$/.test(value)) return;
+                        if (/^0\d+/.test(value)) {
+                          value = value.replace(/^0+/, "");
+                          if (value === "") value = "0";
+                        }
+
+                        const numericValue = parseFloat(value);
+                        if (numericValue > 100) value = "100";
+                        if (numericValue < 0) value = "0";
+
+                        props.setServicesObj((prev) => ({
+                          ...prev,
+                          vatPercentage: value,
+                        }));
+                      }}
+                      onBlur={(e) => {
+                        let value = e.target.value;
+                        if (value.endsWith(".")) value = value.slice(0, -1);
+                        if (value === "") value = "0";
+                        props.setServicesObj((prev) => ({
+                          ...prev,
+                          vatPercentage: value,
+                        }));
+                      }}
+                    />
+                    {props.serviceError.basicInformationError &&
+                    (props.servicesObj.vatPercentage === "" ||
+                      props.servicesObj.vatPercentage === undefined) ? (
+                      <label className="validation">{ERROR_MESSAGES}</label>
+                    ) : (
+                      ""
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+
             <div className="col-lg-6 col-md-6 col-sm-6 col-xsm-12">
               {props.common.organisationKeyID !== null &&
                 props.ServiceDependencyLookupList.length > 0 && (
@@ -4106,6 +4227,8 @@ const Add_Update_Service = (props) => {
     serviceCategoryList: [],
     pricingDriverList: [],
     pricingFormulaGlobalPricingDriverList: [],
+    vatStatus: false,
+    vatPercentage: "",
   });
 
   const [originalServicesObj, setOriginalServicesObj] = useState({});
@@ -4453,6 +4576,8 @@ const Add_Update_Service = (props) => {
               pricingDriverList: updatedData,
               pricingFormulaGlobalPricingDriverList:
                 ModelData.pricingFormulaGlobalPricingDriverList,
+              vatStatus: ModelData.vatStatus,
+              vatPercentage: ModelData.vatPercentage,
             };
 
             setServicesObj(newServiceObj);
@@ -4637,6 +4762,19 @@ const Add_Update_Service = (props) => {
 
   // 3) Global Pricing Driver Add And Update Data
   const GlobalPricingDriverAddUpdateBtnClicked = (NextTab, SAChanges) => {
+    if (modelRequestData.Action === "vatStatus") {
+      setServicesObj((prev) => ({
+        ...prev,
+        vatStatus: !servicesObj.vatStatus,
+      }));
+      $("#ConfirmModel").modal("hide");
+      setModelRequestData((prev) => ({
+        ...prev,
+        Action: null,
+      }));
+      return;
+    }
+
     if (SAChanges === "Accept") {
       $("#" + "ConfirmSAChangesModel").modal("show");
       setStatus(true);
@@ -4715,6 +4853,8 @@ const Add_Update_Service = (props) => {
         servicesObj.pricingFormulaGlobalPricingDriverList.length === 0
           ? null
           : servicesObj.pricingFormulaGlobalPricingDriverList,
+      vatStatus: servicesObj.vatStatus,
+      vatPercentage: servicesObj.vatPercentage,
     };
 
     //Check Validations if any

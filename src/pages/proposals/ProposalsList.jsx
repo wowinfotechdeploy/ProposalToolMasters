@@ -45,6 +45,12 @@ import SuccessModal from "../../components/SuccessModal";
 import ConfirmModel from "../../components/ConfirmationBox";
 import Android12Switch from "../../components/AndroidSwitch";
 import ErrorModel from "../../components/ErrorModel";
+import {
+  ChangeFailedMailLogStatus,
+  GetProspectSendMailStatus,
+  ResendAddUpdateQuote,
+} from "../../redux/Services/EmailFailureStatusAPI/EmailFailureStatusAPI";
+import EmailFailurePopUP from "../../components/EmailFailurePopUp";
 const Proposals = () => {
   const SaveAsDraft = "SaveAsDraft";
 
@@ -58,6 +64,11 @@ const Proposals = () => {
     SearchKeyword: "",
     quoteKeyID: null,
     RefId: null,
+  });
+
+  const [openEmailFailurePopUp, setOpenEmailFailurePopUp] = useState(false);
+  const [emailCheckModel, setEmailCheckModel] = useState({
+    MethodName: "",
   });
 
   const [activeTab, setActiveTab] = useState("Proposal");
@@ -403,6 +414,47 @@ const Proposals = () => {
     }
   };
 
+  const handleEmailFailurePopupClose = async () => {
+    await ChangeFailedMailLogStatus(
+      common.userKeyID,
+      common.organisationKeyID,
+      "AddUpdateQuote"
+    );
+    setOpenEmailFailurePopUp(false);
+  };
+
+  const handleResendQuote = async () => {
+    setLoader(true);
+    try {
+      if (emailCheckModel.MethodName === "Resend") {
+        const data = await ResendProposal(
+          modelRequestData.quoteKeyID,
+          common.userKeyID
+        );
+
+        if (data.data.statusCode === 200) {
+          setLoader(false);
+          setOpenSuccessModal(true);
+        } else {
+          $("#" + "ConfirmModel").modal("hide");
+          setLoader(false);
+          setOpenErrorModal(true);
+          setErrorMessage(data.data.errorMessage);
+        }
+      } else {
+        await ResendAddUpdateQuote(
+          common.userKeyID,
+          modelRequestData.quoteKeyID
+        );
+      }
+      setLoader(false);
+      setOpenEmailFailurePopUp(false);
+    } catch (error) {
+      setLoader(false);
+      console.log(error);
+    }
+  };
+
   //Get Proposal List data From Api
   const GetProposalListData = async (
     i,
@@ -683,7 +735,7 @@ const Proposals = () => {
 
   const HandleSkippedToEL = async (item, confirmed = false) => {
     // keep quoteKeyID in state for confirm use
-    setModelRequestData(prev => ({
+    setModelRequestData((prev) => ({
       ...prev,
       quoteKeyID: item?.quoteKeyID ?? prev.quoteKeyID,
     }));
@@ -714,16 +766,19 @@ const Proposals = () => {
 
           // If updated items exist
           if (serviceUpdatedAfterSent || packageUpdatedAfterSent) {
-            message += "Following Services or Packages were updated which may affect the Engagement Letter. Do you want to proceed?\n";
+            message +=
+              "Following Services or Packages were updated which may affect the Engagement Letter. Do you want to proceed?\n";
 
             if (serviceUpdatedAfterSent && updatedServiceNames?.length > 0) {
               message += "\nServices:\n";
-              message += updatedServiceNames.map(s => `• ${s}`).join("\n") + "\n";
+              message +=
+                updatedServiceNames.map((s) => `• ${s}`).join("\n") + "\n";
             }
 
             if (packageUpdatedAfterSent && updatedPackageNames?.length > 0) {
               message += "\nPackages:\n";
-              message += updatedPackageNames.map(p => `• ${p}`).join("\n") + "\n";
+              message +=
+                updatedPackageNames.map((p) => `• ${p}`).join("\n") + "\n";
             }
 
             message += "\n"; // spacer if both updated & deleted exist
@@ -731,16 +786,19 @@ const Proposals = () => {
 
           // If deleted items exist
           if (serviceDeletedAfterSent || packageDeletedAfterSent) {
-            message += "Following Services or Packages were deleted which may affect the Engagement Letter. Do you want to proceed?\n";
+            message +=
+              "Following Services or Packages were deleted which may affect the Engagement Letter. Do you want to proceed?\n";
 
             if (serviceDeletedAfterSent && deletedServiceNames?.length > 0) {
               message += "\nServices:\n";
-              message += deletedServiceNames.map(s => `- ${s}`).join("\n") + "\n";
+              message +=
+                deletedServiceNames.map((s) => `- ${s}`).join("\n") + "\n";
             }
 
             if (packageDeletedAfterSent && deletedPackageNames?.length > 0) {
               message += "\nPackages:\n";
-              message += deletedPackageNames.map(p => `- ${p}`).join("\n") + "\n";
+              message +=
+                deletedPackageNames.map((p) => `- ${p}`).join("\n") + "\n";
             }
           }
 
@@ -751,7 +809,7 @@ const Proposals = () => {
             packageUpdatedAfterSent ||
             packageDeletedAfterSent
           ) {
-            setModelRequestData(prev => ({
+            setModelRequestData((prev) => ({
               ...prev,
               Action: "ServiceWarningEL",
               message,
@@ -761,7 +819,9 @@ const Proposals = () => {
             return;
           }
         } else {
-          setErrorMessage(checkRes?.data?.errorMessage || "Something went wrong.");
+          setErrorMessage(
+            checkRes?.data?.errorMessage || "Something went wrong."
+          );
           setOpenErrorModal(true);
           return;
         }
@@ -769,7 +829,9 @@ const Proposals = () => {
 
       // Phase B: proceed (user clicked Yes or no warnings)
       $("#ConfirmModel").modal("hide");
-      const addEngagementLetterData = { QuoteKeyID: item?.quoteKeyID || modelRequestData.quoteKeyID || null };
+      const addEngagementLetterData = {
+        QuoteKeyID: item?.quoteKeyID || modelRequestData.quoteKeyID || null,
+      };
       navigate("/add-engagement-letter", { state: addEngagementLetterData });
     } catch (err) {
       setLoader(false);
@@ -889,7 +951,39 @@ const Proposals = () => {
         modelRequestData.quoteKeyID,
         common.userKeyID
       );
+      if (data?.response?.data?.errorMessage === "Client - Send Mail Failed") {
+        // Call Get prospect send mail status api
+        const EmailStausData = await GetProspectSendMailStatus(
+          common.userKeyID,
+          common.organisationKeyID,
+          "AddUpdateQuote",
+          "Temp Key Id"
+        );
+        if (!EmailStausData.data.responseData) {
+          setEmailCheckModel((prev) => ({
+            ...prev,
+            MethodName: "Resend",
+          }));
+          setOpenEmailFailurePopUp(true);
+        }
+      }
+
       if (data.data.statusCode === 200) {
+        if (!data?.data?.responseData?.isEmailSent[0]?.isMailSent) {
+          const EmailStausData = await GetProspectSendMailStatus(
+            common.userKeyID,
+            common.organisationKeyID,
+            "AddUpdateQuote",
+            "Temp Key Id"
+          );
+          if (!EmailStausData?.data?.responseData) {
+            setEmailCheckModel((prev) => ({
+              ...prev,
+              MethodName: "Resend",
+            }));
+            setOpenEmailFailurePopUp(true);
+          }
+        }
         setLoader(false);
         setOpenSuccessModal(true);
       } else {
@@ -967,37 +1061,48 @@ const Proposals = () => {
 
           // If updated items exist
           if (serviceUpdatedAfterSent || packageUpdatedAfterSent) {
-            message += "Following Services or Packages were updated which may affect the copied proposal. Do you want to proceed?\n";
+            message +=
+              "Following Services or Packages were updated which may affect the copied proposal. Do you want to proceed?\n";
 
             if (serviceUpdatedAfterSent && updatedServiceNames?.length > 0) {
               message += "\nServices:\n";
-              message += updatedServiceNames.map(s => `• ${s}`).join("\n") + "\n";
+              message +=
+                updatedServiceNames.map((s) => `• ${s}`).join("\n") + "\n";
             }
 
             if (packageUpdatedAfterSent && updatedPackageNames?.length > 0) {
               message += "\nPackages:\n";
-              message += updatedPackageNames.map(p => `• ${p}`).join("\n") + "\n";
+              message +=
+                updatedPackageNames.map((p) => `• ${p}`).join("\n") + "\n";
             }
 
-            message += "\n"; 
+            message += "\n";
           }
 
           // If deleted items exist
           if (serviceDeletedAfterSent || packageDeletedAfterSent) {
-            message += "Following Services or Packages were deleted which may affect the copied proposal. Do you want to proceed?\n";
+            message +=
+              "Following Services or Packages were deleted which may affect the copied proposal. Do you want to proceed?\n";
 
             if (serviceDeletedAfterSent && deletedServiceNames?.length > 0) {
               message += "\nServices:\n";
-              message += deletedServiceNames.map(s => `• ${s}`).join("\n") + "\n";
+              message +=
+                deletedServiceNames.map((s) => `• ${s}`).join("\n") + "\n";
             }
 
             if (packageDeletedAfterSent && deletedPackageNames?.length > 0) {
               message += "\nPackages:\n";
-              message += deletedPackageNames.map(p => `• ${p}`).join("\n") + "\n";
+              message +=
+                deletedPackageNames.map((p) => `• ${p}`).join("\n") + "\n";
             }
           }
 
-          if (serviceUpdatedAfterSent || serviceDeletedAfterSent || packageUpdatedAfterSent || packageDeletedAfterSent) {
+          if (
+            serviceUpdatedAfterSent ||
+            serviceDeletedAfterSent ||
+            packageUpdatedAfterSent ||
+            packageDeletedAfterSent
+          ) {
             setModelRequestData({
               ...modelRequestData,
               Action: "ServiceWarning",
@@ -1009,14 +1114,13 @@ const Proposals = () => {
             $("#ConfirmModel").modal("show");
             return;
           }
-        }
-        else {
+        } else {
           setLoader(false);
           setErrorMessage(checkRes.data?.errorMessage);
           setOpenErrorModal(true);
           return;
         }
-    }
+      }
       setLoader(true);
       setModelRequestData({
         ...modelRequestData,
@@ -1028,18 +1132,18 @@ const Proposals = () => {
         common.userKeyID
       );
       $("#ConfirmModel").modal("hide");
-      if(data) {
-      if (data.data?.statusCode === 200) {
-        setLoader(false);
-        setOpenSuccessModal(true);
-      } else {
-        setLoader(false);
-        setErrorMessage(data?.response?.data?.errorMessage);
-        setOpenErrorModal(true);
+      if (data) {
+        if (data.data?.statusCode === 200) {
+          setLoader(false);
+          setOpenSuccessModal(true);
+        } else {
+          setLoader(false);
+          setErrorMessage(data?.response?.data?.errorMessage);
+          setOpenErrorModal(true);
+        }
+        setIsCopyPending(false); // Reset the flag
       }
-      setIsCopyPending(false); // Reset the flag
-    } 
-  } catch (error) {
+    } catch (error) {
       console.log(error.message);
       setLoader(false);
       setErrorMessage(error.message);
@@ -2323,7 +2427,10 @@ const Proposals = () => {
                                                     <a
                                                       class="dropdown-item"
                                                       onClick={() => {
-                                                        HandleSkippedToEL(item, false);
+                                                        HandleSkippedToEL(
+                                                          item,
+                                                          false
+                                                        );
                                                         setTitle(
                                                           "Skipped To Engagement_letter"
                                                         );
@@ -2832,8 +2939,11 @@ const Proposals = () => {
             : modelRequestData.Action === "ServiceWarning"
             ? () => CopyQuotationData(null, true)
             : modelRequestData.Action === "ServiceWarningEL" // <-- add this
-            ? () => HandleSkippedToEL({ quoteKeyID: modelRequestData.quoteKeyID }, true)
-
+            ? () =>
+                HandleSkippedToEL(
+                  { quoteKeyID: modelRequestData.quoteKeyID },
+                  true
+                )
             : DeleteQuotationData
         }
       />
@@ -2888,6 +2998,14 @@ const Proposals = () => {
         setToDateCalenderForExport={setToDateCalenderForExport}
       />
       <Footer />
+
+      <EmailFailurePopUP
+        open={openEmailFailurePopUp}
+        handleClose={handleEmailFailurePopupClose}
+        isBackDropDisplay={true}
+        onYesClick={handleResendQuote}
+        emailCheckModel={emailCheckModel}
+      />
     </div>
   );
 };

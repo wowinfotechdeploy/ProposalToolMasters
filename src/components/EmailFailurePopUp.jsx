@@ -5,9 +5,11 @@ import "../pages/configure/global-constants/PredefineGlobalConstant.css";
 import Backdrop from "@mui/material/Backdrop";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import errorImage from "../assets/images/gif/wired-outline-1140-error.gif";
 
-const CurruptedFileFormate = (props) => {
+const EmailFailurePopUP = (props) => {
+  const [isClosing, setIsClosing] = useState(false);
+  const navigate = useNavigate();
+  const common = useSelector((state) => state.Storage);
   return (
     <>
       <Modal
@@ -38,20 +40,13 @@ const CurruptedFileFormate = (props) => {
             <div class="modal-body">
               <div class="mt-2 text-center">
                 <div class="mt-4 pt-2 fs-15 mx-4 mx-sm-5">
-                  <div>
-                    <img
-                      src={errorImage}
-                      alt="error_Img"
-                      height="100px"
-                      width="100px"
-                    />
-                  </div>
-                  <p class="text-muted  mb-0 " style={{ overflow: "auto" }}>
-                    {/* Encountered some issues with the file conversion, please try
-                    uploading another file */}
-
-                    {props.message}
-                  </p>
+                  {props.emailCheckModel.MethodName === "All Email Failed"
+                    ? "Currently all our email services are down, please try after some time"
+                    : `Current configured email service is down, would you like to send the ${
+                        props.emailCheckModel.ModuleName === "EL"
+                          ? "Engagement Letter"
+                          : "Proposal"
+                      } using default outbooks email account?`}
                 </div>
               </div>
               <div class="d-flex gap-2 justify-content-center mt-4 mb-2">
@@ -64,15 +59,27 @@ const CurruptedFileFormate = (props) => {
                     gap: "10px",
                   }}
                 >
+                  {props.emailCheckModel.MethodName !== "All Email Failed" && (
+                    <Button
+                      type="button"
+                      class="btn btn-md btn-success create-item-btn"
+                      onClick={props.onYesClick}
+                    >
+                      <span style={{ padding: "15px" }}>Yes</span>
+                    </Button>
+                  )}
                   <Button
                     type="button"
                     class="btn btn-md btn-success create-item-btn"
                     onClick={() => {
                       props.handleClose();
-                      // props.setOpenSuccessModal(false)
                     }}
                   >
-                    <span style={{ padding: "15px" }}>Close</span>
+                    <span style={{ padding: "15px" }}>
+                      {props.emailCheckModel.MethodName !== "All Email Failed"
+                        ? "No"
+                        : "Okay"}
+                    </span>
                   </Button>
                 </div>
               </div>
@@ -84,4 +91,4 @@ const CurruptedFileFormate = (props) => {
   );
 };
 
-export default CurruptedFileFormate;
+export default EmailFailurePopUP;

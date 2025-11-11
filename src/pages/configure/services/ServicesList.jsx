@@ -148,10 +148,7 @@ const Services = () => {
   const ServiceEditBtnClicked = async (service, type) => {
     if (type === "editPredefined") {
       setLoader(true);
-      const data = await GetServiceModel(
-        service.serviceKeyID,
-        true
-      );
+      const data = await GetServiceModel(service.serviceKeyID, true);
       if (data?.data?.statusCode === 200) {
         setLoader(false);
         setModelRequestData({
@@ -177,7 +174,6 @@ const Services = () => {
 
   //Handle Change Status Data and Delete Data
   const serviceChangeStatusDataAndDeleteData = async () => {
-    console.log(modelRequestData.Action);
     setLoader(true);
     if (modelRequestData.Action === "Status") {
       try {
@@ -188,39 +184,57 @@ const Services = () => {
         if (Data) {
           setLoader(false);
           if (Data?.data?.statusCode === 200) {
-            const servicePackageNames = Data?.data?.responseData.serviceExistInPackage.map((item) => item.servicePackageName).slice(0, 5);
-            const moduleNamesForQuote = Data?.data?.responseData.serviceExistinQuote.map((item) => item.refID).slice(0, 5);
-            const moduleNamesForContract = Data?.data?.responseData.serviceExistinContract.map((item) => item.refID).slice(0, 5);
+            const servicePackageNames =
+              Data?.data?.responseData.serviceExistInPackage
+                .map((item) => item.servicePackageName)
+                .slice(0, 5);
+            const moduleNamesForQuote =
+              Data?.data?.responseData.serviceExistinQuote
+                .map((item) => item.refID)
+                .slice(0, 5);
+            const moduleNamesForContract =
+              Data?.data?.responseData.serviceExistinContract
+                .map((item) => item.refID)
+                .slice(0, 5);
 
-            if (servicePackageNames.length > 0 || moduleNamesForQuote.length > 0 || moduleNamesForContract.length > 0) {
+            if (
+              servicePackageNames.length > 0 ||
+              moduleNamesForQuote.length > 0 ||
+              moduleNamesForContract.length > 0
+            ) {
               let warningMessage = `Following modules are linked to the selected ${moduleName.toLowerCase()}. You must remove these before attempting to mark it as InActive.\n`;
 
               if (servicePackageNames.length > 0) {
                 warningMessage += "\nPackages:\n";
-                warningMessage += servicePackageNames.map(x => `• ${x}`).join("\n");
+                warningMessage += servicePackageNames
+                  .map((x) => `• ${x}`)
+                  .join("\n");
               }
 
               if (moduleNamesForQuote.length > 0) {
                 warningMessage += "\nProposals:\n";
-                warningMessage += moduleNamesForQuote.map(x => `• ${x}`).join("\n");
+                warningMessage += moduleNamesForQuote
+                  .map((x) => `• ${x}`)
+                  .join("\n");
               }
 
               if (moduleNamesForContract.length > 0) {
                 warningMessage += "\nEngagement Letters:\n";
-                warningMessage += moduleNamesForContract.map(x => `• ${x}`).join("\n");
+                warningMessage += moduleNamesForContract
+                  .map((x) => `• ${x}`)
+                  .join("\n");
               }
 
               setModelRequestData({
                 ...modelRequestData,
                 Action: "ServiceWarning",
-                
+
                 message: warningMessage,
                 ServiceName: [],
               });
               setErrorMessage(warningMessage);
               setOpenErrorModal(true);
               // $("#" + "RecordsAvailablePopupModel").modal("show");
-
             } else {
               GetServiceListData(null, null, null);
             }
@@ -345,7 +359,6 @@ const Services = () => {
   //Design part :
   return (
     <div>
-
       <div class="main-content">
         <div class="services page-background">
           <div class="page-info-header page-info-strip">
@@ -360,13 +373,12 @@ const Services = () => {
                       common.organisationKeyID !== null) ||
                       (userAccessData.SuperAdmin_Config_Service_CanAdd &&
                         common.organisationKeyID === null)) && (
-                        <CommonButtonComponent
-                          title={getCrudButtonToolTipName("Add", moduleName)}
-                          name={getCrudButtonTextName("Add", moduleName)}
-
-                          AddBtn={() => AddServiceBtn()}
-                        />
-                      )}
+                      <CommonButtonComponent
+                        title={getCrudButtonToolTipName("Add", moduleName)}
+                        name={getCrudButtonTextName("Add", moduleName)}
+                        AddBtn={() => AddServiceBtn()}
+                      />
+                    )}
                   </div>
                 </div>
                 <div className="div">
@@ -388,9 +400,9 @@ const Services = () => {
                                   isMobile
                                     ? "Search"
                                     : getPlaceholderTextName(
-                                      "Search",
-                                      moduleName
-                                    )
+                                        "Search",
+                                        moduleName
+                                      )
                                 }
                               />
                             </div>
@@ -461,10 +473,10 @@ const Services = () => {
                   <div class="card-body">
                     <div id="customerList">
                       <div class="row g-4 mb-3"></div>
-                      <div class="table-responsive table-card  mb-3 table-padding"
-                        style={{ marginTop: '208px' }}
+                      <div
+                        class="table-responsive table-card  mb-3 table-padding"
+                        style={{ marginTop: "208px" }}
                       >
-
                         <table
                           class="table align-middle table-nowrap  mt-2"
                           style={{ width: "100%" }}
@@ -511,10 +523,10 @@ const Services = () => {
                                               </Tooltip>
                                             ) : (
                                               <td>
-                                                {service?.serviceCatName
-                                                  .replace(/\b\w/g, (l) =>
-                                                    l.toUpperCase()
-                                                  )}
+                                                {service?.serviceCatName.replace(
+                                                  /\b\w/g,
+                                                  (l) => l.toUpperCase()
+                                                )}
                                               </td>
                                             )}
                                             <td
@@ -545,50 +557,59 @@ const Services = () => {
                                             >
                                               {((userAccessData.Admin_Config_Service_CanEdit &&
                                                 common.organisationKeyID !==
-                                                null) ||
+                                                  null) ||
                                                 (userAccessData.SuperAdmin_Config_Service_CanEdit &&
                                                   common.organisationKeyID ===
-                                                  null) ||
+                                                    null) ||
                                                 (userAccessData.Admin_Config_Service_CanDelete &&
                                                   common.organisationKeyID !==
-                                                  null) ||
+                                                    null) ||
                                                 (userAccessData.SuperAdmin_Config_Service_CanDelete &&
                                                   common.organisationKeyID ===
-                                                  null)) && <>Action</>}
+                                                    null)) && <>Action</>}
                                             </td>
                                           </tr>
                                           {service?.servicesList?.map(
                                             (subService) => {
                                               return (
                                                 <tr
-                                                  class={`table_new ${!(
-                                                    (userAccessData.Admin_Config_Service_CanEdit &&
-                                                      common.organisationKeyID !==
-                                                      null) ||
-                                                    (userAccessData.SuperAdmin_Config_Service_CanEdit &&
-                                                      common.organisationKeyID ===
-                                                      null)
-                                                  )
-                                                    ? ""
-                                                    : "service-table-td"
-                                                    } `}
+                                                  class={`table_new ${
+                                                    !(
+                                                      (userAccessData.Admin_Config_Service_CanEdit &&
+                                                        common.organisationKeyID !==
+                                                          null) ||
+                                                      (userAccessData.SuperAdmin_Config_Service_CanEdit &&
+                                                        common.organisationKeyID ===
+                                                          null)
+                                                    )
+                                                      ? ""
+                                                      : "service-table-td"
+                                                  } `}
                                                 >
                                                   <td
                                                     style={{ width: "30%" }}
                                                     className="table-content-font"
                                                   >
-                                                    {subService.notifySAChanges !== null && common.organisationKeyID !== null && (
-                                                      <>
-                                                        <Tooltip
-                                                          title="View System Administrator Changes"
-                                                        >
-                                                          <span onClick={() =>
-                                                            ServiceEditBtnClicked(subService, "editPredefined")
-
-                                                          } className="UpdateConfigValue" ><i class="fa fa-regular fa-bell"></i></span>
-                                                        </Tooltip>
-                                                      </>
-                                                    )}
+                                                    {subService.notifySAChanges !==
+                                                      null &&
+                                                      common.organisationKeyID !==
+                                                        null && (
+                                                        <>
+                                                          <Tooltip title="View System Administrator Changes">
+                                                            <span
+                                                              onClick={() =>
+                                                                ServiceEditBtnClicked(
+                                                                  subService,
+                                                                  "editPredefined"
+                                                                )
+                                                              }
+                                                              className="UpdateConfigValue"
+                                                            >
+                                                              <i class="fa fa-regular fa-bell"></i>
+                                                            </span>
+                                                          </Tooltip>
+                                                        </>
+                                                      )}
                                                     {service.needToUpdate && (
                                                       <span class="text-danger">
                                                         *
@@ -609,12 +630,11 @@ const Services = () => {
                                                           </>
                                                         ) : (
                                                           <>
-                                                            {subService.serviceName
-                                                              .replace(
-                                                                /\b\w/g,
-                                                                (l) =>
-                                                                  l.toUpperCase()
-                                                              )}
+                                                            {subService.serviceName.replace(
+                                                              /\b\w/g,
+                                                              (l) =>
+                                                                l.toUpperCase()
+                                                            )}
                                                           </>
                                                         )}
                                                       </>
@@ -641,17 +661,15 @@ const Services = () => {
                                                           </Tooltip>
                                                         ) : (
                                                           <>
-                                                            {subService.serviceName
-                                                              .replace(
-                                                                /\b\w/g,
-                                                                (l) =>
-                                                                  l.toUpperCase()
-                                                              )}
+                                                            {subService.serviceName.replace(
+                                                              /\b\w/g,
+                                                              (l) =>
+                                                                l.toUpperCase()
+                                                            )}
                                                           </>
                                                         )}
                                                       </>
                                                     )}
-
                                                   </td>
 
                                                   <td
@@ -675,46 +693,46 @@ const Services = () => {
                                                       </div>
                                                       {((userAccessData.Admin_Config_Service_CanDelete &&
                                                         common.organisationKeyID !==
-                                                        null) ||
+                                                          null) ||
                                                         (userAccessData.SuperAdmin_Config_Service_CanDelete &&
                                                           common.organisationKeyID ===
-                                                          null)) && (
-                                                          <Tooltip
-                                                            title={getCrudButtonToolTipName(
-                                                              "Change Status"
-                                                            )}
-                                                          >
-                                                            <FormGroup>
-                                                              <FormControlLabel
-                                                                control={
-                                                                  <Android12Switch
-                                                                    onClick={() =>
-                                                                      setModelRequestData(
-                                                                        {
-                                                                          ...modelRequestData,
-                                                                          serviceKeyID:
-                                                                            subService.serviceKeyID,
-                                                                          status:
-                                                                            subService.statusName,
-                                                                          userKeyID:
-                                                                            common.userKeyID,
-                                                                          Action:
-                                                                            "Status",
-                                                                        }
-                                                                      )
-                                                                    }
-                                                                    checked={
-                                                                      subService.statusName ===
-                                                                      "Active"
-                                                                    }
-                                                                    data-bs-toggle="modal"
-                                                                    data-bs-target="#ConfirmModel"
-                                                                  />
-                                                                }
-                                                              />
-                                                            </FormGroup>
-                                                          </Tooltip>
-                                                        )}
+                                                            null)) && (
+                                                        <Tooltip
+                                                          title={getCrudButtonToolTipName(
+                                                            "Change Status"
+                                                          )}
+                                                        >
+                                                          <FormGroup>
+                                                            <FormControlLabel
+                                                              control={
+                                                                <Android12Switch
+                                                                  onClick={() =>
+                                                                    setModelRequestData(
+                                                                      {
+                                                                        ...modelRequestData,
+                                                                        serviceKeyID:
+                                                                          subService.serviceKeyID,
+                                                                        status:
+                                                                          subService.statusName,
+                                                                        userKeyID:
+                                                                          common.userKeyID,
+                                                                        Action:
+                                                                          "Status",
+                                                                      }
+                                                                    )
+                                                                  }
+                                                                  checked={
+                                                                    subService.statusName ===
+                                                                    "Active"
+                                                                  }
+                                                                  data-bs-toggle="modal"
+                                                                  data-bs-target="#ConfirmModel"
+                                                                />
+                                                              }
+                                                            />
+                                                          </FormGroup>
+                                                        </Tooltip>
+                                                      )}
                                                     </div>
                                                   </td>
                                                   <td
@@ -724,12 +742,13 @@ const Services = () => {
                                                     <div
                                                       style={{ padding: "0px" }}
                                                       class="d-flex gap-2"
-                                                    ><Tooltip
-                                                      title={getCrudButtonToolTipName(
-                                                        "Copy",
-                                                        moduleName
-                                                      )}
                                                     >
+                                                      <Tooltip
+                                                        title={getCrudButtonToolTipName(
+                                                          "Copy",
+                                                          moduleName
+                                                        )}
+                                                      >
                                                         <div class="edit">
                                                           <button
                                                             onClick={() =>
@@ -744,7 +763,9 @@ const Services = () => {
                                                                     common.userKeyID,
                                                                   Action:
                                                                     "Copy",
-                                                                })}
+                                                                }
+                                                              )
+                                                            }
                                                             class="btn btn-sm btn-success edit-item-btn edit"
                                                             data-bs-toggle="modal"
                                                             data-bs-target="#ConfirmModel"
@@ -755,68 +776,68 @@ const Services = () => {
                                                       </Tooltip>
                                                       {((userAccessData.Admin_Config_Service_CanEdit &&
                                                         common.organisationKeyID !==
-                                                        null) ||
+                                                          null) ||
                                                         (userAccessData.SuperAdmin_Config_Service_CanEdit &&
                                                           common.organisationKeyID ===
-                                                          null)) && (
-                                                          <Tooltip
-                                                            title={getCrudButtonToolTipName(
-                                                              "Update",
-                                                              moduleName
-                                                            )}
-                                                          >
-                                                            <div class="edit">
-                                                              <button
-                                                                onClick={() =>
-                                                                  ServiceEditBtnClicked(
-                                                                    subService
-                                                                  )
-                                                                }
-                                                                class="btn btn-sm btn-success edit-item-btn actionButtonsStyle"
-                                                              >
-                                                                <i class="ri-pencil-fill"></i>
-                                                              </button>
-                                                            </div>
-                                                          </Tooltip>
-                                                        )}
+                                                            null)) && (
+                                                        <Tooltip
+                                                          title={getCrudButtonToolTipName(
+                                                            "Update",
+                                                            moduleName
+                                                          )}
+                                                        >
+                                                          <div class="edit">
+                                                            <button
+                                                              onClick={() =>
+                                                                ServiceEditBtnClicked(
+                                                                  subService
+                                                                )
+                                                              }
+                                                              class="btn btn-sm btn-success edit-item-btn actionButtonsStyle"
+                                                            >
+                                                              <i class="ri-pencil-fill"></i>
+                                                            </button>
+                                                          </div>
+                                                        </Tooltip>
+                                                      )}
                                                       {((userAccessData.Admin_Config_Service_CanDelete &&
                                                         common.organisationKeyID !==
-                                                        null) ||
+                                                          null) ||
                                                         (userAccessData.SuperAdmin_Config_Service_CanDelete &&
                                                           common.organisationKeyID ===
-                                                          null)) && (
-                                                          <Tooltip
-                                                            title={getCrudButtonToolTipName(
-                                                              "Delete",
-                                                              moduleName
-                                                            )}
-                                                          >
-                                                            <div class="remove">
-                                                              <button
-                                                                class="btn btn-sm btn-danger remove-item-btn actionButtonsStyle"
-                                                                data-bs-toggle="modal"
-                                                                data-bs-target="#ConfirmModel"
-                                                                onClick={() =>
-                                                                  setModelRequestData(
-                                                                    {
-                                                                      ...modelRequestData,
-                                                                      serviceKeyID:
-                                                                        subService.serviceKeyID,
-                                                                      serviceCatName:
-                                                                        subService.serviceName,
-                                                                      userKeyID:
-                                                                        common.userKeyID,
-                                                                      Action:
-                                                                        "Delete",
-                                                                    }
-                                                                  )
-                                                                }
-                                                              >
-                                                                <i class="ri-delete-bin-5-fill"></i>
-                                                              </button>
-                                                            </div>
-                                                          </Tooltip>
-                                                        )}
+                                                            null)) && (
+                                                        <Tooltip
+                                                          title={getCrudButtonToolTipName(
+                                                            "Delete",
+                                                            moduleName
+                                                          )}
+                                                        >
+                                                          <div class="remove">
+                                                            <button
+                                                              class="btn btn-sm btn-danger remove-item-btn actionButtonsStyle"
+                                                              data-bs-toggle="modal"
+                                                              data-bs-target="#ConfirmModel"
+                                                              onClick={() =>
+                                                                setModelRequestData(
+                                                                  {
+                                                                    ...modelRequestData,
+                                                                    serviceKeyID:
+                                                                      subService.serviceKeyID,
+                                                                    serviceCatName:
+                                                                      subService.serviceName,
+                                                                    userKeyID:
+                                                                      common.userKeyID,
+                                                                    Action:
+                                                                      "Delete",
+                                                                  }
+                                                                )
+                                                              }
+                                                            >
+                                                              <i class="ri-delete-bin-5-fill"></i>
+                                                            </button>
+                                                          </div>
+                                                        </Tooltip>
+                                                      )}
                                                     </div>
                                                   </td>
                                                 </tr>
@@ -871,8 +892,10 @@ const Services = () => {
               setOpenSuccessModal={setOpenSuccessModal}
               openSuccessModal={openSuccessModal}
               modelAction={modelRequestData.Action}
-              message={modelRequestData.Action === "Copy"
-                ? `The Copy of ${modelRequestData.serviceCatName} has been created successfully!` : modelRequestData.Action === "Delete"
+              message={
+                modelRequestData.Action === "Copy"
+                  ? `The Copy of ${modelRequestData.serviceCatName} has been created successfully!`
+                  : modelRequestData.Action === "Delete"
                   ? `${moduleName} ${modelRequestData.serviceCatName}`
                   : "Status has been changed successfully!"
               }

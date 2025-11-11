@@ -221,3 +221,20 @@ export const AppSettingType = {
   UnpaidUser: "Unpaid_Users_Login_To_Outbooks_Warning_Mail",
   paidUser: "Paid_Users_Login_To_Outbooks_Warning_Mail",
 };
+
+export const servicePackageTypeID = {
+  RecurringServiceTypeID: 1,
+  OneOffServiceTypeID: 2,
+  RecurringPackageTypeID: 3,
+  OneOffPackageTypeID: 4,
+};
+
+export const fieldToIdMap = {
+  serviceCategory: 1,
+  serviceName: 2,
+  vatRate: 3,
+  vat: 4,
+  fees: 5,
+  serviceScope: 6,
+  feesIncVat: 7,
+};

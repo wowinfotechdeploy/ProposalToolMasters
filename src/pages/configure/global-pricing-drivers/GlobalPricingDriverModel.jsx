@@ -25,14 +25,7 @@ import AcceptSuperAdminChangesConfirmation from "../../../components/AcceptSuper
 import SAPredefinedChangesNotifyMessageModel from "../../../components/SAPredefinedChangesNotifyMessageModel";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import {
-  parse,
-  format,
-  isValid,
-  differenceInCalendarDays,
-  addDays,
-  subDays,
-} from "date-fns";
+import { parse, format, isValid,differenceInCalendarDays, addDays,subDays } from "date-fns"; 
 import Utils from "../../../Middleware/Utils";
 function Modal(props) {
   //A] Declare State
@@ -69,7 +62,7 @@ function Modal(props) {
     dateFormat: false,
     dateValue: false,
     fromDate: false,
-    toDate: false,
+    toDate: false
   });
   const [textError, setTextError] = useState({
     text: false,
@@ -77,7 +70,7 @@ function Modal(props) {
     textLength: false,
   });
   const [qtyError, setQtyError] = useState({
-    quantityError: false,
+    quantityError: false
   });
   const [errorMessageTitle, setErrorMessageTitle] = useState("");
   const [slabType, setSlabType] = useState([]);
@@ -111,24 +104,24 @@ function Modal(props) {
           fromDate: "",
           toDate: "",
           dateValue: null,
-        },
-      ],
-    },
+        }
+      ]
+    }
   ]);
-  const [textDriver, setTextDriver] = useState({
-    textKeyID: null,
-    textLength: null,
-    textValue: null,
-    allowedSpecialCharacters: "",
-  });
-  const [quantity, setQuantity] = useState([
+  const [textDriver, setTextDriver] = useState(
     {
-      quantityKeyID: null,
-      quantityDecimalPlaces: 0,
-      quantityFrom: null,
-      quantityTo: null,
-    },
-  ]);
+      textKeyID: null,
+      textLength: null,
+      textValue: null,
+      allowedSpecialCharacters: ""
+    })
+  const [quantity, setQuantity] = useState([
+      {
+        quantityKeyID: null,
+        quantityDecimalPlaces: 0,
+        quantityFrom: null,
+        quantityTo: null
+      }])
   const [errorMessage, setErrorMessage] = useState("");
   const [openErrorModal, setOpenErrorModal] = useState(false);
   const [modelAction, setModelAction] = useState("");
@@ -151,7 +144,7 @@ function Modal(props) {
     variation: variations,
     slab: slabs,
     date: dates,
-    text: textDriver,
+    text: textDriver
   });
   const [dismissModal, setDismissModal] = useState(null);
   const [openSuccessModal, setOpenSuccessModal] = React.useState(false);
@@ -162,7 +155,7 @@ function Modal(props) {
     getCrudPopUpTitleName,
     problematicInputRef,
     scrollUpDownByElementID,
-    formatNumberWithDecimals,
+    formatNumberWithDecimals
   } = useContext(AuthContextProvider);
 
   //B] Initial useEffect : Will call when Add/Update button click from list page
@@ -176,8 +169,7 @@ function Modal(props) {
       props.modelRequestData.Action !== null
     ) {
       GetServiceCategoryModelData(
-        props.modelRequestData.globalPricingDriverKeyID,
-        props.modelRequestData.Type
+        props.modelRequestData.globalPricingDriverKeyID, props.modelRequestData.Type
       );
     } else {
       SetInitialModelData();
@@ -299,7 +291,7 @@ function Modal(props) {
 
     if (field === "decimalPlaces") {
       // Update decimalPlaces for ALL slabs
-      updatedSlabs = updatedSlabs.map((slab) => {
+      updatedSlabs = updatedSlabs.map(slab => {
         const decimalPlaces = value;
         const updatedSlab = {
           ...slab,
@@ -308,9 +300,7 @@ function Modal(props) {
 
         // Format slabFrom and slabTo to match the new decimal places
         if (slab.slabFrom !== "") {
-          updatedSlab.slabFrom = parseFloat(slab.slabFrom).toFixed(
-            decimalPlaces
-          );
+          updatedSlab.slabFrom = parseFloat(slab.slabFrom).toFixed(decimalPlaces);
         }
 
         if (slab.slabTo !== "") {
@@ -333,7 +323,7 @@ function Modal(props) {
 
     setSlabs(updatedSlabs);
   };
-
+  
   function OnVariationsRadioChange(selectedIndex) {
     setErrorMessage("");
     const updatedVariations = variations.map((variation, index) => ({
@@ -358,12 +348,11 @@ function Modal(props) {
     // For example, if you're using React state, set it with setState(updatedVariations);
   }
 
-  //Add Slab
+  //Add Slab 
   const OnAddSlab = (i) => {
     setCount(count + 1);
     var fromValueForNewSlab = Number(slabs[slabs.length - 1].slabTo) + 0.01;
-    var existingDecimalPlaces =
-      Number(slabs[slabs.length - 1].decimalPlaces) ?? 2;
+    var existingDecimalPlaces = Number(slabs[slabs.length - 1].decimalPlaces) ?? 2;
     fromValueForNewSlab = Math.round(fromValueForNewSlab * 100) / 100;
     const newSlabs = {
       slabKeyID: null,
@@ -380,7 +369,7 @@ function Modal(props) {
       slabs[slabs.length - 1].slabFrom === "" ||
       slabs[slabs.length - 1].slabTo === "" ||
       parseFloat(slabs[slabs.length - 1].slabTo) <
-        parseFloat(slabs[slabs.length - 1].slabFrom)
+      parseFloat(slabs[slabs.length - 1].slabFrom)
     ) {
       setSlabError({ slabValue: true });
     } else {
@@ -393,7 +382,7 @@ function Modal(props) {
     }
   };
 
-  //delete Slab
+  //delete Slab 
   const OnDeleteSlabs = async (index) => {
     // First, create a copy of the slabs array to avoid modifying it directly
     const slabsCopy = [...slabs];
@@ -475,15 +464,9 @@ function Modal(props) {
 
     // Recalculate fromDate for all subsequent blocks
     for (let i = 1; i < blocks.length; i++) {
-      const prevToDate = parseStoredDate(
-        blocks[i - 1].toDate,
-        updatedDates[dateIndex].dateFormat
-      );
+      const prevToDate = parseStoredDate(blocks[i - 1].toDate, updatedDates[dateIndex].dateFormat);
       blocks[i].fromDate = prevToDate
-        ? formatToDisplay(
-            addDays(prevToDate, 1),
-            updatedDates[dateIndex].dateFormat
-          )
+        ? formatToDisplay(addDays(prevToDate, 1), updatedDates[dateIndex].dateFormat)
         : "";
     }
 
@@ -500,8 +483,9 @@ function Modal(props) {
     }
   };
 
-  //Delete Variations
+  //Delete Variations 
   const OnDeleteVariations = async (index) => {
+
     const variationsCopy = [...variations];
     if (variationsCopy[index].variationKeyID !== null) {
       setLoader(true);
@@ -563,7 +547,7 @@ function Modal(props) {
     }
   };
 
-  // Add Variation
+  // Add Variation 
   const OnAddVariations = () => {
     setErrorMessage("");
     setCount(count + 1);
@@ -595,7 +579,7 @@ function Modal(props) {
   const dateFormats = Utils.dateFormats;
 
   const handleSpecialCharChange = (selected) => {
-    const chars = selected ? selected.map((s) => s.value).join(",") : "";
+    const chars = selected ? selected.map((s) => s.value).join(',') : '';
     setTextDriver((prev) => ({
       ...prev,
       allowedSpecialCharacters: chars,
@@ -615,34 +599,34 @@ function Modal(props) {
   //       toDate: "",
   //       dateValue: null,
   //     };
-
+  
   //     const updatedDates = [...dates, newDateBlock];
   //     setDates(updatedDates);
-
+  
   //     setDateError({
   //       date: false,
   //       fromDate: false,
   //       toDate: false,
   //       dateValue: false,
   //     });
-
+  
   //     setTimeout(() => {
   //       scrollUpDownByElementID(`Period_Block_${updatedDates.length - 1}`);
   //     }, 200);
   //     return;
   //   }
-
+  
   //   if (lastDateBlock?.fromDate !== "" && lastDateBlock?.toDate !== "") {
   //     setDateError({ date: false, dateValue: false, fromDate: false, toDate: false });
-
+  
   //     const dateFormat = lastDateBlock?.dateFormat || "dd/MM/yyyy";
   //     const parsedToDate = parseStoredDate(lastDateBlock?.toDate, dateFormat);
-
+  
   //     const nextFromDate = new Date(parsedToDate);
   //     nextFromDate.setDate(nextFromDate.getDate() + 1);
-
+  
   //     const formattedFromDate = formatToDisplay(nextFromDate, dateFormat);
-
+  
   //     const newDateBlock = {
   //       dateKeyID: null,
   //       dateFormat: dateFormat,
@@ -650,10 +634,10 @@ function Modal(props) {
   //       toDate: "",
   //       dateValue: null,
   //     };
-
+  
   //     const updatedDates = [...dates, newDateBlock];
   //     setDates(updatedDates);
-
+  
   //     setTimeout(() => {
   //       scrollUpDownByElementID(`Period_Block_${updatedDates.length - 1}`);
   //     }, 200);
@@ -665,16 +649,16 @@ function Modal(props) {
   //     });
   //   }
   // };
-
+  
   const OnAddPeriodBlock = () => {
     setCount(count + 1);
     setErrorMessage("");
-
+  
     const dateFormat = dates[0]?.dateFormat || dateFormats?.[3]?.value;
     console.log(dateFormat);
     const blocks = dates[0]?.blocks || [];
     const lastBlock = blocks[blocks.length - 1];
-
+  
     if (!lastBlock) {
       // No blocks yet, add the first block
       const newBlock = {
@@ -682,32 +666,27 @@ function Modal(props) {
         toDate: "",
         dateValue: null,
       };
-
+  
       const updatedDates = [...dates];
       updatedDates[0] = {
         ...updatedDates[0],
         dateFormat: dateFormat,
         blocks: [newBlock],
       };
-
+  
       setDates(updatedDates);
-      setDateError({
-        date: false,
-        fromDate: false,
-        toDate: false,
-        dateValue: false,
-      });
-
+      setDateError({ date: false, fromDate: false, toDate: false, dateValue: false });
+  
       setTimeout(() => {
         scrollUpDownByElementID(`Period_Block_0`);
       }, 200);
       return;
     }
-
+  
     // Allow adding new block only if toDate is present
     if (lastBlock.toDate && lastBlock.toDate !== "") {
       setDateError({ date: false, toDate: false });
-
+  
       const parsedToDate = parseStoredDate(lastBlock.toDate, dateFormat);
       const nextFromDate = addDays(parsedToDate, 1);
       const formattedFromDate = formatToDisplay(nextFromDate, dateFormat);
@@ -717,25 +696,23 @@ function Modal(props) {
         toDate: "",
         dateValue: null,
       };
-
+  
       const updatedDates = [...dates];
       updatedDates[0] = {
         ...updatedDates[0],
         blocks: [...blocks, newBlock],
       };
-
+  
       setDates(updatedDates);
-
+  
       setTimeout(() => {
-        scrollUpDownByElementID(
-          `Period_Block_${updatedDates[0].blocks.length - 1}`
-        );
+        scrollUpDownByElementID(`Period_Block_${updatedDates[0].blocks.length - 1}`);
       }, 200);
     } else {
       setDateError({ toDate: true });
     }
   };
-
+  
   const AddPeriodBlock = () => {
     setCount(count + 1);
     const newDates = {
@@ -746,7 +723,7 @@ function Modal(props) {
     };
     slabs.push(newDates);
   };
-
+  
   const parseStoredDate = (dateStr, formatStr) => {
     if (!dateStr) return null;
     try {
@@ -758,12 +735,12 @@ function Modal(props) {
   };
 
   const formatToDisplay = (date, formatStr) => {
-    console.log("date", date);
-    console.log("formatStr", formatStr);
-
-    if (!isValid(date) || typeof formatStr !== "string") return "";
-    return format(date, formatStr);
-  };
+  console.log("date", date);
+  console.log("formatStr", formatStr);
+  
+  if (!isValid(date) || typeof formatStr !== 'string') return "";
+  return format(date, formatStr);
+};
 
   // const OnPeriodBlockChange = (index, field, value) => {
   //   const updatedDates = [...dates];
@@ -814,8 +791,7 @@ function Modal(props) {
     if (!block) return;
 
     if (field === "dateValue") {
-      block.dateValue =
-        typeof value === "string" ? value.replace(/[^0-9]/g, "") : value;
+      block.dateValue = typeof value === "string" ? value.replace(/[^0-9]/g, "") : value;
     } else {
       block[field] = value;
     }
@@ -828,10 +804,9 @@ function Modal(props) {
       const toDate = parseStoredDate(b.toDate, formatStr);
       return {
         fromDate: !b.fromDate,
-        toDate:
-          (!b.toDate && i < updatedDates[dateIndex].blocks.length - 1) ||
-          (fromDate && toDate && toDate < fromDate),
-        dateValue: !b.dateValue && b.dateValue !== 0,
+        toDate: (!b.toDate && i < updatedDates[dateIndex].blocks.length - 1)
+          || (fromDate && toDate && toDate < fromDate),
+        dateValue: !b.dateValue && b.dateValue !== 0
       };
     });
 
@@ -846,18 +821,18 @@ function Modal(props) {
 
   const handleDateFormatChange = (selected) => {
     const newFormat = selected ? selected.value : Utils.dateFormats[0].value;
-
+  
     if (dates.length === 0) {
       setDates([
         {
           dateFormat: newFormat,
-          blocks: [],
-        },
+          blocks: [] 
+        }
       ]);
     } else {
       const updated = dates.map((dateGroup) => {
         const oldFormat = dateGroup.dateFormat;
-
+  
         return {
           ...dateGroup,
           dateFormat: newFormat,
@@ -871,30 +846,30 @@ function Modal(props) {
                   ? reformatDate(block.toDate, oldFormat, newFormat)
                   : "",
               }))
-            : [],
+            : []
         };
       });
-
+  
       setDates(updated);
     }
-
+  
     setDateError({ date: false, dateValue: false });
-  };
-
+  };  
+  
   const handleDefaultDateValueChange = (e) => {
     const inputValue = e.target.value;
-    const cleanValue = inputValue?.replace(/[^0-9]/g, "");
-
+    const cleanValue = inputValue?.replace(/[^0-9]/g, '');
+  
     setDates(
       dates.map((date) => ({
         ...date,
         defaultDateValue: cleanValue === "" ? null : parseInt(cleanValue, 10),
       }))
     );
-
+  
     setDateError({ date: false, dateValue: false });
   };
-
+  
   // D] Calling All Api's like Lookup List and other Here :
   // 1) On Change Select Profession Type
   const GetProfessionTypeLookupListData = async () => {
@@ -955,7 +930,7 @@ function Modal(props) {
       console.log(error);
     }
   };
-  //Driver Type Change
+  //Driver Type Change 
   const OnDriverTypeChange = async (DriverType) => {
     let variationKeyIDs = null;
     let slabKeyIDs = null;
@@ -989,6 +964,7 @@ function Modal(props) {
         slabKeyIDs
       );
 
+
       if (pricingDriverDelete?.data?.statusCode === 200) {
         setLoader(false);
         let moduleList = pricingDriverDelete?.data?.responseData?.moduleList;
@@ -1019,14 +995,14 @@ function Modal(props) {
               },
             ],
             date: [
-              {
-                dateFormat: "",
-                fromDate: "",
-                toDate: "",
-                dateValue: null,
-                isDefault: false,
-              },
-            ],
+          {
+            dateFormat: "",
+            fromDate: "",
+            toDate: "",
+            dateValue: null,
+            isDefault: false,
+          },
+        ],
           });
           if (DriverType.value === 4) {
             setSlabs([]);
@@ -1152,14 +1128,12 @@ function Modal(props) {
 
             const ModifySlab = ModelData.slab.map((item) => ({
               ...item,
-              slabFrom:
-                item.slabFrom !== null && item.decimalPlaces !== undefined
-                  ? parseFloat(item.slabFrom).toFixed(item.decimalPlaces ?? 2)
-                  : item.slabFrom,
-              slabTo:
-                item.slabTo !== null && item.decimalPlaces !== undefined
-                  ? parseFloat(item.slabTo).toFixed(item.decimalPlaces ?? 2)
-                  : item.slabTo,
+              slabFrom: item.slabFrom !== null && item.decimalPlaces !== undefined
+                ? parseFloat(item.slabFrom).toFixed(item.decimalPlaces ?? 2)
+                : item.slabFrom,
+              slabTo: item.slabTo !== null && item.decimalPlaces !== undefined
+                ? parseFloat(item.slabTo).toFixed(item.decimalPlaces ?? 2)
+                : item.slabTo,
               slabValue: item.slabValue,
             }));
 
@@ -1172,22 +1146,17 @@ function Modal(props) {
                   dateValue: block.dateValue,
                   fromDate: block.fromDate,
                   toDate: block.toDate,
-                })),
+                }))
               }));
               setDates(ModifyDate);
             }
-            if (
-              ModelData.driverTypeID === 5 &&
-              ModelData.text &&
-              ModelData.text.length > 0
-            ) {
+            if (ModelData.driverTypeID === 5 && ModelData.text && ModelData.text.length > 0) {
               const textData = ModelData.text[0]; // Take the first text driver
               setTextDriver({
                 textKeyID: textData.textKeyID || null,
                 textValue: textData.textValue || null,
                 textLength: textData.textLength || null,
-                allowedSpecialCharacters:
-                  textData.allowedSpecialCharacters || "",
+                allowedSpecialCharacters: textData.allowedSpecialCharacters || "",
               });
             } else if (ModelData.driverTypeID === 5) {
               // Reset textDriver if no text data exists
@@ -1197,7 +1166,7 @@ function Modal(props) {
                 textLength: null,
                 allowedSpecialCharacters: "",
               });
-            }
+            } 
             if (ModelData.driverTypeID === 2) {
               const quantityData = ModelData.quantity[0]; // Take the first text driver
               setQuantity([
@@ -1209,7 +1178,7 @@ function Modal(props) {
                       ? quantityData.quantityDecimalPlaces
                       : 2,
                   quantityFrom: quantityData.quantityFrom,
-                  quantityTo: quantityData.quantityTo,
+                  quantityTo: quantityData.quantityTo
                 },
               ]);
             }
@@ -1235,10 +1204,8 @@ function Modal(props) {
       globalPricingDriverObj.driverTypeID === 3 ? variations : null;
     const slabData = globalPricingDriverObj.driverTypeID === 4 ? slabs : null;
     const dateData = globalPricingDriverObj.driverTypeID === 6 ? dates : null;
-    const textData =
-      globalPricingDriverObj.driverTypeID === 5 ? [textDriver] : null;
-    const quantityData =
-      globalPricingDriverObj.driverTypeID === 2 ? quantity : null;
+    const textData = globalPricingDriverObj.driverTypeID === 5 ? [textDriver] : null;
+    const quantityData = globalPricingDriverObj.driverTypeID === 2 ? quantity : null;
     const ModifySlab = slabData?.map((item) => ({
       ...item,
       slabValue: item.slabValue,
@@ -1255,8 +1222,8 @@ function Modal(props) {
     if (Accept === "Accept") {
       $("#" + "ConfirmSAChangesModel").modal("show");
 
-      setStatus(true);
-      return;
+      setStatus(true)
+      return
     }
     const ApiRequest_ParamsObj = {
       organisationKeyID: common.organisationKeyID,
@@ -1269,15 +1236,15 @@ function Modal(props) {
       acceptSAChanges: Accept,
       professionTypeList:
         common.professionTypeLists?.length > 1 ||
-        common.organisationKeyID === null
+          common.organisationKeyID === null
           ? globalPricingDriverObj.professionTypeList
           : [
-              {
-                professionTypeId: professionTypeInputValue[0]?.professionTypeId,
-                professionTypeName:
-                  professionTypeInputValue[0]?.professionTypeName,
-              },
-            ],
+            {
+              professionTypeId: professionTypeInputValue[0]?.professionTypeId,
+              professionTypeName:
+                professionTypeInputValue[0]?.professionTypeName,
+            },
+          ],
 
       variation: ModifyVariation,
       slab: ModifySlab,
@@ -1310,14 +1277,11 @@ function Modal(props) {
         hasError = true;
       } else {
         if (
-          quantityData[0].quantityFrom &&
-          quantityData[0].quantityFrom.trim() !== "" &&
-          quantityData[0].quantityTo &&
-          quantityData[0].quantityTo.trim() !== "" &&
-          Number(quantityData[0].quantityFrom) >=
-            Number(quantityData[0].quantityTo)
+          (quantityData[0].quantityFrom && quantityData[0].quantityFrom.trim() !== "") &&
+          (quantityData[0].quantityTo && quantityData[0].quantityTo.trim() !== "") &&
+          Number(quantityData[0].quantityFrom) >= Number(quantityData[0].quantityTo)
         ) {
-          console.log("Err");
+          console.log("Err")
           setQtyError({ quantityError: true });
           hasError = true;
         } else {
@@ -1445,58 +1409,54 @@ function Modal(props) {
         }
       }
     } else if (globalPricingDriverObj.driverTypeID === 6) {
-      console.log(dates);
-
-      let isValidDates = true;
-      const errors = [];
-      if (!dates[0]?.dateFormat) {
-        setDateError({ ...dateError, dateFormat: true });
-        isValidDates = false;
-      }
-      for (let i = 0; i < dates[0]?.blocks?.length; i++) {
-        scrollUpDownByElementID(`Date_Div_${i}`);
-
-        const { fromDate, toDate, dateValue, dateFormat } = dates[0]?.blocks[i];
-        const parsedFrom = parseStoredDate(fromDate, dateFormat);
-        const parsedTo = parseStoredDate(toDate, dateFormat);
-
-        // toDate is required unless it's the last block
-        if ((!toDate || toDate.trim() === "") && i < dates.length - 1) {
-          setDateError({ ...dateError, toDate: true });
+        console.log(dates);
+      
+        let isValidDates = true;
+        const errors = [];
+        if(!dates[0]?.dateFormat) {
+          setDateError({...dateError, dateFormat: true});
           isValidDates = false;
         }
-        if (
-          (!dates[0].blocks[i]?.fromDate ||
-            dates[0].blocks[i]?.fromDate == "") &&
-          (!dates[0].blocks[i]?.toDate || dates[0].blocks[i]?.toDate == "")
-        ) {
-          setDateError({ ...dateError, date: true });
-          isValidDates = false;
-        }
-      }
+        for (let i = 0; i < dates[0]?.blocks?.length; i++) {
+          scrollUpDownByElementID(`Date_Div_${i}`);
+    
+          const { fromDate, toDate, dateValue, dateFormat } = dates[0]?.blocks[i];
+          const parsedFrom = parseStoredDate(fromDate, dateFormat);
+          const parsedTo = parseStoredDate(toDate, dateFormat);
 
-      if (isValidDates) {
-        AddUpdateGlobalPricingDriverData(ApiRequest_ParamsObj);
-      } else {
-        return false; // Do not submit
-      }
+          // toDate is required unless it's the last block
+          if ((!toDate || toDate.trim() === "") && i < dates.length - 1) {
+            setDateError({...dateError, toDate: true});
+            isValidDates = false;
+          }
+          if ((!dates[0].blocks[i]?.fromDate || dates[0].blocks[i]?.fromDate  == "") && (!dates[0].blocks[i]?.toDate  || dates[0].blocks[i]?.toDate  == "")) {
+            setDateError({ ...dateError, date: true });
+            isValidDates = false;
+          }
+        }
+    
+        if (isValidDates) {
+          AddUpdateGlobalPricingDriverData(ApiRequest_ParamsObj);
+        } else {
+          return false; // Do not submit
+        }
     } else if (globalPricingDriverObj.driverTypeID === 5) {
       if (textData.length === 0) {
         scrollUpDownByElementID("Text");
         setTextError({ text: true });
       } else {
         let isValidText = true;
-
+    
         for (let i = 0; i < textData.length; i++) {
           scrollUpDownByElementID(`Text_Div_${i}`);
-
-          const { textValue, textLength } = textData[i];
-
+    
+          const { textValue , textLength} = textData[i];
+    
           // if (!textValue || textValue.trim() === "" || textValue === null) {
           //   setTextError({ ...textError, textValue: true });
           //   isValidText = false;
-          // }
-          if (!textLength || textLength === null) {
+          // } 
+          if(!textLength || textLength === null) {
             setTextError({ ...textError, textLength: true });
             isValidText = false;
           }
@@ -1567,7 +1527,7 @@ function Modal(props) {
   };
 
   const formatDisplayValue = (value, decimalPlaces) => {
-    if (!value || value === "") return "";
+    if (!value || value === '') return '';
 
     const numValue = parseFloat(value);
     if (isNaN(numValue)) return value;
@@ -1581,25 +1541,25 @@ function Modal(props) {
   };
 
   const handleQuantityInput = (raw, decimalPlaces) => {
-    if (!raw) return "";
+    if (!raw) return '';
 
     // Remove all but digits and dot
-    let cleaned = raw.replace(/[^0-9.]/g, "");
+    let cleaned = raw.replace(/[^0-9.]/g, '');
 
     // Keep only first dot
-    const firstDot = cleaned.indexOf(".");
+    const firstDot = cleaned.indexOf('.');
     if (firstDot !== -1) {
       const beforeDot = cleaned.slice(0, firstDot + 1);
-      const afterDot = cleaned.slice(firstDot + 1).replace(/\./g, "");
+      const afterDot = cleaned.slice(firstDot + 1).replace(/\./g, '');
       cleaned = beforeDot + afterDot;
     }
 
     if (decimalPlaces === 0) {
-      return cleaned.split(".")[0];
+      return cleaned.split('.')[0];
     }
 
-    if (cleaned.includes(".")) {
-      const [intPart, decPart] = cleaned.split(".");
+    if (cleaned.includes('.')) {
+      const [intPart, decPart] = cleaned.split('.');
       return `${intPart}.${decPart.slice(0, decimalPlaces)}`;
     }
 
@@ -1608,17 +1568,17 @@ function Modal(props) {
 
   const handleClose = async () => {
     if (isCheck) {
-      setLoader(true);
+      setLoader(true)
       const Notification = await NotifySuperAdminPredefinedChangesToAdmin({
         userKeyID: common.userKeyID,
         moduleKeyID: globalPricingDriverObj.globalPricingDriverKeyID,
-        moduleName: "Predefined-GlobalPricingDriver",
-      });
+        moduleName: "Predefined-GlobalPricingDriver"
+      })
       if (Notification?.data?.statusCode === 200) {
-        setLoader(false);
-        setModelAction("NotificationSend");
-        setOpenSuccessModal(true);
-        setIsCheck(false);
+        setLoader(false)
+        setModelAction("NotificationSend")
+        setOpenSuccessModal(true)
+        setIsCheck(false)
       }
     } else {
       $("#" + props.id).modal("hide");
@@ -1626,7 +1586,7 @@ function Modal(props) {
     }
   };
 
-  // Close Delete DriverModel
+  // Close Delete DriverModel 
   const handleCloseDeleteDriverModel = () => {
     $("#" + "DeleteDriverModel").modal("hide");
 
@@ -1718,9 +1678,9 @@ function Modal(props) {
     if (Decline === "Decline") {
       // $('#' + props.id).modal('hide')
 
-      setStatus(false);
+      setStatus(false)
       $("#" + "ConfirmSAChangesModel").modal("show");
-      return;
+      return
     }
     setLoader(true);
     try {
@@ -1728,22 +1688,22 @@ function Modal(props) {
         organisationKeyID: common.organisationKeyID,
         userKeyID: common.userKeyID,
         moduleKeyID: props.modelRequestData.globalPricingDriverKeyID,
-        moduleName: "Predefined-GlobalPricingDriver",
+        moduleName: "Predefined-GlobalPricingDriver"
         //Predefined-ServiceCategory, Predefined-GlobalConstant, Predefined-GlobalPricingDriver,
         //Predefined-PL-EL-Template, Predefined-TnC-Template, Predefined-Email-Template,
         //Predefined-Service, Predefined-ServicePackage
-      };
+      }
       const response = await DeclineSuperAdminChanges(apiRequestParams);
       if (response) {
         setLoader(false);
         if (response?.data?.statusCode === 200) {
           if (apiRequestParams.Action === null) {
-            $("#" + props.id).modal("hide");
+            $('#' + props.id).modal('hide')
             $("#" + "ConfirmSAChangesModel").modal("hide");
             // setOpenSuccessModal(true);
             props.setIsAddUpdateActionDone(true);
           } else {
-            $("#" + props.id).modal("hide");
+            $('#' + props.id).modal('hide')
             $("#" + "ConfirmSAChangesModel").modal("hide");
             // setOpenSuccessModal(true);
             props.setIsAddUpdateActionDone(true);
@@ -1756,16 +1716,16 @@ function Modal(props) {
     } catch (error) {
       console.error(error);
     }
-  };
+  }
 
   const handleConfirmButton = () => {
     $("#" + "ConfirmSAChangesModel").modal("hide");
     if (Status) {
-      GlobalPricingDriverAddUpdateBtnClicked(true);
+      GlobalPricingDriverAddUpdateBtnClicked(true)
     } else {
-      DeclineSuperAdminChangesData();
+      DeclineSuperAdminChangesData()
     }
-  };
+  }
   //Design part :
   return (
     <div
@@ -1799,53 +1759,50 @@ function Modal(props) {
           <div class="modal-body gpd-scroll">
             <div class="tab-content">
               <div className="row" id="DriverName">
-                <SAPredefinedChangesNotifyMessageModel
-                  Params={{
-                    moduleName: moduleName,
-                    SAChanges: props.modelRequestData.Type,
-                  }}
-                />
+                <SAPredefinedChangesNotifyMessageModel Params={{ moduleName: moduleName, SAChanges: props.modelRequestData.Type }} />
                 {(common.professionTypeLists?.length > 1 ||
                   common.organisationKeyID === null) && (
-                  <div className="col-lg-12">
-                    <div className="mb-3 ">
-                      <label className="form-label">
-                        Profession Type<span className="text-danger">*</span>
-                      </label>
-                      <div className="col-12 ">
-                        <div className="input-group">
-                          {common.professionTypeLists?.length > 1 ||
-                          common.organisationKeyID === null ? (
-                            <Select
-                              isMulti
-                              isDisabled={
-                                globalPricingDriverObj.addedFor ===
-                                  "Predefined-NOB" ||
-                                globalPricingDriverObj.addedFor ===
-                                  "Predefined-PT"
-                              }
-                              style={{ padding: "5px" }}
-                              className="user-role-select"
-                              options={ProfessionalTypeLookeupListOptions}
-                              value={professionTypeValue}
-                              onChange={OnChangeSelectProfessionType}
-                            />
+                    <div className="col-lg-12">
+                      <div className="mb-3 ">
+                        <label className="form-label">
+                          Profession Type<span className="text-danger">*</span>
+                        </label>
+                        <div className="col-12 ">
+                          <div className="input-group">
+                            {
+                              common.professionTypeLists?.length > 1 ||
+                                common.organisationKeyID === null ? (
+                                <Select
+                                  isMulti
+                                  isDisabled={
+                                    globalPricingDriverObj.addedFor ===
+                                    "Predefined-NOB" ||
+                                    globalPricingDriverObj.addedFor ===
+                                    "Predefined-PT"
+                                  }
+                                  style={{ padding: "5px" }}
+                                  className="user-role-select"
+                                  options={ProfessionalTypeLookeupListOptions}
+                                  value={professionTypeValue}
+                                  onChange={OnChangeSelectProfessionType}
+                                />
+                              ) : (
+                                ""
+                              )
+                            }
+                          </div>
+                          {gdrivererror &&
+                            (common.professionTypeLists?.length > 1 ||
+                              common.organisationKeyID === null) &&
+                            professionTypeValue?.length === 0 ? (
+                            <label className="validation">{ERROR_MESSAGES}</label>
                           ) : (
                             ""
                           )}
                         </div>
-                        {gdrivererror &&
-                        (common.professionTypeLists?.length > 1 ||
-                          common.organisationKeyID === null) &&
-                        professionTypeValue?.length === 0 ? (
-                          <label className="validation">{ERROR_MESSAGES}</label>
-                        ) : (
-                          ""
-                        )}
                       </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
                 <div className="col-lg-12">
                   <div className="mb-3 ">
@@ -1860,7 +1817,7 @@ function Modal(props) {
                         value={globalPricingDriverObj.driverName}
                         disabled={
                           globalPricingDriverObj.addedFor ===
-                            "Predefined-NOB" ||
+                          "Predefined-NOB" ||
                           globalPricingDriverObj.addedFor === "Predefined-PT"
                         }
                         onChange={(e) => {
@@ -1889,7 +1846,7 @@ function Modal(props) {
                       />
                     </div>
                     {gdrivererror &&
-                    globalPricingDriverObj.driverName === "" ? (
+                      globalPricingDriverObj.driverName === "" ? (
                       <label className="validation">{ERROR_MESSAGES}</label>
                     ) : (
                       ""
@@ -1910,7 +1867,7 @@ function Modal(props) {
                         placeholder="Select..."
                         disabled={
                           globalPricingDriverObj.addedFor ===
-                            "Predefined-NOB" ||
+                          "Predefined-NOB" ||
                           globalPricingDriverObj.addedFor === "Predefined-PT"
                         }
                       />
@@ -2033,11 +1990,11 @@ function Modal(props) {
                                         capitalizedValue
                                       );
                                     }}
-                                    maxLength={200}
+                                    maxLength={50}
                                   />
                                 </div>
                                 {variationError?.variationName &&
-                                variations[index].variationName === "" ? (
+                                  variations[index].variationName === "" ? (
                                   <label className="validation">
                                     {ERROR_MESSAGES}
                                   </label>
@@ -2071,7 +2028,7 @@ function Modal(props) {
                                 </div>
 
                                 {variationError.variationValue &&
-                                variations[index].variationValue === "" ? (
+                                  variations[index].variationValue === "" ? (
                                   <label className="validation">
                                     {ERROR_MESSAGES}
                                   </label>
@@ -2172,24 +2129,16 @@ function Modal(props) {
                     )} */}
                     <div className="col-lg-6">
                       <div className="mb-1">
-                        <label className="form-label">
-                          Decimal Places <span className="text-danger">*</span>
-                        </label>
+                        <label className="form-label">Decimal Places <span className="text-danger">*</span></label>
                         <div className="input-group">
                           <Select
                             className="user-role-select"
                             value={{
                               value: slabs[0]?.decimalPlaces ?? 2,
-                              label: Utils.getDecimalPlaceLabel(
-                                slabs[0]?.decimalPlaces ?? 2
-                              ),
+                              label: Utils.getDecimalPlaceLabel(slabs[0]?.decimalPlaces ?? 2),
                             }}
                             onChange={(selectedOption) =>
-                              OnSlabChange(
-                                0,
-                                "decimalPlaces",
-                                selectedOption.value
-                              )
+                              OnSlabChange(0, "decimalPlaces", selectedOption.value)
                             }
                             options={Utils.DECIMAL_PLACE_OPTIONS}
                           />
@@ -2336,11 +2285,11 @@ function Modal(props) {
                                             slabs[index].slabFrom === ""
                                               ? ""
                                               : slabs[index].slabFrom
-                                                  .toString()
-                                                  .replace(
-                                                    /\B(?=(\d{3})+(?!\d))/g,
-                                                    ","
-                                                  )
+                                                .toString()
+                                                .replace(
+                                                  /\B(?=(\d{3})+(?!\d))/g,
+                                                  ","
+                                                )
                                           }
                                           // onChange={(e) => OnSlabChange(index, 'slabFrom', e.target.value)}
                                           onChange={(e) => {
@@ -2348,21 +2297,13 @@ function Modal(props) {
                                           }}
                                           onBlur={() => {
                                             const updatedSlabs = [...slabs];
-                                            const userInput =
-                                              updatedSlabs[index].slabFrom;
-                                            const numberValue =
-                                              parseFloat(userInput);
-                                            const decimalPlaces =
-                                              updatedSlabs[index]
-                                                .decimalPlaces ?? 2;
+                                            const userInput = updatedSlabs[index].slabFrom;
+                                            const numberValue = parseFloat(userInput);
+                                            const decimalPlaces = updatedSlabs[index].decimalPlaces ?? 2;
 
                                             if (!isNaN(numberValue)) {
-                                              const roundedValue =
-                                                numberValue.toFixed(
-                                                  decimalPlaces
-                                                );
-                                              updatedSlabs[index].slabFrom =
-                                                roundedValue;
+                                              const roundedValue = numberValue.toFixed(decimalPlaces);
+                                              updatedSlabs[index].slabFrom = roundedValue;
                                               setSlabs(updatedSlabs);
                                             }
                                           }}
@@ -2408,21 +2349,13 @@ function Modal(props) {
                                           }}
                                           onBlur={() => {
                                             const updatedSlabs = [...slabs];
-                                            const userInput =
-                                              updatedSlabs[index].slabTo;
-                                            const numberValue =
-                                              parseFloat(userInput);
-                                            const decimalPlaces =
-                                              updatedSlabs[index]
-                                                .decimalPlaces ?? 2;
+                                            const userInput = updatedSlabs[index].slabTo;
+                                            const numberValue = parseFloat(userInput);
+                                            const decimalPlaces = updatedSlabs[index].decimalPlaces ?? 2;
 
                                             if (!isNaN(numberValue)) {
-                                              const roundedValue =
-                                                numberValue.toFixed(
-                                                  decimalPlaces
-                                                );
-                                              updatedSlabs[index].slabTo =
-                                                roundedValue;
+                                              const roundedValue = numberValue.toFixed(decimalPlaces);
+                                              updatedSlabs[index].slabTo = roundedValue;
                                               setSlabs(updatedSlabs);
                                             }
                                           }}
@@ -2659,10 +2592,10 @@ function Modal(props) {
                   </div>
                 </div>
               )}
-
+                            
               {globalPricingDriverObj.driverTypeID === 5 && (
                 <>
-                  <div class="row">
+                <div class="row">
                     <div className="col-lg-6">
                       <div className="mb-1">
                         <label className="form-label">Text Value</label>
@@ -2672,16 +2605,10 @@ function Modal(props) {
                           placeholder="Enter Text Value"
                           value={textDriver.textValue || ""}
                           onChange={(e) => {
-                            const cleanValue = e.target.value.replace(
-                              /[^\d.]/g,
-                              ""
-                            );
+                            const cleanValue = e.target.value.replace(/[^\d.]/g, "");
                             setTextDriver({
                               ...textDriver,
-                              textValue:
-                                cleanValue === ""
-                                  ? null
-                                  : parseFloat(cleanValue),
+                              textValue: cleanValue === "" ? null : parseFloat(cleanValue),
                             });
                           }}
                         />
@@ -2689,9 +2616,7 @@ function Modal(props) {
                     </div>
                     <div className="col-lg-6">
                       <div className="mb-1">
-                        <label className="form-label">
-                          Text Length <span className="text-danger">*</span>
-                        </label>
+                        <label className="form-label">Text Length <span className="text-danger">*</span></label>
                         <input
                           type="number"
                           className="input-text"
@@ -2701,32 +2626,29 @@ function Modal(props) {
                             const value = e.target.value;
                             setTextDriver({
                               ...textDriver,
-                              textLength: value,
+                              textLength: value
                             });
                           }}
                         />
                       </div>
-                      {textError.textLength &&
-                        (textDriver.textLength === null ||
-                          textDriver.textLength === undefined ||
-                          textDriver.textLength === "") && (
-                          <label className="validation">{ERROR_MESSAGES}</label>
+                      {textError.textLength && (textDriver.textLength === null || 
+                        textDriver.textLength === undefined ||
+                        textDriver.textLength === "") && (
+                        <label className="validation">
+                          {ERROR_MESSAGES}
+                        </label>
                         )}
                     </div>
                     <div className="col-lg-6">
                       <div className="mb-1">
-                        <label className="form-label">
-                          Allowed Special Characters
-                        </label>
+                        <label className="form-label">Allowed Special Characters</label>
                         <Select
                           isMulti
                           className="basic-multi-select"
                           classNamePrefix="select"
                           options={specialCharOptions}
                           value={specialCharOptions.filter((opt) =>
-                            (textDriver.allowedSpecialCharacters || "")
-                              .split(",")
-                              .includes(opt.value)
+                            (textDriver.allowedSpecialCharacters || '').split(',').includes(opt.value)
                           )}
                           onChange={handleSpecialCharChange}
                           placeholder="Select special characters..."
@@ -2742,24 +2664,19 @@ function Modal(props) {
                   <div class="row">
                     <div className="col-lg-6">
                       <div className="mb-1">
-                        <label className="form-label">
-                          Date Format <span className="text-danger">*</span>
-                        </label>
+                        <label className="form-label">Date Format <span className="text-danger">*</span></label>
                         <Select
                           options={dateFormats}
                           className="basic-multi-select"
                           classNamePrefix="select"
-                          value={
-                            dateFormats.find(
-                              (f) => f.value === dates[0]?.dateFormat
-                            ) || dateFormats[3]
-                          }
+                          value={dateFormats.find(f => f.value === dates[0]?.dateFormat) || dateFormats[3]}
                           onChange={handleDateFormatChange}
                         />
                       </div>
-                      {dateError.dateFormat &&
-                      (!dates[0] || dates[0].dateFormat === null) ? (
-                        <label className="validation">{ERROR_MESSAGES}</label>
+                      {dateError.dateFormat && (!dates[0] || dates[0].dateFormat === null) ? (
+                        <label className="validation">
+                          {ERROR_MESSAGES}
+                        </label>
                       ) : (
                         ""
                       )}
@@ -2770,11 +2687,7 @@ function Modal(props) {
                         <input
                           type="text"
                           className="input-text"
-                          value={
-                            dates[0]?.defaultDateValue
-                              ? dates[0]?.defaultDateValue
-                              : null
-                          }
+                          value={dates[0]?.defaultDateValue ? dates[0]?.defaultDateValue : null}
                           onChange={handleDefaultDateValueChange}
                         />
                       </div>
@@ -2782,7 +2695,7 @@ function Modal(props) {
                   </div>
                   <div class="row">
                     <div class="col-xl-12 col-lg-12">
-                      {dates?.map((date, dateIndex) =>
+                      {dates?.map((date, dateIndex) => (
                         date?.blocks?.map((block, blockIndex) => (
                           <div
                             className="card-1 pricing-box p-4 mt-4"
@@ -2803,74 +2716,46 @@ function Modal(props) {
                             >
                               <button
                                 disabled={props.disable}
-                                onClick={() =>
-                                  OnDeletePeriodBlock(dateIndex, blockIndex)
-                                } // Pass dateIndex and blockIndex
+                                onClick={() => OnDeletePeriodBlock(dateIndex, blockIndex)} // Pass dateIndex and blockIndex
                                 className="btn btn-sm btn-danger remove-item-btn d-flex gap-1 globalDriver"
                               >
                                 <i className="ri-delete-bin-5-fill"></i>
-                                <p className="delete-margin font-12">
-                                  Delete Period Block
-                                </p>
+                                <p className="delete-margin font-12">Delete Period Block</p>
                               </button>
                             </p>
                             <div className="row mt-1">
                               <div className="col-lg-6">
                                 <div className="mb-3">
-                                  <label
-                                    htmlFor="useremail"
-                                    className="form-label"
-                                  >
+                                  <label htmlFor="useremail" className="form-label">
                                     From Date
                                   </label>
                                   <div className="input-group">
                                     <DatePicker
                                       className="input-text"
-                                      selected={parseStoredDate(
-                                        block.fromDate,
-                                        date?.dateFormat
-                                      )}
+                                      selected={parseStoredDate(block.fromDate, date?.dateFormat)}
                                       placeholder="From Date"
-                                      disabled={
-                                        blockIndex === 0 && dateIndex === 0
-                                          ? false
-                                          : true
-                                      } // Only enable first block of first date
+                                      disabled={blockIndex === 0 && dateIndex === 0 ? false : true} // Only enable first block of first date
                                       maxDate={
                                         block.toDate
-                                          ? subDays(
-                                              parseStoredDate(
-                                                block.toDate,
-                                                date.dateFormat
-                                              ),
-                                              1
-                                            )
+                                          ? subDays(parseStoredDate(block.toDate, date.dateFormat), 1)
                                           : null
                                       }
                                       onChange={(selectedDate) =>
                                         OnPeriodBlockChange(
                                           dateIndex,
                                           "fromDate",
-                                          formatToDisplay(
-                                            selectedDate,
-                                            date.dateFormat
-                                          ),
+                                          formatToDisplay(selectedDate, date.dateFormat),
                                           blockIndex
                                         )
                                       }
                                       dateFormat={date.dateFormat}
                                     />
                                   </div>
-                                  <div className="invalid-feedback">
-                                    Please enter Date Value
-                                  </div>
+                                  <div className="invalid-feedback">Please enter Date Value</div>
                                 </div>
-                                {dateError.fromDate &&
-                                  block.fromDate === "" && (
-                                    <label className="validation">
-                                      {ERROR_MESSAGES}
-                                    </label>
-                                  )}
+                                {dateError.fromDate && block.fromDate === "" && (
+                                  <label className="validation">{ERROR_MESSAGES}</label>
+                                )}
                               </div>
                               <div className="col-lg-6">
                                 <div className="mb-3">
@@ -2878,50 +2763,33 @@ function Modal(props) {
                                   <div className="input-group">
                                     <DatePicker
                                       className="input-text"
-                                      selected={parseStoredDate(
-                                        block.toDate,
-                                        date?.dateFormat
-                                      )}
+                                      selected={parseStoredDate(block.toDate, date?.dateFormat)}
                                       placeholder="To Date"
                                       onChange={(selectedDate) =>
                                         OnPeriodBlockChange(
                                           dateIndex,
                                           "toDate",
-                                          formatToDisplay(
-                                            selectedDate,
-                                            date.dateFormat
-                                          ),
+                                          formatToDisplay(selectedDate, date.dateFormat),
                                           blockIndex
                                         )
                                       }
                                       minDate={
                                         block.fromDate
-                                          ? addDays(
-                                              parseStoredDate(
-                                                block.fromDate,
-                                                date.dateFormat
-                                              ),
-                                              1
-                                            )
+                                          ? addDays(parseStoredDate(block.fromDate, date.dateFormat), 1)
                                           : null
                                       }
                                       maxDate={
-                                        dates[dateIndex]?.blocks[blockIndex + 1]
-                                          ?.fromDate ||
-                                        (dateIndex + 1 < dates.length &&
-                                          dates[dateIndex + 1]?.blocks[0]
-                                            ?.fromDate)
+                                        dates[dateIndex]?.blocks[blockIndex + 1]?.fromDate ||
+                                          (dateIndex + 1 < dates.length &&
+                                            dates[dateIndex + 1]?.blocks[0]?.fromDate)
                                           ? subDays(
-                                              parseStoredDate(
-                                                dates[dateIndex]?.blocks[
-                                                  blockIndex + 1
-                                                ]?.fromDate ||
-                                                  dates[dateIndex + 1]
-                                                    ?.blocks[0]?.fromDate,
-                                                date.dateFormat
-                                              ),
-                                              1
-                                            )
+                                            parseStoredDate(
+                                              dates[dateIndex]?.blocks[blockIndex + 1]?.fromDate ||
+                                              dates[dateIndex + 1]?.blocks[0]?.fromDate,
+                                              date.dateFormat
+                                            ),
+                                            1
+                                          )
                                           : null
                                       }
                                       dateFormat={date.dateFormat}
@@ -2929,32 +2797,21 @@ function Modal(props) {
                                   </div>
                                   {block.fromDate &&
                                     block.toDate &&
-                                    parseStoredDate(
-                                      block.toDate,
-                                      date.dateFormat
-                                    ) <
-                                      parseStoredDate(
-                                        block.fromDate,
-                                        date.dateFormat
-                                      ) && (
+                                    parseStoredDate(block.toDate, date.dateFormat) <
+                                    parseStoredDate(block.fromDate, date.dateFormat) && (
                                       <div className="text-danger mt-1">
-                                        To Date cannot be earlier than From
-                                        Date.
+                                        To Date cannot be earlier than From Date.
                                       </div>
                                     )}
                                   {dateError.toDate && block.toDate === "" && (
-                                    <label className="validation">
-                                      {ERROR_MESSAGES}
-                                    </label>
+                                    <label className="validation">{ERROR_MESSAGES}</label>
                                   )}
                                 </div>
-                                {!dateError?.toDate &&
+                              {!dateError?.toDate &&
                                   !dateError?.fromDate &&
-                                  formatToDisplay(block.toDate) <
-                                    formatToDisplay(block.fromDate) && (
+                                  formatToDisplay(block.toDate) < formatToDisplay(block.fromDate) && (
                                     <label className="validation">
-                                      The field must not be less than{" "}
-                                      {block.fromDate}.
+                                      The field must not be less than {block.fromDate}.
                                     </label>
                                   )}
                               </div>
@@ -2967,10 +2824,7 @@ function Modal(props) {
                             <div className="row mt-1">
                               <div className="col-lg-6">
                                 <div className="mb-3">
-                                  <label
-                                    htmlFor="useremail"
-                                    className="form-label"
-                                  >
+                                  <label htmlFor="useremail" className="form-label">
                                     Date Value
                                   </label>
                                   <input
@@ -2978,126 +2832,90 @@ function Modal(props) {
                                     className="input-text"
                                     value={block.dateValue || ""}
                                     onChange={(e) =>
-                                      OnPeriodBlockChange(
-                                        dateIndex,
-                                        "dateValue",
-                                        e.target.value,
-                                        blockIndex
-                                      )
+                                      OnPeriodBlockChange(dateIndex, "dateValue", e.target.value, blockIndex)
                                     }
                                   />
-                                  <div className="invalid-feedback">
-                                    Please enter Date Value
-                                  </div>
+                                  <div className="invalid-feedback">Please enter Date Value</div>
                                 </div>
-                                {dateError.dateValue &&
-                                  block.dateValue === null && (
-                                    <label className="validation">
-                                      {ERROR_MESSAGES}
-                                    </label>
-                                  )}
+                                {dateError.dateValue && block.dateValue === null && (
+                                  <label className="validation">{ERROR_MESSAGES}</label>
+                                )}
                               </div>
                             </div>
                           </div>
                         ))
-                      )}
+                      ))}
                     </div>
                   </div>
-                </>
+                  </>
               )}
               {globalPricingDriverObj.driverTypeID === 2 && (
                 <>
-                  <div className="row mb-3">
-                    <div className="col-lg-6">
-                      <div className="mb-1">
-                        <label className="form-label">
-                          Quantity Decimal Places{" "}
-                          <span className="text-danger">*</span>
-                        </label>
-                        <div className="input-group">
-                          <Select
-                            className="user-role-select"
-                            onChange={(selectedOption) => {
-                              const updatedDrivers = [...quantity];
-                              updatedDrivers[0] = {
-                                ...updatedDrivers[0],
-                                quantityDecimalPlaces: selectedOption.value,
-                              };
-                              if (
-                                updatedDrivers[0].quantityFrom &&
-                                updatedDrivers[0].quantityFrom !== ""
-                              ) {
-                                const numValue = parseFloat(
-                                  updatedDrivers[0].quantityFrom
-                                );
-                                if (!isNaN(numValue)) {
-                                  updatedDrivers[0].quantityFrom =
-                                    formatDisplayValue(
-                                      numValue.toString(),
-                                      selectedOption.value
-                                    );
-                                }
+                <div className="row mb-3">
+                <div className="col-lg-6">
+                  <div className="mb-1">
+                    <label className="form-label">
+                      Quantity Decimal Places <span className="text-danger">*</span>
+                    </label>
+                    <div className="input-group">
+                        <Select
+                          className="user-role-select"
+                          onChange={(selectedOption) => {
+                            const updatedDrivers = [...quantity];
+                            updatedDrivers[0] = {
+                              ...updatedDrivers[0],
+                              quantityDecimalPlaces: selectedOption.value,
+                            };
+                            if (updatedDrivers[0].quantityFrom && updatedDrivers[0].quantityFrom !== '') {
+                              const numValue = parseFloat(updatedDrivers[0].quantityFrom);
+                              if (!isNaN(numValue)) {
+                                updatedDrivers[0].quantityFrom = formatDisplayValue(numValue.toString(), selectedOption.value);
                               }
-
-                              // Update quantityTo if it exists
-                              if (
-                                updatedDrivers[0].quantityTo &&
-                                updatedDrivers[0].quantityTo !== ""
-                              ) {
-                                const numValue = parseFloat(
-                                  updatedDrivers[0].quantityTo
-                                );
-                                if (!isNaN(numValue)) {
-                                  updatedDrivers[0].quantityTo =
-                                    formatDisplayValue(
-                                      numValue.toString(),
-                                      selectedOption.value
-                                    );
-                                }
+                            }
+                            
+                            // Update quantityTo if it exists
+                            if (updatedDrivers[0].quantityTo && updatedDrivers[0].quantityTo !== '') {
+                              const numValue = parseFloat(updatedDrivers[0].quantityTo);
+                              if (!isNaN(numValue)) {
+                                updatedDrivers[0].quantityTo = formatDisplayValue(numValue.toString(), selectedOption.value);
                               }
-                              setQuantity(updatedDrivers);
-                            }}
-                            value={{
-                              value: quantity[0]?.quantityDecimalPlaces ?? 0,
-                              label: (() => {
-                                const decimalPlaces =
-                                  quantity[0]?.quantityDecimalPlaces ?? 0;
-                                if (decimalPlaces === 0)
-                                  return "No decimal places";
-                                if (decimalPlaces === 1)
-                                  return "1 decimal place";
-                                return `${decimalPlaces} decimal places`;
-                              })(),
-                            }}
-                            options={[
-                              { value: 2, label: "2 decimal places" },
-                              { value: 1, label: "1 decimal place" },
-                              { value: 0, label: "No decimal places" },
-                            ]}
-                          />
-                        </div>
-                      </div>
+                            }
+                            setQuantity(updatedDrivers);
+                          }}
+                          value={{
+                            value: quantity[0]?.quantityDecimalPlaces ?? 0,
+                            label: (() => {
+                              const decimalPlaces = quantity[0]?.quantityDecimalPlaces ?? 0;
+                              if (decimalPlaces === 0) return "No decimal places";
+                              if (decimalPlaces === 1) return "1 decimal place";
+                              return `${decimalPlaces} decimal places`;
+                            })(),
+                          }}
+                          options={[
+                            { value: 2, label: "2 decimal places" },
+                            { value: 1, label: "1 decimal place" },
+                            { value: 0, label: "No decimal places" },
+                          ]}
+                        />
                     </div>
                   </div>
-                  <div className="row mb-1">
-                    <label>Allowed Range</label>
-                  </div>
-                  <div className="row fieldset">
-                    <div className="col-lg-6">
-                      <div className="mb-1">
-                        <label className="form-label">Quantity From</label>
-                        <div className="input-group">
+                </div>
+              </div>
+              <div className="row mb-1">
+                <label>Allowed Range</label>          
+              </div>
+              <div className="row fieldset">
+               <div className="col-lg-6">
+                <div className="mb-1">
+                  <label className="form-label">Quantity From</label>
+                  <div className="input-group">
                           <input
                             className="input-text"
                             type="text"
                             value={quantity[0].quantityFrom || ""}
                             onChange={(e) => {
-                              const decimalPlaces =
-                                quantity[0]?.quantityDecimalPlaces ?? 0;
-                              const sanitized = handleQuantityInput(
-                                e.target.value,
-                                decimalPlaces
-                              );
+                              const decimalPlaces = quantity[0]?.quantityDecimalPlaces ?? 0;
+                              const sanitized = handleQuantityInput(e.target.value, decimalPlaces);
 
                               const updatedDrivers = [...quantity];
                               updatedDrivers[0] = {
@@ -3108,19 +2926,11 @@ function Modal(props) {
                             }}
                             onBlur={() => {
                               const currentValue = quantity[0]?.quantityFrom;
-                              const decimalPlaces =
-                                quantity[0]?.quantityDecimalPlaces ?? 0;
+                              const decimalPlaces = quantity[0]?.quantityDecimalPlaces ?? 0;
 
                               // Only format if there's a valid number
-                              if (
-                                currentValue &&
-                                currentValue !== "" &&
-                                !isNaN(parseFloat(currentValue))
-                              ) {
-                                const formattedValue = formatDisplayValue(
-                                  currentValue,
-                                  decimalPlaces
-                                );
+                              if (currentValue && currentValue !== '' && !isNaN(parseFloat(currentValue))) {
+                                const formattedValue = formatDisplayValue(currentValue, decimalPlaces);
 
                                 const updatedDrivers = [...quantity];
                                 updatedDrivers[0] = {
@@ -3128,10 +2938,7 @@ function Modal(props) {
                                   quantityFrom: formattedValue,
                                 };
                                 setQuantity(updatedDrivers);
-                              } else if (
-                                currentValue &&
-                                currentValue.endsWith(".")
-                              ) {
+                              } else if (currentValue && currentValue.endsWith('.')) {
                                 // Remove trailing decimal point if user left it
                                 const updatedDrivers = [...quantity];
                                 updatedDrivers[0] = {
@@ -3142,24 +2949,20 @@ function Modal(props) {
                               }
                             }}
                           />
-                        </div>
-                      </div>
-                    </div>
-                    <div className="col-lg-6">
-                      <div className="mb-1">
-                        <label className="form-label">Quantity To</label>
-                        <div className="input-group">
-                          <input
+                  </div>
+                </div>
+               </div>
+               <div className="col-lg-6">
+                <div className="mb-1">
+                  <label className="form-label">Quantity To</label>
+                  <div className="input-group">
+                    <input
                             className="input-text"
                             type="text"
                             value={quantity[0].quantityTo || ""}
                             onChange={(e) => {
-                              const decimalPlaces =
-                                quantity[0]?.quantityDecimalPlaces ?? 0;
-                              const sanitized = handleQuantityInput(
-                                e.target.value,
-                                decimalPlaces
-                              );
+                             const decimalPlaces = quantity[0]?.quantityDecimalPlaces ?? 0;
+                              const sanitized = handleQuantityInput(e.target.value, decimalPlaces);
 
                               const updatedDrivers = [...quantity];
                               updatedDrivers[0] = {
@@ -3170,19 +2973,11 @@ function Modal(props) {
                             }}
                             onBlur={() => {
                               const currentValue = quantity[0]?.quantityTo;
-                              const decimalPlaces =
-                                quantity[0]?.quantityDecimalPlaces ?? 0;
+                              const decimalPlaces = quantity[0]?.quantityDecimalPlaces ?? 0;
 
                               // Only format if there's a valid number
-                              if (
-                                currentValue &&
-                                currentValue !== "" &&
-                                !isNaN(parseFloat(currentValue))
-                              ) {
-                                const formattedValue = formatDisplayValue(
-                                  currentValue,
-                                  decimalPlaces
-                                );
+                              if (currentValue && currentValue !== '' && !isNaN(parseFloat(currentValue))) {
+                                const formattedValue = formatDisplayValue(currentValue, decimalPlaces);
 
                                 const updatedDrivers = [...quantity];
                                 updatedDrivers[0] = {
@@ -3190,10 +2985,7 @@ function Modal(props) {
                                   quantityTo: formattedValue,
                                 };
                                 setQuantity(updatedDrivers);
-                              } else if (
-                                currentValue &&
-                                currentValue.endsWith(".")
-                              ) {
+                              } else if (currentValue && currentValue.endsWith('.')) {
                                 // Remove trailing decimal point if user left it
                                 const updatedDrivers = [...quantity];
                                 updatedDrivers[0] = {
@@ -3204,20 +2996,17 @@ function Modal(props) {
                               }
                             }}
                           />
-                        </div>
-                      </div>
-                    </div>
                   </div>
-                  {qtyError.quantityError &&
-                    quantity[0].quantityFrom !== "" &&
-                    quantity[0].quantityTo !== "" &&
-                    Number(quantity[0].quantityTo) <
-                      Number(quantity[0].quantityFrom) && (
-                      <label className="text-danger text-center">
-                        Invalid Range
-                      </label>
-                    )}
-                </>
+                </div>
+               </div>
+              </div>
+              {qtyError.quantityError && quantity[0].quantityFrom !== "" && quantity[0].quantityTo !== "" &&
+                Number(quantity[0].quantityTo) < Number(quantity[0].quantityFrom) && (
+                <label className="text-danger text-center">
+                  Invalid Range
+                </label>
+              )}
+              </>
               )}
               <label
                 className="validation"
@@ -3229,9 +3018,9 @@ function Modal(props) {
                 }}
               >
                 {common.professionTypeLists?.length <= 1 &&
-                errorMessage?.includes(
-                  `Please dont choose this profession type`
-                )
+                  errorMessage?.includes(
+                    `Please dont choose this profession type`
+                  )
                   ? errorMessage.split(".")[0]
                   : errorMessage}
               </label>
@@ -3271,26 +3060,28 @@ function Modal(props) {
                   <span className="font-12 delete-margin">Add Variation</span>
                 </button>
               )}
-              {dates && globalPricingDriverObj.driverTypeID === 6 && (
-                <button
-                  disabled={
-                    dates[0]?.blocks?.length > 0 &&
-                    // Disable if fromDate is filled but toDate is empty
-                    ((dates[0].blocks.at(-1)?.fromDate &&
-                      !dates[0].blocks.at(-1)?.toDate) ||
-                      // Disable if both fromDate and toDate are empty
-                      (!dates[0].blocks.at(-1)?.fromDate &&
-                        !dates[0].blocks.at(-1)?.toDate))
-                  }
-                  onClick={() => OnAddPeriodBlock()}
-                  className="btn btn-sm btn-primary create-item-btn d-flex gap-1"
-                >
-                  <i className="bi bi-plus-circle"></i>
-                  <p className="delete-margin font-12">Add Period Block</p>
-                </button>
-              )}
+              {dates &&
+                globalPricingDriverObj.driverTypeID === 6 && (
+                  <button
+                    disabled={
+                      dates[0]?.blocks?.length > 0 &&
+                      (
+                        // Disable if fromDate is filled but toDate is empty
+                        (dates[0].blocks.at(-1)?.fromDate && !dates[0].blocks.at(-1)?.toDate) ||
 
-              {/* {dates.length > 0 &&
+                        // Disable if both fromDate and toDate are empty
+                        (!dates[0].blocks.at(-1)?.fromDate && !dates[0].blocks.at(-1)?.toDate)
+                      )
+                    }
+                    onClick={() => OnAddPeriodBlock()}
+                    className="btn btn-sm btn-primary create-item-btn d-flex gap-1"
+                  >
+                    <i className="bi bi-plus-circle"></i>
+                    <p className="delete-margin font-12">Add Period Block</p>
+                  </button>
+                )}
+
+                {/* {dates.length > 0 &&
                 globalPricingDriverObj.driverTypeID == 6 && (
                   <button
                     onClick={AddPeriodBlock}
@@ -3300,28 +3091,28 @@ function Modal(props) {
                     <span className="font-12 delete-margin">Add Period Block</span>
                   </button>
                 )} */}
-              {props.modelRequestData.Type ? (
-                <>
-                  <button
-                    type="submit"
-                    class="btn btn-md btn-success accept-item-btn"
-                    disabled={props.addCategoryLoader}
-                    onClick={() =>
-                      GlobalPricingDriverAddUpdateBtnClicked("Accept")
-                    }
-                  >
-                    <span>Accept</span>
-                  </button>
-                  <button
-                    type="submit"
-                    class="btn btn-md btn-success declined-item-btn"
-                    // data-bs-dismiss="modal"
-                    onClick={() => DeclineSuperAdminChangesData("Decline")}
-                  >
-                    <span>Decline</span>
-                  </button>
-                </>
-              ) : (
+              {props.modelRequestData.Type ? (<>
+                <button
+                  type="submit"
+                  class="btn btn-md btn-success accept-item-btn"
+                  disabled={props.addCategoryLoader}
+                  onClick={() => GlobalPricingDriverAddUpdateBtnClicked("Accept")}
+                >
+                  <span>
+                    Accept
+                  </span>
+                </button>
+                <button
+                  type="submit"
+                  class="btn btn-md btn-success declined-item-btn"
+                  // data-bs-dismiss="modal"
+                  onClick={() => DeclineSuperAdminChangesData("Decline")}
+                >
+                  <span>
+                    Decline
+                  </span>
+                </button>
+              </>) : (
                 <>
                   <button
                     type="button"
@@ -3345,6 +3136,7 @@ function Modal(props) {
                   </button>
                 </>
               )}
+
             </div>
           </div>
         </div>

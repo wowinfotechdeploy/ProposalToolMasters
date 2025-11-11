@@ -136,6 +136,12 @@ const SuccessModal = (props) => {
                     {props.modelAction === "Send"
                       ? `${props.message} with ${props.refIdStore} successfully sent!`
                       : null}
+                    {props.modelAction === "ResendAddUpdateQuote"
+                      ? `${props.message} sent successfully!`
+                      : null}
+                    {props.modelAction === "ResendAddUpdateContract"
+                      ? `${props.message} sent successfully!`
+                      : null}
                     {props.modelAction === "Resend"
                       ? `${props.message} with ${props.refIdStore} successfully re-sent!`
                       : null}

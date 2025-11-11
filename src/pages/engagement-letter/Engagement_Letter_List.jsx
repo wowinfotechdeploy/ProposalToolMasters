@@ -48,6 +48,12 @@ import ConfirmModel from "../../components/ConfirmationBox";
 import SuccessModal from "../../components/SuccessModal";
 import ErrorModel from "../../components/ErrorModel";
 import Android12Switch from "../../components/AndroidSwitch";
+import {
+  ChangeFailedMailLogStatus,
+  GetProspectSendMailStatus,
+  ResendAddUpdateQuote,
+} from "../../redux/Services/EmailFailureStatusAPI/EmailFailureStatusAPI";
+import EmailFailurePopUP from "../../components/EmailFailurePopUp";
 const Engagement_Letter = () => {
   let getEngagementListApiCallCount = 0;
   // Declare State
@@ -63,7 +69,7 @@ const Engagement_Letter = () => {
     isSigned: null,
   });
   const [totalRecords, setTotalRecords] = useState(-1);
-  const [remainingESignatures,setRemainingESignatures] = useState(null);
+  const [remainingESignatures, setRemainingESignatures] = useState(null);
   const [totalSingleRecords, setTotalSingleRecords] = useState(-1);
   const [emailError, setEmailError] = useState("");
   const [showModal, setShowModal] = useState(false);
@@ -91,6 +97,10 @@ const Engagement_Letter = () => {
   const [activeTab, setActiveTab] = useState("NewEL");
   const [oldElListCount, setOldElListCount] = useState(0);
   const [SingleElListCount, setSingleElListCount] = useState(0);
+  const [openEmailFailurePopUp, setOpenEmailFailurePopUp] = useState(false);
+  const [emailCheckModel, setEmailCheckModel] = useState({
+    MethodName: "",
+  });
 
   const {
     EngagementName,
@@ -115,9 +125,9 @@ const Engagement_Letter = () => {
   const totalOldELPage = isMobile
     ? Math.ceil(oldElListCount / isMobileRecords)
     : Math.ceil(
-      oldElListCount /
-      (desktopRecords > 5 && window.innerHeight == 652 ? 5 : desktopRecords)
-    );
+        oldElListCount /
+          (desktopRecords > 5 && window.innerHeight == 652 ? 5 : desktopRecords)
+      );
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [selectedOption, setSelectedOption] = useState("");
   const [fromDate, setFromDate] = useState(null);
@@ -135,8 +145,8 @@ const Engagement_Letter = () => {
   const pageSize = isMobile
     ? isMobileRecords
     : desktopRecords > 5 && window.innerHeight == 652
-      ? 5
-      : desktopRecords;
+    ? 5
+    : desktopRecords;
 
   useEffect(() => {
     setTopbar("block");
@@ -518,10 +528,12 @@ const Engagement_Letter = () => {
           const modifiedEngagementListData = EngagementListData.map((item) => ({
             "Ref Id": item.prefix,
             [engagement]: item.clientName, // Replace oneOffPrice with "One Off Price"
-            "One Off Price": `£ ${item.oneOffPrice !== null ? item.oneOffPrice : "0.00"
-              }`,
-            "Recurring Price": `£ ${item.recurringPrice !== null ? item.recurringPrice : "0.00"
-              }`,
+            "One Off Price": `£ ${
+              item.oneOffPrice !== null ? item.oneOffPrice : "0.00"
+            }`,
+            "Recurring Price": `£ ${
+              item.recurringPrice !== null ? item.recurringPrice : "0.00"
+            }`,
             "Status Name": item.statusName, // Replace oneOffPrice with "One Off Price"
             [engagementPdf]: item.documents, // Replace oneOffPrice with "One Off Price"
             "Last Updated On": item.lastUpdatedOn, // Replace oneOffPrice with "One Off Price"
@@ -596,7 +608,10 @@ const Engagement_Letter = () => {
   };
 
   const new_letter = () => {
-    if (activeOrganizationSubscriptionPlan?.prepareContract !== true || remainingESignatures <= 0) {
+    if (
+      activeOrganizationSubscriptionPlan?.prepareContract !== true ||
+      remainingESignatures <= 0
+    ) {
       setShowModal(true);
       return;
     }
@@ -747,6 +762,57 @@ const Engagement_Letter = () => {
     return `${formattedDay}/${formattedMonth}/${year}`;
   };
 
+  const handleEmailFailurePopupClose = async () => {
+    if (emailCheckModel.MethodName === "All Email Failed") {
+      setOpenEmailFailurePopUp(false);
+    } else {
+      await ChangeFailedMailLogStatus(
+        common.userKeyID,
+        common.organisationKeyID,
+        "AddUpdateContract"
+      );
+    }
+    setOpenEmailFailurePopUp(false);
+  };
+
+  const handleResendContract = async () => {
+    debugger;
+    setLoader(true);
+    try {
+      const data = await ResendContract(
+        modelRequestData.contractKeyID,
+        common.userKeyID
+      );
+      setLoader(false);
+      const EmailStausData = await GetProspectSendMailStatus(
+        common.userKeyID,
+        common.organisationKeyID,
+        "SendContractEmailToAllSignatories",
+        "Temp Key Id"
+      );
+      if (!EmailStausData?.data?.responseData) {
+        setEmailCheckModel((prev) => ({
+          ...prev,
+          MethodName: "All Email Failed",
+        }));
+        setOpenEmailFailurePopUp(true);
+      }
+      if (data?.data?.statusCode === 200) {
+        setLoader(false);
+        setOpenEmailFailurePopUp(false);
+        setOpenSuccessModal(true);
+      } else {
+        $("#" + "ConfirmModel").modal("hide");
+        setLoader(false);
+        // setOpenErrorModal(true);
+        setErrorMessage(data?.data?.errorMessage);
+      }
+    } catch (error) {
+      setLoader(false);
+      setErrorMessage(error);
+    }
+  };
+
   const handleViewEngagementDetails = (engagement, statusID) => {
     setModelRequestData({
       ...modelRequestData,
@@ -772,14 +838,47 @@ const Engagement_Letter = () => {
         modelRequestData.contractKeyID,
         common.userKeyID
       );
+      // Check if mail is failed?
+      if (data?.response?.data?.errorMessage === "Client - Send Mail Failed") {
+        // Call Get prospect send mail status api
+        const EmailStausData = await GetProspectSendMailStatus(
+          common.userKeyID,
+          common.organisationKeyID,
+          "SendContractEmailToAllSignatories",
+          "Temp Key Id"
+        );
+        if (!EmailStausData.data.responseData) {
+          setEmailCheckModel((prev) => ({
+            ...prev,
+            MethodName: "Resend",
+          }));
+          setOpenEmailFailurePopUp(true);
+        }
+      }
       if (data?.data?.statusCode === 200) {
+        const sentMailResponse = data?.data?.responseData.sentMailResponse;
+        if (!sentMailResponse[sentMailResponse.length - 1].isMailSent) {
+          const EmailStausData = await GetProspectSendMailStatus(
+            common.userKeyID,
+            common.organisationKeyID,
+            "SendContractEmailToAllSignatories",
+            "Temp Key Id"
+          );
+          if (!EmailStausData?.data?.responseData) {
+            setEmailCheckModel((prev) => ({
+              ...prev,
+              MethodName: "All Email Failed",
+            }));
+            setOpenEmailFailurePopUp(true);
+          }
+        }
         setLoader(false);
         setOpenSuccessModal(true);
       } else {
         $("#" + "ConfirmModel").modal("hide");
         setLoader(false);
-        setOpenErrorModal(true);
-        setErrorMessage(data.data.errorMessage);
+        // setOpenErrorModal(true);
+        setErrorMessage(data?.data?.errorMessage);
       }
     } catch (error) {
       setLoader(false);
@@ -1003,10 +1102,13 @@ const Engagement_Letter = () => {
   //     console.log(error);
   //   }
   // };
-  
+
   const CopyContractData = async (item, confirmed = false) => {
     // Add confirmed parameter
-    if (!activeOrganizationSubscriptionPlan.prepareQuote || remainingESignatures <= 0) {
+    if (
+      !activeOrganizationSubscriptionPlan.prepareQuote ||
+      remainingESignatures <= 0
+    ) {
       setShowModal(true);
       return;
     }
@@ -1034,16 +1136,19 @@ const Engagement_Letter = () => {
 
           // If updated items exist
           if (serviceUpdatedAfterSent || packageUpdatedAfterSent) {
-            message += "Following Services or Packages were updated which may affect the copied Engagement Letter. Do you want to proceed?\n";
+            message +=
+              "Following Services or Packages were updated which may affect the copied Engagement Letter. Do you want to proceed?\n";
 
             if (serviceUpdatedAfterSent && updatedServiceNames?.length > 0) {
               message += "\nServices:\n";
-              message += updatedServiceNames.map(s => `- ${s}`).join("\n") + "\n";
+              message +=
+                updatedServiceNames.map((s) => `- ${s}`).join("\n") + "\n";
             }
 
             if (packageUpdatedAfterSent && updatedPackageNames?.length > 0) {
               message += "\nPackages:\n";
-              message += updatedPackageNames.map(p => `- ${p}`).join("\n") + "\n";
+              message +=
+                updatedPackageNames.map((p) => `- ${p}`).join("\n") + "\n";
             }
 
             message += "\n";
@@ -1051,20 +1156,28 @@ const Engagement_Letter = () => {
 
           // If deleted items exist
           if (serviceDeletedAfterSent || packageDeletedAfterSent) {
-            message += "Following Services or Packages were deleted which may affect the copied Engagement Letter. Do you want to proceed?\n";
+            message +=
+              "Following Services or Packages were deleted which may affect the copied Engagement Letter. Do you want to proceed?\n";
 
             if (serviceDeletedAfterSent && deletedServiceNames?.length > 0) {
               message += "\nServices:\n";
-              message += deletedServiceNames.map(s => `- ${s}`).join("\n") + "\n";
+              message +=
+                deletedServiceNames.map((s) => `- ${s}`).join("\n") + "\n";
             }
 
             if (packageDeletedAfterSent && deletedPackageNames?.length > 0) {
               message += "\nPackages:\n";
-              message += deletedPackageNames.map(p => `- ${p}`).join("\n") + "\n";
+              message +=
+                deletedPackageNames.map((p) => `- ${p}`).join("\n") + "\n";
             }
           }
 
-          if (serviceUpdatedAfterSent || serviceDeletedAfterSent || packageUpdatedAfterSent || packageDeletedAfterSent) {
+          if (
+            serviceUpdatedAfterSent ||
+            serviceDeletedAfterSent ||
+            packageUpdatedAfterSent ||
+            packageDeletedAfterSent
+          ) {
             setModelRequestData({
               ...modelRequestData,
               Action: "ServiceWarning",
@@ -1076,13 +1189,12 @@ const Engagement_Letter = () => {
             $("#ConfirmModel").modal("show");
             return;
           }
+        } else {
+          setLoader(false);
+          setErrorMessage(checkRes.data?.errorMessage);
+          setOpenErrorModal(true);
+          return;
         }
-      else {
-        setLoader(false);
-        setErrorMessage(checkRes.data?.errorMessage);
-        setOpenErrorModal(true);
-        return;
-      }
       }
       setLoader(true);
       setModelRequestData({
@@ -1096,18 +1208,18 @@ const Engagement_Letter = () => {
       );
       $("#ConfirmModel").modal("hide");
       console.log(response);
-      if(response) {
-      if (response.data.statusCode === 200) {
-        setLoader(false);
-        setOpenSuccessModal(true);
-      } else {
-        setLoader(false);
-        setErrorMessage(response?.data?.errorMessage);
-        setOpenErrorModal(true);
+      if (response) {
+        if (response.data.statusCode === 200) {
+          setLoader(false);
+          setOpenSuccessModal(true);
+        } else {
+          setLoader(false);
+          setErrorMessage(response?.data?.errorMessage);
+          setOpenErrorModal(true);
+        }
+        setIsCopyPending(false); // Reset the flag
       }
-      setIsCopyPending(false); // Reset the flag
-    } 
-  } catch (error) {
+    } catch (error) {
       setLoader(false);
       setErrorMessage(error.message);
       setOpenErrorModal(true);
@@ -1212,8 +1324,9 @@ const Engagement_Letter = () => {
                   <ul className="nav nav-tabs" role="tablist">
                     <li className="nav-item">
                       <a
-                        className={`nav-link tab_nav ${activeTab === "NewEL" ? "active" : ""
-                          }`}
+                        className={`nav-link tab_nav ${
+                          activeTab === "NewEL" ? "active" : ""
+                        }`}
                         data-bs-toggle="tab"
                         href="#NewEL"
                         role="tab"
@@ -1227,8 +1340,9 @@ const Engagement_Letter = () => {
                     {SingleEngagementList?.length > 0 && (
                       <li className="nav-item">
                         <a
-                          className={`nav-link tab_nav ${activeTab === "WebEL" ? "active" : ""
-                            }`}
+                          className={`nav-link tab_nav ${
+                            activeTab === "WebEL" ? "active" : ""
+                          }`}
                           data-bs-toggle="tab"
                           href="#WebEL"
                           role="tab"
@@ -1242,8 +1356,9 @@ const Engagement_Letter = () => {
                     {OldEngagementList?.length > 0 && (
                       <li className="nav-item">
                         <a
-                          className={`nav-link tab_nav ${activeTab === "OldEL" ? "active" : ""
-                            }`}
+                          className={`nav-link tab_nav ${
+                            activeTab === "OldEL" ? "active" : ""
+                          }`}
                           data-bs-toggle="tab"
                           href="#OldEL"
                           role="tab"
@@ -1287,9 +1402,9 @@ const Engagement_Letter = () => {
                                     isMobile
                                       ? "Search"
                                       : getPlaceholderTextName(
-                                        "Search",
-                                        EngagementName
-                                      )
+                                          "Search",
+                                          EngagementName
+                                        )
                                   }
                                 />
                               </div>
@@ -1315,9 +1430,9 @@ const Engagement_Letter = () => {
                                       isMobile
                                         ? "Search"
                                         : getPlaceholderTextName(
-                                          "Search",
-                                          EngagementName
-                                        )
+                                            "Search",
+                                            EngagementName
+                                          )
                                     }
                                   />
                                 </div>
@@ -1415,9 +1530,9 @@ const Engagement_Letter = () => {
                                       isMobile
                                         ? "Search"
                                         : getPlaceholderTextName(
-                                          "Search",
-                                          EngagementName
-                                        )
+                                            "Search",
+                                            EngagementName
+                                          )
                                     }
                                   />
                                 </div>
@@ -1531,49 +1646,50 @@ const Engagement_Letter = () => {
                           <div class="col-lg-6 col-md-6 col-3 text-nowrap  mb-2">
                             {(userAccessData.Admin_Engagement_Latter_CanEdit ||
                               userAccessData.Admin_Engagement_Latter_CanView) && (
-                                <div className="d-flex justify-content-sm-end add-new-btn">
-                                  {activeTab === "NewEL" &&
-                                    userAccessData.Admin_Engagement_Latter_CanAdd && (
-                                      <CommonButtonComponent
-                                        title={getCrudButtonToolTipName(
-                                          "Add",
-                                          EngagementName
-                                        )}
-                                        name={getCrudButtonTextName(
-                                          "Add",
-                                          EngagementName
-                                        )}
-                                        AddBtn={() => new_letter()}
-                                      />
-                                    )}{" "}
-                                </div>
-                              )}
+                              <div className="d-flex justify-content-sm-end add-new-btn">
+                                {activeTab === "NewEL" &&
+                                  userAccessData.Admin_Engagement_Latter_CanAdd && (
+                                    <CommonButtonComponent
+                                      title={getCrudButtonToolTipName(
+                                        "Add",
+                                        EngagementName
+                                      )}
+                                      name={getCrudButtonTextName(
+                                        "Add",
+                                        EngagementName
+                                      )}
+                                      AddBtn={() => new_letter()}
+                                    />
+                                  )}{" "}
+                              </div>
+                            )}
                             {(userAccessData.Admin_Engagement_Latter_CanEdit ||
                               userAccessData.Admin_Engagement_Latter_CanView) && (
-                                <div className="d-flex justify-content-sm-end add-new-btn">
-                                  {activeTab === "WebEL" &&
-                                    userAccessData.Admin_Engagement_Latter_CanAdd && (
-                                      <CommonButtonComponent
-                                        title={getCrudButtonToolTipName(
-                                          "Add",
-                                          EngagementName
-                                        )}
-                                        name={getCrudButtonTextName(
-                                          "Add",
-                                          EngagementName
-                                        )}
-                                        AddBtn={() => new_letter()}
-                                      />
-                                    )}{" "}
-                                </div>
-                              )}
+                              <div className="d-flex justify-content-sm-end add-new-btn">
+                                {activeTab === "WebEL" &&
+                                  userAccessData.Admin_Engagement_Latter_CanAdd && (
+                                    <CommonButtonComponent
+                                      title={getCrudButtonToolTipName(
+                                        "Add",
+                                        EngagementName
+                                      )}
+                                      name={getCrudButtonTextName(
+                                        "Add",
+                                        EngagementName
+                                      )}
+                                      AddBtn={() => new_letter()}
+                                    />
+                                  )}{" "}
+                              </div>
+                            )}
                           </div>
                         </div>
 
                         {/* Table Of Template and Template Pdf */}
                         <div
-                          className={`tab-pane ${activeTab === "OldEL" ? "active" : ""
-                            }`}
+                          className={`tab-pane ${
+                            activeTab === "OldEL" ? "active" : ""
+                          }`}
                           id="base-justified-home"
                         >
                           {activeTab === "OldEL" && (
@@ -1623,153 +1739,153 @@ const Engagement_Letter = () => {
                                         </td>
                                         {engagement.status ===
                                           statusNames.Draft && (
-                                            <>
-                                              <td class="table-content-font">
-                                                <p
-                                                  style={{
-                                                    background: "#DAA520",
-                                                  }}
-                                                  className=" p-1 text-center text-white rounded"
-                                                >
-                                                  {engagement.status
-                                                    ?.charAt(0)
-                                                    ?.toUpperCase() +
-                                                    engagement.status?.slice(1)}
-                                                </p>
-                                              </td>
-                                            </>
-                                          )}
+                                          <>
+                                            <td class="table-content-font">
+                                              <p
+                                                style={{
+                                                  background: "#DAA520",
+                                                }}
+                                                className=" p-1 text-center text-white rounded"
+                                              >
+                                                {engagement.status
+                                                  ?.charAt(0)
+                                                  ?.toUpperCase() +
+                                                  engagement.status?.slice(1)}
+                                              </p>
+                                            </td>
+                                          </>
+                                        )}
                                         {engagement.status ===
                                           statusNames.Pending && (
-                                            <>
-                                              <td class="table-content-font">
-                                                <p
-                                                  className=" p-1 text-center text-white rounded"
-                                                  style={{
-                                                    background: "#626ED4",
-                                                  }}
-                                                >
-                                                  {/* {engagement.status?.charAt(0)?.toUpperCase() +
+                                          <>
+                                            <td class="table-content-font">
+                                              <p
+                                                className=" p-1 text-center text-white rounded"
+                                                style={{
+                                                  background: "#626ED4",
+                                                }}
+                                              >
+                                                {/* {engagement.status?.charAt(0)?.toUpperCase() +
                                                       engagement.status?.slice(1)} */}
-                                                  Send
-                                                </p>
-                                              </td>
-                                            </>
-                                          )}
+                                                Send
+                                              </p>
+                                            </td>
+                                          </>
+                                        )}
 
                                         {engagement.status ===
                                           statusNames.Accepted && (
-                                            <>
-                                              <td class="table-content-font">
-                                                <p
-                                                  style={{
-                                                    background: "#008000",
-                                                  }}
-                                                  className=" p-1 text-center text-white rounded"
-                                                >
-                                                  {engagement.status
-                                                    ?.charAt(0)
-                                                    ?.toUpperCase() +
-                                                    engagement.status?.slice(1)}
-                                                </p>
-                                              </td>
-                                            </>
-                                          )}
+                                          <>
+                                            <td class="table-content-font">
+                                              <p
+                                                style={{
+                                                  background: "#008000",
+                                                }}
+                                                className=" p-1 text-center text-white rounded"
+                                              >
+                                                {engagement.status
+                                                  ?.charAt(0)
+                                                  ?.toUpperCase() +
+                                                  engagement.status?.slice(1)}
+                                              </p>
+                                            </td>
+                                          </>
+                                        )}
                                         {engagement.status ===
                                           statusNames.Awaiting_Signature && (
-                                            <>
-                                              <td class="table-content-font">
-                                                <p
-                                                  style={{
-                                                    background: "#626ED4",
-                                                  }}
-                                                  className=" p-1 text-center text-white rounded"
-                                                >
-                                                  {engagement.status
-                                                    ?.charAt(0)
-                                                    ?.toUpperCase() +
-                                                    engagement.status?.slice(1)}
-                                                </p>
-                                              </td>
-                                            </>
-                                          )}
+                                          <>
+                                            <td class="table-content-font">
+                                              <p
+                                                style={{
+                                                  background: "#626ED4",
+                                                }}
+                                                className=" p-1 text-center text-white rounded"
+                                              >
+                                                {engagement.status
+                                                  ?.charAt(0)
+                                                  ?.toUpperCase() +
+                                                  engagement.status?.slice(1)}
+                                              </p>
+                                            </td>
+                                          </>
+                                        )}
                                         {engagement.status ===
                                           statusNames.Declined && (
-                                            <>
-                                              <td class="table-content-font">
-                                                <p
-                                                  style={{
-                                                    background: "#FF0000",
-                                                  }}
-                                                  className=" p-1 text-center text-white rounded"
-                                                >
-                                                  {engagement.status
-                                                    ?.charAt(0)
-                                                    ?.toUpperCase() +
-                                                    engagement.status?.slice(1)}
-                                                </p>
-                                              </td>
-                                            </>
-                                          )}
+                                          <>
+                                            <td class="table-content-font">
+                                              <p
+                                                style={{
+                                                  background: "#FF0000",
+                                                }}
+                                                className=" p-1 text-center text-white rounded"
+                                              >
+                                                {engagement.status
+                                                  ?.charAt(0)
+                                                  ?.toUpperCase() +
+                                                  engagement.status?.slice(1)}
+                                              </p>
+                                            </td>
+                                          </>
+                                        )}
                                         {engagement.status ===
                                           statusNames.Signed && (
-                                            <>
-                                              <td class="table-content-font">
-                                                <p
-                                                  style={{
-                                                    background: "#008000",
-                                                  }}
-                                                  className=" p-1 text-center text-white rounded"
-                                                >
-                                                  {/* {engagement.status?.charAt(0)?.toUpperCase() +
+                                          <>
+                                            <td class="table-content-font">
+                                              <p
+                                                style={{
+                                                  background: "#008000",
+                                                }}
+                                                className=" p-1 text-center text-white rounded"
+                                              >
+                                                {/* {engagement.status?.charAt(0)?.toUpperCase() +
                                                       engagement.status?.slice(1)} */}
-                                                  Signed
-                                                </p>
-                                              </td>
-                                            </>
-                                          )}
+                                                Signed
+                                              </p>
+                                            </td>
+                                          </>
+                                        )}
                                         {engagement.status ===
                                           statusNames.Skipped && (
-                                            <>
-                                              <td class="table-content-font">
-                                                <p
-                                                  style={{
-                                                    background: "#38A4F8",
-                                                  }}
-                                                  className="p-1 text-center text-white rounded"
-                                                >
-                                                  {engagement.status
-                                                    ?.charAt(0)
-                                                    ?.toUpperCase() +
-                                                    engagement.status?.slice(1)}
-                                                </p>
-                                              </td>
-                                            </>
-                                          )}
+                                          <>
+                                            <td class="table-content-font">
+                                              <p
+                                                style={{
+                                                  background: "#38A4F8",
+                                                }}
+                                                className="p-1 text-center text-white rounded"
+                                              >
+                                                {engagement.status
+                                                  ?.charAt(0)
+                                                  ?.toUpperCase() +
+                                                  engagement.status?.slice(1)}
+                                              </p>
+                                            </td>
+                                          </>
+                                        )}
                                         <td style={{ padding: "6px" }}>
                                           {engagement.status !==
                                             statusNames.Draft && (
-                                              <p className="mb-0">
-                                                Recurring:{" "}
-                                                <b>
-                                                  {formatValue(
-                                                    engagement.recurringTotal
-                                                  )}
-                                                </b>
-                                              </p>
-                                            )}
+                                            <p className="mb-0">
+                                              Recurring:{" "}
+                                              <b>
+                                                {formatValue(
+                                                  engagement.recurringTotal
+                                                )}
+                                              </b>
+                                            </p>
+                                          )}
                                           {engagement.status !==
                                             statusNames.Draft && (
-                                              <p className="mb-0">
-                                                {" "}
-                                                OneOff :{" "}
-                                                <b>
-                                                  {formatValue(
-                                                    engagement.oneOffTotal
-                                                  )}
-                                                </b>
-                                              </p>
-                                            )}
+                                            <p className="mb-0">
+                                              {" "}
+                                              OneOff :{" "}
+                                              <b>
+                                                {formatValue(
+                                                  engagement.oneOffTotal
+                                                )}
+                                              </b>
+                                            </p>
+                                          )}
                                         </td>
 
                                         <td className="table-content-font">
@@ -1780,7 +1896,7 @@ const Engagement_Letter = () => {
                                             statusNames.Draft &&
                                             engagement.pdfUrl &&
                                             engagement.status !==
-                                            statusNames.Signed && (
+                                              statusNames.Signed && (
                                               <p
                                                 onClick={() => {
                                                   handleViewOldProposalPdf(
@@ -1800,7 +1916,7 @@ const Engagement_Letter = () => {
                                             statusNames.Draft &&
                                             engagement.pdfUrl &&
                                             engagement.status ===
-                                            statusNames.Signed && (
+                                              statusNames.Signed && (
                                               <p
                                                 onClick={() => {
                                                   handleDownloadMigratedEl(
@@ -1825,8 +1941,9 @@ const Engagement_Letter = () => {
                           )}
                         </div>
                         <div
-                          className={`tab-pane ${activeTab === "NewEL" ? "active" : ""
-                            }`}
+                          className={`tab-pane ${
+                            activeTab === "NewEL" ? "active" : ""
+                          }`}
                           id="base-justified-home"
                         >
                           {activeTab === "NewEL" && (
@@ -1860,8 +1977,8 @@ const Engagement_Letter = () => {
                                   <td className="tr-table-class text-white">
                                     {(userAccessData.Admin_Engagement_Latter_CanEdit ||
                                       userAccessData.Admin_Engagement_Latter_CanView) && (
-                                        <>Action</>
-                                      )}
+                                      <>Action</>
+                                    )}
                                   </td>
                                 </tr>
                               </thead>
@@ -1883,158 +2000,158 @@ const Engagement_Letter = () => {
                                           </td>
                                           {engagement.statusID ===
                                             statusID.Draft && (
-                                              <>
-                                                <td class="table-content-font">
-                                                  <p
-                                                    style={{
-                                                      background: "#DAA520",
-                                                    }}
-                                                    className=" p-1 text-center text-white rounded"
-                                                  >
-                                                    {engagement.statusName}
-                                                  </p>
-                                                </td>
-                                              </>
-                                            )}
+                                            <>
+                                              <td class="table-content-font">
+                                                <p
+                                                  style={{
+                                                    background: "#DAA520",
+                                                  }}
+                                                  className=" p-1 text-center text-white rounded"
+                                                >
+                                                  {engagement.statusName}
+                                                </p>
+                                              </td>
+                                            </>
+                                          )}
                                           {engagement.statusID ===
                                             statusID.Sent && (
-                                              <>
-                                                <td class="table-content-font">
-                                                  <p
-                                                    className=" p-1 text-center text-white rounded"
-                                                    style={{
-                                                      background: "#626ED4",
-                                                    }}
-                                                  >
-                                                    {engagement.statusName}
-                                                  </p>
-                                                </td>
-                                              </>
-                                            )}
+                                            <>
+                                              <td class="table-content-font">
+                                                <p
+                                                  className=" p-1 text-center text-white rounded"
+                                                  style={{
+                                                    background: "#626ED4",
+                                                  }}
+                                                >
+                                                  {engagement.statusName}
+                                                </p>
+                                              </td>
+                                            </>
+                                          )}
                                           {engagement.statusID ===
                                             statusID.Accepted && (
-                                              <>
-                                                <td class="table-content-font">
-                                                  <p
-                                                    style={{
-                                                      background: "#008000",
-                                                    }}
-                                                    className=" p-1 text-center text-white rounded"
-                                                  >
-                                                    {engagement.statusName}
-                                                  </p>
-                                                </td>
-                                              </>
-                                            )}
+                                            <>
+                                              <td class="table-content-font">
+                                                <p
+                                                  style={{
+                                                    background: "#008000",
+                                                  }}
+                                                  className=" p-1 text-center text-white rounded"
+                                                >
+                                                  {engagement.statusName}
+                                                </p>
+                                              </td>
+                                            </>
+                                          )}
                                           {engagement.statusID ===
                                             statusID.Awaiting_Signature && (
-                                              <>
-                                                <td class="table-content-font">
-                                                  <p
-                                                    style={{
-                                                      background: "#626ED4",
-                                                    }}
-                                                    className=" p-1 text-center text-white rounded"
-                                                  >
-                                                    {engagement.statusName}
-                                                  </p>
-                                                </td>
-                                              </>
-                                            )}
+                                            <>
+                                              <td class="table-content-font">
+                                                <p
+                                                  style={{
+                                                    background: "#626ED4",
+                                                  }}
+                                                  className=" p-1 text-center text-white rounded"
+                                                >
+                                                  {engagement.statusName}
+                                                </p>
+                                              </td>
+                                            </>
+                                          )}
                                           {engagement.statusID ===
                                             statusID.Declined && (
-                                              <>
-                                                <td class="table-content-font">
-                                                  <p
-                                                    style={{
-                                                      background: "#FF0000",
-                                                    }}
-                                                    className=" p-1 text-center text-white rounded"
-                                                  >
-                                                    {engagement.statusName}
-                                                  </p>
-                                                </td>
-                                              </>
-                                            )}
+                                            <>
+                                              <td class="table-content-font">
+                                                <p
+                                                  style={{
+                                                    background: "#FF0000",
+                                                  }}
+                                                  className=" p-1 text-center text-white rounded"
+                                                >
+                                                  {engagement.statusName}
+                                                </p>
+                                              </td>
+                                            </>
+                                          )}
                                           {engagement.statusID ===
                                             statusID.Signed && (
-                                              <>
-                                                <td class="table-content-font">
-                                                  <p
-                                                    style={{
-                                                      background: "#008000",
-                                                    }}
-                                                    className=" p-1 text-center text-white rounded"
-                                                  >
-                                                    {engagement.statusName}
-                                                  </p>
-                                                </td>
-                                              </>
-                                            )}
+                                            <>
+                                              <td class="table-content-font">
+                                                <p
+                                                  style={{
+                                                    background: "#008000",
+                                                  }}
+                                                  className=" p-1 text-center text-white rounded"
+                                                >
+                                                  {engagement.statusName}
+                                                </p>
+                                              </td>
+                                            </>
+                                          )}
                                           {engagement.statusID ===
                                             statusID.Skipped && (
-                                              <>
-                                                <td class="table-content-font">
-                                                  <p
-                                                    style={{
-                                                      background: "#38A4F8",
-                                                    }}
-                                                    className="p-1 text-center text-white rounded"
-                                                  >
-                                                    {engagement.statusName}
-                                                  </p>
-                                                </td>
-                                              </>
-                                            )}
+                                            <>
+                                              <td class="table-content-font">
+                                                <p
+                                                  style={{
+                                                    background: "#38A4F8",
+                                                  }}
+                                                  className="p-1 text-center text-white rounded"
+                                                >
+                                                  {engagement.statusName}
+                                                </p>
+                                              </td>
+                                            </>
+                                          )}
                                           {engagement.statusID ===
                                             statusID.Void && (
-                                              <>
-                                                <td class="table-content-font">
-                                                  <p
-                                                    style={{
-                                                      background: "#1897ad",
-                                                    }}
-                                                    className="p-1 text-center text-white rounded"
-                                                  >
-                                                    {engagement.statusName}
-                                                  </p>
-                                                </td>
-                                              </>
-                                            )}
+                                            <>
+                                              <td class="table-content-font">
+                                                <p
+                                                  style={{
+                                                    background: "#1897ad",
+                                                  }}
+                                                  className="p-1 text-center text-white rounded"
+                                                >
+                                                  {engagement.statusName}
+                                                </p>
+                                              </td>
+                                            </>
+                                          )}
                                           <td style={{ padding: "6px" }}>
                                             {engagement.statusID !==
                                               statusID.Draft && (
-                                                <p className="mb-0">
-                                                  Recurring:{" "}
-                                                  <b>
-                                                    {formatValue(
-                                                      engagement.recurringPrice
-                                                    )}
-                                                  </b>
-                                                </p>
-                                              )}
+                                              <p className="mb-0">
+                                                Recurring:{" "}
+                                                <b>
+                                                  {formatValue(
+                                                    engagement.recurringPrice
+                                                  )}
+                                                </b>
+                                              </p>
+                                            )}
                                             {engagement.statusID !==
                                               statusID.Draft && (
-                                                <p className="mb-0">
-                                                  {" "}
-                                                  OneOff :{" "}
-                                                  <b>
-                                                    {formatValue(
-                                                      engagement.oneOffPrice
-                                                    )}
-                                                  </b>
-                                                </p>
-                                              )}
+                                              <p className="mb-0">
+                                                {" "}
+                                                OneOff :{" "}
+                                                <b>
+                                                  {formatValue(
+                                                    engagement.oneOffPrice
+                                                  )}
+                                                </b>
+                                              </p>
+                                            )}
                                           </td>
 
                                           <td className="table-content-font">
                                             {engagement.statusID !==
                                               statusID.Draft &&
                                               engagement.statusID !==
-                                              statusID.Void &&
+                                                statusID.Void &&
                                               engagement.documents &&
                                               engagement.statusID !==
-                                              statusID.Signed && (
+                                                statusID.Signed && (
                                                 <p
                                                   onClick={() => {
                                                     handleViewPdf(engagement);
@@ -2051,10 +2168,10 @@ const Engagement_Letter = () => {
                                             {engagement.statusID !==
                                               statusID.Draft &&
                                               engagement.statusID !==
-                                              statusID.Void &&
+                                                statusID.Void &&
                                               engagement.documents &&
                                               engagement.statusID ===
-                                              statusID.Signed && (
+                                                statusID.Signed && (
                                                 <p
                                                   onClick={() => {
                                                     handleDownload(engagement);
@@ -2070,7 +2187,7 @@ const Engagement_Letter = () => {
                                           </td>
                                           <td className="table-content-font">
                                             {engagement.statusID ===
-                                              statusID.Signed ? (
+                                            statusID.Signed ? (
                                               <span>
                                                 Signed on:{" "}
                                                 {GetOnlyDate(
@@ -2106,7 +2223,7 @@ const Engagement_Letter = () => {
                                             {engagement.statusID !==
                                               statusID.Draft &&
                                               engagement.statusID !==
-                                              statusID.Void && (
+                                                statusID.Void && (
                                                 <div
                                                   style={{ alignItems: "none" }}
                                                   class="d-flex gap-2 "
@@ -2116,8 +2233,8 @@ const Engagement_Letter = () => {
                                                       engagement.enableReminder
                                                         ? engagement.reminderName
                                                           ? getCrudButtonToolTipName(
-                                                            engagement.reminderName
-                                                          )
+                                                              engagement.reminderName
+                                                            )
                                                           : "No reminder found"
                                                         : ""
                                                     }
@@ -2190,11 +2307,12 @@ const Engagement_Letter = () => {
                                                 </button>
                                                 <ul
                                                   style={{
-                                                    padding: `${engagement.statusID ===
-                                                        statusID.Draft
+                                                    padding: `${
+                                                      engagement.statusID ===
+                                                      statusID.Draft
                                                         ? "2px 0px 2px 0px"
                                                         : "6px 8px"
-                                                      }`,
+                                                    }`,
                                                   }}
                                                   class="dropdown-menu"
                                                   aria-labelledby="dropdownElMenuButton"
@@ -2324,7 +2442,7 @@ const Engagement_Letter = () => {
                                                   {engagement.statusID !==
                                                     statusID.Draft &&
                                                     engagement.statusID !==
-                                                    statusID.Void && (
+                                                      statusID.Void && (
                                                       <li>
                                                         <a
                                                           class="dropdown-item"
@@ -2352,7 +2470,7 @@ const Engagement_Letter = () => {
                                                   {(engagement.statusID ===
                                                     statusID.Sent ||
                                                     engagement.statusID ===
-                                                    statusID.Awaiting_Signature) &&
+                                                      statusID.Awaiting_Signature) &&
                                                     userAccessData.Admin_Engagement_Latter_CanEdit && (
                                                       <>
                                                         <li>
@@ -2521,8 +2639,9 @@ const Engagement_Letter = () => {
                           )}
                         </div>
                         <div
-                          className={`tab-pane ${activeTab === "WebEL" ? "active" : ""
-                            }`}
+                          className={`tab-pane ${
+                            activeTab === "WebEL" ? "active" : ""
+                          }`}
                           id="base-justified-home"
                         >
                           {activeTab === "WebEL" && (
@@ -2593,133 +2712,133 @@ const Engagement_Letter = () => {
                                         </td>
                                         {engagement.statusID ===
                                           statusID.Draft && (
-                                            <>
-                                              <td class="table-content-font">
-                                                <p
-                                                  style={{
-                                                    background: "#DAA520",
-                                                  }}
-                                                  className=" p-1 text-center text-white rounded"
-                                                >
-                                                  {engagement.statusName}
-                                                </p>
-                                              </td>
-                                            </>
-                                          )}
+                                          <>
+                                            <td class="table-content-font">
+                                              <p
+                                                style={{
+                                                  background: "#DAA520",
+                                                }}
+                                                className=" p-1 text-center text-white rounded"
+                                              >
+                                                {engagement.statusName}
+                                              </p>
+                                            </td>
+                                          </>
+                                        )}
                                         {engagement.statusID ===
                                           statusID.Sent && (
-                                            <>
-                                              <td class="table-content-font">
-                                                <p
-                                                  className=" p-1 text-center text-white rounded"
-                                                  style={{
-                                                    background: "#626ED4",
-                                                  }}
-                                                >
-                                                  {engagement.statusName}
-                                                </p>
-                                              </td>
-                                            </>
-                                          )}
+                                          <>
+                                            <td class="table-content-font">
+                                              <p
+                                                className=" p-1 text-center text-white rounded"
+                                                style={{
+                                                  background: "#626ED4",
+                                                }}
+                                              >
+                                                {engagement.statusName}
+                                              </p>
+                                            </td>
+                                          </>
+                                        )}
                                         {engagement.statusID ===
                                           statusID.Accepted && (
-                                            <>
-                                              <td class="table-content-font">
-                                                <p
-                                                  style={{
-                                                    background: "#008000",
-                                                  }}
-                                                  className=" p-1 text-center text-white rounded"
-                                                >
-                                                  {engagement.statusName}
-                                                </p>
-                                              </td>
-                                            </>
-                                          )}
+                                          <>
+                                            <td class="table-content-font">
+                                              <p
+                                                style={{
+                                                  background: "#008000",
+                                                }}
+                                                className=" p-1 text-center text-white rounded"
+                                              >
+                                                {engagement.statusName}
+                                              </p>
+                                            </td>
+                                          </>
+                                        )}
                                         {engagement.statusID ===
                                           statusID.Awaiting_Signature && (
-                                            <>
-                                              <td class="table-content-font">
-                                                <p
-                                                  style={{
-                                                    background: "#626ED4",
-                                                  }}
-                                                  className=" p-1 text-center text-white rounded"
-                                                >
-                                                  {engagement.statusName}
-                                                </p>
-                                              </td>
-                                            </>
-                                          )}
+                                          <>
+                                            <td class="table-content-font">
+                                              <p
+                                                style={{
+                                                  background: "#626ED4",
+                                                }}
+                                                className=" p-1 text-center text-white rounded"
+                                              >
+                                                {engagement.statusName}
+                                              </p>
+                                            </td>
+                                          </>
+                                        )}
                                         {engagement.statusID ===
                                           statusID.Declined && (
-                                            <>
-                                              <td class="table-content-font">
-                                                <p
-                                                  style={{
-                                                    background: "#FF0000",
-                                                  }}
-                                                  className=" p-1 text-center text-white rounded"
-                                                >
-                                                  {engagement.statusName}
-                                                </p>
-                                              </td>
-                                            </>
-                                          )}
+                                          <>
+                                            <td class="table-content-font">
+                                              <p
+                                                style={{
+                                                  background: "#FF0000",
+                                                }}
+                                                className=" p-1 text-center text-white rounded"
+                                              >
+                                                {engagement.statusName}
+                                              </p>
+                                            </td>
+                                          </>
+                                        )}
                                         {engagement.statusID ===
                                           statusID.Signed && (
-                                            <>
-                                              <td class="table-content-font">
-                                                <p
-                                                  style={{
-                                                    background: "#008000",
-                                                  }}
-                                                  className=" p-1 text-center text-white rounded"
-                                                >
-                                                  {engagement.statusName}
-                                                </p>
-                                              </td>
-                                            </>
-                                          )}
+                                          <>
+                                            <td class="table-content-font">
+                                              <p
+                                                style={{
+                                                  background: "#008000",
+                                                }}
+                                                className=" p-1 text-center text-white rounded"
+                                              >
+                                                {engagement.statusName}
+                                              </p>
+                                            </td>
+                                          </>
+                                        )}
                                         {engagement.statusID ===
                                           statusID.Skipped && (
-                                            <>
-                                              <td class="table-content-font">
-                                                <p
-                                                  style={{
-                                                    background: "#38A4F8",
-                                                  }}
-                                                  className="p-1 text-center text-white rounded"
-                                                >
-                                                  {engagement.statusName}
-                                                </p>
-                                              </td>
-                                            </>
-                                          )}
+                                          <>
+                                            <td class="table-content-font">
+                                              <p
+                                                style={{
+                                                  background: "#38A4F8",
+                                                }}
+                                                className="p-1 text-center text-white rounded"
+                                              >
+                                                {engagement.statusName}
+                                              </p>
+                                            </td>
+                                          </>
+                                        )}
                                         <td style={{ padding: "6px" }}>
                                           {engagement.statusID !==
                                             statusID.Draft && (
-                                              <p className="mb-0">
-                                                Recurring:{" "}
-                                                <b>
-                                                  {formatValue(
-                                                    engagement.recurringPrice
-                                                  )}
-                                                </b>
-                                              </p>
-                                            )}
+                                            <p className="mb-0">
+                                              Recurring:{" "}
+                                              <b>
+                                                {formatValue(
+                                                  engagement.recurringPrice
+                                                )}
+                                              </b>
+                                            </p>
+                                          )}
                                           {engagement.statusID !==
                                             statusID.Draft && (
-                                              <p className="mb-0">
-                                                {" "}
-                                                OneOff :{" "}
-                                                <b>
-                                                  {formatValue(
-                                                    engagement.oneOffPrice
-                                                  )}
-                                                </b>
-                                              </p>
-                                            )}
+                                            <p className="mb-0">
+                                              {" "}
+                                              OneOff :{" "}
+                                              <b>
+                                                {formatValue(
+                                                  engagement.oneOffPrice
+                                                )}
+                                              </b>
+                                            </p>
+                                          )}
                                         </td>
 
                                         <td className="table-content-font">
@@ -2730,7 +2849,7 @@ const Engagement_Letter = () => {
                                             statusID.Draft &&
                                             engagement.documents &&
                                             engagement.statusID !==
-                                            statusID.Signed && (
+                                              statusID.Signed && (
                                               <p
                                                 onClick={() => {
                                                   handleViewPdf(engagement);
@@ -2748,7 +2867,7 @@ const Engagement_Letter = () => {
                                             statusID.Draft &&
                                             engagement.documents &&
                                             engagement.statusID ===
-                                            statusID.Signed && (
+                                              statusID.Signed && (
                                               <p
                                                 onClick={() => {
                                                   handleDownload(engagement);
@@ -2761,6 +2880,235 @@ const Engagement_Letter = () => {
                                                 {EngagementName} PDF
                                               </p>
                                             )}
+                                        </td>
+                                        <td className="table-content-font">
+                                          <div class="d-flex gap-2">
+                                            {/* Dropdown for all actions */}
+                                            <div class="dropdown">
+                                              <button
+                                                class="btn btn-md btn-success create-item-btn"
+                                                type="button"
+                                                id="dropdownMenuButton"
+                                                data-bs-toggle="dropdown"
+                                                aria-expanded="false"
+                                              >
+                                                <span>
+                                                  Actions
+                                                  <ExpandMoreIcon />
+                                                </span>
+                                              </button>
+                                              <ul
+                                                style={{
+                                                  padding: `${
+                                                    engagement.statusID ===
+                                                    statusID.Draft
+                                                      ? "2px 0px 2px 0px"
+                                                      : "6px 8px"
+                                                  }`,
+                                                }}
+                                                class="dropdown-menu"
+                                                aria-labelledby="dropdownElMenuButton"
+                                              >
+                                                {/* Draft button */}
+                                                {engagement.statusID ===
+                                                  statusID.Draft &&
+                                                  userAccessData.Admin_Engagement_Latter_CanEdit && (
+                                                    <>
+                                                      {/* <li>
+                                                        <a
+                                                          class="dropdown-item"
+                                                          onClick={() =>
+                                                            EngagementEditBtnClicked(
+                                                              engagement
+                                                            )
+                                                          }
+                                                        >
+                                                          <i
+                                                            className="ri-pencil-fill custom-pencil-icon"
+                                                            style={{
+                                                              marginRight:
+                                                                "2px",
+                                                            }}
+                                                          ></i>{" "}
+                                                          Edit {EngagementName}
+                                                        </a>
+                                                      </li> */}
+
+                                                      {/* Delete Contract */}
+
+                                                      {/* <li>
+                                                        <a
+                                                          class="dropdown-item"
+                                                          data-bs-toggle="modal"
+                                                          data-bs-target="#ConfirmModel"
+                                                          onClick={() => {
+                                                            setModelRequestData(
+                                                              (prev) => ({
+                                                                ...prev,
+                                                                Action:
+                                                                  "DeleteContract",
+                                                                contractKeyID:
+                                                                  engagement.contractKeyID,
+                                                              })
+                                                            );
+                                                          }}
+                                                        >
+                                                          <i
+                                                            className="ri-delete-bin-5-fill"
+                                                            style={{
+                                                              marginRight:
+                                                                "2px",
+                                                            }}
+                                                          ></i>{" "}
+                                                          Delete{" "}
+                                                          {EngagementName}
+                                                        </a>
+                                                      </li> */}
+                                                    </>
+                                                  )}
+
+                                                {/* View button */}
+                                                {engagement.statusID !==
+                                                  statusID.Draft &&
+                                                  userAccessData.Admin_Engagement_Latter_CanView && (
+                                                    <li>
+                                                      <a
+                                                        class="dropdown-item"
+                                                        onClick={() =>
+                                                          handleViewEngagementDetails(
+                                                            engagement,
+                                                            statusID
+                                                          )
+                                                        }
+                                                      >
+                                                        <i class="bi bi-eye"></i>{" "}
+                                                        View {EngagementName}
+                                                      </a>
+                                                    </li>
+                                                  )}
+
+                                                {/* Void action button */}
+                                                {/* {engagement.statusID ===
+                                                  statusID.Void &&
+                                                  userAccessData.Admin_Engagement_Latter_CanEdit && (
+                                                    <>
+                                                      <li>
+                                                        <a
+                                                          class="dropdown-item"
+                                                          data-bs-toggle="modal"
+                                                          data-bs-target="#ConfirmModel"
+                                                          onClick={() => {
+                                                            setModelRequestData(
+                                                              (prev) => ({
+                                                                ...prev,
+                                                                Action:
+                                                                  "DeleteContract",
+                                                                contractKeyID:
+                                                                  engagement.contractKeyID,
+                                                              })
+                                                            );
+                                                          }}
+                                                        >
+                                                          <i
+                                                            className="ri-delete-bin-5-fill"
+                                                            style={{
+                                                              marginRight:
+                                                                "2px",
+                                                            }}
+                                                          ></i>{" "}
+                                                          Delete{" "}
+                                                          {EngagementName}
+                                                        </a>
+                                                      </li>
+                                                    </>
+                                                  )} */}
+
+                                                {/* Copy button */}
+                                                {/* {engagement.statusID !==
+                                                  statusID.Draft &&
+                                                  engagement.statusID !==
+                                                    statusID.Void && (
+                                                    <li>
+                                                      <a
+                                                        class="dropdown-item"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#ConfirmModel"
+                                                        onClick={() => {
+                                                          setModelRequestData({
+                                                            ...modelRequestData,
+                                                            Action: "Copy",
+                                                            contractKeyID:
+                                                              engagement.contractKeyID,
+                                                            refId:
+                                                              engagement.prefix,
+                                                          });
+                                                        }}
+                                                      >
+                                                        <i class="fa-solid fa-copy"></i>{" "}
+                                                        Copy {EngagementName}
+                                                      </a>
+                                                    </li>
+                                                  )} */}
+                                                {/* Resend button*/}
+                                                {/* {(engagement.statusID ===
+                                                  statusID.Sent ||
+                                                  engagement.statusID ===
+                                                    statusID.Awaiting_Signature) &&
+                                                  userAccessData.Admin_Engagement_Latter_CanEdit && (
+                                                    <>
+                                                      <li>
+                                                        <a
+                                                          class="dropdown-item"
+                                                          data-bs-toggle="modal"
+                                                          data-bs-target="#ConfirmModel"
+                                                          onClick={() => {
+                                                            setModelRequestData(
+                                                              {
+                                                                ...modelRequestData,
+                                                                contractKeyID:
+                                                                  engagement.contractKeyID,
+                                                                message: `Are you sure you want to re-send ${EngagementName}`,
+                                                                refId:
+                                                                  engagement.prefix,
+                                                                Action:
+                                                                  "Resend",
+                                                              }
+                                                            );
+                                                          }}
+                                                        >
+                                                          <i class="fas fa-redo"></i>{" "}
+                                                          Re-send{" "}
+                                                          {EngagementName}
+                                                        </a>
+                                                      </li>
+                                                      <li>
+                                                        <a
+                                                          class="dropdown-item"
+                                                          data-bs-toggle="modal"
+                                                          data-bs-target="#ConfirmModel"
+                                                          onClick={() => {
+                                                            setModelRequestData(
+                                                              {
+                                                                ...modelRequestData,
+                                                                refId:
+                                                                  engagement.prefix,
+                                                                contractKeyID:
+                                                                  engagement.contractKeyID,
+                                                                message: `Are you sure you want to void ${modelRequestData.refId}`,
+                                                                Action: "Void",
+                                                              }
+                                                            );
+                                                          }}
+                                                        >
+                                                          <i class="fa fa-ban"></i>{" "}
+                                                          Void {EngagementName}
+                                                        </a>
+                                                      </li>
+                                                    </>
+                                                  )} */}
+                                              </ul>
+                                            </div>
+                                          </div>
                                         </td>
                                         {/* <td>
                                             <div class="d-flex gap-2">
@@ -3031,12 +3379,12 @@ const Engagement_Letter = () => {
                             isMobile
                               ? Math.ceil(listCount / isMobileRecords)
                               : Math.ceil(
-                                listCount /
-                                (desktopRecords > 5 &&
-                                  window.innerHeight == 652
-                                  ? 5
-                                  : desktopRecords)
-                              )
+                                  listCount /
+                                    (desktopRecords > 5 &&
+                                    window.innerHeight == 652
+                                      ? 5
+                                      : desktopRecords)
+                                )
                           }
                           currentPage={currentPage}
                           onPageChange={handlePageChange}
@@ -3053,12 +3401,12 @@ const Engagement_Letter = () => {
                             isMobile
                               ? Math.ceil(SingleElListCount / isMobileRecords)
                               : Math.ceil(
-                                SingleElListCount /
-                                (desktopRecords > 5 &&
-                                  window.innerHeight == 652
-                                  ? 5
-                                  : desktopRecords)
-                              )
+                                  SingleElListCount /
+                                    (desktopRecords > 5 &&
+                                    window.innerHeight == 652
+                                      ? 5
+                                      : desktopRecords)
+                                )
                           }
                           currentPage={SingleElCurrentPage}
                           onPageChange={handlePageSingleELChange}
@@ -3105,17 +3453,16 @@ const Engagement_Letter = () => {
             modelRequestData.Action === "ReminderStatus"
               ? ChangeContractStatusData
               : modelRequestData.Action === "Resend"
-                ? handleResend
-                : modelRequestData.Action === "Void"
-                  ? VoidContractData
-                  : modelRequestData.Action === "Delete"
-                    ? DeleteSingleApiContractData
-                    : modelRequestData.Action === "DeleteContract"
-                      ? HandleDeleteDraftContractData
-                      : modelRequestData.Action === "Copy"
-                      ? CopyContractData
-                      : () => CopyContractData(null, true)
-
+              ? handleResend
+              : modelRequestData.Action === "Void"
+              ? VoidContractData
+              : modelRequestData.Action === "Delete"
+              ? DeleteSingleApiContractData
+              : modelRequestData.Action === "DeleteContract"
+              ? HandleDeleteDraftContractData
+              : modelRequestData.Action === "Copy"
+              ? CopyContractData
+              : () => CopyContractData(null, true)
           }
         />
         <SuccessModal
@@ -3127,18 +3474,18 @@ const Engagement_Letter = () => {
             modelRequestData.Action === "Copy"
               ? `The Copy of  ${modelRequestData.refId} has been created successfully! `
               : modelRequestData.Action === "ReminderStatus"
-                ? "Status has been changed successfully!"
-                : modelRequestData.Action === "Resend"
-                  ? EngagementName
-                  : modelRequestData.Action === "Void"
-                    ? `${modelRequestData.refId} has been voided successfully!`
-                    : modelRequestData.Action === "Delete"
-                      ? selectedRows.length !== 0
-                        ? EngagementName
-                        : ""
-                      : modelRequestData.Action === "DeleteContract"
-                        ? EngagementName
-                        : ""
+              ? "Status has been changed successfully!"
+              : modelRequestData.Action === "Resend"
+              ? EngagementName
+              : modelRequestData.Action === "Void"
+              ? `${modelRequestData.refId} has been voided successfully!`
+              : modelRequestData.Action === "Delete"
+              ? selectedRows.length !== 0
+                ? EngagementName
+                : ""
+              : modelRequestData.Action === "DeleteContract"
+              ? EngagementName
+              : ""
           }
           refIdStore={modelRequestData.refId}
         />
@@ -3169,7 +3516,7 @@ const Engagement_Letter = () => {
           toDate={toDate}
           status={status}
           ModuleName={EngagementName}
-          engagementList = {engagementList}
+          engagementList={engagementList}
           ApplyFilter={ApplyFilter}
           businessNatureID={businessNatureID}
           setBusinessNatureID={setBusinessNatureID}
@@ -3179,6 +3526,14 @@ const Engagement_Letter = () => {
           setFormDateOfCalenderForExport={setFormDateOfCalenderForExport}
           toDateCalenderForExport={toDateCalenderForExport}
           setToDateCalenderForExport={setToDateCalenderForExport}
+        />
+
+        <EmailFailurePopUP
+          open={openEmailFailurePopUp}
+          handleClose={handleEmailFailurePopupClose}
+          isBackDropDisplay={true}
+          onYesClick={handleResendContract}
+          emailCheckModel={emailCheckModel}
         />
       </div>
 
