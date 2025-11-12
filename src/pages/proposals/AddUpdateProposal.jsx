@@ -23656,7 +23656,8 @@ const Add_Update_Proposal = (props) => {
             : null
           : null,
       statusID: StatusId || null,
-      pricingTableColumnIDs: getVisibleFieldIds(),
+      pricingTableColumnIDs:
+        selectedTemplateID === 0 ? null : getVisibleFieldIds(),
       TabName: moduleName,
       quotePDFUrl: MergePdfUrl || null,
       documentCode: DocumentCode || null,
@@ -23673,7 +23674,8 @@ const Add_Update_Proposal = (props) => {
       quoteAdditionalServicesInPackages:
         quoteAdditionalServicesInPackages.selectedServicesList,
       ServiceMappingWithPackagesList: ServiceMappingWithPackagesList,
-      pricingTableColumnIDs: getVisibleFieldIds(),
+      pricingTableColumnIDs:
+        selectedTemplateID === 0 ? null : getVisibleFieldIds(),
     };
     setRequireMessage(false);
     console.log(ApiRequest_ParamsObj, "ApiRequest_ParamsObj");

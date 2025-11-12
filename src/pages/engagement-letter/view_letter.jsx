@@ -124,6 +124,8 @@ const View_Engagement_Latter = () => {
   } = useContext(AuthContextProvider);
   const navigate = useNavigate();
   const location = useLocation();
+  const [totalRecServiceVAT, setTotalRecServiceVAT] = useState(null);
+  const [totalOneOffServiceVAT, setTotalOneOffServiceVAT] = useState(null);
   const [OneOffPricingInfo, setOneOffPricingInfo] = useState({
     OriginalPrice: 0,
     DefaultDiscount: 0.0,
@@ -377,6 +379,28 @@ const View_Engagement_Latter = () => {
           setPackageList(packageData);
           setFinalQuotationAmountList(finalContractAmountList);
           setContractSignatoriesList(contractSignatoriesList);
+
+          // Service wise VAT:
+          const recurringVatSum =
+            ModelData.recurringServiceCatList?.reduce((catAcc, cat) => {
+              const catTotal = cat.servicesList?.reduce(
+                (srvAcc, srv) => srvAcc + (srv.vatAmount || 0),
+                0
+              );
+              return catAcc + catTotal;
+            }, 0) || 0;
+
+          const oneOffVatSum =
+            ModelData.oneOffServiceCatList?.reduce((catAcc, cat) => {
+              const catTotal = cat.servicesList?.reduce(
+                (srvAcc, srv) => srvAcc + (srv.vatAmount || 0),
+                0
+              );
+              return catAcc + catTotal;
+            }, 0) || 0;
+
+          setTotalRecServiceVAT(recurringVatSum);
+          setTotalOneOffServiceVAT(oneOffVatSum);
         }
       } else {
         // setErrorMessage(data?.data?.errorMessage);
@@ -1218,8 +1242,11 @@ const View_Engagement_Latter = () => {
                                                         <td className="tr-table-class text-white font-14 text-right">
                                                           {" "}
                                                           {formatValue(
-                                                            RecurringPricingInfo.VATPrice
+                                                            totalRecServiceVAT
                                                           )}
+                                                          {/* {formatValue(
+                                                            RecurringPricingInfo.VATPrice
+                                                          )} */}
                                                         </td>
                                                       </tr>
                                                       <tr className="head-row">
@@ -1228,8 +1255,25 @@ const View_Engagement_Latter = () => {
                                                         </td>
                                                         <td className="tr-table-class font-14 text-white text-right">
                                                           {" "}
-                                                          {formatValue(
+                                                          {/* {formatValue(
                                                             RecurringPricingInfo.GrandTotal
+                                                          )} */}
+                                                          {formatValue(
+                                                            Number(
+                                                              RecurringPricingInfo.Discount
+                                                            ) > 0
+                                                              ? Number(
+                                                                  RecurringPricingInfo.DiscountedTotal
+                                                                ) +
+                                                                  Number(
+                                                                    totalRecServiceVAT
+                                                                  )
+                                                              : Number(
+                                                                  RecurringPricingInfo.OriginalPrice
+                                                                ) +
+                                                                  Number(
+                                                                    totalRecServiceVAT
+                                                                  )
                                                           )}
                                                         </td>
                                                       </tr>
@@ -2021,8 +2065,11 @@ const View_Engagement_Latter = () => {
                                                       <td className="tr-table-class font-14 text-white text-right">
                                                         {" "}
                                                         {formatValue(
-                                                          OneOffPricingInfo.VATPrice
+                                                          totalOneOffServiceVAT
                                                         )}
+                                                        {/* {formatValue(
+                                                          OneOffPricingInfo.VATPrice
+                                                        )} */}
                                                       </td>
                                                     </tr>
                                                     <tr className="head-row">
@@ -2031,8 +2078,25 @@ const View_Engagement_Latter = () => {
                                                       </td>
                                                       <td className="tr-table-class font-14 text-white text-right">
                                                         {" "}
-                                                        {formatValue(
+                                                        {/* {formatValue(
                                                           OneOffPricingInfo.GrandTotal
+                                                        )} */}
+                                                        {formatValue(
+                                                          Number(
+                                                            OneOffPricingInfo.Discount
+                                                          ) > 0
+                                                            ? Number(
+                                                                OneOffPricingInfo.DiscountedTotal
+                                                              ) +
+                                                                Number(
+                                                                  totalOneOffServiceVAT
+                                                                )
+                                                            : Number(
+                                                                OneOffPricingInfo.OriginalPrice
+                                                              ) +
+                                                                Number(
+                                                                  totalOneOffServiceVAT
+                                                                )
                                                         )}
                                                       </td>
                                                     </tr>
