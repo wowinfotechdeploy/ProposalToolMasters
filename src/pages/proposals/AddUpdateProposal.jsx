@@ -1747,7 +1747,7 @@ const ReviewServicesComponent = (props) => {
                 >
                   {" "}
                   {props.formatValue(
-                    props.OneOffPricingInfo.totalVATAmountOneOff,
+                    props.OneOffPricingInfo.totalServiceWiseVATOneOff,
                     props.currencyID
                   )}
                 </td>
@@ -1772,10 +1772,27 @@ const ReviewServicesComponent = (props) => {
                   }}
                 >
                   {" "}
-                  {props.formatValue(
+                  {/* {props.formatValue(
                     props.OneOffPricingInfo.GrandTotal,
                     props.currencyID
-                  )}
+                  )} */}
+                  {Number(props.OneOffPricingInfo.Discount) > 0
+                    ? // If discount is applied → use discounted total + VAT
+                      props.formatValue(
+                        Number(props.OneOffPricingInfo.DiscountedTotal) +
+                          Number(
+                            props.OneOffPricingInfo.totalServiceWiseVATOneOff
+                          ),
+                        props.currencyID
+                      )
+                    : // If no discount → use original total + VAT
+                      props.formatValue(
+                        Number(props.OneOffPricingInfo.OriginalPrice) +
+                          Number(
+                            props.OneOffPricingInfo.totalServiceWiseVATOneOff
+                          ),
+                        props.currencyID
+                      )}
                 </td>
               </tr>
             </>
@@ -8062,7 +8079,7 @@ const ReviewPackagesComponent = (props) => {
                 fontSize: "18px",
               }}
             >
-              Serviceswwwwwwwwwww
+              Services
             </th>
             {props?.selectedPackagesList?.map((selectedPackages) => (
               <th
