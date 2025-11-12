@@ -12526,7 +12526,9 @@ const ReviewPackagesComponent = (props) => {
                                   {props.formatValue(
                                     Number(
                                       props.RecurringPricingInfo
-                                        .PackageOneVaTPrice
+                                        .packageOneVatAmount
+                                      // props.RecurringPricingInfo
+                                      //   .PackageOneVaTPrice
                                     ),
                                     props.currencyID
                                   )}
@@ -12537,7 +12539,9 @@ const ReviewPackagesComponent = (props) => {
                                     {props.formatValue(
                                       Number(
                                         props.RecurringPricingInfo
-                                          .PackageTwoVaTPrice
+                                          .packageTwoVatAmount
+                                        // props.RecurringPricingInfo
+                                        //   .PackageTwoVaTPrice
                                       ),
                                       props.currencyID
                                     )}
@@ -12549,7 +12553,9 @@ const ReviewPackagesComponent = (props) => {
                                     {props.formatValue(
                                       Number(
                                         props.RecurringPricingInfo
-                                          .PackageThreeVaTPrice
+                                          .packageThreeVatAmount
+                                        // props.RecurringPricingInfo
+                                        //   .PackageThreeVaTPrice
                                       ),
                                       props.currencyID
                                     )}
@@ -12561,30 +12567,87 @@ const ReviewPackagesComponent = (props) => {
                                 <td className="tr-table-class font-14 text-white">
                                   Grand Total
                                 </td>
+
+                                {/* Package 1 */}
                                 <td className="tr-table-class font-14 text-white text-right">
-                                  {" "}
                                   {props.formatValue(
-                                    props.RecurringPricingInfo
-                                      .PackageOneGrandTotal,
+                                    Number(
+                                      props.RecurringPricingInfo
+                                        .packageOneDisCount
+                                    ) > 0
+                                      ? Number(
+                                          props.RecurringPricingInfo
+                                            .packageOneDisCountedTotal
+                                        ) +
+                                          Number(
+                                            props.RecurringPricingInfo
+                                              .packageOneVatAmount
+                                          )
+                                      : Number(
+                                          props.RecurringPricingInfo
+                                            .packageOneNetTotal
+                                        ) +
+                                          Number(
+                                            props.RecurringPricingInfo
+                                              .packageOneVatAmount
+                                          ),
                                     props.currencyID
                                   )}
                                 </td>
+
+                                {/* Package 2 */}
                                 {packageCount >= 2 && (
                                   <td className="tr-table-class font-14 text-white text-right">
-                                    {" "}
                                     {props.formatValue(
-                                      props.RecurringPricingInfo
-                                        .PackageTwoGrandTotal,
+                                      Number(
+                                        props.RecurringPricingInfo
+                                          .packageTwoDisCount
+                                      ) > 0
+                                        ? Number(
+                                            props.RecurringPricingInfo
+                                              .packageTwoDisCountedTotal
+                                          ) +
+                                            Number(
+                                              props.RecurringPricingInfo
+                                                .packageTwoVatAmount
+                                            )
+                                        : Number(
+                                            props.RecurringPricingInfo
+                                              .packageTwoNetTotal
+                                          ) +
+                                            Number(
+                                              props.RecurringPricingInfo
+                                                .packageTwoVatAmount
+                                            ),
                                       props.currencyID
                                     )}
                                   </td>
                                 )}
-                                {packageCount == 3 && (
+
+                                {/* Package 3 */}
+                                {packageCount === 3 && (
                                   <td className="tr-table-class font-14 text-white text-right">
-                                    {" "}
                                     {props.formatValue(
-                                      props.RecurringPricingInfo
-                                        .PackageThreeGrandTotal,
+                                      Number(
+                                        props.RecurringPricingInfo
+                                          .packageThreeDisCount
+                                      ) > 0
+                                        ? Number(
+                                            props.RecurringPricingInfo
+                                              .packageThreeDisCountedTotal
+                                          ) +
+                                            Number(
+                                              props.RecurringPricingInfo
+                                                .packageThreeVatAmount
+                                            )
+                                        : Number(
+                                            props.RecurringPricingInfo
+                                              .packageThreeNetTotal
+                                          ) +
+                                            Number(
+                                              props.RecurringPricingInfo
+                                                .packageThreeVatAmount
+                                            ),
                                       props.currencyID
                                     )}
                                   </td>
@@ -13997,7 +14060,7 @@ const ReviewPackagesComponent = (props) => {
                               {props.selectedPackagesList.map((pkg, index) => (
                                 <td
                                   key={index}
-                                  className="tr-table-class font-14 text-white text-center"
+                                  className="tr-table-class font-14 text-white text-right"
                                 >
                                   {pkg.servicePackageName.length > 10 ? (
                                     <Tooltip title={pkg.servicePackageName}>
@@ -14642,8 +14705,10 @@ const ReviewPackagesComponent = (props) => {
                                 <td className="tr-table-class font-14 text-white text-right">
                                   {" "}
                                   {props.formatValue(
-                                    props.OneOffPricingInfo.PackageOneVaTPrice,
+                                    props.OneOffPricingInfo.packageOneVatAmount,
                                     props.currencyID
+                                    // props.OneOffPricingInfo.PackageOneVaTPrice,
+                                    // props.currencyID
                                   )}
                                 </td>
                                 {packageCount >= 2 && (
@@ -14651,8 +14716,11 @@ const ReviewPackagesComponent = (props) => {
                                     {" "}
                                     {props.formatValue(
                                       props.OneOffPricingInfo
-                                        .PackageTwoVaTPrice,
+                                        .packageTwoVatAmount,
                                       props.currencyID
+                                      // props.OneOffPricingInfo
+                                      //   .PackageTwoVaTPrice,
+                                      // props.currencyID
                                     )}
                                   </td>
                                 )}
@@ -14661,8 +14729,11 @@ const ReviewPackagesComponent = (props) => {
                                     {" "}
                                     {props.formatValue(
                                       props.OneOffPricingInfo
-                                        .PackageThreeVaTPrice,
+                                        .packageThreeVatAmount,
                                       props.currencyID
+                                      // props.OneOffPricingInfo
+                                      //   .PackageThreeVaTPrice,
+                                      // props.currencyID
                                     )}
                                   </td>
                                 )}
@@ -14671,30 +14742,77 @@ const ReviewPackagesComponent = (props) => {
                                 <td className="tr-table-class font-14 text-white">
                                   Grand Total
                                 </td>
+
+                                {/* Package 1 */}
                                 <td className="tr-table-class font-14 text-white text-right">
-                                  {" "}
                                   {props.formatValue(
-                                    props.OneOffPricingInfo
-                                      .PackageOneGrandTotal,
+                                    Number(
+                                      props.OneOffPricingInfo.packageOneDisCount
+                                    ) > 0
+                                      ? Number(
+                                          props.OneOffPricingInfo
+                                            .packageOneDisCountedTotal
+                                        ) +
+                                          Number(
+                                            props.OneOffPricingInfo
+                                              .packageOneVatAmount
+                                          )
+                                      : Number(totalOnePackageValueOneOff) +
+                                          Number(
+                                            props.OneOffPricingInfo
+                                              .packageOneVatAmount
+                                          ),
                                     props.currencyID
                                   )}
                                 </td>
+
+                                {/* Package 2 */}
                                 {packageCount >= 2 && (
                                   <td className="tr-table-class font-14 text-white text-right">
-                                    {" "}
                                     {props.formatValue(
-                                      props.OneOffPricingInfo
-                                        .PackageTwoGrandTotal,
+                                      Number(
+                                        props.OneOffPricingInfo
+                                          .packageTwoDisCount
+                                      ) > 0
+                                        ? Number(
+                                            props.OneOffPricingInfo
+                                              .packageTwoDisCountedTotal
+                                          ) +
+                                            Number(
+                                              props.OneOffPricingInfo
+                                                .packageTwoVatAmount
+                                            )
+                                        : Number(totalTwoPackageValueOneOff) +
+                                            Number(
+                                              props.OneOffPricingInfo
+                                                .packageTwoVatAmount
+                                            ),
                                       props.currencyID
                                     )}
                                   </td>
                                 )}
-                                {packageCount == 3 && (
+
+                                {/* Package 3 */}
+                                {packageCount === 3 && (
                                   <td className="tr-table-class font-14 text-white text-right">
-                                    {" "}
                                     {props.formatValue(
-                                      props.OneOffPricingInfo
-                                        .PackageThreeGrandTotal,
+                                      Number(
+                                        props.OneOffPricingInfo
+                                          .packageThreeDisCount
+                                      ) > 0
+                                        ? Number(
+                                            props.OneOffPricingInfo
+                                              .packageThreeDisCountedTotal
+                                          ) +
+                                            Number(
+                                              props.OneOffPricingInfo
+                                                .packageThreeVatAmount
+                                            )
+                                        : Number(totalThreePackageValueOneOff) +
+                                            Number(
+                                              props.OneOffPricingInfo
+                                                .packageThreeVatAmount
+                                            ),
                                       props.currencyID
                                     )}
                                   </td>
@@ -17644,6 +17762,8 @@ const Add_Update_Proposal = (props) => {
     serviceScope: true,
     feesIncVat: vatPercentage === null ? false : true,
   });
+
+  console.log(selectedTemplateID);
 
   // useEffect(() => {
 
@@ -21246,6 +21366,8 @@ const Add_Update_Proposal = (props) => {
             0
           );
 
+          // from add package
+
           setRecurringPricingInfo({
             ...RecurringPricingInfo,
             OriginalPrice: recOriginalPrice,
@@ -21276,6 +21398,9 @@ const Add_Update_Proposal = (props) => {
             packageOneDisCountedTotal: recDefaultPrice,
             packageTwoDisCountedTotal: recDefaultPrice,
             packageThreeDisCountedTotal: recDefaultPrice,
+            packageOneVatAmount: totalVATOne,
+            packageTwoVatAmount: totalVATTwo,
+            packageThreeVatAmount: totalVATThree,
             // PackageOneVaTPrice: PackageOneVaTPrice,
             PackageOneVaTPrice: totalVATOne,
             // PackageTwoVaTPrice: PackageTwoVaTPrice,
@@ -21501,6 +21626,9 @@ const Add_Update_Proposal = (props) => {
             packageOneDisCountedTotal: oneOffDefaultPrice,
             packageTwoDisCountedTotal: oneOffDefaultPrice,
             packageThreeDisCountedTotal: oneOffDefaultPrice,
+            packageOneVatAmount: OneOffVATTotalOne,
+            packageTwoVatAmount: OneOffVATTotalTwo,
+            packageThreeVatAmount: OneOffVATTotalThree,
             // PackageOneVaTPrice: OneOffPackageOneVaTPrice,
             PackageOneVaTPrice: OneOffVATTotalOne,
             // PackageTwoVaTPrice: OneOffPackageTwoVaTPrice,

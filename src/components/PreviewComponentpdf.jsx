@@ -3600,8 +3600,10 @@ export default function PreviewComponentPdf(props) {
                
             ${
               props.formatValue(
-                props.RecurringPricingInfo.PackageOneVaTPrice,
+                props.RecurringPricingInfo.packageOneVatAmount,
                 props.currencyID
+                // props.RecurringPricingInfo.PackageOneVaTPrice,
+                // props.currencyID
               )
 
               // Number(props.RecurringPricingInfo.PackageOneVaTPrice).toFixed(2).toString().replace(
@@ -3617,8 +3619,10 @@ export default function PreviewComponentPdf(props) {
                  
               ${
                 props.formatValue(
-                  props.RecurringPricingInfo.PackageTwoVaTPrice,
+                  props.RecurringPricingInfo.packageTwoVatAmount,
                   props.currencyID
+                  // props.RecurringPricingInfo.PackageTwoVaTPrice,
+                  // props.currencyID
                 )
                 // Number(props.RecurringPricingInfo.PackageTwoVaTPrice).toFixed(2).toString().replace(
                 //         /\B(?=(\d{3})+(?!\d))/g,
@@ -3636,8 +3640,10 @@ export default function PreviewComponentPdf(props) {
                  
               ${
                 props.formatValue(
-                  props.RecurringPricingInfo.PackageThreeVaTPrice,
+                  props.RecurringPricingInfo.packageThreeVatAmount,
                   props.currencyID
+                  // props.RecurringPricingInfo.PackageThreeVaTPrice,
+                  // props.currencyID
                 )
                 // Number(props.RecurringPricingInfo.PackageThreeVaTPrice).toFixed(2).toString().replace(
                 //         /\B(?=(\d{3})+(?!\d))/g,
@@ -3656,9 +3662,27 @@ export default function PreviewComponentPdf(props) {
             </td>
           <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
                
-                        ${props.formatValue(
-                          props.RecurringPricingInfo.PackageOneGrandTotal
-                        )}
+                           ${props.formatValue(
+                             Number(
+                               props.RecurringPricingInfo.packageOneDisCount
+                             ) > 0
+                               ? Number(
+                                   props.RecurringPricingInfo
+                                     .packageOneDisCountedTotal
+                                 ) +
+                                   Number(
+                                     props.RecurringPricingInfo
+                                       .packageOneVatAmount
+                                   )
+                               : Number(
+                                   props.RecurringPricingInfo.packageOneNetTotal
+                                 ) +
+                                   Number(
+                                     props.RecurringPricingInfo
+                                       .packageOneVatAmount
+                                   ),
+                             props.currencyID
+                           )}
                       </td>
                       ${
                         props?.selectedPackagesList?.length >= 2
@@ -3666,7 +3690,25 @@ export default function PreviewComponentPdf(props) {
                         <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
 
                           ${props.formatValue(
-                            props.RecurringPricingInfo.PackageTwoGrandTotal
+                            Number(
+                              props.RecurringPricingInfo.packageTwoDisCount
+                            ) > 0
+                              ? Number(
+                                  props.RecurringPricingInfo
+                                    .packageTwoDisCountedTotal
+                                ) +
+                                  Number(
+                                    props.RecurringPricingInfo
+                                      .packageTwoVatAmount
+                                  )
+                              : Number(
+                                  props.RecurringPricingInfo.packageTwoNetTotal
+                                ) +
+                                  Number(
+                                    props.RecurringPricingInfo
+                                      .packageTwoVatAmount
+                                  ),
+                            props.currencyID
                           )}
                         </td>
                       `
@@ -3678,7 +3720,26 @@ export default function PreviewComponentPdf(props) {
                         <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
 
                           ${props.formatValue(
-                            props.RecurringPricingInfo.PackageThreeGrandTotal
+                            Number(
+                              props.RecurringPricingInfo.packageThreeDisCount
+                            ) > 0
+                              ? Number(
+                                  props.RecurringPricingInfo
+                                    .packageThreeDisCountedTotal
+                                ) +
+                                  Number(
+                                    props.RecurringPricingInfo
+                                      .packageThreeVatAmount
+                                  )
+                              : Number(
+                                  props.RecurringPricingInfo
+                                    .packageThreeNetTotal
+                                ) +
+                                  Number(
+                                    props.RecurringPricingInfo
+                                      .packageThreeVatAmount
+                                  ),
+                            props.currencyID
                           )}
                         </td>
                       `
@@ -4989,34 +5050,28 @@ ${
             </td>
           <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
                
-            ${
-              props.formatValue(
-                props.OneOffPricingInfo.PackageOneGrandTotal,
-                props.currencyID
-              )
-              // Number(props.OneOffPricingInfo.PackageOneGrandTotal)
-              //           .toFixed(2).toString().replace(
-              //             /\B(?=(\d{3})+(?!\d))/g,
-              //             ","
-              //           )
-            }
+            ${props.formatValue(
+              Number(props.OneOffPricingInfo.packageOneDisCount) > 0
+                ? Number(props.OneOffPricingInfo.packageOneDisCountedTotal) +
+                    Number(props.OneOffPricingInfo.packageOneVatAmount)
+                : Number(totalOnePackageValueOneOff) +
+                    Number(props.OneOffPricingInfo.packageOneVatAmount),
+              props.currencyID
+            )}
           </td>
           ${
             props?.selectedPackagesList?.length >= 2
               ? `
             <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
                  
-              ${
-                props.formatValue(
-                  props.OneOffPricingInfo.PackageTwoGrandTotal,
-                  props.currencyID
-                )
-                // Number(props.OneOffPricingInfo.PackageTwoGrandTotal)
-                //           .toFixed(2).toString().replace(
-                //             /\B(?=(\d{3})+(?!\d))/g,
-                //             ","
-                //           )
-              }
+              ${props.formatValue(
+                Number(props.OneOffPricingInfo.packageTwoDisCount) > 0
+                  ? Number(props.OneOffPricingInfo.packageTwoDisCountedTotal) +
+                      Number(props.OneOffPricingInfo.packageTwoVatAmount)
+                  : Number(totalTwoPackageValueOneOff) +
+                      Number(props.OneOffPricingInfo.packageTwoVatAmount),
+                props.currencyID
+              )}
             </td>
           `
               : ``
@@ -5026,17 +5081,15 @@ ${
               ? `
             <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
                  
-              ${
-                props.formatValue(
-                  props.OneOffPricingInfo.PackageThreeGrandTotal,
-                  props.currencyID
-                )
-                // Number(props.OneOffPricingInfo.PackageThreeGrandTotal)
-                //           .toFixed(2).toString().replace(
-                //             /\B(?=(\d{3})+(?!\d))/g,
-                //             ","
-                //           )
-              }
+              ${props.formatValue(
+                Number(props.OneOffPricingInfo.packageThreeDisCount) > 0
+                  ? Number(
+                      props.OneOffPricingInfo.packageThreeDisCountedTotal
+                    ) + Number(props.OneOffPricingInfo.packageThreeVatAmount)
+                  : Number(totalThreePackageValueOneOff) +
+                      Number(props.OneOffPricingInfo.packageThreeVatAmount),
+                props.currencyID
+              )}
             </td>
           `
               : ``
