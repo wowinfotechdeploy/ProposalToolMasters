@@ -28,6 +28,7 @@ import { GetTemplateTypeList } from "../../../redux/Services/Master/TemplateType
 import { GetTemplateElementTypeLookUpList } from "../../../redux/Services/Master/TemplateElementType";
 import {
   CLIENT_TYPES,
+  fieldToIdMap,
   Template_Type,
   USER_ROLE_TYPE,
 } from "../../../Middleware/enums";
@@ -134,11 +135,103 @@ function Add_New_Templates(props) {
     isPredefined: null,
     fontFamilyID: null,
     professionTypeList: [],
+    pricingTableColumnIDs: null,
+    // Service description main heading
+    serviceDescriptionMainHeading: "Service Description",
+    serviceDescriptionMainHeadingFontSize: null,
+    serviceDescriptionMainHeadingFontWeight: null,
+    serviceDescriptionMainHeadingFontItalic: null,
+    // Service description Recurring/On-going Heading
+    serviceDescriptionRecurringHeading: "Ongoing/Recurring Services",
+    serviceDescriptionRecurringHeadingFontSize: null,
+    serviceDescriptionRecurringHeadingFontWeight: null,
+    serviceDescriptionRecurringHeadingFontItalic: null,
+    // Service description One-Off/Ad hoc Heading
+    serviceDescriptionOneOffHeading: "One-Off/Ad hoc Services",
+    serviceDescriptionOneOffHeadingFontSize: null,
+    serviceDescriptionOneOffHeadingFontWeight: null,
+    serviceDescriptionOneOffHeadingFontItalic: null,
+    // Service description Service Category Heading
+    serviceDescriptionServiceCatHeading: "",
+    serviceDescriptionServiceCatHeadingFontSize: null,
+    serviceDescriptionServiceCatHeadingFontWeight: null,
+    serviceDescriptionServiceCatHeadingFontItalic: null,
+    // Statement Of Facts main heading
+    statementOfFactsMainHeading: "Statement Of Facts",
+    statementOfFactsMainHeadingFontSize: null,
+    statementOfFactsMainHeadingFontWeight: null,
+    statementOfFactsMainHeadingFontItalic: null,
+    // Statement Of Facts Recurring/On-going Heading
+    statementOfFactsRecurringHeading: "Ongoing/Recurring Services",
+    statementOfFactsRecurringHeadingFontSize: null,
+    statementOfFactsRecurringHeadingFontWeight: null,
+    statementOfFactsRecurringHeadingFontItalic: null,
+    // Statement Of Facts One-Off/Ad hoc Heading
+    statementOfFactsOneOffHeading: "One-Off/Ad hoc Services",
+    statementOfFactsOneOffHeadingFontSize: null,
+    statementOfFactsOneOffHeadingFontWeight: null,
+    statementOfFactsOneOffHeadingFontItalic: null,
   });
   const [dismissModal, setDismissModal] = useState(null);
   const [isCheck, setIsCheck] = useState(false);
   const [openSuccessModal, setOpenSuccessModal] = React.useState(false);
   const [Status, setStatus] = React.useState(false);
+  const [visibleFieldsCustomTemp, setVisibleFieldsCustomTemp] = useState({
+    serviceCategory: true,
+    serviceName: true,
+    vatRate: true,
+    vat: true,
+    fees: true,
+    serviceScope: true,
+    feesIncVat: true,
+  });
+
+  const getVisibleFieldIds = () => {
+    const selectedIds = Object.entries(visibleFieldsCustomTemp)
+      .filter(([_, value]) => value === true)
+      .map(([key]) => fieldToIdMap[key]);
+
+    return selectedIds.join(","); // e.g. "1,2,3,4,5,6,7"
+  };
+
+  useEffect(() => {
+    const updateVisibleFieldsFromIds = (pricingTableColumnIDs) => {
+      // Ensure pricingTableColumnIDs is a string — handle undefined, null, object, or empty values safely
+      if (
+        typeof pricingTableColumnIDs !== "string" ||
+        pricingTableColumnIDs.trim() === ""
+      ) {
+        // If no ids provided, set all fields to false (optional)
+        const allFalse = Object.fromEntries(
+          Object.keys(fieldToIdMap).map((key) => [key, true])
+        );
+        setVisibleFieldsCustomTemp(allFalse);
+        return;
+      }
+
+      const idsFromBackend = pricingTableColumnIDs
+        .split(",")
+        .map((id) => Number(id.trim()))
+        .filter((id) => !isNaN(id)); // avoid NaN if backend sends weird values
+
+      const updatedFields = Object.fromEntries(
+        Object.entries(fieldToIdMap).map(([key, id]) => [
+          key,
+          idsFromBackend.includes(id),
+        ])
+      );
+
+      setVisibleFieldsCustomTemp(updatedFields);
+    };
+
+    // ✅ Call the function here
+    updateVisibleFieldsFromIds(TemplateObj.pricingTableColumnIDs);
+  }, [TemplateObj.pricingTableColumnIDs]);
+  // console.log("getVisibleFieldIds", getVisibleFieldIds());
+  // console.log("visibleFieldsCustomTemp", visibleFieldsCustomTemp);
+  const [selectedTemplateType, setSelectedTemplateType] = useState(0);
+  const vatPercentage = true;
+  console.log("selectedTemplateType", selectedTemplateType);
   // A]  useEffect : Will call when Add/Update button click from list page
   useEffect(() => {
     setModelAction(
@@ -435,11 +528,29 @@ function Add_New_Templates(props) {
             professionTypeList: ModelData.professionTypeList,
             originalBusinessTypeID: ModelData.originalBusinessTypeID,
             originalBusinessTypeIDs: ModelData.originalBusinessTypeIDs,
+            // pricingTableColumnIDs: ModelData.pricingTableColumnIDs,
           });
           setTemplateElementList(
             ...templateElementList,
             ModelData.templateElementList
           );
+          const pricingTableCustomIDList = ModelData.templateElementList.filter(
+            (item) => item.templateElementTypeID === 3
+          );
+
+          setTemplateObj((prev) => ({
+            ...prev,
+            pricingTableColumnIDs:
+              pricingTableCustomIDList[0]?.pricingTableColumnIDs,
+          }));
+
+          if (
+            pricingTableCustomIDList[0]?.pricingTableColumnIDs !== null &&
+            pricingTableCustomIDList[0]?.pricingTableColumnIDs !== "" &&
+            pricingTableCustomIDList[0]?.pricingTableColumnIDs !== undefined
+          ) {
+            setSelectedTemplateType(6);
+          }
         }
         setLoader(false);
       } else {
@@ -811,9 +922,21 @@ function Add_New_Templates(props) {
     }
 
     // Preparing Object For Add Update and if any modification then it will done here
+
+    // const UpdatedTemplateElementList = templateElementList.filter(
+    //   (item) => item.templateElementTypeID === 3
+    // );
+
+    const ModifiedUpdatedTemplateElementList = templateElementList.map(
+      (item) => ({
+        ...item,
+        pricingTableColumnIDs:
+          selectedTemplateType === 0 ? "" : getVisibleFieldIds(),
+      })
+    );
+
     const ApiRequest_ParamsObj = {
       //global level params : fixed
-
       acceptSAChanges: Accept,
       organisationKeyID: common.organisationKeyID,
       organisationID: common.organisationID,
@@ -829,7 +952,8 @@ function Add_New_Templates(props) {
       isDefault: TemplateObj.isDefault,
       //form level params : will change according to module
       templateName: TemplateObj.templateName,
-      templateElementList: templateElementList,
+      // templateElementList: templateElementList,
+      templateElementList: ModifiedUpdatedTemplateElementList,
       fontFamilyID: TemplateObj.fontFamilyID,
       professionTypeList:
         common.professionTypeLists?.length > 1 ||
@@ -1165,6 +1289,302 @@ function Add_New_Templates(props) {
       maxWidth: 500,
     },
   });
+
+  const templates = [
+    {
+      id: 0,
+      label: "Default Template",
+      content: null,
+    },
+    {
+      id: 1,
+      label: "Default Template",
+      content: null,
+    },
+    {
+      id: 2,
+      label: "Default Template",
+      content: null,
+    },
+    {
+      id: 3,
+      label: "Default Template",
+      content: null,
+    },
+    {
+      id: 4,
+      label: "Default Template",
+      content: null,
+    },
+    {
+      id: 5,
+      label: "Default Template",
+      content: null,
+    },
+    {
+      id: 6,
+      label: "Custom Template",
+      content: (
+        <div style={{ marginTop: "0px" }} className="table-responsive">
+          <table className="table align-middle table-nowrap">
+            <thead className="table-dark text-white">
+              <tr className="head-row">
+                {visibleFieldsCustomTemp?.serviceCategory && (
+                  <th
+                    className="tr-table-class text-white text-center"
+                    style={{ width: "16.66%" }}
+                  >
+                    Service Category
+                  </th>
+                )}
+                {visibleFieldsCustomTemp.serviceName && (
+                  <th
+                    className="tr-table-class text-white text-center"
+                    style={{ width: "16.66%" }}
+                  >
+                    Services
+                  </th>
+                )}
+                {visibleFieldsCustomTemp.serviceScope && (
+                  <th
+                    className="tr-table-class text-white text-center"
+                    style={{ width: "16.66%" }}
+                  >
+                    Service Scope
+                  </th>
+                )}
+
+                {visibleFieldsCustomTemp.fees && (
+                  <th
+                    className="tr-table-class text-white text-center"
+                    style={{ width: "16.66%" }}
+                  >
+                    Fees (£)
+                  </th>
+                )}
+                {vatPercentage && visibleFieldsCustomTemp.vatRate && (
+                  <th
+                    className="tr-table-class text-white text-center"
+                    style={{ width: "16.66%" }}
+                  >
+                    VAT Rate
+                  </th>
+                )}
+                {vatPercentage && visibleFieldsCustomTemp.vat && (
+                  <th
+                    className="tr-table-class text-white text-center"
+                    style={{ width: "16.66%" }}
+                  >
+                    VAT (£)
+                  </th>
+                )}
+                {vatPercentage && visibleFieldsCustomTemp.feesIncVat && (
+                  <th
+                    className="tr-table-class text-white text-center"
+                    style={{ width: "16.66%" }}
+                  >
+                    Fees inc VAT (£)
+                  </th>
+                )}
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr>
+                {visibleFieldsCustomTemp?.serviceCategory && (
+                  <td className="text-center">Test Service Category</td>
+                )}
+                {visibleFieldsCustomTemp.serviceName && (
+                  <td className="text-center">Test Service</td>
+                )}
+                {visibleFieldsCustomTemp.serviceScope && (
+                  <td className="text-center">Test scope=4</td>
+                )}
+                {visibleFieldsCustomTemp.fees && (
+                  <td className="text-center">$500</td>
+                )}
+                {vatPercentage && visibleFieldsCustomTemp.vatRate && (
+                  <td className="text-center">20%</td>
+                )}
+                {vatPercentage && visibleFieldsCustomTemp.vat && (
+                  <td className="text-center">$100</td>
+                )}
+                {vatPercentage && visibleFieldsCustomTemp.feesIncVat && (
+                  <td className="text-center">$600</td>
+                )}
+              </tr>
+
+              {/* === NET TOTAL ROW === */}
+              {/* <tr className="head-row">
+                <td className="tr-table-class text-white">Net Total</td>
+                {visibleFieldsCustomTemp?.serviceCategory && <td></td>}
+                {visibleFieldsCustomTemp.serviceScope && <td></td>}
+                {visibleFieldsCustomTemp.fees && (
+                  <td className="tr-table-class text-white text-center"></td>
+                )}
+                {vatPercentage && visibleFieldsCustomTemp.vatRate && <td></td>}
+                {vatPercentage && visibleFieldsCustomTemp.vat && (
+                  <td className="tr-table-class text-white text-center"></td>
+                )}
+                {vatPercentage && visibleFieldsCustomTemp.feesIncVat && (
+                  <td className="tr-table-class text-white text-center"></td>
+                )}
+              </tr> */}
+
+              {/* === DISCOUNT + GRAND TOTAL ROWS === */}
+              {/* {Number(RecurringPricingInfo.Discount) > 0 &&
+                ProposalObject.DiscountLines && (
+                  <>
+                    <tr className="head-grey-row">
+                      {visibleFieldsCustomTemp?.serviceCategory && (
+                        <td className="tr-table-class font-14 text-white">
+                          Discount
+                        </td>
+                      )}
+                      {visibleFieldsCustomTemp.serviceName && <td></td>}
+                      {visibleFieldsCustomTemp.serviceScope && <td></td>}
+                      {visibleFieldsCustomTemp.fees && (
+                        <td className="tr-table-class font-14 text-white text-center">
+                          (-) {formatValue(RecurringPricingInfo.Discount)}
+                        </td>
+                      )}
+                      {vatPercentage && visibleFieldsCustomTemp.vatRate && (
+                        <td></td>
+                      )}
+                      {vatPercentage && visibleFieldsCustomTemp.vat && (
+                        <td className="tr-table-class text-white text-center">
+                          (-){" "}
+                          {Number(RecurringPricingInfo.OriginalPrice) <
+                            Number(RecurringPricingInfo.DiscountedPrice) ||
+                          (Number(RecurringPricingInfo.Discount) > 0 &&
+                            !ProposalObject.DiscountLines)
+                            ? formatValue(
+                                ((Number(RecurringPricingInfo.DiscountedPrice) *
+                                  20) /
+                                  100) *
+                                  (RecurringPricingInfo.DefaultDiscount / 100)
+                              )
+                            : formatValue(
+                                ((Number(RecurringPricingInfo.OriginalPrice) *
+                                  20) /
+                                  100) *
+                                  (RecurringPricingInfo.DefaultDiscount / 100)
+                              )}
+                        </td>
+                      )}
+                      {vatPercentage && visibleFieldsCustomTemp.feesIncVat && (
+                        <td className="tr-table-class text-white text-center">
+                          (-){" "}
+                          {Number(RecurringPricingInfo.OriginalPrice) <
+                            Number(RecurringPricingInfo.DiscountedPrice) ||
+                          (Number(RecurringPricingInfo.Discount) > 0 &&
+                            !ProposalObject.DiscountLines)
+                            ? formatValue(
+                                (Number(RecurringPricingInfo.DiscountedPrice) +
+                                  (Number(
+                                    RecurringPricingInfo.DiscountedPrice
+                                  ) *
+                                    20) /
+                                    100) *
+                                  (RecurringPricingInfo.DefaultDiscount / 100)
+                              )
+                            : formatValue(
+                                (Number(RecurringPricingInfo.OriginalPrice) +
+                                  (Number(RecurringPricingInfo.OriginalPrice) *
+                                    20) /
+                                    100) *
+                                  (RecurringPricingInfo.DefaultDiscount / 100)
+                              )}
+                        </td>
+                      )}
+                    </tr>
+
+                    <tr className="head-row">
+                      {visibleFieldsCustomTemp?.serviceCategory && (
+                        <td className="tr-table-class font-14 text-white">
+                          Grand Total
+                        </td>
+                      )}
+                      {visibleFieldsCustomTemp.serviceName && <td></td>}
+                      {visibleFieldsCustomTemp.serviceScope && <td></td>}
+                      {visibleFieldsCustomTemp.fees && (
+                        <td className="tr-table-class font-14 text-white text-center">
+                          {Number(RecurringPricingInfo.OriginalPrice) <
+                            Number(RecurringPricingInfo.DiscountedPrice) ||
+                          (Number(RecurringPricingInfo.Discount) > 0 &&
+                            !ProposalObject.DiscountLines)
+                            ? formatValue(
+                                RecurringPricingInfo.DiscountedPrice -
+                                  RecurringPricingInfo.Discount
+                              )
+                            : formatValue(
+                                RecurringPricingInfo.OriginalPrice -
+                                  RecurringPricingInfo.Discount
+                              )}
+                        </td>
+                      )}
+                      {vatPercentage && visibleFieldsCustomTemp.vatRate && (
+                        <td></td>
+                      )}
+                      {vatPercentage && visibleFieldsCustomTemp.vat && (
+                        <td className="tr-table-class font-14 text-white text-center">
+                          {Number(RecurringPricingInfo.OriginalPrice) <
+                            Number(RecurringPricingInfo.DiscountedPrice) ||
+                          (Number(RecurringPricingInfo.Discount) > 0 &&
+                            !ProposalObject.DiscountLines)
+                            ? formatValue(
+                                (Number(RecurringPricingInfo.DiscountedPrice) *
+                                  20) /
+                                  100 -
+                                  ((Number(
+                                    RecurringPricingInfo.DiscountedPrice
+                                  ) *
+                                    20) /
+                                    100) *
+                                    (RecurringPricingInfo.DefaultDiscount / 100)
+                              )
+                            : formatValue(
+                                (Number(RecurringPricingInfo.OriginalPrice) *
+                                  20) /
+                                  100 -
+                                  ((Number(RecurringPricingInfo.OriginalPrice) *
+                                    20) /
+                                    100) *
+                                    (RecurringPricingInfo.DefaultDiscount / 100)
+                              )}
+                        </td>
+                      )}
+                      {vatPercentage && visibleFieldsCustomTemp.feesIncVat && (
+                        <td className="tr-table-class font-14 text-white text-center">
+                          {formatValue(RecurringPricingInfo.GrandTotal)}
+                        </td>
+                      )}
+                    </tr>
+                  </>
+                )} */}
+            </tbody>
+          </table>
+        </div>
+      ),
+    },
+  ];
+
+  const handleCheckboxChange = (field) => {
+    setVisibleFieldsCustomTemp((prev) => ({ ...prev, [field]: !prev[field] }));
+  };
+
+  const formatFieldLabel = (field) => {
+    // Special case for VAT fields
+    if (field === "vatRate") return "VAT Rate";
+    if (field === "feesIncVat") return "Fees Inc VAT";
+    if (field === "vat") return "VAT";
+
+    // Default behavior
+    return field
+      .replace(/([A-Z])/g, " $1")
+      .replace(/^./, (str) => str.toUpperCase());
+  };
+
   return (
     <div className="container-fluid new-item-page-container">
       <div
@@ -1671,11 +2091,512 @@ function Add_New_Templates(props) {
 
                   case 3:
                   case "3":
-                    componentToRender = null;
+                    // Pricing table
+                    componentToRender = (
+                      <div className="m-3">
+                        {/* === Row with Both Labels === */}
+                        <div className="d-flex align-items-start flex-wrap">
+                          {/* === Template 0 === */}
+                          <div className="d-flex align-items-start me-4">
+                            <input
+                              type="radio"
+                              id={`template-${templates[0].id}`}
+                              value={templates[0].id}
+                              checked={selectedTemplateType === templates[0].id}
+                              onChange={() =>
+                                setSelectedTemplateType(templates[0].id)
+                              }
+                              className="me-2 mt-1"
+                            />
+                            <label
+                              className="form-check-label fs-6"
+                              htmlFor={`template-${templates[0].id}`}
+                              style={{ cursor: "pointer", fontSize: "15px" }}
+                            >
+                              <strong>{templates[0].label}</strong>
+                            </label>
+                          </div>
+
+                          {/* === Template 6 === */}
+                          <div className="d-flex align-items-start">
+                            <input
+                              type="radio"
+                              id={`template-${templates[6].id}`}
+                              value={templates[6].id}
+                              checked={selectedTemplateType === templates[6].id}
+                              onChange={() =>
+                                setSelectedTemplateType(templates[6].id)
+                              }
+                              className="me-2 mt-1"
+                            />
+                            <label
+                              htmlFor={`template-${templates[6].id}`}
+                              className="form-check-label fs-6"
+                              style={{ fontSize: "15px", cursor: "pointer" }}
+                            >
+                              {templates[6].label}
+                            </label>
+                          </div>
+                        </div>
+
+                        {/* === Template 0 Content === */}
+                        {selectedTemplateType === templates[0].id && (
+                          <div className="mt-2">{templates[0].content}</div>
+                        )}
+
+                        {/* === Template 6 Content === */}
+                        {selectedTemplateType === templates[6].id && (
+                          <div
+                            className="mt-2"
+                            style={{
+                              display: "flex",
+                              flexDirection: "column",
+                              gap: "10px",
+                            }}
+                          >
+                            {/* Checkboxes */}
+                            <div
+                              className="mb-1 d-flex flex-wrap gap-3"
+                              style={{ marginTop: "25px" }}
+                            >
+                              {Object.keys(visibleFieldsCustomTemp).map(
+                                (field) => (
+                                  <div key={field} className="form-check">
+                                    <input
+                                      type="checkbox"
+                                      className="form-check-input"
+                                      id={field}
+                                      checked={visibleFieldsCustomTemp[field]}
+                                      disabled={
+                                        field === "serviceName" ||
+                                        field === "feesIncVat"
+                                      }
+                                      onChange={() =>
+                                        handleCheckboxChange(field)
+                                      }
+                                    />
+                                    <label
+                                      htmlFor={field}
+                                      className="form-check-label"
+                                    >
+                                      {formatFieldLabel(field)}
+                                    </label>
+                                  </div>
+                                )
+                              )}
+                            </div>
+
+                            {/* Table */}
+                            <div className="mt-1">{templates[6].content}</div>
+                          </div>
+                        )}
+                      </div>
+                    );
                     break;
                   case 4:
                   case "4":
-                    componentToRender = null;
+                    // Service description
+                    componentToRender = (
+                      <div>
+                        <div className="row fieldset">
+                          <div className="col-2 fieldset-label">
+                            <label className="fieldset-label required">
+                              Main Heading
+                            </label>
+                          </div>
+                          <div className="col-5">
+                            <input
+                              type="text"
+                              placeholder="Main service description heading"
+                              className="input-text"
+                              value={TemplateObj.serviceDescriptionMainHeading}
+                            />
+                          </div>
+                          <div className="col-2">
+                            {/* <input
+                              type="text"
+                              placeholder="Enter font size"
+                              className="input-text"
+                              value={
+                                TemplateObj.serviceDescriptionMainHeadingFontSize
+                              }
+                            /> */}
+                            <div className="input-group">
+                              <Select
+                                className=" selectDropDown Drop-down-width"
+                                value={Utils.FontSize.filter(
+                                  (item) =>
+                                    item.value ===
+                                    TemplateObj.serviceDescriptionMainHeadingFontSize
+                                )}
+                                onChange={(e) => {
+                                  setTemplateObj((prev) => ({
+                                    ...prev,
+                                    serviceDescriptionMainHeadingFontSize:
+                                      e.value,
+                                  }));
+                                }}
+                                options={Utils.FontSize}
+                                aria-label="Font"
+                                placeholder="Font"
+                                menuPlacement="top"
+                              />
+                            </div>
+                          </div>
+                          <div className="col-1 d-flex align-items-center justify-content-center">
+                            <div className="form-check d-flex align-items-center gap-2 m-0">
+                              <input
+                                type="checkbox"
+                                id="mainboldCheckbox"
+                                className="form-check-input m-0"
+                                checked={
+                                  TemplateObj.serviceDescriptionMainHeadingFontWeight ===
+                                  true
+                                }
+                                onChange={(e) =>
+                                  setTemplateObj((prev) => ({
+                                    ...prev,
+                                    serviceDescriptionMainHeadingFontWeight: e
+                                      .target.checked
+                                      ? true
+                                      : false,
+                                  }))
+                                }
+                              />
+                              <label
+                                htmlFor="mainboldCheckbox"
+                                className="form-check-label mb-0"
+                              >
+                                Bold
+                              </label>
+                            </div>
+                          </div>
+
+                          <div className="col-1 d-flex align-items-center justify-content-center">
+                            <div className="form-check d-flex align-items-center gap-2 m-0">
+                              <input
+                                type="checkbox"
+                                id="mainitalicCheckbox"
+                                className="form-check-input m-0"
+                                checked={
+                                  TemplateObj.serviceDescriptionMainHeadingFontItalic ===
+                                  true
+                                }
+                                onChange={(e) =>
+                                  setTemplateObj((prev) => ({
+                                    ...prev,
+                                    serviceDescriptionMainHeadingFontItalic: e
+                                      .target.checked
+                                      ? true
+                                      : false,
+                                  }))
+                                }
+                              />
+                              <label
+                                htmlFor="mainitalicCheckbox"
+                                className="form-check-label mb-0"
+                              >
+                                Italic
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+                        {/* Recurring / On-going services heading */}
+                        <div className="row fieldset">
+                          <div className="col-2 fieldset-label">
+                            <label className="fieldset-label required text-wrap">
+                              Recurring/On-going Heading
+                            </label>
+                          </div>
+                          <div className="col-5">
+                            <input
+                              type="text"
+                              placeholder="Enter Recurring/On-going Heading"
+                              className="input-text"
+                              value={
+                                TemplateObj.serviceDescriptionRecurringHeading
+                              }
+                            />
+                          </div>
+                          <div className="col-2">
+                            {/* <input
+                              type="text"
+                              placeholder="Enter font size"
+                              className="input-text"
+                              value={
+                                TemplateObj.serviceDescriptionMainHeadingFontSize
+                              }
+                            /> */}
+                            <div className="input-group">
+                              <Select
+                                className=" selectDropDown Drop-down-width"
+                                value={Utils.FontSize.filter(
+                                  (item) =>
+                                    item.value ===
+                                    TemplateObj.serviceDescriptionRecurringHeadingFontSize
+                                )}
+                                onChange={(e) => {
+                                  setTemplateObj((prev) => ({
+                                    ...prev,
+                                    serviceDescriptionRecurringHeadingFontSize:
+                                      e.value,
+                                  }));
+                                }}
+                                options={Utils.FontSize}
+                                aria-label="Font"
+                                placeholder="Font"
+                                menuPlacement="top"
+                              />
+                            </div>
+                          </div>
+                          <div className="col-1 d-flex align-items-center justify-content-center">
+                            <div className="form-check d-flex align-items-center gap-2 m-0">
+                              <input
+                                type="checkbox"
+                                id="recurringboldCheckbox"
+                                className="form-check-input m-0"
+                                checked={
+                                  TemplateObj.serviceDescriptionRecurringHeadingFontWeight ===
+                                  true
+                                }
+                                onChange={(e) =>
+                                  setTemplateObj((prev) => ({
+                                    ...prev,
+                                    serviceDescriptionRecurringHeadingFontWeight:
+                                      e.target.checked ? true : false,
+                                  }))
+                                }
+                              />
+                              <label
+                                htmlFor="recurringboldCheckbox"
+                                className="form-check-label mb-0"
+                              >
+                                Bold
+                              </label>
+                            </div>
+                          </div>
+
+                          <div className="col-1 d-flex align-items-center justify-content-center">
+                            <div className="form-check d-flex align-items-center gap-2 m-0">
+                              <input
+                                type="checkbox"
+                                id="recurringitalicCheckbox"
+                                className="form-check-input m-0"
+                                checked={
+                                  TemplateObj.serviceDescriptionRecurringHeadingFontItalic ===
+                                  true
+                                }
+                                onChange={(e) =>
+                                  setTemplateObj((prev) => ({
+                                    ...prev,
+                                    serviceDescriptionRecurringHeadingFontItalic:
+                                      e.target.checked ? true : false,
+                                  }))
+                                }
+                              />
+                              <label
+                                htmlFor="recurringitalicCheckbox"
+                                className="form-check-label mb-0"
+                              >
+                                Italic
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+                        {/* One-Off/Ad hoc Services heading */}
+                        <div className="row fieldset">
+                          <div className="col-2 fieldset-label">
+                            <label className="fieldset-label required text-wrap">
+                              One-Off/Ad hoc Heading
+                            </label>
+                          </div>
+                          <div className="col-5">
+                            <input
+                              type="text"
+                              placeholder="Enter One-Off/Ad hoc Heading"
+                              className="input-text"
+                              value={
+                                TemplateObj.serviceDescriptionOneOffHeading
+                              }
+                            />
+                          </div>
+                          <div className="col-2">
+                            <div className="input-group">
+                              <Select
+                                className="selectDropDown Drop-down-width"
+                                value={Utils.FontSize.filter(
+                                  (item) =>
+                                    item.value ===
+                                    TemplateObj.serviceDescriptionOneOffHeadingFontSize
+                                )}
+                                onChange={(e) => {
+                                  setTemplateObj((prev) => ({
+                                    ...prev,
+                                    serviceDescriptionOneOffHeadingFontSize:
+                                      e.value,
+                                  }));
+                                }}
+                                options={Utils.FontSize}
+                                aria-label="Font"
+                                placeholder="Font"
+                                menuPlacement="top"
+                              />
+                            </div>
+                          </div>
+                          <div className="col-1 d-flex align-items-center justify-content-center">
+                            <div className="form-check d-flex align-items-center gap-2 m-0">
+                              <input
+                                type="checkbox"
+                                id="oneOffboldCheckbox"
+                                className="form-check-input m-0"
+                                checked={
+                                  TemplateObj.serviceDescriptionOneOffHeadingFontWeight ===
+                                  true
+                                }
+                                onChange={(e) =>
+                                  setTemplateObj((prev) => ({
+                                    ...prev,
+                                    serviceDescriptionOneOffHeadingFontWeight: e
+                                      .target.checked
+                                      ? true
+                                      : false,
+                                  }))
+                                }
+                              />
+                              <label
+                                htmlFor="oneOffboldCheckbox"
+                                className="form-check-label mb-0"
+                              >
+                                Bold
+                              </label>
+                            </div>
+                          </div>
+
+                          <div className="col-1 d-flex align-items-center justify-content-center">
+                            <div className="form-check d-flex align-items-center gap-2 m-0">
+                              <input
+                                type="checkbox"
+                                id="oneOffitalicCheckbox"
+                                className="form-check-input m-0"
+                                checked={
+                                  TemplateObj.serviceDescriptionOneOffHeadingFontItalic ===
+                                  true
+                                }
+                                onChange={(e) =>
+                                  setTemplateObj((prev) => ({
+                                    ...prev,
+                                    serviceDescriptionOneOffHeadingFontItalic: e
+                                      .target.checked
+                                      ? true
+                                      : false,
+                                  }))
+                                }
+                              />
+                              <label
+                                htmlFor="oneOffitalicCheckbox"
+                                className="form-check-label mb-0"
+                              >
+                                Italic
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+                        {/* Service Cat heading */}
+                        {/* <div className="row fieldset">
+                          <div className="col-2 fieldset-label">
+                            <label className="fieldset-label required text-wrap">
+                              Service Category Heading
+                            </label>
+                          </div>
+                          <div className="col-5">
+                            <input
+                              type="text"
+                              placeholder="Enter Service Category Heading"
+                              className="input-text"
+                              value={
+                                TemplateObj.serviceDescriptionServiceCatHeading
+                              }
+                            />
+                          </div>
+                          <div className="col-2">
+                            <div className="input-group">
+                              <Select
+                                className="selectDropDown Drop-down-width"
+                                value={Utils.FontSize.filter(
+                                  (item) =>
+                                    item.value ===
+                                    TemplateObj.serviceDescriptionServiceCatHeadingFontSize
+                                )}
+                                onChange={(e) => {
+                                  setTemplateObj((prev) => ({
+                                    ...prev,
+                                    serviceDescriptionServiceCatHeadingFontSize:
+                                      e.value,
+                                  }));
+                                }}
+                                options={Utils.FontSize}
+                                aria-label="Font"
+                                placeholder="Font"
+                                menuPlacement="top"
+                              />
+                            </div>
+                          </div>
+                          <div className="col-1 d-flex align-items-center justify-content-center">
+                            <div className="form-check d-flex align-items-center gap-2 m-0">
+                              <input
+                                type="checkbox"
+                                id="catboldCheckbox"
+                                className="form-check-input m-0"
+                                checked={
+                                  TemplateObj.serviceDescriptionServiceCatHeadingFontWeight ===
+                                  true
+                                }
+                                onChange={(e) =>
+                                  setTemplateObj((prev) => ({
+                                    ...prev,
+                                    serviceDescriptionServiceCatHeadingFontWeight:
+                                      e.target.checked ? true : false,
+                                  }))
+                                }
+                              />
+                              <label
+                                htmlFor="catboldCheckbox"
+                                className="form-check-label mb-0"
+                              >
+                                Bold
+                              </label>
+                            </div>
+                          </div>
+
+                          <div className="col-1 d-flex align-items-center justify-content-center">
+                            <div className="form-check d-flex align-items-center gap-2 m-0">
+                              <input
+                                type="checkbox"
+                                id="catitalicCheckbox"
+                                className="form-check-input m-0"
+                                checked={
+                                  TemplateObj.serviceDescriptionServiceCatHeadingFontItalic ===
+                                  true
+                                }
+                                onChange={(e) =>
+                                  setTemplateObj((prev) => ({
+                                    ...prev,
+                                    serviceDescriptionServiceCatHeadingFontItalic:
+                                      e.target.checked ? true : false,
+                                  }))
+                                }
+                              />
+                              <label
+                                htmlFor="catitalicCheckbox"
+                                className="form-check-label mb-0"
+                              >
+                                Italic
+                              </label>
+                            </div>
+                          </div>
+                        </div> */}
+                      </div>
+                    );
                     break;
                   case 5:
                   case "5":
@@ -1703,7 +2624,312 @@ function Add_New_Templates(props) {
                     break;
                   case 8:
                   case "8":
-                    componentToRender = null;
+                    // Statment of facts
+                    componentToRender = (
+                      <div>
+                        <div className="row fieldset">
+                          <div className="col-2 fieldset-label">
+                            <label className="fieldset-label required">
+                              Main Heading
+                            </label>
+                          </div>
+                          <div className="col-5">
+                            <input
+                              type="text"
+                              placeholder="Main service description heading"
+                              className="input-text"
+                              value={TemplateObj.statementOfFactsMainHeading}
+                            />
+                          </div>
+                          <div className="col-2">
+                            {/* <input
+                              type="text"
+                              placeholder="Enter font size"
+                              className="input-text"
+                              value={
+                                TemplateObj.statementOfFactsMainHeadingFontSize
+                              }
+                            /> */}
+                            <div className="input-group">
+                              <Select
+                                className=" selectDropDown Drop-down-width"
+                                value={Utils.FontSize.filter(
+                                  (item) =>
+                                    item.value ===
+                                    TemplateObj.statementOfFactsMainHeadingFontSize
+                                )}
+                                onChange={(e) => {
+                                  setTemplateObj((prev) => ({
+                                    ...prev,
+                                    statementOfFactsMainHeadingFontSize:
+                                      e.value,
+                                  }));
+                                }}
+                                options={Utils.FontSize}
+                                aria-label="Font"
+                                placeholder="Font"
+                                menuPlacement="top"
+                              />
+                            </div>
+                          </div>
+                          <div className="col-1 d-flex align-items-center justify-content-center">
+                            <div className="form-check d-flex align-items-center gap-2 m-0">
+                              <input
+                                type="checkbox"
+                                id="mainSOFboldCheckbox"
+                                className="form-check-input m-0"
+                                checked={
+                                  TemplateObj.statementOfFactsMainHeadingFontWeight ===
+                                  true
+                                }
+                                onChange={(e) =>
+                                  setTemplateObj((prev) => ({
+                                    ...prev,
+                                    statementOfFactsMainHeadingFontWeight: e
+                                      .target.checked
+                                      ? true
+                                      : false,
+                                  }))
+                                }
+                              />
+                              <label
+                                htmlFor="mainSOFboldCheckbox"
+                                className="form-check-label mb-0"
+                              >
+                                Bold
+                              </label>
+                            </div>
+                          </div>
+
+                          <div className="col-1 d-flex align-items-center justify-content-center">
+                            <div className="form-check d-flex align-items-center gap-2 m-0">
+                              <input
+                                type="checkbox"
+                                id="mainSOFitalicCheckbox"
+                                className="form-check-input m-0"
+                                checked={
+                                  TemplateObj.statementOfFactsMainHeadingFontItalic ===
+                                  true
+                                }
+                                onChange={(e) =>
+                                  setTemplateObj((prev) => ({
+                                    ...prev,
+                                    statementOfFactsMainHeadingFontItalic: e
+                                      .target.checked
+                                      ? true
+                                      : false,
+                                  }))
+                                }
+                              />
+                              <label
+                                htmlFor="mainSOFitalicCheckbox"
+                                className="form-check-label mb-0"
+                              >
+                                Italic
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+                        {/* Recurring / On-going services heading */}
+                        <div className="row fieldset">
+                          <div className="col-2 fieldset-label">
+                            <label className="fieldset-label required text-wrap">
+                              Recurring/On-going Heading
+                            </label>
+                          </div>
+                          <div className="col-5">
+                            <input
+                              type="text"
+                              placeholder="Enter Recurring/On-going Heading"
+                              className="input-text"
+                              value={
+                                TemplateObj.statementOfFactsRecurringHeading
+                              }
+                            />
+                          </div>
+                          <div className="col-2">
+                            {/* <input
+                              type="text"
+                              placeholder="Enter font size"
+                              className="input-text"
+                              value={
+                                TemplateObj.statementOfFactsMainHeadingFontSize
+                              }
+                            /> */}
+                            <div className="input-group">
+                              <Select
+                                className=" selectDropDown Drop-down-width"
+                                value={Utils.FontSize.filter(
+                                  (item) =>
+                                    item.value ===
+                                    TemplateObj.statementOfFactsRecurringHeadingFontSize
+                                )}
+                                onChange={(e) => {
+                                  setTemplateObj((prev) => ({
+                                    ...prev,
+                                    statementOfFactsRecurringHeadingFontSize:
+                                      e.value,
+                                  }));
+                                }}
+                                options={Utils.FontSize}
+                                aria-label="Font"
+                                placeholder="Font"
+                                menuPlacement="top"
+                              />
+                            </div>
+                          </div>
+                          <div className="col-1 d-flex align-items-center justify-content-center">
+                            <div className="form-check d-flex align-items-center gap-2 m-0">
+                              <input
+                                type="checkbox"
+                                id="recurringSOFboldCheckbox"
+                                className="form-check-input m-0"
+                                checked={
+                                  TemplateObj.statementOfFactsRecurringHeadingFontWeight ===
+                                  true
+                                }
+                                onChange={(e) =>
+                                  setTemplateObj((prev) => ({
+                                    ...prev,
+                                    statementOfFactsRecurringHeadingFontWeight:
+                                      e.target.checked ? true : false,
+                                  }))
+                                }
+                              />
+                              <label
+                                htmlFor="recurringSOFboldCheckbox"
+                                className="form-check-label mb-0"
+                              >
+                                Bold
+                              </label>
+                            </div>
+                          </div>
+
+                          <div className="col-1 d-flex align-items-center justify-content-center">
+                            <div className="form-check d-flex align-items-center gap-2 m-0">
+                              <input
+                                type="checkbox"
+                                id="recurringSOFitalicCheckbox"
+                                className="form-check-input m-0"
+                                checked={
+                                  TemplateObj.statementOfFactsRecurringHeadingFontItalic ===
+                                  true
+                                }
+                                onChange={(e) =>
+                                  setTemplateObj((prev) => ({
+                                    ...prev,
+                                    statementOfFactsRecurringHeadingFontItalic:
+                                      e.target.checked ? true : false,
+                                  }))
+                                }
+                              />
+                              <label
+                                htmlFor="recurringSOFitalicCheckbox"
+                                className="form-check-label mb-0"
+                              >
+                                Italic
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+                        {/* One-Off/Ad hoc Services heading */}
+                        <div className="row fieldset">
+                          <div className="col-2 fieldset-label">
+                            <label className="fieldset-label required text-wrap">
+                              One-Off/Ad hoc Heading
+                            </label>
+                          </div>
+                          <div className="col-5">
+                            <input
+                              type="text"
+                              placeholder="Enter One-Off/Ad hoc Heading"
+                              className="input-text"
+                              value={TemplateObj.statementOfFactsOneOffHeading}
+                            />
+                          </div>
+                          <div className="col-2">
+                            <div className="input-group">
+                              <Select
+                                className="selectDropDown Drop-down-width"
+                                value={Utils.FontSize.filter(
+                                  (item) =>
+                                    item.value ===
+                                    TemplateObj.statementOfFactsOneOffHeadingFontSize
+                                )}
+                                onChange={(e) => {
+                                  setTemplateObj((prev) => ({
+                                    ...prev,
+                                    statementOfFactsOneOffHeadingFontSize:
+                                      e.value,
+                                  }));
+                                }}
+                                options={Utils.FontSize}
+                                aria-label="Font"
+                                placeholder="Font"
+                                menuPlacement="top"
+                              />
+                            </div>
+                          </div>
+                          <div className="col-1 d-flex align-items-center justify-content-center">
+                            <div className="form-check d-flex align-items-center gap-2 m-0">
+                              <input
+                                type="checkbox"
+                                id="oneOffSOFboldCheckbox"
+                                className="form-check-input m-0"
+                                checked={
+                                  TemplateObj.statementOfFactsOneOffHeadingFontWeight ===
+                                  true
+                                }
+                                onChange={(e) =>
+                                  setTemplateObj((prev) => ({
+                                    ...prev,
+                                    statementOfFactsOneOffHeadingFontWeight: e
+                                      .target.checked
+                                      ? true
+                                      : false,
+                                  }))
+                                }
+                              />
+                              <label
+                                htmlFor="oneOffSOFboldCheckbox"
+                                className="form-check-label mb-0"
+                              >
+                                Bold
+                              </label>
+                            </div>
+                          </div>
+
+                          <div className="col-1 d-flex align-items-center justify-content-center">
+                            <div className="form-check d-flex align-items-center gap-2 m-0">
+                              <input
+                                type="checkbox"
+                                id="oneOffSOFitalicCheckbox"
+                                className="form-check-input m-0"
+                                checked={
+                                  TemplateObj.statementOfFactsOneOffHeadingFontItalic ===
+                                  true
+                                }
+                                onChange={(e) =>
+                                  setTemplateObj((prev) => ({
+                                    ...prev,
+                                    statementOfFactsOneOffHeadingFontItalic: e
+                                      .target.checked
+                                      ? true
+                                      : false,
+                                  }))
+                                }
+                              />
+                              <label
+                                htmlFor="oneOffSOFitalicCheckbox"
+                                className="form-check-label mb-0"
+                              >
+                                Italic
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
                     break;
                   case 9:
                   case "9":

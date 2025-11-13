@@ -13,8 +13,10 @@ import "./Engagement_Letter.css";
 import {
   ChangeDefaultPaymentGatewaysTypes,
   EngagementLetterHeader,
+  fieldToIdMap,
   Payment_Frequency,
   ServiceChargeTypeEnum,
+  servicePackageTypeID,
   statusID,
 } from "../../Middleware/enums";
 import {
@@ -56,7 +58,10 @@ import {
 import { GetPricingSettingModel } from "../../redux/Services/Setting/PricingSettingApi";
 import PricingModel from "../../components/PricingModel";
 import InvalidFormIcon from "../../components/InvalidFormIcon";
-import { GetSendToSignEasy } from "../../redux/Services/SignEasy";
+import {
+  GetSendToSignEasy,
+  ResendContract,
+} from "../../redux/Services/SignEasy";
 import { GetVariableValuesForTnCTemplate } from "../../redux/Services/ReplaceVariables";
 import ViewPlan from "../../components/ViewPlan";
 import ErrorModel from "../../components/ErrorModel";
@@ -64,6 +69,16 @@ import Tooltip, { tooltipClasses } from "@mui/material/Tooltip";
 import { GetPaymentGatewayModel } from "../../redux/Services/Setting/PaymentGatewayApi";
 import PaymentGatewayModel from "../../components/PaymentGatewayModel";
 import RecordsAvailablePopupModel from "../../components/RecordsAvailablePopupModel";
+import Text_Editor from "../../components/Text_Editor";
+import ViewModuleIcon from "@mui/icons-material/ViewModule";
+import PricingTableTemplatesModal from "../../components/PricingTableTemplatesModal";
+import {
+  ChangeFailedMailLogStatus,
+  GetProspectSendMailStatus,
+  ResendAddUpdateQuote,
+} from "../../redux/Services/EmailFailureStatusAPI/EmailFailureStatusAPI";
+import EmailFailurePopUP from "../../components/EmailFailurePopUp";
+
 const BasicInformationComponent = (props) => {
   const navigate = useNavigate();
   const handleAddClient = () => {
@@ -455,6 +470,17 @@ const ReviewServicesComponent = (props) => {
     CalculateRecurringPackageNetTotal();
     CalculateOneOffPackageNetTotal();
   }, [props]);
+
+  useEffect(() => {
+    const htmlContent = generateCombinedServicesHTML();
+    props.setServiceDescriptionHTML(htmlContent);
+  }, []);
+
+  useEffect(() => {
+    const htmlContent = generateSOFHTML();
+    props.setStatementOfFactsHTML(htmlContent);
+  }, []);
+
   useEffect(() => {
     const isRecurringDiscounted =
       Number(props.RecurringPricingInfo.DiscountedPrice) >
@@ -1423,6 +1449,450 @@ const ReviewServicesComponent = (props) => {
     setEngagementObj(updatedEngagementObj);
   };
 
+  const generateCombinedServicesHTML = () => {
+    const fontFamily = "Arial, sans-serif";
+    const fontSizeHeading = "18px";
+    const fontSizeContent = "14px";
+    const newColorCode = "#b4aba6";
+
+    return `
+  <div style="padding-left: 40px; padding-right: 40px;">
+    ${
+      props?.selectedRecurringServiceList?.length
+        ? `<p style="font-family:${fontFamily}; font-size: ${fontSizeHeading}; color: ${newColorCode}; font-weight: bold;">
+             Ongoing/Recurring Services
+           </p>`
+        : ""
+    }
+
+    ${props?.selectedRecurringServiceList
+      ?.map(
+        (serviceCat) => `
+        <div>
+          <p style="color: black; font-weight: bold; font-family:${fontFamily}; font-size: ${fontSizeHeading};">
+            ${serviceCat.serviceCatName}
+          </p>
+          <hr style="color: gray; margin-top: -15px;" />
+          ${serviceCat.servicesList
+            .map(
+              (subService) => `
+                <p style="color: black; font-family:${fontFamily}; font-size: ${fontSizeContent};">
+                  ${subService.serviceName}
+                </p>
+                <p style="color: black; font-family:${fontFamily}; font-size: ${fontSizeContent};">
+                  ${
+                    subService.serviceDescription?.trim()
+                      ? subService.serviceDescription
+                      : ""
+                  }
+                </p>
+              `
+            )
+            .join("")}
+        </div>
+      `
+      )
+      .join("")}
+
+    ${
+      props?.selectedOneOffServiceList?.length
+        ? `<p style="font-family:${fontFamily}; font-size: ${fontSizeHeading}; color: ${newColorCode}; font-weight: bold;">
+             One-Off/Ad hoc Services
+           </p>`
+        : ""
+    }
+
+    ${props?.selectedOneOffServiceList
+      ?.map(
+        (serviceCat) => `
+        <div>
+          <p style="color: black; font-weight: bold; font-family:${fontFamily}; font-size: ${fontSizeHeading};">
+            ${serviceCat.serviceCatName}
+          </p>
+          <hr style="color: gray; margin-top: -15px;" />
+          ${serviceCat.servicesList
+            .map(
+              (subService) => `
+                <p style="color: black; font-family:${fontFamily}; font-size: ${fontSizeContent};">
+                  ${subService.serviceName}
+                </p>
+                <p style="color: black; font-family:${fontFamily}; font-size: ${fontSizeContent};">
+                  ${
+                    subService.serviceDescription?.trim()
+                      ? subService.serviceDescription
+                      : ""
+                  }
+                </p>
+              `
+            )
+            .join("")}
+        </div>
+      `
+      )
+      .join("")}
+  </div>
+  `;
+  };
+
+  function generateSOFHTML() {
+    const fontFamily = "Arial, sans-serif";
+    const fontSizeHeading = "18px";
+    const fontSizeContent = "14px";
+    const newColorCode = "#b4aba6";
+
+    debugger;
+
+    const formatCurrency = props.formatValueWithoutCurrencySymbol;
+
+    if (
+      props.moduleName === "Quote" &&
+      props?.ProposalObject?.selectedProposalTypeValue === 2
+    ) {
+      return props.StatementOfFact.map(
+        (SelectedPackage) => `
+      <div style="padding-left: 40px; padding-right: 40px; font-family:${fontFamily};">
+        <p style="color: ${newColorCode}; font-size: ${fontSizeHeading}; font-weight: bold;">
+          Package Name: ${SelectedPackage.servicePackageName}
+        </p>
+        <hr style="color: gray; margin-top: -15px;">
+        
+        ${
+          SelectedPackage.reccuring.length
+            ? `<p style="font-size: ${fontSizeHeading}; color: ${newColorCode}; font-weight: bold;">Ongoing/Recurring Services</p>`
+            : ""
+        }
+
+        ${SelectedPackage.reccuring
+          .map(
+            (cat) => `
+          <p style="color: black; font-size: ${fontSizeHeading}; font-weight: bold;">${
+              cat.serviceCategoryName
+            }</p>
+          ${cat.servicesList
+            .map(
+              (srv) => `
+            <p style="color: black; font-size: ${fontSizeContent};">${
+                srv.serviceName
+              }</p>
+            ${(srv?.gpdList || [])
+              ?.filter((d) => d.driverTypeID !== 1)
+              .map(
+                (d) => `
+                <li style="color: black; font-size: ${fontSizeContent}; margin-top:5px;">
+                  ${d.driverName}: <strong>${
+                  d.driverTypeID === 2
+                    ? formatCurrency(d.value)
+                    : d.driverTypeID === 3
+                    ? d.variationName
+                    : d.driverTypeID === 4
+                    ? d.slabTypeID === 2
+                      ? formatCurrency(d.value)
+                      : `${d.slabFrom}-${d.slabTo}`
+                    : ""
+                }</strong>
+                </li>
+              `
+              )
+              .join("")}
+          `
+            )
+            .join("")}
+        `
+          )
+          .join("")}
+
+        ${
+          SelectedPackage.oneOff.length
+            ? `<p style="font-size: ${fontSizeHeading}; color: ${newColorCode}; font-weight: bold;">One-Off/Ad hoc Services</p>`
+            : ""
+        }
+
+        ${SelectedPackage.oneOff
+          .map(
+            (cat) => `
+          <p style="color: black; font-size: ${fontSizeHeading}; font-weight: bold;">${
+              cat.serviceCategoryName
+            }</p>
+          ${cat.servicesList
+            .map(
+              (srv) => `
+            <p style="color: black; font-size: ${fontSizeContent};">${
+                srv.serviceName
+              }</p>
+            ${(srv?.gpdList || [])
+              ?.filter((d) => d.driverTypeID !== 1)
+              .map(
+                (d) => `
+                <li style="color: black; font-size: ${fontSizeContent}; margin-top:5px;">
+                  ${d.driverName}: <strong>${
+                  d.driverTypeID === 2
+                    ? formatCurrency(d.value)
+                    : d.driverTypeID === 3
+                    ? d.variationName
+                    : d.driverTypeID === 4
+                    ? d.slabTypeID === 2
+                      ? formatCurrency(d.value)
+                      : `${d.slabFrom}-${d.slabTo}`
+                    : ""
+                }</strong>
+                </li>
+              `
+              )
+              .join("")}
+          `
+            )
+            .join("")}
+        `
+          )
+          .join("")}
+
+        ${
+          SelectedPackage.additionalInformationList?.length
+            ? `<p style="color: ${newColorCode}; font-size: ${fontSizeHeading}; font-weight: bold;">Additional Information</p>
+             <hr style="color: gray; margin-top: -15px;" />
+             ${SelectedPackage.additionalInformationList
+               ?.filter((d) => d.driverTypeID !== 1)
+               .map(
+                 (d) => `
+                 <p style="font-size: ${fontSizeContent}; color: black;">
+                   ${d.driverName}: <strong>${
+                   d.driverTypeID === 2
+                     ? formatCurrency(d.value)
+                     : d.driverTypeID === 3
+                     ? d.variationName
+                     : d.driverTypeID === 4
+                     ? d.slabTypeID === 2
+                       ? formatCurrency(d.value)
+                       : `${formatCurrency(d.slabFrom)}-${formatCurrency(
+                           d.slabTo
+                         )}`
+                     : ""
+                 }</strong>
+                 </p>
+               `
+               )
+               .join("")}`
+            : ""
+        }
+      </div>
+    `
+      ).join(" ");
+    } else {
+      return `
+      <div style="padding-left: 40px; padding-right: 40px; font-family:${fontFamily};">
+        ${
+          props?.selectedRecurringServiceList?.length
+            ? `<p style="font-size: ${fontSizeHeading}; color: ${newColorCode}; font-weight: bold;">Ongoing/Recurring Services</p>`
+            : ""
+        }
+
+        ${props?.selectedRecurringServiceList
+          ?.map(
+            (cat) => `
+          <div>
+            <p style="color: black; font-size: ${fontSizeHeading}; font-weight: bold;">${
+              cat.serviceCatName
+            }</p>
+            <hr style="color: gray; margin-top: -15px;">
+            ${cat.servicesList
+              .map(
+                (srv) => `
+              <p style="color: black; font-size: ${fontSizeContent};">${
+                  srv.serviceName
+                }</p>
+              ${(srv.pricingDriverList || srv.gpdList || [])
+                ?.filter((d) =>
+                  srv.pricingDriverList ? d.driverVisibility : true
+                )
+                ?.filter((d) => d.driverTypeID !== 1)
+                .map(
+                  (d) => `
+                  <li style="color: black; font-size: ${fontSizeContent}; margin-top:5px;">
+                    ${d.driverName}: <strong>${
+                    d.driverTypeID === 2
+                      ? formatCurrency(d.driverValue)
+                      : d.driverTypeID === 3
+                      ? srv.pricingDriverList
+                        ? d.variation.find((v) => v.isDefault)?.variationName
+                        : d.variationName
+                      : d.driverTypeID === 4
+                      ? srv.pricingDriverList
+                        ? (() => {
+                            const slab = d.slab.find((s) => s.isDefault);
+                            return slab.slabTypeID === 2
+                              ? formatCurrency(slab.slabValue)
+                              : `${formatCurrency(
+                                  slab.slabFrom
+                                )}-${formatCurrency(slab.slabTo)}`;
+                          })()
+                        : d.slabTypeID === 2
+                        ? formatCurrency(d.driverValue)
+                        : `${formatCurrency(d.slabFrom)}-${formatCurrency(
+                            d.slabTo
+                          )}`
+                      : ""
+                  }</strong>
+                  </li>
+                `
+                )
+                .join("")}
+            `
+              )
+              .join("")}
+          </div>
+        `
+          )
+          .join("")}
+
+        ${
+          props?.selectedOneOffServiceList?.length
+            ? `<p style="font-size: ${fontSizeHeading}; color: ${newColorCode}; font-weight: bold;">One-Off/Ad hoc Services</p>`
+            : ""
+        }
+
+        ${props?.selectedOneOffServiceList
+          ?.map(
+            (cat) => `
+          <div>
+            <p style="color: black; font-size: ${fontSizeHeading}; font-weight: bold;">${
+              cat.serviceCatName
+            }</p>
+            <hr style="color: gray; margin-top: -15px;">
+            ${cat.servicesList
+              .map(
+                (srv) => `
+              <p style="color: black; font-size: ${fontSizeContent};">${
+                  srv.serviceName
+                }</p>
+              ${(srv.pricingDriverList || srv.gpdList || [])
+                ?.filter((d) =>
+                  srv.pricingDriverList ? d.driverVisibility : true
+                )
+                ?.filter((d) => d.driverTypeID !== 1)
+                .map(
+                  (d) => `
+                  <li style="color: black; font-size: ${fontSizeContent}; margin-top:5px;">
+                    ${d.driverName}: <strong>${
+                    d.driverTypeID === 2
+                      ? formatCurrency(d.driverValue)
+                      : d.driverTypeID === 3
+                      ? srv.pricingDriverList
+                        ? d.variation.find((v) => v.isDefault)?.variationName
+                        : d.variationName
+                      : d.driverTypeID === 4
+                      ? srv.pricingDriverList
+                        ? (() => {
+                            const slab = d.slab.find((s) => s.isDefault);
+                            return slab.slabTypeID === 2
+                              ? formatCurrency(slab.slabValue)
+                              : `${formatCurrency(
+                                  slab.slabFrom
+                                )}-${formatCurrency(slab.slabTo)}`;
+                          })()
+                        : d.slabTypeID === 2
+                        ? formatCurrency(d.driverValue)
+                        : `${formatCurrency(d.slabFrom)}-${formatCurrency(
+                            d.slabTo
+                          )}`
+                      : ""
+                  }</strong>
+                  </li>
+                `
+                )
+                .join("")}
+            `
+              )
+              .join("")}
+          </div>
+        `
+          )
+          .join("")}
+
+        ${
+          props?.additionalInformationList?.filter((d) => d.driverTypeID !== 1)
+            .length
+            ? `<p style="font-size: ${fontSizeHeading}; color: ${newColorCode}; font-weight: bold;">Additional Information</p>
+             <hr style="color: gray; margin-top: -15px;" />
+             ${props.additionalInformationList
+               .map((d) => {
+                 if (
+                   d.driverTypeID === 2 &&
+                   d.variation === null &&
+                   d.slab === null
+                 ) {
+                   return `<p style="color: black; font-size: ${fontSizeContent};">${
+                     d.driverName
+                   }: <strong>${formatCurrency(d.driverValue)}</strong></p>`;
+                 } else {
+                   const source = d.driverTypeID === 4 ? d.slab : d.variation;
+                   return source
+                     ?.filter((item) => item.isDefault)
+                     .map(
+                       (sub) => `
+                   <p style="color: black; font-size: ${fontSizeContent};">
+                     ${d.driverName}: ${
+                         d.driverTypeID === 4
+                           ? sub.slabTypeID === 2
+                             ? `<strong>${formatCurrency(
+                                 sub.slabValue
+                               )}</strong>`
+                             : `<strong>${formatCurrency(
+                                 sub.slabFrom
+                               )}-${formatCurrency(sub.slabTo)}</strong>`
+                           : `<strong>${sub.variationName}</strong>`
+                       }
+                   </p>
+                 `
+                     )
+                     .join("");
+                 }
+               })
+               .join("")}`
+            : ""
+        }
+
+        ${
+          props?.quoteAdditionalInfoGlobalPricingDriver?.filter(
+            (d) => d.driverTypeID !== 1
+          ).length
+            ? `<p style="font-size: ${fontSizeHeading}; color: ${newColorCode}; font-weight: bold;">Additional Information</p>
+             <hr style="color: gray; margin-top: -15px;" />
+             ${props.quoteAdditionalInfoGlobalPricingDriver
+               .map(
+                 (d) => `
+               <p style="color: black; font-size: ${fontSizeContent};">
+                 ${d.driverName}: <strong>${
+                   d.driverTypeID === 2
+                     ? formatCurrency(d.driverValue)
+                     : d.driverTypeID === 3
+                     ? d.variationName
+                     : d.driverTypeID === 4
+                     ? d.slabTypeID === 2
+                       ? formatCurrency(d.driverValue)
+                       : `${formatCurrency(d.slabFrom)} - ${formatCurrency(
+                           d.slabTo
+                         )}`
+                     : ""
+                 }</strong>
+               </p>
+             `
+               )
+               .join("")}`
+            : ""
+        }
+      </div>
+    `;
+    }
+  }
+
+  const handleSOFChange = (newContent) => {
+    props.setStatementOfFactsHTML(newContent);
+  };
+
+  const handleSDChange = (newContent) => {
+    props.setServiceDescriptionHTML(newContent);
+  };
+
   return (
     <>
       <div className="create-practice-height scrollbar">
@@ -1815,7 +2285,8 @@ const ReviewServicesComponent = (props) => {
                                       than{" "}
                                       {props.formatValue(
                                         props.pricingSettingObj
-                                          .minMonthlyPriceForQC,props.currencyID
+                                          .minMonthlyPriceForQC,
+                                        props.currencyID
                                       )}
                                     </span>
                                     <br />
@@ -1856,7 +2327,8 @@ const ReviewServicesComponent = (props) => {
                                     {" "}
                                     <span className="validation">
                                       The recurring discounted price may not be
-                                      or less than {props.formatValue(0.0,props.currencyID)}
+                                      or less than{" "}
+                                      {props.formatValue(0.0, props.currencyID)}
                                     </span>
                                   </>
                                 )}
@@ -1865,220 +2337,855 @@ const ReviewServicesComponent = (props) => {
                         </div>
                       </div>
                       <div className="mb-3"></div>
-                      <table class="table align-middle table-nowrap">
-                        <thead class="table-light table-header-font">
-                          <tr class="head-row">
-                            <td className="tr-table-class text-white">
-                              Services
-                            </td>
-                            <td className="tr-table-class text-white text-right">
-                              {props.RecurringPricingInfo.servicePackageName !==
-                              null ? (
-                                props.RecurringPricingInfo.servicePackageName
-                                  .length > 50 ? (
-                                  <Tooltip
-                                    title={
-                                      props.RecurringPricingInfo
-                                        .servicePackageName
-                                    }
-                                  >
-                                    {props.RecurringPricingInfo.servicePackageName
-                                      .substring(0, 50)
-                                      .toLowerCase()
-                                      .replace(/\b\w/g, (l) =>
-                                        l.toUpperCase()
-                                      ) + "..."}
-                                  </Tooltip>
-                                ) : props.RecurringPricingInfo
-                                    .servicePackageName.length > 50 ? (
-                                  <Tooltip
-                                    title={
-                                      props.RecurringPricingInfo
-                                        .servicePackageName
-                                    }
-                                  >
-                                    {props.RecurringPricingInfo.servicePackageName.substring(
-                                      0,
-                                      50
-                                    ) + "..."}
-                                  </Tooltip>
-                                ) : (
+                      <div
+                        className="Custom-template"
+                        style={{
+                          display: "flex",
+                          justifyContent: "flex-end",
+                          alignItems: "center",
+                          gap: "10px", // space between icons
+                          width: "100%", // ensure it fills parent for right alignment
+                        }}
+                      >
+                        <div className="viewTemp">
+                          <Tooltip title="Select Template">
+                            <div
+                              onClick={() => {
+                                props.setShowSelectTemplateModal(true);
+                                props.setServiceTypeID(
+                                  servicePackageTypeID.RecurringServiceTypeID
+                                );
+                              }}
+                              style={{ cursor: "pointer" }}
+                            >
+                              <ViewModuleIcon />
+                            </div>
+                          </Tooltip>
+                        </div>
+
+                        {/* <div className="customizeTemp">
+                                              <Tooltip title="Customize your own">
+                                                <div
+                                                  onClick={() => {
+                                                    props.setShowTemplateCustomizationModal(true);
+                                                    props.setServiceTypeID(2);
+                                                  }}
+                                                  style={{ cursor: "pointer" }}
+                                                >
+                                                  <EditIcon />
+                                                </div>
+                                              </Tooltip>
+                                            </div> */}
+                      </div>
+                      {props.selectedTemplateID === 0 ? (
+                        <table class="table align-middle table-nowrap">
+                          <thead class="table-light table-header-font">
+                            <tr class="head-row">
+                              <td className="tr-table-class text-white">
+                                Services
+                              </td>
+                              <td className="tr-table-class text-white text-right">
+                                {props.RecurringPricingInfo
+                                  .servicePackageName !== null ? (
                                   props.RecurringPricingInfo.servicePackageName
-                                )
-                              ) : (
-                                `Fees (${props.currencySymbol})`
-                              )}
-                            </td>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {props.selectedRecurringServiceList.map((item) => {
-                            return (
-                              <>
-                                <tr className="a-la-carte-services-review-head-row">
-                                  <th colSpan="2">{item.serviceCatName}</th>
-                                </tr>
-                                {item.servicesList.map((service, index) => {
-                                  // Add the return statement here
-                                  return (
-                                    <tr
-                                      key={index}
-                                      className={` ${
-                                        service?.isAdditionalService === true
-                                          ? "bg-info  text-white"
-                                          : ""
-                                      }`}
+                                    .length > 50 ? (
+                                    <Tooltip
+                                      title={
+                                        props.RecurringPricingInfo
+                                          .servicePackageName
+                                      }
                                     >
-                                      <td>
-                                        <div>
-                                          <EditableCell
+                                      {props.RecurringPricingInfo.servicePackageName
+                                        .substring(0, 50)
+                                        .toLowerCase()
+                                        .replace(/\b\w/g, (l) =>
+                                          l.toUpperCase()
+                                        ) + "..."}
+                                    </Tooltip>
+                                  ) : props.RecurringPricingInfo
+                                      .servicePackageName.length > 50 ? (
+                                    <Tooltip
+                                      title={
+                                        props.RecurringPricingInfo
+                                          .servicePackageName
+                                      }
+                                    >
+                                      {props.RecurringPricingInfo.servicePackageName.substring(
+                                        0,
+                                        50
+                                      ) + "..."}
+                                    </Tooltip>
+                                  ) : (
+                                    props.RecurringPricingInfo
+                                      .servicePackageName
+                                  )
+                                ) : (
+                                  `Fees (${props.currencySymbol})`
+                                )}
+                              </td>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {props.selectedRecurringServiceList.map((item) => {
+                              return (
+                                <>
+                                  <tr className="a-la-carte-services-review-head-row">
+                                    <th colSpan="2">{item.serviceCatName}</th>
+                                  </tr>
+                                  {item.servicesList.map((service, index) => {
+                                    // Add the return statement here
+                                    return (
+                                      <tr
+                                        key={index}
+                                        className={` ${
+                                          service?.isAdditionalService === true
+                                            ? "bg-info  text-white"
+                                            : ""
+                                        }`}
+                                      >
+                                        <td>
+                                          <div>
+                                            <EditableCell
                                               value={service.serviceName}
-                                              displayValue={service.serviceName.length > 45
-                                                ? service.serviceName
-                                                  .substring(0, 45)
-                                                  .toLowerCase()
-                                                  .replace(/\b\w/g, (l) => l.toUpperCase()) + "..."
-                                                : undefined
+                                              displayValue={
+                                                service.serviceName.length > 45
+                                                  ? service.serviceName
+                                                      .substring(0, 45)
+                                                      .toLowerCase()
+                                                      .replace(/\b\w/g, (l) =>
+                                                        l.toUpperCase()
+                                                      ) + "..."
+                                                  : undefined
                                               }
                                               onSave={(newName) => {
-                                                props.setSelectedRecurringServiceList(prevList => {
-                                                  const newList = [...prevList];
-                                                  const serviceIndex = prevList.findIndex(s => s === item);
-                                                  newList[serviceIndex].servicesList[index].serviceName = newName;
-                                                  return newList;
-                                                });
+                                                props.setSelectedRecurringServiceList(
+                                                  (prevList) => {
+                                                    const newList = [
+                                                      ...prevList,
+                                                    ];
+                                                    const serviceIndex =
+                                                      prevList.findIndex(
+                                                        (s) => s === item
+                                                      );
+                                                    newList[
+                                                      serviceIndex
+                                                    ].servicesList[
+                                                      index
+                                                    ].serviceName = newName;
+                                                    return newList;
+                                                  }
+                                                );
                                               }}
                                             />
-                                        </div>
-                                        {props.requireMessage && service.serviceName.trim() === "" &&
-                                          <div>
-                                            <label className="text-danger">
-                                              Please enter a valid service name
-                                            </label>
                                           </div>
-                                        }
-                                        <div className="package-variables"></div>
-                                      </td>
-                                      <td className="text-right">
-                                        {props.engagementObj.feeTypeId === 1 &&
-                                          props.engagementObj.selectSourceId ==
-                                            1 && (
-                                            <>
+                                          {props.requireMessage &&
+                                            service.serviceName.trim() ===
+                                              "" && (
+                                              <div>
+                                                <label className="text-danger">
+                                                  Please enter a valid service
+                                                  name
+                                                </label>
+                                              </div>
+                                            )}
+                                          <div className="package-variables"></div>
+                                        </td>
+                                        <td className="text-right">
+                                          {props.engagementObj.feeTypeId ===
+                                            1 &&
+                                            props.engagementObj
+                                              .selectSourceId == 1 && (
+                                              <>
+                                                <span>
+                                                  {props.formatValue(
+                                                    service?.price,
+                                                    props.currencyID
+                                                  )}
+                                                </span>
+                                              </>
+                                            )}
+                                          {props.engagementObj.feeTypeId ===
+                                            1 &&
+                                            props.engagementObj
+                                              .selectSourceId == 2 && (
                                               <span>
                                                 {props.formatValue(
-                                                  service?.price,props.currencyID
+                                                  service?.quotationPrice,
+                                                  props.currencyID
                                                 )}
                                               </span>
-                                            </>
-                                          )}
-                                        {props.engagementObj.feeTypeId === 1 &&
-                                          props.engagementObj.selectSourceId ==
+                                            )}
+                                          {props.engagementObj.feeTypeId ===
                                             2 && (
-                                            <span>
-                                              {props.formatValue(
-                                                service?.quotationPrice,props.currencyID
-                                              )}
-                                            </span>
+                                            <span className="fa fa-check"></span>
                                           )}
-                                        {props.engagementObj.feeTypeId ===
-                                          2 && (
-                                          <span className="fa fa-check"></span>
-                                        )}
-                                      </td>
-                                    </tr>
-                                  );
-                                })}
-                              </>
-                            );
-                          })}
-                          <tr className="head-row">
-                            <td className="tr-table-class font-14 text-white">
-                              Net Total
-                            </td>
-                            <td className="tr-table-class font-14 text-white text-right">
-                              {
-                                Number(
-                                  props.RecurringPricingInfo.OriginalPrice
-                                ) <
+                                        </td>
+                                      </tr>
+                                    );
+                                  })}
+                                </>
+                              );
+                            })}
+                            <tr className="head-row">
+                              <td className="tr-table-class font-14 text-white">
+                                Net Total
+                              </td>
+                              <td className="tr-table-class font-14 text-white text-right">
+                                {
                                   Number(
-                                    props.RecurringPricingInfo.DiscountedPrice
-                                  ) ||
-                                (Number(props.RecurringPricingInfo.Discount) >
-                                  0 &&
-                                  !props.engagementObj.DiscountLines)
-                                  ? props.formatValue(
-                                      props.RecurringPricingInfo.DiscountedPrice,props.currencyID
-                                    )
-                                  : // Number(props.RecurringPricingInfo.DiscountedPrice)
-                                    //     .toFixed(2)
-                                    //     .toString()
-                                    //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                                    props.formatValue(
-                                      props.RecurringPricingInfo.OriginalPrice,props.currencyID
-                                    )
-                                // Number(props.RecurringPricingInfo.OriginalPrice)
-                                //     .toFixed(2)
-                                //     .toString()
-                                //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                              }
-                            </td>
-                          </tr>
-                          {Number(props.RecurringPricingInfo.Discount) > 0 &&
-                            props.engagementObj.DiscountLines && (
+                                    props.RecurringPricingInfo.OriginalPrice
+                                  ) <
+                                    Number(
+                                      props.RecurringPricingInfo.DiscountedPrice
+                                    ) ||
+                                  (Number(props.RecurringPricingInfo.Discount) >
+                                    0 &&
+                                    !props.engagementObj.DiscountLines)
+                                    ? props.formatValue(
+                                        props.RecurringPricingInfo
+                                          .DiscountedPrice,
+                                        props.currencyID
+                                      )
+                                    : // Number(props.RecurringPricingInfo.DiscountedPrice)
+                                      //     .toFixed(2)
+                                      //     .toString()
+                                      //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                      props.formatValue(
+                                        props.RecurringPricingInfo
+                                          .OriginalPrice,
+                                        props.currencyID
+                                      )
+                                  // Number(props.RecurringPricingInfo.OriginalPrice)
+                                  //     .toFixed(2)
+                                  //     .toString()
+                                  //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                }
+                              </td>
+                            </tr>
+                            {Number(props.RecurringPricingInfo.Discount) > 0 &&
+                              props.engagementObj.DiscountLines && (
+                                <>
+                                  <tr class="head-grey-row">
+                                    <td className="tr-table-class font-14 text-white">
+                                      Discount
+                                    </td>
+                                    <td className="tr-table-class font-14 text-white text-right">
+                                      (-){" "}
+                                      {props.formatValue(
+                                        props.RecurringPricingInfo.Discount,
+                                        props.currencyID
+                                      )}
+                                    </td>
+                                  </tr>
+                                  <tr class="head-row">
+                                    <td className="tr-table-class font-14 text-white">
+                                      Discounted Total
+                                    </td>
+                                    <td className="tr-table-class font-14 text-white text-right">
+                                      {" "}
+                                      {props.formatValue(
+                                        props.RecurringPricingInfo
+                                          .DiscountedTotal,
+                                        props.currencyID
+                                      )}
+                                    </td>
+                                  </tr>
+                                </>
+                              )}
+
+                            {props.vatPercentage && (
                               <>
                                 <tr class="head-grey-row">
                                   <td className="tr-table-class font-14 text-white">
-                                    Discount
-                                  </td>
-                                  <td className="tr-table-class font-14 text-white text-right">
-                                    (-){" "}
-                                    {props.formatValue(
-                                      props.RecurringPricingInfo.Discount,props.currencyID
-                                    )}
-                                  </td>
-                                </tr>
-                                <tr class="head-row">
-                                  <td className="tr-table-class font-14 text-white">
-                                    Discounted Total
+                                    {props.taxName}
                                   </td>
                                   <td className="tr-table-class font-14 text-white text-right">
                                     {" "}
                                     {props.formatValue(
-                                      props.RecurringPricingInfo.DiscountedTotal,props.currencyID
+                                      props.RecurringPricingInfo
+                                        .totalServiceWiseVAT,
+                                      props.currencyID
                                     )}
+                                    {/* {props.formatValue(
+                                      props.RecurringPricingInfo.VATPrice,
+                                      props.currencyID
+                                    )} */}
+                                  </td>
+                                </tr>
+                                {/* <tr className="head-row">
+                                  <td className="tr-table-class font-14 text-white">
+                                    Grand Total
+                                  </td>
+                                  <td className="tr-table-class font-14 text-white text-right">
+                                    {" "}
+                                    {props.formatValue(
+                                      props.RecurringPricingInfo.GrandTotal,
+                                      props.currencyID
+                                    )}
+                                  </td>
+                                </tr> */}
+                                <tr className="head-row">
+                                  <td className="tr-table-class font-14 text-white">
+                                    Grand Total
+                                  </td>
+                                  <td className="tr-table-class font-14 text-white text-right">
+                                    {" "}
+                                    {Number(
+                                      props.RecurringPricingInfo.Discount
+                                    ) > 0
+                                      ? // If discount is applied → use discounted total + VAT
+                                        props.formatValue(
+                                          Number(
+                                            props.RecurringPricingInfo
+                                              .DiscountedTotal
+                                          ) +
+                                            Number(
+                                              props.RecurringPricingInfo
+                                                .totalServiceWiseVAT
+                                            ),
+                                          props.currencyID
+                                        )
+                                      : // If no discount → use original total + VAT
+                                        props.formatValue(
+                                          Number(
+                                            props.RecurringPricingInfo
+                                              .OriginalPrice
+                                          ) +
+                                            Number(
+                                              props.RecurringPricingInfo
+                                                .totalServiceWiseVAT
+                                            ),
+                                          props.currencyID
+                                        )}
                                   </td>
                                 </tr>
                               </>
                             )}
-
-                          {props.vatPercentage && (
-                            <>
-                              <tr class="head-grey-row">
-                                <td className="tr-table-class font-14 text-white">
-                                  {props.taxName}
-                                </td>
-                                <td className="tr-table-class font-14 text-white text-right">
-                                  {" "}
-                                  {props.formatValue(
-                                    props.RecurringPricingInfo.VATPrice,props.currencyID
-                                  )}
-                                </td>
-                              </tr>
+                          </tbody>
+                        </table>
+                      ) : props.selectedTemplateID === 6 ? (
+                        <div
+                          style={{ marginTop: "0px" }}
+                          className="table-responsive"
+                        >
+                          <table className="table align-middle table-nowrap">
+                            <thead className="table-dark text-white">
                               <tr className="head-row">
-                                <td className="tr-table-class font-14 text-white">
-                                  Grand Total
-                                </td>
-                                <td className="tr-table-class font-14 text-white text-right">
-                                  {" "}
-                                  {props.formatValue(
-                                    props.RecurringPricingInfo.GrandTotal,props.currencyID
+                                {props.visibleFieldsCustomTemp
+                                  ?.serviceCategory && (
+                                  <th
+                                    className="tr-table-class text-white text-center"
+                                    style={{ width: "16.66%" }}
+                                  >
+                                    Service Category
+                                  </th>
+                                )}
+                                {props.visibleFieldsCustomTemp.serviceName && (
+                                  <th
+                                    className="tr-table-class text-white text-center"
+                                    style={{ width: "16.66%" }}
+                                  >
+                                    Services
+                                  </th>
+                                )}
+                                {props.visibleFieldsCustomTemp.serviceScope && (
+                                  <th
+                                    className="tr-table-class text-white text-center"
+                                    style={{ width: "16.66%" }}
+                                  >
+                                    Service Scope
+                                  </th>
+                                )}
+
+                                {props.visibleFieldsCustomTemp.fees && (
+                                  <th
+                                    className="tr-table-class text-white text-center"
+                                    style={{ width: "16.66%" }}
+                                  >
+                                    Fees (£)
+                                  </th>
+                                )}
+                                {props.vatPercentage &&
+                                  props.visibleFieldsCustomTemp.vatRate && (
+                                    <th
+                                      className="tr-table-class text-white text-center"
+                                      style={{ width: "16.66%" }}
+                                    >
+                                      VAT Rate
+                                    </th>
                                   )}
-                                </td>
+                                {props.vatPercentage &&
+                                  props.visibleFieldsCustomTemp.vat && (
+                                    <th
+                                      className="tr-table-class text-white text-center"
+                                      style={{ width: "16.66%" }}
+                                    >
+                                      VAT (£)
+                                    </th>
+                                  )}
+                                {props.vatPercentage &&
+                                  props.visibleFieldsCustomTemp.feesIncVat && (
+                                    <th
+                                      className="tr-table-class text-white text-center"
+                                      style={{ width: "16.66%" }}
+                                    >
+                                      Fees inc VAT (£)
+                                    </th>
+                                  )}
                               </tr>
-                            </>
-                          )}
-                        </tbody>
-                      </table>
+                            </thead>
+
+                            <tbody>
+                              {props.selectedRecurringServiceList.map(
+                                (service, index) => {
+                                  return (
+                                    <>
+                                      {service.servicesList.map(
+                                        (subService, subIndex) => {
+                                          const price = subService.price || 0;
+                                          const vat = (price * 20) / 100;
+                                          const total = price + vat;
+                                          const driverList =
+                                            subService.pricingDriverList || [];
+
+                                          return (
+                                            <tr
+                                              key={`sub-${index}-${subIndex}`}
+                                            >
+                                              {props.visibleFieldsCustomTemp
+                                                ?.serviceCategory && (
+                                                <td className="text-center">
+                                                  {service.serviceCatName}
+                                                </td>
+                                              )}
+                                              {props.visibleFieldsCustomTemp
+                                                .serviceName && (
+                                                <td className="text-center">
+                                                  {subService.serviceName}
+                                                </td>
+                                              )}
+                                              {props.visibleFieldsCustomTemp
+                                                .serviceScope && (
+                                                <td className="text-center">
+                                                  {driverList.length > 0
+                                                    ? driverList.map((d, i) => (
+                                                        <div key={i}>
+                                                          {d.driverName} ={" "}
+                                                          {d.driverValue}
+                                                          {i !==
+                                                            driverList.length -
+                                                              1 && ", "}
+                                                        </div>
+                                                      ))
+                                                    : "-"}
+                                                </td>
+                                              )}
+                                              {props.visibleFieldsCustomTemp
+                                                .fees && (
+                                                <td className="text-center">
+                                                  {props.engagementObj
+                                                    .feeTypeId === 1 &&
+                                                    props.formatValue(price)}
+                                                  {props.engagementObj
+                                                    .feeTypeId === 2 && (
+                                                    <span className="fa fa-check"></span>
+                                                  )}
+                                                </td>
+                                              )}
+                                              {props.vatPercentage &&
+                                                props.visibleFieldsCustomTemp
+                                                  .vatRate && (
+                                                  <td className="text-center">
+                                                    20%
+                                                  </td>
+                                                )}
+                                              {props.vatPercentage &&
+                                                props.visibleFieldsCustomTemp
+                                                  .vat && (
+                                                  <td className="text-center">
+                                                    {props.engagementObj
+                                                      .feeTypeId === 1 &&
+                                                      props.formatValue(vat)}
+                                                    {props.engagementObj
+                                                      .feeTypeId === 2 && (
+                                                      <span className="fa fa-check"></span>
+                                                    )}
+                                                  </td>
+                                                )}
+                                              {props.vatPercentage &&
+                                                props.visibleFieldsCustomTemp
+                                                  .feesIncVat && (
+                                                  <td className="text-center">
+                                                    {props.engagementObj
+                                                      .feeTypeId === 1 &&
+                                                      props.formatValue(total)}
+                                                    {props.engagementObj
+                                                      .feeTypeId === 2 && (
+                                                      <span className="fa fa-check"></span>
+                                                    )}
+                                                  </td>
+                                                )}
+                                            </tr>
+                                          );
+                                        }
+                                      )}
+                                    </>
+                                  );
+                                }
+                              )}
+
+                              {/* === NET TOTAL ROW === */}
+                              <tr className="head-row">
+                                {/* {props.visibleFieldsCustomTemp.serviceCategory && (
+          <td className="tr-table-class text-white">Net Total</td>
+        )} */}
+                                <td className="tr-table-class text-white">
+                                  Net Total
+                                </td>
+                                {props.visibleFieldsCustomTemp
+                                  ?.serviceCategory && <td></td>}
+                                {props.visibleFieldsCustomTemp.serviceScope && (
+                                  <td></td>
+                                )}
+                                {props.visibleFieldsCustomTemp.fees && (
+                                  <td className="tr-table-class text-white text-center">
+                                    {Number(
+                                      props.RecurringPricingInfo.OriginalPrice
+                                    ) <
+                                      Number(
+                                        props.RecurringPricingInfo
+                                          .DiscountedPrice
+                                      ) ||
+                                    (Number(
+                                      props.RecurringPricingInfo.Discount
+                                    ) > 0 &&
+                                      !props.engagementObj.DiscountLines)
+                                      ? props.formatValue(
+                                          props.RecurringPricingInfo
+                                            .DiscountedPrice
+                                        )
+                                      : props.formatValue(
+                                          props.RecurringPricingInfo
+                                            .OriginalPrice
+                                        )}
+                                  </td>
+                                )}
+                                {props.vatPercentage &&
+                                  props.visibleFieldsCustomTemp.vatRate && (
+                                    <td></td>
+                                  )}
+                                {props.vatPercentage &&
+                                  props.visibleFieldsCustomTemp.vat && (
+                                    <td className="tr-table-class text-white text-center">
+                                      {Number(
+                                        props.RecurringPricingInfo.OriginalPrice
+                                      ) <
+                                        Number(
+                                          props.RecurringPricingInfo
+                                            .DiscountedPrice
+                                        ) ||
+                                      (Number(
+                                        props.RecurringPricingInfo.Discount
+                                      ) > 0 &&
+                                        !props.engagementObj.DiscountLines)
+                                        ? props.formatValue(
+                                            (Number(
+                                              props.RecurringPricingInfo
+                                                .DiscountedPrice
+                                            ) *
+                                              20) /
+                                              100
+                                          )
+                                        : props.formatValue(
+                                            (Number(
+                                              props.RecurringPricingInfo
+                                                .OriginalPrice
+                                            ) *
+                                              20) /
+                                              100
+                                          )}
+                                    </td>
+                                  )}
+                                {props.vatPercentage &&
+                                  props.visibleFieldsCustomTemp.feesIncVat && (
+                                    <td className="tr-table-class text-white text-center">
+                                      {Number(
+                                        props.RecurringPricingInfo.OriginalPrice
+                                      ) <
+                                        Number(
+                                          props.RecurringPricingInfo
+                                            .DiscountedPrice
+                                        ) ||
+                                      (Number(
+                                        props.RecurringPricingInfo.Discount
+                                      ) > 0 &&
+                                        !props.engagementObj.DiscountLines)
+                                        ? props.formatValue(
+                                            Number(
+                                              props.RecurringPricingInfo
+                                                .DiscountedPrice
+                                            ) +
+                                              (Number(
+                                                props.RecurringPricingInfo
+                                                  .DiscountedPrice
+                                              ) *
+                                                20) /
+                                                100
+                                          )
+                                        : props.formatValue(
+                                            Number(
+                                              props.RecurringPricingInfo
+                                                .OriginalPrice
+                                            ) +
+                                              (Number(
+                                                props.RecurringPricingInfo
+                                                  .OriginalPrice
+                                              ) *
+                                                20) /
+                                                100
+                                          )}
+                                    </td>
+                                  )}
+                              </tr>
+
+                              {/* === DISCOUNT + GRAND TOTAL ROWS === */}
+                              {Number(props.RecurringPricingInfo.Discount) >
+                                0 &&
+                                props.engagementObj.DiscountLines && (
+                                  <>
+                                    <tr className="head-grey-row">
+                                      {props.visibleFieldsCustomTemp
+                                        ?.serviceCategory && (
+                                        <td className="tr-table-class font-14 text-white">
+                                          Discount
+                                        </td>
+                                      )}
+                                      {props.visibleFieldsCustomTemp
+                                        .serviceName && <td></td>}
+                                      {props.visibleFieldsCustomTemp
+                                        .serviceScope && <td></td>}
+                                      {props.visibleFieldsCustomTemp.fees && (
+                                        <td className="tr-table-class font-14 text-white text-center">
+                                          (-){" "}
+                                          {props.formatValue(
+                                            props.RecurringPricingInfo.Discount
+                                          )}
+                                        </td>
+                                      )}
+                                      {props.vatPercentage &&
+                                        props.visibleFieldsCustomTemp
+                                          .vatRate && <td></td>}
+                                      {props.vatPercentage &&
+                                        props.visibleFieldsCustomTemp.vat && (
+                                          <td className="tr-table-class text-white text-center">
+                                            (-){" "}
+                                            {Number(
+                                              props.RecurringPricingInfo
+                                                .OriginalPrice
+                                            ) <
+                                              Number(
+                                                props.RecurringPricingInfo
+                                                  .DiscountedPrice
+                                              ) ||
+                                            (Number(
+                                              props.RecurringPricingInfo
+                                                .Discount
+                                            ) > 0 &&
+                                              !props.engagementObj
+                                                .DiscountLines)
+                                              ? props.formatValue(
+                                                  ((Number(
+                                                    props.RecurringPricingInfo
+                                                      .DiscountedPrice
+                                                  ) *
+                                                    20) /
+                                                    100) *
+                                                    (props.RecurringPricingInfo
+                                                      .DefaultDiscount /
+                                                      100)
+                                                )
+                                              : props.formatValue(
+                                                  ((Number(
+                                                    props.RecurringPricingInfo
+                                                      .OriginalPrice
+                                                  ) *
+                                                    20) /
+                                                    100) *
+                                                    (props.RecurringPricingInfo
+                                                      .DefaultDiscount /
+                                                      100)
+                                                )}
+                                          </td>
+                                        )}
+                                      {props.vatPercentage &&
+                                        props.visibleFieldsCustomTemp
+                                          .feesIncVat && (
+                                          <td className="tr-table-class text-white text-center">
+                                            (-){" "}
+                                            {Number(
+                                              props.RecurringPricingInfo
+                                                .OriginalPrice
+                                            ) <
+                                              Number(
+                                                props.RecurringPricingInfo
+                                                  .DiscountedPrice
+                                              ) ||
+                                            (Number(
+                                              props.RecurringPricingInfo
+                                                .Discount
+                                            ) > 0 &&
+                                              !props.engagementObj
+                                                .DiscountLines)
+                                              ? props.formatValue(
+                                                  (Number(
+                                                    props.RecurringPricingInfo
+                                                      .DiscountedPrice
+                                                  ) +
+                                                    (Number(
+                                                      props.RecurringPricingInfo
+                                                        .DiscountedPrice
+                                                    ) *
+                                                      20) /
+                                                      100) *
+                                                    (props.RecurringPricingInfo
+                                                      .DefaultDiscount /
+                                                      100)
+                                                )
+                                              : props.formatValue(
+                                                  (Number(
+                                                    props.RecurringPricingInfo
+                                                      .OriginalPrice
+                                                  ) +
+                                                    (Number(
+                                                      props.RecurringPricingInfo
+                                                        .OriginalPrice
+                                                    ) *
+                                                      20) /
+                                                      100) *
+                                                    (props.RecurringPricingInfo
+                                                      .DefaultDiscount /
+                                                      100)
+                                                )}
+                                          </td>
+                                        )}
+                                    </tr>
+
+                                    <tr className="head-row">
+                                      {props.visibleFieldsCustomTemp
+                                        ?.serviceCategory && (
+                                        <td className="tr-table-class font-14 text-white">
+                                          Grand Total
+                                        </td>
+                                      )}
+                                      {props.visibleFieldsCustomTemp
+                                        .serviceName && <td></td>}
+                                      {props.visibleFieldsCustomTemp
+                                        .serviceScope && <td></td>}
+                                      {props.visibleFieldsCustomTemp.fees && (
+                                        <td className="tr-table-class font-14 text-white text-center">
+                                          {Number(
+                                            props.RecurringPricingInfo
+                                              .OriginalPrice
+                                          ) <
+                                            Number(
+                                              props.RecurringPricingInfo
+                                                .DiscountedPrice
+                                            ) ||
+                                          (Number(
+                                            props.RecurringPricingInfo.Discount
+                                          ) > 0 &&
+                                            !props.engagementObj.DiscountLines)
+                                            ? props.formatValue(
+                                                props.RecurringPricingInfo
+                                                  .DiscountedPrice -
+                                                  props.RecurringPricingInfo
+                                                    .Discount
+                                              )
+                                            : props.formatValue(
+                                                props.RecurringPricingInfo
+                                                  .OriginalPrice -
+                                                  props.RecurringPricingInfo
+                                                    .Discount
+                                              )}
+                                        </td>
+                                      )}
+                                      {props.vatPercentage &&
+                                        props.visibleFieldsCustomTemp
+                                          .vatRate && <td></td>}
+                                      {props.vatPercentage &&
+                                        props.visibleFieldsCustomTemp.vat && (
+                                          <td className="tr-table-class font-14 text-white text-center">
+                                            {Number(
+                                              props.RecurringPricingInfo
+                                                .OriginalPrice
+                                            ) <
+                                              Number(
+                                                props.RecurringPricingInfo
+                                                  .DiscountedPrice
+                                              ) ||
+                                            (Number(
+                                              props.RecurringPricingInfo
+                                                .Discount
+                                            ) > 0 &&
+                                              !props.engagementObj
+                                                .DiscountLines)
+                                              ? props.formatValue(
+                                                  (Number(
+                                                    props.RecurringPricingInfo
+                                                      .DiscountedPrice
+                                                  ) *
+                                                    20) /
+                                                    100 -
+                                                    ((Number(
+                                                      props.RecurringPricingInfo
+                                                        .DiscountedPrice
+                                                    ) *
+                                                      20) /
+                                                      100) *
+                                                      (props
+                                                        .RecurringPricingInfo
+                                                        .DefaultDiscount /
+                                                        100)
+                                                )
+                                              : props.formatValue(
+                                                  (Number(
+                                                    props.RecurringPricingInfo
+                                                      .OriginalPrice
+                                                  ) *
+                                                    20) /
+                                                    100 -
+                                                    ((Number(
+                                                      props.RecurringPricingInfo
+                                                        .OriginalPrice
+                                                    ) *
+                                                      20) /
+                                                      100) *
+                                                      (props
+                                                        .RecurringPricingInfo
+                                                        .DefaultDiscount /
+                                                        100)
+                                                )}
+                                          </td>
+                                        )}
+                                      {props.vatPercentage &&
+                                        props.visibleFieldsCustomTemp
+                                          .feesIncVat && (
+                                          <td className="tr-table-class font-14 text-white text-center">
+                                            {props.formatValue(
+                                              props.RecurringPricingInfo
+                                                .GrandTotal
+                                            )}
+                                          </td>
+                                        )}
+                                    </tr>
+                                  </>
+                                )}
+                            </tbody>
+                          </table>
+                        </div>
+                      ) : (
+                        ""
+                      )}
                     </>
                   )}
                   {props.selectedOneOffServiceList?.length !== 0 && (
@@ -2303,7 +3410,8 @@ const ReviewServicesComponent = (props) => {
                                       than{" "}
                                       {props.formatValue(
                                         props.pricingSettingObj
-                                          .minOneOffPriceForQC,props.currencyID
+                                          .minOneOffPriceForQC,
+                                        props.currencyID
                                       )}
                                     </span>
                                     <br />
@@ -2347,7 +3455,8 @@ const ReviewServicesComponent = (props) => {
                                   <>
                                     <span className="validation">
                                       The One Off discounted price may not be or
-                                      less than {props.formatValue(0.0,props.currencyID)}
+                                      less than{" "}
+                                      {props.formatValue(0.0, props.currencyID)}
                                     </span>
                                   </>
                                 )}
@@ -2356,212 +3465,853 @@ const ReviewServicesComponent = (props) => {
                         </div>
                       </div>
                       <div className="mb-3"></div>
-                      <table class="table align-middle table-nowrap">
-                        <thead class="table-light table-header-font">
-                          <tr class="head-row">
-                            <td className="tr-table-class text-white">
-                              Services
-                            </td>
-                            <td className="tr-table-class text-white text-right">
-                              {props.OneOffPricingInfo.servicePackageName !==
-                              null ? (
-                                props.OneOffPricingInfo.servicePackageName
-                                  .length > 50 ? (
-                                  <Tooltip
-                                    title={
-                                      props.OneOffPricingInfo.servicePackageName
-                                    }
-                                  >
-                                    {props.OneOffPricingInfo.servicePackageName
-                                      .substring(0, 50)
-                                      .toLowerCase()
-                                      .replace(/\b\w/g, (l) =>
-                                        l.toUpperCase()
-                                      ) + "..."}
-                                  </Tooltip>
-                                ) : props.OneOffPricingInfo.servicePackageName
-                                    .length > 50 ? (
-                                  <Tooltip
-                                    title={
-                                      props.OneOffPricingInfo.servicePackageName
-                                    }
-                                  >
-                                    {props.OneOffPricingInfo.servicePackageName.substring(
-                                      0,
-                                      50
-                                    ) + "..."}
-                                  </Tooltip>
-                                ) : (
-                                  props.OneOffPricingInfo.servicePackageName
-                                )
-                              ) : (
-                                `Fees (${props.currencySymbol})`
-                              )}
-                            </td>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {props.selectedOneOffServiceList.map((item) => {
-                            return (
-                              <>
-                                <tr className="a-la-carte-services-review-head-row">
-                                  <th colSpan="2">{item.serviceCatName}</th>
-                                </tr>
-                                {item.servicesList.map((service,index) => {
-                                  // Add the return statement here
-                                  return (
-                                    <tr
-                                      key={index}
-                                      className={` ${
-                                        service?.isAdditionalService === true
-                                          ? "bg-info  text-white"
-                                          : ""
-                                      }`}
-                                    >
-                                      <td>
-                                        <div>
-                                          <EditableCell
-                                              value={service.serviceName}
-                                              displayValue={service.serviceName.length > 45
-                                                ? service.serviceName
-                                                  .substring(0, 45)
-                                                  .toLowerCase()
-                                                  .replace(/\b\w/g, (l) => l.toUpperCase()) + "..."
-                                                : undefined
-                                              }
-                                              onSave={(newName) => {
-                                                props.setSelectedOneOffServiceList(prevList => {
-                                                  const newList = [...prevList];
-                                                  const serviceIndex = prevList.findIndex(s => s === item);
-                                                  newList[serviceIndex].servicesList[index].serviceName = newName;
-                                                  return newList;
-                                                });
-                                              }}
-                                            />
-                                        </div>
-                                        {props.requireMessage && service.serviceName.trim() === "" &&
-                                          <div>
-                                            <label className="text-danger">
-                                              Please enter a valid service name
-                                            </label>
-                                          </div>
+                      <div
+                        className="Custom-template"
+                        style={{
+                          display: "flex",
+                          justifyContent: "flex-end",
+                          alignItems: "center",
+                          gap: "10px", // space between icons
+                          width: "100%", // ensure it fills parent for right alignment
+                        }}
+                      >
+                        <div className="viewTemp">
+                          <Tooltip title="Select Template">
+                            <div
+                              onClick={() => {
+                                props.setShowSelectTemplateModal(true);
+                                props.setServiceTypeID(
+                                  servicePackageTypeID.OneOffServiceTypeID
+                                );
+                              }}
+                              style={{ cursor: "pointer" }}
+                            >
+                              <ViewModuleIcon />
+                            </div>
+                          </Tooltip>
+                        </div>
+
+                        {/* <div className="customizeTemp">
+                                              <Tooltip title="Customize your own">
+                                                <div
+                                                  onClick={() => {
+                                                    props.setShowTemplateCustomizationModal(true);
+                                                    props.setServiceTypeID(2);
+                                                  }}
+                                                  style={{ cursor: "pointer" }}
+                                                >
+                                                  <EditIcon />
+                                                </div>
+                                              </Tooltip>
+                                            </div> */}
+                      </div>
+                      {props.selectedTemplateIDOneOff === 0 ? (
+                        <>
+                          <table class="table align-middle table-nowrap">
+                            <thead class="table-light table-header-font">
+                              <tr class="head-row">
+                                <td className="tr-table-class text-white">
+                                  Services
+                                </td>
+                                <td className="tr-table-class text-white text-right">
+                                  {props.OneOffPricingInfo
+                                    .servicePackageName !== null ? (
+                                    props.OneOffPricingInfo.servicePackageName
+                                      .length > 50 ? (
+                                      <Tooltip
+                                        title={
+                                          props.OneOffPricingInfo
+                                            .servicePackageName
                                         }
-                                        <div className="package-variables"></div>
-                                      </td>
-                                      <td className="text-right">
-                                        {props.engagementObj.feeTypeId === 1 &&
-                                          props.engagementObj.selectSourceId ==
-                                            1 && (
-                                            <span>
-                                              {props.formatValue(
-                                                service?.price,props.currencyID
-                                              )}
-                                            </span>
-                                          )}
-                                        {props.engagementObj.feeTypeId === 1 &&
-                                          props.engagementObj.selectSourceId ==
-                                            2 && (
-                                            <span>
-                                              {props.formatValue(
-                                                service?.quotationPrice,props.currencyID
-                                              )}
-                                            </span>
-                                          )}
-                                        {props.engagementObj.feeTypeId ===
-                                          2 && (
-                                          <span className="fa fa-check"></span>
-                                        )}
-                                      </td>
-                                    </tr>
-                                  );
-                                })}
-                              </>
-                            );
-                          })}
-                          <tr className="head-row">
-                            <td className="tr-table-class font-14 text-white">
-                              Net Total
-                            </td>
-                            <td className="tr-table-class font-14 text-white text-right">
-                              {
-                                Number(props.OneOffPricingInfo.OriginalPrice) <
-                                  Number(
-                                    props.OneOffPricingInfo.DiscountedPrice
-                                  ) ||
-                                (Number(props.OneOffPricingInfo.Discount) > 0 &&
-                                  !props.engagementObj.DiscountLines)
-                                  ? props.formatValue(
-                                      props.OneOffPricingInfo.DiscountedPrice,props.currencyID
+                                      >
+                                        {props.OneOffPricingInfo.servicePackageName
+                                          .substring(0, 50)
+                                          .toLowerCase()
+                                          .replace(/\b\w/g, (l) =>
+                                            l.toUpperCase()
+                                          ) + "..."}
+                                      </Tooltip>
+                                    ) : props.OneOffPricingInfo
+                                        .servicePackageName.length > 50 ? (
+                                      <Tooltip
+                                        title={
+                                          props.OneOffPricingInfo
+                                            .servicePackageName
+                                        }
+                                      >
+                                        {props.OneOffPricingInfo.servicePackageName.substring(
+                                          0,
+                                          50
+                                        ) + "..."}
+                                      </Tooltip>
+                                    ) : (
+                                      props.OneOffPricingInfo.servicePackageName
                                     )
-                                  : // Number(props.OneOffPricingInfo.DiscountedPrice)
+                                  ) : (
+                                    `Fees (${props.currencySymbol})`
+                                  )}
+                                </td>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {props.selectedOneOffServiceList.map((item) => {
+                                return (
+                                  <>
+                                    <tr className="a-la-carte-services-review-head-row">
+                                      <th colSpan="2">{item.serviceCatName}</th>
+                                    </tr>
+                                    {item.servicesList.map((service, index) => {
+                                      // Add the return statement here
+                                      return (
+                                        <tr
+                                          key={index}
+                                          className={` ${
+                                            service?.isAdditionalService ===
+                                            true
+                                              ? "bg-info  text-white"
+                                              : ""
+                                          }`}
+                                        >
+                                          <td>
+                                            <div>
+                                              <EditableCell
+                                                value={service.serviceName}
+                                                displayValue={
+                                                  service.serviceName.length >
+                                                  45
+                                                    ? service.serviceName
+                                                        .substring(0, 45)
+                                                        .toLowerCase()
+                                                        .replace(/\b\w/g, (l) =>
+                                                          l.toUpperCase()
+                                                        ) + "..."
+                                                    : undefined
+                                                }
+                                                onSave={(newName) => {
+                                                  props.setSelectedOneOffServiceList(
+                                                    (prevList) => {
+                                                      const newList = [
+                                                        ...prevList,
+                                                      ];
+                                                      const serviceIndex =
+                                                        prevList.findIndex(
+                                                          (s) => s === item
+                                                        );
+                                                      newList[
+                                                        serviceIndex
+                                                      ].servicesList[
+                                                        index
+                                                      ].serviceName = newName;
+                                                      return newList;
+                                                    }
+                                                  );
+                                                }}
+                                              />
+                                            </div>
+                                            {props.requireMessage &&
+                                              service.serviceName.trim() ===
+                                                "" && (
+                                                <div>
+                                                  <label className="text-danger">
+                                                    Please enter a valid service
+                                                    name
+                                                  </label>
+                                                </div>
+                                              )}
+                                            <div className="package-variables"></div>
+                                          </td>
+                                          <td className="text-right">
+                                            {props.engagementObj.feeTypeId ===
+                                              1 &&
+                                              props.engagementObj
+                                                .selectSourceId == 1 && (
+                                                <span>
+                                                  {props.formatValue(
+                                                    service?.price,
+                                                    props.currencyID
+                                                  )}
+                                                </span>
+                                              )}
+                                            {props.engagementObj.feeTypeId ===
+                                              1 &&
+                                              props.engagementObj
+                                                .selectSourceId == 2 && (
+                                                <span>
+                                                  {props.formatValue(
+                                                    service?.quotationPrice,
+                                                    props.currencyID
+                                                  )}
+                                                </span>
+                                              )}
+                                            {props.engagementObj.feeTypeId ===
+                                              2 && (
+                                              <span className="fa fa-check"></span>
+                                            )}
+                                          </td>
+                                        </tr>
+                                      );
+                                    })}
+                                  </>
+                                );
+                              })}
+                              <tr className="head-row">
+                                <td className="tr-table-class font-14 text-white">
+                                  Net Total
+                                </td>
+                                <td className="tr-table-class font-14 text-white text-right">
+                                  {
+                                    Number(
+                                      props.OneOffPricingInfo.OriginalPrice
+                                    ) <
+                                      Number(
+                                        props.OneOffPricingInfo.DiscountedPrice
+                                      ) ||
+                                    (Number(props.OneOffPricingInfo.Discount) >
+                                      0 &&
+                                      !props.engagementObj.DiscountLines)
+                                      ? props.formatValue(
+                                          props.OneOffPricingInfo
+                                            .DiscountedPrice,
+                                          props.currencyID
+                                        )
+                                      : // Number(props.OneOffPricingInfo.DiscountedPrice)
+                                        //     .toFixed(2)
+                                        //     .toString()
+                                        //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                        props.formatValue(
+                                          props.OneOffPricingInfo.OriginalPrice,
+                                          props.currencyID
+                                        )
+                                    // Number(props.OneOffPricingInfo.OriginalPrice)
                                     //     .toFixed(2)
                                     //     .toString()
                                     //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                                    props.formatValue(
-                                      props.OneOffPricingInfo.OriginalPrice,props.currencyID
-                                    )
-                                // Number(props.OneOffPricingInfo.OriginalPrice)
-                                //     .toFixed(2)
-                                //     .toString()
-                                //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                              }
-                            </td>
-                          </tr>
-                          {Number(props.OneOffPricingInfo.Discount) > 0 &&
-                            props.engagementObj.DiscountLines && (
-                              <>
-                                {" "}
-                                <tr class="head-grey-row">
-                                  <td className="tr-table-class font-14 text-white">
-                                    Discount
-                                  </td>
-                                  <td className="tr-table-class font-14 text-white text-right">
-                                    (-){" "}
-                                    {props.formatValue(
-                                      props.OneOffPricingInfo.Discount,props.currencyID
-                                    )}
-                                  </td>
-                                </tr>
-                                <tr class="head-row">
-                                  <td className="tr-table-class font-14 text-white">
-                                    Discounted Total
-                                  </td>
-                                  <td className="tr-table-class font-14 text-white text-right">
-                                    {props.formatValue(
-                                      props.OneOffPricingInfo.DiscountedTotal,props.currencyID
-                                    )}
-                                  </td>
-                                </tr>
-                              </>
-                            )}
-                          {props.vatPercentage && (
-                            <>
-                              <tr class="head-grey-row">
-                                <td className="tr-table-class font-14 text-white">
-                                  {props.taxName}
-                                </td>
-                                <td className="tr-table-class font-14 text-white text-right">
-                                  {props.formatValue(
-                                    props.OneOffPricingInfo.VATPrice,props.currencyID
-                                  )}
+                                  }
                                 </td>
                               </tr>
+                              {Number(props.OneOffPricingInfo.Discount) > 0 &&
+                                props.engagementObj.DiscountLines && (
+                                  <>
+                                    {" "}
+                                    <tr class="head-grey-row">
+                                      <td className="tr-table-class font-14 text-white">
+                                        Discount
+                                      </td>
+                                      <td className="tr-table-class font-14 text-white text-right">
+                                        (-){" "}
+                                        {props.formatValue(
+                                          props.OneOffPricingInfo.Discount,
+                                          props.currencyID
+                                        )}
+                                      </td>
+                                    </tr>
+                                    <tr class="head-row">
+                                      <td className="tr-table-class font-14 text-white">
+                                        Discounted Total
+                                      </td>
+                                      <td className="tr-table-class font-14 text-white text-right">
+                                        {props.formatValue(
+                                          props.OneOffPricingInfo
+                                            .DiscountedTotal,
+                                          props.currencyID
+                                        )}
+                                      </td>
+                                    </tr>
+                                  </>
+                                )}
+                              {props.vatPercentage && (
+                                <>
+                                  <tr class="head-grey-row">
+                                    <td className="tr-table-class font-14 text-white">
+                                      {props.taxName}
+                                    </td>
+                                    <td className="tr-table-class font-14 text-white text-right">
+                                      {/* {props.formatValue(
+                                        props.OneOffPricingInfo.VATPrice,
+                                        props.currencyID
+                                      )} */}
+                                      {props.formatValue(
+                                        props.OneOffPricingInfo
+                                          .totalServiceWiseVATOneOff,
+                                        props.currencyID
+                                      )}
+                                    </td>
+                                  </tr>
+                                  {/* <tr className="head-row">
+                                    <td className="tr-table-class font-14 text-white">
+                                      Grand Total
+                                    </td>
+                                    <td className="tr-table-class font-14 text-white text-right">
+                                      {props.formatValue(
+                                        props.OneOffPricingInfo.GrandTotal,
+                                        props.currencyID
+                                      )}
+                                    </td>
+                                  </tr> */}
+                                  <tr className="head-row">
+                                    <td className="tr-table-class font-14 text-white">
+                                      Grand Total
+                                    </td>
+                                    <td className="tr-table-class font-14 text-white text-right">
+                                      {" "}
+                                      {Number(
+                                        props.OneOffPricingInfo.Discount
+                                      ) > 0
+                                        ? // If discount is applied → use discounted total + VAT
+                                          props.formatValue(
+                                            Number(
+                                              props.OneOffPricingInfo
+                                                .DiscountedTotal
+                                            ) +
+                                              Number(
+                                                props.OneOffPricingInfo
+                                                  .totalServiceWiseVATOneOff
+                                              ),
+                                            props.currencyID
+                                          )
+                                        : // If no discount → use original total + VAT
+                                          props.formatValue(
+                                            Number(
+                                              props.OneOffPricingInfo
+                                                .OriginalPrice
+                                            ) +
+                                              Number(
+                                                props.OneOffPricingInfo
+                                                  .totalServiceWiseVATOneOff
+                                              ),
+                                            props.currencyID
+                                          )}
+                                    </td>
+                                  </tr>
+                                </>
+                              )}
+                            </tbody>
+                          </table>
+                        </>
+                      ) : props.selectedTemplateIDOneOff === 6 ? (
+                        <div
+                          style={{ marginTop: "0px" }}
+                          className="table-responsive"
+                        >
+                          <table className="table align-middle table-nowrap">
+                            <thead className="table-dark text-white">
                               <tr className="head-row">
-                                <td className="tr-table-class font-14 text-white">
-                                  Grand Total
-                                </td>
-                                <td className="tr-table-class font-14 text-white text-right">
-                                  {props.formatValue(
-                                    props.OneOffPricingInfo.GrandTotal,props.currencyID
-                                  )}
-                                </td>
+                                {props.visibleFieldsCustomTemp
+                                  ?.serviceCategory && (
+                                  <th
+                                    className="tr-table-class text-white text-center"
+                                    style={{ width: "16.66%" }}
+                                  >
+                                    Service Category
+                                  </th>
+                                )}
+                                {props.visibleFieldsCustomTemp.serviceName && (
+                                  <th
+                                    className="tr-table-class text-white text-center"
+                                    style={{ width: "16.66%" }}
+                                  >
+                                    Services
+                                  </th>
+                                )}
+                                {props.visibleFieldsCustomTemp.serviceScope && (
+                                  <th
+                                    className="tr-table-class text-white text-center"
+                                    style={{ width: "16.66%" }}
+                                  >
+                                    Service scope
+                                  </th>
+                                )}
+
+                                {/* <th
+                                className="tr-table-class text-white text-center"
+                                style={{ width: "16.66%" }}
+                                >
+                                Scope value
+                                </th> */}
+                                {props.visibleFieldsCustomTemp.fees && (
+                                  <th
+                                    className="tr-table-class text-white text-center"
+                                    style={{ width: "16.66%" }}
+                                  >
+                                    Fees (£)
+                                  </th>
+                                )}
+                                {props.visibleFieldsCustomTemp.vatRate && (
+                                  <th
+                                    className="tr-table-class text-white text-center"
+                                    style={{ width: "16.66%" }}
+                                  >
+                                    VAT Rate
+                                  </th>
+                                )}
+                                {props.visibleFieldsCustomTemp.vat && (
+                                  <th
+                                    className="tr-table-class text-white text-center"
+                                    style={{ width: "16.66%" }}
+                                  >
+                                    VAT (£)
+                                  </th>
+                                )}
+                                {props.visibleFieldsCustomTemp.feesIncVat && (
+                                  <th
+                                    className="tr-table-class text-white text-center"
+                                    style={{ width: "16.66%" }}
+                                  >
+                                    Fees inc VAT (£)
+                                  </th>
+                                )}
                               </tr>
-                            </>
-                          )}
-                        </tbody>
-                      </table>
+                            </thead>
+
+                            <tbody>
+                              {props.selectedOneOffServiceList.map(
+                                (service, index) => (
+                                  <>
+                                    {service.servicesList.map(
+                                      (subService, subIndex) => {
+                                        const price = subService.price
+                                          ? subService.price
+                                          : subService.quotationPrice || 0;
+                                        const vat = (price * 20) / 100;
+                                        const total = price + vat;
+                                        const driverList =
+                                          subService.pricingDriverList || [];
+
+                                        return (
+                                          <tr key={`sub-${index}-${subIndex}`}>
+                                            {props.visibleFieldsCustomTemp
+                                              ?.serviceCategory && (
+                                              <td className="text-center">
+                                                {service.serviceCatName}
+                                              </td>
+                                            )}
+
+                                            {props.visibleFieldsCustomTemp
+                                              .serviceName && (
+                                              <td className="text-center">
+                                                {subService.serviceName}
+                                              </td>
+                                            )}
+
+                                            {props.visibleFieldsCustomTemp
+                                              .serviceScope && (
+                                              <td className="text-center">
+                                                {driverList.length > 0
+                                                  ? driverList.map((d, i) => (
+                                                      <div key={i}>
+                                                        {d.driverName} ={" "}
+                                                        {d.driverValue}
+                                                        {i !==
+                                                          driverList.length -
+                                                            1 && ", "}
+                                                      </div>
+                                                    ))
+                                                  : "-"}
+                                              </td>
+                                            )}
+
+                                            {/* <td className="text-center">
+                                            {driverList.length > 0
+                                              ? driverList.map((d, i) => (
+                                                  <div key={i}>
+                                                    {d.driverValue}
+              </div>
+                                                ))
+                                              : "-"}
+                                          </td> */}
+
+                                            {props.visibleFieldsCustomTemp
+                                              .fees && (
+                                              <td className="text-center">
+                                                {props.engagementObj
+                                                  .feeTypeId === 1 &&
+                                                  props.formatValue(price)}
+                                                {props.engagementObj
+                                                  .feeTypeId === 2 && (
+                                                  <span className="fa fa-check"></span>
+                                                )}
+                                              </td>
+                                            )}
+
+                                            {props.visibleFieldsCustomTemp
+                                              .vatRate && (
+                                              <td className="text-center">
+                                                20%
+                                              </td>
+                                            )}
+
+                                            {props.visibleFieldsCustomTemp
+                                              .vat && (
+                                              <td className="text-center">
+                                                {props.engagementObj
+                                                  .feeTypeId === 1 &&
+                                                  props.formatValue(vat)}
+                                                {props.engagementObj
+                                                  .feeTypeId === 2 && (
+                                                  <span className="fa fa-check"></span>
+                                                )}
+                                              </td>
+                                            )}
+
+                                            {props.visibleFieldsCustomTemp
+                                              .feesIncVat && (
+                                              <td className="text-center">
+                                                {props.engagementObj
+                                                  .feeTypeId === 1 &&
+                                                  props.formatValue(total)}
+                                                {props.engagementObj
+                                                  .feeTypeId === 2 && (
+                                                  <span className="fa fa-check"></span>
+                                                )}
+                                              </td>
+                                            )}
+                                          </tr>
+                                        );
+                                      }
+                                    )}
+                                  </>
+                                )
+                              )}
+
+                              {/* NET TOTAL ROW */}
+                              <tr className="head-row">
+                                {/* {props.visibleFieldsCustomTemp.serviceCategory && (
+                                <td className="tr-table-class text-white">
+                                  Net Total
+                                </td>
+                              )} */}
+                                <td className="tr-table-class text-white">
+                                  Net Total
+                                </td>
+                                {props.visibleFieldsCustomTemp
+                                  ?.serviceCategory && <td></td>}
+                                {props.visibleFieldsCustomTemp.serviceScope && (
+                                  <td></td>
+                                )}
+                                {props.visibleFieldsCustomTemp.fees && (
+                                  <td className="tr-table-class text-white text-center">
+                                    {Number(
+                                      props.OneOffPricingInfo.OriginalPrice
+                                    ) <
+                                      Number(
+                                        props.OneOffPricingInfo.DiscountedPrice
+                                      ) ||
+                                    (Number(props.OneOffPricingInfo.Discount) >
+                                      0 &&
+                                      !props.engagementObj.DiscountLines)
+                                      ? props.formatValue(
+                                          props.OneOffPricingInfo
+                                            .DiscountedPrice
+                                        )
+                                      : props.formatValue(
+                                          props.OneOffPricingInfo.OriginalPrice
+                                        )}
+                                  </td>
+                                )}
+                                {props.visibleFieldsCustomTemp.vatRate && (
+                                  <td></td>
+                                )}
+                                {props.visibleFieldsCustomTemp.vat && (
+                                  <td className="tr-table-class text-white text-center">
+                                    {Number(
+                                      props.OneOffPricingInfo.OriginalPrice
+                                    ) <
+                                      Number(
+                                        props.OneOffPricingInfo.DiscountedPrice
+                                      ) ||
+                                    (Number(props.OneOffPricingInfo.Discount) >
+                                      0 &&
+                                      !props.engagementObj.DiscountLines)
+                                      ? props.formatValue(
+                                          (Number(
+                                            props.OneOffPricingInfo
+                                              .DiscountedPrice
+                                          ) *
+                                            20) /
+                                            100
+                                        )
+                                      : props.formatValue(
+                                          (Number(
+                                            props.OneOffPricingInfo
+                                              .OriginalPrice
+                                          ) *
+                                            20) /
+                                            100
+                                        )}
+                                  </td>
+                                )}
+                                {props.visibleFieldsCustomTemp.feesIncVat && (
+                                  <td className="tr-table-class text-white text-center">
+                                    {Number(
+                                      props.OneOffPricingInfo.OriginalPrice
+                                    ) <
+                                      Number(
+                                        props.OneOffPricingInfo.DiscountedPrice
+                                      ) ||
+                                    (Number(props.OneOffPricingInfo.Discount) >
+                                      0 &&
+                                      !props.engagementObj.DiscountLines)
+                                      ? props.formatValue(
+                                          Number(
+                                            props.OneOffPricingInfo
+                                              .DiscountedPrice
+                                          ) +
+                                            (Number(
+                                              props.OneOffPricingInfo
+                                                .DiscountedPrice
+                                            ) *
+                                              20) /
+                                              100
+                                        )
+                                      : props.formatValue(
+                                          Number(
+                                            props.OneOffPricingInfo
+                                              .OriginalPrice
+                                          ) +
+                                            (Number(
+                                              props.OneOffPricingInfo
+                                                .OriginalPrice
+                                            ) *
+                                              20) /
+                                              100
+                                        )}
+                                  </td>
+                                )}
+                              </tr>
+
+                              {Number(props.OneOffPricingInfo.Discount) > 0 &&
+                                props.engagementObj.DiscountLines && (
+                                  <>
+                                    <tr class="head-grey-row">
+                                      <td className="tr-table-class font-14 text-white">
+                                        Discount
+                                      </td>
+
+                                      {props.visibleFieldsCustomTemp
+                                        ?.serviceCategory && <td></td>}
+                                      {props.visibleFieldsCustomTemp
+                                        .serviceScope && <td></td>}
+                                      {props.visibleFieldsCustomTemp.fees && (
+                                        <td className="tr-table-class text-white text-center">
+                                          {Number(
+                                            props.OneOffPricingInfo.Discount
+                                          ) > 0
+                                            ? props.formatValue(
+                                                props.OneOffPricingInfo.Discount
+                                              )
+                                            : "-"}
+                                        </td>
+                                      )}
+                                      {props.visibleFieldsCustomTemp
+                                        .vatRate && <td></td>}
+                                      {props.visibleFieldsCustomTemp.vat && (
+                                        <td className="tr-table-class text-white text-center">
+                                          (-){"  "}
+                                          {Number(
+                                            props.OneOffPricingInfo
+                                              .OriginalPrice
+                                          ) <
+                                            Number(
+                                              props.OneOffPricingInfo
+                                                .DiscountedPrice
+                                            ) ||
+                                          (Number(
+                                            props.OneOffPricingInfo.Discount
+                                          ) > 0 &&
+                                            !props.engagementObj.DiscountLines)
+                                            ? props.formatValue(
+                                                ((Number(
+                                                  props.OneOffPricingInfo
+                                                    .DiscountedPrice
+                                                ) *
+                                                  20) /
+                                                  100) *
+                                                  (props.OneOffPricingInfo
+                                                    .DefaultDiscount /
+                                                    100)
+                                              )
+                                            : props.formatValue(
+                                                ((Number(
+                                                  props.OneOffPricingInfo
+                                                    .OriginalPrice
+                                                ) *
+                                                  20) /
+                                                  100) *
+                                                  (props.OneOffPricingInfo
+                                                    .DefaultDiscount /
+                                                    100)
+                                              )}
+                                        </td>
+                                      )}
+                                      {props.visibleFieldsCustomTemp
+                                        .feesIncVat && (
+                                        <td className="tr-table-class text-white text-center">
+                                          (-){"  "}{" "}
+                                          {Number(
+                                            props.OneOffPricingInfo
+                                              .OriginalPrice
+                                          ) <
+                                            Number(
+                                              props.OneOffPricingInfo
+                                                .DiscountedPrice
+                                            ) ||
+                                          (Number(
+                                            props.OneOffPricingInfo.Discount
+                                          ) > 0 &&
+                                            !props.engagementObj.DiscountLines)
+                                            ? props.formatValue(
+                                                (Number(
+                                                  props.OneOffPricingInfo
+                                                    .DiscountedPrice
+                                                ) +
+                                                  (Number(
+                                                    props.OneOffPricingInfo
+                                                      .DiscountedPrice
+                                                  ) *
+                                                    20) /
+                                                    100) *
+                                                  (props.OneOffPricingInfo
+                                                    .DefaultDiscount /
+                                                    100)
+                                              )
+                                            : props.formatValue(
+                                                (Number(
+                                                  props.OneOffPricingInfo
+                                                    .OriginalPrice
+                                                ) +
+                                                  (Number(
+                                                    props.OneOffPricingInfo
+                                                      .OriginalPrice
+                                                  ) *
+                                                    20) /
+                                                    100) *
+                                                  (props.OneOffPricingInfo
+                                                    .DefaultDiscount /
+                                                    100)
+                                              )}
+                                        </td>
+                                      )}
+                                    </tr>
+                                    <tr className="head-row">
+                                      <td className="tr-table-class font-14 text-white">
+                                        Grand Total
+                                      </td>
+
+                                      {props.visibleFieldsCustomTemp
+                                        ?.serviceCategory && <td></td>}
+                                      {props.visibleFieldsCustomTemp
+                                        .serviceScope && <td></td>}
+                                      {props.visibleFieldsCustomTemp.fees && (
+                                        <td className="tr-table-class text-white text-center">
+                                          {props.formatValue(
+                                            props.OneOffPricingInfo
+                                              .DiscountedPrice
+                                          )}
+                                        </td>
+                                      )}
+                                      {props.visibleFieldsCustomTemp
+                                        .vatRate && <td></td>}
+                                      {props.visibleFieldsCustomTemp.vat && (
+                                        <td className="tr-table-class text-white text-center">
+                                          {props.formatValue(
+                                            (Number(
+                                              props.OneOffPricingInfo
+                                                .DiscountedPrice
+                                            ) *
+                                              20) /
+                                              100
+                                          )}
+                                        </td>
+                                      )}
+                                      {props.visibleFieldsCustomTemp
+                                        .feesIncVat && (
+                                        <td className="tr-table-class text-white text-center">
+                                          {props.formatValue(
+                                            Number(
+                                              props.OneOffPricingInfo
+                                                .DiscountedPrice
+                                            ) +
+                                              (Number(
+                                                props.OneOffPricingInfo
+                                                  .DiscountedPrice
+                                              ) *
+                                                20) /
+                                                100
+                                          )}
+                                        </td>
+                                      )}
+                                    </tr>
+                                  </>
+                                )}
+
+                              {props.vatPercentage && (
+                                <>
+                                  {/* <tr class="head-grey-row">
+                                  <td className="tr-table-class font-14 text-white">
+                                    VAT
+                                  </td>
+                                  <td className="tr-table-class font-14 text-white text-right">
+                                    {" "}
+                                    {formatValue(
+                                      OneOffPricingInfo.VATPrice
+                                    )}
+                                  </td>
+                                </tr> */}
+                                  {/* <tr className="head-row">
+                                  <td className="tr-table-class font-14 text-white">
+                                    Grand Total
+                                  </td>
+                                  <td></td>
+                                  <td className="tr-table-class font-14 text-white text-center">
+                                    {" "}
+                                    {formatValue(
+                                      OneOffPricingInfo.GrandTotal
+                                    )}
+                                  </td>
+                                  <td></td>
+                                  <td></td>
+                                  <td></td>
+                                </tr> */}
+                                </>
+                              )}
+                            </tbody>
+                          </table>
+                          {/* <div
+                        dangerouslySetInnerHTML={{
+                          __html: currentPricingTableDesignRecurring,
+                        }}
+                      /> */}
+                        </div>
+                      ) : (
+                        ""
+                      )}
                     </>
                   )}
+
+                  {/* Statement of facts - Service description customization */}
+
+                  <div className="SOF-SD-Customization d-flex flex-column gap-2">
+                    <div className="service-description">
+                      <div className="separator mb-2"></div>
+                      <h6>Service Description</h6>
+                      <div className="separator mb-3"></div>
+                      <Text_Editor
+                        index={0}
+                        handleContentChange={handleSDChange}
+                        editorState={props.serviceDescriptionHTML}
+                      />
+                    </div>
+                    <div className="statement-of-facts">
+                      <div className="separator mb-2"></div>
+                      <h6>Statement Of Facts</h6>
+                      <div className="separator mb-3"></div>
+                      <Text_Editor
+                        index={0}
+                        handleContentChange={handleSOFChange}
+                        editorState={props.statementOfFactsHTML}
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -2756,6 +4506,16 @@ const ReviewPackagesComponent = (props) => {
     CalculateRecurringPackageNetTotal();
     CalculateOneOffPackageNetTotal();
   }, [props]);
+
+  useEffect(() => {
+    const htmlContent = generateCombinedServicesHTML();
+    props.setServiceDescriptionHTML(htmlContent);
+  }, []);
+
+  useEffect(() => {
+    const htmlContent = generateSOFHTML();
+    props.setStatementOfFactsHTML(htmlContent);
+  }, []);
 
   useEffect(() => {
     if (hasMounted.current) {
@@ -3060,6 +4820,10 @@ const ReviewPackagesComponent = (props) => {
       PackageOneVaTPrice: packageOneNetTotalObj.vatTotalAmount,
       PackageTwoVaTPrice: packageTwoNetTotalObj.vatTotalAmount,
       PackageThreeVaTPrice: packageThreeNetTotalObj.vatTotalAmount,
+      // PackageOneVaTPriceWithoutDiscount: packageOneNetTotalObj.vatTotalAmount,
+      // PackageTwoVaTPriceWithoutDiscount: packageTwoNetTotalObj.vatTotalAmount,
+      // PackageThreeVaTPriceWithoutDiscount:
+      //   packageThreeNetTotalObj.vatTotalAmount,
       PackageOneGrandTotal: packageOneNetTotalObj.grandTotalAmount,
       PackageTwoGrandTotal: packageTwoNetTotalObj.grandTotalAmount,
       PackageThreeGrandTotal: packageThreeNetTotalObj.grandTotalAmount,
@@ -3280,6 +5044,10 @@ const ReviewPackagesComponent = (props) => {
       PackageOneVaTPrice: packageOneNetTotalObj.vatTotalAmount,
       PackageTwoVaTPrice: packageTwoNetTotalObj.vatTotalAmount,
       PackageThreeVaTPrice: packageThreeNetTotalObj.vatTotalAmount,
+      // PackageOneVaTPriceWithoutDiscount: packageOneNetTotalObj.vatTotalAmount,
+      // PackageTwoVaTPriceWithoutDiscount: packageTwoNetTotalObj.vatTotalAmount,
+      // PackageThreeVaTPriceWithoutDiscount:
+      //   packageThreeNetTotalObj.vatTotalAmount,
       PackageOneGrandTotal: packageOneNetTotalObj.grandTotalAmount,
       PackageTwoGrandTotal: packageTwoNetTotalObj.grandTotalAmount,
       PackageThreeGrandTotal: packageThreeNetTotalObj.grandTotalAmount,
@@ -3728,6 +5496,451 @@ const ReviewPackagesComponent = (props) => {
   const feeTypeValue = modifiedFeesType.find(
     (item) => props.engagementObj.feeTypeId == item.value
   );
+
+  const generateCombinedServicesHTML = () => {
+    const fontFamily = "Arial, sans-serif";
+    const fontSizeHeading = "18px";
+    const fontSizeContent = "14px";
+    const newColorCode = "#b4aba6";
+
+    return `
+  <div style="padding-left: 40px; padding-right: 40px;">
+    ${
+      props?.selectedRecurringServiceList?.length
+        ? `<p style="font-family:${fontFamily}; font-size: ${fontSizeHeading}; color: ${newColorCode}; font-weight: bold;">
+             Ongoing/Recurring Services
+           </p>`
+        : ""
+    }
+
+    ${props?.selectedRecurringServiceList
+      ?.map(
+        (serviceCat) => `
+        <div>
+          <p style="color: black; font-weight: bold; font-family:${fontFamily}; font-size: ${fontSizeHeading};">
+            ${serviceCat.serviceCatName}
+          </p>
+          <hr style="color: gray; margin-top: -15px;" />
+          ${serviceCat.servicesList
+            .map(
+              (subService) => `
+                <p style="color: black; font-family:${fontFamily}; font-size: ${fontSizeContent};">
+                  ${subService.serviceName}
+                </p>
+                <p style="color: black; font-family:${fontFamily}; font-size: ${fontSizeContent};">
+                  ${
+                    subService.serviceDescription?.trim()
+                      ? subService.serviceDescription
+                      : ""
+                  }
+                </p>
+              `
+            )
+            .join("")}
+        </div>
+      `
+      )
+      .join("")}
+
+    ${
+      props?.selectedOneOffServiceList?.length
+        ? `<p style="font-family:${fontFamily}; font-size: ${fontSizeHeading}; color: ${newColorCode}; font-weight: bold;">
+             One-Off/Ad hoc Services
+           </p>`
+        : ""
+    }
+
+    ${props?.selectedOneOffServiceList
+      ?.map(
+        (serviceCat) => `
+        <div>
+          <p style="color: black; font-weight: bold; font-family:${fontFamily}; font-size: ${fontSizeHeading};">
+            ${serviceCat.serviceCatName}
+          </p>
+          <hr style="color: gray; margin-top: -15px;" />
+          ${serviceCat.servicesList
+            .map(
+              (subService) => `
+                <p style="color: black; font-family:${fontFamily}; font-size: ${fontSizeContent};">
+                  ${subService.serviceName}
+                </p>
+                <p style="color: black; font-family:${fontFamily}; font-size: ${fontSizeContent};">
+                  ${
+                    subService.serviceDescription?.trim()
+                      ? subService.serviceDescription
+                      : ""
+                  }
+                </p>
+              `
+            )
+            .join("")}
+        </div>
+      `
+      )
+      .join("")}
+  </div>
+  `;
+  };
+
+  function generateSOFHTML() {
+    const fontFamily = "Arial, sans-serif";
+    const fontSizeHeading = "18px";
+    const fontSizeContent = "14px";
+    const newColorCode = "#b4aba6";
+
+    debugger;
+
+    const formatCurrency = props.formatValueWithoutCurrencySymbol;
+
+    if (
+      props.moduleName === "Quote" &&
+      props?.ProposalObject?.selectedProposalTypeValue === 2
+    ) {
+      return props.StatementOfFact.map(
+        (SelectedPackage) => `
+      <div style="padding-left: 40px; padding-right: 40px; font-family:${fontFamily};">
+        <p style="color: ${newColorCode}; font-size: ${fontSizeHeading}; font-weight: bold;">
+          Package Name: ${SelectedPackage.servicePackageName}
+        </p>
+        <hr style="color: gray; margin-top: -15px;">
+        
+        ${
+          SelectedPackage.reccuring.length
+            ? `<p style="font-size: ${fontSizeHeading}; color: ${newColorCode}; font-weight: bold;">Ongoing/Recurring Services</p>`
+            : ""
+        }
+
+        ${SelectedPackage.reccuring
+          .map(
+            (cat) => `
+          <p style="color: black; font-size: ${fontSizeHeading}; font-weight: bold;">${
+              cat.serviceCategoryName
+            }</p>
+          ${cat.servicesList
+            .map(
+              (srv) => `
+            <p style="color: black; font-size: ${fontSizeContent};">${
+                srv.serviceName
+              }</p>
+            ${(srv?.gpdList || [])
+              ?.filter((d) => d.driverTypeID !== 1)
+              .map(
+                (d) => `
+                <li style="color: black; font-size: ${fontSizeContent}; margin-top:5px;">
+                  ${d.driverName}: <strong>${
+                  d.driverTypeID === 2
+                    ? formatCurrency(d.value)
+                    : d.driverTypeID === 3
+                    ? d.variationName
+                    : d.driverTypeID === 4
+                    ? d.slabTypeID === 2
+                      ? formatCurrency(d.value)
+                      : `${d.slabFrom}-${d.slabTo}`
+                    : ""
+                }</strong>
+                </li>
+              `
+              )
+              .join("")}
+          `
+            )
+            .join("")}
+        `
+          )
+          .join("")}
+
+        ${
+          SelectedPackage.oneOff.length
+            ? `<p style="font-size: ${fontSizeHeading}; color: ${newColorCode}; font-weight: bold;">One-Off/Ad hoc Services</p>`
+            : ""
+        }
+
+        ${SelectedPackage.oneOff
+          .map(
+            (cat) => `
+          <p style="color: black; font-size: ${fontSizeHeading}; font-weight: bold;">${
+              cat.serviceCategoryName
+            }</p>
+          ${cat.servicesList
+            .map(
+              (srv) => `
+            <p style="color: black; font-size: ${fontSizeContent};">${
+                srv.serviceName
+              }</p>
+            ${(srv?.gpdList || [])
+              ?.filter((d) => d.driverTypeID !== 1)
+              .map(
+                (d) => `
+                <li style="color: black; font-size: ${fontSizeContent}; margin-top:5px;">
+                  ${d.driverName}: <strong>${
+                  d.driverTypeID === 2
+                    ? formatCurrency(d.value)
+                    : d.driverTypeID === 3
+                    ? d.variationName
+                    : d.driverTypeID === 4
+                    ? d.slabTypeID === 2
+                      ? formatCurrency(d.value)
+                      : `${d.slabFrom}-${d.slabTo}`
+                    : ""
+                }</strong>
+                </li>
+              `
+              )
+              .join("")}
+          `
+            )
+            .join("")}
+        `
+          )
+          .join("")}
+
+        ${
+          SelectedPackage.additionalInformationList?.length
+            ? `<p style="color: ${newColorCode}; font-size: ${fontSizeHeading}; font-weight: bold;">Additional Information</p>
+             <hr style="color: gray; margin-top: -15px;" />
+             ${SelectedPackage.additionalInformationList
+               ?.filter((d) => d.driverTypeID !== 1)
+               .map(
+                 (d) => `
+                 <p style="font-size: ${fontSizeContent}; color: black;">
+                   ${d.driverName}: <strong>${
+                   d.driverTypeID === 2
+                     ? formatCurrency(d.value)
+                     : d.driverTypeID === 3
+                     ? d.variationName
+                     : d.driverTypeID === 4
+                     ? d.slabTypeID === 2
+                       ? formatCurrency(d.value)
+                       : `${formatCurrency(d.slabFrom)}-${formatCurrency(
+                           d.slabTo
+                         )}`
+                     : ""
+                 }</strong>
+                 </p>
+               `
+               )
+               .join("")}`
+            : ""
+        }
+      </div>
+    `
+      ).join(" ");
+    } else {
+      return `
+      <div style="padding-left: 40px; padding-right: 40px; font-family:${fontFamily};">
+        ${
+          props?.selectedRecurringServiceList?.length
+            ? `<p style="font-size: ${fontSizeHeading}; color: ${newColorCode}; font-weight: bold;">Ongoing/Recurring Services</p>`
+            : ""
+        }
+
+        ${props?.selectedRecurringServiceList
+          ?.map(
+            (cat) => `
+          <div>
+            <p style="color: black; font-size: ${fontSizeHeading}; font-weight: bold;">${
+              cat.serviceCatName
+            }</p>
+            <hr style="color: gray; margin-top: -15px;">
+            ${cat.servicesList
+              .map(
+                (srv) => `
+              <p style="color: black; font-size: ${fontSizeContent};">${
+                  srv.serviceName
+                }</p>
+              ${(srv.pricingDriverList || srv.gpdList || [])
+                ?.filter((d) =>
+                  srv.pricingDriverList ? d.driverVisibility : true
+                )
+                ?.filter((d) => d.driverTypeID !== 1)
+                .map(
+                  (d) => `
+                  <li style="color: black; font-size: ${fontSizeContent}; margin-top:5px;">
+                    ${d.driverName}: <strong>${
+                    d.driverTypeID === 2
+                      ? formatCurrency(d.driverValue)
+                      : d.driverTypeID === 3
+                      ? srv.pricingDriverList
+                        ? d.variation.find((v) => v.isDefault)?.variationName
+                        : d.variationName
+                      : d.driverTypeID === 4
+                      ? srv.pricingDriverList
+                        ? (() => {
+                            const slab = d.slab.find((s) => s.isDefault);
+                            return slab.slabTypeID === 2
+                              ? formatCurrency(slab.slabValue)
+                              : `${formatCurrency(
+                                  slab.slabFrom
+                                )}-${formatCurrency(slab.slabTo)}`;
+                          })()
+                        : d.slabTypeID === 2
+                        ? formatCurrency(d.driverValue)
+                        : `${formatCurrency(d.slabFrom)}-${formatCurrency(
+                            d.slabTo
+                          )}`
+                      : ""
+                  }</strong>
+                  </li>
+                `
+                )
+                .join("")}
+            `
+              )
+              .join("")}
+          </div>
+        `
+          )
+          .join("")}
+
+        ${
+          props?.selectedOneOffServiceList?.length
+            ? `<p style="font-size: ${fontSizeHeading}; color: ${newColorCode}; font-weight: bold;">One-Off/Ad hoc Services</p>`
+            : ""
+        }
+
+        ${props?.selectedOneOffServiceList
+          ?.map(
+            (cat) => `
+          <div>
+            <p style="color: black; font-size: ${fontSizeHeading}; font-weight: bold;">${
+              cat.serviceCatName
+            }</p>
+            <hr style="color: gray; margin-top: -15px;">
+            ${cat.servicesList
+              .map(
+                (srv) => `
+              <p style="color: black; font-size: ${fontSizeContent};">${
+                  srv.serviceName
+                }</p>
+              ${(srv.pricingDriverList || srv.gpdList || [])
+                ?.filter((d) =>
+                  srv.pricingDriverList ? d.driverVisibility : true
+                )
+                ?.filter((d) => d.driverTypeID !== 1)
+                .map(
+                  (d) => `
+                  <li style="color: black; font-size: ${fontSizeContent}; margin-top:5px;">
+                    ${d.driverName}: <strong>${
+                    d.driverTypeID === 2
+                      ? formatCurrency(d.driverValue)
+                      : d.driverTypeID === 3
+                      ? srv.pricingDriverList
+                        ? d.variation.find((v) => v.isDefault)?.variationName
+                        : d.variationName
+                      : d.driverTypeID === 4
+                      ? srv.pricingDriverList
+                        ? (() => {
+                            const slab = d.slab.find((s) => s.isDefault);
+                            return slab.slabTypeID === 2
+                              ? formatCurrency(slab.slabValue)
+                              : `${formatCurrency(
+                                  slab.slabFrom
+                                )}-${formatCurrency(slab.slabTo)}`;
+                          })()
+                        : d.slabTypeID === 2
+                        ? formatCurrency(d.driverValue)
+                        : `${formatCurrency(d.slabFrom)}-${formatCurrency(
+                            d.slabTo
+                          )}`
+                      : ""
+                  }</strong>
+                  </li>
+                `
+                )
+                .join("")}
+            `
+              )
+              .join("")}
+          </div>
+        `
+          )
+          .join("")}
+
+        ${
+          props?.additionalInformationList?.filter((d) => d.driverTypeID !== 1)
+            .length
+            ? `<p style="font-size: ${fontSizeHeading}; color: ${newColorCode}; font-weight: bold;">Additional Information</p>
+             <hr style="color: gray; margin-top: -15px;" />
+             ${props.additionalInformationList
+               .map((d) => {
+                 if (
+                   d.driverTypeID === 2 &&
+                   d.variation === null &&
+                   d.slab === null
+                 ) {
+                   return `<p style="color: black; font-size: ${fontSizeContent};">${
+                     d.driverName
+                   }: <strong>${formatCurrency(d.driverValue)}</strong></p>`;
+                 } else {
+                   const source = d.driverTypeID === 4 ? d.slab : d.variation;
+                   return source
+                     ?.filter((item) => item.isDefault)
+                     .map(
+                       (sub) => `
+                   <p style="color: black; font-size: ${fontSizeContent};">
+                     ${d.driverName}: ${
+                         d.driverTypeID === 4
+                           ? sub.slabTypeID === 2
+                             ? `<strong>${formatCurrency(
+                                 sub.slabValue
+                               )}</strong>`
+                             : `<strong>${formatCurrency(
+                                 sub.slabFrom
+                               )}-${formatCurrency(sub.slabTo)}</strong>`
+                           : `<strong>${sub.variationName}</strong>`
+                       }
+                   </p>
+                 `
+                     )
+                     .join("");
+                 }
+               })
+               .join("")}`
+            : ""
+        }
+
+        ${
+          props?.quoteAdditionalInfoGlobalPricingDriver?.filter(
+            (d) => d.driverTypeID !== 1
+          ).length
+            ? `<p style="font-size: ${fontSizeHeading}; color: ${newColorCode}; font-weight: bold;">Additional Information</p>
+             <hr style="color: gray; margin-top: -15px;" />
+             ${props.quoteAdditionalInfoGlobalPricingDriver
+               .map(
+                 (d) => `
+               <p style="color: black; font-size: ${fontSizeContent};">
+                 ${d.driverName}: <strong>${
+                   d.driverTypeID === 2
+                     ? formatCurrency(d.driverValue)
+                     : d.driverTypeID === 3
+                     ? d.variationName
+                     : d.driverTypeID === 4
+                     ? d.slabTypeID === 2
+                       ? formatCurrency(d.driverValue)
+                       : `${formatCurrency(d.slabFrom)} - ${formatCurrency(
+                           d.slabTo
+                         )}`
+                     : ""
+                 }</strong>
+               </p>
+             `
+               )
+               .join("")}`
+            : ""
+        }
+      </div>
+    `;
+    }
+  }
+
+  const handleSOFChange = (newContent) => {
+    props.setStatementOfFactsHTML(newContent);
+  };
+
+  const handleSDChange = (newContent) => {
+    props.setServiceDescriptionHTML(newContent);
+  };
+
   return (
     <>
       <div className="create-practice-height scrollbar">
@@ -3899,68 +6112,110 @@ const ReviewPackagesComponent = (props) => {
                     <div className="mb-3"></div>
 
                     <div
-                      style={{ marginTop: "0px" }}
-                      className="table-responsive"
+                      className="Custom-template"
+                      style={{
+                        display: "flex",
+                        justifyContent: "flex-end",
+                        alignItems: "center",
+                        gap: "10px", // space between icons
+                        width: "100%", // ensure it fills parent for right alignment
+                      }}
                     >
-                      <table
-                        class="table align-middle table-nowrap"
-                        style={{ width: "100%" }}
+                      <div className="viewTemp">
+                        <Tooltip title="Select Template">
+                          <div
+                            onClick={() => {
+                              props.setShowSelectTemplateModal(true);
+                              props.setServiceTypeID(
+                                servicePackageTypeID.RecurringPackageTypeID
+                              );
+                            }}
+                            style={{ cursor: "pointer" }}
+                          >
+                            <ViewModuleIcon />
+                          </div>
+                        </Tooltip>
+                      </div>
+
+                      {/* <div className="customizeTemp">
+                                            <Tooltip title="Customize your own">
+                                              <div
+                                                onClick={() => {
+                                                  props.setShowTemplateCustomizationModal(true);
+                                                  props.setServiceTypeID(1);
+                                                }}
+                                                style={{ cursor: "pointer" }}
+                                              >
+                                                <EditIcon />
+                                              </div>
+                                            </Tooltip>
+                                          </div> */}
+                    </div>
+
+                    {props.selectedTemplateID === 0 ? (
+                      <div
+                        style={{ marginTop: "0px" }}
+                        className="table-responsive"
                       >
-                        <thead className="table-light table-header-font">
-                          <tr className="head-row">
-                            <td className="tr-table-class font-14 text-white">
-                              Services
-                            </td>
-                            {props.selectedPackagesList.map((pkg, index) => (
-                              <td
-                                key={index}
-                                className="tr-table-class font-14 text-white text-right"
-                              >
-                                {pkg.servicePackageName.length > 50 ? (
-                                  <Tooltip title={pkg.servicePackageName}>
-                                    {pkg.servicePackageName
-                                      .substring(0, 50)
-                                      .toLowerCase()
-                                      .replace(/\b\w/g, (l) =>
-                                        l.toUpperCase()
-                                      ) + "..."}
-                                  </Tooltip>
-                                ) : pkg.servicePackageName.length > 50 ? (
-                                  <Tooltip title={pkg.servicePackageName}>
-                                    {pkg.servicePackageName.substring(0, 50) +
-                                      "..."}
-                                  </Tooltip>
-                                ) : (
-                                  pkg.servicePackageName
-                                )}
+                        <table
+                          class="table align-middle table-nowrap"
+                          style={{ width: "100%" }}
+                        >
+                          <thead className="table-light table-header-font">
+                            <tr className="head-row">
+                              <td className="tr-table-class font-14 text-white">
+                                Services
                               </td>
-                            ))}
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {props.selectedRecurringServiceList.map(
-                            (service, index) => {
-                              return (
-                                <>
-                                  <tr className="a-la-carte-services-review-head-row">
-                                    <th colSpan={1 + packageCount}>
-                                      {service.serviceCatName}
-                                    </th>
-                                  </tr>
-                                  {service.servicesList.map(
-                                    (subService, subIndex) => (
-                                      <tr
-                                        key={subIndex}
-                                        className={` ${
-                                          subService?.isAdditionalService !==
-                                          null
-                                            ? "bg-info  text-white"
-                                            : ""
-                                        }`}
-                                      >
-                                        <td>
-                                          <div>
-                                            {/* {subService.serviceName.length >
+                              {props.selectedPackagesList.map((pkg, index) => (
+                                <td
+                                  key={index}
+                                  className="tr-table-class font-14 text-white text-right"
+                                >
+                                  {pkg.servicePackageName.length > 50 ? (
+                                    <Tooltip title={pkg.servicePackageName}>
+                                      {pkg.servicePackageName
+                                        .substring(0, 50)
+                                        .toLowerCase()
+                                        .replace(/\b\w/g, (l) =>
+                                          l.toUpperCase()
+                                        ) + "..."}
+                                    </Tooltip>
+                                  ) : pkg.servicePackageName.length > 50 ? (
+                                    <Tooltip title={pkg.servicePackageName}>
+                                      {pkg.servicePackageName.substring(0, 50) +
+                                        "..."}
+                                    </Tooltip>
+                                  ) : (
+                                    pkg.servicePackageName
+                                  )}
+                                </td>
+                              ))}
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {props.selectedRecurringServiceList.map(
+                              (service, index) => {
+                                return (
+                                  <>
+                                    <tr className="a-la-carte-services-review-head-row">
+                                      <th colSpan={1 + packageCount}>
+                                        {service.serviceCatName}
+                                      </th>
+                                    </tr>
+                                    {service.servicesList.map(
+                                      (subService, subIndex) => (
+                                        <tr
+                                          key={subIndex}
+                                          className={` ${
+                                            subService?.isAdditionalService !==
+                                            null
+                                              ? "bg-info  text-white"
+                                              : ""
+                                          }`}
+                                        >
+                                          <td>
+                                            <div>
+                                              {/* {subService.serviceName.length >
                                               45 ? (
                                               <Tooltip
                                                 title={subService.serviceName}
@@ -3988,315 +6243,1984 @@ const ReviewPackagesComponent = (props) => {
                                                   }}
                                                 />
                                             )} */}
-                                            <EditableCell
-                                              value={subService.serviceName}
-                                              displayValue={subService.serviceName.length > 45
-                                                ? subService.serviceName
-                                                  .substring(0, 45)
-                                                  .toLowerCase()
-                                                  .replace(/\b\w/g, (l) => l.toUpperCase()) + "..."
-                                                : undefined
-                                              }
-                                              onSave={(newName) => {
-                                                props.setSelectedRecurringServiceList(prevList => {
-                                                  const newList = [...prevList];
-                                                  const serviceIndex = prevList.findIndex(s => s === service);
-                                                  newList[serviceIndex].servicesList[subIndex].serviceName = newName;
-                                                  return newList;
-                                                });
-                                              }}
-                                            />
-                                          </div>
-                                          {props.requireMessage && subService.serviceName.trim() === "" &&
-                                            <div>
-                                              <label className="text-danger">
-                                                Please enter a valid service name
-                                              </label>
+                                              <EditableCell
+                                                value={subService.serviceName}
+                                                displayValue={
+                                                  subService.serviceName
+                                                    .length > 45
+                                                    ? subService.serviceName
+                                                        .substring(0, 45)
+                                                        .toLowerCase()
+                                                        .replace(/\b\w/g, (l) =>
+                                                          l.toUpperCase()
+                                                        ) + "..."
+                                                    : undefined
+                                                }
+                                                onSave={(newName) => {
+                                                  props.setSelectedRecurringServiceList(
+                                                    (prevList) => {
+                                                      const newList = [
+                                                        ...prevList,
+                                                      ];
+                                                      const serviceIndex =
+                                                        prevList.findIndex(
+                                                          (s) => s === service
+                                                        );
+                                                      newList[
+                                                        serviceIndex
+                                                      ].servicesList[
+                                                        subIndex
+                                                      ].serviceName = newName;
+                                                      return newList;
+                                                    }
+                                                  );
+                                                }}
+                                              />
                                             </div>
-                                          }
-                                          <div className="package-variables"></div>
-                                        </td>
+                                            {props.requireMessage &&
+                                              subService.serviceName.trim() ===
+                                                "" && (
+                                                <div>
+                                                  <label className="text-danger">
+                                                    Please enter a valid service
+                                                    name
+                                                  </label>
+                                                </div>
+                                              )}
+                                            <div className="package-variables"></div>
+                                          </td>
 
-                                        <td className="text-right">
-                                          <div className="flex-end-item">
-                                            {props.engagementObj.feeTypeId ===
-                                            1 ? (
-                                              <div>
-                                                {(subService.packageOneValue ===
-                                                  0 ||
-                                                  subService.packageOneValue ===
-                                                    null) &&
-                                                !subService.servicePackageIDs.some(
-                                                  (item) =>
-                                                    item ==
-                                                    props
-                                                      .selectedPackagesList[0]
-                                                      .servicePackageID
-                                                ) ? (
-                                                  <span className="fa fa-times"></span>
-                                                ) : !subService?.servicePackageIDs.includes(
-                                                    subService.packageOneID
+                                          <td className="text-right">
+                                            <div className="flex-end-item">
+                                              {props.engagementObj.feeTypeId ===
+                                              1 ? (
+                                                <div>
+                                                  {(subService.packageOneValue ===
+                                                    0 ||
+                                                    subService.packageOneValue ===
+                                                      null) &&
+                                                  !subService.servicePackageIDs.some(
+                                                    (item) =>
+                                                      item ==
+                                                      props
+                                                        .selectedPackagesList[0]
+                                                        .servicePackageID
                                                   ) ? (
-                                                  <span className="fa fa-times"></span>
+                                                    <span className="fa fa-times"></span>
+                                                  ) : !subService?.servicePackageIDs.includes(
+                                                      subService.packageOneID
+                                                    ) ? (
+                                                    <span className="fa fa-times"></span>
+                                                  ) : (
+                                                    ` ${props.formatValue(
+                                                      subService.packageOneValue,
+                                                      props.currencyID
+                                                    )}`
+                                                  )}
+                                                </div>
+                                              ) : Number(
+                                                  subService.packageOneValue
+                                                ) !== null &&
+                                                subService?.servicePackageIDs.includes(
+                                                  subService.packageOneID
+                                                ) ? (
+                                                <span className="fa fa-check"></span>
+                                              ) : (
+                                                <span className="fa fa-times"></span>
+                                              )}
+                                            </div>
+                                          </td>
+                                          {packageCount >= 2 && (
+                                            <td className="text-right">
+                                              <div className="flex-end-item">
+                                                {props.engagementObj
+                                                  .feeTypeId === 1 ? (
+                                                  <div className="flex-end-item">
+                                                    {(subService.packageTwoValue ===
+                                                      0 ||
+                                                      subService.packageTwoValue ===
+                                                        null) &&
+                                                    !subService.servicePackageIDs.some(
+                                                      (item) =>
+                                                        item ==
+                                                        props
+                                                          .selectedPackagesList[1]
+                                                          .servicePackageID
+                                                    ) ? (
+                                                      <span className="fa fa-times"></span>
+                                                    ) : !subService?.servicePackageIDs.includes(
+                                                        subService.packageTwoID
+                                                      ) ? (
+                                                      <span className="fa fa-times"></span>
+                                                    ) : (
+                                                      ` ${props.formatValue(
+                                                        subService.packageTwoValue,
+                                                        props.currencyID
+                                                      )}`
+                                                    )}
+                                                  </div>
+                                                ) : Number(
+                                                    subService.packageTwoValue
+                                                  ) !== null &&
+                                                  subService?.servicePackageIDs.includes(
+                                                    subService.packageTwoID
+                                                  ) ? (
+                                                  <span className="fa fa-check"></span>
                                                 ) : (
-                                                  ` ${props.formatValue(
-                                                    subService.packageOneValue,props.currencyID
-                                                  )}`
+                                                  <span className="fa fa-times"></span>
                                                 )}
                                               </div>
-                                            ) : Number(
-                                                subService.packageOneValue
-                                              ) !== null &&
-                                              subService?.servicePackageIDs.includes(
-                                                subService.packageOneID
-                                              ) ? (
-                                              <span className="fa fa-check"></span>
-                                            ) : (
-                                              <span className="fa fa-times"></span>
-                                            )}
-                                          </div>
-                                        </td>
-                                        {packageCount >= 2 && (
-                                          <td className="text-right">
-                                            <div className="flex-end-item">
-                                              {props.engagementObj.feeTypeId ===
-                                              1 ? (
-                                                <div className="flex-end-item">
-                                                  {(subService.packageTwoValue ===
-                                                    0 ||
-                                                    subService.packageTwoValue ===
-                                                      null) &&
-                                                  !subService.servicePackageIDs.some(
-                                                    (item) =>
-                                                      item ==
-                                                      props
-                                                        .selectedPackagesList[1]
-                                                        .servicePackageID
-                                                  ) ? (
-                                                    <span className="fa fa-times"></span>
-                                                  ) : !subService?.servicePackageIDs.includes(
-                                                      subService.packageTwoID
+                                            </td>
+                                          )}
+                                          {packageCount === 3 && (
+                                            <td className="text-right">
+                                              <div className="flex-end-item">
+                                                {props.engagementObj
+                                                  .feeTypeId === 1 ? (
+                                                  <div className="flex-end-item">
+                                                    {(subService.packageThreeValue ===
+                                                      0 ||
+                                                      subService.packageThreeValue ===
+                                                        null) &&
+                                                    !subService.servicePackageIDs.some(
+                                                      (item) =>
+                                                        item ==
+                                                        props
+                                                          .selectedPackagesList[2]
+                                                          .servicePackageID
                                                     ) ? (
-                                                    <span className="fa fa-times"></span>
-                                                  ) : (
-                                                    ` ${props.formatValue(
-                                                      subService.packageTwoValue,props.currencyID
-                                                    )}`
-                                                  )}
-                                                </div>
-                                              ) : Number(
-                                                  subService.packageTwoValue
-                                                ) !== null &&
-                                                subService?.servicePackageIDs.includes(
-                                                  subService.packageTwoID
-                                                ) ? (
-                                                <span className="fa fa-check"></span>
-                                              ) : (
-                                                <span className="fa fa-times"></span>
-                                              )}
-                                            </div>
-                                          </td>
-                                        )}
-                                        {packageCount === 3 && (
-                                          <td className="text-right">
-                                            <div className="flex-end-item">
-                                              {props.engagementObj.feeTypeId ===
-                                              1 ? (
-                                                <div className="flex-end-item">
-                                                  {(subService.packageThreeValue ===
-                                                    0 ||
-                                                    subService.packageThreeValue ===
-                                                      null) &&
-                                                  !subService.servicePackageIDs.some(
-                                                    (item) =>
-                                                      item ==
-                                                      props
-                                                        .selectedPackagesList[2]
-                                                        .servicePackageID
+                                                      <span className="fa fa-times"></span>
+                                                    ) : !subService?.servicePackageIDs.includes(
+                                                        subService.packageThreeID
+                                                      ) ? (
+                                                      <span className="fa fa-times"></span>
+                                                    ) : (
+                                                      ` ${props.formatValue(
+                                                        subService.packageThreeValue,
+                                                        props.currencyID
+                                                      )}`
+                                                    )}
+                                                  </div>
+                                                ) : Number(
+                                                    subService.packageThreeValue
+                                                  ) !== null &&
+                                                  subService?.servicePackageIDs.includes(
+                                                    subService.packageThreeID
                                                   ) ? (
-                                                    <span className="fa fa-times"></span>
-                                                  ) : !subService?.servicePackageIDs.includes(
-                                                      subService.packageThreeID
-                                                    ) ? (
-                                                    <span className="fa fa-times"></span>
-                                                  ) : (
-                                                    ` ${props.formatValue(
-                                                      subService.packageThreeValue,props.currencyID
-                                                    )}`
-                                                  )}
-                                                </div>
-                                              ) : Number(
-                                                  subService.packageThreeValue
-                                                ) !== null &&
-                                                subService?.servicePackageIDs.includes(
-                                                  subService.packageThreeID
-                                                ) ? (
-                                                <span className="fa fa-check"></span>
-                                              ) : (
-                                                <span className="fa fa-times"></span>
-                                              )}
-                                            </div>
-                                          </td>
+                                                  <span className="fa fa-check"></span>
+                                                ) : (
+                                                  <span className="fa fa-times"></span>
+                                                )}
+                                              </div>
+                                            </td>
+                                          )}
+                                        </tr>
+                                      )
+                                    )}
+                                  </>
+                                );
+                              }
+                            )}
+                          </tbody>
+                          {packageCount > 1 && (
+                            <>
+                              <tr id="recurring_DefaultWithPackages">
+                                <td
+                                  style={{
+                                    padding: "8px",
+                                  }}
+                                >
+                                  Discount (%)
+                                  {/* <div className="package-variables"></div> */}
+                                </td>
+
+                                <td
+                                  style={{
+                                    width: "35%",
+                                    padding: "0px",
+                                    whiteSpace: "normal",
+                                  }}
+                                >
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      flexDirection: "column",
+                                      alignItems: "flex-start",
+                                    }}
+                                  >
+                                    <input
+                                      className="input-text"
+                                      type="text" // Change type to number
+                                      placeholder="Discount (%)"
+                                      value={props.RecurringPricingInfo.DiscountPercentagePackageOne?.toString()?.replace(
+                                        /\B(?=(\d{3})+(?!\d))/g,
+                                        ","
+                                      )}
+                                      onChange={(e) => {
+                                        handlePackageOneDiscountPercentage(e);
+                                      }}
+                                      style={{
+                                        width: "100%",
+                                        textAlign: "right",
+                                      }}
+                                    />
+                                    <div>
+                                      {props.getValidationMessage(
+                                        props.requireMessage,
+                                        props.pricingSettingObj
+                                          .maxDiscountForQC,
+                                        props.RecurringPricingInfo
+                                          .DiscountPercentagePackageOne
+                                      )}
+                                    </div>
+                                  </div>
+                                </td>
+
+                                {packageCount >= 2 && (
+                                  <td
+                                    style={{
+                                      width: "35%",
+                                      padding: "0px",
+                                      whiteSpace: "normal",
+                                    }}
+                                  >
+                                    <div
+                                      style={{
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        alignItems: "flex-start",
+                                      }}
+                                    >
+                                      <input
+                                        className="input-text"
+                                        type="text" // Change type to number
+                                        placeholder="Discount (%)"
+                                        value={props.RecurringPricingInfo.DiscountPercentagePackageTwo?.toString()?.replace(
+                                          /\B(?=(\d{3})+(?!\d))/g,
+                                          ","
                                         )}
-                                      </tr>
+                                        onChange={(e) => {
+                                          handlePackageTwoDiscountPercentage(e);
+                                        }}
+                                        style={{
+                                          width: "100%",
+                                          textAlign: "right",
+                                        }}
+                                      />
+                                      <div>
+                                        {props.getValidationMessage(
+                                          props.requireMessage,
+                                          props.pricingSettingObj
+                                            .maxDiscountForQC,
+                                          props.RecurringPricingInfo
+                                            .DiscountPercentagePackageTwo
+                                        )}
+                                      </div>
+                                    </div>
+                                  </td>
+                                )}
+
+                                {packageCount === 3 && (
+                                  <td
+                                    style={{
+                                      width: "35%",
+                                      padding: "0px",
+                                      whiteSpace: "normal",
+                                    }}
+                                  >
+                                    <div
+                                      style={{
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        alignItems: "flex-start",
+                                      }}
+                                    >
+                                      <input
+                                        className="input-text"
+                                        type="text" // Change type to number
+                                        placeholder="Discount (%)"
+                                        value={props.RecurringPricingInfo.DiscountPercentagePackageThree?.toString()?.replace(
+                                          /\B(?=(\d{3})+(?!\d))/g,
+                                          ","
+                                        )}
+                                        onChange={(e) => {
+                                          handlePackageThreeDiscountPercentage(
+                                            e
+                                          );
+                                        }}
+                                        style={{
+                                          width: "100%",
+                                          textAlign: "right",
+                                        }}
+                                      />
+                                      <div>
+                                        {props.getValidationMessage(
+                                          props.requireMessage,
+                                          props.pricingSettingObj
+                                            .maxDiscountForQC,
+                                          props.RecurringPricingInfo
+                                            .DiscountPercentagePackageThree
+                                        )}
+                                      </div>
+                                    </div>
+                                  </td>
+                                )}
+                              </tr>
+                            </>
+                          )}
+                          <tr className="head-row">
+                            <td className="tr-table-class font-14 text-white">
+                              Net Total
+                            </td>
+                            <td className="tr-table-class font-14 text-white text-right">
+                              {" "}
+                              {
+                                totalOnePackageValue >
+                                  Number(
+                                    props.RecurringPricingInfo
+                                      .packageOneNetTotal
+                                  ) ||
+                                (Number(
+                                  props.RecurringPricingInfo.packageOneDisCount
+                                ) > 0 &&
+                                  !props.engagementObj.DiscountLines)
+                                  ? // ||
+                                    // Number(
+                                    //   props.RecurringPricingInfo
+                                    //     .packageOneDisCountedTotal
+                                    // ) === 0
+                                    Number(
+                                      props.RecurringPricingInfo
+                                        .packageOneDisCount
+                                    ) > 0 && !props.engagementObj.DiscountLines
+                                    ? props.formatValue(
+                                        props.RecurringPricingInfo
+                                          .packageOneDisCountedTotal,
+                                        props.currencyID
+                                      )
+                                    : props.formatValue(
+                                        totalOnePackageValue,
+                                        props.currencyID
+                                      )
+                                  : //  Number(totalOnePackageValue)
+                                    //     .toFixed(2)
+                                    //     .toString()
+                                    //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                    props.formatValue(
+                                      props.RecurringPricingInfo
+                                        .packageOneNetTotal,
+                                      props.currencyID
                                     )
+                                // Number(
+                                //     props.RecurringPricingInfo
+                                //       .packageOneDisCountedTotal
+                                //   )
+                                //     .toFixed(2)
+                                //     .toString()
+                                //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                              }
+                            </td>
+                            {packageCount >= 2 && (
+                              <td className="tr-table-class font-14 text-white text-right">
+                                {" "}
+                                {
+                                  totalTwoPackageValue >
+                                    Number(
+                                      props.RecurringPricingInfo
+                                        .packageTwoNetTotal
+                                    ) ||
+                                  (Number(
+                                    props.RecurringPricingInfo
+                                      .packageTwoDisCount
+                                  ) > 0 &&
+                                    !props.engagementObj.DiscountLines)
+                                    ? // ||
+                                      // Number(
+                                      //   props.RecurringPricingInfo
+                                      //     .packageTwoDisCountedTotal
+                                      // ) === 0
+                                      Number(
+                                        props.RecurringPricingInfo
+                                          .packageTwoDisCount
+                                      ) > 0 &&
+                                      !props.engagementObj.DiscountLines
+                                      ? props.formatValue(
+                                          props.RecurringPricingInfo
+                                            .packageTwoDisCountedTotal,
+                                          props.currencyID
+                                        )
+                                      : props.formatValue(
+                                          totalTwoPackageValue,
+                                          props.currencyID
+                                        )
+                                    : // Number(totalTwoPackageValue)
+                                      //     .toFixed(2)
+                                      //     .toString()
+                                      //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                      props.formatValue(
+                                        props.RecurringPricingInfo
+                                          .packageTwoNetTotal,
+                                        props.currencyID
+                                      )
+                                  // Number(
+                                  //     props.RecurringPricingInfo
+                                  //       .packageTwoDisCountedTotal
+                                  //   )
+                                  //     .toFixed(2)
+                                  //     .toString()
+                                  //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                }
+                              </td>
+                            )}{" "}
+                            {packageCount === 3 && (
+                              <td className="tr-table-class font-14 text-white text-right">
+                                {" "}
+                                {
+                                  totalThreePackageValue >
+                                    Number(
+                                      props.RecurringPricingInfo
+                                        .packageThreeNetTotal
+                                    ) ||
+                                  (Number(
+                                    props.RecurringPricingInfo
+                                      .packageThreeDisCount
+                                  ) > 0 &&
+                                    !props.engagementObj.DiscountLines)
+                                    ? // ||
+                                      // Number(
+                                      //   props.RecurringPricingInfo
+                                      //     .packageThreeNetTotal
+                                      // ) === 0
+                                      Number(
+                                        props.RecurringPricingInfo
+                                          .packageThreeDisCount
+                                      ) > 0 &&
+                                      !props.engagementObj.DiscountLines
+                                      ? props.formatValue(
+                                          props.RecurringPricingInfo
+                                            .packageThreeDisCountedTotal,
+                                          props.currencyID
+                                        )
+                                      : props.formatValue(
+                                          totalThreePackageValue,
+                                          props.currencyID
+                                        )
+                                    : // Number(totalThreePackageValue)
+                                      //     .toFixed(2)
+                                      //     .toString()
+                                      //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                      props.formatValue(
+                                        props.RecurringPricingInfo
+                                          .packageThreeNetTotal,
+                                        props.currencyID
+                                      )
+                                  // Number(
+                                  //     props.RecurringPricingInfo
+                                  //       .packageThreeDisCountedTotal
+                                  //   )
+                                  //     .toFixed(2)
+                                  //     .toString()
+                                  //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                }
+                              </td>
+                            )}
+                          </tr>
+
+                          {/* </td> */}
+                          {/* </tr> */}
+                          {(Number(
+                            props.RecurringPricingInfo.packageThreeDisCount
+                          ) > 0 ||
+                            Number(
+                              props.RecurringPricingInfo.packageOneDisCount
+                            ) > 0 ||
+                            Number(
+                              props.RecurringPricingInfo.packageTwoDisCount
+                            ) > 0) &&
+                            props.engagementObj.DiscountLines && (
+                              <>
+                                <tr className="head-grey-row">
+                                  <td className="tr-table-class font-14 text-white">
+                                    Discount
+                                  </td>
+                                  <td className="tr-table-class font-14 text-white text-right">
+                                    (-){" "}
+                                    {props.formatValue(
+                                      props.RecurringPricingInfo
+                                        .packageOneDisCount,
+                                      props.currencyID
+                                    )}
+                                  </td>
+                                  {packageCount >= 2 && (
+                                    <td className="tr-table-class font-14 text-white text-right">
+                                      (-){" "}
+                                      {props.formatValue(
+                                        props.RecurringPricingInfo
+                                          .packageTwoDisCount,
+                                        props.currencyID
+                                      )}
+                                    </td>
+                                  )}
+                                  {packageCount === 3 && (
+                                    <td className="tr-table-class font-14 text-white text-right">
+                                      (-){" "}
+                                      {props.formatValue(
+                                        props.RecurringPricingInfo
+                                          .packageThreeDisCount,
+                                        props.currencyID
+                                      )}
+                                    </td>
+                                  )}
+                                </tr>
+                                <tr className="head-row">
+                                  <td className="tr-table-class font-14 text-white">
+                                    Discounted Total
+                                  </td>
+                                  <td className="tr-table-class font-14 text-white text-right">
+                                    {" "}
+                                    {props.formatValue(
+                                      props.RecurringPricingInfo
+                                        .packageOneDisCountedTotal,
+                                      props.currencyID
+                                    )}
+                                  </td>
+
+                                  {packageCount >= 2 && (
+                                    <td className="tr-table-class font-14 text-white text-right">
+                                      {" "}
+                                      {props.formatValue(
+                                        props.RecurringPricingInfo
+                                          .packageTwoDisCountedTotal,
+                                        props.currencyID
+                                      )}
+                                    </td>
+                                  )}
+                                  {packageCount === 3 && (
+                                    <td className="tr-table-class font-14 text-white text-right">
+                                      {" "}
+                                      {props.formatValue(
+                                        props.RecurringPricingInfo
+                                          .packageThreeDisCountedTotal,
+                                        props.currencyID
+                                      )}
+                                    </td>
+                                  )}
+                                </tr>
+                              </>
+                            )}
+
+                          {props.vatPercentage && (
+                            <>
+                              <tr class="head-grey-row">
+                                <td className="tr-table-class font-14 text-white">
+                                  {props.taxName}
+                                </td>
+                                <td className="tr-table-class font-14 text-white text-right">
+                                  {" "}
+                                  {
+                                    props.formatValue(
+                                      Number(
+                                        props.RecurringPricingInfo
+                                          .PackageOneVaTPrice
+                                      ),
+                                      props.currencyID
+                                    )
+                                    // Number(
+                                    //   props.RecurringPricingInfo.PackageOneVaTPrice
+                                    // )
+                                    //   .toFixed(2)
+                                    //   .toString()
+                                    //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                  }
+                                  {/* VATNew Rs{RecurringPackageCalculation.PackageOneVatTotalAmount} */}
+                                </td>
+                                {packageCount >= 2 && (
+                                  <td className="tr-table-class font-14 text-white text-right">
+                                    {" "}
+                                    {
+                                      props.formatValue(
+                                        Number(
+                                          props.RecurringPricingInfo
+                                            .PackageTwoVaTPrice
+                                        ),
+                                        props.currencyID
+                                      )
+                                      // Number(
+                                      //   props.RecurringPricingInfo.PackageTwoVaTPrice
+                                      // )
+                                      //   .toFixed(2)
+                                      //   .toString()
+                                      //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                    }
+                                  </td>
+                                )}
+                                {packageCount === 3 && (
+                                  <td className="tr-table-class font-14 text-white text-right">
+                                    {" "}
+                                    {
+                                      props.formatValue(
+                                        Number(
+                                          props.RecurringPricingInfo
+                                            .PackageThreeVaTPrice
+                                        ),
+                                        props.currencyID
+                                      )
+                                      // Number(
+                                      //   props.RecurringPricingInfo
+                                      //     .PackageThreeVaTPrice
+                                      // )
+                                      //   .toFixed(2)
+                                      //   .toString()
+                                      //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                    }
+                                  </td>
+                                )}
+                              </tr>
+                              <tr className="head-row">
+                                <td className="tr-table-class font-14 text-white">
+                                  Grand Total
+                                </td>
+                                <td className="tr-table-class font-14 text-white text-right">
+                                  {" "}
+                                  {
+                                    props.formatValue(
+                                      props.RecurringPricingInfo
+                                        .PackageOneGrandTotal,
+                                      props.currencyID
+                                    )
+
+                                    // Number(
+                                    //   props.RecurringPricingInfo.PackageOneGrandTotal
+                                    // )
+                                    //   .toFixed(2)
+                                    //   .toString()
+                                    //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                  }
+                                  {/* NewGT Rs{RecurringPackageCalculation.PackageOneGrandTotalAmount} */}
+                                </td>
+                                {packageCount >= 2 && (
+                                  <td className="tr-table-class font-14 text-white text-right">
+                                    {" "}
+                                    {
+                                      props.formatValue(
+                                        props.RecurringPricingInfo
+                                          .PackageTwoGrandTotal,
+                                        props.currencyID
+                                      )
+                                      // Number(
+                                      //   props.RecurringPricingInfo
+                                      //     .PackageTwoGrandTotal
+                                      // )
+                                      //   .toFixed(2)
+                                      //   .toString()
+                                      //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                    }
+                                  </td>
+                                )}
+                                {packageCount == 3 && (
+                                  <td className="tr-table-class font-14 text-white text-right">
+                                    {" "}
+                                    {
+                                      props.formatValue(
+                                        props.RecurringPricingInfo
+                                          .PackageThreeGrandTotal,
+                                        props.currencyID
+                                      )
+                                      // Number(
+                                      //   props.RecurringPricingInfo
+                                      //     .PackageThreeGrandTotal
+                                      // )
+                                      //   .toFixed(2)
+                                      //   .toString()
+                                      //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                    }
+                                  </td>
+                                )}
+                              </tr>
+                            </>
+                          )}
+                        </table>
+                      </div>
+                    ) : props.selectedTemplateID === 6 ? (
+                      <div
+                        style={{ marginTop: "0px" }}
+                        className="table-responsive"
+                      >
+                        {/* <div
+                                                       dangerouslySetInnerHTML={{
+                                                         __html: currentPricingTableDesignRecurring,
+                                                       }}
+                                                     /> */}
+                        <table
+                          class="table align-middle table-nowrap"
+                          style={{ width: "100%" }}
+                        >
+                          <thead className="table-light table-header-font">
+                            <tr className="head-row">
+                              <td></td>
+                              {props.selectedPackagesList.map((pkg, index) => (
+                                <>
+                                  <td
+                                    key={index}
+                                    className="tr-table-class font-14 text-white text-right"
+                                  >
+                                    {pkg.servicePackageName.length > 10 ? (
+                                      <Tooltip title={pkg.servicePackageName}>
+                                        {pkg.servicePackageName
+                                          .substring(0, 10)
+                                          .toLowerCase()
+                                          .replace(/\b\w/g, (l) =>
+                                            l.toUpperCase()
+                                          ) + "..."}
+                                      </Tooltip>
+                                    ) : pkg.servicePackageName.length > 10 ? (
+                                      <Tooltip title={pkg.servicePackageName}>
+                                        {pkg.servicePackageName.substring(
+                                          0,
+                                          10
+                                        ) + "..."}
+                                      </Tooltip>
+                                    ) : (
+                                      pkg.servicePackageName
+                                    )}
+                                  </td>
+                                  {props.visibleFieldsCustomTemp.vat && (
+                                    <td></td>
+                                  )}
+                                  {props.visibleFieldsCustomTemp
+                                    .serviceScope && <td></td>}
+
+                                  {/* {packageCount >= 2 && (
+                                              <>
+                                                <td
+                                                  key={index}
+                                                  className="tr-table-class font-14 text-white text-right"
+                                                >
+                                                  {pkg.servicePackageName.length > 10 ? (
+                                                    <Tooltip title={pkg.servicePackageName}>
+                                                      {pkg.servicePackageName
+                                                        .substring(0, 10)
+                                                        .toLowerCase()
+                                                        .replace(/\b\w/g, (l) => l.toUpperCase()) +
+                                                        "..."}
+                                                    </Tooltip>
+                                                  ) : pkg.servicePackageName.length > 10 ? (
+                                                    <Tooltip title={pkg.servicePackageName}>
+                                                      {pkg.servicePackageName.substring(0, 10) +
+                                                        "..."}
+                                                    </Tooltip>
+                                                  ) : (
+                                                    pkg.servicePackageName
+                                                  )}
+                                                </td>
+                                                {props.visibleFieldsCustomTemp.vat && <td></td>}
+                                                {props.visibleFieldsCustomTemp.serviceScope && <td></td>}
+                                              </>
+                                            )}
+                                            {packageCount === 3 && (
+                                              <>
+                                                <td
+                                                  key={index}
+                                                  className="tr-table-class font-14 text-white text-right"
+                                                >
+                                                  {pkg.servicePackageName.length > 10 ? (
+                                                    <Tooltip title={pkg.servicePackageName}>
+                                                      {pkg.servicePackageName
+                                                        .substring(0, 10)
+                                                        .toLowerCase()
+                                                        .replace(/\b\w/g, (l) => l.toUpperCase()) +
+                                                        "..."}
+                                                    </Tooltip>
+                                                  ) : pkg.servicePackageName.length > 10 ? (
+                                                    <Tooltip title={pkg.servicePackageName}>
+                                                      {pkg.servicePackageName.substring(0, 10) +
+                                                        "..."}
+                                                    </Tooltip>
+                                                  ) : (
+                                                    pkg.servicePackageName
+                                                  )}
+                                                </td>
+                                                {props.visibleFieldsCustomTemp.vat && <td></td>}
+                                                {props.visibleFieldsCustomTemp.serviceScope && <td></td>}
+                                              </>
+                                            )} */}
+                                </>
+                              ))}
+                            </tr>
+                            <tr className="head-row">
+                              {props.visibleFieldsCustomTemp.serviceName && (
+                                <td className="tr-table-class font-14 text-white">
+                                  Services
+                                </td>
+                              )}
+                              {props.selectedPackagesList.map((pkg, index) => (
+                                <>
+                                  {/* <td
+                                              key={index}
+                                              className="tr-table-class font-14 text-white text-right"
+                                            >
+                                              {pkg.servicePackageName.length > 10 ? (
+                                                <Tooltip title={pkg.servicePackageName}>
+                                                  {pkg.servicePackageName
+                                                    .substring(0, 10)
+                                                    .toLowerCase()
+                                                    .replace(/\b\w/g, (l) => l.toUpperCase()) + "..."}
+                                                </Tooltip>
+                                              ) : pkg.servicePackageName.length > 10 ? (
+                                                <Tooltip title={pkg.servicePackageName}>
+                                                  {pkg.servicePackageName.substring(0, 10) + "..."}
+                                                </Tooltip>
+                                              ) : (
+                                                pkg.servicePackageName
+                                              )}
+                                            </td> */}
+
+                                  <th
+                                    className="tr-table-class text-white text-right"
+                                    style={{ width: "16.66%" }}
+                                  >
+                                    Fees (£)
+                                  </th>
+
+                                  {props.visibleFieldsCustomTemp.vat && (
+                                    <th
+                                      className="tr-table-class text-white text-right"
+                                      style={{ width: "16.66%" }}
+                                    >
+                                      VAT (£)
+                                    </th>
+                                  )}
+
+                                  {props.visibleFieldsCustomTemp
+                                    .serviceScope && (
+                                    <th
+                                      className="tr-table-class text-white text-right"
+                                      style={{ width: "16.66%" }}
+                                    >
+                                      Service Scope
+                                    </th>
                                   )}
                                 </>
-                              );
-                            }
-                          )}
-                        </tbody>
-                        {packageCount > 1 && (
-                          <>
-                            <tr id="recurring_DefaultWithPackages">
-                              <td
-                                style={{
-                                  padding: "8px",
-                                }}
-                              >
-                                Discount (%)
-                                {/* <div className="package-variables"></div> */}
-                              </td>
-
-                              <td
-                                style={{
-                                  width: "35%",
-                                  padding: "0px",
-                                  whiteSpace: "normal",
-                                }}
-                              >
-                                <div
-                                  style={{
-                                    display: "flex",
-                                    flexDirection: "column",
-                                    alignItems: "flex-start",
-                                  }}
-                                >
-                                  <input
-                                    className="input-text"
-                                    type="text" // Change type to number
-                                    placeholder="Discount (%)"
-                                    value={props.RecurringPricingInfo.DiscountPercentagePackageOne?.toString()?.replace(
-                                      /\B(?=(\d{3})+(?!\d))/g,
-                                      ","
-                                    )}
-                                    onChange={(e) => {
-                                      handlePackageOneDiscountPercentage(e);
-                                    }}
-                                    style={{
-                                      width: "100%",
-                                      textAlign: "right",
-                                    }}
-                                  />
-                                  <div>
-                                    {props.getValidationMessage(
-                                      props.requireMessage,
-                                      props.pricingSettingObj.maxDiscountForQC,
-                                      props.RecurringPricingInfo
-                                        .DiscountPercentagePackageOne
-                                    )}
-                                  </div>
-                                </div>
-                              </td>
-
-                              {packageCount >= 2 && (
-                                <td
-                                  style={{
-                                    width: "35%",
-                                    padding: "0px",
-                                    whiteSpace: "normal",
-                                  }}
-                                >
-                                  <div
-                                    style={{
-                                      display: "flex",
-                                      flexDirection: "column",
-                                      alignItems: "flex-start",
-                                    }}
-                                  >
-                                    <input
-                                      className="input-text"
-                                      type="text" // Change type to number
-                                      placeholder="Discount (%)"
-                                      value={props.RecurringPricingInfo.DiscountPercentagePackageTwo?.toString()?.replace(
-                                        /\B(?=(\d{3})+(?!\d))/g,
-                                        ","
-                                      )}
-                                      onChange={(e) => {
-                                        handlePackageTwoDiscountPercentage(e);
-                                      }}
-                                      style={{
-                                        width: "100%",
-                                        textAlign: "right",
-                                      }}
-                                    />
-                                    <div>
-                                      {props.getValidationMessage(
-                                        props.requireMessage,
-                                        props.pricingSettingObj
-                                          .maxDiscountForQC,
-                                        props.RecurringPricingInfo
-                                          .DiscountPercentagePackageTwo
-                                      )}
-                                    </div>
-                                  </div>
-                                </td>
-                              )}
-
-                              {packageCount === 3 && (
-                                <td
-                                  style={{
-                                    width: "35%",
-                                    padding: "0px",
-                                    whiteSpace: "normal",
-                                  }}
-                                >
-                                  <div
-                                    style={{
-                                      display: "flex",
-                                      flexDirection: "column",
-                                      alignItems: "flex-start",
-                                    }}
-                                  >
-                                    <input
-                                      className="input-text"
-                                      type="text" // Change type to number
-                                      placeholder="Discount (%)"
-                                      value={props.RecurringPricingInfo.DiscountPercentagePackageThree?.toString()?.replace(
-                                        /\B(?=(\d{3})+(?!\d))/g,
-                                        ","
-                                      )}
-                                      onChange={(e) => {
-                                        handlePackageThreeDiscountPercentage(e);
-                                      }}
-                                      style={{
-                                        width: "100%",
-                                        textAlign: "right",
-                                      }}
-                                    />
-                                    <div>
-                                      {props.getValidationMessage(
-                                        props.requireMessage,
-                                        props.pricingSettingObj
-                                          .maxDiscountForQC,
-                                        props.RecurringPricingInfo
-                                          .DiscountPercentagePackageThree
-                                      )}
-                                    </div>
-                                  </div>
-                                </td>
-                              )}
+                              ))}
                             </tr>
-                          </>
-                        )}
-                        <tr className="head-row">
-                          <td className="tr-table-class font-14 text-white">
-                            Net Total
-                          </td>
-                          <td className="tr-table-class font-14 text-white text-right">
-                            {" "}
-                            {
-                              totalOnePackageValue >
+                          </thead>
+                          <tbody>
+                            {props.selectedRecurringServiceList.map(
+                              (service, index) => {
+                                return (
+                                  <>
+                                    <tr className="a-la-carte-services-review-head-row">
+                                      {props.visibleFieldsCustomTemp
+                                        .serviceName && (
+                                        <th colSpan={1 + packageCount}>
+                                          {service.serviceCatName}
+                                        </th>
+                                      )}
+
+                                      {/* <th></th> */}
+                                      {props.visibleFieldsCustomTemp.vat && (
+                                        <th></th>
+                                      )}
+                                      {props.visibleFieldsCustomTemp
+                                        .serviceScope && <th></th>}
+                                      {packageCount >= 2 && (
+                                        <>
+                                          {props.visibleFieldsCustomTemp
+                                            .vat && <th></th>}
+                                          {props.visibleFieldsCustomTemp
+                                            .serviceScope && <th></th>}
+                                        </>
+                                      )}
+
+                                      {packageCount === 3 && (
+                                        <>
+                                          {props.visibleFieldsCustomTemp
+                                            .vat && <th></th>}
+                                          {props.visibleFieldsCustomTemp
+                                            .serviceScope && <th></th>}
+                                        </>
+                                      )}
+                                    </tr>
+                                    {service.servicesList.map(
+                                      (subService, subIndex) => {
+                                        const driverList =
+                                          subService.pricingDriverList || [];
+                                        return (
+                                          <tr
+                                            key={subIndex}
+                                            className={` ${
+                                              subService?.isAdditionalService !==
+                                              null
+                                                ? "bg-info  text-white"
+                                                : ""
+                                            }`}
+                                          >
+                                            {props.visibleFieldsCustomTemp
+                                              .serviceName && (
+                                              <td>
+                                                <div>
+                                                  {subService.serviceName
+                                                    .length > 45 ? (
+                                                    <Tooltip
+                                                      title={
+                                                        subService.serviceName
+                                                      }
+                                                    >
+                                                      {subService.serviceName
+                                                        .substring(0, 45)
+                                                        .toLowerCase()
+                                                        .replace(/\b\w/g, (l) =>
+                                                          l.toUpperCase()
+                                                        ) + "..."}
+                                                    </Tooltip>
+                                                  ) : (
+                                                    subService.serviceName
+                                                  )}
+                                                </div>
+                                                <div className="package-variables"></div>
+                                              </td>
+                                            )}
+
+                                            <td className="text-right">
+                                              <div className="flex-end-item">
+                                                {props.engagementObj
+                                                  .feeTypeId === 1 ? (
+                                                  <div>
+                                                    {(subService.packageOneValue ===
+                                                      0 ||
+                                                      subService.packageOneValue ===
+                                                        null) &&
+                                                    !subService.servicePackageIDs.some(
+                                                      (item) =>
+                                                        item ==
+                                                        props
+                                                          .selectedPackagesList[0]
+                                                          .servicePackageID
+                                                    ) ? (
+                                                      <span className="fa fa-times"></span>
+                                                    ) : !subService?.servicePackageIDs.includes(
+                                                        subService.packageOneID
+                                                      ) ? (
+                                                      <span className="fa fa-times"></span>
+                                                    ) : (
+                                                      ` ${props.formatValue(
+                                                        subService.packageOneValue
+                                                      )}`
+                                                    )}
+                                                  </div>
+                                                ) : Number(
+                                                    subService.packageOneValue
+                                                  ) !== null &&
+                                                  subService?.servicePackageIDs.includes(
+                                                    subService.packageOneID
+                                                  ) ? (
+                                                  <span className="fa fa-check"></span>
+                                                ) : (
+                                                  <span className="fa fa-times"></span>
+                                                )}
+                                                {subService?.isAdditionalService !==
+                                                null ? (
+                                                  <input
+                                                    style={{
+                                                      marginLeft: "5px",
+                                                    }}
+                                                    disabled={
+                                                      subService?.servicePackageIDs.includes(
+                                                        subService.packageOneID
+                                                      ) &&
+                                                      subService
+                                                        ?.servicePackageIDs
+                                                        .length === 1
+                                                    }
+                                                    type="checkbox"
+                                                    checked={subService?.servicePackageIDs.includes(
+                                                      subService.packageOneID
+                                                    )}
+                                                    // onChange={(e) =>
+                                                    //   handleAddAndRemoveAdditionalServices(
+                                                    //     1,
+                                                    //     service.serviceCatID,
+                                                    //     subService.serviceID,
+                                                    //     subService.packageOneID,
+                                                    //     e.target.checked
+                                                    //   )
+                                                    // }
+                                                  />
+                                                ) : (
+                                                  <div>&nbsp;&nbsp;</div>
+                                                )}
+                                              </div>
+                                            </td>
+
+                                            {/* VAT */}
+
+                                            {props.visibleFieldsCustomTemp
+                                              .vat && (
+                                              <>
+                                                {/* Package One */}
+                                                <td className="text-right">
+                                                  <div className="flex-end-item">
+                                                    {props.engagementObj
+                                                      .feeTypeId === 1 ? (
+                                                      (subService.packageOneValue ===
+                                                        0 ||
+                                                        subService.packageOneValue ===
+                                                          null) &&
+                                                      !subService.servicePackageIDs.some(
+                                                        (item) =>
+                                                          item ===
+                                                          props
+                                                            .selectedPackagesList[0]
+                                                            .servicePackageID
+                                                      ) ? (
+                                                        <span className="fa fa-times"></span>
+                                                      ) : !subService?.servicePackageIDs.includes(
+                                                          subService.packageOneID
+                                                        ) ? (
+                                                        <span className="fa fa-times"></span>
+                                                      ) : (
+                                                        ` ${props.formatValue(
+                                                          (subService.packageOneValue *
+                                                            20) /
+                                                            100
+                                                        )}`
+                                                      )
+                                                    ) : Number(
+                                                        subService.packageOneValue
+                                                      ) !== null &&
+                                                      subService?.servicePackageIDs.includes(
+                                                        subService.packageOneID
+                                                      ) ? (
+                                                      <span className="fa fa-check"></span>
+                                                    ) : (
+                                                      <span className="fa fa-times"></span>
+                                                    )}
+
+                                                    {subService?.isAdditionalService !==
+                                                    null ? (
+                                                      <input
+                                                        style={{
+                                                          marginLeft: "5px",
+                                                        }}
+                                                        type="checkbox"
+                                                        disabled={
+                                                          subService?.servicePackageIDs.includes(
+                                                            subService.packageOneID
+                                                          ) &&
+                                                          subService
+                                                            ?.servicePackageIDs
+                                                            .length === 1
+                                                        }
+                                                        checked={subService?.servicePackageIDs.includes(
+                                                          subService.packageOneID
+                                                        )}
+                                                        // onChange={(e) =>
+                                                        //   handleAddAndRemoveAdditionalServices(
+                                                        //     1,
+                                                        //     service.serviceCatID,
+                                                        //     subService.serviceID,
+                                                        //     subService.packageOneID,
+                                                        //     e.target.checked
+                                                        //   )
+                                                        // }
+                                                      />
+                                                    ) : (
+                                                      <div>&nbsp;&nbsp;</div>
+                                                    )}
+                                                  </div>
+                                                </td>
+
+                                                {/* Package Two */}
+                                                {/* {packageCount >= 2 && (
+                                                        <>
+                                                          <td className="text-right">
+                                                            <div className="flex-end-item">
+                                                              {props.engagementObj.feeTypeId === 1 ? (
+                                                                (subService.packageTwoValue === 0 ||
+                                                                  subService.packageTwoValue ===
+                                                                    null) &&
+                                                                !subService.servicePackageIDs.some(
+                                                                  (item) =>
+                                                                    item ===
+                                                                    props.selectedPackagesList[1]
+                                                                      .servicePackageID
+                                                                ) ? (
+                                                                  <span className="fa fa-times"></span>
+                                                                ) : !subService?.servicePackageIDs.includes(
+                                                                    subService.packageTwoID
+                                                                  ) ? (
+                                                                  <span className="fa fa-times"></span>
+                                                                ) : (
+                                                                  ` ${props.formatValue(
+                                                                    subService.packageTwoValue
+                                                                  )}`
+                                                                )
+                                                              ) : Number(
+                                                                  subService.packageTwoValue
+                                                                ) !== null &&
+                                                                subService?.servicePackageIDs.includes(
+                                                                  subService.packageTwoID
+                                                                ) ? (
+                                                                <span className="fa fa-check"></span>
+                                                              ) : (
+                                                                <span className="fa fa-times"></span>
+                                                              )}
+                      
+                                                              {subService?.isAdditionalService !==
+                                                              null ? (
+                                                                <input
+                                                                  style={{ marginLeft: "5px" }}
+                                                                  type="checkbox"
+                                                                  disabled={
+                                                                    subService?.servicePackageIDs.includes(
+                                                                      subService.packageTwoID
+                                                                    ) &&
+                                                                    subService?.servicePackageIDs
+                                                                      .length === 1
+                                                                  }
+                                                                  checked={subService?.servicePackageIDs.includes(
+                                                                    subService.packageTwoID
+                                                                  )}
+                                                                  onChange={(e) =>
+                                                                    handleAddAndRemoveAdditionalServices(
+                                                                      1,
+                                                                      service.serviceCatID,
+                                                                      subService.serviceID,
+                                                                      subService.packageTwoID,
+                                                                      e.target.checked
+                                                                    )
+                                                                  }
+                                                                />
+                                                              ) : (
+                                                                <div>&nbsp;&nbsp;</div>
+                                                              )}
+                                                            </div>
+                                                          </td>
+                      
+                                                          <td className="text-right">
+                                                            <div className="flex-end-item">
+                                                              {props.engagementObj.feeTypeId === 1 ? (
+                                                                (subService.packageTwoValue === 0 ||
+                                                                  subService.packageTwoValue ===
+                                                                    null) &&
+                                                                !subService.servicePackageIDs.some(
+                                                                  (item) =>
+                                                                    item ===
+                                                                    props.selectedPackagesList[1]
+                                                                      .servicePackageID
+                                                                ) ? (
+                                                                  <span className="fa fa-times"></span>
+                                                                ) : !subService?.servicePackageIDs.includes(
+                                                                    subService.packageTwoID
+                                                                  ) ? (
+                                                                  <span className="fa fa-times"></span>
+                                                                ) : (
+                                                                  ` ${props.formatValue(
+                                                                    (subService.packageTwoValue *
+                                                                      20) /
+                                                                      100
+                                                                  )}`
+                                                                )
+                                                              ) : Number(
+                                                                  subService.packageTwoValue
+                                                                ) !== null &&
+                                                                subService?.servicePackageIDs.includes(
+                                                                  subService.packageTwoID
+                                                                ) ? (
+                                                                <span className="fa fa-check"></span>
+                                                              ) : (
+                                                                <span className="fa fa-times"></span>
+                                                              )}
+                      
+                                                              {subService?.isAdditionalService !==
+                                                              null ? (
+                                                                <input
+                                                                  style={{ marginLeft: "5px" }}
+                                                                  type="checkbox"
+                                                                  disabled={
+                                                                    subService?.servicePackageIDs.includes(
+                                                                      subService.packageTwoID
+                                                                    ) &&
+                                                                    subService?.servicePackageIDs
+                                                                      .length === 1
+                                                                  }
+                                                                  checked={subService?.servicePackageIDs.includes(
+                                                                    subService.packageTwoID
+                                                                  )}
+                                                                  onChange={(e) =>
+                                                                    handleAddAndRemoveAdditionalServices(
+                                                                      1,
+                                                                      service.serviceCatID,
+                                                                      subService.serviceID,
+                                                                      subService.packageTwoID,
+                                                                      e.target.checked
+                                                                    )
+                                                                  }
+                                                                />
+                                                              ) : (
+                                                                <div>&nbsp;&nbsp;</div>
+                                                              )}
+                                                            </div>
+                                                          </td>
+                                                        </>
+                                                      )} */}
+
+                                                {/* Package Three */}
+                                                {/* {packageCount === 3 && (
+                                                        <>
+                                                          <td className="text-right">
+                                                            <div className="flex-end-item">
+                                                              {props.engagementObj.feeTypeId === 1 ? (
+                                                                (subService.packageThreeValue === 0 ||
+                                                                  subService.packageThreeValue ===
+                                                                    null) &&
+                                                                !subService.servicePackageIDs.some(
+                                                                  (item) =>
+                                                                    item ===
+                                                                    props.selectedPackagesList[2]
+                                                                      .servicePackageID
+                                                                ) ? (
+                                                                  <span className="fa fa-times"></span>
+                                                                ) : !subService?.servicePackageIDs.includes(
+                                                                    subService.packageThreeID
+                                                                  ) ? (
+                                                                  <span className="fa fa-times"></span>
+                                                                ) : (
+                                                                  ` ${props.formatValue(
+                                                                    subService.packageThreeValue
+                                                                  )}`
+                                                                )
+                                                              ) : Number(
+                                                                  subService.packageThreeValue
+                                                                ) !== null &&
+                                                                subService?.servicePackageIDs.includes(
+                                                                  subService.packageThreeID
+                                                                ) ? (
+                                                                <span className="fa fa-check"></span>
+                                                              ) : (
+                                                                <span className="fa fa-times"></span>
+                                                              )}
+                      
+                                                              {subService?.isAdditionalService !==
+                                                              null ? (
+                                                                <input
+                                                                  style={{ marginLeft: "5px" }}
+                                                                  type="checkbox"
+                                                                  disabled={
+                                                                    subService?.servicePackageIDs.includes(
+                                                                      subService.packageThreeID
+                                                                    ) &&
+                                                                    subService?.servicePackageIDs
+                                                                      .length === 1
+                                                                  }
+                                                                  checked={subService?.servicePackageIDs.includes(
+                                                                    subService.packageThreeID
+                                                                  )}
+                                                                  onChange={(e) =>
+                                                                    handleAddAndRemoveAdditionalServices(
+                                                                      1,
+                                                                      service.serviceCatID,
+                                                                      subService.serviceID,
+                                                                      subService.packageThreeID,
+                                                                      e.target.checked
+                                                                    )
+                                                                  }
+                                                                />
+                                                              ) : (
+                                                                <div>&nbsp;&nbsp;</div>
+                                                              )}
+                                                            </div>
+                                                          </td>
+                      
+                                                          <td className="text-right">
+                                                            <div className="flex-end-item">
+                                                              {props.engagementObj.feeTypeId === 1 ? (
+                                                                (subService.packageThreeValue === 0 ||
+                                                                  subService.packageThreeValue ===
+                                                                    null) &&
+                                                                !subService.servicePackageIDs.some(
+                                                                  (item) =>
+                                                                    item ===
+                                                                    props.selectedPackagesList[2]
+                                                                      .servicePackageID
+                                                                ) ? (
+                                                                  <span className="fa fa-times"></span>
+                                                                ) : !subService?.servicePackageIDs.includes(
+                                                                    subService.packageThreeID
+                                                                  ) ? (
+                                                                  <span className="fa fa-times"></span>
+                                                                ) : (
+                                                                  ` ${props.formatValue(
+                                                                    (subService.packageThreeValue *
+                                                                      20) /
+                                                                      100
+                                                                  )}`
+                                                                )
+                                                              ) : Number(
+                                                                  subService.packageThreeValue
+                                                                ) !== null &&
+                                                                subService?.servicePackageIDs.includes(
+                                                                  subService.packageThreeID
+                                                                ) ? (
+                                                                <span className="fa fa-check"></span>
+                                                              ) : (
+                                                                <span className="fa fa-times"></span>
+                                                              )}
+                      
+                                                              {subService?.isAdditionalService !==
+                                                              null ? (
+                                                                <input
+                                                                  style={{ marginLeft: "5px" }}
+                                                                  type="checkbox"
+                                                                  disabled={
+                                                                    subService?.servicePackageIDs.includes(
+                                                                      subService.packageThreeID
+                                                                    ) &&
+                                                                    subService?.servicePackageIDs
+                                                                      .length === 1
+                                                                  }
+                                                                  checked={subService?.servicePackageIDs.includes(
+                                                                    subService.packageThreeID
+                                                                  )}
+                                                                  onChange={(e) =>
+                                                                    handleAddAndRemoveAdditionalServices(
+                                                                      1,
+                                                                      service.serviceCatID,
+                                                                      subService.serviceID,
+                                                                      subService.packageThreeID,
+                                                                      e.target.checked
+                                                                    )
+                                                                  }
+                                                                />
+                                                              ) : (
+                                                                <div>&nbsp;&nbsp;</div>
+                                                              )}
+                                                            </div>
+                                                          </td>
+                                                        </>
+                                                      )} */}
+                                              </>
+                                            )}
+
+                                            {/* Service Scope */}
+
+                                            {props.visibleFieldsCustomTemp
+                                              .serviceScope && (
+                                              <>
+                                                {/* Package One */}
+                                                <td className="text-right">
+                                                  {driverList.length > 0
+                                                    ? driverList
+                                                        .filter(
+                                                          (d) =>
+                                                            d.driverValue !==
+                                                            null
+                                                        )
+                                                        .map((d, i, arr) => (
+                                                          <div key={i}>
+                                                            {(subService.packageOneValue ===
+                                                              0 ||
+                                                              subService.packageOneValue ===
+                                                                null) &&
+                                                            !subService.servicePackageIDs.some(
+                                                              (item) =>
+                                                                item ===
+                                                                props
+                                                                  .selectedPackagesList[0]
+                                                                  .servicePackageID
+                                                            ) ? (
+                                                              <span>-</span>
+                                                            ) : !subService?.servicePackageIDs.includes(
+                                                                subService.packageOneID
+                                                              ) ? (
+                                                              <span>-</span>
+                                                            ) : (
+                                                              ` ${
+                                                                d.driverName
+                                                              } = ${
+                                                                d.driverValue
+                                                              }${
+                                                                i !==
+                                                                arr.length - 1
+                                                                  ? ", "
+                                                                  : ""
+                                                              }`
+                                                            )}
+                                                          </div>
+                                                        ))
+                                                    : "-"}
+                                                </td>
+                                              </>
+                                            )}
+
+                                            {/* Package Two */}
+                                            {packageCount >= 2 && (
+                                              <>
+                                                <td className="text-right">
+                                                  <div className="flex-end-item">
+                                                    {props.engagementObj
+                                                      .feeTypeId === 1 ? (
+                                                      <div>
+                                                        {(subService.packageTwoValue ===
+                                                          0 ||
+                                                          subService.packageTwoValue ===
+                                                            null) &&
+                                                        !subService.servicePackageIDs.some(
+                                                          (item) =>
+                                                            item ==
+                                                            props
+                                                              .selectedPackagesList[0]
+                                                              .servicePackageID
+                                                        ) ? (
+                                                          <span className="fa fa-times"></span>
+                                                        ) : !subService?.servicePackageIDs.includes(
+                                                            subService.packageTwoID
+                                                          ) ? (
+                                                          <span className="fa fa-times"></span>
+                                                        ) : (
+                                                          ` ${props.formatValue(
+                                                            subService.packageTwoValue
+                                                          )}`
+                                                        )}
+                                                      </div>
+                                                    ) : Number(
+                                                        subService.packageTwoValue
+                                                      ) !== null &&
+                                                      subService?.servicePackageIDs.includes(
+                                                        subService.packageTwoID
+                                                      ) ? (
+                                                      <span className="fa fa-check"></span>
+                                                    ) : (
+                                                      <span className="fa fa-times"></span>
+                                                    )}
+                                                    {subService?.isAdditionalService !==
+                                                    null ? (
+                                                      <input
+                                                        style={{
+                                                          marginLeft: "5px",
+                                                        }}
+                                                        disabled={
+                                                          subService?.servicePackageIDs.includes(
+                                                            subService.packageTwoID
+                                                          ) &&
+                                                          subService
+                                                            ?.servicePackageIDs
+                                                            .length === 1
+                                                        }
+                                                        type="checkbox"
+                                                        checked={subService?.servicePackageIDs.includes(
+                                                          subService.packageTwoID
+                                                        )}
+                                                        // onChange={(e) =>
+                                                        //   handleAddAndRemoveAdditionalServices(
+                                                        //     1,
+                                                        //     service.serviceCatID,
+                                                        //     subService.serviceID,
+                                                        //     subService.packageOneID,
+                                                        //     e.target.checked
+                                                        //   )
+                                                        // }
+                                                      />
+                                                    ) : (
+                                                      <div>&nbsp;&nbsp;</div>
+                                                    )}
+                                                  </div>
+                                                </td>
+                                                {props.visibleFieldsCustomTemp
+                                                  .vat && (
+                                                  <td className="text-right">
+                                                    <div className="flex-end-item">
+                                                      {props.engagementObj
+                                                        .feeTypeId === 1 ? (
+                                                        (subService.packageTwoValue ===
+                                                          0 ||
+                                                          subService.packageTwoValue ===
+                                                            null) &&
+                                                        !subService.servicePackageIDs.some(
+                                                          (item) =>
+                                                            item ===
+                                                            props
+                                                              .selectedPackagesList[0]
+                                                              .servicePackageID
+                                                        ) ? (
+                                                          <span className="fa fa-times"></span>
+                                                        ) : !subService?.servicePackageIDs.includes(
+                                                            subService.packageTwoID
+                                                          ) ? (
+                                                          <span className="fa fa-times"></span>
+                                                        ) : (
+                                                          ` ${props.formatValue(
+                                                            (subService.packageTwoValue *
+                                                              20) /
+                                                              100
+                                                          )}`
+                                                        )
+                                                      ) : Number(
+                                                          subService.packageTwoValue
+                                                        ) !== null &&
+                                                        subService?.servicePackageIDs.includes(
+                                                          subService.packageTwoID
+                                                        ) ? (
+                                                        <span className="fa fa-check"></span>
+                                                      ) : (
+                                                        <span className="fa fa-times"></span>
+                                                      )}
+
+                                                      {subService?.isAdditionalService !==
+                                                      null ? (
+                                                        <input
+                                                          style={{
+                                                            marginLeft: "5px",
+                                                          }}
+                                                          type="checkbox"
+                                                          disabled={
+                                                            subService?.servicePackageIDs.includes(
+                                                              subService.packageTwoID
+                                                            ) &&
+                                                            subService
+                                                              ?.servicePackageIDs
+                                                              .length === 1
+                                                          }
+                                                          checked={subService?.servicePackageIDs.includes(
+                                                            subService.packageTwoID
+                                                          )}
+                                                          // onChange={(e) =>
+                                                          //   handleAddAndRemoveAdditionalServices(
+                                                          //     1,
+                                                          //     service.serviceCatID,
+                                                          //     subService.serviceID,
+                                                          //     subService.packageOneID,
+                                                          //     e.target.checked
+                                                          //   )
+                                                          // }
+                                                        />
+                                                      ) : (
+                                                        <div>&nbsp;&nbsp;</div>
+                                                      )}
+                                                    </div>
+                                                  </td>
+                                                )}
+                                                {props.visibleFieldsCustomTemp
+                                                  .serviceScope && (
+                                                  <td className="text-right">
+                                                    {driverList.length > 0
+                                                      ? driverList
+                                                          .filter(
+                                                            (d) =>
+                                                              d.driverValue !==
+                                                              null
+                                                          )
+                                                          .map((d, i, arr) => (
+                                                            <div key={i}>
+                                                              {(subService.packageTwoValue ===
+                                                                0 ||
+                                                                subService.packageTwoValue ===
+                                                                  null) &&
+                                                              !subService.servicePackageIDs.some(
+                                                                (item) =>
+                                                                  item ===
+                                                                  props
+                                                                    .selectedPackagesList[0]
+                                                                    .servicePackageID
+                                                              ) ? (
+                                                                <span>-</span>
+                                                              ) : !subService?.servicePackageIDs.includes(
+                                                                  subService.packageTwoID
+                                                                ) ? (
+                                                                <span>-</span>
+                                                              ) : (
+                                                                ` ${
+                                                                  d.driverName
+                                                                } = ${
+                                                                  d.driverValue
+                                                                }${
+                                                                  i !==
+                                                                  arr.length - 1
+                                                                    ? ", "
+                                                                    : ""
+                                                                }`
+                                                              )}
+                                                            </div>
+                                                          ))
+                                                      : "-"}
+                                                  </td>
+                                                )}
+                                              </>
+                                            )}
+                                            {/* Package Three */}
+                                            {packageCount === 3 && (
+                                              <>
+                                                <td className="text-right">
+                                                  <div className="flex-end-item">
+                                                    {props.engagementObj
+                                                      .feeTypeId === 1 ? (
+                                                      <div>
+                                                        {(subService.packageThreeValue ===
+                                                          0 ||
+                                                          subService.packageThreeValue ===
+                                                            null) &&
+                                                        !subService.servicePackageIDs.some(
+                                                          (item) =>
+                                                            item ==
+                                                            props
+                                                              .selectedPackagesList[0]
+                                                              .servicePackageID
+                                                        ) ? (
+                                                          <span className="fa fa-times"></span>
+                                                        ) : !subService?.servicePackageIDs.includes(
+                                                            subService.packageThreeID
+                                                          ) ? (
+                                                          <span className="fa fa-times"></span>
+                                                        ) : (
+                                                          ` ${props.formatValue(
+                                                            subService.packageThreeValue
+                                                          )}`
+                                                        )}
+                                                      </div>
+                                                    ) : Number(
+                                                        subService.packageThreeValue
+                                                      ) !== null &&
+                                                      subService?.servicePackageIDs.includes(
+                                                        subService.packageThreeID
+                                                      ) ? (
+                                                      <span className="fa fa-check"></span>
+                                                    ) : (
+                                                      <span className="fa fa-times"></span>
+                                                    )}
+                                                    {subService?.isAdditionalService !==
+                                                    null ? (
+                                                      <input
+                                                        style={{
+                                                          marginLeft: "5px",
+                                                        }}
+                                                        disabled={
+                                                          subService?.servicePackageIDs.includes(
+                                                            subService.packageThreeID
+                                                          ) &&
+                                                          subService
+                                                            ?.servicePackageIDs
+                                                            .length === 1
+                                                        }
+                                                        type="checkbox"
+                                                        checked={subService?.servicePackageIDs.includes(
+                                                          subService.packageThreeID
+                                                        )}
+                                                        // onChange={(e) =>
+                                                        //   handleAddAndRemoveAdditionalServices(
+                                                        //     1,
+                                                        //     service.serviceCatID,
+                                                        //     subService.serviceID,
+                                                        //     subService.packageOneID,
+                                                        //     e.target.checked
+                                                        //   )
+                                                        // }
+                                                      />
+                                                    ) : (
+                                                      <div>&nbsp;&nbsp;</div>
+                                                    )}
+                                                  </div>
+                                                </td>
+
+                                                {props.visibleFieldsCustomTemp
+                                                  .vat && (
+                                                  <td className="text-right">
+                                                    <div className="flex-end-item">
+                                                      {props.engagementObj
+                                                        .feeTypeId === 1 ? (
+                                                        (subService.packageThreeValue ===
+                                                          0 ||
+                                                          subService.packageThreeValue ===
+                                                            null) &&
+                                                        !subService.servicePackageIDs.some(
+                                                          (item) =>
+                                                            item ===
+                                                            props
+                                                              .selectedPackagesList[0]
+                                                              .servicePackageID
+                                                        ) ? (
+                                                          <span className="fa fa-times"></span>
+                                                        ) : !subService?.servicePackageIDs.includes(
+                                                            subService.packageThreeID
+                                                          ) ? (
+                                                          <span className="fa fa-times"></span>
+                                                        ) : (
+                                                          ` ${props.formatValue(
+                                                            (subService.packageThreeValue *
+                                                              20) /
+                                                              100
+                                                          )}`
+                                                        )
+                                                      ) : Number(
+                                                          subService.packageThreeValue
+                                                        ) !== null &&
+                                                        subService?.servicePackageIDs.includes(
+                                                          subService.packageThreeID
+                                                        ) ? (
+                                                        <span className="fa fa-check"></span>
+                                                      ) : (
+                                                        <span className="fa fa-times"></span>
+                                                      )}
+
+                                                      {subService?.isAdditionalService !==
+                                                      null ? (
+                                                        <input
+                                                          style={{
+                                                            marginLeft: "5px",
+                                                          }}
+                                                          type="checkbox"
+                                                          disabled={
+                                                            subService?.servicePackageIDs.includes(
+                                                              subService.packageThreeID
+                                                            ) &&
+                                                            subService
+                                                              ?.servicePackageIDs
+                                                              .length === 1
+                                                          }
+                                                          checked={subService?.servicePackageIDs.includes(
+                                                            subService.packageThreeID
+                                                          )}
+                                                          // onChange={(e) =>
+                                                          //   handleAddAndRemoveAdditionalServices(
+                                                          //     1,
+                                                          //     service.serviceCatID,
+                                                          //     subService.serviceID,
+                                                          //     subService.packageOneID,
+                                                          //     e.target.checked
+                                                          //   )
+                                                          // }
+                                                        />
+                                                      ) : (
+                                                        <div>&nbsp;&nbsp;</div>
+                                                      )}
+                                                    </div>
+                                                  </td>
+                                                )}
+
+                                                {props.visibleFieldsCustomTemp
+                                                  .serviceScope && (
+                                                  <td className="text-right">
+                                                    {driverList.length > 0
+                                                      ? driverList
+                                                          .filter(
+                                                            (d) =>
+                                                              d.driverValue !==
+                                                              null
+                                                          )
+                                                          .map((d, i, arr) => (
+                                                            <div key={i}>
+                                                              {(subService.packageThreeValue ===
+                                                                0 ||
+                                                                subService.packageThreeValue ===
+                                                                  null) &&
+                                                              !subService.servicePackageIDs.some(
+                                                                (item) =>
+                                                                  item ===
+                                                                  props
+                                                                    .selectedPackagesList[0]
+                                                                    .servicePackageID
+                                                              ) ? (
+                                                                <span>-</span>
+                                                              ) : !subService?.servicePackageIDs.includes(
+                                                                  subService.packageThreeID
+                                                                ) ? (
+                                                                <span>-</span>
+                                                              ) : (
+                                                                ` ${
+                                                                  d.driverName
+                                                                } = ${
+                                                                  d.driverValue
+                                                                }${
+                                                                  i !==
+                                                                  arr.length - 1
+                                                                    ? ", "
+                                                                    : ""
+                                                                }`
+                                                              )}
+                                                            </div>
+                                                          ))
+                                                      : "-"}
+                                                  </td>
+                                                )}
+                                              </>
+                                            )}
+                                          </tr>
+                                        );
+                                      }
+                                    )}
+                                  </>
+                                );
+                              }
+                            )}
+                          </tbody>
+                          {packageCount > 1 && (
+                            <>
+                              <tr id="recurring_DefaultWithPackages">
+                                <td
+                                  style={{
+                                    padding: "8px",
+                                  }}
+                                >
+                                  Discount (%)
+                                </td>
+
+                                <td
+                                  style={{
+                                    width: "35%",
+                                    padding: "0px",
+                                    whiteSpace: "normal",
+                                  }}
+                                >
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      flexDirection: "column",
+                                      alignItems: "flex-start",
+                                    }}
+                                  >
+                                    <input
+                                      className="input-text"
+                                      type="text"
+                                      placeholder="Discount (%)"
+                                      value={props.RecurringPricingInfo.DiscountPercentagePackageOne?.toString()?.replace(
+                                        /\B(?=(\d{3})+(?!\d))/g,
+                                        ","
+                                      )}
+                                      onChange={(e) => {
+                                        handlePackageOneDiscountPercentage(e);
+                                      }}
+                                      style={{
+                                        width: "100%",
+                                        textAlign: "right",
+                                      }}
+                                    />
+                                    <div>
+                                      {props.getValidationMessage(
+                                        props.requireMessage,
+                                        props.pricingSettingObj
+                                          .maxDiscountForQC,
+                                        props.RecurringPricingInfo
+                                          .DiscountPercentagePackageOne
+                                      )}
+                                    </div>
+                                  </div>
+                                </td>
+
+                                {packageCount >= 2 && (
+                                  <>
+                                    {props.visibleFieldsCustomTemp.vat && (
+                                      <th></th>
+                                    )}
+                                    {props.visibleFieldsCustomTemp
+                                      .serviceScope && <th></th>}
+                                    <td
+                                      style={{
+                                        width: "35%",
+                                        padding: "0px",
+                                        whiteSpace: "normal",
+                                      }}
+                                    >
+                                      <div
+                                        style={{
+                                          display: "flex",
+                                          flexDirection: "column",
+                                          alignItems: "flex-start",
+                                        }}
+                                      >
+                                        <input
+                                          className="input-text"
+                                          type="text"
+                                          placeholder="Discount (%)"
+                                          value={props.RecurringPricingInfo.DiscountPercentagePackageTwo?.toString()?.replace(
+                                            /\B(?=(\d{3})+(?!\d))/g,
+                                            ","
+                                          )}
+                                          onChange={(e) => {
+                                            handlePackageTwoDiscountPercentage(
+                                              e
+                                            );
+                                          }}
+                                          style={{
+                                            width: "100%",
+                                            textAlign: "right",
+                                          }}
+                                        />
+                                        <div>
+                                          {props.getValidationMessage(
+                                            props.requireMessage,
+                                            props.pricingSettingObj
+                                              .maxDiscountForQC,
+                                            props.RecurringPricingInfo
+                                              .DiscountPercentagePackageTwo
+                                          )}
+                                        </div>
+                                      </div>
+                                    </td>
+                                  </>
+                                )}
+
+                                {packageCount === 3 && (
+                                  <>
+                                    {props.visibleFieldsCustomTemp.vat && (
+                                      <th></th>
+                                    )}
+                                    {props.visibleFieldsCustomTemp
+                                      .serviceScope && <th></th>}
+                                    <td
+                                      style={{
+                                        width: "35%",
+                                        padding: "0px",
+                                        whiteSpace: "normal",
+                                      }}
+                                    >
+                                      <div
+                                        style={{
+                                          display: "flex",
+                                          flexDirection: "column",
+                                          alignItems: "flex-start",
+                                        }}
+                                      >
+                                        <input
+                                          className="input-text"
+                                          type="text"
+                                          placeholder="Discount (%)"
+                                          value={props.RecurringPricingInfo.DiscountPercentagePackageThree?.toString()?.replace(
+                                            /\B(?=(\d{3})+(?!\d))/g,
+                                            ","
+                                          )}
+                                          onChange={(e) => {
+                                            handlePackageThreeDiscountPercentage(
+                                              e
+                                            );
+                                          }}
+                                          style={{
+                                            width: "100%",
+                                            textAlign: "right",
+                                          }}
+                                        />
+                                        <div>
+                                          {props.getValidationMessage(
+                                            props.requireMessage,
+                                            props.pricingSettingObj
+                                              .maxDiscountForQC,
+                                            props.RecurringPricingInfo
+                                              .DiscountPercentagePackageThree
+                                          )}
+                                        </div>
+                                      </div>
+                                    </td>
+                                  </>
+                                )}
+                              </tr>
+                            </>
+                          )}
+
+                          <tr className="head-row">
+                            <td className="tr-table-class font-14 text-white">
+                              Net Total
+                            </td>
+                            <td className="tr-table-class font-14 text-white text-right">
+                              {" "}
+                              {totalOnePackageValue >
                                 Number(
                                   props.RecurringPricingInfo.packageOneNetTotal
                                 ) ||
@@ -4304,333 +8228,486 @@ const ReviewPackagesComponent = (props) => {
                                 props.RecurringPricingInfo.packageOneDisCount
                               ) > 0 &&
                                 !props.engagementObj.DiscountLines)
-                                ? // ||
-                                  // Number(
-                                  //   props.RecurringPricingInfo
-                                  //     .packageOneDisCountedTotal
-                                  // ) === 0
-                                  Number(
+                                ? Number(
                                     props.RecurringPricingInfo
                                       .packageOneDisCount
                                   ) > 0 && !props.engagementObj.DiscountLines
                                   ? props.formatValue(
                                       props.RecurringPricingInfo
-                                        .packageOneDisCountedTotal,props.currencyID
+                                        .packageOneDisCountedTotal
                                     )
-                                  : props.formatValue(totalOnePackageValue,props.currencyID)
-                                : //  Number(totalOnePackageValue)
-                                  //     .toFixed(2)
-                                  //     .toString()
-                                  //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                                  props.formatValue(
+                                  : props.formatValue(totalOnePackageValue)
+                                : props.formatValue(
                                     props.RecurringPricingInfo
-                                      .packageOneNetTotal,props.currencyID
-                                  )
-                              // Number(
-                              //     props.RecurringPricingInfo
-                              //       .packageOneDisCountedTotal
-                              //   )
-                              //     .toFixed(2)
-                              //     .toString()
-                              //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                            }
-                          </td>
-                          {packageCount >= 2 && (
-                            <td className="tr-table-class font-14 text-white text-right">
-                              {" "}
-                              {
-                                totalTwoPackageValue >
-                                  Number(
-                                    props.RecurringPricingInfo
-                                      .packageTwoNetTotal
-                                  ) ||
-                                (Number(
-                                  props.RecurringPricingInfo.packageTwoDisCount
-                                ) > 0 &&
-                                  !props.engagementObj.DiscountLines)
-                                  ? // ||
-                                    // Number(
-                                    //   props.RecurringPricingInfo
-                                    //     .packageTwoDisCountedTotal
-                                    // ) === 0
-                                    Number(
-                                      props.RecurringPricingInfo
-                                        .packageTwoDisCount
-                                    ) > 0 && !props.engagementObj.DiscountLines
-                                    ? props.formatValue(
-                                        props.RecurringPricingInfo
-                                          .packageTwoDisCountedTotal,props.currencyID
-                                      )
-                                    : props.formatValue(totalTwoPackageValue,props.currencyID)
-                                  : // Number(totalTwoPackageValue)
-                                    //     .toFixed(2)
-                                    //     .toString()
-                                    //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                                    props.formatValue(
-                                      props.RecurringPricingInfo
-                                        .packageTwoNetTotal,props.currencyID
-                                    )
-                                // Number(
-                                //     props.RecurringPricingInfo
-                                //       .packageTwoDisCountedTotal
-                                //   )
-                                //     .toFixed(2)
-                                //     .toString()
-                                //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                              }
-                            </td>
-                          )}{" "}
-                          {packageCount === 3 && (
-                            <td className="tr-table-class font-14 text-white text-right">
-                              {" "}
-                              {
-                                totalThreePackageValue >
-                                  Number(
-                                    props.RecurringPricingInfo
-                                      .packageThreeNetTotal
-                                  ) ||
-                                (Number(
-                                  props.RecurringPricingInfo
-                                    .packageThreeDisCount
-                                ) > 0 &&
-                                  !props.engagementObj.DiscountLines)
-                                  ? // ||
-                                    // Number(
-                                    //   props.RecurringPricingInfo
-                                    //     .packageThreeNetTotal
-                                    // ) === 0
-                                    Number(
-                                      props.RecurringPricingInfo
-                                        .packageThreeDisCount
-                                    ) > 0 && !props.engagementObj.DiscountLines
-                                    ? props.formatValue(
-                                        props.RecurringPricingInfo
-                                          .packageThreeDisCountedTotal,props.currencyID
-                                      )
-                                    : props.formatValue(totalThreePackageValue,props.currencyID)
-                                  : // Number(totalThreePackageValue)
-                                    //     .toFixed(2)
-                                    //     .toString()
-                                    //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                                    props.formatValue(
-                                      props.RecurringPricingInfo
-                                        .packageThreeNetTotal,props.currencyID
-                                    )
-                                // Number(
-                                //     props.RecurringPricingInfo
-                                //       .packageThreeDisCountedTotal
-                                //   )
-                                //     .toFixed(2)
-                                //     .toString()
-                                //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                              }
-                            </td>
-                          )}
-                        </tr>
-
-                        {/* </td> */}
-                        {/* </tr> */}
-                        {(Number(
-                          props.RecurringPricingInfo.packageThreeDisCount
-                        ) > 0 ||
-                          Number(
-                            props.RecurringPricingInfo.packageOneDisCount
-                          ) > 0 ||
-                          Number(
-                            props.RecurringPricingInfo.packageTwoDisCount
-                          ) > 0) &&
-                          props.engagementObj.DiscountLines && (
-                            <>
-                              <tr className="head-grey-row">
-                                <td className="tr-table-class font-14 text-white">
-                                  Discount
-                                </td>
-                                <td className="tr-table-class font-14 text-white text-right">
-                                  (-){" "}
-                                  {props.formatValue(
-                                    props.RecurringPricingInfo
-                                      .packageOneDisCount,props.currencyID
+                                      .packageOneNetTotal
                                   )}
-                                </td>
-                                {packageCount >= 2 && (
-                                  <td className="tr-table-class font-14 text-white text-right">
-                                    (-){" "}
-                                    {props.formatValue(
+                            </td>
+                            {props.visibleFieldsCustomTemp.vat && (
+                              <td className="tr-table-class font-14 text-white text-right">
+                                {props.RecurringPricingInfo
+                                  .PackageOneVaTPriceWithoutDiscout
+                                  ? props.formatValue(
                                       props.RecurringPricingInfo
-                                        .packageTwoDisCount,props.currencyID
-                                    )}
-                                  </td>
-                                )}
-                                {packageCount === 3 && (
-                                  <td className="tr-table-class font-14 text-white text-right">
-                                    (-){" "}
-                                    {props.formatValue(
+                                        .PackageOneVaTPriceWithoutDiscout
+                                    )
+                                  : props.formatValue(
                                       props.RecurringPricingInfo
-                                        .packageThreeDisCount,props.currencyID
+                                        .PackageOneVaTPriceWithoutDiscount
                                     )}
-                                  </td>
-                                )}
-                              </tr>
-                              <tr className="head-row">
-                                <td className="tr-table-class font-14 text-white">
-                                  Discounted Total
-                                </td>
+                              </td>
+                            )}
+                            {props.visibleFieldsCustomTemp.serviceScope && (
+                              <td></td>
+                            )}
+                            {packageCount >= 2 && (
+                              <>
                                 <td className="tr-table-class font-14 text-white text-right">
                                   {" "}
-                                  {props.formatValue(
+                                  {totalTwoPackageValue >
+                                    Number(
+                                      props.RecurringPricingInfo
+                                        .packageTwoNetTotal
+                                    ) ||
+                                  (Number(
                                     props.RecurringPricingInfo
-                                      .packageOneDisCountedTotal,props.currencyID
-                                  )}
+                                      .packageTwoDisCount
+                                  ) > 0 &&
+                                    !props.engagementObj.DiscountLines)
+                                    ? Number(
+                                        props.RecurringPricingInfo
+                                          .packageTwoDisCount
+                                      ) > 0 &&
+                                      !props.engagementObj.DiscountLines
+                                      ? props.formatValue(
+                                          props.RecurringPricingInfo
+                                            .packageTwoDisCountedTotal
+                                        )
+                                      : props.formatValue(totalTwoPackageValue)
+                                    : props.formatValue(
+                                        props.RecurringPricingInfo
+                                          .packageTwoNetTotal
+                                      )}
                                 </td>
 
-                                {packageCount >= 2 && (
+                                {props.visibleFieldsCustomTemp.vat && (
                                   <td className="tr-table-class font-14 text-white text-right">
                                     {" "}
                                     {props.formatValue(
                                       props.RecurringPricingInfo
-                                        .packageTwoDisCountedTotal,props.currencyID
+                                        .PackageTwoVaTPriceWithoutDiscout
                                     )}
                                   </td>
                                 )}
-                                {packageCount === 3 && (
+                                {props.visibleFieldsCustomTemp.serviceScope && (
+                                  <td></td>
+                                )}
+                              </>
+                            )}{" "}
+                            {packageCount === 3 && (
+                              <>
+                                <td className="tr-table-class font-14 text-white text-right">
+                                  {" "}
+                                  {totalThreePackageValue >
+                                    Number(
+                                      props.RecurringPricingInfo
+                                        .packageThreeNetTotal
+                                    ) ||
+                                  (Number(
+                                    props.RecurringPricingInfo
+                                      .packageThreeDisCount
+                                  ) > 0 &&
+                                    !props.engagementObj.DiscountLines)
+                                    ? Number(
+                                        props.RecurringPricingInfo
+                                          .packageThreeDisCount
+                                      ) > 0 &&
+                                      !props.engagementObj.DiscountLines
+                                      ? props.formatValue(
+                                          props.RecurringPricingInfo
+                                            .packageThreeDisCountedTotal
+                                        )
+                                      : props.formatValue(
+                                          totalThreePackageValue
+                                        )
+                                    : props.formatValue(
+                                        props.RecurringPricingInfo
+                                          .packageThreeNetTotal
+                                      )}
+                                </td>
+
+                                {props.visibleFieldsCustomTemp.vat && (
                                   <td className="tr-table-class font-14 text-white text-right">
                                     {" "}
                                     {props.formatValue(
                                       props.RecurringPricingInfo
-                                        .packageThreeDisCountedTotal,props.currencyID
+                                        .PackageThreeVaTPriceWithoutDiscout
                                     )}
                                   </td>
                                 )}
-                              </tr>
+                                {props.visibleFieldsCustomTemp.serviceScope && (
+                                  <td></td>
+                                )}
+                              </>
+                            )}
+                          </tr>
+
+                          {(Number(
+                            props.RecurringPricingInfo.packageThreeDisCount
+                          ) > 0 ||
+                            Number(
+                              props.RecurringPricingInfo.packageOneDisCount
+                            ) > 0 ||
+                            Number(
+                              props.RecurringPricingInfo.packageTwoDisCount
+                            ) > 0) &&
+                            props.engagementObj.DiscountLines && (
+                              <>
+                                <tr className="head-grey-row">
+                                  <td className="tr-table-class font-14 text-white">
+                                    Discount
+                                  </td>
+                                  <td className="tr-table-class font-14 text-white text-right">
+                                    (-){" "}
+                                    {props.formatValue(
+                                      props.RecurringPricingInfo
+                                        .packageOneDisCount
+                                    )}
+                                  </td>
+                                  {/* Discounted VAT */}
+
+                                  {/* {props.visibleFieldsCustomTemp.vat && (
+                                              <td className="tr-table-class font-14 text-white text-right">
+                                                (-){" "}
+                                                {(() => {
+                                                  const discountVat =
+                                                    (props.RecurringPricingInfo.PackageOneVaTPriceWithoutDiscout *
+                                                      props.RecurringPricingInfo.DiscountPercentagePackageOne) /
+                                                    100;
+                      
+                                                  return discountVat && !isNaN(discountVat)
+                                                    ? props.formatValue(discountVat)
+                                                    : props.formatValue(
+                                                        props.RecurringPricingInfo.PackageOneVaTPriceWithoutDiscout -
+                                                          props.RecurringPricingInfo.PackageOneVaTPrice
+                                                      );
+                                                })()}
+                                              </td>
+                                            )} */}
+
+                                  {props.visibleFieldsCustomTemp.vat && (
+                                    <td className="tr-table-class font-14 text-white text-right">
+                                      (-){" "}
+                                      {props.formatValue(
+                                        props.RecurringPricingInfo
+                                          .PackageOneVaTPriceWithoutDiscount -
+                                          props.RecurringPricingInfo
+                                            .PackageOneVaTPrice
+                                      )}
+                                    </td>
+                                  )}
+
+                                  {props.visibleFieldsCustomTemp
+                                    .serviceScope && <td></td>}
+
+                                  {/* <td className="tr-table-class font-14 text-white text-right"></td> */}
+                                  {packageCount >= 2 && (
+                                    <>
+                                      <td className="tr-table-class font-14 text-white text-right">
+                                        (-){" "}
+                                        {props.formatValue(
+                                          props.RecurringPricingInfo
+                                            .packageTwoDisCount
+                                        )}
+                                      </td>
+
+                                      {props.visibleFieldsCustomTemp.vat && (
+                                        <td className="tr-table-class font-14 text-white text-right">
+                                          (-){" "}
+                                          {props.formatValue(
+                                            props.RecurringPricingInfo
+                                              .PackageTwoVaTPriceWithoutDiscout -
+                                              props.RecurringPricingInfo
+                                                .PackageTwoVaTPrice
+                                          )}
+                                        </td>
+                                        // <td className="tr-table-class font-14 text-white text-right">
+                                        //   (-){" "}
+                                        //   {props.formatValue(
+                                        //     (props.RecurringPricingInfo.PackageTwoVaTPriceWithoutDiscout *
+                                        //       props.RecurringPricingInfo.DiscountPercentagePackageTwo) /
+                                        //       100
+                                        //   )}
+                                        // </td>
+                                      )}
+                                      {props.visibleFieldsCustomTemp
+                                        .serviceScope && <td></td>}
+                                    </>
+                                  )}
+                                  {packageCount === 3 && (
+                                    <>
+                                      <td className="tr-table-class font-14 text-white text-right">
+                                        (-){" "}
+                                        {props.formatValue(
+                                          props.RecurringPricingInfo
+                                            .packageThreeDisCount
+                                        )}
+                                      </td>
+
+                                      {props.visibleFieldsCustomTemp.vat && (
+                                        <td className="tr-table-class font-14 text-white text-right">
+                                          (-){" "}
+                                          {props.formatValue(
+                                            props.RecurringPricingInfo
+                                              .PackageThreeVaTPriceWithoutDiscout -
+                                              props.RecurringPricingInfo
+                                                .PackageThreeVaTPrice
+                                          )}
+                                        </td>
+                                        // <td className="tr-table-class font-14 text-white text-right">
+                                        //   (-){" "}
+                                        //   {props.formatValue(
+                                        //     (props.RecurringPricingInfo.PackageThreeVaTPriceWithoutDiscout *
+                                        //       props.RecurringPricingInfo.DiscountPercentagePackageThree) /
+                                        //       100
+                                        //   )}
+                                        // </td>
+                                      )}
+                                      {props.visibleFieldsCustomTemp
+                                        .serviceScope && <td></td>}
+                                    </>
+                                  )}
+                                </tr>
+                                {/* <tr className="head-row">
+                                            <td className="tr-table-class font-14 text-white">
+                                              Discounted Total
+                                            </td>
+                                            <td className="tr-table-class font-14 text-white text-right">
+                                              {" "}
+                                              {props.formatValue(
+                                                props.RecurringPricingInfo.packageOneDisCountedTotal
+                                              )}
+                                            </td>
+                      
+                                            {props.visibleFieldsCustomTemp.vat && (
+                                              <td className="tr-table-class font-14 text-white text-right">
+                                                {" "}
+                                                {props.formatValue(
+                                                  props.RecurringPricingInfo.PackageOneVaTPriceWithoutDiscout -
+                                                    (props.RecurringPricingInfo.PackageOneVaTPriceWithoutDiscout *
+                                                      20) /
+                                                      100
+                                                )}
+                                              </td>
+                                            )}
+                                           
+                      
+                                            {packageCount >= 2 && (
+                                              <>
+                                                <td className="tr-table-class font-14 text-white text-right">
+                                                  {" "}
+                                                  {props.formatValue(
+                                                    props.RecurringPricingInfo.packageTwoDisCountedTotal
+                                                  )}
+                                                </td>
+                                                {props.visibleFieldsCustomTemp.vat && (
+                                                  <td className="tr-table-class font-14 text-white text-right">
+                                                    {" "}
+                                                    {props.formatValue(
+                                                      props.RecurringPricingInfo.PackageTwoVaTPriceWithoutDiscout -
+                                                        (props.RecurringPricingInfo.PackageTwoVaTPriceWithoutDiscout *
+                                                          20) /
+                                                          100
+                                                    )}
+                                                  </td>
+                                                )}
+                                              </>
+                                            )}
+                                            {packageCount === 3 && (
+                                              <>
+                                                <td className="tr-table-class font-14 text-white text-right">
+                                                  {" "}
+                                                  {props.formatValue(
+                                                    props.RecurringPricingInfo.packageThreeDisCountedTotal
+                                                  )}
+                                                </td>
+                                                {props.visibleFieldsCustomTemp.vat && (
+                                                  <td className="tr-table-class font-14 text-white text-right">
+                                                    {" "}
+                                                    {props.formatValue(
+                                                      props.RecurringPricingInfo.PackageThreeVaTPriceWithoutDiscout -
+                                                        (props.RecurringPricingInfo.PackageThreeVaTPriceWithoutDiscout *
+                                                          20) /
+                                                          100
+                                                    )}
+                                                  </td>
+                                                )}
+                                              </>
+                                            )}
+                      
+                                            {props.visibleFieldsCustomTemp.serviceScope && <td></td>}
+                                          </tr> */}
+                                <tr className="head-row">
+                                  <td className="tr-table-class font-14 text-white">
+                                    {/* Fees inc VAT (£) */}
+                                    Grand Total
+                                  </td>
+                                  {/* <td className="tr-table-class font-14 text-white text-right">
+                                              {" "}
+                                              {props.formatValue(props.RecurringPricingInfo.PackageOneGrandTotal)}
+                                            </td> */}
+                                  <td className="tr-table-class font-14 text-white text-right">
+                                    {" "}
+                                    {totalOnePackageValue >
+                                      Number(
+                                        props.RecurringPricingInfo
+                                          .packageOneNetTotal
+                                      ) ||
+                                    (Number(
+                                      props.RecurringPricingInfo
+                                        .packageOneDisCount
+                                    ) > 0 &&
+                                      !props.engagementObj.DiscountLines)
+                                      ? Number(
+                                          props.RecurringPricingInfo
+                                            .packageOneDisCount
+                                        ) > 0 &&
+                                        !props.engagementObj.DiscountLines
+                                        ? props.formatValue(
+                                            props.RecurringPricingInfo
+                                              .packageOneDisCountedTotal -
+                                              props.RecurringPricingInfo
+                                                .packageOneDisCount
+                                          )
+                                        : props.formatValue(
+                                            totalOnePackageValue -
+                                              props.RecurringPricingInfo
+                                                .packageOneDisCount
+                                          )
+                                      : props.formatValue(
+                                          props.RecurringPricingInfo
+                                            .packageOneNetTotal -
+                                            props.RecurringPricingInfo
+                                              .packageOneDisCount
+                                        )}
+                                  </td>
+                                  {props.visibleFieldsCustomTemp.vat && (
+                                    <td className="tr-table-class font-14 text-white text-right">
+                                      {props.formatValue(
+                                        props.RecurringPricingInfo
+                                          .PackageOneVaTPrice
+                                      )}
+                                    </td>
+                                    // <td className="tr-table-class font-14 text-white text-right">
+                                    //   {props.formatValue(
+                                    //     props.RecurringPricingInfo.PackageOneVaTPriceWithoutDiscout -
+                                    //       (props.RecurringPricingInfo.PackageOneVaTPriceWithoutDiscout *
+                                    //         props.RecurringPricingInfo.DiscountPercentagePackageOne) /
+                                    //         100
+                                    //   )}
+                                    // </td>
+                                  )}
+                                  {props.visibleFieldsCustomTemp
+                                    .serviceScope && <td></td>}
+                                  {packageCount >= 2 && (
+                                    <>
+                                      <td className="tr-table-class font-14 text-white text-right">
+                                        {" "}
+                                        {props.formatValue(
+                                          props.RecurringPricingInfo
+                                            .PackageTwoGrandTotal
+                                        )}
+                                      </td>
+                                      {props.visibleFieldsCustomTemp.vat && (
+                                        <td className="tr-table-class font-14 text-white text-right">
+                                          {props.formatValue(
+                                            props.RecurringPricingInfo
+                                              .PackageTwoVaTPriceWithoutDiscout -
+                                              (props.RecurringPricingInfo
+                                                .PackageTwoVaTPriceWithoutDiscout *
+                                                props.RecurringPricingInfo
+                                                  .DiscountPercentagePackageTwo) /
+                                                100
+                                          )}
+                                        </td>
+                                      )}
+                                      {props.visibleFieldsCustomTemp
+                                        .serviceScope && <td></td>}
+                                    </>
+                                  )}
+                                  {packageCount == 3 && (
+                                    <>
+                                      <td className="tr-table-class font-14 text-white text-right">
+                                        {" "}
+                                        {props.formatValue(
+                                          props.RecurringPricingInfo
+                                            .PackageThreeGrandTotal
+                                        )}
+                                      </td>
+                                      {props.visibleFieldsCustomTemp.vat && (
+                                        <td className="tr-table-class font-14 text-white text-right">
+                                          {props.formatValue(
+                                            props.RecurringPricingInfo
+                                              .PackageThreeVaTPriceWithoutDiscout -
+                                              (props.RecurringPricingInfo
+                                                .PackageThreeVaTPriceWithoutDiscout *
+                                                props.RecurringPricingInfo
+                                                  .DiscountPercentagePackageThree) /
+                                                100
+                                          )}
+                                        </td>
+                                      )}
+                                      {props.visibleFieldsCustomTemp
+                                        .serviceScope && <td></td>}
+                                    </>
+                                  )}
+                                </tr>
+                              </>
+                            )}
+
+                          {props.vatPercentage && (
+                            <>
+                              {/* <tr class="head-grey-row">
+                                                               <td className="tr-table-class font-14 text-white">
+                                                                 VAT
+                                                               </td>
+                                                               <td className="tr-table-class font-14 text-white text-right">
+                                                                 {" "}
+                                                                 {formatValue(
+                                                                   props.RecurringPricingInfo
+                                                                     .PackageOneVaTPrice
+                                                                 )}
+                                                               </td>
+                                                               {packageCount >= 2 && (
+                                                                 <td className="tr-table-class font-14 text-white text-right">
+                                                                   {" "}
+                                                                   {formatValue(
+                                                                     props.RecurringPricingInfo
+                                                                       .PackageTwoVaTPrice
+                                                                   )}
+                                                                 </td>
+                                                               )}
+                                                               {packageCount === 3 && (
+                                                                 <td className="tr-table-class font-14 text-white text-right">
+                                                                   {" "}
+                                                                   {formatValue(
+                                                                     props.RecurringPricingInfo
+                                                                       .PackageThreeVaTPrice
+                                                                   )}
+                                                                 </td>
+                                                               )}
+                                                             </tr> */}
                             </>
                           )}
-
-                        {props.vatPercentage && (
-                          <>
-                            <tr class="head-grey-row">
-                              <td className="tr-table-class font-14 text-white">
-                                {props.taxName}
-                              </td>
-                              <td className="tr-table-class font-14 text-white text-right">
-                                {" "}
-                                {
-                                  props.formatValue(
-                                    props.RecurringPricingInfo
-                                      .PackageOneVaTPrice,props.currencyID
-                                  )
-                                  // Number(
-                                  //   props.RecurringPricingInfo.PackageOneVaTPrice
-                                  // )
-                                  //   .toFixed(2)
-                                  //   .toString()
-                                  //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                                }
-                                {/* VATNew Rs{RecurringPackageCalculation.PackageOneVatTotalAmount} */}
-                              </td>
-                              {packageCount >= 2 && (
-                                <td className="tr-table-class font-14 text-white text-right">
-                                  {" "}
-                                  {
-                                    props.formatValue(
-                                      props.RecurringPricingInfo
-                                        .PackageTwoVaTPrice,props.currencyID
-                                    )
-                                    // Number(
-                                    //   props.RecurringPricingInfo.PackageTwoVaTPrice
-                                    // )
-                                    //   .toFixed(2)
-                                    //   .toString()
-                                    //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                                  }
-                                </td>
-                              )}
-                              {packageCount === 3 && (
-                                <td className="tr-table-class font-14 text-white text-right">
-                                  {" "}
-                                  {
-                                    props.formatValue(
-                                      props.RecurringPricingInfo
-                                        .PackageThreeVaTPrice,props.currencyID
-                                    )
-                                    // Number(
-                                    //   props.RecurringPricingInfo
-                                    //     .PackageThreeVaTPrice
-                                    // )
-                                    //   .toFixed(2)
-                                    //   .toString()
-                                    //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                                  }
-                                </td>
-                              )}
-                            </tr>
-                            <tr className="head-row">
-                              <td className="tr-table-class font-14 text-white">
-                                Grand Total
-                              </td>
-                              <td className="tr-table-class font-14 text-white text-right">
-                                {" "}
-                                {
-                                  props.formatValue(
-                                    props.RecurringPricingInfo
-                                      .PackageOneGrandTotal,props.currencyID
-                                  )
-
-                                  // Number(
-                                  //   props.RecurringPricingInfo.PackageOneGrandTotal
-                                  // )
-                                  //   .toFixed(2)
-                                  //   .toString()
-                                  //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                                }
-                                {/* NewGT Rs{RecurringPackageCalculation.PackageOneGrandTotalAmount} */}
-                              </td>
-                              {packageCount >= 2 && (
-                                <td className="tr-table-class font-14 text-white text-right">
-                                  {" "}
-                                  {
-                                    props.formatValue(
-                                      props.RecurringPricingInfo
-                                        .PackageTwoGrandTotal,props.currencyID
-                                    )
-                                    // Number(
-                                    //   props.RecurringPricingInfo
-                                    //     .PackageTwoGrandTotal
-                                    // )
-                                    //   .toFixed(2)
-                                    //   .toString()
-                                    //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                                  }
-                                </td>
-                              )}
-                              {packageCount == 3 && (
-                                <td className="tr-table-class font-14 text-white text-right">
-                                  {" "}
-                                  {
-                                    props.formatValue(
-                                      props.RecurringPricingInfo
-                                        .PackageThreeGrandTotal,props.currencyID
-                                    )
-                                    // Number(
-                                    //   props.RecurringPricingInfo
-                                    //     .PackageThreeGrandTotal
-                                    // )
-                                    //   .toFixed(2)
-                                    //   .toString()
-                                    //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                                  }
-                                </td>
-                              )}
-                            </tr>
-                          </>
-                        )}
-                      </table>
-                    </div>
+                        </table>
+                      </div>
+                    ) : (
+                      ""
+                    )}
                   </div>
                 </div>
               </div>
             </div>
           )}
-
           {props.selectedOneOffServiceList?.length !== 0 && (
             <div className="tab-content">
               <div className="tab-pane p-3 active">
@@ -4753,69 +8830,111 @@ const ReviewPackagesComponent = (props) => {
                     <div className="mb-3"></div>
 
                     <div
-                      style={{ marginTop: "0px" }}
-                      className="table-responsive"
+                      className="Custom-template"
+                      style={{
+                        display: "flex",
+                        justifyContent: "flex-end",
+                        alignItems: "center",
+                        gap: "10px", // space between icons
+                        width: "100%", // ensure it fills parent for right alignment
+                      }}
                     >
-                      <table
-                        class="table align-middle table-nowrap"
-                        style={{ width: "100%" }}
-                      >
-                        <thead className="table-light table-header-font">
-                          <tr className="head-row">
-                            <td className="tr-table-class font-14 text-white">
-                              Services
-                            </td>
+                      <div className="viewTemp">
+                        <Tooltip title="Select Template">
+                          <div
+                            onClick={() => {
+                              props.setShowSelectTemplateModal(true);
+                              props.setServiceTypeID(
+                                servicePackageTypeID.OneOffPackageTypeID
+                              );
+                            }}
+                            style={{ cursor: "pointer" }}
+                          >
+                            <ViewModuleIcon />
+                          </div>
+                        </Tooltip>
+                      </div>
 
-                            {props.selectedPackagesList.map((pkg, index) => (
-                              <td
-                                key={index}
-                                className="tr-table-class font-14 text-white text-right"
-                              >
-                                {pkg.servicePackageName.length > 50 ? (
-                                  <Tooltip title={pkg.servicePackageName}>
-                                    {pkg.servicePackageName
-                                      .substring(0, 50)
-                                      .toLowerCase()
-                                      .replace(/\b\w/g, (l) =>
-                                        l.toUpperCase()
-                                      ) + "..."}
-                                  </Tooltip>
-                                ) : pkg.servicePackageName.length > 50 ? (
-                                  <Tooltip title={pkg.servicePackageName}>
-                                    {pkg.servicePackageName.substring(0, 50) +
-                                      "..."}
-                                  </Tooltip>
-                                ) : (
-                                  pkg.servicePackageName
-                                )}
+                      {/* <div className="customizeTemp">
+                                              <Tooltip title="Customize your own">
+                                                <div
+                                                  onClick={() => {
+                                                    props.setShowTemplateCustomizationModal(true);
+                                                    props.setServiceTypeID(2);
+                                                  }}
+                                                  style={{ cursor: "pointer" }}
+                                                >
+                                                  <EditIcon />
+                                                </div>
+                                              </Tooltip>
+                                            </div> */}
+                    </div>
+
+                    {props.selectedTemplateIDOneOff === 0 ? (
+                      <div
+                        style={{ marginTop: "0px" }}
+                        className="table-responsive"
+                      >
+                        <table
+                          class="table align-middle table-nowrap"
+                          style={{ width: "100%" }}
+                        >
+                          <thead className="table-light table-header-font">
+                            <tr className="head-row">
+                              <td className="tr-table-class font-14 text-white">
+                                Services
                               </td>
-                            ))}
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {props.selectedOneOffServiceList.map(
-                            (service, index) => {
-                              return (
-                                <>
-                                  <tr className="a-la-carte-services-review-head-row">
-                                    <th colSpan={1 + packageCount}>
-                                      {service.serviceCatName}
-                                    </th>
-                                  </tr>
-                                  {service.servicesList.map(
-                                    (subService, subIndex) => (
-                                      <tr
-                                        key={subIndex}
-                                        className={` ${
-                                          subService?.isAdditionalService !==
-                                          null
-                                            ? "bg-info  text-white"
-                                            : ""
-                                        }`}
-                                      >
-                                        <td>
-                                          <div>
-                                            {/* {subService.serviceName.length > 45
+
+                              {props.selectedPackagesList.map((pkg, index) => (
+                                <td
+                                  key={index}
+                                  className="tr-table-class font-14 text-white text-right"
+                                >
+                                  {pkg.servicePackageName.length > 50 ? (
+                                    <Tooltip title={pkg.servicePackageName}>
+                                      {pkg.servicePackageName
+                                        .substring(0, 50)
+                                        .toLowerCase()
+                                        .replace(/\b\w/g, (l) =>
+                                          l.toUpperCase()
+                                        ) + "..."}
+                                    </Tooltip>
+                                  ) : pkg.servicePackageName.length > 50 ? (
+                                    <Tooltip title={pkg.servicePackageName}>
+                                      {pkg.servicePackageName.substring(0, 50) +
+                                        "..."}
+                                    </Tooltip>
+                                  ) : (
+                                    pkg.servicePackageName
+                                  )}
+                                </td>
+                              ))}
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {props.selectedOneOffServiceList.map(
+                              (service, index) => {
+                                return (
+                                  <>
+                                    <tr className="a-la-carte-services-review-head-row">
+                                      <th colSpan={1 + packageCount}>
+                                        {service.serviceCatName}
+                                      </th>
+                                    </tr>
+                                    {service.servicesList.map(
+                                      (subService, subIndex) => (
+                                        <tr
+                                          key={subIndex}
+                                          className={` ${
+                                            subService?.isAdditionalService !==
+                                            null
+                                              ? "bg-info  text-white"
+                                              : ""
+                                          }`}
+                                        >
+                                          <td>
+                                            <div>
+                                              {/* {subService.serviceName.length > 45
                                               ? subService.serviceName
                                                 .substring(0, 45)
                                                 .toLowerCase()
@@ -4838,600 +8957,2631 @@ const ReviewPackagesComponent = (props) => {
                                                   }}
                                                 />
                                               } */}
-                                            <EditableCell
-                                              value={subService.serviceName}
-                                              displayValue={subService.serviceName.length > 45
-                                                ? subService.serviceName
-                                                  .substring(0, 45)
-                                                  .toLowerCase()
-                                                  .replace(/\b\w/g, (l) => l.toUpperCase()) + "..."
-                                                : undefined
-                                              }
-                                              onSave={(newName) => {
-                                                props.setSelectedOneOffServiceList(prevList => {
-                                                  const newList = [...prevList];
-                                                  const serviceIndex = prevList.findIndex(s => s === service);
-                                                  newList[serviceIndex].servicesList[subIndex].serviceName = newName;
-                                                  return newList;
-                                                });
-                                              }}
-                                            />
-                                          </div>
-                                          {props.requireMessage && subService.serviceName.trim() === "" &&
-                                            <div>
-                                              <label className="text-danger">
-                                                Please enter a valid service name
-                                              </label>
+                                              <EditableCell
+                                                value={subService.serviceName}
+                                                displayValue={
+                                                  subService.serviceName
+                                                    .length > 45
+                                                    ? subService.serviceName
+                                                        .substring(0, 45)
+                                                        .toLowerCase()
+                                                        .replace(/\b\w/g, (l) =>
+                                                          l.toUpperCase()
+                                                        ) + "..."
+                                                    : undefined
+                                                }
+                                                onSave={(newName) => {
+                                                  props.setSelectedOneOffServiceList(
+                                                    (prevList) => {
+                                                      const newList = [
+                                                        ...prevList,
+                                                      ];
+                                                      const serviceIndex =
+                                                        prevList.findIndex(
+                                                          (s) => s === service
+                                                        );
+                                                      newList[
+                                                        serviceIndex
+                                                      ].servicesList[
+                                                        subIndex
+                                                      ].serviceName = newName;
+                                                      return newList;
+                                                    }
+                                                  );
+                                                }}
+                                              />
                                             </div>
-                                          }
-                                          <div className="package-variables"></div>
-                                        </td>
+                                            {props.requireMessage &&
+                                              subService.serviceName.trim() ===
+                                                "" && (
+                                                <div>
+                                                  <label className="text-danger">
+                                                    Please enter a valid service
+                                                    name
+                                                  </label>
+                                                </div>
+                                              )}
+                                            <div className="package-variables"></div>
+                                          </td>
 
-                                        <td className="text-right">
-                                          <div className="flex-end-item">
-                                            {props.engagementObj.feeTypeId ===
-                                            1 ? (
-                                              <div className="flex-end-item">
-                                                {(subService.packageOneValue ===
-                                                  0 ||
-                                                  subService.packageOneValue ===
-                                                    null) &&
-                                                !subService.servicePackageIDs.some(
-                                                  (item) =>
-                                                    item ==
-                                                    props
-                                                      .selectedPackagesList[0]
-                                                      ?.servicePackageID
-                                                ) ? (
-                                                  <span className="fa fa-times"></span>
-                                                ) : !subService?.servicePackageIDs.includes(
-                                                    subService.packageOneID
+                                          <td className="text-right">
+                                            <div className="flex-end-item">
+                                              {props.engagementObj.feeTypeId ===
+                                              1 ? (
+                                                <div className="flex-end-item">
+                                                  {(subService.packageOneValue ===
+                                                    0 ||
+                                                    subService.packageOneValue ===
+                                                      null) &&
+                                                  !subService.servicePackageIDs.some(
+                                                    (item) =>
+                                                      item ==
+                                                      props
+                                                        .selectedPackagesList[0]
+                                                        ?.servicePackageID
                                                   ) ? (
-                                                  <span className="fa fa-times"></span>
+                                                    <span className="fa fa-times"></span>
+                                                  ) : !subService?.servicePackageIDs.includes(
+                                                      subService.packageOneID
+                                                    ) ? (
+                                                    <span className="fa fa-times"></span>
+                                                  ) : (
+                                                    ` ${props.formatValue(
+                                                      subService.packageOneValue,
+                                                      props.currencyID
+                                                    )}`
+                                                  )}
+                                                </div>
+                                              ) : Number(
+                                                  subService.packageOneValue
+                                                ) !== null &&
+                                                subService?.servicePackageIDs.includes(
+                                                  subService.packageOneID
+                                                ) ? (
+                                                <span className="fa fa-check"></span>
+                                              ) : (
+                                                <span className="fa fa-times"></span>
+                                              )}
+                                            </div>
+                                          </td>
+                                          {packageCount >= 2 && (
+                                            <td className="text-right">
+                                              <div className="flex-end-item">
+                                                {props.engagementObj
+                                                  .feeTypeId === 1 ? (
+                                                  <div className="flex-end-item">
+                                                    {(subService.packageTwoValue ===
+                                                      0 ||
+                                                      subService.packageTwoValue ===
+                                                        null) &&
+                                                    !subService.servicePackageIDs.some(
+                                                      (item) =>
+                                                        item ==
+                                                        props
+                                                          .selectedPackagesList[1]
+                                                          ?.servicePackageID
+                                                    ) ? (
+                                                      <span className="fa fa-times"></span>
+                                                    ) : !subService?.servicePackageIDs.includes(
+                                                        subService.packageTwoID
+                                                      ) ? (
+                                                      <span className="fa fa-times"></span>
+                                                    ) : (
+                                                      ` ${props.formatValue(
+                                                        subService.packageTwoValue,
+                                                        props.currencyID
+                                                      )}`
+                                                    )}
+                                                  </div>
+                                                ) : Number(
+                                                    subService.packageTwoValue
+                                                  ) !== null &&
+                                                  subService?.servicePackageIDs.includes(
+                                                    subService.packageTwoID
+                                                  ) ? (
+                                                  <span className="fa fa-check"></span>
                                                 ) : (
-                                                  ` ${props.formatValue(
-                                                    subService.packageOneValue,props.currencyID
-                                                  )}`
+                                                  <span className="fa fa-times"></span>
                                                 )}
                                               </div>
-                                            ) : Number(
-                                                subService.packageOneValue
-                                              ) !== null &&
-                                              subService?.servicePackageIDs.includes(
-                                                subService.packageOneID
-                                              ) ? (
-                                              <span className="fa fa-check"></span>
-                                            ) : (
-                                              <span className="fa fa-times"></span>
-                                            )}
-                                          </div>
-                                        </td>
-                                        {packageCount >= 2 && (
-                                          <td className="text-right">
-                                            <div className="flex-end-item">
-                                              {props.engagementObj.feeTypeId ===
-                                              1 ? (
-                                                <div className="flex-end-item">
-                                                  {(subService.packageTwoValue ===
-                                                    0 ||
-                                                    subService.packageTwoValue ===
-                                                      null) &&
-                                                  !subService.servicePackageIDs.some(
-                                                    (item) =>
-                                                      item ==
-                                                      props
-                                                        .selectedPackagesList[1]
-                                                        ?.servicePackageID
-                                                  ) ? (
-                                                    <span className="fa fa-times"></span>
-                                                  ) : !subService?.servicePackageIDs.includes(
-                                                      subService.packageTwoID
+                                            </td>
+                                          )}
+                                          {packageCount === 3 && (
+                                            <td className="text-right">
+                                              <div className="flex-end-item">
+                                                {props.engagementObj
+                                                  .feeTypeId === 1 ? (
+                                                  <div className="flex-end-item">
+                                                    {(subService.packageThreeValue ===
+                                                      0 ||
+                                                      subService.packageThreeValue ===
+                                                        null) &&
+                                                    !subService.servicePackageIDs.some(
+                                                      (item) =>
+                                                        item ==
+                                                        props
+                                                          .selectedPackagesList[2]
+                                                          ?.servicePackageID
                                                     ) ? (
-                                                    <span className="fa fa-times"></span>
-                                                  ) : (
-                                                    ` ${props.formatValue(
-                                                      subService.packageTwoValue,props.currencyID
-                                                    )}`
-                                                  )}
-                                                </div>
-                                              ) : Number(
-                                                  subService.packageTwoValue
-                                                ) !== null &&
-                                                subService?.servicePackageIDs.includes(
-                                                  subService.packageTwoID
-                                                ) ? (
-                                                <span className="fa fa-check"></span>
-                                              ) : (
-                                                <span className="fa fa-times"></span>
-                                              )}
-                                            </div>
-                                          </td>
-                                        )}
-                                        {packageCount === 3 && (
-                                          <td className="text-right">
-                                            <div className="flex-end-item">
-                                              {props.engagementObj.feeTypeId ===
-                                              1 ? (
-                                                <div className="flex-end-item">
-                                                  {(subService.packageThreeValue ===
-                                                    0 ||
-                                                    subService.packageThreeValue ===
-                                                      null) &&
-                                                  !subService.servicePackageIDs.some(
-                                                    (item) =>
-                                                      item ==
-                                                      props
-                                                        .selectedPackagesList[2]
-                                                        ?.servicePackageID
+                                                      <span className="fa fa-times"></span>
+                                                    ) : !subService?.servicePackageIDs.includes(
+                                                        subService.packageThreeID
+                                                      ) ? (
+                                                      <span className="fa fa-times"></span>
+                                                    ) : (
+                                                      ` ${props.formatValue(
+                                                        subService.packageThreeValue,
+                                                        props.currencyID
+                                                      )}`
+                                                    )}
+                                                  </div>
+                                                ) : Number(
+                                                    subService.packageThreeValue
+                                                  ) !== null &&
+                                                  subService?.servicePackageIDs.includes(
+                                                    subService.packageThreeID
                                                   ) ? (
-                                                    <span className="fa fa-times"></span>
-                                                  ) : !subService?.servicePackageIDs.includes(
-                                                      subService.packageThreeID
-                                                    ) ? (
-                                                    <span className="fa fa-times"></span>
-                                                  ) : (
-                                                    ` ${props.formatValue(
-                                                      subService.packageThreeValue,props.currencyID
-                                                    )}`
-                                                  )}
-                                                </div>
-                                              ) : Number(
-                                                  subService.packageThreeValue
-                                                ) !== null &&
-                                                subService?.servicePackageIDs.includes(
-                                                  subService.packageThreeID
-                                                ) ? (
-                                                <span className="fa fa-check"></span>
-                                              ) : (
-                                                <span className="fa fa-times"></span>
-                                              )}
-                                            </div>
-                                          </td>
-                                        )}
-                                      </tr>
-                                    )
-                                  )}
-                                </>
-                              );
-                            }
-                          )}
-                        </tbody>
-                        {packageCount > 1 && (
-                          <>
-                            <tr id="OneOff_DefaultWithPackages">
-                              <td
-                                style={{
-                                  padding: "8px",
-                                }}
-                              >
-                                Discount (%)
-                                {/* <div className="package-variables"></div> */}
-                              </td>
-                              <td
-                                style={{
-                                  width: "35%",
-                                  padding: "0px",
-                                  whiteSpace: "normal",
-                                }}
-                              >
-                                <div
-                                  style={{
-                                    display: "flex",
-                                    flexDirection: "column",
-                                    alignItems: "flex-start",
-                                  }}
-                                >
-                                  <input
-                                    className="input-text"
-                                    type="text" // Change type to number
-                                    placeholder="Discount (%)"
-                                    value={props.OneOffPricingInfo.DiscountPercentagePackageOne?.toString()?.replace(
-                                      /\B(?=(\d{3})+(?!\d))/g,
-                                      ","
+                                                  <span className="fa fa-check"></span>
+                                                ) : (
+                                                  <span className="fa fa-times"></span>
+                                                )}
+                                              </div>
+                                            </td>
+                                          )}
+                                        </tr>
+                                      )
                                     )}
-                                    onChange={(e) => {
-                                      handleOneOffPackageOneDiscountPercentage(
-                                        e
-                                      );
-                                    }}
-                                    style={{
-                                      width: "100%",
-                                      textAlign: "right",
-                                    }}
-                                  />
-                                  <div>
-                                    {props.getValidationMessage(
-                                      props.requireMessage,
-                                      props.pricingSettingObj.maxDiscountForQC,
-                                      props.OneOffPricingInfo
-                                        .DiscountPercentagePackageOne
-                                    )}
-                                  </div>
-                                </div>
-                              </td>
-
-                              {packageCount >= 2 && (
-                                <td
-                                  style={{
-                                    width: "35%",
-                                    padding: "0px",
-                                    whiteSpace: "normal",
-                                  }}
-                                >
-                                  <div
-                                    style={{
-                                      display: "flex",
-                                      flexDirection: "column",
-                                      alignItems: "flex-start",
-                                    }}
-                                  >
-                                    <input
-                                      className="input-text"
-                                      type="text" // Change type to number
-                                      placeholder="Discount (%)"
-                                      value={props.OneOffPricingInfo.DiscountPercentagePackageTwo?.toString()?.replace(
-                                        /\B(?=(\d{3})+(?!\d))/g,
-                                        ","
-                                      )}
-                                      onChange={(e) => {
-                                        handleOneOffPackageTwoDiscountPercentage(
-                                          e
-                                        );
-                                      }}
-                                      style={{
-                                        width: "100%",
-                                        textAlign: "right",
-                                      }}
-                                    />
-                                    <div>
-                                      {props.getValidationMessage(
-                                        props.requireMessage,
-                                        props.pricingSettingObj
-                                          .maxDiscountForQC,
-                                        props.OneOffPricingInfo
-                                          .DiscountPercentagePackageTwo
-                                      )}
-                                    </div>
-                                  </div>
-                                </td>
-                              )}
-
-                              {packageCount === 3 && (
-                                <td
-                                  style={{
-                                    width: "35%",
-                                    padding: "0px",
-                                    whiteSpace: "normal",
-                                  }}
-                                >
-                                  <div
-                                    style={{
-                                      display: "flex",
-                                      flexDirection: "column",
-                                      alignItems: "flex-start",
-                                    }}
-                                  >
-                                    <input
-                                      className="input-text"
-                                      type="text" // Change type to number
-                                      placeholder="Discount (%)"
-                                      value={props.OneOffPricingInfo.DiscountPercentagePackageThree?.toString()?.replace(
-                                        /\B(?=(\d{3})+(?!\d))/g,
-                                        ","
-                                      )}
-                                      onChange={(e) => {
-                                        handleOneOffPackageThreeDiscountPercentage(
-                                          e
-                                        );
-                                      }}
-                                      style={{
-                                        width: "100%",
-                                        textAlign: "right",
-                                      }}
-                                    />
-                                    <div>
-                                      {props.getValidationMessage(
-                                        props.requireMessage,
-                                        props.pricingSettingObj
-                                          .maxDiscountForQC,
-                                        props.OneOffPricingInfo
-                                          .DiscountPercentagePackageThree
-                                      )}
-                                    </div>
-                                  </div>
-                                </td>
-                              )}
-                            </tr>
-                          </>
-                        )}
-                        <tr className="head-row">
-                          <td className="tr-table-class font-14 text-white">
-                            Net Total
-                          </td>
-                          <td className="tr-table-class font-14 text-white text-right">
-                            {" "}
-                            {
-                              totalOnePackageValueOneOff <
-                                Number(
-                                  props.OneOffPricingInfo
-                                    .packageOneDisCountedTotal
-                                ) ||
-                              (Number(
-                                props.OneOffPricingInfo.packageOneDisCount
-                              ) > 0 &&
-                                !props.engagementObj.DiscountLines)
-                                ? props.formatValue(
-                                    props.OneOffPricingInfo
-                                      .packageOneDisCountedTotal,props.currencyID
-                                  )
-                                : // Number(totalOnePackageValueOneOff)
-                                  //     .toFixed(2)
-                                  //     .toString()
-                                  //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                                  props.formatValue(totalOnePackageValueOneOff,props.currencyID)
-                              // Number(
-                              //     props.OneOffPricingInfo
-                              //       .packageOneDisCountedTotal
-                              //   )
-                              //     .toFixed(2)
-                              //     .toString()
-                              //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                            }
-                          </td>
-                          {packageCount >= 2 && (
-                            <td className="tr-table-class font-14 text-white text-right">
-                              {" "}
-                              {
-                                totalTwoPackageValueOneOff <
-                                  Number(
-                                    props.OneOffPricingInfo
-                                      .packageTwoDisCountedTotal
-                                  ) ||
-                                (Number(
-                                  props.OneOffPricingInfo.packageTwoDisCount
-                                ) > 0 &&
-                                  !props.engagementObj.DiscountLines)
-                                  ? props.formatValue(
-                                      props.OneOffPricingInfo
-                                        .packageTwoDisCountedTotal,props.currencyID
-                                    )
-                                  : // Number(totalOnePackageValueOneOff)
-                                    //     .toFixed(2)
-                                    //     .toString()
-                                    //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                                    props.formatValue(
-                                      totalTwoPackageValueOneOff,props.currencyID
-                                    )
-                                // Number(
-                                //     props.OneOffPricingInfo
-                                //       .packageOneDisCountedTotal
-                                //   )
-                                //     .toFixed(2)
-                                //     .toString()
-                                //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                  </>
+                                );
                               }
-                            </td>
-                          )}{" "}
-                          {packageCount === 3 && (
-                            <td className="tr-table-class font-14 text-white text-right">
-                              {" "}
-                              {
-                                totalThreePackageValueOneOff <
-                                  Number(
-                                    props.OneOffPricingInfo
-                                      .packageThreeDisCountedTotal
-                                  ) ||
-                                (Number(
-                                  props.OneOffPricingInfo.packageThreeDisCount
-                                ) > 0 &&
-                                  !props.engagementObj.DiscountLines)
-                                  ? props.formatValue(
-                                      props.OneOffPricingInfo
-                                        .packageThreeDisCountedTotal,props.currencyID
-                                    )
-                                  : // Number(totalOnePackageValueOneOff)
-                                    //     .toFixed(2)
-                                    //     .toString()
-                                    //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                                    props.formatValue(
-                                      totalThreePackageValueOneOff,props.currencyID
-                                    )
-                                // Number(
-                                //     props.OneOffPricingInfo
-                                //       .packageOneDisCountedTotal
-                                //   )
-                                //     .toFixed(2)
-                                //     .toString()
-                                //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                              }
-                            </td>
-                          )}
-                        </tr>
-
-                        {(Number(props.OneOffPricingInfo.packageThreeDisCount) >
-                          0 ||
-                          Number(props.OneOffPricingInfo.packageOneDisCount) >
-                            0 ||
-                          Number(props.OneOffPricingInfo.packageTwoDisCount) >
-                            0) &&
-                          props.engagementObj.DiscountLines && (
+                            )}
+                          </tbody>
+                          {packageCount > 1 && (
                             <>
-                              <tr className="head-grey-row">
-                                <td className="tr-table-class font-14 text-white">
-                                  Discount
+                              <tr id="OneOff_DefaultWithPackages">
+                                <td
+                                  style={{
+                                    padding: "8px",
+                                  }}
+                                >
+                                  Discount (%)
+                                  {/* <div className="package-variables"></div> */}
                                 </td>
-                                <td className="tr-table-class font-14 text-white text-right">
-                                  (-){" "}
-                                  {props.formatValue(
-                                    props.OneOffPricingInfo.packageOneDisCount,props.currencyID
-                                  )}
+                                <td
+                                  style={{
+                                    width: "35%",
+                                    padding: "0px",
+                                    whiteSpace: "normal",
+                                  }}
+                                >
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      flexDirection: "column",
+                                      alignItems: "flex-start",
+                                    }}
+                                  >
+                                    <input
+                                      className="input-text"
+                                      type="text" // Change type to number
+                                      placeholder="Discount (%)"
+                                      value={props.OneOffPricingInfo.DiscountPercentagePackageOne?.toString()?.replace(
+                                        /\B(?=(\d{3})+(?!\d))/g,
+                                        ","
+                                      )}
+                                      onChange={(e) => {
+                                        handleOneOffPackageOneDiscountPercentage(
+                                          e
+                                        );
+                                      }}
+                                      style={{
+                                        width: "100%",
+                                        textAlign: "right",
+                                      }}
+                                    />
+                                    <div>
+                                      {props.getValidationMessage(
+                                        props.requireMessage,
+                                        props.pricingSettingObj
+                                          .maxDiscountForQC,
+                                        props.OneOffPricingInfo
+                                          .DiscountPercentagePackageOne
+                                      )}
+                                    </div>
+                                  </div>
                                 </td>
+
                                 {packageCount >= 2 && (
-                                  <td className="tr-table-class font-14 text-white text-right">
-                                    (-){" "}
-                                    {props.formatValue(
-                                      props.OneOffPricingInfo.packageTwoDisCount,props.currencyID
-                                    )}
+                                  <td
+                                    style={{
+                                      width: "35%",
+                                      padding: "0px",
+                                      whiteSpace: "normal",
+                                    }}
+                                  >
+                                    <div
+                                      style={{
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        alignItems: "flex-start",
+                                      }}
+                                    >
+                                      <input
+                                        className="input-text"
+                                        type="text" // Change type to number
+                                        placeholder="Discount (%)"
+                                        value={props.OneOffPricingInfo.DiscountPercentagePackageTwo?.toString()?.replace(
+                                          /\B(?=(\d{3})+(?!\d))/g,
+                                          ","
+                                        )}
+                                        onChange={(e) => {
+                                          handleOneOffPackageTwoDiscountPercentage(
+                                            e
+                                          );
+                                        }}
+                                        style={{
+                                          width: "100%",
+                                          textAlign: "right",
+                                        }}
+                                      />
+                                      <div>
+                                        {props.getValidationMessage(
+                                          props.requireMessage,
+                                          props.pricingSettingObj
+                                            .maxDiscountForQC,
+                                          props.OneOffPricingInfo
+                                            .DiscountPercentagePackageTwo
+                                        )}
+                                      </div>
+                                    </div>
                                   </td>
                                 )}
-                                {packageCount == 3 && (
-                                  <td className="tr-table-class font-14 text-white text-right">
-                                    (-){" "}
-                                    {props.formatValue(
-                                      props.OneOffPricingInfo
-                                        .packageThreeDisCount,props.currencyID
-                                    )}
-                                  </td>
-                                )}
-                              </tr>
-                              <tr className="head-row">
-                                <td className="tr-table-class font-14 text-white">
-                                  Discounted Total
-                                </td>
-                                <td className="tr-table-class font-14 text-white text-right">
-                                  {" "}
-                                  {props.formatValue(
-                                    props.OneOffPricingInfo
-                                      .packageOneDisCountedTotal,props.currencyID
-                                  )}
-                                </td>
-                                {packageCount >= 2 && (
-                                  <td className="tr-table-class font-14 text-white text-right">
-                                    {" "}
-                                    {props.formatValue(
-                                      props.OneOffPricingInfo
-                                        .packageTwoDisCountedTotal,props.currencyID
-                                    )}
-                                  </td>
-                                )}
-                                {packageCount == 3 && (
-                                  <td className="tr-table-class font-14 text-white text-right">
-                                    {" "}
-                                    {props.formatValue(
-                                      props.OneOffPricingInfo
-                                        .packageThreeDisCountedTotal,props.currencyID
-                                    )}
+
+                                {packageCount === 3 && (
+                                  <td
+                                    style={{
+                                      width: "35%",
+                                      padding: "0px",
+                                      whiteSpace: "normal",
+                                    }}
+                                  >
+                                    <div
+                                      style={{
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        alignItems: "flex-start",
+                                      }}
+                                    >
+                                      <input
+                                        className="input-text"
+                                        type="text" // Change type to number
+                                        placeholder="Discount (%)"
+                                        value={props.OneOffPricingInfo.DiscountPercentagePackageThree?.toString()?.replace(
+                                          /\B(?=(\d{3})+(?!\d))/g,
+                                          ","
+                                        )}
+                                        onChange={(e) => {
+                                          handleOneOffPackageThreeDiscountPercentage(
+                                            e
+                                          );
+                                        }}
+                                        style={{
+                                          width: "100%",
+                                          textAlign: "right",
+                                        }}
+                                      />
+                                      <div>
+                                        {props.getValidationMessage(
+                                          props.requireMessage,
+                                          props.pricingSettingObj
+                                            .maxDiscountForQC,
+                                          props.OneOffPricingInfo
+                                            .DiscountPercentagePackageThree
+                                        )}
+                                      </div>
+                                    </div>
                                   </td>
                                 )}
                               </tr>
                             </>
                           )}
-                        {props.vatPercentage && (
-                          <>
-                            <tr class="head-grey-row">
-                              <td className="tr-table-class font-14 text-white">
-                                {props.taxName}
-                              </td>
+                          <tr className="head-row">
+                            <td className="tr-table-class font-14 text-white">
+                              Net Total
+                            </td>
+                            <td className="tr-table-class font-14 text-white text-right">
+                              {" "}
+                              {
+                                totalOnePackageValueOneOff <
+                                  Number(
+                                    props.OneOffPricingInfo
+                                      .packageOneDisCountedTotal
+                                  ) ||
+                                (Number(
+                                  props.OneOffPricingInfo.packageOneDisCount
+                                ) > 0 &&
+                                  !props.engagementObj.DiscountLines)
+                                  ? props.formatValue(
+                                      props.OneOffPricingInfo
+                                        .packageOneDisCountedTotal,
+                                      props.currencyID
+                                    )
+                                  : // Number(totalOnePackageValueOneOff)
+                                    //     .toFixed(2)
+                                    //     .toString()
+                                    //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                    props.formatValue(
+                                      totalOnePackageValueOneOff,
+                                      props.currencyID
+                                    )
+                                // Number(
+                                //     props.OneOffPricingInfo
+                                //       .packageOneDisCountedTotal
+                                //   )
+                                //     .toFixed(2)
+                                //     .toString()
+                                //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                              }
+                            </td>
+                            {packageCount >= 2 && (
                               <td className="tr-table-class font-14 text-white text-right">
                                 {" "}
                                 {
-                                  props.formatValue(
-                                    props.OneOffPricingInfo.PackageOneVaTPrice,props.currencyID
-                                  )
+                                  totalTwoPackageValueOneOff <
+                                    Number(
+                                      props.OneOffPricingInfo
+                                        .packageTwoDisCountedTotal
+                                    ) ||
+                                  (Number(
+                                    props.OneOffPricingInfo.packageTwoDisCount
+                                  ) > 0 &&
+                                    !props.engagementObj.DiscountLines)
+                                    ? props.formatValue(
+                                        props.OneOffPricingInfo
+                                          .packageTwoDisCountedTotal,
+                                        props.currencyID
+                                      )
+                                    : // Number(totalOnePackageValueOneOff)
+                                      //     .toFixed(2)
+                                      //     .toString()
+                                      //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                      props.formatValue(
+                                        totalTwoPackageValueOneOff,
+                                        props.currencyID
+                                      )
                                   // Number(
-                                  //   props.OneOffPricingInfo.PackageOneVaTPrice
-                                  // )
-                                  //   .toFixed(2)
-                                  //   .toString()
-                                  //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                  //     props.OneOffPricingInfo
+                                  //       .packageOneDisCountedTotal
+                                  //   )
+                                  //     .toFixed(2)
+                                  //     .toString()
+                                  //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
                                 }
                               </td>
-                              {packageCount >= 2 && (
-                                <td className="tr-table-class text-white text-right">
-                                  {" "}
-                                  {
-                                    props.formatValue(
-                                      props.OneOffPricingInfo.PackageTwoVaTPrice,props.currencyID
-                                    )
-                                    // Number(
-                                    //   props.OneOffPricingInfo.PackageTwoVaTPrice
-                                    // )
-                                    //   .toFixed(2)
-                                    //   .toString()
-                                    //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                                  }
+                            )}{" "}
+                            {packageCount === 3 && (
+                              <td className="tr-table-class font-14 text-white text-right">
+                                {" "}
+                                {
+                                  totalThreePackageValueOneOff <
+                                    Number(
+                                      props.OneOffPricingInfo
+                                        .packageThreeDisCountedTotal
+                                    ) ||
+                                  (Number(
+                                    props.OneOffPricingInfo.packageThreeDisCount
+                                  ) > 0 &&
+                                    !props.engagementObj.DiscountLines)
+                                    ? props.formatValue(
+                                        props.OneOffPricingInfo
+                                          .packageThreeDisCountedTotal,
+                                        props.currencyID
+                                      )
+                                    : // Number(totalOnePackageValueOneOff)
+                                      //     .toFixed(2)
+                                      //     .toString()
+                                      //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                      props.formatValue(
+                                        totalThreePackageValueOneOff,
+                                        props.currencyID
+                                      )
+                                  // Number(
+                                  //     props.OneOffPricingInfo
+                                  //       .packageOneDisCountedTotal
+                                  //   )
+                                  //     .toFixed(2)
+                                  //     .toString()
+                                  //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                }
+                              </td>
+                            )}
+                          </tr>
+
+                          {(Number(
+                            props.OneOffPricingInfo.packageThreeDisCount
+                          ) > 0 ||
+                            Number(props.OneOffPricingInfo.packageOneDisCount) >
+                              0 ||
+                            Number(props.OneOffPricingInfo.packageTwoDisCount) >
+                              0) &&
+                            props.engagementObj.DiscountLines && (
+                              <>
+                                <tr className="head-grey-row">
+                                  <td className="tr-table-class font-14 text-white">
+                                    Discount
+                                  </td>
+                                  <td className="tr-table-class font-14 text-white text-right">
+                                    (-){" "}
+                                    {props.formatValue(
+                                      props.OneOffPricingInfo
+                                        .packageOneDisCount,
+                                      props.currencyID
+                                    )}
+                                  </td>
+                                  {packageCount >= 2 && (
+                                    <td className="tr-table-class font-14 text-white text-right">
+                                      (-){" "}
+                                      {props.formatValue(
+                                        props.OneOffPricingInfo
+                                          .packageTwoDisCount,
+                                        props.currencyID
+                                      )}
+                                    </td>
+                                  )}
+                                  {packageCount == 3 && (
+                                    <td className="tr-table-class font-14 text-white text-right">
+                                      (-){" "}
+                                      {props.formatValue(
+                                        props.OneOffPricingInfo
+                                          .packageThreeDisCount,
+                                        props.currencyID
+                                      )}
+                                    </td>
+                                  )}
+                                </tr>
+                                <tr className="head-row">
+                                  <td className="tr-table-class font-14 text-white">
+                                    Discounted Total
+                                  </td>
+                                  <td className="tr-table-class font-14 text-white text-right">
+                                    {" "}
+                                    {props.formatValue(
+                                      props.OneOffPricingInfo
+                                        .packageOneDisCountedTotal,
+                                      props.currencyID
+                                    )}
+                                  </td>
+                                  {packageCount >= 2 && (
+                                    <td className="tr-table-class font-14 text-white text-right">
+                                      {" "}
+                                      {props.formatValue(
+                                        props.OneOffPricingInfo
+                                          .packageTwoDisCountedTotal,
+                                        props.currencyID
+                                      )}
+                                    </td>
+                                  )}
+                                  {packageCount == 3 && (
+                                    <td className="tr-table-class font-14 text-white text-right">
+                                      {" "}
+                                      {props.formatValue(
+                                        props.OneOffPricingInfo
+                                          .packageThreeDisCountedTotal,
+                                        props.currencyID
+                                      )}
+                                    </td>
+                                  )}
+                                </tr>
+                              </>
+                            )}
+                          {props.vatPercentage && (
+                            <>
+                              <tr class="head-grey-row">
+                                <td className="tr-table-class font-14 text-white">
+                                  {props.taxName}
                                 </td>
-                              )}
-                              {packageCount === 3 && (
-                                <td className="tr-table-class text-white text-right">
+                                <td className="tr-table-class font-14 text-white text-right">
                                   {" "}
                                   {
                                     props.formatValue(
                                       props.OneOffPricingInfo
-                                        .PackageThreeVaTPrice,props.currencyID
+                                        .PackageOneVaTPrice,
+                                      props.currencyID
                                     )
                                     // Number(
-                                    //   props.OneOffPricingInfo.PackageThreeVaTPrice
+                                    //   props.OneOffPricingInfo.PackageOneVaTPrice
                                     // )
                                     //   .toFixed(2)
                                     //   .toString()
                                     //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
                                   }
                                 </td>
-                              )}
+                                {packageCount >= 2 && (
+                                  <td className="tr-table-class text-white text-right">
+                                    {" "}
+                                    {
+                                      props.formatValue(
+                                        props.OneOffPricingInfo
+                                          .PackageTwoVaTPrice,
+                                        props.currencyID
+                                      )
+                                      // Number(
+                                      //   props.OneOffPricingInfo.PackageTwoVaTPrice
+                                      // )
+                                      //   .toFixed(2)
+                                      //   .toString()
+                                      //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                    }
+                                  </td>
+                                )}
+                                {packageCount === 3 && (
+                                  <td className="tr-table-class text-white text-right">
+                                    {" "}
+                                    {
+                                      props.formatValue(
+                                        props.OneOffPricingInfo
+                                          .PackageThreeVaTPrice,
+                                        props.currencyID
+                                      )
+                                      // Number(
+                                      //   props.OneOffPricingInfo.PackageThreeVaTPrice
+                                      // )
+                                      //   .toFixed(2)
+                                      //   .toString()
+                                      //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                    }
+                                  </td>
+                                )}
+                              </tr>
+                              <tr className="head-row">
+                                <td className="tr-table-class font-14 text-white">
+                                  Grand Total
+                                </td>
+                                <td className="tr-table-class font-14 text-white text-right">
+                                  {" "}
+                                  {
+                                    props.formatValue(
+                                      props.OneOffPricingInfo
+                                        .PackageOneGrandTotal,
+                                      props.currencyID
+                                    )
+                                    // Number(
+                                    //   props.OneOffPricingInfo.PackageOneGrandTotal
+                                    // )
+                                    //   .toFixed(2)
+                                    //   .toString()
+                                    //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                  }
+                                </td>
+                                {packageCount >= 2 && (
+                                  <td className="tr-table-class font-14 text-white text-right">
+                                    {" "}
+                                    {
+                                      props.formatValue(
+                                        props.OneOffPricingInfo
+                                          .PackageTwoGrandTotal,
+                                        props.currencyID
+                                      )
+                                      // Number(
+                                      //   props.OneOffPricingInfo.PackageTwoGrandTotal
+                                      // )
+                                      //   .toFixed(2)
+                                      //   .toString()
+                                      //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                    }
+                                  </td>
+                                )}
+                                {packageCount == 3 && (
+                                  <td className="tr-table-class font-14 text-white text-right">
+                                    {" "}
+                                    {
+                                      props.formatValue(
+                                        props.OneOffPricingInfo
+                                          .PackageThreeGrandTotal,
+                                        props.currencyID
+                                      )
+                                      // Number(
+                                      //   props.OneOffPricingInfo.PackageThreeGrandTotal
+                                      // )
+                                      //   .toFixed(2)
+                                      //   .toString()
+                                      //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                    }
+                                  </td>
+                                )}
+                              </tr>
+                            </>
+                          )}
+                        </table>
+                      </div>
+                    ) : props.selectedTemplateIDOneOff === 6 ? (
+                      <div
+                        style={{ marginTop: "0px" }}
+                        className="table-responsive"
+                      >
+                        {/* <div
+                                                         dangerouslySetInnerHTML={{
+                                                           __html: currentPricingTableDesignRecurring,
+                                                         }}
+                                                       /> */}
+                        <table
+                          class="table align-middle table-nowrap"
+                          style={{ width: "100%" }}
+                        >
+                          <thead className="table-light table-header-font">
+                            <tr className="head-row">
+                              <td></td>
+                              {props.selectedPackagesList.map((pkg, index) => (
+                                <>
+                                  <td
+                                    key={index}
+                                    className="tr-table-class font-14 text-white text-right"
+                                  >
+                                    {pkg.servicePackageName.length > 10 ? (
+                                      <Tooltip title={pkg.servicePackageName}>
+                                        {pkg.servicePackageName
+                                          .substring(0, 10)
+                                          .toLowerCase()
+                                          .replace(/\b\w/g, (l) =>
+                                            l.toUpperCase()
+                                          ) + "..."}
+                                      </Tooltip>
+                                    ) : pkg.servicePackageName.length > 10 ? (
+                                      <Tooltip title={pkg.servicePackageName}>
+                                        {pkg.servicePackageName.substring(
+                                          0,
+                                          10
+                                        ) + "..."}
+                                      </Tooltip>
+                                    ) : (
+                                      pkg.servicePackageName
+                                    )}
+                                  </td>
+                                  {props.visibleFieldsCustomTemp.vat && (
+                                    <td></td>
+                                  )}
+                                  {props.visibleFieldsCustomTemp
+                                    .serviceScope && <td></td>}
+                                </>
+                              ))}
                             </tr>
                             <tr className="head-row">
-                              <td className="tr-table-class font-14 text-white">
-                                Grand Total
-                              </td>
+                              {props.visibleFieldsCustomTemp.serviceName && (
+                                <td className="tr-table-class font-14 text-white">
+                                  Services
+                                </td>
+                              )}
+                              {props.selectedPackagesList.map((pkg, index) => (
+                                <>
+                                  {/* <td
+                                                key={index}
+                                                className="tr-table-class font-14 text-white text-right"
+                                              >
+                                                {pkg.servicePackageName.length > 10 ? (
+                                                  <Tooltip title={pkg.servicePackageName}>
+                                                    {pkg.servicePackageName
+                                                      .substring(0, 10)
+                                                      .toLowerCase()
+                                                      .replace(/\b\w/g, (l) => l.toUpperCase()) + "..."}
+                                                  </Tooltip>
+                                                ) : pkg.servicePackageName.length > 10 ? (
+                                                  <Tooltip title={pkg.servicePackageName}>
+                                                    {pkg.servicePackageName.substring(0, 10) + "..."}
+                                                  </Tooltip>
+                                                ) : (
+                                                  pkg.servicePackageName
+                                                )}
+                                              </td> */}
+
+                                  <th
+                                    className="tr-table-class text-white text-right"
+                                    style={{ width: "16.66%" }}
+                                  >
+                                    Fees (£)
+                                  </th>
+                                  {props.visibleFieldsCustomTemp.vat && (
+                                    <th
+                                      className="tr-table-class text-white text-right"
+                                      style={{ width: "16.66%" }}
+                                    >
+                                      VAT (£)
+                                    </th>
+                                  )}
+
+                                  {props.visibleFieldsCustomTemp
+                                    .serviceScope && (
+                                    <th
+                                      className="tr-table-class text-white text-right"
+                                      style={{ width: "16.66%" }}
+                                    >
+                                      Service Scope
+                                    </th>
+                                  )}
+                                </>
+                              ))}
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {props.selectedOneOffServiceList.map(
+                              (service, index) => {
+                                return (
+                                  <>
+                                    <tr className="a-la-carte-services-review-head-row">
+                                      {props.visibleFieldsCustomTemp
+                                        .serviceName && (
+                                        <th colSpan={1 + packageCount}>
+                                          {service.serviceCatName}
+                                        </th>
+                                      )}
+
+                                      {/* <th></th> */}
+                                      {props.visibleFieldsCustomTemp.vat && (
+                                        <th></th>
+                                      )}
+                                      {props.visibleFieldsCustomTemp
+                                        .serviceScope && <th></th>}
+                                      {packageCount >= 2 && (
+                                        <>
+                                          {props.visibleFieldsCustomTemp
+                                            .vat && <th></th>}
+                                          {props.visibleFieldsCustomTemp
+                                            .serviceScope && <th></th>}
+                                        </>
+                                      )}
+
+                                      {packageCount === 3 && (
+                                        <>
+                                          {props.visibleFieldsCustomTemp
+                                            .vat && <th></th>}
+                                          {props.visibleFieldsCustomTemp
+                                            .serviceScope && <th></th>}
+                                        </>
+                                      )}
+                                    </tr>
+                                    {service.servicesList.map(
+                                      (subService, subIndex) => {
+                                        const driverList =
+                                          subService.pricingDriverList || [];
+                                        return (
+                                          <tr
+                                            key={subIndex}
+                                            className={` ${
+                                              subService?.isAdditionalService !==
+                                              null
+                                                ? "bg-info  text-white"
+                                                : ""
+                                            }`}
+                                          >
+                                            {props.visibleFieldsCustomTemp
+                                              .serviceName && (
+                                              <td>
+                                                <div>
+                                                  {subService.serviceName
+                                                    .length > 45 ? (
+                                                    <Tooltip
+                                                      title={
+                                                        subService.serviceName
+                                                      }
+                                                    >
+                                                      {subService.serviceName
+                                                        .substring(0, 45)
+                                                        .toLowerCase()
+                                                        .replace(/\b\w/g, (l) =>
+                                                          l.toUpperCase()
+                                                        ) + "..."}
+                                                    </Tooltip>
+                                                  ) : (
+                                                    subService.serviceName
+                                                  )}
+                                                </div>
+                                                <div className="package-variables"></div>
+                                              </td>
+                                            )}
+
+                                            <td className="text-right">
+                                              <div className="flex-end-item">
+                                                {props.engagementObj
+                                                  .feeTypeId === 1 ? (
+                                                  <div>
+                                                    {(subService.packageOneValue ===
+                                                      0 ||
+                                                      subService.packageOneValue ===
+                                                        null) &&
+                                                    !subService.servicePackageIDs.some(
+                                                      (item) =>
+                                                        item ==
+                                                        props
+                                                          .selectedPackagesList[0]
+                                                          .servicePackageID
+                                                    ) ? (
+                                                      <span className="fa fa-times"></span>
+                                                    ) : !subService?.servicePackageIDs.includes(
+                                                        subService.packageOneID
+                                                      ) ? (
+                                                      <span className="fa fa-times"></span>
+                                                    ) : (
+                                                      ` ${props.formatValue(
+                                                        subService.packageOneValue
+                                                      )}`
+                                                    )}
+                                                  </div>
+                                                ) : Number(
+                                                    subService.packageOneValue
+                                                  ) !== null &&
+                                                  subService?.servicePackageIDs.includes(
+                                                    subService.packageOneID
+                                                  ) ? (
+                                                  <span className="fa fa-check"></span>
+                                                ) : (
+                                                  <span className="fa fa-times"></span>
+                                                )}
+                                                {subService?.isAdditionalService !==
+                                                null ? (
+                                                  <input
+                                                    style={{
+                                                      marginLeft: "5px",
+                                                    }}
+                                                    disabled={
+                                                      subService?.servicePackageIDs.includes(
+                                                        subService.packageOneID
+                                                      ) &&
+                                                      subService
+                                                        ?.servicePackageIDs
+                                                        .length === 1
+                                                    }
+                                                    type="checkbox"
+                                                    checked={subService?.servicePackageIDs.includes(
+                                                      subService.packageOneID
+                                                    )}
+                                                    // onChange={(e) =>
+                                                    //   handleAddAndRemoveAdditionalServices(
+                                                    //     1,
+                                                    //     service.serviceCatID,
+                                                    //     subService.serviceID,
+                                                    //     subService.packageOneID,
+                                                    //     e.target.checked
+                                                    //   )
+                                                    // }
+                                                  />
+                                                ) : (
+                                                  <div>&nbsp;&nbsp;</div>
+                                                )}
+                                              </div>
+                                            </td>
+
+                                            {/* VAT */}
+
+                                            {props.visibleFieldsCustomTemp
+                                              .vat && (
+                                              <>
+                                                {/* Package One */}
+                                                <td className="text-right">
+                                                  <div className="flex-end-item">
+                                                    {props.engagementObj
+                                                      .feeTypeId === 1 ? (
+                                                      (subService.packageOneValue ===
+                                                        0 ||
+                                                        subService.packageOneValue ===
+                                                          null) &&
+                                                      !subService.servicePackageIDs.some(
+                                                        (item) =>
+                                                          item ===
+                                                          props
+                                                            .selectedPackagesList[0]
+                                                            .servicePackageID
+                                                      ) ? (
+                                                        <span className="fa fa-times"></span>
+                                                      ) : !subService?.servicePackageIDs.includes(
+                                                          subService.packageOneID
+                                                        ) ? (
+                                                        <span className="fa fa-times"></span>
+                                                      ) : (
+                                                        ` ${props.formatValue(
+                                                          (subService.packageOneValue *
+                                                            20) /
+                                                            100
+                                                        )}`
+                                                      )
+                                                    ) : Number(
+                                                        subService.packageOneValue
+                                                      ) !== null &&
+                                                      subService?.servicePackageIDs.includes(
+                                                        subService.packageOneID
+                                                      ) ? (
+                                                      <span className="fa fa-check"></span>
+                                                    ) : (
+                                                      <span className="fa fa-times"></span>
+                                                    )}
+
+                                                    {subService?.isAdditionalService !==
+                                                    null ? (
+                                                      <input
+                                                        style={{
+                                                          marginLeft: "5px",
+                                                        }}
+                                                        type="checkbox"
+                                                        disabled={
+                                                          subService?.servicePackageIDs.includes(
+                                                            subService.packageOneID
+                                                          ) &&
+                                                          subService
+                                                            ?.servicePackageIDs
+                                                            .length === 1
+                                                        }
+                                                        checked={subService?.servicePackageIDs.includes(
+                                                          subService.packageOneID
+                                                        )}
+                                                        // onChange={(e) =>
+                                                        //   handleAddAndRemoveAdditionalServices(
+                                                        //     1,
+                                                        //     service.serviceCatID,
+                                                        //     subService.serviceID,
+                                                        //     subService.packageOneID,
+                                                        //     e.target.checked
+                                                        //   )
+                                                        // }
+                                                      />
+                                                    ) : (
+                                                      <div>&nbsp;&nbsp;</div>
+                                                    )}
+                                                  </div>
+                                                </td>
+
+                                                {/* Package Two */}
+                                                {/* {packageCount >= 2 && (
+                                                          <>
+                                                            <td className="text-right">
+                                                              <div className="flex-end-item">
+                                                                {props.engagementObj.feeTypeId === 1 ? (
+                                                                  (subService.packageTwoValue === 0 ||
+                                                                    subService.packageTwoValue ===
+                                                                      null) &&
+                                                                  !subService.servicePackageIDs.some(
+                                                                    (item) =>
+                                                                      item ===
+                                                                      props.selectedPackagesList[1]
+                                                                        .servicePackageID
+                                                                  ) ? (
+                                                                    <span className="fa fa-times"></span>
+                                                                  ) : !subService?.servicePackageIDs.includes(
+                                                                      subService.packageTwoID
+                                                                    ) ? (
+                                                                    <span className="fa fa-times"></span>
+                                                                  ) : (
+                                                                    ` ${props.formatValue(
+                                                                      subService.packageTwoValue
+                                                                    )}`
+                                                                  )
+                                                                ) : Number(
+                                                                    subService.packageTwoValue
+                                                                  ) !== null &&
+                                                                  subService?.servicePackageIDs.includes(
+                                                                    subService.packageTwoID
+                                                                  ) ? (
+                                                                  <span className="fa fa-check"></span>
+                                                                ) : (
+                                                                  <span className="fa fa-times"></span>
+                                                                )}
+                        
+                                                                {subService?.isAdditionalService !==
+                                                                null ? (
+                                                                  <input
+                                                                    style={{ marginLeft: "5px" }}
+                                                                    type="checkbox"
+                                                                    disabled={
+                                                                      subService?.servicePackageIDs.includes(
+                                                                        subService.packageTwoID
+                                                                      ) &&
+                                                                      subService?.servicePackageIDs
+                                                                        .length === 1
+                                                                    }
+                                                                    checked={subService?.servicePackageIDs.includes(
+                                                                      subService.packageTwoID
+                                                                    )}
+                                                                    onChange={(e) =>
+                                                                      handleAddAndRemoveAdditionalServices(
+                                                                        1,
+                                                                        service.serviceCatID,
+                                                                        subService.serviceID,
+                                                                        subService.packageTwoID,
+                                                                        e.target.checked
+                                                                      )
+                                                                    }
+                                                                  />
+                                                                ) : (
+                                                                  <div>&nbsp;&nbsp;</div>
+                                                                )}
+                                                              </div>
+                                                            </td>
+                        
+                                                            <td className="text-right">
+                                                              <div className="flex-end-item">
+                                                                {props.engagementObj.feeTypeId === 1 ? (
+                                                                  (subService.packageTwoValue === 0 ||
+                                                                    subService.packageTwoValue ===
+                                                                      null) &&
+                                                                  !subService.servicePackageIDs.some(
+                                                                    (item) =>
+                                                                      item ===
+                                                                      props.selectedPackagesList[1]
+                                                                        .servicePackageID
+                                                                  ) ? (
+                                                                    <span className="fa fa-times"></span>
+                                                                  ) : !subService?.servicePackageIDs.includes(
+                                                                      subService.packageTwoID
+                                                                    ) ? (
+                                                                    <span className="fa fa-times"></span>
+                                                                  ) : (
+                                                                    ` ${props.formatValue(
+                                                                      (subService.packageTwoValue *
+                                                                        20) /
+                                                                        100
+                                                                    )}`
+                                                                  )
+                                                                ) : Number(
+                                                                    subService.packageTwoValue
+                                                                  ) !== null &&
+                                                                  subService?.servicePackageIDs.includes(
+                                                                    subService.packageTwoID
+                                                                  ) ? (
+                                                                  <span className="fa fa-check"></span>
+                                                                ) : (
+                                                                  <span className="fa fa-times"></span>
+                                                                )}
+                        
+                                                                {subService?.isAdditionalService !==
+                                                                null ? (
+                                                                  <input
+                                                                    style={{ marginLeft: "5px" }}
+                                                                    type="checkbox"
+                                                                    disabled={
+                                                                      subService?.servicePackageIDs.includes(
+                                                                        subService.packageTwoID
+                                                                      ) &&
+                                                                      subService?.servicePackageIDs
+                                                                        .length === 1
+                                                                    }
+                                                                    checked={subService?.servicePackageIDs.includes(
+                                                                      subService.packageTwoID
+                                                                    )}
+                                                                    onChange={(e) =>
+                                                                      handleAddAndRemoveAdditionalServices(
+                                                                        1,
+                                                                        service.serviceCatID,
+                                                                        subService.serviceID,
+                                                                        subService.packageTwoID,
+                                                                        e.target.checked
+                                                                      )
+                                                                    }
+                                                                  />
+                                                                ) : (
+                                                                  <div>&nbsp;&nbsp;</div>
+                                                                )}
+                                                              </div>
+                                                            </td>
+                                                          </>
+                                                        )} */}
+
+                                                {/* Package Three */}
+                                                {/* {packageCount === 3 && (
+                                                          <>
+                                                            <td className="text-right">
+                                                              <div className="flex-end-item">
+                                                                {props.engagementObj.feeTypeId === 1 ? (
+                                                                  (subService.packageThreeValue === 0 ||
+                                                                    subService.packageThreeValue ===
+                                                                      null) &&
+                                                                  !subService.servicePackageIDs.some(
+                                                                    (item) =>
+                                                                      item ===
+                                                                      props.selectedPackagesList[2]
+                                                                        .servicePackageID
+                                                                  ) ? (
+                                                                    <span className="fa fa-times"></span>
+                                                                  ) : !subService?.servicePackageIDs.includes(
+                                                                      subService.packageThreeID
+                                                                    ) ? (
+                                                                    <span className="fa fa-times"></span>
+                                                                  ) : (
+                                                                    ` ${props.formatValue(
+                                                                      subService.packageThreeValue
+                                                                    )}`
+                                                                  )
+                                                                ) : Number(
+                                                                    subService.packageThreeValue
+                                                                  ) !== null &&
+                                                                  subService?.servicePackageIDs.includes(
+                                                                    subService.packageThreeID
+                                                                  ) ? (
+                                                                  <span className="fa fa-check"></span>
+                                                                ) : (
+                                                                  <span className="fa fa-times"></span>
+                                                                )}
+                        
+                                                                {subService?.isAdditionalService !==
+                                                                null ? (
+                                                                  <input
+                                                                    style={{ marginLeft: "5px" }}
+                                                                    type="checkbox"
+                                                                    disabled={
+                                                                      subService?.servicePackageIDs.includes(
+                                                                        subService.packageThreeID
+                                                                      ) &&
+                                                                      subService?.servicePackageIDs
+                                                                        .length === 1
+                                                                    }
+                                                                    checked={subService?.servicePackageIDs.includes(
+                                                                      subService.packageThreeID
+                                                                    )}
+                                                                    onChange={(e) =>
+                                                                      handleAddAndRemoveAdditionalServices(
+                                                                        1,
+                                                                        service.serviceCatID,
+                                                                        subService.serviceID,
+                                                                        subService.packageThreeID,
+                                                                        e.target.checked
+                                                                      )
+                                                                    }
+                                                                  />
+                                                                ) : (
+                                                                  <div>&nbsp;&nbsp;</div>
+                                                                )}
+                                                              </div>
+                                                            </td>
+                        
+                                                            <td className="text-right">
+                                                              <div className="flex-end-item">
+                                                                {props.engagementObj.feeTypeId === 1 ? (
+                                                                  (subService.packageThreeValue === 0 ||
+                                                                    subService.packageThreeValue ===
+                                                                      null) &&
+                                                                  !subService.servicePackageIDs.some(
+                                                                    (item) =>
+                                                                      item ===
+                                                                      props.selectedPackagesList[2]
+                                                                        .servicePackageID
+                                                                  ) ? (
+                                                                    <span className="fa fa-times"></span>
+                                                                  ) : !subService?.servicePackageIDs.includes(
+                                                                      subService.packageThreeID
+                                                                    ) ? (
+                                                                    <span className="fa fa-times"></span>
+                                                                  ) : (
+                                                                    ` ${props.formatValue(
+                                                                      (subService.packageThreeValue *
+                                                                        20) /
+                                                                        100
+                                                                    )}`
+                                                                  )
+                                                                ) : Number(
+                                                                    subService.packageThreeValue
+                                                                  ) !== null &&
+                                                                  subService?.servicePackageIDs.includes(
+                                                                    subService.packageThreeID
+                                                                  ) ? (
+                                                                  <span className="fa fa-check"></span>
+                                                                ) : (
+                                                                  <span className="fa fa-times"></span>
+                                                                )}
+                        
+                                                                {subService?.isAdditionalService !==
+                                                                null ? (
+                                                                  <input
+                                                                    style={{ marginLeft: "5px" }}
+                                                                    type="checkbox"
+                                                                    disabled={
+                                                                      subService?.servicePackageIDs.includes(
+                                                                        subService.packageThreeID
+                                                                      ) &&
+                                                                      subService?.servicePackageIDs
+                                                                        .length === 1
+                                                                    }
+                                                                    checked={subService?.servicePackageIDs.includes(
+                                                                      subService.packageThreeID
+                                                                    )}
+                                                                    onChange={(e) =>
+                                                                      handleAddAndRemoveAdditionalServices(
+                                                                        1,
+                                                                        service.serviceCatID,
+                                                                        subService.serviceID,
+                                                                        subService.packageThreeID,
+                                                                        e.target.checked
+                                                                      )
+                                                                    }
+                                                                  />
+                                                                ) : (
+                                                                  <div>&nbsp;&nbsp;</div>
+                                                                )}
+                                                              </div>
+                                                            </td>
+                                                          </>
+                                                        )} */}
+                                              </>
+                                            )}
+
+                                            {/* Service Scope */}
+
+                                            {props.visibleFieldsCustomTemp
+                                              .serviceScope && (
+                                              <>
+                                                {/* Package One */}
+                                                <td className="text-right">
+                                                  {driverList.length > 0
+                                                    ? driverList
+                                                        .filter(
+                                                          (d) =>
+                                                            d.driverValue !==
+                                                            null
+                                                        )
+                                                        .map((d, i, arr) => (
+                                                          <div key={i}>
+                                                            {(subService.packageOneValue ===
+                                                              0 ||
+                                                              subService.packageOneValue ===
+                                                                null) &&
+                                                            !subService.servicePackageIDs.some(
+                                                              (item) =>
+                                                                item ===
+                                                                props
+                                                                  .selectedPackagesList[0]
+                                                                  .servicePackageID
+                                                            ) ? (
+                                                              <span>-</span>
+                                                            ) : !subService?.servicePackageIDs.includes(
+                                                                subService.packageOneID
+                                                              ) ? (
+                                                              <span>-</span>
+                                                            ) : (
+                                                              ` ${
+                                                                d.driverName
+                                                              } = ${
+                                                                d.driverValue
+                                                              }${
+                                                                i !==
+                                                                arr.length - 1
+                                                                  ? ", "
+                                                                  : ""
+                                                              }`
+                                                            )}
+                                                          </div>
+                                                        ))
+                                                    : "-"}
+                                                </td>
+                                              </>
+                                            )}
+
+                                            {/* Package Two */}
+                                            {packageCount >= 2 && (
+                                              <>
+                                                <td className="text-right">
+                                                  <div className="flex-end-item">
+                                                    {props.engagementObj
+                                                      .feeTypeId === 1 ? (
+                                                      <div>
+                                                        {(subService.packageTwoValue ===
+                                                          0 ||
+                                                          subService.packageTwoValue ===
+                                                            null) &&
+                                                        !subService.servicePackageIDs.some(
+                                                          (item) =>
+                                                            item ==
+                                                            props
+                                                              .selectedPackagesList[0]
+                                                              .servicePackageID
+                                                        ) ? (
+                                                          <span className="fa fa-times"></span>
+                                                        ) : !subService?.servicePackageIDs.includes(
+                                                            subService.packageTwoID
+                                                          ) ? (
+                                                          <span className="fa fa-times"></span>
+                                                        ) : (
+                                                          ` ${props.formatValue(
+                                                            subService.packageTwoValue
+                                                          )}`
+                                                        )}
+                                                      </div>
+                                                    ) : Number(
+                                                        subService.packageTwoValue
+                                                      ) !== null &&
+                                                      subService?.servicePackageIDs.includes(
+                                                        subService.packageTwoID
+                                                      ) ? (
+                                                      <span className="fa fa-check"></span>
+                                                    ) : (
+                                                      <span className="fa fa-times"></span>
+                                                    )}
+                                                    {subService?.isAdditionalService !==
+                                                    null ? (
+                                                      <input
+                                                        style={{
+                                                          marginLeft: "5px",
+                                                        }}
+                                                        disabled={
+                                                          subService?.servicePackageIDs.includes(
+                                                            subService.packageTwoID
+                                                          ) &&
+                                                          subService
+                                                            ?.servicePackageIDs
+                                                            .length === 1
+                                                        }
+                                                        type="checkbox"
+                                                        checked={subService?.servicePackageIDs.includes(
+                                                          subService.packageTwoID
+                                                        )}
+                                                        // onChange={(e) =>
+                                                        //   handleAddAndRemoveAdditionalServices(
+                                                        //     1,
+                                                        //     service.serviceCatID,
+                                                        //     subService.serviceID,
+                                                        //     subService.packageOneID,
+                                                        //     e.target.checked
+                                                        //   )
+                                                        // }
+                                                      />
+                                                    ) : (
+                                                      <div>&nbsp;&nbsp;</div>
+                                                    )}
+                                                  </div>
+                                                </td>
+                                                {props.visibleFieldsCustomTemp
+                                                  .vat && (
+                                                  <td className="text-right">
+                                                    <div className="flex-end-item">
+                                                      {props.engagementObj
+                                                        .feeTypeId === 1 ? (
+                                                        (subService.packageTwoValue ===
+                                                          0 ||
+                                                          subService.packageTwoValue ===
+                                                            null) &&
+                                                        !subService.servicePackageIDs.some(
+                                                          (item) =>
+                                                            item ===
+                                                            props
+                                                              .selectedPackagesList[0]
+                                                              .servicePackageID
+                                                        ) ? (
+                                                          <span className="fa fa-times"></span>
+                                                        ) : !subService?.servicePackageIDs.includes(
+                                                            subService.packageTwoID
+                                                          ) ? (
+                                                          <span className="fa fa-times"></span>
+                                                        ) : (
+                                                          ` ${props.formatValue(
+                                                            (subService.packageTwoValue *
+                                                              20) /
+                                                              100
+                                                          )}`
+                                                        )
+                                                      ) : Number(
+                                                          subService.packageTwoValue
+                                                        ) !== null &&
+                                                        subService?.servicePackageIDs.includes(
+                                                          subService.packageTwoID
+                                                        ) ? (
+                                                        <span className="fa fa-check"></span>
+                                                      ) : (
+                                                        <span className="fa fa-times"></span>
+                                                      )}
+
+                                                      {subService?.isAdditionalService !==
+                                                      null ? (
+                                                        <input
+                                                          style={{
+                                                            marginLeft: "5px",
+                                                          }}
+                                                          type="checkbox"
+                                                          disabled={
+                                                            subService?.servicePackageIDs.includes(
+                                                              subService.packageTwoID
+                                                            ) &&
+                                                            subService
+                                                              ?.servicePackageIDs
+                                                              .length === 1
+                                                          }
+                                                          checked={subService?.servicePackageIDs.includes(
+                                                            subService.packageTwoID
+                                                          )}
+                                                          // onChange={(e) =>
+                                                          //   handleAddAndRemoveAdditionalServices(
+                                                          //     1,
+                                                          //     service.serviceCatID,
+                                                          //     subService.serviceID,
+                                                          //     subService.packageOneID,
+                                                          //     e.target.checked
+                                                          //   )
+                                                          // }
+                                                        />
+                                                      ) : (
+                                                        <div>&nbsp;&nbsp;</div>
+                                                      )}
+                                                    </div>
+                                                  </td>
+                                                )}
+                                                {props.visibleFieldsCustomTemp
+                                                  .serviceScope && (
+                                                  <td className="text-right">
+                                                    {driverList.length > 0
+                                                      ? driverList
+                                                          .filter(
+                                                            (d) =>
+                                                              d.driverValue !==
+                                                              null
+                                                          )
+                                                          .map((d, i, arr) => (
+                                                            <div key={i}>
+                                                              {(subService.packageTwoValue ===
+                                                                0 ||
+                                                                subService.packageTwoValue ===
+                                                                  null) &&
+                                                              !subService.servicePackageIDs.some(
+                                                                (item) =>
+                                                                  item ===
+                                                                  props
+                                                                    .selectedPackagesList[0]
+                                                                    .servicePackageID
+                                                              ) ? (
+                                                                <span>-</span>
+                                                              ) : !subService?.servicePackageIDs.includes(
+                                                                  subService.packageTwoID
+                                                                ) ? (
+                                                                <span>-</span>
+                                                              ) : (
+                                                                ` ${
+                                                                  d.driverName
+                                                                } = ${
+                                                                  d.driverValue
+                                                                }${
+                                                                  i !==
+                                                                  arr.length - 1
+                                                                    ? ", "
+                                                                    : ""
+                                                                }`
+                                                              )}
+                                                            </div>
+                                                          ))
+                                                      : "-"}
+                                                  </td>
+                                                )}
+                                              </>
+                                            )}
+                                            {/* Package Three */}
+                                            {packageCount === 3 && (
+                                              <>
+                                                <td className="text-right">
+                                                  <div className="flex-end-item">
+                                                    {props.engagementObj
+                                                      .feeTypeId === 1 ? (
+                                                      <div>
+                                                        {(subService.packageThreeValue ===
+                                                          0 ||
+                                                          subService.packageThreeValue ===
+                                                            null) &&
+                                                        !subService.servicePackageIDs.some(
+                                                          (item) =>
+                                                            item ==
+                                                            props
+                                                              .selectedPackagesList[0]
+                                                              .servicePackageID
+                                                        ) ? (
+                                                          <span className="fa fa-times"></span>
+                                                        ) : !subService?.servicePackageIDs.includes(
+                                                            subService.packageThreeID
+                                                          ) ? (
+                                                          <span className="fa fa-times"></span>
+                                                        ) : (
+                                                          ` ${props.formatValue(
+                                                            subService.packageThreeValue
+                                                          )}`
+                                                        )}
+                                                      </div>
+                                                    ) : Number(
+                                                        subService.packageThreeValue
+                                                      ) !== null &&
+                                                      subService?.servicePackageIDs.includes(
+                                                        subService.packageThreeID
+                                                      ) ? (
+                                                      <span className="fa fa-check"></span>
+                                                    ) : (
+                                                      <span className="fa fa-times"></span>
+                                                    )}
+                                                    {subService?.isAdditionalService !==
+                                                    null ? (
+                                                      <input
+                                                        style={{
+                                                          marginLeft: "5px",
+                                                        }}
+                                                        disabled={
+                                                          subService?.servicePackageIDs.includes(
+                                                            subService.packageThreeID
+                                                          ) &&
+                                                          subService
+                                                            ?.servicePackageIDs
+                                                            .length === 1
+                                                        }
+                                                        type="checkbox"
+                                                        checked={subService?.servicePackageIDs.includes(
+                                                          subService.packageThreeID
+                                                        )}
+                                                        // onChange={(e) =>
+                                                        //   handleAddAndRemoveAdditionalServices(
+                                                        //     1,
+                                                        //     service.serviceCatID,
+                                                        //     subService.serviceID,
+                                                        //     subService.packageOneID,
+                                                        //     e.target.checked
+                                                        //   )
+                                                        // }
+                                                      />
+                                                    ) : (
+                                                      <div>&nbsp;&nbsp;</div>
+                                                    )}
+                                                  </div>
+                                                </td>
+
+                                                {props.visibleFieldsCustomTemp
+                                                  .vat && (
+                                                  <td className="text-right">
+                                                    <div className="flex-end-item">
+                                                      {props.engagementObj
+                                                        .feeTypeId === 1 ? (
+                                                        (subService.packageThreeValue ===
+                                                          0 ||
+                                                          subService.packageThreeValue ===
+                                                            null) &&
+                                                        !subService.servicePackageIDs.some(
+                                                          (item) =>
+                                                            item ===
+                                                            props
+                                                              .selectedPackagesList[0]
+                                                              .servicePackageID
+                                                        ) ? (
+                                                          <span className="fa fa-times"></span>
+                                                        ) : !subService?.servicePackageIDs.includes(
+                                                            subService.packageThreeID
+                                                          ) ? (
+                                                          <span className="fa fa-times"></span>
+                                                        ) : (
+                                                          ` ${props.formatValue(
+                                                            (subService.packageThreeValue *
+                                                              20) /
+                                                              100
+                                                          )}`
+                                                        )
+                                                      ) : Number(
+                                                          subService.packageThreeValue
+                                                        ) !== null &&
+                                                        subService?.servicePackageIDs.includes(
+                                                          subService.packageThreeID
+                                                        ) ? (
+                                                        <span className="fa fa-check"></span>
+                                                      ) : (
+                                                        <span className="fa fa-times"></span>
+                                                      )}
+
+                                                      {subService?.isAdditionalService !==
+                                                      null ? (
+                                                        <input
+                                                          style={{
+                                                            marginLeft: "5px",
+                                                          }}
+                                                          type="checkbox"
+                                                          disabled={
+                                                            subService?.servicePackageIDs.includes(
+                                                              subService.packageThreeID
+                                                            ) &&
+                                                            subService
+                                                              ?.servicePackageIDs
+                                                              .length === 1
+                                                          }
+                                                          checked={subService?.servicePackageIDs.includes(
+                                                            subService.packageThreeID
+                                                          )}
+                                                          // onChange={(e) =>
+                                                          //   handleAddAndRemoveAdditionalServices(
+                                                          //     1,
+                                                          //     service.serviceCatID,
+                                                          //     subService.serviceID,
+                                                          //     subService.packageOneID,
+                                                          //     e.target.checked
+                                                          //   )
+                                                          // }
+                                                        />
+                                                      ) : (
+                                                        <div>&nbsp;&nbsp;</div>
+                                                      )}
+                                                    </div>
+                                                  </td>
+                                                )}
+
+                                                {props.visibleFieldsCustomTemp
+                                                  .serviceScope && (
+                                                  <td className="text-right">
+                                                    {driverList.length > 0
+                                                      ? driverList
+                                                          .filter(
+                                                            (d) =>
+                                                              d.driverValue !==
+                                                              null
+                                                          )
+                                                          .map((d, i, arr) => (
+                                                            <div key={i}>
+                                                              {(subService.packageThreeValue ===
+                                                                0 ||
+                                                                subService.packageThreeValue ===
+                                                                  null) &&
+                                                              !subService.servicePackageIDs.some(
+                                                                (item) =>
+                                                                  item ===
+                                                                  props
+                                                                    .selectedPackagesList[0]
+                                                                    .servicePackageID
+                                                              ) ? (
+                                                                <span>-</span>
+                                                              ) : !subService?.servicePackageIDs.includes(
+                                                                  subService.packageThreeID
+                                                                ) ? (
+                                                                <span>-</span>
+                                                              ) : (
+                                                                ` ${
+                                                                  d.driverName
+                                                                } = ${
+                                                                  d.driverValue
+                                                                }${
+                                                                  i !==
+                                                                  arr.length - 1
+                                                                    ? ", "
+                                                                    : ""
+                                                                }`
+                                                              )}
+                                                            </div>
+                                                          ))
+                                                      : "-"}
+                                                  </td>
+                                                )}
+                                              </>
+                                            )}
+                                          </tr>
+                                        );
+                                      }
+                                    )}
+                                  </>
+                                );
+                              }
+                            )}
+                          </tbody>
+                          {packageCount > 1 && (
+                            <>
+                              <tr id="recurring_DefaultWithPackages">
+                                <td
+                                  style={{
+                                    padding: "8px",
+                                  }}
+                                >
+                                  Discount (%)
+                                </td>
+
+                                <td
+                                  style={{
+                                    width: "35%",
+                                    padding: "0px",
+                                    whiteSpace: "normal",
+                                  }}
+                                >
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      flexDirection: "column",
+                                      alignItems: "flex-start",
+                                    }}
+                                  >
+                                    <input
+                                      className="input-text"
+                                      type="text"
+                                      placeholder="Discount (%)"
+                                      value={props.OneOffPricingInfo.DiscountPercentagePackageOne?.toString()?.replace(
+                                        /\B(?=(\d{3})+(?!\d))/g,
+                                        ","
+                                      )}
+                                      onChange={(e) => {
+                                        handleOneOffPackageOneDiscountPercentage(
+                                          e
+                                        );
+                                      }}
+                                      style={{
+                                        width: "100%",
+                                        textAlign: "right",
+                                      }}
+                                    />
+                                    <div>
+                                      {props.getValidationMessage(
+                                        props.requireMessage,
+                                        props.pricingSettingObj
+                                          .maxDiscountForQC,
+                                        props.OneOffPricingInfo
+                                          .DiscountPercentagePackageOne
+                                      )}
+                                    </div>
+                                  </div>
+                                </td>
+
+                                {packageCount >= 2 && (
+                                  <>
+                                    {props.visibleFieldsCustomTemp.vat && (
+                                      <th></th>
+                                    )}
+                                    {props.visibleFieldsCustomTemp
+                                      .serviceScope && <th></th>}
+                                    <td
+                                      style={{
+                                        width: "35%",
+                                        padding: "0px",
+                                        whiteSpace: "normal",
+                                      }}
+                                    >
+                                      <div
+                                        style={{
+                                          display: "flex",
+                                          flexDirection: "column",
+                                          alignItems: "flex-start",
+                                        }}
+                                      >
+                                        <input
+                                          className="input-text"
+                                          type="text"
+                                          placeholder="Discount (%)"
+                                          value={props.OneOffPricingInfo.DiscountPercentagePackageTwo?.toString()?.replace(
+                                            /\B(?=(\d{3})+(?!\d))/g,
+                                            ","
+                                          )}
+                                          onChange={(e) => {
+                                            handleOneOffPackageTwoDiscountPercentage(
+                                              e
+                                            );
+                                          }}
+                                          style={{
+                                            width: "100%",
+                                            textAlign: "right",
+                                          }}
+                                        />
+                                        <div>
+                                          {props.getValidationMessage(
+                                            props.requireMessage,
+                                            props.pricingSettingObj
+                                              .maxDiscountForQC,
+                                            props.OneOffPricingInfo
+                                              .DiscountPercentagePackageTwo
+                                          )}
+                                        </div>
+                                      </div>
+                                    </td>
+                                  </>
+                                )}
+
+                                {packageCount === 3 && (
+                                  <>
+                                    {props.visibleFieldsCustomTemp.vat && (
+                                      <th></th>
+                                    )}
+                                    {props.visibleFieldsCustomTemp
+                                      .serviceScope && <th></th>}
+                                    <td
+                                      style={{
+                                        width: "35%",
+                                        padding: "0px",
+                                        whiteSpace: "normal",
+                                      }}
+                                    >
+                                      <div
+                                        style={{
+                                          display: "flex",
+                                          flexDirection: "column",
+                                          alignItems: "flex-start",
+                                        }}
+                                      >
+                                        <input
+                                          className="input-text"
+                                          type="text"
+                                          placeholder="Discount (%)"
+                                          value={props.OneOffPricingInfo.DiscountPercentagePackageThree?.toString()?.replace(
+                                            /\B(?=(\d{3})+(?!\d))/g,
+                                            ","
+                                          )}
+                                          onChange={(e) => {
+                                            handleOneOffPackageThreeDiscountPercentage(
+                                              e
+                                            );
+                                          }}
+                                          style={{
+                                            width: "100%",
+                                            textAlign: "right",
+                                          }}
+                                        />
+                                        <div>
+                                          {props.getValidationMessage(
+                                            props.requireMessage,
+                                            props.pricingSettingObj
+                                              .maxDiscountForQC,
+                                            props.OneOffPricingInfo
+                                              .DiscountPercentagePackageThree
+                                          )}
+                                        </div>
+                                      </div>
+                                    </td>
+                                  </>
+                                )}
+                              </tr>
+                            </>
+                          )}
+
+                          <tr className="head-row">
+                            <td className="tr-table-class font-14 text-white">
+                              Net Total
+                            </td>
+                            <td className="tr-table-class font-14 text-white text-right">
+                              {" "}
+                              {totalOnePackageValue >
+                                Number(
+                                  props.OneOffPricingInfo.packageOneNetTotal
+                                ) ||
+                              (Number(
+                                props.OneOffPricingInfo.packageOneDisCount
+                              ) > 0 &&
+                                !props.engagementObj.DiscountLines)
+                                ? Number(
+                                    props.OneOffPricingInfo.packageOneDisCount
+                                  ) > 0 && !props.engagementObj.DiscountLines
+                                  ? props.formatValue(
+                                      props.OneOffPricingInfo
+                                        .packageOneDisCountedTotal
+                                    )
+                                  : props.formatValue(totalOnePackageValue)
+                                : props.formatValue(
+                                    props.OneOffPricingInfo.packageOneNetTotal
+                                  )}
+                            </td>
+                            {/* Net VAT */}
+                            {props.visibleFieldsCustomTemp.vat && (
                               <td className="tr-table-class font-14 text-white text-right">
                                 {" "}
-                                {
-                                  props.formatValue(
-                                    props.OneOffPricingInfo.PackageOneGrandTotal,props.currencyID
-                                  )
-                                  // Number(
-                                  //   props.OneOffPricingInfo.PackageOneGrandTotal
-                                  // )
-                                  //   .toFixed(2)
-                                  //   .toString()
-                                  //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                                }
+                                {totalOnePackageValue >
+                                  Number(
+                                    props.OneOffPricingInfo.packageOneNetTotal
+                                  ) ||
+                                (Number(
+                                  props.OneOffPricingInfo.packageOneDisCount
+                                ) > 0 &&
+                                  !props.engagementObj.DiscountLines)
+                                  ? Number(
+                                      props.OneOffPricingInfo.packageOneDisCount
+                                    ) > 0 && !props.engagementObj.DiscountLines
+                                    ? props.formatValue(
+                                        (props.OneOffPricingInfo
+                                          .packageOneDisCountedTotal *
+                                          20) /
+                                          100
+                                      )
+                                    : props.formatValue(
+                                        (totalOnePackageValue * 20) / 100
+                                      )
+                                  : props.formatValue(
+                                      (props.OneOffPricingInfo
+                                        .packageOneNetTotal *
+                                        20) /
+                                        100
+                                    )}
                               </td>
-                              {packageCount >= 2 && (
+                            )}
+                            {props.visibleFieldsCustomTemp.serviceScope && (
+                              <td></td>
+                            )}
+                            {packageCount >= 2 && (
+                              <>
                                 <td className="tr-table-class font-14 text-white text-right">
                                   {" "}
-                                  {
-                                    props.formatValue(
-                                      props.OneOffPricingInfo
-                                        .PackageTwoGrandTotal,props.currencyID
-                                    )
-                                    // Number(
-                                    //   props.OneOffPricingInfo.PackageTwoGrandTotal
-                                    // )
-                                    //   .toFixed(2)
-                                    //   .toString()
-                                    //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                                  }
+                                  {totalTwoPackageValue >
+                                    Number(
+                                      props.OneOffPricingInfo.packageTwoNetTotal
+                                    ) ||
+                                  (Number(
+                                    props.OneOffPricingInfo.packageTwoDisCount
+                                  ) > 0 &&
+                                    !props.engagementObj.DiscountLines)
+                                    ? Number(
+                                        props.OneOffPricingInfo
+                                          .packageTwoDisCount
+                                      ) > 0 &&
+                                      !props.engagementObj.DiscountLines
+                                      ? props.formatValue(
+                                          props.OneOffPricingInfo
+                                            .packageTwoDisCountedTotal
+                                        )
+                                      : props.formatValue(totalTwoPackageValue)
+                                    : props.formatValue(
+                                        props.OneOffPricingInfo
+                                          .packageTwoNetTotal
+                                      )}
                                 </td>
-                              )}
-                              {packageCount == 3 && (
+                                {/* Net VAT */}
+                                {props.visibleFieldsCustomTemp.vat && (
+                                  <td className="tr-table-class font-14 text-white text-right">
+                                    {" "}
+                                    {totalTwoPackageValue >
+                                      Number(
+                                        props.OneOffPricingInfo
+                                          .packageTwoNetTotal
+                                      ) ||
+                                    (Number(
+                                      props.OneOffPricingInfo.packageTwoDisCount
+                                    ) > 0 &&
+                                      !props.engagementObj.DiscountLines)
+                                      ? Number(
+                                          props.OneOffPricingInfo
+                                            .packageTwoDisCount
+                                        ) > 0 &&
+                                        !props.engagementObj.DiscountLines
+                                        ? props.formatValue(
+                                            (props.OneOffPricingInfo
+                                              .packageTwoDisCountedTotal *
+                                              20) /
+                                              100
+                                          )
+                                        : props.formatValue(
+                                            (totalTwoPackageValue * 20) / 100
+                                          )
+                                      : props.formatValue(
+                                          (props.OneOffPricingInfo
+                                            .packageTwoNetTotal *
+                                            20) /
+                                            100
+                                        )}
+                                  </td>
+                                )}
+                                {props.visibleFieldsCustomTemp.serviceScope && (
+                                  <td></td>
+                                )}
+                              </>
+                            )}{" "}
+                            {packageCount === 3 && (
+                              <>
                                 <td className="tr-table-class font-14 text-white text-right">
                                   {" "}
-                                  {
-                                    props.formatValue(
+                                  {totalThreePackageValue >
+                                    Number(
                                       props.OneOffPricingInfo
-                                        .PackageThreeGrandTotal,props.currencyID
-                                    )
-                                    // Number(
-                                    //   props.OneOffPricingInfo.PackageThreeGrandTotal
-                                    // )
-                                    //   .toFixed(2)
-                                    //   .toString()
-                                    //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                                  }
+                                        .packageThreeNetTotal
+                                    ) ||
+                                  (Number(
+                                    props.OneOffPricingInfo.packageThreeDisCount
+                                  ) > 0 &&
+                                    !props.engagementObj.DiscountLines)
+                                    ? Number(
+                                        props.OneOffPricingInfo
+                                          .packageThreeDisCount
+                                      ) > 0 &&
+                                      !props.engagementObj.DiscountLines
+                                      ? props.formatValue(
+                                          props.OneOffPricingInfo
+                                            .packageThreeDisCountedTotal
+                                        )
+                                      : props.formatValue(
+                                          totalThreePackageValue
+                                        )
+                                    : props.formatValue(
+                                        props.OneOffPricingInfo
+                                          .packageThreeNetTotal
+                                      )}
                                 </td>
-                              )}
-                            </tr>
-                          </>
-                        )}
-                      </table>
-                    </div>
+                                {/* Net VAT */}
+                                {props.visibleFieldsCustomTemp.vat && (
+                                  <td className="tr-table-class font-14 text-white text-right">
+                                    {" "}
+                                    {totalThreePackageValue >
+                                      Number(
+                                        props.OneOffPricingInfo
+                                          .packageThreeNetTotal
+                                      ) ||
+                                    (Number(
+                                      props.OneOffPricingInfo
+                                        .packageThreeDisCount
+                                    ) > 0 &&
+                                      !props.engagementObj.DiscountLines)
+                                      ? Number(
+                                          props.OneOffPricingInfo
+                                            .packageThreeDisCount
+                                        ) > 0 &&
+                                        !props.engagementObj.DiscountLines
+                                        ? props.formatValue(
+                                            (props.OneOffPricingInfo
+                                              .packageThreeDisCountedTotal *
+                                              20) /
+                                              100
+                                          )
+                                        : props.formatValue(
+                                            (totalThreePackageValue * 20) / 100
+                                          )
+                                      : props.formatValue(
+                                          (props.OneOffPricingInfo
+                                            .packageThreeNetTotal *
+                                            20) /
+                                            100
+                                        )}
+                                  </td>
+                                )}
+                                {props.visibleFieldsCustomTemp.serviceScope && (
+                                  <td></td>
+                                )}
+                              </>
+                            )}
+                          </tr>
+
+                          {(Number(
+                            props.OneOffPricingInfo.packageThreeDisCount
+                          ) > 0 ||
+                            Number(props.OneOffPricingInfo.packageOneDisCount) >
+                              0 ||
+                            Number(props.OneOffPricingInfo.packageTwoDisCount) >
+                              0) &&
+                            props.engagementObj.DiscountLines && (
+                              <>
+                                <tr className="head-grey-row">
+                                  <td className="tr-table-class font-14 text-white">
+                                    Discount
+                                  </td>
+                                  <td className="tr-table-class font-14 text-white text-right">
+                                    (-){" "}
+                                    {props.formatValue(
+                                      props.OneOffPricingInfo.packageOneDisCount
+                                    )}
+                                  </td>
+                                  {/* Discounted VAT */}
+
+                                  {props.visibleFieldsCustomTemp.vat && (
+                                    <td className="tr-table-class font-14 text-white text-right">
+                                      (-){" "}
+                                      {totalOnePackageValue >
+                                        Number(
+                                          props.OneOffPricingInfo
+                                            .packageOneNetTotal
+                                        ) ||
+                                      (Number(
+                                        props.OneOffPricingInfo
+                                          .packageOneDisCount
+                                      ) > 0 &&
+                                        !props.engagementObj.DiscountLines)
+                                        ? Number(
+                                            props.OneOffPricingInfo
+                                              .packageOneDisCount
+                                          ) > 0 &&
+                                          !props.engagementObj.DiscountLines
+                                          ? props.formatValue(
+                                              (((props.OneOffPricingInfo
+                                                .packageOneDisCountedTotal *
+                                                20) /
+                                                100) *
+                                                props.OneOffPricingInfo
+                                                  .DiscountPercentagePackageOne) /
+                                                100
+                                            )
+                                          : props.formatValue(
+                                              (((totalOnePackageValue * 20) /
+                                                100) *
+                                                props.OneOffPricingInfo
+                                                  .DiscountPercentagePackageOne) /
+                                                100
+                                            )
+                                        : props.formatValue(
+                                            (((props.OneOffPricingInfo
+                                              .packageOneNetTotal *
+                                              20) /
+                                              100) *
+                                              props.OneOffPricingInfo
+                                                .DiscountPercentagePackageOne) /
+                                              100
+                                          )}
+                                    </td>
+                                  )}
+                                  {props.visibleFieldsCustomTemp
+                                    .serviceScope && <td></td>}
+
+                                  {/* <td className="tr-table-class font-14 text-white text-right"></td> */}
+                                  {packageCount >= 2 && (
+                                    <>
+                                      <td className="tr-table-class font-14 text-white text-right">
+                                        (-){" "}
+                                        {props.formatValue(
+                                          props.OneOffPricingInfo
+                                            .packageTwoDisCount
+                                        )}
+                                      </td>
+                                      {/* Discounted VAT */}
+                                      {props.visibleFieldsCustomTemp.vat && (
+                                        <td className="tr-table-class font-14 text-white text-right">
+                                          (-){" "}
+                                          {totalTwoPackageValue >
+                                            Number(
+                                              props.OneOffPricingInfo
+                                                .packageTwoNetTotal
+                                            ) ||
+                                          (Number(
+                                            props.OneOffPricingInfo
+                                              .packageTwoDisCount
+                                          ) > 0 &&
+                                            !props.engagementObj.DiscountLines)
+                                            ? Number(
+                                                props.OneOffPricingInfo
+                                                  .packageTwoDisCount
+                                              ) > 0 &&
+                                              !props.engagementObj.DiscountLines
+                                              ? props.formatValue(
+                                                  (((props.OneOffPricingInfo
+                                                    .packageTwoDisCountedTotal *
+                                                    20) /
+                                                    100) *
+                                                    props.OneOffPricingInfo
+                                                      .DiscountPercentagePackageTwo) /
+                                                    100
+                                                )
+                                              : props.formatValue(
+                                                  (((totalTwoPackageValue *
+                                                    20) /
+                                                    100) *
+                                                    props.OneOffPricingInfo
+                                                      .DiscountPercentagePackageTwo) /
+                                                    100
+                                                )
+                                            : props.formatValue(
+                                                (((props.OneOffPricingInfo
+                                                  .packageTwoNetTotal *
+                                                  20) /
+                                                  100) *
+                                                  props.OneOffPricingInfo
+                                                    .DiscountPercentagePackageTwo) /
+                                                  100
+                                              )}
+                                        </td>
+                                      )}
+                                      {props.visibleFieldsCustomTemp
+                                        .serviceScope && <td></td>}
+                                    </>
+                                  )}
+                                  {packageCount === 3 && (
+                                    <>
+                                      <td className="tr-table-class font-14 text-white text-right">
+                                        (-){" "}
+                                        {props.formatValue(
+                                          props.OneOffPricingInfo
+                                            .packageThreeDisCount
+                                        )}
+                                      </td>
+
+                                      {props.visibleFieldsCustomTemp.vat && (
+                                        <td className="tr-table-class font-14 text-white text-right">
+                                          (-){" "}
+                                          {totalThreePackageValue >
+                                            Number(
+                                              props.OneOffPricingInfo
+                                                .packageThreeNetTotal
+                                            ) ||
+                                          (Number(
+                                            props.OneOffPricingInfo
+                                              .packageThreeDisCount
+                                          ) > 0 &&
+                                            !props.engagementObj.DiscountLines)
+                                            ? Number(
+                                                props.OneOffPricingInfo
+                                                  .packageThreeDisCount
+                                              ) > 0 &&
+                                              !props.engagementObj.DiscountLines
+                                              ? props.formatValue(
+                                                  (((props.OneOffPricingInfo
+                                                    .packageThreeDisCountedTotal *
+                                                    20) /
+                                                    100) *
+                                                    props.OneOffPricingInfo
+                                                      .DiscountPercentagePackageThree) /
+                                                    100
+                                                )
+                                              : props.formatValue(
+                                                  (((totalThreePackageValue *
+                                                    20) /
+                                                    100) *
+                                                    props.OneOffPricingInfo
+                                                      .DiscountPercentagePackageThree) /
+                                                    100
+                                                )
+                                            : props.formatValue(
+                                                (((props.OneOffPricingInfo
+                                                  .packageThreeNetTotal *
+                                                  20) /
+                                                  100) *
+                                                  props.OneOffPricingInfo
+                                                    .DiscountPercentagePackageThree) /
+                                                  100
+                                              )}
+                                        </td>
+                                      )}
+                                      {props.visibleFieldsCustomTemp
+                                        .serviceScope && <td></td>}
+                                    </>
+                                  )}
+                                </tr>
+                                {/* <tr className="head-row">
+                                              <td className="tr-table-class font-14 text-white">
+                                                Discounted Total
+                                              </td>
+                                              <td className="tr-table-class font-14 text-white text-right">
+                                                {" "}
+                                                {props.formatValue(
+                                                  props.OneOffPricingInfo.packageOneDisCountedTotal
+                                                )}
+                                              </td>
+                        
+                                              {props.visibleFieldsCustomTemp.vat && (
+                                                <td className="tr-table-class font-14 text-white text-right">
+                                                  {" "}
+                                                  {props.formatValue(
+                                                    props.OneOffPricingInfo.PackageOneVaTPriceWithoutDiscout -
+                                                      (props.OneOffPricingInfo.PackageOneVaTPriceWithoutDiscout *
+                                                        20) /
+                                                        100
+                                                  )}
+                                                </td>
+                                              )}
+                                             
+                        
+                                              {packageCount >= 2 && (
+                                                <>
+                                                  <td className="tr-table-class font-14 text-white text-right">
+                                                    {" "}
+                                                    {props.formatValue(
+                                                      props.OneOffPricingInfo.packageTwoDisCountedTotal
+                                                    )}
+                                                  </td>
+                                                  {props.visibleFieldsCustomTemp.vat && (
+                                                    <td className="tr-table-class font-14 text-white text-right">
+                                                      {" "}
+                                                      {props.formatValue(
+                                                        props.OneOffPricingInfo.PackageTwoVaTPriceWithoutDiscout -
+                                                          (props.OneOffPricingInfo.PackageTwoVaTPriceWithoutDiscout *
+                                                            20) /
+                                                            100
+                                                      )}
+                                                    </td>
+                                                  )}
+                                                </>
+                                              )}
+                                              {packageCount === 3 && (
+                                                <>
+                                                  <td className="tr-table-class font-14 text-white text-right">
+                                                    {" "}
+                                                    {props.formatValue(
+                                                      props.OneOffPricingInfo.packageThreeDisCountedTotal
+                                                    )}
+                                                  </td>
+                                                  {props.visibleFieldsCustomTemp.vat && (
+                                                    <td className="tr-table-class font-14 text-white text-right">
+                                                      {" "}
+                                                      {props.formatValue(
+                                                        props.OneOffPricingInfo.PackageThreeVaTPriceWithoutDiscout -
+                                                          (props.OneOffPricingInfo.PackageThreeVaTPriceWithoutDiscout *
+                                                            20) /
+                                                            100
+                                                      )}
+                                                    </td>
+                                                  )}
+                                                </>
+                                              )}
+                        
+                                              {props.visibleFieldsCustomTemp.serviceScope && <td></td>}
+                                            </tr> */}
+                                <tr className="head-row">
+                                  <td className="tr-table-class font-14 text-white">
+                                    {/* Fees inc VAT (£) */}
+                                    Grand Total
+                                  </td>
+                                  {/* <td className="tr-table-class font-14 text-white text-right">
+                                                {" "}
+                                                {props.formatValue(props.OneOffPricingInfo.PackageOneGrandTotal)}
+                                              </td> */}
+                                  <td className="tr-table-class font-14 text-white text-right">
+                                    {" "}
+                                    {totalOnePackageValue >
+                                      Number(
+                                        props.OneOffPricingInfo
+                                          .packageOneNetTotal
+                                      ) ||
+                                    (Number(
+                                      props.OneOffPricingInfo.packageOneDisCount
+                                    ) > 0 &&
+                                      !props.engagementObj.DiscountLines)
+                                      ? Number(
+                                          props.OneOffPricingInfo
+                                            .packageOneDisCount
+                                        ) > 0 &&
+                                        !props.engagementObj.DiscountLines
+                                        ? props.formatValue(
+                                            props.OneOffPricingInfo
+                                              .packageOneDisCountedTotal -
+                                              props.OneOffPricingInfo
+                                                .packageOneDisCount
+                                          )
+                                        : props.formatValue(
+                                            totalOnePackageValue -
+                                              props.OneOffPricingInfo
+                                                .packageOneDisCount
+                                          )
+                                      : props.formatValue(
+                                          props.OneOffPricingInfo
+                                            .packageOneNetTotal -
+                                            props.OneOffPricingInfo
+                                              .packageOneDisCount
+                                        )}
+                                  </td>
+                                  {props.visibleFieldsCustomTemp.vat && (
+                                    <td className="tr-table-class font-14 text-white text-right">
+                                      {totalOnePackageValue >
+                                        Number(
+                                          props.OneOffPricingInfo
+                                            .packageOneNetTotal
+                                        ) ||
+                                      (Number(
+                                        props.OneOffPricingInfo
+                                          .packageOneDisCount
+                                      ) > 0 &&
+                                        !props.engagementObj.DiscountLines)
+                                        ? Number(
+                                            props.OneOffPricingInfo
+                                              .packageOneDisCount
+                                          ) > 0 &&
+                                          !props.engagementObj.DiscountLines
+                                          ? props.formatValue(
+                                              (props.OneOffPricingInfo
+                                                .packageOneDisCountedTotal *
+                                                20) /
+                                                100 -
+                                                (((props.OneOffPricingInfo
+                                                  .packageOneDisCountedTotal *
+                                                  20) /
+                                                  100) *
+                                                  props.OneOffPricingInfo
+                                                    .DiscountPercentagePackageOne) /
+                                                  100
+                                            )
+                                          : props.formatValue(
+                                              (totalOnePackageValue * 20) /
+                                                100 -
+                                                (((totalOnePackageValue * 20) /
+                                                  100) *
+                                                  props.OneOffPricingInfo
+                                                    .DiscountPercentagePackageOne) /
+                                                  100
+                                            )
+                                        : props.formatValue(
+                                            (props.OneOffPricingInfo
+                                              .packageOneNetTotal *
+                                              20) /
+                                              100 -
+                                              (((props.OneOffPricingInfo
+                                                .packageOneNetTotal *
+                                                20) /
+                                                100) *
+                                                props.OneOffPricingInfo
+                                                  .DiscountPercentagePackageOne) /
+                                                100
+                                          )}
+                                    </td>
+                                  )}
+                                  {props.visibleFieldsCustomTemp
+                                    .serviceScope && <td></td>}
+                                  {packageCount >= 2 && (
+                                    <>
+                                      <td className="tr-table-class font-14 text-white text-right">
+                                        {" "}
+                                        {props.formatValue(
+                                          props.OneOffPricingInfo
+                                            .PackageTwoGrandTotal
+                                        )}
+                                      </td>
+                                      {props.visibleFieldsCustomTemp.vat && (
+                                        <td className="tr-table-class font-14 text-white text-right">
+                                          {totalTwoPackageValue >
+                                            Number(
+                                              props.OneOffPricingInfo
+                                                .packageTwoNetTotal
+                                            ) ||
+                                          (Number(
+                                            props.OneOffPricingInfo
+                                              .packageTwoDisCount
+                                          ) > 0 &&
+                                            !props.engagementObj.DiscountLines)
+                                            ? Number(
+                                                props.OneOffPricingInfo
+                                                  .packageTwoDisCount
+                                              ) > 0 &&
+                                              !props.engagementObj.DiscountLines
+                                              ? props.formatValue(
+                                                  (props.OneOffPricingInfo
+                                                    .packageTwoDisCountedTotal *
+                                                    20) /
+                                                    100 -
+                                                    (((props.OneOffPricingInfo
+                                                      .packageTwoDisCountedTotal *
+                                                      20) /
+                                                      100) *
+                                                      props.OneOffPricingInfo
+                                                        .DiscountPercentagePackageTwo) /
+                                                      100
+                                                )
+                                              : props.formatValue(
+                                                  (totalTwoPackageValue * 20) /
+                                                    100 -
+                                                    (((totalTwoPackageValue *
+                                                      20) /
+                                                      100) *
+                                                      props.OneOffPricingInfo
+                                                        .DiscountPercentagePackageTwo) /
+                                                      100
+                                                )
+                                            : props.formatValue(
+                                                (props.OneOffPricingInfo
+                                                  .packageTwoNetTotal *
+                                                  20) /
+                                                  100 -
+                                                  (((props.OneOffPricingInfo
+                                                    .packageTwoNetTotal *
+                                                    20) /
+                                                    100) *
+                                                    props.OneOffPricingInfo
+                                                      .DiscountPercentagePackageTwo) /
+                                                    100
+                                              )}
+                                        </td>
+                                      )}
+                                      {props.visibleFieldsCustomTemp
+                                        .serviceScope && <td></td>}
+                                    </>
+                                  )}
+                                  {packageCount == 3 && (
+                                    <>
+                                      <td className="tr-table-class font-14 text-white text-right">
+                                        {" "}
+                                        {props.formatValue(
+                                          props.OneOffPricingInfo
+                                            .PackageThreeGrandTotal
+                                        )}
+                                      </td>
+                                      {props.visibleFieldsCustomTemp.vat && (
+                                        <td className="tr-table-class font-14 text-white text-right">
+                                          {totalThreePackageValue >
+                                            Number(
+                                              props.OneOffPricingInfo
+                                                .packageThreeNetTotal
+                                            ) ||
+                                          (Number(
+                                            props.OneOffPricingInfo
+                                              .packageThreeDisCount
+                                          ) > 0 &&
+                                            !props.engagementObj.DiscountLines)
+                                            ? Number(
+                                                props.OneOffPricingInfo
+                                                  .packageThreeDisCount
+                                              ) > 0 &&
+                                              !props.engagementObj.DiscountLines
+                                              ? props.formatValue(
+                                                  (props.OneOffPricingInfo
+                                                    .packageThreeDisCountedTotal *
+                                                    20) /
+                                                    100 -
+                                                    (((props.OneOffPricingInfo
+                                                      .packageThreeDisCountedTotal *
+                                                      20) /
+                                                      100) *
+                                                      props.OneOffPricingInfo
+                                                        .DiscountPercentagePackageThree) /
+                                                      100
+                                                )
+                                              : props.formatValue(
+                                                  (totalThreePackageValue *
+                                                    20) /
+                                                    100 -
+                                                    (((totalThreePackageValue *
+                                                      20) /
+                                                      100) *
+                                                      props.OneOffPricingInfo
+                                                        .DiscountPercentagePackageThree) /
+                                                      100
+                                                )
+                                            : props.formatValue(
+                                                (props.OneOffPricingInfo
+                                                  .packageThreeNetTotal *
+                                                  20) /
+                                                  100 -
+                                                  (((props.OneOffPricingInfo
+                                                    .packageThreeNetTotal *
+                                                    20) /
+                                                    100) *
+                                                    props.OneOffPricingInfo
+                                                      .DiscountPercentagePackageThree) /
+                                                    100
+                                              )}
+                                        </td>
+                                      )}
+                                      {props.visibleFieldsCustomTemp
+                                        .serviceScope && <td></td>}
+                                    </>
+                                  )}
+                                </tr>
+                              </>
+                            )}
+
+                          {props.vatPercentage && (
+                            <>
+                              {/* <tr class="head-grey-row">
+                                                                 <td className="tr-table-class font-14 text-white">
+                                                                   VAT
+                                                                 </td>
+                                                                 <td className="tr-table-class font-14 text-white text-right">
+                                                                   {" "}
+                                                                   {props.formatValue(
+                                                                     props.OneOffPricingInfo
+                                                                       .PackageOneVaTPrice
+                                                                   )}
+                                                                 </td>
+                                                                 {packageCount >= 2 && (
+                                                                   <td className="tr-table-class font-14 text-white text-right">
+                                                                     {" "}
+                                                                     {props.formatValue(
+                                                                       props.OneOffPricingInfo
+                                                                         .PackageTwoVaTPrice
+                                                                     )}
+                                                                   </td>
+                                                                 )}
+                                                                 {packageCount === 3 && (
+                                                                   <td className="tr-table-class font-14 text-white text-right">
+                                                                     {" "}
+                                                                     {props.formatValue(
+                                                                       props.OneOffPricingInfo
+                                                                         .PackageThreeVaTPrice
+                                                                     )}
+                                                                   </td>
+                                                                 )}
+                                                               </tr> */}
+                            </>
+                          )}
+                        </table>
+                      </div>
+                    ) : (
+                      ""
+                    )}
                   </div>
                 </div>
               </div>
             </div>
           )}
+          {/* Statement of facts - Service description customization */}
+
+          <div className="SOF-SD-Customization d-flex flex-column gap-2">
+            <div className="service-description">
+              <div className="separator mb-2"></div>
+              <h6>Service Description</h6>
+              <div className="separator mb-3"></div>
+              <Text_Editor
+                index={0}
+                handleContentChange={handleSDChange}
+                editorState={props.serviceDescriptionHTML}
+              />
+            </div>
+            <div className="statement-of-facts">
+              <div className="separator mb-2"></div>
+              <h6>Statement Of Facts</h6>
+              <div className="separator mb-3"></div>
+              <Text_Editor
+                index={0}
+                handleContentChange={handleSOFChange}
+                editorState={props.statementOfFactsHTML}
+              />
+            </div>
+          </div>
         </div>
       </div>
       <div class="separator"></div>
@@ -5505,6 +11655,29 @@ const Add_Update_Engagement_Letter = () => {
     isValueGreaterThan20000,
     updateTemplateList,
   } = useContext(AuthContextProvider);
+
+  const [pricingTableColumnIDs, setPricingTableColumnIDs] = useState("");
+  const [selectedTemplateID, setSelectedTemplateID] = useState(0);
+  const [selectedTemplateIDOneOff, setSelectedTemplateIDOneOff] = useState(0);
+  const [serviceTypeID, setServiceTypeID] = useState(null);
+  const [showSelectTemplateModal, setShowSelectTemplateModal] = useState(false);
+  const [openEmailFailurePopUp, setOpenEmailFailurePopUp] = useState(false);
+  const [emailCheckModel, setEmailCheckModel] = useState({
+    MethodName: "",
+    ModuleName: "",
+  });
+  const [vatPercentage, setVATPercentage] = useState("");
+  const [contractKeyIDFromAPI, setContractKeyIDAPI] = useState(null);
+  const [visibleFieldsCustomTemp, setVisibleFieldsCustomTemp] = useState({
+    serviceCategory: true,
+    serviceName: true,
+    vatRate: vatPercentage === null ? false : true,
+    vat: vatPercentage === null ? false : true,
+    fees: true,
+    serviceScope: true,
+    feesIncVat: vatPercentage === null ? false : true,
+  });
+
   const [recurringObj, setRecurringObj] = useState([]);
   const [recurringError, setRecurringError] = useState(false);
   const [oneOffObj, setOneOffObj] = useState([]);
@@ -5550,11 +11723,14 @@ const Add_Update_Engagement_Letter = () => {
   const [additionalInformationList, setAdditionalInformationList] = useState(
     []
   );
-  const [taxName,setTaxName] = useState("");
-  const [currencySymbol,setCurrencySymbol] = useState("");
-  const [currencyID,setCurrencyID] = useState(null);
+  const [taxName, setTaxName] = useState("");
+  const [currencySymbol, setCurrencySymbol] = useState("");
+  const [currencyID, setCurrencyID] = useState(null);
   const [contractFinalPackageAmountList, setContractFinalPackageAmountList] =
     useState([]);
+  const [serviceDescriptionHTML, setServiceDescriptionHTML] = useState("");
+  const [statementOfFactsHTML, setStatementOfFactsHTML] = useState("");
+  const [StatementOfFact, setStatementOfFacts] = useState([]);
   const [
     quoteAdditionalInfoGlobalPricingDriver,
     setQuoteAdditionalInfoGlobalPricingDriver,
@@ -5662,6 +11838,9 @@ const Add_Update_Engagement_Letter = () => {
     PackageOneVaTPrice: null,
     PackageTwoVaTPrice: null,
     PackageThreeVaTPrice: null,
+    PackageOneVaTPriceWithoutDiscount: null,
+    PackageTwoVaTPriceWithoutDiscount: null,
+    PackageThreeVaTPriceWithoutDiscount: null,
     PackageOneGrandTotal: null,
     PackageTwoGrandTotal: null,
     PackageThreeGrandTotal: null,
@@ -5693,6 +11872,9 @@ const Add_Update_Engagement_Letter = () => {
     PackageOneVaTPrice: null,
     PackageTwoVaTPrice: null,
     PackageThreeVaTPrice: null,
+    PackageOneVaTPriceWithoutDiscount: null,
+    PackageTwoVaTPriceWithoutDiscount: null,
+    PackageThreeVaTPriceWithoutDiscount: null,
     PackageOneGrandTotal: null,
     PackageTwoGrandTotal: null,
     PackageThreeGrandTotal: null,
@@ -5723,6 +11905,9 @@ const Add_Update_Engagement_Letter = () => {
     PackageOneVaTPrice: null,
     PackageTwoVaTPrice: null,
     PackageThreeVaTPrice: null,
+    PackageOneVaTPriceWithoutDiscount: null,
+    PackageTwoVaTPriceWithoutDiscount: null,
+    PackageThreeVaTPriceWithoutDiscount: null,
     PackageOneGrandTotal: null,
     PackageTwoGrandTotal: null,
     PackageThreeGrandTotal: null,
@@ -5754,6 +11939,9 @@ const Add_Update_Engagement_Letter = () => {
       PackageOneVaTPrice: null,
       PackageTwoVaTPrice: null,
       PackageThreeVaTPrice: null,
+      PackageOneVaTPriceWithoutDiscount: null,
+      PackageTwoVaTPriceWithoutDiscount: null,
+      PackageThreeVaTPriceWithoutDiscount: null,
       PackageOneGrandTotal: null,
       PackageTwoGrandTotal: null,
       PackageThreeGrandTotal: null,
@@ -5783,6 +11971,7 @@ const Add_Update_Engagement_Letter = () => {
     paymentGatewayID: null,
     Payment_Frequency: null,
     moduleName: "Contract",
+    pricingTableColumnIDs: null,
   });
   useEffect(() => {
     console.log(
@@ -5804,8 +11993,43 @@ const Add_Update_Engagement_Letter = () => {
   });
   const [refIdStore, setRefIdStore] = useState("");
   const [servicePackageName, setServicePackageName] = useState("");
-  const [vatPercentage, setVATPercentage] = useState("");
+  // const [vatPercentage, setVATPercentage] = useState("");
   // B] Initial useEffect :
+
+  // Pricing table view fields string to obj
+
+  const updateVisibleFieldsFromIds = (pricingTableColumnIDs) => {
+    // Ensure pricingTableColumnIDs is a string — handle undefined, null, object, or empty values safely
+    if (
+      typeof pricingTableColumnIDs !== "string" ||
+      pricingTableColumnIDs.trim() === ""
+    ) {
+      // If no ids provided, set all fields to false (optional)
+      const allFalse = Object.fromEntries(
+        Object.keys(fieldToIdMap).map((key) => [key, true])
+      );
+      setVisibleFieldsCustomTemp(allFalse);
+      setSelectedTemplateID(0);
+      setSelectedTemplateIDOneOff(0);
+      return;
+    }
+
+    const idsFromBackend = pricingTableColumnIDs
+      .split(",")
+      .map((id) => Number(id.trim()))
+      .filter((id) => !isNaN(id)); // avoid NaN if backend sends weird values
+
+    const updatedFields = Object.fromEntries(
+      Object.entries(fieldToIdMap).map(([key, id]) => [
+        key,
+        idsFromBackend.includes(id),
+      ])
+    );
+
+    setVisibleFieldsCustomTemp(updatedFields);
+    setSelectedTemplateID(6);
+    setSelectedTemplateIDOneOff(6);
+  };
 
   // 1) Will Call Initial Api Like List Api
   useEffect(() => {
@@ -6055,7 +12279,9 @@ const Add_Update_Engagement_Letter = () => {
             OneOffPricingInfo,
             engagementObj.Payment_Frequency,
             3,
-            selectedPackagesList
+            selectedPackagesList,
+            selectedRecurringServiceList,
+            selectedOneOffServiceList
           );
           if (
             engagementObj.pdf !== null ||
@@ -6118,18 +12344,18 @@ const Add_Update_Engagement_Letter = () => {
           website,
           signatureImageUrl,
           signatoryName,
-          preferredCurrencyId
+          preferredCurrencyId,
         } = ModelData.otherInformation;
-        if(preferredCurrencyId === 1) {
+        if (preferredCurrencyId === 1) {
           setTaxName("VAT");
           setCurrencySymbol("£");
-        } else if(preferredCurrencyId === 2) {
+        } else if (preferredCurrencyId === 2) {
           setTaxName("EU VAT");
           setCurrencySymbol("€");
-        } else if(preferredCurrencyId === 3) {
+        } else if (preferredCurrencyId === 3) {
           setTaxName("Sales Tax");
           setCurrencySymbol("$");
-        } else if(preferredCurrencyId === 4) {
+        } else if (preferredCurrencyId === 4) {
           setTaxName("GST");
           setCurrencySymbol("₹");
         }
@@ -6432,7 +12658,7 @@ const Add_Update_Engagement_Letter = () => {
                               driver.slabID = defaultSlab.slabID;
                             }
                           }
-                           // Check if driverTypeID is 6 and driverValue, and dateID are null
+                          // Check if driverTypeID is 6 and driverValue, and dateID are null
                           else if (driver.driverTypeID === 6) {
                             // Find the default date
                             const defaultDate = driver.date.find(
@@ -6618,9 +12844,17 @@ const Add_Update_Engagement_Letter = () => {
   //     console.error("Error fetching data from the API", error);
   //   }
   // };
+
+  const getVisibleFieldIds = () => {
+    const selectedIds = Object.entries(visibleFieldsCustomTemp)
+      .filter(([_, value]) => value === true)
+      .map(([key]) => fieldToIdMap[key]);
+
+    return selectedIds.join(","); // e.g. "1,2,3,4,5,6,7"
+  };
+
   const GetTemplateLookupListData = async (ClientId, QuoteId) => {
     setLoader(true);
-    console.log("Hii");
     try {
       const response = await GetTemplateListLookupList({
         TemplateTypeID: 2,
@@ -6644,6 +12878,9 @@ const Add_Update_Engagement_Letter = () => {
           headerHeight: item.headerHeight,
           footerHeight: item.footerHeight,
           showSeparatorLines: Boolean(item.showSeparatorLines),
+          pricingTableColumnIDs: item.pricingTableColumnIDs
+            ? item.pricingTableColumnIDs
+            : "",
         }));
         setTemplateLookUpOptions(mappedOptions);
         const isSelectedDefault = data.responseData.data.filter(
@@ -6669,7 +12906,18 @@ const Add_Update_Engagement_Letter = () => {
               quoteTypeID: isSelectedDefault[0]?.quoteTypeID,
               templateKeyID: isSelectedDefault[0]?.templateKeyID,
               templateID: isSelectedDefault[0]?.templateID,
+              pricingTableColumnIDs: isSelectedDefault[0]?.pricingTableColumnIDs
+                ? isSelectedDefault[0]?.pricingTableColumnIDs
+                : "",
             });
+
+            if (isSelectedDefault[0]?.pricingTableColumnIDs !== null) {
+              setSelectedTemplateID(6);
+              setSelectedTemplateIDOneOff(6);
+              updateVisibleFieldsFromIds(
+                isSelectedDefault[0]?.pricingTableColumnIDs
+              );
+            }
           } else {
             setEngagementObj({
               ...engagementObj,
@@ -6691,7 +12939,17 @@ const Add_Update_Engagement_Letter = () => {
                 QuoteId?.quoteID == undefined ? QuoteId : QuoteId?.quoteID,
               templateKeyID: isSelectedDefault[0]?.templateKeyID,
               templateID: isSelectedDefault[0]?.templateID,
+              pricingTableColumnIDs: isSelectedDefault[0]?.pricingTableColumnIDs
+                ? isSelectedDefault[0]?.pricingTableColumnIDs
+                : "",
             });
+            if (isSelectedDefault[0]?.pricingTableColumnIDs !== null) {
+              setSelectedTemplateID(6);
+              setSelectedTemplateIDOneOff(6);
+              updateVisibleFieldsFromIds(
+                isSelectedDefault[0]?.pricingTableColumnIDs
+              );
+            }
           }
           console.log(getFontNameById(isSelectedDefault[0].fontFamilyID));
           setFontFamily(getFontNameById(isSelectedDefault[0].fontFamilyID));
@@ -6702,6 +12960,18 @@ const Add_Update_Engagement_Letter = () => {
           setHeaderHeight(isSelectedDefault[0].headerHeight);
           setFooterHeight(isSelectedDefault[0].footerHeight);
           setShowSeparatorLines(isSelectedDefault[0]?.showSeparatorLines);
+          setPricingTableColumnIDs(
+            isSelectedDefault[0]?.pricingTableColumnIDs
+              ? isSelectedDefault[0]?.pricingTableColumnIDs
+              : ""
+          );
+          if (isSelectedDefault[0]?.pricingTableColumnIDs !== null) {
+            setSelectedTemplateID(6);
+            setSelectedTemplateIDOneOff(6);
+            updateVisibleFieldsFromIds(
+              isSelectedDefault[0]?.pricingTableColumnIDs
+            );
+          }
         } else {
           // Update non-template fields only
           if (QuoteId !== null) {
@@ -6719,7 +12989,17 @@ const Add_Update_Engagement_Letter = () => {
               quoteID:
                 QuoteId?.quoteID == undefined ? QuoteId : QuoteId?.quoteID,
               quoteTypeID: isSelectedDefault[0]?.quoteTypeID,
+              pricingTableColumnIDs: isSelectedDefault[0]?.pricingTableColumnIDs
+                ? isSelectedDefault[0]?.pricingTableColumnIDs
+                : "",
             });
+            if (isSelectedDefault[0]?.pricingTableColumnIDs !== null) {
+              setSelectedTemplateID(6);
+              setSelectedTemplateIDOneOff(6);
+              updateVisibleFieldsFromIds(
+                isSelectedDefault[0]?.pricingTableColumnIDs
+              );
+            }
           } else {
             setEngagementObj({
               ...engagementObj,
@@ -6739,7 +13019,17 @@ const Add_Update_Engagement_Letter = () => {
                 QuoteId?.value == undefined ? QuoteId : QuoteId?.value,
               quoteID:
                 QuoteId?.quoteID == undefined ? QuoteId : QuoteId?.quoteID,
+              pricingTableColumnIDs: isSelectedDefault[0]?.pricingTableColumnIDs
+                ? isSelectedDefault[0]?.pricingTableColumnIDs
+                : "",
             });
+            if (isSelectedDefault[0]?.pricingTableColumnIDs !== null) {
+              setSelectedTemplateID(6);
+              setSelectedTemplateIDOneOff(6);
+              updateVisibleFieldsFromIds(
+                isSelectedDefault[0]?.pricingTableColumnIDs
+              );
+            }
           }
         }
       } else {
@@ -6920,6 +13210,8 @@ const Add_Update_Engagement_Letter = () => {
                   price: service.price,
                   originalServicePrice: service.price,
                   serviceDescription: service.serviceDescription,
+                  service_vat_amount: service.vatAmount,
+                  service_vat_percentage: service.vatPercentage,
                 };
             });
             PricingData.filter(
@@ -6937,6 +13229,8 @@ const Add_Update_Engagement_Letter = () => {
                 price: service.price,
                 originalServicePrice: service.price,
                 serviceDescription: service.serviceDescription,
+                service_vat_amount: service.vatAmount,
+                service_vat_percentage: service.vatPercentage,
               };
             });
             if (hasError) {
@@ -6986,6 +13280,14 @@ const Add_Update_Engagement_Letter = () => {
                   RecurringServicePrices[category.serviceCatID][
                     service.serviceID
                   ].price, // Add the price corresponding to the service ID
+                service_vat_percentage:
+                  RecurringServicePrices[category.serviceCatID][
+                    service.serviceID
+                  ].service_vat_percentage,
+                service_vat_amount:
+                  RecurringServicePrices[category.serviceCatID][
+                    service.serviceID
+                  ].service_vat_amount,
                 originalServicePrice:
                   RecurringServicePrices[category.serviceCatID][
                     service.serviceID
@@ -7053,6 +13355,12 @@ const Add_Update_Engagement_Letter = () => {
                 let price =
                   OneOffServicePrices[category.serviceCatID][service.serviceID]
                     .price; // Default price
+                let service_vat_amount =
+                  OneOffServicePrices[category.serviceCatID][service.serviceID]
+                    .service_vat_amount;
+                let service_vat_percentage =
+                  OneOffServicePrices[category.serviceCatID][service.serviceID]
+                    .service_vat_percentage;
                 let originalServicePrice =
                   OneOffServicePrices[category.serviceCatID][service.serviceID]
                     .originalServicePrice; // Default price
@@ -7087,6 +13395,8 @@ const Add_Update_Engagement_Letter = () => {
                 return {
                   ...service,
                   price: price,
+                  service_vat_amount,
+                  service_vat_percentage,
                   originalServicePrice: originalServicePrice,
                   serviceDescription: serviceDescription,
                 };
@@ -7240,12 +13550,44 @@ const Add_Update_Engagement_Letter = () => {
               recMaxDiscountCopy = RecurringPricingInfo.MaxDiscount;
             }
 
+            debugger;
+
+            // ✅ Calculate total VAT for all selected services in all categories
+            const totalVATAmount = recArrayWithPrice.reduce(
+              (catSum, category) => {
+                const serviceSum = category.servicesList
+                  .filter((service) => service.isSelected)
+                  .reduce(
+                    (sum, service) => sum + (service.service_vat_amount || 0),
+                    0
+                  );
+                return catSum + serviceSum;
+              },
+              0
+            );
+
+            // ✅ Calculate total VAT for all selected services in all categories
+            const totalVATAmountOneOff = OneArrayWithPrice.reduce(
+              (catSum, category) => {
+                const serviceSum = category.servicesList
+                  .filter((service) => service.isSelected)
+                  .reduce(
+                    (sum, service) => sum + (service.service_vat_amount || 0),
+                    0
+                  );
+                return catSum + serviceSum;
+              },
+              0
+            );
+
             setRecurringPricingInfo({
               ...RecurringPricingInfo,
               OriginalPrice: recOriginalPrice,
               DiscountedPrice: recDefaultPrice,
+              totalServiceWiseVAT: totalVATAmount,
               MinPrice: recMinPrice,
               VATPrice: recVATPrice,
+              VATPriceWithoutDiscount: recVATPrice,
               Discount: recDiscount,
               DefaultDiscount: Number(recDefaultDiscount).toFixed(2),
               // DefaultDiscount: Number(recDefaultDiscount).toFixed(2),
@@ -7331,6 +13673,8 @@ const Add_Update_Engagement_Letter = () => {
               DiscountedPrice: oneOffDiscountedPrice,
               MinPrice: oneOffMinPrice,
               VATPrice: oneOffVATPrice,
+              totalServiceWiseVATOneOff: totalVATAmountOneOff,
+              VATPriceWithoutDiscount: oneOffVATPrice,
               Discount: oneOffDiscount,
               // DefaultDiscount: Number(oneOffDefaultDiscount).toFixed(2),
               DefaultDiscount: Number(oneOffDefaultDiscount).toFixed(2),
@@ -7424,6 +13768,7 @@ const Add_Update_Engagement_Letter = () => {
       if (data?.data?.statusCode === 200) {
         setLoader(false);
         if (data?.data?.responseData?.data) {
+          debugger;
           const PricingData = data?.data?.responseData?.data;
           const vatPercentage = data?.data?.responseData?.vatPercentage;
           setVATPercentage(vatPercentage);
@@ -7471,6 +13816,8 @@ const Add_Update_Engagement_Letter = () => {
                 {
                   serviceCatID: service.serviceCatID,
                   price: roundUpToSixDecimals(Number(service.price)),
+                  service_vat_amount: service.vatAmount,
+                  service_vat_percentage: service.vatPercentage,
                   originalServicePrice: Number(service.price),
                   serviceDescription: service.serviceDescription,
                   packageOneValue: roundUpToSixDecimals(
@@ -7518,6 +13865,8 @@ const Add_Update_Engagement_Letter = () => {
               OneOffServicePrices[service.serviceCatID][service.serviceID] = {
                 serviceCatID: service.serviceCatID,
                 price: roundUpToSixDecimals(Number(service.price)),
+                service_vat_amount: service.vatAmount,
+                service_vat_percentage: service.vatPercentage,
                 originalServicePrice: Number(service.price),
                 serviceDescription: service.serviceDescription,
                 packageOneValue: roundUpToSixDecimals(
@@ -7602,6 +13951,8 @@ const Add_Update_Engagement_Letter = () => {
               }));
           }
 
+          debugger;
+
           let recArrayWithPrice = await Promise.all(
             recArray.map(async (category) => ({
               serviceCatID: category.serviceCatID,
@@ -7653,6 +14004,9 @@ const Add_Update_Engagement_Letter = () => {
                     serviceDescription: servicePriceData.serviceDescription,
                     price: servicePriceData.price,
                     originalServicePrice: servicePriceData.originalServicePrice,
+                    service_vat_amount: servicePriceData.service_vat_amount,
+                    service_vat_percentage:
+                      servicePriceData.service_vat_percentage,
                     packageOneValue: Number(packageOneData),
                     packageTwoValue: Number(packageTwoData),
                     packageThreeValue: Number(packageThreeData),
@@ -8134,8 +14488,13 @@ const Add_Update_Engagement_Letter = () => {
           });
 
           let totalOne = 0;
+          let totalVATOne = 0;
           let totalTwo = 0;
+          let totalVATTwo = 0;
           let totalThree = 0;
+          let totalVATThree = 0;
+
+          debugger;
 
           recArrayWithPrice.forEach((category) => {
             category.servicesList.forEach((service) => {
@@ -8150,6 +14509,17 @@ const Add_Update_Engagement_Letter = () => {
                   Number(totalOne) + Number(currentServicePriceWithToFixed)
                 )?.toFixed(2);
               }
+              if (
+                service.service_vat_percentage != null &&
+                service.packageOneValue != null
+              ) {
+                const vatAmount =
+                  (Number(service.packageOneValue) *
+                    Number(service.service_vat_percentage)) /
+                  100;
+
+                totalVATOne = (Number(totalVATOne || 0) + vatAmount).toFixed(2);
+              }
               if (service.packageTwoValue !== null) {
                 //totalTwo += Number(service.packageTwoValue);
                 let currentServicePriceWithToFixed = Number(
@@ -8159,6 +14529,17 @@ const Add_Update_Engagement_Letter = () => {
                   Number(totalTwo) + Number(currentServicePriceWithToFixed)
                 )?.toFixed(2);
               }
+              if (
+                service.service_vat_percentage != null &&
+                service.packageTwoValue != null
+              ) {
+                const vatAmount =
+                  (Number(service.packageTwoValue) *
+                    Number(service.service_vat_percentage)) /
+                  100;
+
+                totalVATTwo = (Number(totalVATTwo || 0) + vatAmount).toFixed(2);
+              }
               if (service.packageThreeValue !== null) {
                 //totalThree += Number(service.packageThreeValue);
                 let currentServicePriceWithToFixed = Number(
@@ -8167,6 +14548,19 @@ const Add_Update_Engagement_Letter = () => {
                 totalThree = Number(
                   Number(totalThree) + Number(currentServicePriceWithToFixed)
                 )?.toFixed(2);
+              }
+              if (
+                service.service_vat_percentage != null &&
+                service.packageThreeValue != null
+              ) {
+                const vatAmount =
+                  (Number(service.packageThreeValue) *
+                    Number(service.service_vat_percentage)) /
+                  100;
+
+                totalVATThree = (
+                  Number(totalVATThree || 0) + vatAmount
+                ).toFixed(2);
               }
             });
           });
@@ -8702,6 +15096,8 @@ const Add_Update_Engagement_Letter = () => {
             recMaxDiscountCopy = RecurringPricingInfo.MaxDiscount;
           }
 
+          debugger;
+
           setRecurringPricingInfo({
             ...RecurringPricingInfo,
             OriginalPrice: recOriginalPrice,
@@ -8729,9 +15125,15 @@ const Add_Update_Engagement_Letter = () => {
             packageOneDisCountedTotal: recDefaultPrice,
             packageTwoDisCountedTotal: recDefaultPrice,
             packageThreeDisCountedTotal: recDefaultPrice,
-            PackageOneVaTPrice: PackageOneVaTPrice,
-            PackageTwoVaTPrice: PackageTwoVaTPrice,
-            PackageThreeVaTPrice: PackageThreeVaTPrice,
+            // PackageOneVaTPrice: PackageOneVaTPrice,
+            PackageOneVaTPrice: totalVATOne,
+            // PackageTwoVaTPrice: PackageTwoVaTPrice,
+            PackageTwoVaTPrice: totalVATTwo,
+            // PackageThreeVaTPrice: PackageThreeVaTPrice,
+            PackageThreeVaTPrice: totalVATThree,
+            PackageOneVaTPriceWithoutDiscount: PackageOneVaTPrice,
+            PackageTwoVaTPriceWithoutDiscount: PackageTwoVaTPrice,
+            PackageThreeVaTPriceWithoutDiscount: PackageThreeVaTPrice,
             PackageOneGrandTotal: PackageOneGrandTotal,
             PackageTwoGrandTotal: PackageTwoGrandTotal,
             PackageThreeGrandTotal: PackageThreeGrandTotal,
@@ -8771,9 +15173,15 @@ const Add_Update_Engagement_Letter = () => {
             packageOneDisCountedTotal: recDefaultPrice,
             packageTwoDisCountedTotal: recDefaultPrice,
             packageThreeDisCountedTotal: recDefaultPrice,
-            PackageOneVaTPrice: PackageOneVaTPrice,
-            PackageTwoVaTPrice: PackageTwoVaTPrice,
-            PackageThreeVaTPrice: PackageThreeVaTPrice,
+            // PackageOneVaTPrice: PackageOneVaTPrice,
+            PackageOneVaTPrice: totalVATOne,
+            // PackageTwoVaTPrice: PackageTwoVaTPrice,
+            PackageTwoVaTPrice: totalVATTwo,
+            // PackageThreeVaTPrice: PackageThreeVaTPrice,
+            PackageThreeVaTPrice: totalVATThree,
+            PackageOneVaTPriceWithoutDiscount: PackageOneVaTPrice,
+            PackageTwoVaTPriceWithoutDiscount: PackageTwoVaTPrice,
+            PackageThreeVaTPriceWithoutDiscount: PackageThreeVaTPrice,
             PackageOneGrandTotal: PackageOneGrandTotal,
             PackageTwoGrandTotal: PackageTwoGrandTotal,
             PackageThreeGrandTotal: PackageThreeGrandTotal,
@@ -8781,16 +15189,58 @@ const Add_Update_Engagement_Letter = () => {
           let OneOffTotalOne = 0;
           let OneOffTotalTwo = 0;
           let OneOffTotalThree = 0;
+          let OneOffVATTotalOne = 0;
+          let OneOffVATTotalTwo = 0;
+          let OneOffVATTotalThree = 0;
 
           OneArrayWithPrice.forEach((category) => {
             category.servicesList.forEach((service) => {
               // Check if the value is not null before adding
               if (service.packageOneValue !== null)
                 OneOffTotalOne += service.packageOneValue;
+              if (
+                service.service_vat_percentage != null &&
+                service.packageOneValue != null
+              ) {
+                const vatAmount =
+                  (Number(service.packageOneValue) *
+                    Number(service.service_vat_percentage)) /
+                  100;
+
+                OneOffVATTotalOne = (
+                  Number(OneOffVATTotalOne || 0) + vatAmount
+                ).toFixed(2);
+              }
               if (service.packageTwoValue !== null)
                 OneOffTotalTwo += service.packageTwoValue;
+              if (
+                service.service_vat_percentage != null &&
+                service.packageTwoValue != null
+              ) {
+                const vatAmount =
+                  (Number(service.packageTwoValue) *
+                    Number(service.service_vat_percentage)) /
+                  100;
+
+                OneOffVATTotalTwo = (
+                  Number(OneOffVATTotalTwo || 0) + vatAmount
+                ).toFixed(2);
+              }
               if (service.packageThreeValue !== null)
                 OneOffTotalThree += service.packageThreeValue;
+              if (
+                service.service_vat_percentage != null &&
+                service.packageThreeValue != null
+              ) {
+                const vatAmount =
+                  (Number(service.packageThreeValue) *
+                    Number(service.service_vat_percentage)) /
+                  100;
+
+                OneOffVATTotalThree = (
+                  Number(OneOffVATTotalThree || 0) + vatAmount
+                ).toFixed(2);
+              }
             });
           });
           let oneOffOriginalPrice = 0.0;
@@ -8869,6 +15319,8 @@ const Add_Update_Engagement_Letter = () => {
             oneOffDefaultDiscountCopy = OneOffPricingInfoCopy.DefaultDiscount;
           }
 
+          debugger;
+
           setOneOffPricingInfo({
             ...OneOffPricingInfo,
             OriginalPrice: oneOffOriginalPrice,
@@ -8897,9 +15349,15 @@ const Add_Update_Engagement_Letter = () => {
             packageOneDisCountedTotal: oneOffDefaultPrice,
             packageTwoDisCountedTotal: oneOffDefaultPrice,
             packageThreeDisCountedTotal: oneOffDefaultPrice,
-            PackageOneVaTPrice: OneOffPackageOneVaTPrice,
-            PackageTwoVaTPrice: OneOffPackageTwoVaTPrice,
-            PackageThreeVaTPrice: OneOffPackageThreeVaTPrice,
+            // PackageOneVaTPrice: OneOffPackageOneVaTPrice,
+            PackageOneVaTPrice: OneOffVATTotalOne,
+            // PackageTwoVaTPrice: OneOffPackageTwoVaTPrice,
+            PackageTwoVaTPrice: OneOffVATTotalTwo,
+            // PackageThreeVaTPrice: OneOffPackageThreeVaTPrice,
+            PackageThreeVaTPrice: OneOffVATTotalThree,
+            PackageOneVaTPriceWithoutDiscount: OneOffPackageOneVaTPrice,
+            PackageTwoVaTPriceWithoutDiscount: OneOffPackageTwoVaTPrice,
+            PackageThreeVaTPriceWithoutDiscount: OneOffPackageThreeVaTPrice,
             PackageOneGrandTotal: OneOffPackageOneGrandTotal,
             PackageTwoGrandTotal: OneOffPackageTwoGrandTotal,
             PackageThreeGrandTotal: OneOffPackageThreeGrandTotal,
@@ -9107,17 +15565,13 @@ const Add_Update_Engagement_Letter = () => {
           item.date &&
           item.date.some((dateItem) => dateItem.isDefault)
         ) {
-          const defaultDate = item.date.find(
-            (dateItem) => dateItem.isDefault
-          );
-          driverValue = defaultDate.dateValue ?? defaultDate.defaultDateValue ?? 0;
+          const defaultDate = item.date.find((dateItem) => dateItem.isDefault);
+          driverValue =
+            defaultDate.dateValue ?? defaultDate.defaultDateValue ?? 0;
           dateID = defaultDate.dateID;
           msgMapID = item.msgMapID;
           msMapID = item.msMapID;
-        } else if (
-          item.text &&
-          item.text.length > 0
-        ) {
+        } else if (item.text && item.text.length > 0) {
           driverValue = item.text?.[0]?.textValue ?? 0;
           textID = item.text?.[0]?.textID;
           msgMapID = item.msgMapID;
@@ -9370,7 +15824,7 @@ const Add_Update_Engagement_Letter = () => {
     // All validations passed
     return false;
   }
-    
+
   function hasInvalidServiceNames(serviceList) {
     for (const category of serviceList) {
       for (const subService of category.servicesList) {
@@ -9468,46 +15922,46 @@ const Add_Update_Engagement_Letter = () => {
                   });
                 }
                 if (
-                pricingList.driverVisibility &&
-                pricingList.driverTypeID === 6 &&
-                (pricingList.enteredDate === undefined ||
-                  pricingList.enteredDate === null ||
-                  pricingList.enteredDate === "")
-              ) {
-                hasUndefinedTextOrDateorquantityDriver = true;
-              }
-              if (
-                pricingList.driverVisibility &&
-                (pricingList.driverTypeID === 5) &&
-                (pricingList.enteredText === undefined ||
-                  pricingList.enteredText === null ||
-                  pricingList.enteredText === "")
-              ) {
-                hasUndefinedTextOrDateorquantityDriver = true;
-              }
-              // if (
-              //   pricingList.driverVisibility &&
-              //   pricingList.driverTypeID === 2 &&
-              //   Number(pricingList.driverValue)
-              // ) {
-              //   const value = Number(pricingList.driverValue);
-              //   const from = pricingList.quantity?.[0]?.quantityFrom;
-              //   const to = pricingList.quantity?.[0]?.quantityTo;
+                  pricingList.driverVisibility &&
+                  pricingList.driverTypeID === 6 &&
+                  (pricingList.enteredDate === undefined ||
+                    pricingList.enteredDate === null ||
+                    pricingList.enteredDate === "")
+                ) {
+                  hasUndefinedTextOrDateorquantityDriver = true;
+                }
+                if (
+                  pricingList.driverVisibility &&
+                  pricingList.driverTypeID === 5 &&
+                  (pricingList.enteredText === undefined ||
+                    pricingList.enteredText === null ||
+                    pricingList.enteredText === "")
+                ) {
+                  hasUndefinedTextOrDateorquantityDriver = true;
+                }
+                // if (
+                //   pricingList.driverVisibility &&
+                //   pricingList.driverTypeID === 2 &&
+                //   Number(pricingList.driverValue)
+                // ) {
+                //   const value = Number(pricingList.driverValue);
+                //   const from = pricingList.quantity?.[0]?.quantityFrom;
+                //   const to = pricingList.quantity?.[0]?.quantityTo;
 
-              //   const parsedFrom = Number(from);
-              //   const parsedTo = Number(to);
+                //   const parsedFrom = Number(from);
+                //   const parsedTo = Number(to);
 
-              //   const hasFrom = from !== undefined && from !== null && from !== '' && !isNaN(parsedFrom);
-              //   const hasTo = to !== undefined && to !== null && to !== '' && !isNaN(parsedTo);
+                //   const hasFrom = from !== undefined && from !== null && from !== '' && !isNaN(parsedFrom);
+                //   const hasTo = to !== undefined && to !== null && to !== '' && !isNaN(parsedTo);
 
-              //   if (
-              //     (hasFrom && hasTo && (value < parsedFrom || value > parsedTo)) ||
-              //     (hasFrom && !hasTo && value < parsedFrom) ||
-              //     (!hasFrom && hasTo && value > parsedTo)
-              //   ) {
-              //     hasUndefinedTextOrDateorquantityDriver = true;
-              //   }
-              // }
+                //   if (
+                //     (hasFrom && hasTo && (value < parsedFrom || value > parsedTo)) ||
+                //     (hasFrom && !hasTo && value < parsedFrom) ||
+                //     (!hasFrom && hasTo && value > parsedTo)
+                //   ) {
+                //     hasUndefinedTextOrDateorquantityDriver = true;
+                //   }
+                // }
               }
             }
           });
@@ -9547,52 +16001,57 @@ const Add_Update_Engagement_Letter = () => {
                   });
                 }
                 if (
-                pricingList.driverVisibility &&
-                pricingList.driverTypeID === 6 &&
-                (pricingList.enteredDate === undefined ||
-                  pricingList.enteredDate === null ||
-                  pricingList.enteredDate === "")
-              ) {
-                hasUndefinedTextOrDateorquantityDriver = true;
-              }
-              if (
-                pricingList.driverVisibility &&
-                (pricingList.driverTypeID === 5 && pricingList.text[0]?.textValue !== null) &&
-                (pricingList.enteredText === undefined ||
-                  pricingList.enteredText === null ||
-                  pricingList.enteredText === "")
-              ) {
-                hasUndefinedTextOrDateorquantityDriver = true;
-              }
-              // if (
-              //   pricingList.driverVisibility &&
-              //   pricingList.driverTypeID === 2 &&
-              //   Number(pricingList.driverValue)
-              // ) {
-              //   const value = Number(pricingList.driverValue);
-              //   const from = pricingList.quantity?.[0]?.quantityFrom;
-              //   const to = pricingList.quantity?.[0]?.quantityTo;
+                  pricingList.driverVisibility &&
+                  pricingList.driverTypeID === 6 &&
+                  (pricingList.enteredDate === undefined ||
+                    pricingList.enteredDate === null ||
+                    pricingList.enteredDate === "")
+                ) {
+                  hasUndefinedTextOrDateorquantityDriver = true;
+                }
+                if (
+                  pricingList.driverVisibility &&
+                  pricingList.driverTypeID === 5 &&
+                  pricingList.text[0]?.textValue !== null &&
+                  (pricingList.enteredText === undefined ||
+                    pricingList.enteredText === null ||
+                    pricingList.enteredText === "")
+                ) {
+                  hasUndefinedTextOrDateorquantityDriver = true;
+                }
+                // if (
+                //   pricingList.driverVisibility &&
+                //   pricingList.driverTypeID === 2 &&
+                //   Number(pricingList.driverValue)
+                // ) {
+                //   const value = Number(pricingList.driverValue);
+                //   const from = pricingList.quantity?.[0]?.quantityFrom;
+                //   const to = pricingList.quantity?.[0]?.quantityTo;
 
-              //   const parsedFrom = Number(from);
-              //   const parsedTo = Number(to);
+                //   const parsedFrom = Number(from);
+                //   const parsedTo = Number(to);
 
-              //   const hasFrom = from !== undefined && from !== null && from !== '' && !isNaN(parsedFrom);
-              //   const hasTo = to !== undefined && to !== null && to !== '' && !isNaN(parsedTo);
+                //   const hasFrom = from !== undefined && from !== null && from !== '' && !isNaN(parsedFrom);
+                //   const hasTo = to !== undefined && to !== null && to !== '' && !isNaN(parsedTo);
 
-              //   if (
-              //     (hasFrom && hasTo && (value < parsedFrom || value > parsedTo)) ||
-              //     (hasFrom && !hasTo && value < parsedFrom) ||
-              //     (!hasFrom && hasTo && value > parsedTo)
-              //   ) {
-              //     hasUndefinedTextOrDateorquantityDriver = true;
-              //   }
-              // }
+                //   if (
+                //     (hasFrom && hasTo && (value < parsedFrom || value > parsedTo)) ||
+                //     (hasFrom && !hasTo && value < parsedFrom) ||
+                //     (!hasFrom && hasTo && value > parsedTo)
+                //   ) {
+                //     hasUndefinedTextOrDateorquantityDriver = true;
+                //   }
+                // }
               }
             }
           });
         });
 
-        if (hasUndefinedDriver || hasUndefinedDriver2 || hasUndefinedTextOrDateorquantityDriver) {
+        if (
+          hasUndefinedDriver ||
+          hasUndefinedDriver2 ||
+          hasUndefinedTextOrDateorquantityDriver
+        ) {
           setRequireMessage(true);
           setIsValidForm({
             ...isValidForm,
@@ -9709,7 +16168,8 @@ const Add_Update_Engagement_Letter = () => {
               const pricingList = service.pricingDriverList[i];
               if (
                 pricingList.driverVisibility &&
-                pricingList.driverTypeID !== 5 && pricingList.driverTypeID !== 6 &&
+                pricingList.driverTypeID !== 5 &&
+                pricingList.driverTypeID !== 6 &&
                 (pricingList.driverValue === undefined ||
                   pricingList.driverValue === null ||
                   pricingList.driverValue === "")
@@ -9730,9 +16190,13 @@ const Add_Update_Engagement_Letter = () => {
                   PricingInfo: true,
                 });
               }
-              if (pricingList.driverVisibility && pricingList.driverTypeID === 6) {
+              if (
+                pricingList.driverVisibility &&
+                pricingList.driverTypeID === 6
+              ) {
                 const isDateMandatory = pricingList.date?.some(
-                  (block) => block.dateValue != null || block.defaultDateValue != null
+                  (block) =>
+                    block.dateValue != null || block.defaultDateValue != null
                 );
 
                 if (
@@ -9746,7 +16210,8 @@ const Add_Update_Engagement_Letter = () => {
               }
               if (
                 pricingList.driverVisibility &&
-                (pricingList.driverTypeID === 5 && pricingList.text?.[0]?.textValue !== null) &&
+                pricingList.driverTypeID === 5 &&
+                pricingList.text?.[0]?.textValue !== null &&
                 (pricingList.enteredText === undefined ||
                   pricingList.enteredText === null ||
                   pricingList.enteredText === "")
@@ -9765,11 +16230,21 @@ const Add_Update_Engagement_Letter = () => {
                 const parsedFrom = Number(from);
                 const parsedTo = Number(to);
 
-                const hasFrom = from !== undefined && from !== null && from !== '' && !isNaN(parsedFrom);
-                const hasTo = to !== undefined && to !== null && to !== '' && !isNaN(parsedTo);
+                const hasFrom =
+                  from !== undefined &&
+                  from !== null &&
+                  from !== "" &&
+                  !isNaN(parsedFrom);
+                const hasTo =
+                  to !== undefined &&
+                  to !== null &&
+                  to !== "" &&
+                  !isNaN(parsedTo);
 
                 if (
-                  (hasFrom && hasTo && (value < parsedFrom || value > parsedTo)) ||
+                  (hasFrom &&
+                    hasTo &&
+                    (value < parsedFrom || value > parsedTo)) ||
                   (hasFrom && !hasTo && value < parsedFrom) ||
                   (!hasFrom && hasTo && value > parsedTo)
                 ) {
@@ -9787,7 +16262,8 @@ const Add_Update_Engagement_Letter = () => {
               const pricingList = service.pricingDriverList[i];
               if (
                 pricingList.driverVisibility &&
-                pricingList.driverTypeID !== 5 && pricingList.driverTypeID !== 6 &&
+                pricingList.driverTypeID !== 5 &&
+                pricingList.driverTypeID !== 6 &&
                 (pricingList.driverValue === undefined ||
                   pricingList.driverValue === null ||
                   pricingList.driverValue === "")
@@ -9808,9 +16284,13 @@ const Add_Update_Engagement_Letter = () => {
                   PricingInfo: true,
                 });
               }
-             if (pricingList.driverVisibility && pricingList.driverTypeID === 6) {
+              if (
+                pricingList.driverVisibility &&
+                pricingList.driverTypeID === 6
+              ) {
                 const isDateMandatory = pricingList.date?.some(
-                  (block) => block.dateValue != null || block.defaultDateValue != null
+                  (block) =>
+                    block.dateValue != null || block.defaultDateValue != null
                 );
 
                 if (
@@ -9821,10 +16301,11 @@ const Add_Update_Engagement_Letter = () => {
                 ) {
                   hasUndefinedTextOrDateorquantityDriver = true;
                 }
-              } 
+              }
               if (
                 pricingList.driverVisibility &&
-                (pricingList.driverTypeID === 5&& pricingList.text?.[0]?.textValue !== null) &&
+                pricingList.driverTypeID === 5 &&
+                pricingList.text?.[0]?.textValue !== null &&
                 (pricingList.enteredText === undefined ||
                   pricingList.enteredText === null ||
                   pricingList.enteredText === "")
@@ -9843,11 +16324,21 @@ const Add_Update_Engagement_Letter = () => {
                 const parsedFrom = Number(from);
                 const parsedTo = Number(to);
 
-                const hasFrom = from !== undefined && from !== null && from !== '' && !isNaN(parsedFrom);
-                const hasTo = to !== undefined && to !== null && to !== '' && !isNaN(parsedTo);
+                const hasFrom =
+                  from !== undefined &&
+                  from !== null &&
+                  from !== "" &&
+                  !isNaN(parsedFrom);
+                const hasTo =
+                  to !== undefined &&
+                  to !== null &&
+                  to !== "" &&
+                  !isNaN(parsedTo);
 
                 if (
-                  (hasFrom && hasTo && (value < parsedFrom || value > parsedTo)) ||
+                  (hasFrom &&
+                    hasTo &&
+                    (value < parsedFrom || value > parsedTo)) ||
                   (hasFrom && !hasTo && value < parsedFrom) ||
                   (!hasFrom && hasTo && value > parsedTo)
                 ) {
@@ -9859,7 +16350,11 @@ const Add_Update_Engagement_Letter = () => {
         });
       });
 
-      if (hasUndefinedDriver || hasUndefinedDriver2 || hasUndefinedTextOrDateorquantityDriver) {
+      if (
+        hasUndefinedDriver ||
+        hasUndefinedDriver2 ||
+        hasUndefinedTextOrDateorquantityDriver
+      ) {
         setRequireMessage(true);
         setIsValidForm({
           ...isValidForm,
@@ -9979,7 +16474,6 @@ const Add_Update_Engagement_Letter = () => {
       }
     } else if (activeTab === EngagementLetterHeader.AdditionalInformation) {
       // Filter the list based on driverTypeID being either 2 or 4
-      console.log(additionalInformationList);
       let hasError = false;
       const filteredList = additionalInformationList.filter(
         (item) =>
@@ -10300,8 +16794,12 @@ const Add_Update_Engagement_Letter = () => {
         }
       }
     } else if (activeTab === EngagementLetterHeader.ReviewServices) {
-      const hasInvalidRecurring = hasInvalidServiceNames(selectedRecurringServiceList);
-      const hasInvalidOneOff = hasInvalidServiceNames(selectedOneOffServiceList);
+      const hasInvalidRecurring = hasInvalidServiceNames(
+        selectedRecurringServiceList
+      );
+      const hasInvalidOneOff = hasInvalidServiceNames(
+        selectedOneOffServiceList
+      );
       if (
         (selectedRecurringServiceList.length !== 0 &&
           (RecurringPricingInfo.DiscountedPrice === "" ||
@@ -10389,8 +16887,8 @@ const Add_Update_Engagement_Letter = () => {
             (OneOffPricingInfo.DefaultDiscount !== "" &&
               OneOffPricingInfo.DefaultDiscount !== "-" &&
               isNaN(OneOffPricingInfo.DefaultDiscount)))) ||
-            (selectedRecurringServiceList.length !== 0 && hasInvalidRecurring) ||
-            (selectedOneOffServiceList.length !== 0 && hasInvalidOneOff)
+        (selectedRecurringServiceList.length !== 0 && hasInvalidRecurring) ||
+        (selectedOneOffServiceList.length !== 0 && hasInvalidOneOff)
       ) {
         setRequireMessage(true);
         setIsValidForm({
@@ -10520,7 +17018,6 @@ const Add_Update_Engagement_Letter = () => {
 
   //14) Get Selected service and create object to send api for get calculation  price data
   async function handleSetCalculatedPackageData() {
-    console.log(recurringServiceList);
     setRequireMessage(false);
     const extractServiceData = (serviceList, serviceChargeTypeID) => {
       return serviceList
@@ -10545,13 +17042,14 @@ const Add_Update_Engagement_Letter = () => {
                         driver.slab?.find((item) => item.isDefault === true) ||
                         {}
                       ).slabValue ||
-                      (Array.isArray(driver.text) && driver.text.length > 0 ? driver.text[0].textValue : null) ||
+                      (Array.isArray(driver.text) && driver.text.length > 0
+                        ? driver.text[0].textValue
+                        : null) ||
                       (
-                        driver.date?.find(
-                          (item) => item.isDefault === true
-                        ) || {}
-                      ).dateValue
-                      || driver.driverValue,
+                        driver.date?.find((item) => item.isDefault === true) ||
+                        {}
+                      ).dateValue ||
+                      driver.driverValue,
                     variationID:
                       (
                         driver.variation?.find(
@@ -10564,17 +17062,13 @@ const Add_Update_Engagement_Letter = () => {
                         {}
                       ).slabID || null,
                     textID:
-                      (
-                        (Array.isArray(driver.text) && driver.text.length > 0)
-                          ? driver.text[0].textID
-                          : null
-                      ),
+                      Array.isArray(driver.text) && driver.text.length > 0
+                        ? driver.text[0].textID
+                        : null,
                     dateID:
-                      (
-                        (Array.isArray(driver.date) && driver.date.length > 0)
-                          ? driver.date.find(d => d.isDefault === true)?.dateID
-                          : null
-                      ),
+                      Array.isArray(driver.date) && driver.date.length > 0
+                        ? driver.date.find((d) => d.isDefault === true)?.dateID
+                        : null,
                     serviceChargeTypeID: serviceChargeTypeID,
                     serviceCatID: recurringItem.serviceCatID,
                   }));
@@ -10588,7 +17082,7 @@ const Add_Update_Engagement_Letter = () => {
                   variationID: null,
                   slabID: null,
                   textID: null,
-                  dateID: null
+                  dateID: null,
                 };
               }
             })
@@ -10634,10 +17128,7 @@ const Add_Update_Engagement_Letter = () => {
           item.date !== null
             ? item.date.find((date) => date.isDefault)?.dateID
             : null,
-        textID:
-          item.text !== null
-            ? item.text?.[0]?.textID ?? null
-            : null
+        textID: item.text !== null ? item.text?.[0]?.textID ?? null : null,
       }))
       .flat();
 
@@ -10706,9 +17197,15 @@ const Add_Update_Engagement_Letter = () => {
                         driver.slab?.find((item) => item.isDefault === true) ||
                         {}
                       ).slabValue ||
-                      (Array.isArray(driver.text) && driver.text.length > 0 ? driver.text[0].textValue : 0) ||
-                      driver.date?.find(d => d.dateValue === driver.driverValue)?.dateValue || driver.date?.[0]?.defaultDateValue || 0
-                        || driver.driverValue,
+                      (Array.isArray(driver.text) && driver.text.length > 0
+                        ? driver.text[0].textValue
+                        : 0) ||
+                      driver.date?.find(
+                        (d) => d.dateValue === driver.driverValue
+                      )?.dateValue ||
+                      driver.date?.[0]?.defaultDateValue ||
+                      0 ||
+                      driver.driverValue,
                     variationID:
                       (
                         driver.variation?.find(
@@ -10722,16 +17219,13 @@ const Add_Update_Engagement_Letter = () => {
                       ).slabID || null,
                     dateID:
                       (
-                        driver.date?.find(
-                          (item) => item.isDefault === true
-                        ) || {}
+                        driver.date?.find((item) => item.isDefault === true) ||
+                        {}
                       ).dateID || null,
                     textID:
-                      (
-                        (Array.isArray(driver.text) && driver.text.length > 0)
-                          ? driver.text[0].textID
-                          : null
-                      ),
+                      Array.isArray(driver.text) && driver.text.length > 0
+                        ? driver.text[0].textID
+                        : null,
                     serviceChargeTypeID: serviceChargeTypeID,
                     serviceCatID: recurringItem.serviceCatID,
                   }));
@@ -10745,7 +17239,7 @@ const Add_Update_Engagement_Letter = () => {
                   variationID: null,
                   slabID: null,
                   dateID: null,
-                  textID: null
+                  textID: null,
                 };
               }
             })
@@ -10770,9 +17264,9 @@ const Add_Update_Engagement_Letter = () => {
       } else if (item.variation !== null) {
         return item.variation.some((variation) => variation.isDefault);
       } else if (item.date !== null) {
-          return item.date.some((date) => date.isDefault);
+        return item.date.some((date) => date.isDefault);
       } else if (item.text !== null) {
-          return true;
+        return true;
       } else {
         return false;
       }
@@ -10794,10 +17288,7 @@ const Add_Update_Engagement_Letter = () => {
           item.date !== null
             ? item.date.find((date) => date.isDefault)?.dateID
             : null,
-        textID:
-          item.text !== null
-            ? item.text?.[0]?.textID ?? null
-            : null
+        textID: item.text !== null ? item.text?.[0]?.textID ?? null : null,
       }))
       .flat();
 
@@ -10837,6 +17328,53 @@ const Add_Update_Engagement_Letter = () => {
 
     return ServicePricing;
   }
+  const handleEmailFailurePopupClose = async () => {
+    await ChangeFailedMailLogStatus(
+      common.userKeyID,
+      common.organisationKeyID,
+      "AddUpdateContract"
+    );
+    setOpenEmailFailurePopUp(false);
+  };
+
+  const handleResendQuote = async () => {
+    debugger;
+    setLoader(true);
+    try {
+      const res = await ResendContract(contractKeyIDFromAPI, common.userKeyID);
+      if (res?.data?.statusCode === 200) {
+        setLoader(false);
+        setOpenEmailFailurePopUp(false);
+        // setEngagementObj((prev) => ({
+        //   ...prev,
+        //   Action: "ResendAddUpdateContract",
+        // }));
+        setModelAction("ResendAddUpdateContract");
+        setOpenSuccessModal(true);
+      } else {
+        const EmailStausData = await GetProspectSendMailStatus(
+          common.userKeyID,
+          common.organisationKeyID,
+          "AddUpdateContract",
+          "Temp Key Id"
+        );
+
+        setLoader(false);
+        setEmailCheckModel((prev) => ({
+          ...prev,
+          MethodName: "All Email Failed",
+        }));
+        if (!EmailStausData?.data?.responseData) {
+          setOpenEmailFailurePopUp(true);
+        }
+      }
+      // setOpenEmailFailurePopUp(false);
+      // navigate("/engagement-letters");
+    } catch (error) {
+      setLoader(false);
+      console.log(error);
+    }
+  };
   //15) Add Update and Engagement Data
   const AddUpdateEngagementLatter = async (statusId, moduleName) => {
     setLoader(true);
@@ -10904,16 +17442,21 @@ const Add_Update_Engagement_Letter = () => {
                       )[0]?.variationValue
                     : driver.slab !== null
                     ? driver.slab?.filter((item) => item.isDefault === true)[0]
-                        ?.slabValue :
-                      driver.date !== null
-                        ? driver.date?.length > 0
-                      ? driver.date.find(d => d.dateValue === driver.driverValue)?.dateValue
-                      ?? driver.date[0].defaultDateValue
-                      ?? 0
+                        ?.slabValue
+                    : driver.date !== null
+                    ? driver.date?.length > 0
+                      ? driver.date.find(
+                          (d) => d.dateValue === driver.driverValue
+                        )?.dateValue ??
+                        driver.date[0].defaultDateValue ??
+                        0
                       : 0
-                        : driver.text !== null
-                          ? driver.driverValue ?? driver.text?.find(d => d.textID === driver.textID)?.textValue ?? 0
-                          : driver.driverValue,
+                    : driver.text !== null
+                    ? driver.driverValue ??
+                      driver.text?.find((d) => d.textID === driver.textID)
+                        ?.textValue ??
+                      0
+                    : driver.driverValue,
                 msgMapID: driver.msgMapID || null,
                 msMapID: driver.msMapID || null,
                 globalPricingDriverID: driver.globalPricingDriverID,
@@ -10926,15 +17469,18 @@ const Add_Update_Engagement_Letter = () => {
                   ? driver.slab.filter((item) => item.isDefault === true)[0]
                       ?.slabID
                   : null,
-                textID: driver.driverTypeID === 5
-                  ? driver.textID || driver.text?.find(d => d.textValue === driver.driverValue)?.textID || null
-                  : null,
+                textID:
+                  driver.driverTypeID === 5
+                    ? driver.textID ||
+                      driver.text?.find(
+                        (d) => d.textValue === driver.driverValue
+                      )?.textID ||
+                      null
+                    : null,
                 dateID:
-                  (
-                    (Array.isArray(driver.date) && driver.date.length > 0)
-                      ? driver.date.find(d => d.isDefault === true)?.dateID
-                      : null
-                  ),
+                  Array.isArray(driver.date) && driver.date.length > 0
+                    ? driver.date.find((d) => d.isDefault === true)?.dateID
+                    : null,
                 enteredText: driver.enteredText || null,
                 enteredDate: driver.enteredDate || null,
                 enteredDateFormat: driver.enteredDateFormat || null,
@@ -11237,11 +17783,10 @@ const Add_Update_Engagement_Letter = () => {
         });
       }
     }
-    // const updatedTemplateList = await updateTemplateList(
-    //   engagementObj.customizedEmailContent,
-    //   "CustomizeTemplate"
-    // );
-    debugger;
+    const updatedTemplateList = await updateTemplateList(
+      engagementObj.customizedEmailContent,
+      "CustomizeTemplate"
+    );
     let Api_ObjectParam = {
       organisationKeyID: common.organisationKeyID,
       userKeyID: common.userKeyID,
@@ -11251,14 +17796,17 @@ const Add_Update_Engagement_Letter = () => {
       acceptedServicePackageID: engagementObj.acceptedServicePackageID,
       contractKeyID: engagementObj.contractKeyID,
       documentCode: DocumentCode || null,
+      pricingTableColumnIDs: getVisibleFieldIds(),
       sourceID: engagementObj.selectSourceId, //1	From Scratch, 2	From Quote
       clientID: engagementObj.ClientID,
       TabName: moduleName,
+      serviceDescriptionHTML: serviceDescriptionHTML, //SD HTML
+      sOFHTML: statementOfFactsHTML, //SOF HTML
       contractSignatoryID: engagementObj.ContractSignatoryID,
       quoteID: engagementObj.quoteID,
       contractPDFUrl: MergePdfUrl,
       templateID: engagementObj.templateID,
-      customizedEmailContent: engagementObj.customizedEmailContent,
+      customizedEmailContent: updatedTemplateList,
       templatePDFKeyIDs: engagementObj.selectedAttachments,
       tnCTemplateID:
         engagementObj.tnCTemplateID == "" ? null : engagementObj.tnCTemplateID,
@@ -11322,12 +17870,25 @@ const Add_Update_Engagement_Letter = () => {
         setLoader(false);
         if (response?.data?.statusCode === 200) {
           setLoader(false);
+          // if (!response?.data?.responseData?.isEmailSent[0]?.isMailSent) {
+          //   const EmailStausData = await GetProspectSendMailStatus(
+          //     common.userKeyID,
+          //     common.organisationKeyID,
+          //     "AddUpdateContract",
+          //     "Temp Key Id"
+          //   );
+          //   if (!EmailStausData?.data?.responseData) {
+          //     setOpenEmailFailurePopUp(true);
+          //   }
+          // }
           if (
             response?.data?.responseData &&
             response?.data?.responseData?.refID
           ) {
             const refID = response?.data?.responseData?.refID;
+            const contractID = response?.data?.responseData?.data;
             setRefIdStore(refID);
+            setContractKeyIDAPI(contractID);
           }
           if (statusId !== 1) {
             setModelAction("Send");
@@ -11335,7 +17896,7 @@ const Add_Update_Engagement_Letter = () => {
               moduleName: "Contract",
               contractKeyID: response.data.responseData.data,
               contractPDFUrl: MergePdfUrl,
-              customizedEmailContent: engagementObj.customizedEmailContent,
+              customizedEmailContent: updatedTemplateList,
             });
           } else {
             setOpenSuccessModal(true);
@@ -11356,6 +17917,21 @@ const Add_Update_Engagement_Letter = () => {
           }
           // setErrorMessage(response?.response?.data?.errorMessage);
         }
+
+        // if (
+        //   response?.response?.data?.errorMessage === "Client - Send Mail Failed"
+        // ) {
+        //   // Call Get prospect send mail status api
+        //   const EmailStausData = await GetProspectSendMailStatus(
+        //     common.userKeyID,
+        //     common.organisationKeyID,
+        //     "AddUpdateContract",
+        //     "Temp Key Id"
+        //   );
+        //   if (!EmailStausData.data.responseData) {
+        //     setOpenEmailFailurePopUp(true);
+        //   }
+        // }
       } else {
         setLoader(false);
         setErrorMessage(response?.response?.data?.errorMessage);
@@ -12059,8 +18635,9 @@ const Add_Update_Engagement_Letter = () => {
   //   return engagementObj.templateID === item.templateID;
   // });
   const TemplateValue =
-    templateLookUpOptions.find(item => item.templateID === engagementObj.templateID) ||
-    templateLookUpOptions[0];
+    templateLookUpOptions.find(
+      (item) => item.templateID === engagementObj.templateID
+    ) || templateLookUpOptions[0];
   //33)Change source Type
   const handleChangeSourceType = (e) => {
     DisableTabOnChange();
@@ -12208,7 +18785,6 @@ const Add_Update_Engagement_Letter = () => {
 
           let TemplateOption = [];
           if (ModelData.clientID !== null) {
-            console.log("hey");
             setLoader(true);
             const response = await GetTemplateListLookupList({
               TemplateTypeID: 2,
@@ -12265,9 +18841,10 @@ const Add_Update_Engagement_Letter = () => {
           // const TemplateValue = TemplateOption.find((item) => {
           //   return ModelData.templateID === item.templateID;
           // });
-          const TemplateValue = TemplateOption.find(
-            item => item.templateID === ModelData.templateID
-          ) || TemplateOption[0];
+          const TemplateValue =
+            TemplateOption.find(
+              (item) => item.templateID === ModelData.templateID
+            ) || TemplateOption[0];
           console.log(TemplateValue);
           setFontFamily(getFontNameById(TemplateValue.fontFamilyID));
           setHeaderContent(TemplateValue.headerContent);
@@ -12304,7 +18881,6 @@ const Add_Update_Engagement_Letter = () => {
             paymentGatewayID: ModelData.paymentGatewayID,
           });
 
-          
           // if (ModelData.contractSignatorieList.length === 0) {
           //   setLoader(true);
           //   GetOfficersForQuoteAndContractData({
@@ -12317,9 +18893,9 @@ const Add_Update_Engagement_Letter = () => {
             setLoader(true);
             try {
               const data = await GetOfficersForQuoteAndContract({
-                                  ClientKeyID: ModelData.clientKeyID,
-                                  QuoteKeyID: ModelData.quoteKeyID
-                                });
+                ClientKeyID: ModelData.clientKeyID,
+                QuoteKeyID: ModelData.quoteKeyID,
+              });
               if (data?.data?.statusCode === 200) {
                 setLoader(false);
                 if (data?.data?.responseData?.data) {
@@ -12333,14 +18909,14 @@ const Add_Update_Engagement_Letter = () => {
             } catch (error) {
               setLoader(false);
               console.log(error);
-            };
+            }
           } else if (ModelData.quoteKeyID !== null) {
             setLoader(true);
             try {
               const data = await GetOfficersForQuoteAndContract({
-                                  ClientKeyID: ModelData.clientKeyID,
-                                  QuoteKeyID: ModelData.quoteKeyID
-                                });
+                ClientKeyID: ModelData.clientKeyID,
+                QuoteKeyID: ModelData.quoteKeyID,
+              });
               if (data?.data?.statusCode === 200) {
                 setLoader(false);
                 if (data?.data?.responseData?.data) {
@@ -12354,7 +18930,7 @@ const Add_Update_Engagement_Letter = () => {
             } catch (error) {
               setLoader(false);
               console.log(error);
-            };
+            }
           }
 
           // setLoader(true);
@@ -13029,14 +19605,32 @@ const Add_Update_Engagement_Letter = () => {
   const GetSendToSignEasyData = async (Api_request_params) => {
     setLoader(true);
     const data = await GetSendToSignEasy(Api_request_params);
+    debugger;
     try {
       if (data) {
-        if (data.data.statusCode === 200) {
+        if (data?.data?.statusCode === 200) {
           setLoader(false);
           setOpenSuccessModal(true);
         } else {
           setLoader(false);
           setErrorMessage("Something wen wrong");
+        }
+      }
+
+      if (data?.response?.data?.errorMessage === "Client - Send Mail Failed") {
+        // Call Get prospect send mail status api
+        const EmailStausData = await GetProspectSendMailStatus(
+          common.userKeyID,
+          common.organisationKeyID,
+          "AddUpdateContract",
+          "Temp Key Id"
+        );
+        if (!EmailStausData.data.responseData) {
+          setEmailCheckModel((prev) => ({
+            ...prev,
+            ModuleName: "EL",
+          }));
+          setOpenEmailFailurePopUp(true);
         }
       }
     } catch (error) {
@@ -13538,6 +20132,7 @@ const Add_Update_Engagement_Letter = () => {
                   setFontFamily={setFontFamily}
                   getFontNameById={getFontNameById}
                   setShowSeparatorLines={setShowSeparatorLines}
+                  updateVisibleFieldsFromIds={updateVisibleFieldsFromIds}
                 />
               )}
               {activeTab === EngagementLetterHeader.SelectServices && (
@@ -13623,9 +20218,9 @@ const Add_Update_Engagement_Letter = () => {
                   setSelectedPackagesDetails={setSelectedPackagesDetails}
                   engagementObj={engagementObj}
                   setEngagementObj={setEngagementObj}
-                  currencyID = {currencyID}
-                  currencySymbol = {currencySymbol}
-                  taxName = {taxName}
+                  currencyID={currencyID}
+                  currencySymbol={currencySymbol}
+                  taxName={taxName}
                   setOneOffPricingInfoCopy={setOneOffPricingInfoCopy}
                   TabHide={TabHide}
                   common={common}
@@ -13674,6 +20269,25 @@ const Add_Update_Engagement_Letter = () => {
                   setSelectedRecurringServiceListCopy={
                     setSelectedRecurringServiceListCopy
                   }
+                  setServiceDescriptionHTML={setServiceDescriptionHTML}
+                  serviceDescriptionHTML={serviceDescriptionHTML}
+                  setStatementOfFactsHTML={setStatementOfFactsHTML}
+                  statementOfFactsHTML={statementOfFactsHTML}
+                  formatValueWithoutCurrencySymbol={
+                    formatValueWithoutCurrencySymbol
+                  }
+                  moduleName={"Quote"}
+                  StatementOfFact={StatementOfFact}
+                  additionalInformationList={additionalInformationList}
+                  setSelectedTemplateID={setSelectedTemplateID}
+                  setSelectedTemplateIDOneOff={setSelectedTemplateIDOneOff}
+                  selectedTemplateID={selectedTemplateID}
+                  selectedTemplateIDOneOff={selectedTemplateIDOneOff}
+                  serviceTypeID={serviceTypeID} //1 for recurring and 2 for one-off
+                  setShowSelectTemplateModal={setShowSelectTemplateModal}
+                  showSelectTemplateModal={showSelectTemplateModal}
+                  setServiceTypeID={setServiceTypeID}
+                  visibleFieldsCustomTemp={visibleFieldsCustomTemp}
                 />
               )}
               {activeTab === EngagementLetterHeader.ReviewServices && (
@@ -13686,9 +20300,9 @@ const Add_Update_Engagement_Letter = () => {
                   HandleBack={HandleBack}
                   proposalName={proposalName}
                   paymentGatewayObj={paymentGatewayObj}
-                  currencyID = {currencyID}
-                  currencySymbol = {currencySymbol}
-                  taxName = {taxName}
+                  currencyID={currencyID}
+                  currencySymbol={currencySymbol}
+                  taxName={taxName}
                   isMobile={isMobile}
                   hasHyphenAfterNumber={hasHyphenAfterNumber}
                   setVATPercentage={setVATPercentage}
@@ -13701,7 +20315,7 @@ const Add_Update_Engagement_Letter = () => {
                   selectedRecurringServiceListCopy={
                     selectedRecurringServiceListCopy
                   }
-                  setSelectedOneOffServiceList = {setSelectedOneOffServiceList}
+                  setSelectedOneOffServiceList={setSelectedOneOffServiceList}
                   setSelectedRecurringServiceList={
                     setSelectedRecurringServiceList
                   }
@@ -13728,8 +20342,65 @@ const Add_Update_Engagement_Letter = () => {
                   getCrudPopUpTitleName={getCrudPopUpTitleName}
                   setOneOffPricingInfo={setOneOffPricingInfo}
                   setOneOffPricingInfoCopy={setOneOffPricingInfoCopy}
+                  setServiceDescriptionHTML={setServiceDescriptionHTML}
+                  serviceDescriptionHTML={serviceDescriptionHTML}
+                  setStatementOfFactsHTML={setStatementOfFactsHTML}
+                  statementOfFactsHTML={statementOfFactsHTML}
+                  formatValueWithoutCurrencySymbol={
+                    formatValueWithoutCurrencySymbol
+                  }
+                  moduleName={"Quote"}
+                  StatementOfFact={StatementOfFact}
+                  additionalInformationList={additionalInformationList}
+                  setSelectedTemplateID={setSelectedTemplateID}
+                  setSelectedTemplateIDOneOff={setSelectedTemplateIDOneOff}
+                  selectedTemplateID={selectedTemplateID}
+                  selectedTemplateIDOneOff={selectedTemplateIDOneOff}
+                  serviceTypeID={serviceTypeID} //1 for recurring and 2 for one-off
+                  setShowSelectTemplateModal={setShowSelectTemplateModal}
+                  showSelectTemplateModal={showSelectTemplateModal}
+                  setServiceTypeID={setServiceTypeID}
+                  visibleFieldsCustomTemp={visibleFieldsCustomTemp}
                 />
               )}
+              <PricingTableTemplatesModal
+                show={showSelectTemplateModal}
+                onHide={() => setShowSelectTemplateModal(false)}
+                setSelectedTemplateID={setSelectedTemplateID}
+                setSelectedTemplateIDOneOff={setSelectedTemplateIDOneOff}
+                selectedTemplateID={selectedTemplateID}
+                selectedTemplateIDOneOff={selectedTemplateIDOneOff}
+                serviceTypeID={serviceTypeID} //1 for recurring and 2 for one-off
+                selectedRecurringServiceList={selectedRecurringServiceList}
+                setSelectedRecurringServiceList={
+                  setSelectedRecurringServiceList
+                }
+                RecurringPricingInfo={RecurringPricingInfo}
+                ProposalObject={engagementObj}
+                formatValue={formatValue}
+                vatPercentage={vatPercentage}
+                selectedOneOffServiceList={selectedOneOffServiceList}
+                OneOffPricingInfo={OneOffPricingInfo}
+                selectedPackagesList={selectedPackagesList}
+                getValidationMessage={getValidationMessage}
+                requireMessage={requireMessage}
+                pricingSettingObj={pricingSettingObj}
+                setSelectedOneOffServiceList={setSelectedOneOffServiceList}
+                hasHyphenAfterNumber={hasHyphenAfterNumber}
+                GetSingleDefaultDiscountPercentageOfPackages={
+                  GetSingleDefaultDiscountPercentageOfPackages
+                }
+                setRecurringPricingInfo={setRecurringPricingInfo}
+                setRecurringFrequencyPricingInfo={
+                  setRecurringFrequencyPricingInfo
+                }
+                RecurringFrequencyPricingInfo={RecurringFrequencyPricingInfo}
+                OneOffPricingInfoCopy={OneOffPricingInfoCopy}
+                setOneOffPricingInfoCopy={setOneOffPricingInfoCopy}
+                setOneOffPricingInfo={setOneOffPricingInfo}
+                setVisibleFieldsCustomTemp={setVisibleFieldsCustomTemp}
+                visibleFieldsCustomTemp={visibleFieldsCustomTemp}
+              />
               {activeTab === EngagementLetterHeader.Preview && (
                 <PreviewComponentPdf
                   isDefaultFirstPage={isDefaultFirstPage}
@@ -13749,7 +20420,9 @@ const Add_Update_Engagement_Letter = () => {
                   formatValueWithoutCurrencySymbol={
                     formatValueWithoutCurrencySymbol
                   }
-                  formatValueWithoutCurrencySymbol_v1= {formatValueWithoutCurrencySymbol_v1}
+                  formatValueWithoutCurrencySymbol_v1={
+                    formatValueWithoutCurrencySymbol_v1
+                  }
                   selectedPackagesList={selectedPackagesList}
                   lastPaymentFrequencyAndDiscountedPriceForPreview={
                     lastPaymentFrequencyAndDiscountedPriceForPreview
@@ -13764,9 +20437,9 @@ const Add_Update_Engagement_Letter = () => {
                   lastPaymentFrequencyAndDiscountedPriceForPreviewForoneoff={
                     lastPaymentFrequencyAndDiscountedPriceForPreviewForOneOff
                   }
-                  currencyID = {currencyID}
-                  currencySymbol = {currencySymbol}
-                  taxName = {taxName}
+                  currencyID={currencyID}
+                  currencySymbol={currencySymbol}
+                  taxName={taxName}
                   RecurringPricingInfo={RecurringPricingInfo}
                   OneOffPricingInfo={OneOffPricingInfo}
                   vatPercentage={vatPercentage}
@@ -13776,7 +20449,8 @@ const Add_Update_Engagement_Letter = () => {
                   selectedOneOffServiceList={selectedOneOffServiceList}
                   templateElementList={templateElementList}
                   additionalInformationList={additionalInformationList}
-                  engagementObj={engagementObj}
+                  // engagementObj={engagementObj}
+                  ProposalObject={engagementObj}
                   getCrudButtonTextName={getCrudButtonTextName}
                   getCrudPopUpTitleName={getCrudPopUpTitleName}
                   organisationData={organisationData}
@@ -13803,6 +20477,11 @@ const Add_Update_Engagement_Letter = () => {
                   headerHeight={headerHeight}
                   footerHeight={footerHeight}
                   showSeparatorLines={showSeparatorLines}
+                  serviceDescriptionHTML={serviceDescriptionHTML}
+                  statementOfFactsHTML={statementOfFactsHTML}
+                  selectedTemplateIDOneOff={selectedTemplateIDOneOff}
+                  selectedTemplateID={selectedTemplateID}
+                  visibleFieldsCustomTemp={visibleFieldsCustomTemp}
                 />
               )}
             </div>
@@ -13856,6 +20535,13 @@ const Add_Update_Engagement_Letter = () => {
         setISModalOpen={setISModalOpen}
         isAddUpdatePricingActionDone={isAddUpdatePricingActionDone}
         setIsAddUpdatePricingActionDone={setIsAddUpdatePricingActionDone}
+      />
+      <EmailFailurePopUP
+        open={openEmailFailurePopUp}
+        handleClose={handleEmailFailurePopupClose}
+        isBackDropDisplay={true}
+        onYesClick={handleResendQuote}
+        emailCheckModel={emailCheckModel}
       />
     </div>
   );

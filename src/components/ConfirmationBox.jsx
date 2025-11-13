@@ -192,10 +192,16 @@ function ConfirmModel({
                   </span>
                 )}
                 {modelRequestData.Action === "ServiceWarning" && (
-                  <div className="text-muted mb-1" style={{ whiteSpace: "pre-wrap", textAlign: "left" }}>
+                  <div
+                    className="text-muted mb-1"
+                    style={{ whiteSpace: "pre-wrap", textAlign: "left" }}
+                  >
                     {modelRequestData.message}
                     <div>
-                      <ul className="mt-1" style={{textAlign: "left", display: "inline-block"}}>
+                      <ul
+                        className="mt-1"
+                        style={{ textAlign: "left", display: "inline-block" }}
+                      >
                         {modelRequestData.ServiceName?.map((name, index) => (
                           <li key={index}>{name}</li>
                         ))}
@@ -204,7 +210,10 @@ function ConfirmModel({
                   </div>
                 )}
                 {modelRequestData.Action === "ServiceWarningEL" && (
-                  <div className="text-muted mb-1" style={{ whiteSpace: "pre-wrap", textAlign: "left" }}>
+                  <div
+                    className="text-muted mb-1"
+                    style={{ whiteSpace: "pre-wrap", textAlign: "left" }}
+                  >
                     {modelRequestData.message}
                   </div>
                 )}
@@ -251,6 +260,20 @@ function ConfirmModel({
                     Are you sure you want to {modelRequestData.status} mail box?
                   </p>
                 )}
+
+                {modelRequestData.Action === "vatStatus" && (
+                  <>
+                    <img
+                      src={editGif}
+                      trigger="loop"
+                      colors="primary:#f7b84b,secondary:#f06548"
+                      style={{ width: "85px", height: "50px" }}
+                    />
+                    <p class="text-muted mb-0">
+                      Are you sure you want to change VAT Status?
+                    </p>
+                  </>
+                )}
                 {/* {modelRequestData.Action === "Warning" && (
                   <>
                     <div>
@@ -280,8 +303,13 @@ function ConfirmModel({
                   <>
                     {modelRequestData.message && (
                       <>
-                        <span className="text-muted mb-0">{modelRequestData.message}</span>
-                        <ul className="designed-list" style={{ textAlign: "left" }}>
+                        <span className="text-muted mb-0">
+                          {modelRequestData.message}
+                        </span>
+                        <ul
+                          className="designed-list"
+                          style={{ textAlign: "left" }}
+                        >
                           {modelRequestData.DriverName?.map((item, idx) => (
                             <li key={`driver-${idx}`}>{item}</li>
                           ))}
@@ -291,12 +319,19 @@ function ConfirmModel({
 
                     {modelRequestData.dependingMessage && (
                       <>
-                        <div style={{ marginTop: '1rem' }}>
-                          <span className="text-muted mb-0">{modelRequestData.dependingMessage}</span>
-                          <ul className="designed-list" style={{ textAlign: "left" }}>
-                            {modelRequestData.dependingList?.map((item, idx) => (
-                              <li key={`dep-${idx}`}>{item}</li>
-                            ))}
+                        <div style={{ marginTop: "1rem" }}>
+                          <span className="text-muted mb-0">
+                            {modelRequestData.dependingMessage}
+                          </span>
+                          <ul
+                            className="designed-list"
+                            style={{ textAlign: "left" }}
+                          >
+                            {modelRequestData.dependingList?.map(
+                              (item, idx) => (
+                                <li key={`dep-${idx}`}>{item}</li>
+                              )
+                            )}
                           </ul>
                         </div>
                       </>
@@ -304,23 +339,32 @@ function ConfirmModel({
 
                     {modelRequestData.prerequisiteMessage && (
                       <>
-                        <div style={{ marginTop: '1rem' }}>
-                          <span className="text-muted mb-0">{modelRequestData.prerequisiteMessage}</span>
-                          <ul className="designed-list" style={{ textAlign: "left" }}>
-                            {modelRequestData.prerequisiteList?.map((item, idx) => (
-                              <li key={`pre-${idx}`}>{item}</li>
-                            ))}
+                        <div style={{ marginTop: "1rem" }}>
+                          <span className="text-muted mb-0">
+                            {modelRequestData.prerequisiteMessage}
+                          </span>
+                          <ul
+                            className="designed-list"
+                            style={{ textAlign: "left" }}
+                          >
+                            {modelRequestData.prerequisiteList?.map(
+                              (item, idx) => (
+                                <li key={`pre-${idx}`}>{item}</li>
+                              )
+                            )}
                           </ul>
                         </div>
                       </>
                     )}
 
                     <span className="font-weight-bold mb-0">
-                      Do you still want to {modelAction === "Update" ? "update" : modelAction} the service?
+                      Do you still want to{" "}
+                      {modelAction === "Update" ? "update" : modelAction} the
+                      service?
                     </span>
                   </>
                 )}
-                
+
                 {/* {modelRequestData.Action === "ServiceWarning" && (
                   <>
                     <div>
@@ -378,13 +422,14 @@ function ConfirmModel({
                   <span>Cancel</span>
                 )}
               </button>
-              {(modelRequestData.Action === "UnpaidUser" || 
+              {(modelRequestData.Action === "UnpaidUser" ||
                 modelRequestData.Action === "ServiceWarning" ||
                 modelRequestData.Action === "ServiceWarningEL" ||
                 modelRequestData.Action === "Resend" ||
                 modelRequestData.Action === "PaidUser" ||
                 modelRequestData.Action === "Warning" ||
                 modelRequestData.Action === "Status" ||
+                modelRequestData.Action === "vatStatus" ||
                 modelRequestData.Action === "EnableApiIntegration" ||
                 modelRequestData.Action === "ReminderStatus" ||
                 modelRequestData.Action === "PaymentStatus" ||
@@ -408,6 +453,7 @@ function ConfirmModel({
                   class="btn btn-md btn-success create-item-btn"
                 >
                   {(modelRequestData.Action === "Status" ||
+                    modelRequestData.Action === "vatStatus" ||
                     modelRequestData.Action === "UnpaidUser" ||
                     modelRequestData.Action === "EnableApiIntegration" ||
                     modelRequestData.Action === "ReminderStatus" ||
@@ -440,8 +486,12 @@ function ConfirmModel({
                     <span>Yes, Re-send It!</span>
                   )}
                   {modelRequestData.Action === "Warning" && <span>Yes</span>}
-                  {modelRequestData.Action === "ServiceWarning" && <span>Yes</span>}
-                  {modelRequestData.Action === "ServiceWarningEL" && <span>Yes</span>}
+                  {modelRequestData.Action === "ServiceWarning" && (
+                    <span>Yes</span>
+                  )}
+                  {modelRequestData.Action === "ServiceWarningEL" && (
+                    <span>Yes</span>
+                  )}
                   {modelRequestData.Action === "Copy" && <span>Yes! Copy</span>}
                   {(modelRequestData.Action == "PracticeWarning" ||
                     modelRequestData.Action === "Upload" ||

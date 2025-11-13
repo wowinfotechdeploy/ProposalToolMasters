@@ -215,10 +215,11 @@ function PdfToCsvConvertorModel(props) {
         handleClearFile();
         setConversionCompleted(true);
         setOpenSuccessModal(true);
-
-        console.log(res);
       } else {
+        setLoader(false);
         setOpenCurruptedFileModal(true);
+        handleRemoveFile();
+        setErrorMessage(res.response.data.errorMessage);
       }
     } catch (error) {
       setLoader(false);
@@ -1480,6 +1481,7 @@ function PdfToCsvConvertorModel(props) {
         open={openCurruptedFileModal}
         handleClose={() => setOpenCurruptedFileModal(false)}
         isBackDropDisplay={true}
+        message={errorMessage}
       />
     </div>
   );
