@@ -3707,7 +3707,7 @@ const Create_practice_details = () => {
         isVatRegistered: otherInfo.VATReg,
         vatNumber: otherInfo.VATNumber,
         indirectTaxPercentage:
-          otherInfo.VATReg === 0 ? otherInfo.indirectTaxPercentage : 0,
+          otherInfo.VATReg === 0 ? otherInfo.indirectTaxPercentage : null,
         preferredCurrencyId: otherInfo.preferredCurrency,
         website: otherInfo.website,
         countryCodeID: otherInfo.countryCodeID?.value,

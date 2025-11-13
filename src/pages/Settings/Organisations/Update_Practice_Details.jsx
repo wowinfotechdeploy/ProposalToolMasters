@@ -318,7 +318,7 @@ const Update_Practice_Details = () => {
     if (regex.test(cleanValue)) {
       setOtherInfo({
         ...otherInfo,
-        indirectTaxPercentage: cleanValue,
+        indirectTaxPercentage: cleanValue === "" ? null : cleanValue,
       });
     }
   };
@@ -749,7 +749,6 @@ const Update_Practice_Details = () => {
   const phoneNumberRegex = /^\d{10,15}$/; // Allow between 10 and 15 digits
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const AddUpdateClickedPracticeDetails = (confirmToSave) => {
-    debugger;
     let hasError = false; // Flag to track errors
     let authorizedRecords;
     let OfficerAppointedOnDate = false;
@@ -1005,7 +1004,7 @@ const Update_Practice_Details = () => {
               isVatRegistered: otherInfo.VATReg,
               vatNumber: otherInfo.vatNumber,
               indirectTaxPercentage:
-                otherInfo.VATReg === 0 ? otherInfo.indirectTaxPercentage : 0,
+                otherInfo.VATReg === 0 ? otherInfo.indirectTaxPercentage : null,
               preferredCurrencyId: otherInfo.preferredCurrency,
               website: otherInfo.website,
               countryCodeID: otherInfo.countryCodeID,
@@ -1202,7 +1201,7 @@ const Update_Practice_Details = () => {
               isVatRegistered: otherInfo.VATReg,
               vatNumber: otherInfo.vatNumber,
               indirectTaxPercentage:
-                otherInfo.VATReg === 0 ? otherInfo.indirectTaxPercentage : 0,
+                otherInfo.VATReg === 0 ? otherInfo.indirectTaxPercentage : null,
               preferredCurrencyId: otherInfo.preferredCurrency,
               website: otherInfo.website,
               countryCodeID: otherInfo.countryCodeID,

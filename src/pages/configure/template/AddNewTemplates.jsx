@@ -541,13 +541,13 @@ function Add_New_Templates(props) {
           setTemplateObj((prev) => ({
             ...prev,
             pricingTableColumnIDs:
-              pricingTableCustomIDList[0].pricingTableColumnIDs,
+              pricingTableCustomIDList[0]?.pricingTableColumnIDs,
           }));
 
           if (
-            pricingTableCustomIDList[0].pricingTableColumnIDs !== null &&
-            pricingTableCustomIDList[0].pricingTableColumnIDs !== "" &&
-            pricingTableCustomIDList[0].pricingTableColumnIDs !== undefined
+            pricingTableCustomIDList[0]?.pricingTableColumnIDs !== null &&
+            pricingTableCustomIDList[0]?.pricingTableColumnIDs !== "" &&
+            pricingTableCustomIDList[0]?.pricingTableColumnIDs !== undefined
           ) {
             setSelectedTemplateType(6);
           }
@@ -923,11 +923,11 @@ function Add_New_Templates(props) {
 
     // Preparing Object For Add Update and if any modification then it will done here
 
-    const UpdatedTemplateElementList = templateElementList.filter(
-      (item) => item.templateElementTypeID === 3
-    );
+    // const UpdatedTemplateElementList = templateElementList.filter(
+    //   (item) => item.templateElementTypeID === 3
+    // );
 
-    const ModifiedUpdatedTemplateElementList = UpdatedTemplateElementList.map(
+    const ModifiedUpdatedTemplateElementList = templateElementList.map(
       (item) => ({
         ...item,
         pricingTableColumnIDs:
