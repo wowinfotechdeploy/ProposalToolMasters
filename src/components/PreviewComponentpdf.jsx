@@ -7709,10 +7709,10 @@ ${
                 class="btn btn-md btn-success create-item-btn  text-nowrap"
                 onClick={() =>
                   props?.HandleBack(
-                    props.engagementObj.selectSourceId === 3
+                    props.engagementObj?.selectSourceId === 3
                       ? 7
-                      : props.engagementObj.selectSourceId === 2 &&
-                        props.engagementObj.quoteTypeID === 4
+                      : props.engagementObj?.selectSourceId === 2 &&
+                        props.engagementObj?.quoteTypeID === 4
                       ? 3
                       : 4
                   )
