@@ -12279,7 +12279,9 @@ const Add_Update_Engagement_Letter = () => {
             OneOffPricingInfo,
             engagementObj.Payment_Frequency,
             3,
-            selectedPackagesList
+            selectedPackagesList,
+            selectedRecurringServiceList,
+            selectedOneOffServiceList
           );
           if (
             engagementObj.pdf !== null ||

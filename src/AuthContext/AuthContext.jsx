@@ -2253,13 +2253,24 @@ const AuthContext = ({ children }) => {
 
     return `
     <div>
-    <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
-              Recurring Services
-            </p>
-      ${recurringServices}   
-    <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
+  ${
+    selectedRecurringServiceList.length !== 0
+      ? `<p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
+        Recurring Services
+      </p>`
+      : ""
+  }
+
+   
+      ${recurringServices}
+
+       ${
+         selectedOneOffServiceList.length !== 0
+           ? ` <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
               One-Off Services
-            </p>
+            </p>`
+           : ""
+       }
       ${oneOffServices}
     </div>
   `;
@@ -2397,13 +2408,23 @@ const AuthContext = ({ children }) => {
 
     return `
     <div>
-    <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
-              Recurring Services
-            </p>
+     ${
+       selectedRecurringServiceList.length !== 0
+         ? `<p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
+        Recurring Services
+      </p>`
+         : ""
+     }
       ${recurringServices}   
-    <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
+
+       ${
+         selectedOneOffServiceList.length !== 0
+           ? `    <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
               One-Off Services
-            </p>
+            </p>`
+           : ""
+       }
+
       ${oneOffServices}
     </div>
   `;
@@ -2483,13 +2504,23 @@ const AuthContext = ({ children }) => {
 
     return `
     <div>
-    <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
+     ${
+       selectedRecurringServiceList.length !== 0
+         ? `<p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
               Recurring Services
-            </p>
+            </p>`
+         : ""
+     }
+
       ${recurringServices}   
-    <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
+      ${
+        selectedOneOffServiceList.length !== 0
+          ? ` <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
               One-Off Services
-            </p>
+            </p>`
+          : ""
+      }
+   
       ${oneOffServices}
     </div>
   `;
@@ -2584,13 +2615,24 @@ const AuthContext = ({ children }) => {
 
     return `
       <div>
-      <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
+      ${
+        selectedRecurringServiceList.length !== 0
+          ? `<p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
                 Recurring Services
-              </p>
-        ${recurringServices}   
-      <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
+              </p>`
+          : ""
+      }
+      
+        ${recurringServices}
+
+        ${
+          selectedOneOffServiceList.length !== 0
+            ? `<p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
                 One-Off Services
-              </p>
+              </p>`
+            : ""
+        }
+      
         ${oneOffServices}
       </div>
     `;
@@ -2674,13 +2716,22 @@ const AuthContext = ({ children }) => {
 
     return `
     <div>
-    <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
+    ${
+      selectedRecurringServiceList.length !== 0
+        ? ` <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
               Recurring Services
-            </p>
+            </p>`
+        : ""
+    }
       ${recurringServices}   
-    <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
+      ${
+        selectedOneOffServiceList.length !== 0
+          ? ` <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
               One-Off Services
-            </p>
+            </p>`
+          : ""
+      }
+    
       ${oneOffServices}
     </div>
   `;
@@ -2778,13 +2829,23 @@ const AuthContext = ({ children }) => {
 
     return `
       <div>
-      <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
+        ${
+          selectedRecurringServiceList.length !== 0
+            ? `  <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
                 Recurring Services
-              </p>
+              </p>`
+            : ""
+        }
+     
         ${recurringServices}   
-      <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
+         ${
+           selectedOneOffServiceList.length !== 0
+             ? `  <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
                 One-Off Services
-              </p>
+              </p>`
+             : ""
+         }
+      
         ${oneOffServices}
       </div>
     `;
