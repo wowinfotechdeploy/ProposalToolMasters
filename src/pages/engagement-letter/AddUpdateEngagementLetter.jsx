@@ -568,7 +568,7 @@ const ReviewServicesComponent = (props) => {
     const TotalDiscount = recurringServicesTotal - decrease;
     const VatPrice = (
       Number(formattedInput) *
-      (Number(props.vatPercentage) / 100)
+      (Number(props.vatPercentageOneOff) / 100)
     ).toFixed(2);
     let FinalPrice = Number(VatPrice) + Number(TotalDiscount);
     FinalPrice = (Math.floor(FinalPrice * 100) / 100).toFixed(2);
@@ -580,6 +580,7 @@ const ReviewServicesComponent = (props) => {
         Discount: decrease,
         DiscountedTotal: TotalDiscount,
         VATPrice: VatPrice,
+        totalServiceWiseVATOneOff: VatPrice,
         GrandTotal: FinalPrice,
       });
       props.setOneOffPricingInfoCopy({
@@ -589,6 +590,7 @@ const ReviewServicesComponent = (props) => {
         Discount: decrease,
         DiscountedTotal: TotalDiscount,
         VATPrice: VatPrice,
+        totalServiceWiseVATOneOff: VatPrice,
         GrandTotal: FinalPrice,
       });
     } else {
@@ -599,6 +601,7 @@ const ReviewServicesComponent = (props) => {
         Discount: decrease,
         DiscountedTotal: TotalDiscount,
         VATPrice: VatPrice,
+        totalServiceWiseVATOneOff: VatPrice,
         GrandTotal: FinalPrice,
       });
       props.setOneOffPricingInfoCopy({
@@ -608,6 +611,7 @@ const ReviewServicesComponent = (props) => {
         Discount: decrease,
         DiscountedTotal: TotalDiscount,
         VATPrice: VatPrice,
+        totalServiceWiseVATOneOff: VatPrice,
         GrandTotal: FinalPrice,
       });
     }
@@ -707,6 +711,7 @@ const ReviewServicesComponent = (props) => {
         Discount: decrease,
         DiscountedTotal: TotalDiscount,
         VATPrice: VatPrice,
+        totalServiceWiseVAT: VatPrice,
         GrandTotal: FinalPrice,
       });
       props.setRecurringFrequencyPricingInfo({
@@ -923,6 +928,7 @@ const ReviewServicesComponent = (props) => {
       Discount: Discount,
       DiscountedTotal: DiscountedTotal,
       VATPrice: VATPrice,
+      totalServiceWiseVAT: VatPrice,
       GrandTotal: GrandTotal,
     });
     props.setSelectedRecurringServiceList(updatedData);
@@ -1030,6 +1036,7 @@ const ReviewServicesComponent = (props) => {
       Discount: originalPrice - discountedPrice,
       DiscountedTotal: discountedPrice,
       VATPrice: vatPrice,
+      totalServiceWiseVAT: vatPrice,
       GrandTotal: finalPrice,
     });
 
@@ -1099,7 +1106,8 @@ const ReviewServicesComponent = (props) => {
     let discountedPrice = originalPrice * (1 - percentage / 100);
 
     // Calculate VAT and Final Price
-    const vatPrice = discountedPrice * (Number(props.vatPercentage) / 100);
+    const vatPrice =
+      discountedPrice * (Number(props.vatPercentageOneOff) / 100);
     const finalPrice = Number(vatPrice) + discountedPrice;
 
     // Update state
@@ -1111,6 +1119,7 @@ const ReviewServicesComponent = (props) => {
       Discount: originalPrice - discountedPrice,
       DiscountedTotal: discountedPrice,
       VATPrice: vatPrice,
+      totalServiceWiseVATOneOff: vatPrice,
       GrandTotal: finalPrice,
     });
     props.setOneOffPricingInfoCopy({
@@ -1121,6 +1130,7 @@ const ReviewServicesComponent = (props) => {
       Discount: originalPrice - discountedPrice,
       DiscountedTotal: discountedPrice,
       VATPrice: vatPrice,
+      totalServiceWiseVATOneOff: vatPrice,
       GrandTotal: finalPrice,
     });
   };
@@ -11667,6 +11677,7 @@ const Add_Update_Engagement_Letter = () => {
     ModuleName: "",
   });
   const [vatPercentage, setVATPercentage] = useState("");
+  const [vatPercentageOneOff, setVATPercentageOneOff] = useState(null);
   const [contractKeyIDFromAPI, setContractKeyIDAPI] = useState(null);
   const [visibleFieldsCustomTemp, setVisibleFieldsCustomTemp] = useState({
     serviceCategory: true,
@@ -13192,7 +13203,7 @@ const Add_Update_Engagement_Letter = () => {
             let hasError = false;
             const oneOffService = [];
             const RecurringService = [];
-            setVATPercentage(vatPercentage);
+            // setVATPercentage(vatPercentage);
             // Populate the service prices object with service IDs as keys and prices as values
             PricingData.filter(
               (item) => item.serviceChargeTypeID === 1
@@ -13580,6 +13591,11 @@ const Add_Update_Engagement_Letter = () => {
               0
             );
 
+            const ServiceWiseVAT =
+              (Number(totalVATAmount) / Number(recOriginalPrice)) * 100;
+
+            setVATPercentage(ServiceWiseVAT);
+
             setRecurringPricingInfo({
               ...RecurringPricingInfo,
               OriginalPrice: recOriginalPrice,
@@ -13666,6 +13682,12 @@ const Add_Update_Engagement_Letter = () => {
               oneOffDefaultDiscountCopy = OneOffPricingInfoCopy.DefaultDiscount;
               oneOffMaxDiscount = OneOffPricingInfo.MaxDiscount;
             }
+
+            const ServiceWiseVATOneOff =
+              (Number(totalVATAmountOneOff) / Number(oneOffOriginalPrice)) *
+              100;
+
+            setVATPercentageOneOff(ServiceWiseVATOneOff);
 
             setOneOffPricingInfo({
               ...OneOffPricingInfo,
