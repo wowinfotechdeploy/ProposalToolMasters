@@ -260,7 +260,7 @@ const AccessKeyList = () => {
                   <div class="card-body mb-2">
                     <div id="customerList" style={{ marginTop: "3rem" }}>
                       <div class="bg-light border-bottom px-2">
-                        <div className="container">
+                        {/* <div className="container"> */}
                           <div className="row">
                             <div className="col-md-6 p-0 justify-content-start d-flex align-items-center">
                     Access Keys
@@ -305,7 +305,7 @@ const AccessKeyList = () => {
                   }
                 </div>
               </div>
-              </div>
+              {/* </div> */}
             </div>
           {/* </div> */}
           <div class="">

@@ -1585,7 +1585,7 @@ function Setting() {
   );
 
   return (
-    <div class="main-content">
+    <div>
       {/* <div class="update-practice-content page-background"> */}
         {/* <div class="page-info-header page-info-strip"> */}
           <div class="container">
@@ -1594,7 +1594,7 @@ function Setting() {
             </div>
           </div>
         {/* </div> */}
-        <div class="container mt-3 margin-bottom col-xl-8">
+        <div class="container mt-3 mt-2 margin-bottom col-xl-8">
           <div class="row mb-100">
             <div class="col-lg-12 slider-scroll">
               <div class="card">

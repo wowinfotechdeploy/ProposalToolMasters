@@ -50,36 +50,16 @@ function Filter(props) {
   } = useContext(ColorContext);
   //Getting Logged Users Details From Persist Storage of redux hooks
   //calender Filter
-  // useEffect(() => {
-  //   GetEmailAddressTypeData()
-  //   GetDocumentStatusTypeData()
-  //   GetNOBTypeLookUpListData();
-  //   GetBusinessTypeLookupListData();
-  //   GetOrganisationBusinessTypeLookupListData()
-  //   GetTemplateTypeLookupListData();
-  //   GetTemplateTypeLookupListForReminderData()
-
-  // }, [props.moduleName]);
   useEffect(() => {
-    const modalEl = document.getElementById("FilterModel");
+    GetEmailAddressTypeData()
+    GetDocumentStatusTypeData()
+    GetNOBTypeLookUpListData();
+    GetBusinessTypeLookupListData();
+    GetOrganisationBusinessTypeLookupListData()
+    GetTemplateTypeLookupListData();
+    GetTemplateTypeLookupListForReminderData()
 
-    const handleShow = () => {
-      console.log("Filter modal opened, running API calls...");
-      GetEmailAddressTypeData();
-      GetDocumentStatusTypeData();
-      GetNOBTypeLookUpListData();
-      GetBusinessTypeLookupListData();
-      GetOrganisationBusinessTypeLookupListData();
-      GetTemplateTypeLookupListData();
-      GetTemplateTypeLookupListForReminderData();
-    };
-
-    modalEl.addEventListener("show.bs.modal", handleShow);
-
-    return () => {
-      modalEl.removeEventListener("show.bs.modal", handleShow);
-    };
-  }, []);
+  }, [props.moduleName]);
   useEffect(() => {
     if (isAddUpdateDone) {
       GetEmailAddressTypeData()

@@ -274,18 +274,22 @@ const PdfToCsvSubscription_Package = () => {
   };
 
   return (
-    <div>
-      <div class="main-content">
+    <div className="container-fluid">
+      {/* <div class="main-content"> */}
         <div class="services page-background">
-          <div class="page-info-header page-info-strip">
-            <div class="container">
-              <div className="row">
-                <div className="col-md-6 col-6">
-                  <div class="page-title-cls">
+          <div class="">
+            <div class="row">
+              <div class="col-lg-12">
+                <div class="card">
+                  {/* end card header  */}
+                  <div class="card-body">
+                    <div id="customerList" style={{ marginTop: "3rem" }}>
+                      <div class="bg-light border-bottom px-2">
+                          <div className="row">
+                            <div className="col-md-6 p-0 ">
                     PDF To CSV Subscription Packages
                   </div>
-                </div>
-                <div class="col-md-6 col-6">
+                <div class="col-auto ms-auto">
                   <div className="d-flex justify-content-sm-end add-new-btn">
                     {userAccessData.SuperAdmin_Config_Subscription_Package_CanAdd && (
                       <CommonButtonComponent
@@ -298,17 +302,18 @@ const PdfToCsvSubscription_Package = () => {
                     )}
                   </div>
                 </div>
+                </div>
               </div>
             </div>
           </div>
-          <div class="container margin-bottom">
+          <div class="margin-bottom">
             <div class="row">
               <div class="col-lg-12">
                 <div class="card ">
                   <div class="card-body">
                     <div id="customerList">
                       <div class="row g-4 mb-3"></div>
-                      <div class="table-responsive table-card  mb-3 table-padding">
+                      <div class="table-responsive table-card mt-2 mb-3 table-padding">
                         <div class="search-box col-md-3 col-8 width-searchbox mb-2">
                           <i class="ri-search-line search-icon"></i>
                           <input
@@ -567,6 +572,9 @@ const PdfToCsvSubscription_Package = () => {
               modelRequestData={modelRequestData}
             /> */}
           </div>
+        </div>
+        </div>
+        </div>
         </div>
         <Footer />
       </div>

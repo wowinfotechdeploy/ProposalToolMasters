@@ -75,6 +75,11 @@ const TopbarClone = () => {
   const [openSuccessModal, setOpenSuccessModal] = React.useState(false);
   const [openPurchaseModal, setOpenPurchaseModal] = React.useState(false);
   const [modelAction, setModelAction] = useState("");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(() => {
+    // Check localStorage only once when component loads
+    const storedValue = localStorage.getItem("isSidebarOpen");
+    return storedValue ? JSON.parse(storedValue) : true; // default: open
+  });
 
   const dispatch = useDispatch();
   let getOrganisationLookupListApiCallCount = 0;
@@ -130,6 +135,13 @@ const TopbarClone = () => {
     backgroundColor: windowWidth < 1200 ? "inherit" : "",
     border: "none",
   };
+
+  useEffect(() => {
+    // Update localStorage whenever sidebar state changes
+    localStorage.setItem("isSidebarOpen", JSON.stringify(isSidebarOpen));
+  }, [isSidebarOpen]);
+
+
   useEffect(() => {
     if (common.token && topbar === "block") {
       NotificationCountData();
@@ -566,25 +578,39 @@ const TopbarClone = () => {
 
   const toggleConfigSubList = (id) => {
   const list = document.getElementById(id);
-  const trigger = document.querySelector(`a[href="#${id}"]`);
+  const parent = list.parentElement;
+  const toggleLink = parent.querySelector(".nav-link");
+
   const allLists = document.querySelectorAll(".subList");
-  const allTriggers = document.querySelectorAll('.menu-dropdown .nav-item > a[href^="#"]');
-
-  // Check if this sublist is already open
-  const isCurrentlyOpen = list.style.display === "block";
-
-  // Close all sublists and reset aria-expanded
-  allTriggers.forEach(t => t.setAttribute('aria-expanded', 'false'));
-  allLists.forEach((el) => {
-    el.style.display = "none";
+  allLists.forEach((element) => {
+    if (element.id !== id && element.classList.contains("d-block")) {
+      element.classList.remove("d-block");
+      element.classList.add("d-none");
+      const link = element.parentElement.querySelector(".nav-link");
+      if (link) link.setAttribute("aria-expanded", "false");
+    }
   });
 
-  // If it was closed, open it. If it was open, keep it closed (toggle behavior)
-  if (!isCurrentlyOpen) {
-    list.style.display = "block";
-    trigger?.setAttribute('aria-expanded', 'true');
+  const isOpen = list.classList.contains("d-block");
+  list.classList.toggle("d-block", !isOpen);
+  list.classList.toggle("d-none", isOpen);
+  toggleLink.setAttribute("aria-expanded", !isOpen);
+
+  // 👇 Add hover-out close behavior
+  if (!isOpen) {
+    const handleMouseLeave = (event) => {
+      if (!parent.contains(event.relatedTarget)) {
+        list.classList.remove("d-block");
+        list.classList.add("d-none");
+        toggleLink.setAttribute("aria-expanded", "false");
+        parent.removeEventListener("mouseleave", handleMouseLeave);
+      }
+    };
+    parent.addEventListener("mouseleave", handleMouseLeave);
   }
 };
+
+
 
   const showUserSettingList = () => {
     setIsUserRoleDropdownOpen(true);
@@ -639,34 +665,53 @@ const TopbarClone = () => {
   //   }
   // };
   const toggleSettingSubList = (id) => {
-    const list = document.getElementById(id);
-    const parent = list.parentElement; // parent <li> (top-level menu item)
-    const allLists = document.querySelectorAll(".subList");
+  const list = document.getElementById(id);
+  const parent = list.parentElement; // parent <li> (top-level menu item)
+  const toggleLink = parent.querySelector(".nav-link");
+  const allLists = document.querySelectorAll(".subList");
 
-    // Close all other sublists
-    allLists.forEach((element) => {
-      if (element.classList.contains("d-block") && element.id !== id) {
-        element.classList.remove("d-block");
-        element.classList.add("d-none");
-      }
-    });
-
-    // Toggle clicked sublist
-    if (list.classList.contains("d-block")) {
-      list.classList.remove("d-block");
-      list.classList.add("d-none");
-    } else {
-      // Constrain width to parent
-      const parentWidth = parent.offsetWidth;
-      list.style.maxWidth = parentWidth + "px";
-      list.style.width = "100%";
-      list.style.boxSizing = "border-box";
-
-      list.classList.add("d-block");
-      list.classList.remove("d-none");
-      list.scrollIntoView({ behavior: "smooth", block: "start" });
+  // Close all other sublists
+  allLists.forEach((element) => {
+    if (element.classList.contains("d-block") && element.id !== id) {
+      element.classList.remove("d-block");
+      element.classList.add("d-none");
+      const link = element.parentElement.querySelector(".nav-link");
+      if (link) link.setAttribute("aria-expanded", "false");
     }
-  };
+  });
+
+  const isOpen = list.classList.contains("d-block");
+
+  // Toggle clicked sublist
+  if (isOpen) {
+    list.classList.remove("d-block");
+    list.classList.add("d-none");
+    toggleLink.setAttribute("aria-expanded", "false");
+  } else {
+    // Constrain width to parent
+    const parentWidth = parent.offsetWidth;
+    list.style.maxWidth = parentWidth + "px";
+    list.style.width = "100%";
+    list.style.boxSizing = "border-box";
+
+    list.classList.add("d-block");
+    list.classList.remove("d-none");
+    toggleLink.setAttribute("aria-expanded", "true");
+
+    list.scrollIntoView({ behavior: "smooth", block: "start" });
+
+    // 👇 Add hover-out close behavior
+    const handleMouseLeave = (event) => {
+      if (!parent.contains(event.relatedTarget)) {
+        list.classList.remove("d-block");
+        list.classList.add("d-none");
+        toggleLink.setAttribute("aria-expanded", "false");
+        parent.removeEventListener("mouseleave", handleMouseLeave);
+      }
+    };
+    parent.addEventListener("mouseleave", handleMouseLeave);
+  }
+};
 
   const handleClose = () => {
     $("#" + "SetPersonalizeSettingModal").modal("hide");
@@ -674,16 +719,26 @@ const TopbarClone = () => {
     setOpenPurchaseModal(false);
   };
 
+  // const toggleConfigList = () => {
+  //   const list = document.getElementById("config");
+  //   setIsDropdownOpen(!isDropdownOpen);
+  //   if (!isDropdownOpen) {
+  //     list.style.display = "block";
+  //     list.scrollIntoView({ behavior: "smooth", block: "start" });
+  //   } else {
+  //     list.style.display = "none";
+  //   }
+  // };
   const toggleConfigList = () => {
-    const list = document.getElementById("config");
-    setIsDropdownOpen(!isDropdownOpen);
-    if (!isDropdownOpen) {
-      list.style.display = "block";
-      list.scrollIntoView({ behavior: "smooth", block: "start" });
-    } else {
-      list.style.display = "none";
-    }
-  };
+  const list = document.getElementById("config");
+  const isOpen = list.style.display === "block";
+  if (!isOpen) {
+    list.style.display = "block";
+    list.scrollIntoView({ behavior: "smooth", block: "start" });
+  } else {
+    list.style.display = "none";
+  }
+};
 
   const hideUserRoleList = () => {
     setIsUserRoleDropdownOpen(false);
@@ -1040,12 +1095,74 @@ const TopbarClone = () => {
   //Design part :
   return (
     <>
-    <div className= "topbar-clone">
-      <div className="row">
-        
-      </div>
+    <div className={`topbar-clone ${isSidebarOpen ? '' : 'collapsed'}`}>
+      {/* Hamburger Icon - Position changes based on sidebar state */}
+     <Tooltip title={isSidebarOpen ? 'Close menu' : 'Open menu'}>
+  <button
+    onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+    style={{
+      position: 'fixed',
+      top: '16px',
+      left: isSidebarOpen ? 'calc(17% - 44px)' : '16px', // centers within sidebar accounting for button width
+      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+      background: 'rgba(255, 255, 255, 0.2)',
+      backdropFilter: 'blur(10px)',
+      border: '1px solid rgba(0, 0, 0, 0.05)',
+      borderRadius: '8px',
+      cursor: 'pointer',
+      padding: '6.5px',
+      zIndex: 2001,
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '4px',
+      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+    }}
+    onMouseEnter={(e) => {
+      e.currentTarget.style.transform = 'scale(1.05)';
+      e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+    }}
+    onMouseLeave={(e) => {
+      e.currentTarget.style.transform = 'scale(1)';
+      e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
+    }}
+    aria-label="Toggle sidebar"
+  >
+    {isSidebarOpen ? <i class="fa-solid fa-arrow-left"></i> : (
+      <>
+    <span style={{
+      width: isSidebarOpen ? '16px' : '22px',
+      height: '2.5px',
+      backgroundColor: '#1a1a1a',
+      display: 'block',
+      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+      borderRadius: '2px',
+      transform: isSidebarOpen ? 'translateY(6.5px) rotate(-45deg)' : 'none'
+    }}></span>
+    <span style={{
+      width: isSidebarOpen ? '16px' : '22px',
+      height: '2.5px',
+      backgroundColor: '#1a1a1a',
+      display: 'block',
+      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+      borderRadius: '2px',
+      opacity: isSidebarOpen ? '0' : '1'
+    }}></span>
+    <span style={{
+      width: isSidebarOpen ? '16px' : '22px',
+      height: '2.5px',
+      backgroundColor: '#1a1a1a',
+      display: 'block',
+      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+      borderRadius: '2px',
+      transform: isSidebarOpen ? 'translateY(-6.5px) rotate(45deg)' : 'none'
+    }}></span>
+    </>
+  )}
+  </button>
+</Tooltip>
+      <div className="row"></div>
 
-      {/* <!-- ========== App Menu ========== --> */}
+      {/* Original mobile hamburger button */}
       <button
         type="button"
         onClick={togglenav}
@@ -1077,9 +1194,10 @@ const TopbarClone = () => {
             <div id="two-column-menu">
               <div className="pt-4"
                 style={{
-                  width: "100%",
+                  width: "60%",
                   display: "flex",
-                  justifyContent: "center",
+                  justifyContent: "start",
+                  position: "relative"
                 }}
               >
                 <a className="lna" href="https://outbooks.com/proposal/">
@@ -1087,16 +1205,17 @@ const TopbarClone = () => {
                     src={logoImg}
                     alt="Outbooks"
                     style={{
-                      maxWidth: "50%",   // scales down if needed
+                      width: "100%",   // scales down if needed
                       height: "auto",    // keep aspect ratio
                       display: "block",  // remove inline spacing
                       objectFit: "contain",
                       margin: "0 auto", 
+                      paddingLeft: "10px"
                     }}
                   />
                 </a>
               </div>
-            <ul class="navbar-nav d-none d-md-block pt-3" style={{paddingLeft: "0.5rem"}}id="navbar-nav">
+            <ul class="navbar-nav d-none d-md-block pt-4" style={{paddingLeft: "0.5rem"}}id="navbar-nav">
               <li class="nav-item edit-dropdown-cls">
                 {accessCount !== 0 && (
                   <>
@@ -1167,7 +1286,8 @@ const TopbarClone = () => {
                           title="Create New Practice"
                           className="edit-topbar"
                         >
-                          <i className="fa fa-regular fa fa-circle-plus"
+                          {/* <i className="fa fa-regular fa fa-circle-plus" */}
+                          <i className="bi bi-plus-circle-fill"
                              style={{ cursor: "pointer",
                                    color: TopTextColor.color }}
                           ></i>
@@ -1182,7 +1302,7 @@ const TopbarClone = () => {
                             className="update-practice-details"
                             title="Update Practice"
                           >
-                            <i className="ri-pencil-fill"
+                            <i className="bi bi-pencil-fill"
                                style={{ cursor: "pointer", color: TopTextColor.color }}
                             ></i>
                           </div>
@@ -1298,6 +1418,7 @@ const TopbarClone = () => {
                 )}
               </li>
             </ul>
+            {common.organisationKeyID !== null && (
             <ul
               className={`changed-nav navbar-nav ${isDropdownOpen ? " open" : ""
                 } ms-2 mt-2`}
@@ -1882,12 +2003,14 @@ const TopbarClone = () => {
                           {userAccessData.Admin_Config_ServiceCat_CanView && (
                             <li className="nav-item">
                               <a
-                                href="#servicesAndPackage"
+                                href="#sidebarProfile"
                                 className="nav-link collapsed"
                                 // data-bs-toggle="collapse"
                                 aria-expanded="false"
                                 aria-controls="sidebarProfile"
-                                onClick={() => toggleConfigSubList("servicesAndPackage")}
+                                onClick={(e) =>{ 
+                                  e.preventDefault();
+                                  toggleConfigSubList("servicesAndPackage")}}
                                 style={{ cursor: "pointer" }}
                               >
                                 Services/Packages
@@ -1910,7 +2033,8 @@ const TopbarClone = () => {
                                     <NavLink to="/service-category">
                                       <a
                                         onClick={() => {
-                                          closeDropdown("config");
+                                          // closeDropdown("config");
+                                          toggleConfigList("config");
                                           NotificationCountData();
                                         }}
                                         className="nav-link"
@@ -1950,14 +2074,18 @@ const TopbarClone = () => {
                             </li>
                           )}
                           {userAccessData.Admin_Config_Global_Constant_CanView && (
-                            <li className="nav-item">
+                              <li className="nav-item"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  toggleConfigSubList("variable")}
+                                }
+                              >
                               <a
                                 href="#variable"
                                 className="nav-link collapsed"
                                 // data-bs-toggle="collapse"
                                 aria-expanded="false"
                                 // aria-controls="sidebarProfile"
-                                onClick={() => toggleConfigSubList("variable")}
                                 style={{ cursor: "pointer" }}
                                 data-key="t-profile"
                               >
@@ -2012,7 +2140,10 @@ const TopbarClone = () => {
                                 // data-bs-toggle="collapse"
                                 aria-expanded="false"
                                 // aria-controls="sidebarProfile"
-                                onClick={() => toggleConfigSubList("Template")}
+                                onClick={(e) => {
+                                  e.preventDefault(); 
+                                  toggleConfigSubList("Template")}
+                                }
                                 style={{ cursor: "pointer" }}
                                 data-key="t-profile"
                               >
@@ -2082,7 +2213,10 @@ const TopbarClone = () => {
                                 // data-bs-toggle="collapse"
                                 aria-expanded="false"
                                 // aria-controls="sidebarProfile"
-                                onClick={() => toggleConfigSubList("Reminder")}
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  toggleConfigSubList("Reminder")}
+                                }
                                 style={{ cursor: "pointer" }}
                                 data-key="t-profile"
                               >
@@ -2178,7 +2312,7 @@ const TopbarClone = () => {
                       alt="SettingSvg"
                       style={{ width: "16px", marginRight: "5px" }}
                     />
-                    <span data-key="t-dashboard" style={{color: "#fff"}}>Settings</span>{" "}
+                    <span data-key="t-dashboard" style={{color: isHoveredSetting ? "#438eff" : "#fff"}}>Settings</span>{" "}
                     <span
                           style={{
                             display: "inline-block",
@@ -2494,43 +2628,50 @@ const TopbarClone = () => {
 
               {/* PDF to CSV section starts */}
 
-              {/* <li class="nav-item">
-                            <NavLink
-                              to="/pdf-to-csv"
-                              onClick={() => {
-                                NotificationCountData();
-                                togglenav();
-                              }}
-                              activeclassname="active"
-                              className="nav-link menu-link"
-                              onMouseOver={() => setIsHoveredPdfToCsv(true)}
-                              onMouseOut={() => setIsHoveredPdfToCsv(false)}
-                              style={{
-                                color: isHoveredPdfToCsv
-                                  ? "#438eff"
-                                  : TopTextColor.color,
-                              }}
-                            >
-                              {" "}
-                              <img
-                                src={EngagementSvg}
-                                alt="PdfToCsvSvg"
-                                style={{
-                                  width: "16px",
-                                  marginRight: "5px",
-                                }}
-                              />
-                              <span data-key="t-dashboard">
-                                {" "}
-                                Convert PDF To CSV
-                              </span>{" "}
-                            </NavLink>
-                          </li> */}
-
+                  <li class="nav-item">
+                    <NavLink
+                      to="/pdf-to-csv"
+                      onClick={() => {
+                        NotificationCountData();
+                        togglenav();
+                      }}
+                      activeclassname="active"
+                      className="nav-link menu-link"
+                      onMouseOver={() => setIsHoveredPdfToCsv(true)}
+                      onMouseOut={() => setIsHoveredPdfToCsv(false)}
+                      style={{
+                        color: isHoveredPdfToCsv
+                          ? "#438eff"
+                          : TopTextColor.color,
+                      }}
+                    >
+                      {" "}
+                      <img
+                        src={EngagementSvg}
+                        alt="PdfToCsvSvg"
+                        style={{
+                          width: "16px",
+                          marginRight: "5px",
+                        }}
+                      />
+                      <span data-key="t-dashboard" style={{color: isHoveredPdfToCsv ? "#438eff" : "#fff"}} className="fw-bold">
+                        {" "}
+                        PDF To CSV
+                      </span>{" "}
+                    </NavLink>
+                  </li>
               {/* PDF to CSV section ends */}
+              </ul>
+              )}
                 {common.roleTypeId == USER_ROLE_TYPE.SuperAdmin &&
                   common.organisationKeyID === null && (
                   <>
+                  <ul
+                    className={`changed-nav navbar-nav ${isDropdownOpen ? " open" : ""
+                      } ms-2 mt-2`}
+                    style={{paddingRight: "2rem"}}
+                    id="navbar-UL-nav"
+                    >
                     <li class="menu-title">
                       <span data-key="t-menu fw-bold" style={{color: "#fff"}}>Menu</span>
                     </li>
@@ -2726,11 +2867,12 @@ const TopbarClone = () => {
                                   aria-expanded="false"
                                   // aria-controls="sidebarProfile"
                                   // data-key="t-profile"
-                                  onClick={() =>
+                                  onClick={(e) => {
+                                    e.preventDefault();
                                     toggleConfigSubList(
                                       "PredefinedServicesAndPackage"
                                     )
-                                  }
+                                  }}
                                 >
                                   Predefined Services/Packages
                                 </a>
@@ -2748,7 +2890,7 @@ const TopbarClone = () => {
                                       >
                                         <a
                                           onClick={() => {
-                                            closeDropdown("config");
+                                            toggleConfigList("config");
                                             NotificationCountData();
                                             togglenav();
                                           }}
@@ -2815,11 +2957,12 @@ const TopbarClone = () => {
                                   aria-expanded="false"
                                   // aria-controls="sidebarProfile"
                                   // data-key="t-profile"
-                                  onClick={() =>
+                                  onClick={(e) => {
+                                    e.preventDefault();
                                     toggleConfigSubList(
                                       "PredefinedVariable"
                                     )
-                                  }
+                                  }}
                                 >
                                   Predefined Variables
                                 </a>
@@ -2888,11 +3031,12 @@ const TopbarClone = () => {
                                   aria-expanded="false"
                                   // aria-controls="sidebarProfile"
                                   data-key="t-profile"
-                                  onClick={() =>
+                                  onClick={(e) => {
+                                    e.preventDefault();
                                     toggleConfigSubList(
                                       "PredefinedTemplate"
                                     )
-                                  }
+                                  }}
                                 >
                                   Predefined Templates
                                 </a>
@@ -2973,11 +3117,12 @@ const TopbarClone = () => {
                                   aria-expanded="false"
                                   // aria-controls="sidebarProfile"
                                   data-key="t-profile"
-                                  onClick={() =>
+                                  onClick={(e) => {
+                                    e.preventDefault();
                                     toggleConfigSubList(
                                       "PredefinedReminder"
                                     )
-                                  }
+                                  }}
                                 >
                                   Predefined Workflows
                                 </a>
@@ -3110,21 +3255,21 @@ const TopbarClone = () => {
                                 </NavLink>
                               </li>
                             )}
-                            {/* {userAccessData.SuperAdmin_Config_Subscription_Package_CanView && (
-                                                    <li class="nav-item">
-                                                      <NavLink
-                                                        onClick={() => {
-                                                          closeDropdown("Subscription");
-                                                          NotificationCountData();
-                                                        }}
-                                                        to="/pdf-csv-sub-package"
-                                                        activeclassname="active"
-                                                        className="nav-link menu-link"
-                                                      >
-                                                        PDF to CSV Subscription Packages
-                                                      </NavLink>
-                                                    </li>
-                                                  )} */}
+                              {userAccessData.SuperAdmin_Config_Subscription_Package_CanView && (
+                                <li class="nav-item">
+                                  <NavLink
+                                    onClick={() => {
+                                      closeDropdown("Subscription");
+                                      NotificationCountData();
+                                    }}
+                                    to="/pdf-csv-sub-package"
+                                    activeclassname="active"
+                                    className="nav-link"
+                                  >
+                                    PDF to CSV Subscription Packages
+                                  </NavLink>
+                                </li>
+                              )}
                             {userAccessData.SuperAdmin_Config_Subscription_User_CanView && (
                               <li class="nav-item">
                                 <NavLink
@@ -3441,18 +3586,20 @@ const TopbarClone = () => {
                         </div>
                       </li>
                     )}
+                    </ul>
                   </>
                   )}
-            </ul>
+
               {/* <div class="d-flex"> */}
                 {/* <div class="d-flex search"> */}
                 <div
                   className="d-flex align-items-center justify-content-start"
                   style={{
-                    position: "fixed",
+                    position: "absolute",
                     bottom: "20px",
-                    left: "20px",
+                    left: "35px",
                     zIndex: 9999,
+                    marginTop: "auto",
                   }}
                 >
                   <Tooltip title={"Notifications"}>
@@ -3494,7 +3641,7 @@ const TopbarClone = () => {
                         </button>
                       </div>
                     </Tooltip>
-                  <div className="dropdown ms-sm-3 header-item justify-content-center d-block">
+                  <div className="dropdown header-item justify-content-center d-block ps-2">
                     <Tooltip
                       title={
                         common.name.length > 15
@@ -3515,16 +3662,21 @@ const TopbarClone = () => {
                         aria-haspopup="true"
                         aria-expanded="false"
                       >
-                        <span class="d-flex align-items-center">
+                        <span class="d-flex align-items-center justify-content-center">
                           <img
                             class="rounded-circle header-profile-user"
                             src={profile}
+                            style={{
+                              width: "2rem",   // scales with root font size
+                              height: "2rem",
+                              objectFit: "cover"
+                            }}
                           />
-                        <span className="ps-2 fw-bold" style={{fontSize:"16px", color: TopTextColor.color}}>Profile</span>
+                        <span className="d-flex justify-content-center ps-2 fw-bold" style={{fontSize:"16px", color: TopTextColor.color}}>Profile</span>
                         </span>
                       </button>
                     </Tooltip>
-                    <div class="dropdown-menu dropdown-menu-end">
+                    <div class="dropdown-menu" style={{inset: "auto 10px 0px auto"}}>
                       <a
                         class="dropdown-item"
                         onClick={() => setShowUserModal(true)}

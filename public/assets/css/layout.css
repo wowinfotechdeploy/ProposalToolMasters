@@ -1,43 +1,75 @@
 /* only applies when app-layout-clone is added */
 .app-layout-clone {
   display: flex;
-  height: 100vh;
+  min-height: 100vh;
+  height: auto;
 }
 
 .app-layout-clone .topbar-clone {
-  flex: 0 0 20%;
+  flex: 0 0 17%;
   max-width: 90%;
-  height: 100vh;
+  min-height: 100vh;
   overflow-y: auto;
   position: relative;
 }
 
 .app-layout-clone .main-content {
-  flex: 0 0 80%;
+  display: flex;
+  flex: 0 0 83%;
+  flex-direction: column;
   max-width: 100%;
-  height: 100%;
+  height: auto;
   padding: 20px;
   box-sizing: border-box;
   overflow-y: auto;
 }
 
+.app-layout-clone .main-content > *:not(.footer) {
+  flex: 1;
+}
+
+.footer {
+  margin-top: auto;
+}
+
+.app-layout-clone .topbar-clone.collapsed {
+  flex: 0 0 0%;
+  max-width: 0;
+  overflow: hidden;
+}
+
+/* Adjust main content when sidebar is collapsed */
+.app-layout-clone:has(.topbar-clone.collapsed) .main-content {
+  flex: 0 0 100%;
+  max-width: 100%;
+}
+
+/* Smooth transition for layout changes */
+.app-layout-clone .topbar-clone {
+  transition: flex-basis 0.3s ease, max-width 0.3s ease;
+}
+
+.app-layout-clone .main-content {
+  transition: flex-basis 0.3s ease, max-width 0.3s ease;
+}
+
+/*
 .app-layout-clone .modal {
-  position: fixed !important;      /* instead of fixed */
-  inset: 0;                /* top/right/bottom/left = 0 relative to .main-content */
-  width: 100vw;             /* now 100% of main-content, not viewport */
+  position: fixed !important;      
+  inset: 0;                
+  width: 100vw;             
   height: 100%;
 }
 
 .app-layout-clone .modal-dialog {
   margin: auto;
   position: fixed;
-  /* top: 50%; */
-  left: 35%;
+  
+  left: 37%;
   width: 500px;
   max-width: 100vw !important;
-  /* z-index: 1; */
-  /* transform: translate(-50%, -50%); */
 }
+  */
 .app-layout-clone .modal-backdrop {
   position: fixed;
   top: 0;
@@ -157,14 +189,16 @@ body.modal-open .app-layout-clone .topbar-clone {
     padding: 6px 16px;
   }
 .nav-link:hover {
-  color: #438eff;
-  background: rgba(67, 142, 255, 0.1);
+  color: #438eff !important;
+  /* background: rgba(67, 142, 255, 0.1); */
 }
  .subList {
-  width: 100%;
+  width: auto;
+  min-width: max-content;
   max-width: 100%;
   box-sizing: border-box;
-  overflow: hidden;
+  /* overflow: hidden; */
+  overflow-x: auto; 
   white-space: normal;
   text-overflow: ellipsis;
   display: none;
@@ -183,7 +217,7 @@ body.modal-open .app-layout-clone .topbar-clone {
 
 .subList .nav-link:hover {
   color: #438eff;
-  background: rgba(67, 142, 255, 0.1);
+  /* background: rgba(67, 142, 255, 0.1); */
 }
 
 .subList.show {

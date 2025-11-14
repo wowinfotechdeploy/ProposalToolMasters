@@ -15,15 +15,21 @@ const initialState = {
 export const AuthContextProvider = createContext(initialState);
 
 const AuthContext = ({ children }) => {
+  const common = useSelector((state) => state.Storage);
+
   /* -------------------------------------------------------------------------- */
   /*                                State Declare                               */
   /* -------------------------------------------------------------------------- */
   const dispatch = useDispatch();
   const [activeOrganization, setActiveOrganization] = useState([]);
-  const [
-    activeOrganizationSubscriptionPlan,
-    setActiveOrganizationSubscriptionPlan,
-  ] = useState(JSON.parse(localStorage.getItem("subscriptionPlan")));
+  const [activeOrganizationSubscriptionPlan, setActiveOrganizationSubscriptionPlan] = useState(() => {
+    const storedData = JSON.parse(localStorage.getItem("OrganisationLocalList"));
+    if (!storedData || !Array.isArray(storedData)) return null;
+    const match = storedData.find(
+      org => org.organisationKeyID === common.organisationKeyID
+    );
+    return match ? match.subscriptionPlan : null;
+  });
   const [topbar, setTopbar] = useState("block");
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [loader, setLoader] = useState(false);
@@ -71,7 +77,7 @@ const AuthContext = ({ children }) => {
     ? Math.ceil(listCount / isMobileRecords)
     : Math.ceil(listCount / desktopRecords);
 
-  const common = useSelector((state) => state.Storage);
+
   // User Access Permission
   const [userAccessData, setUserAccessData] = useState({
     Dashboard_CanView: true,
@@ -3456,15 +3462,52 @@ const AuthContext = ({ children }) => {
     return replacedArray;
   }
 
-  const replaceUrlInHtml = (htmlContent) => {
-    // Regex to match URLs outside of <img> tags
-    const urlRegex = /(?<!<img[^>]*src=["'])\bhttps?:\/\/[^\s<>"']+[\w/]/g;
+  // const replaceUrlInHtml = (htmlContent) => {
+  //   // Regex to match URLs outside of <img> tags
+  //   const urlRegex = /(?<!<img[^>]*src=["'])\bhttps?:\/\/[^\s<>"']+[\w/]/g;
 
-    // Replace URLs with styled spans
-    return htmlContent.replace(urlRegex, (url) => {
-      return `<span style="display: block; word-wrap: break-word; word-break: break-word; overflow-wrap: break-word; overflow-x: auto; white-space: pre-wrap;">${url}</span>`;
-    });
-  };
+  //   // Replace URLs with styled spans
+  //   return htmlContent.replace(urlRegex, (url) => {
+  //     return `<span style="display: block; word-wrap: break-word; word-break: break-word; overflow-wrap: break-word; overflow-x: auto; white-space: pre-wrap;">${url}</span>`;
+  //   });
+  // };
+const replaceUrlInHtml = (htmlContent) => {
+  const urlRegex = /\bhttps?:\/\/[^\s<>"']+[\w/]/g;
+  
+  return htmlContent.replace(urlRegex, (url, offset) => {
+    const before = htmlContent.substring(Math.max(0, offset - 100), offset);
+    
+    // Don't replace if URL is inside src=, href=, or url()
+    if (/(?:src|href|url)\s*=\s*["']?$/.test(before)) {
+      return url;
+    }
+    
+    // Don't replace if inside CSS url() function
+    if (/url\s*\(\s*["']?$/.test(before)) {
+      return url;
+    }
+    
+    // Don't replace if inside any HTML attribute
+    const lastQuote = Math.max(before.lastIndexOf('"'), before.lastIndexOf("'"));
+    const lastEquals = before.lastIndexOf('=');
+    const lastCloseBracket = before.lastIndexOf('>');
+    
+    if (lastQuote > lastCloseBracket && lastEquals > lastCloseBracket && lastEquals < lastQuote) {
+      return url;
+    }
+    
+    // Safe to replace
+    return `<span style="display: block; word-wrap: break-word; word-break: break-word; overflow-wrap: break-word; overflow-x: auto; white-space: pre-wrap;">${url}</span>`;
+  });
+};
+//   const replaceUrlInHtml = (htmlContent) => {
+//   // Match URLs not inside <img> or CSS url()
+//   const urlRegex = /(?<!<img[^>]*src=["'])(?<!url\()["']?\bhttps?:\/\/[^\s<>"')]+/g;
+
+//   return htmlContent.replace(urlRegex, (url) => {
+//     return `<span style="display: block; word-wrap: break-word; word-break: break-word; overflow-wrap: break-word; overflow-x: auto; white-space: pre-wrap;">${url}</span>`;
+//   });
+// };
 
   const isValueGreaterThan20000 = (
     RecurringPricingInfo,

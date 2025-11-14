@@ -3,7 +3,7 @@ import { OutBooksTitle } from "./GlobalMessage";
 
 function Footer() {
   return (
-    <div>
+    <div className="main-content">
       {/* <footer class="footer ">
         <div class="container-fluid">
           <div class="row">
@@ -15,7 +15,7 @@ function Footer() {
       </footer> */}
       <footer
         className="footer bg-light text-center w-100 py-2"
-        style={{ position: 'fixed', bottom: 0}}
+        // style={{ position: 'absolute', bottom: 0}}
       >
         © {new Date().getFullYear()} {OutBooksTitle}
       </footer>

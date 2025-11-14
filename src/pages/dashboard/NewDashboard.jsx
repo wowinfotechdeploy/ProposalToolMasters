@@ -1252,7 +1252,7 @@ const NewDashboard = () => {
   return (
       // <div className= {(isMobile || window.innerWidth <= 1040) ? "page-content" : "main-content"}>
         <div class="container mt-3">
-        <div style={{ maxWidth: "1200px" }}>
+        <div style={{ maxWidth: "1400px" }}>
           {accessCount === undefined || loader ? (
             <div className="center-screen">
               <div className="text-center">
@@ -1262,7 +1262,7 @@ const NewDashboard = () => {
           ) : accessCount !== 0 ? (
             <div class="container">
               <div class="row">
-                <div className="dashboard-header-wrap col-lg-6 col-md-6 col-sm-12">
+                <div className="dashboard-header-wrap col-lg-8 col-md-8 col-sm-12">
                   <div className="dashboard-header" style={TopbarStyle}>
                     <div className="row align-items-center gx-3">
                       {/* Left: Title */}
@@ -1274,10 +1274,10 @@ const NewDashboard = () => {
                       </div>
 
                       {/* Right: Filters + Export */}
-                      <div className="col-auto">
+                      <div className="col-auto ms-auto">
                         <div className="d-flex align-items-center justify-content-end header-controls">
                           {/* Select (react-select) */}
-                          <div className="me-2 select-wrap" style={{ minWidth: "200px" }}>
+                          <div className="me-2 select-wrap" style={{ minWidth: "300px" }}>
                             <Select
                               className="user-role-select phone-input-country-code text-black"
                               options={Utils.CalenderFilter}
@@ -1317,7 +1317,7 @@ const NewDashboard = () => {
                           )} */}
 
                           {/* Export button */}
-                          <div className="ms-2">
+                          <div className="ms-auto">
                             <button
                               onClick={handleExport}
                               className="btn export-btn"
@@ -1333,7 +1333,7 @@ const NewDashboard = () => {
                 </div>
                 {showDatePicker && (
                   <>
-                  <div className="col-lg-6 col-md-6 col-sm-12 d-flex align-items-center gap-3">
+                  <div className="col-lg-6 col-md-6 col-sm-12 d-flex align-items-center gap-3 mt-2">
                       <DatePicker
                         label="From Date"
                         value={fromDate.toDate()}
@@ -1356,7 +1356,7 @@ const NewDashboard = () => {
                 )}
               </div>
               <div class="row dashboard-top-class">
-                <div class="col">
+                {/* <div class="col"> */}
                   <div class="h-100">
                     <div className="dashboard-top" class="row">
                       <div class="col-xl-8 col-lg-8 col-sm-12">
@@ -2384,7 +2384,7 @@ const NewDashboard = () => {
                       {(userAccessData.Admin_Activity_Log_CanView ||
                         common.organisationKeyID == null) && (
                           <>
-                            <div class="col-xl-4 col-sm-12 col-lg-4 pb-2 pe-2">
+                            <div class="col-xl-4 col-sm-12 col-lg-4 pb-2">
                               <div class="card activity-section-cls">
                                 <div class="card-body dashboard-body">
                                   <h5 className="activity-cls">Activity</h5>
@@ -2466,7 +2466,7 @@ const NewDashboard = () => {
                         )}
                     </div>
                   </div>
-                </div>
+                {/* </div> */}
               </div>
             </div>
           ) : (

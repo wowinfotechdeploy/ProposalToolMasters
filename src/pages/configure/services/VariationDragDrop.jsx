@@ -144,7 +144,7 @@ function VariationDragDrop(props) {
                               capitalizedValue
                             );
                           }}
-                          maxLength={50}
+                          maxLength={200}
                         />
                       </div>
                       {props.gdrivererror.variationnameError &&

@@ -526,7 +526,7 @@ const Prospects = () => {
                   <div class="card-body mb-2">
                     <div id="customerList" style={{marginTop: "3rem"}}>
                       <div class="bg-light border-bottom px-2">
-                        <div className="container">
+                        {/* <div className="container"> */}
                           <div className="row">
                             <div className="col-md-12 p-0">
                               <ul className="nav nav-tabs" role="tablist">
@@ -564,7 +564,7 @@ const Prospects = () => {
                               </ul>
                             </div>
                           </div>
-                        </div>
+                        {/* </div> */}
                       </div>
                       {/* <div class="row g-4"></div> */}
                       <div class="table-responsive table-card mb-3 mt-2 table-padding">

@@ -1162,7 +1162,7 @@ function Predefined_Templates() {
                   <div class="card-body mb-2">
                     <div id="customerList" style={{ marginTop: "3rem" }}>
                       <div class="bg-light border-bottom px-2">
-                        <div className="container">
+                        {/* <div className="container"> */}
                           <div className="row">
                 <div className="col-md-12 ">
                   <ul className="nav nav-tabs" role="tablist">
@@ -1216,7 +1216,7 @@ function Predefined_Templates() {
                   </ul>
                 </div>
               </div>
-            </div>
+            {/* </div> */}
           </div>
           <div class="">
             <div class="row">

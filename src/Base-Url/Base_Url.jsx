@@ -5,7 +5,8 @@
 // export const Base_Url = "https://nifty-herschel.184-168-123-97.plesk.page/api"
 
 //Master Api
-export const Base_Url = "https://api.master.proposal.ust.outbooks.com/api";
+// export const Base_Url = "https://api.master.proposal.ust.outbooks.com/api";
+export const Base_Url = "https://localhost:7016/api";
 
 // //temporyBAseURl;
 // export const Base_Url = "https://angry-blackburn.101-53-133-129.plesk.page/api"
@@ -32,9 +33,9 @@ export const redirectUri = "https://master.proposal.outbooks.com";
 
 //Production redirect
 // export const redirectUri =  "https://app.proposal.outbooks.com";
-// export const mergePdfApiUrl = "http://localhost:8080/mergeUserPdfs";
-// export const generatePdfUrl = "http://localhost:8080/generatePdf";
-// export const saveImage = "http://localhost:8080/save-image";
+export const mergePdfApiUrl = "http://localhost:8080/mergeUserPdfs";
+export const generatePdfUrl = "http://localhost:8080/generatePdf";
+export const saveImage = "http://localhost:8080/save-image";
 //new Dev Link
 
 // export const mergePdfApiUrl = "https://multipurpose.mkisan.com/mergeUserPdfs";
@@ -44,12 +45,12 @@ export const redirectUri = "https://master.proposal.outbooks.com";
 // export const generatePdfUrl = "https://proposal.pdfapi.wowinfosolutions.com/generatePdf";
 // export const saveImage = "https://proposal.pdfapi.wowinfosolutions.com/save-image"
 
-export const mergePdfApiUrl =
-  "https://master.proposal.wowinfosolutions.com/mergeUserPdfs";
-export const generatePdfUrl =
-  "https://master.proposal.wowinfosolutions.com/generatePdf";
-export const saveImage =
-  "https://master.proposal.wowinfosolutions.com/save-image";
+// export const mergePdfApiUrl =
+//   "https://master.proposal.wowinfosolutions.com/mergeUserPdfs";
+// export const generatePdfUrl =
+//   "https://master.proposal.wowinfosolutions.com/generatePdf";
+// export const saveImage =
+//   "https://master.proposal.wowinfosolutions.com/save-image";
 //Production Link
 // export const mergePdfApiUrl = "https://api.pdfgenration.proposal.ust.outbooks.com/mergeUserPdfs";
 // export const generatePdfUrl = "https://api.pdfgenration.proposal.ust.outbooks.com/generatePdf";

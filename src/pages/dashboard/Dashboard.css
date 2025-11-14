@@ -235,7 +235,8 @@ h6 {
 }
 
 .dashboard-box {
-  padding: 0 8px;
+  padding: 0;
+  display: flex;
 }
 
 .dashboard-box .card {
@@ -249,7 +250,7 @@ h6 {
 
 .activity-section-cls {
   width: 320px;
-  margin-left: 50px;
+  margin-left: auto;
 }
 
 .dashboard-export {
@@ -323,7 +324,7 @@ h6 {
 
 /* Container that provides spacing from page edges if you want */
 .dashboard-header-wrap {
-  padding: 1rem 0 0 1rem;
+  padding: 1rem 0 0 0;
 }
 
 /* The purple rounded header */
@@ -337,13 +338,13 @@ h6 {
 
 /* Title block */
 .dashboard-title .page-title-cls {
-  font-size: 20px;
+  font-size: 26px;
   font-weight: 700;
   color: #fff;
 }
 
 .dashboard-title .dashboard-sub {
-  font-size: 12px;
+  font-size: 14px;
   color: rgba(255,255,255,0.85);
   margin-top: 4px;
 }
@@ -417,6 +418,7 @@ h6 {
 /* new card */
 
 .stat-card {
+  flex: 1;
   border-radius: 12px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
   padding: 16px;
@@ -426,13 +428,17 @@ h6 {
   opacity: 0.85;
   gap: 4px !important;
   transition: all 0.15s ease;
-
+  height: 16vh;
   /* responsive sizing */
   width: 100%;         /* take full available width in column */
   margin: 8px;
   /* max-width: 240px;    */
   /*min-width: 160px;    /* prevent being too small */
   --hover-bg-color: #5a2eca;
+  height: auto;             
+  min-height: 150px;         
+  overflow: hidden;       
+  word-wrap: break-word;  
 }
 
 .stat-card:hover {
@@ -467,19 +473,26 @@ h6 {
 }
 
 .stat-card-body {
+  flex-grow: 1;
+  overflow-wrap: break-word;
   margin-top: 12px;
 }
 
 .stat-title {
   margin: 0;
-  font-weight: 600;
-  font-size: 16px;
-  color: #5a2eca; /* purple */
+  font-weight: bold;
+  font-size: 14px;
+  color: #5a2eca;
+  word-wrap: break-word;
+  white-space: normal;
+  overflow-wrap: anywhere; /* ensures breaking even in long words */
+  text-align: left;
 }
 
 .stat-subtitle {
   margin: 0;
   font-size: 14px;
+  white-space: normal;
   color: #6c757d;
 }
 

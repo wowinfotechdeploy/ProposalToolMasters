@@ -1186,6 +1186,7 @@ const Engagement_Letter = () => {
               RefId: modelRequestData.refId,
             });
             setIsCopyPending(true);
+            setShowModal(false);
             $("#ConfirmModel").modal("show");
             return;
           }
@@ -1209,12 +1210,12 @@ const Engagement_Letter = () => {
       $("#ConfirmModel").modal("hide");
       console.log(response);
       if (response) {
-        if (response.data.statusCode === 200) {
+        if (response?.data?.statusCode === 200) {
           setLoader(false);
           setOpenSuccessModal(true);
         } else {
           setLoader(false);
-          setErrorMessage(response?.data?.errorMessage);
+          setErrorMessage(response?.response?.data?.errorMessage);
           setOpenErrorModal(true);
         }
         setIsCopyPending(false); // Reset the flag
@@ -1325,7 +1326,7 @@ const Engagement_Letter = () => {
                   <div class="card-body mb-2">
                     <div id="customerList" style={{marginTop: "3rem"}}>
                       <div class="bg-light border-bottom px-2">
-                        <div class="container">
+                        {/* <div class="container"> */}
                           <div className="row">
                             <div className="col-md-12 p-0 ">
                   <ul className="nav nav-tabs" role="tablist">
@@ -1379,7 +1380,7 @@ const Engagement_Letter = () => {
                   </ul>
                 </div>
               </div>
-            </div>
+            {/* </div> */}
           </div>
           <div class="">
             <div class="row">

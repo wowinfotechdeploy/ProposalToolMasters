@@ -76,7 +76,7 @@ const Pricing_Settings = () => {
   }, [common.organisationKeyID]);
 
   const getProposalFormatOptions = () => {
-    if (PrevPricingSettingObj.defaultProposalFormatID === 2) {
+    if (PrevPricingSettingObj.remainingESignatures !== true) {
       return Utils.PreviewSelection.filter(x => x.value === 2);
     }
     return Utils.PreviewSelection;

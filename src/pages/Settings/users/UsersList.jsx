@@ -325,7 +325,7 @@ const UsersList = () => {
                   <div class="card-body mb-2">
                     <div id="customerList" style={{ marginTop: "3rem" }}>
                       <div class="bg-light border-bottom px-2">
-                        <div className="container">
+                        {/* <div className="container"> */}
                           <div className="row">
                             <div className="col-md-6 p-0 ">
                   <div class="page-title-cls">{moduleName}</div>
@@ -345,7 +345,7 @@ const UsersList = () => {
                               </div>
                             </div>
                   </div>
-                </div>
+                {/* </div> */}
                 </div>
           <div class="">
             <div class="row">

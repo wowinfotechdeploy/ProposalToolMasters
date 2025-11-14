@@ -17914,7 +17914,7 @@ const Add_Update_Proposal = (props) => {
   // B] Initial useEffect :
   // 1) Will Call Initial Api Like List Api
   useEffect(() => {
-    GetServiceListData();
+    // GetServiceListData();
     // GetServicePackageLookupListData();
     GetQuoteTypeLookupListData();
   }, [common.organisationKeyID]);
@@ -22008,30 +22008,30 @@ const Add_Update_Proposal = (props) => {
   // 1) Get Service Category List Data
 
   //Get Service List  Data
-  const GetServiceListData = async (i) => {
-    setLoader(true);
-    try {
-      const data = await GetServicesList({
-        pageSize: 10,
-        pageNo: 0,
-        organisationKeyID: common.organisationKeyID,
-        SearchKeyword: null,
-      });
-      if (data?.data?.statusCode === 200) {
-        if (data?.data?.responseData?.data) {
-          const ServiceListData = data.data.responseData.data;
-          setServiceList(ServiceListData);
-          setLoader(false);
-        }
-      } else {
-        setLoader(false);
-        setErrorMessage(data?.data?.errorMessage);
-      }
-    } catch (error) {
-      setLoader(false);
-      console.log(error);
-    }
-  };
+  // const GetServiceListData = async (i) => {
+  //   setLoader(true);
+  //   try {
+  //     const data = await GetServicesList({
+  //       pageSize: 10,
+  //       pageNo: 0,
+  //       organisationKeyID: common.organisationKeyID,
+  //       SearchKeyword: null,
+  //     });
+  //     if (data?.data?.statusCode === 200) {
+  //       if (data?.data?.responseData?.data) {
+  //         const ServiceListData = data.data.responseData.data;
+  //         setServiceList(ServiceListData);
+  //         setLoader(false);
+  //       }
+  //     } else {
+  //       setLoader(false);
+  //       setErrorMessage(data?.data?.errorMessage);
+  //     }
+  //   } catch (error) {
+  //     setLoader(false);
+  //     console.log(error);
+  //   }
+  // };
   //2) QuoteType Lookup List Api
   const GetQuoteTypeLookupListData = async () => {
     setLoader(true);
