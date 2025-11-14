@@ -2089,6 +2089,7 @@ const ReviewServicesComponent = (props) => {
         Discount: decrease,
         DiscountedTotal: TotalDiscount,
         VATPrice: VatPrice,
+        totalServiceWiseVAT: VatPrice,
         VATPriceWithoutDiscount: VatPrice,
         GrandTotal: FinalPrice,
         FeesIncVAT: FinalPrice,
@@ -2186,7 +2187,9 @@ const ReviewServicesComponent = (props) => {
     }
     const TotalDiscount = recurringServicesTotal - decrease;
     const VatPrice =
-      Number(formattedInput) * (Number(props.vatPercentage) / 100);
+      Number(formattedInput) * (Number(props.vatPercentageOneOff) / 100);
+    // const VatPrice =
+    //   Number(formattedInput) * (Number(props.vatPercentage) / 100);
     let FinalPrice = Number(VatPrice) + Number(TotalDiscount);
     FinalPrice = (Math.floor(FinalPrice * 100) / 100).toFixed(2);
     // if (Number(formattedInput) > Number(props.OneOffPricingInfo.OriginalPrice)) {
@@ -2212,6 +2215,7 @@ const ReviewServicesComponent = (props) => {
         Discount: decrease,
         DiscountedTotal: TotalDiscount,
         VATPrice: VatPrice,
+        totalServiceWiseVATOneOff: VatPrice,
         GrandTotal: FinalPrice,
       });
       props.setOneOffPricingInfoCopy({
@@ -2221,6 +2225,7 @@ const ReviewServicesComponent = (props) => {
         Discount: decrease,
         DiscountedTotal: TotalDiscount,
         VATPrice: VatPrice,
+        totalServiceWiseVATOneOff: VatPrice,
         GrandTotal: FinalPrice,
       });
     } else {
@@ -2231,6 +2236,7 @@ const ReviewServicesComponent = (props) => {
         Discount: decrease,
         DiscountedTotal: TotalDiscount,
         VATPrice: VatPrice,
+        totalServiceWiseVATOneOff: VatPrice,
         GrandTotal: FinalPrice,
       });
       props.setOneOffPricingInfoCopy({
@@ -2240,6 +2246,7 @@ const ReviewServicesComponent = (props) => {
         Discount: decrease,
         DiscountedTotal: TotalDiscount,
         VATPrice: VatPrice,
+        totalServiceWiseVATOneOff: VatPrice,
         GrandTotal: FinalPrice,
       });
     }
@@ -2436,6 +2443,7 @@ const ReviewServicesComponent = (props) => {
       Discount: Discount,
       DiscountedTotal: DiscountedTotal,
       VATPrice: VATPrice,
+      totalServiceWiseVAT: VATPrice,
       VATPriceWithoutDiscount: VATPrice,
       GrandTotal: GrandTotal,
       FeesIncVAT: GrandTotal,
@@ -2565,6 +2573,7 @@ const ReviewServicesComponent = (props) => {
       Discount: originalPrice - discountedPrice,
       DiscountedTotal: discountedPrice,
       VATPrice: vatPrice,
+      totalServiceWiseVAT: vatPrice,
       VATPriceWithoutDiscount: vatPrice,
       GrandTotal: finalPrice,
       FeesIncVAT: finalPrice,
@@ -2577,6 +2586,7 @@ const ReviewServicesComponent = (props) => {
       Discount: originalPrice - discountedPrice,
       DiscountedTotal: discountedPrice,
       VATPrice: vatPrice,
+      totalServiceWiseVAT: vatPrice,
       GrandTotal: finalPrice,
     });
   };
@@ -2635,7 +2645,9 @@ const ReviewServicesComponent = (props) => {
     let discountedPrice = originalPrice * (1 - percentage / 100);
 
     // Calculate VAT and Final Price
-    const vatPrice = discountedPrice * (Number(props.vatPercentage) / 100);
+    const vatPrice =
+      discountedPrice * (Number(props.vatPercentageOneOff) / 100);
+    // const vatPrice = discountedPrice * (Number(props.vatPercentage) / 100);
     let finalPrice = Number(vatPrice) + discountedPrice;
     finalPrice = (Math.floor(finalPrice * 100) / 100).toFixed(2);
 
@@ -2648,6 +2660,7 @@ const ReviewServicesComponent = (props) => {
       Discount: originalPrice - discountedPrice,
       DiscountedTotal: discountedPrice,
       VATPrice: vatPrice,
+      totalServiceWiseVATOneOff: vatPrice,
       GrandTotal: finalPrice,
     });
     props.setOneOffPricingInfoCopy({
@@ -2658,6 +2671,7 @@ const ReviewServicesComponent = (props) => {
       Discount: originalPrice - discountedPrice,
       DiscountedTotal: discountedPrice,
       VATPrice: vatPrice,
+      totalServiceWiseVATOneOff: vatPrice,
       GrandTotal: finalPrice,
     });
   };
@@ -17593,6 +17607,7 @@ const Add_Update_Proposal = (props) => {
   const [oneOffServiceList, setOneOffServiceList] = useState([]);
 
   const [vatPercentage, setVATPercentage] = useState(null);
+  const [vatPercentageOneOff, setVATPercentageOneOff] = useState(null);
   const [ServiceMappingWithPackagesList, setServiceMappingWithPackagesList] =
     useState([]);
   const [
@@ -18508,7 +18523,7 @@ const Add_Update_Proposal = (props) => {
           setSelectedServices(PricingData);
 
           const vatPercentage = data?.data?.responseData?.vatPercentage;
-          setVATPercentage(vatPercentage);
+          // setVATPercentage(vatPercentage);
           setSelectedPackagesList(data?.data?.responseData?.packageList);
           const PackageList = data?.data?.responseData?.packageList;
           const serviceMappingWithPackagesList =
@@ -19761,6 +19776,11 @@ const Add_Update_Proposal = (props) => {
               0
             );
 
+            const ServiceWiseVAT =
+              (Number(totalVATAmount) / Number(recOriginalPrice)) * 100;
+
+            setVATPercentage(ServiceWiseVAT);
+
             setRecurringPricingInfo({
               ...RecurringPricingInfo,
               OriginalPrice: recOriginalPrice,
@@ -19940,6 +19960,12 @@ const Add_Update_Proposal = (props) => {
               oneOffDefaultDiscountCopy = OneOffPricingInfoCopy.DefaultDiscount;
               oneOffMaxDiscount = OneOffPricingInfo.MaxDiscount;
             }
+
+            const ServiceWiseVATOneOff =
+              (Number(totalVATAmountOneOff) / Number(oneOffOriginalPrice)) *
+              100;
+
+            setVATPercentageOneOff(ServiceWiseVATOneOff);
 
             setOneOffPricingInfo({
               ...OneOffPricingInfo,
@@ -26124,6 +26150,7 @@ const Add_Update_Proposal = (props) => {
                   OneOffPricingInfo={OneOffPricingInfo}
                   OneOffPricingInfoCopy={OneOffPricingInfoCopy}
                   vatPercentage={vatPercentage}
+                  vatPercentageOneOff={vatPercentageOneOff}
                   setRecurringPricingInfo={setRecurringPricingInfo}
                   setOneOffPricingInfo={setOneOffPricingInfo}
                   setOneOffPricingInfoCopy={setOneOffPricingInfoCopy}
