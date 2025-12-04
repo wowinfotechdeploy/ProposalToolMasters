@@ -249,21 +249,27 @@ const AccessKeyList = () => {
 
   //Design part :
   return (
-    <div>
-      <div className="main-content">
-        <div className="services page-background">
-          <div className="page-info-header page-info-strip">
-            <div className="container">
-              <div className="row">
-                <div className="col-md-6 col-6">
-                  <div class="page-title-cls">
+     <div className="container-fluid">
+      {/* <div class="main-content"> */}
+        <div class="services page-background">
+          <div class="">
+            <div class="row">
+              <div class="col-lg-12">
+                <div class="card">
+                  {/* end card header  */}
+                  <div class="card-body mb-2">
+                    <div id="customerList" style={{ marginTop: "3rem" }}>
+                      <div class="bg-light border-bottom px-2">
+                        {/* <div className="container"> */}
+                          <div className="row">
+                            <div className="col-md-6 p-0 justify-content-start d-flex align-items-center">
                     Access Keys
                     {/* <i style={{ cursor: "pointer" }} data-bs-toggle="modal"
                       data-bs-target="#AccessKeyInstructionModel" class="fas fa-question-circle mx-2"></i> */}
                   </div>
 
-                </div>
-                <div className="col-md-6 col-6">
+                
+                <div className="col-auto ms-auto">
                   {common.organisationKeyID !== null &&
                     <div className="d-flex justify-content-sm-end add-new-btn">
                       <Tooltip title={`Enable/Disable Single API Access Key`}>
@@ -299,16 +305,17 @@ const AccessKeyList = () => {
                   }
                 </div>
               </div>
+              {/* </div> */}
             </div>
-          </div>
-          <div class="container">
+          {/* </div> */}
+          <div class="">
             <div class="row">
               <div class="col-lg-12">
                 <div class="card">
                   <div class="card-body">
                     <div id="customerList">
                       <div class="row g-4 mb-3"></div>
-                      <div class="table-responsive table-card  mb-3 table-padding">
+                      <div class="table-responsive table-card mt-2 mb-3 table-padding">
                         <div className="d-flex justify-content-between">
                           <div class="search-box width-searchbox mb-2">
                             <i class="ri-search-line search-icon"></i>
@@ -635,6 +642,11 @@ const AccessKeyList = () => {
               modelRequestData={modelRequestData}
             />
           </div>
+        </div>
+        </div>
+        </div>
+        </div>
+        </div>
         </div>
 
         <Footer />

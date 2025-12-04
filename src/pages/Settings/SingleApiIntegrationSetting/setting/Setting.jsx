@@ -200,7 +200,7 @@ function Setting() {
         setSetting({
           ...setting,
           paymentGatewayID: ModalData.paymentGatewayID,
-          isContractEnabled: ModalData.isContractEnabled,
+          isContractEnabled: common.enableEL === 0 ? false : ModalData.isContractEnabled,
           openSuccessUrlInNewTab: ModalData.openSuccessUrlInNewTab,
           openCancelUrlInNewTab: ModalData.openCancelUrlInNewTab,
           isDeleteClient: ModalData.isDeleteClient,
@@ -1585,20 +1585,20 @@ function Setting() {
   );
 
   return (
-    <div class="main-content">
-      <div class="update-practice-content page-background">
-        <div class="page-info-header page-info-strip">
+    <div>
+      {/* <div class="update-practice-content page-background"> */}
+        {/* <div class="page-info-header page-info-strip"> */}
           <div class="container">
             <div className="col-md-6 col-6">
               <div class="page-title-cls">{ModuleName}</div>
             </div>
           </div>
-        </div>
-        <div class="container margin-bottom col-xl-8">
+        {/* </div> */}
+        <div class="container mt-3 mt-2 margin-bottom col-xl-8">
           <div class="row mb-100">
             <div class="col-lg-12 slider-scroll">
               <div class="card">
-                <div class="card-body practice-detail Update-Scroll-res">
+                <div class="card-body practice-detail Update-Scroll-res" style={{height: "70vh"}}>
                   <div class="row">
                     <div class="col-xl-12 col-lg-12">
                       <div class=" pricing-box p-4  mt-0">
@@ -3394,7 +3394,7 @@ function Setting() {
                   {errorMessage}
                 </span>
                 <div class="separator"></div>
-                <div className="col-lg-12 text-center mt-3">
+                <div className="col-lg-12 text-center mt-4">
                   <button
                     onClick={() => UpdateSetting()}
                     className="btn btn-md create-item-btn update-practice"
@@ -3407,7 +3407,7 @@ function Setting() {
             </div>
           </div>
         </div>
-      </div>
+      {/* </div> */}
       <SuccessModal
         handleClose={handleClose}
         setOpenSuccessModal={setOpenSuccessModal}

@@ -605,6 +605,7 @@ const Login = () => {
                               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                               referrerPolicy="strict-origin-when-cross-origin"
                               allowFullScreen
+                              loading="lazy"
                               style={{ borderRadius: "8px" }}
                             ></iframe>
                           </div>

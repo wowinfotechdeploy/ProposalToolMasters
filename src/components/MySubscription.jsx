@@ -313,16 +313,23 @@ const MySubscription = () => {
   };
   console.log(subScriptionActiveList, "subScriptionActiveList");
   return (
-    <div>
-      <div className="main-content">
-        <div className="services page-background">
-          <div className="page-info-header page-info-strip">
-            <div class="container">
-              <div className="row">
-                <div className="col-md-6 col-6">
+    <div className="container-fluid">
+      {/* <div class="main-content"> */}
+        <div class="services page-background">
+          <div class="">
+            <div class="row">
+              <div class="col-lg-12">
+                <div class="card">
+                  {/* end card header  */}
+                  <div class="card-body mb-2">
+                    <div id="customerList" style={{ marginTop: "3rem" }}>
+                      <div class="bg-light border-bottom px-2">
+                        {/* <div className="container"> */}
+                          <div className="row">
+                            <div className="col-md-6 p-0 ">
                   <div class="page-title-cls"> My Subscription </div>
                 </div>
-                <div class="col-md-6 col-sm-6 col-6">
+                <div class="col-auto ms-auto">
                   <div class="d-flex justify-content-sm-end add-new-btn">
                     {
                       <CommonButtonComponent
@@ -334,16 +341,16 @@ const MySubscription = () => {
                   </div>
                 </div>
               </div>
-            </div>
+            {/* </div> */}
           </div>
-          <div className="container">
+          <div className="">
             <div className="row">
               <div className="col-lg-12">
                 <div className="card">
                   <div className="card-body">
                     <div id="customerList">
                       <div class="row g-4 mb-3"></div>
-                      <div class="table-responsive table-card mb-3 table-padding">
+                      <div class="table-responsive table-card mt-2 mb-3 table-padding">
                         <div className="">
                           <div className="row" style={{ marginLeft: "0px" }}>
                             <div className="col-lg-12">
@@ -982,7 +989,11 @@ const MySubscription = () => {
           aria_hidden="true"
           subscriptionPackageObj={subscriptionPackageObj}
         />
-
+        </div>
+        </div>
+        </div>
+        </div>
+        </div>
         <Footer />
       </div>
 

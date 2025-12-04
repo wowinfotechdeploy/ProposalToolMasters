@@ -1,0 +1,253 @@
+/* only applies when app-layout-clone is added */
+.app-layout-clone {
+  display: flex;
+  min-height: 100vh;
+  height: auto;
+}
+
+.app-layout-clone .topbar-clone {
+  flex: 0 0 17%;
+  max-width: 90%;
+  min-height: 100vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+.app-layout-clone .main-content {
+  display: flex;
+  flex: 0 0 83%;
+  flex-direction: column;
+  max-width: 100%;
+  height: auto;
+  padding: 20px;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+.app-layout-clone .main-content > *:not(.footer) {
+  flex: 1;
+}
+
+.footer {
+  margin-top: auto;
+}
+
+.app-layout-clone .topbar-clone.collapsed {
+  flex: 0 0 0%;
+  max-width: 0;
+  overflow: hidden;
+}
+
+/* Adjust main content when sidebar is collapsed */
+.app-layout-clone:has(.topbar-clone.collapsed) .main-content {
+  flex: 0 0 100%;
+  max-width: 100%;
+}
+
+/* Smooth transition for layout changes */
+.app-layout-clone .topbar-clone {
+  transition: flex-basis 0.3s ease, max-width 0.3s ease;
+}
+
+.app-layout-clone .main-content {
+  transition: flex-basis 0.3s ease, max-width 0.3s ease;
+}
+
+/*
+.app-layout-clone .modal {
+  position: fixed !important;      
+  inset: 0;                
+  width: 100vw;             
+  height: 100%;
+}
+
+.app-layout-clone .modal-dialog {
+  margin: auto;
+  position: fixed;
+  
+  left: 37%;
+  width: 500px;
+  max-width: 100vw !important;
+}
+  */
+.app-layout-clone .modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0; /* Start from left edge, not 20% */
+  width: 100vw; /* Full viewport width */
+  height: 100vh;
+  /* background-color: rgba(0, 0, 0, 0.5); */
+  z-index: 1040; /* Above sidebar */
+}
+/* Make sidebar non-interactive when modal is open */
+.app-layout-clone .topbar-clone {
+  position: relative;
+  z-index: 1; /* Below modal */
+}
+
+/* When modal is open, prevent interaction with sidebar */
+body.modal-open .app-layout-clone .topbar-clone {
+  pointer-events: none; /* Disable clicks */
+}
+.app-layout-clone .main-content .flex-right {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 1040px) {
+  .app-layout-clone .topbar-clone {
+    display: none;
+  }
+  .app-layout-clone .main-content {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+}
+
+.app-layout-clone .main-content .page-info-header1 {
+    position: relative !important;
+    /* top: 0; */
+    left: calc(20% + 20px);        /* 20% for sidebar + 20px main-content padding */
+    width: calc(80% - 40px);
+    min-height: 50px;
+    /* display: flex; */
+    /* align-items: center; */
+    margin: auto;
+    padding: 0 16px;   /* optional */
+    box-sizing: border-box;
+    z-index: 9;
+}
+.app-layout-clone .main-content .page-info-header {
+    position: relative !important;  /* Stays in document flow */
+    top: 0;
+    width: 100%;
+    /*margin-left: 20px; */
+    /*margin-right: 20px; */
+    min-height: 50px;
+    height: 50px;
+    display: flex !important;
+    align-items: center !important;
+    margin-top: 0;
+    margin-bottom: 0 !important;
+    padding: 0;
+    box-sizing: border-box;
+    z-index: 9;
+    background-color: #fff;
+}
+.app-layout-clone .main-content .popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 20%;
+    width: 80vw;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    /* display: flex; */
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+@media (min-width: 1040px) {
+  /* Force menu dropdowns to expand vertically downwards */
+ .menu-dropdown,
+.menu_dropdown {
+  position: relative;
+  top: 100%;
+  left: 0;
+  display: none; /* Hidden by default, NOT flex */
+  flex-direction: column;
+  background: #1e1e2f; 
+  padding: 10px;
+  margin: 0;
+  margin-top: 8px; /* Space below Configure button */
+  list-style: none;
+  z-index: 1000;
+  border-radius: 4px; /* Optional: rounded corners */
+}
+
+.menu-dropdown.show,
+.menu_dropdown.show {
+  display: flex !important;
+  animation: dropdownSlide 0.2s ease-out;
+}
+
+@keyframes dropdownSlide {
+  from { opacity: 0; transform: translateY(-5px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+  /* Ensure items inside stack vertically */
+  .menu-dropdown .nav-item,
+  .menu_dropdown .nav-item {
+    display: block;
+    width: 100%;
+  }
+
+  .menu-dropdown .nav-link,
+  .menu_dropdown .nav-link {
+    display: block;
+    padding: 6px 16px;
+  }
+.nav-link:hover {
+  color: #438eff !important;
+  /* background: rgba(67, 142, 255, 0.1); */
+}
+ .subList {
+  width: auto;
+  min-width: max-content;
+  max-width: 100%;
+  box-sizing: border-box;
+  /* overflow: hidden; */
+  overflow-x: auto; 
+  white-space: normal;
+  text-overflow: ellipsis;
+  display: none;
+  transition: all 0.3s ease-in-out;
+  padding-left: 15px; /* indent sublists */
+  margin-left: 10px;
+  margin-top: 5px;
+}
+
+.subList .nav-link {
+  display: block;
+  padding: 6px 16px;
+  font-size: 13px; /* slightly smaller text */
+  color: #b8b8b8; /* lighter text color */
+}
+
+.subList .nav-link:hover {
+  color: #438eff;
+  /* background: rgba(67, 142, 255, 0.1); */
+}
+
+.subList.show {
+  display: block;
+  animation: dropdownSlide 0.2s ease-out;
+}
+
+  /* Show sublist when parent is hovered */
+  /* .nav-item:hover > .subList {
+    display: block !important;
+    animation: dropdownSlide 0.2s ease-out;
+  } */
+
+  /* Sublist links style */
+/* .subList .nav-link {
+  display: block;
+  padding: 6px 16px;
+} */
+
+ .nav .nav-item .nav-link[data-bs-toggle="collapse"]::after,
+.menu-dropdown .nav-item > a[href^="#"]::after {
+  content: "+";
+  float: right;
+  font-weight: bold;
+  margin-left: auto;
+  transition: transform 0.2s;
+}
+
+/* When sublist is open, show minus */
+.menu-dropdown .nav-item > a[href^="#"][aria-expanded="true"]::after {
+  content: "−";
+}
+}

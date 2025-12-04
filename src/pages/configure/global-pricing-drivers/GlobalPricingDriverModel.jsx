@@ -291,7 +291,7 @@ function Modal(props) {
 
     if (field === "decimalPlaces") {
       // Update decimalPlaces for ALL slabs
-      updatedSlabs = updatedSlabs.map(slab => {
+      updatedSlabs = updatedSlabs.map((slab, index) => {
         const decimalPlaces = value;
         const updatedSlab = {
           ...slab,
@@ -307,6 +307,15 @@ function Modal(props) {
           updatedSlab.slabTo = parseFloat(slab.slabTo).toFixed(decimalPlaces);
         }
 
+        if (index > 0 && updatedSlabs[index - 1].slabTo !== "") {
+          const prevTo = parseFloat(updatedSlabs[index - 1].slabTo);
+          let increment = 0;
+          if (decimalPlaces === 2) increment = 0.01;
+          else if (decimalPlaces === 1) increment = 0.1;
+          else if (decimalPlaces === 0) increment = 1;
+
+          updatedSlab.slabFrom = (prevTo + increment).toFixed(decimalPlaces);
+        }
         return updatedSlab;
       });
 
@@ -351,8 +360,10 @@ function Modal(props) {
   //Add Slab 
   const OnAddSlab = (i) => {
     setCount(count + 1);
-    var fromValueForNewSlab = Number(slabs[slabs.length - 1].slabTo) + 0.01;
     var existingDecimalPlaces = Number(slabs[slabs.length - 1].decimalPlaces) ?? 2;
+    var increment = 1 / Math.pow(10, existingDecimalPlaces);
+    var fromValueForNewSlab = Number(slabs[slabs.length - 1].slabTo) + increment;
+    console.log(existingDecimalPlaces);
     fromValueForNewSlab = Math.round(fromValueForNewSlab * 100) / 100;
     const newSlabs = {
       slabKeyID: null,
@@ -1605,7 +1616,9 @@ function Modal(props) {
     const currentDecimalPlaces = slabs[index]?.decimalPlaces ?? 2;
     // Split the input into integer and decimal parts
     const [integerPart, decimalPart] = sanitizedInput.split(".");
-
+    // if (decimalPart !== undefined) {
+    //   decimalPart = decimalPart.slice(0, currentDecimalPlaces);
+    // }
     // Combine integer and decimal parts with appropriate precision
     let formattedInput;
     if (decimalPart !== undefined) {
@@ -1613,13 +1626,13 @@ function Modal(props) {
         // For negative values, ensure 5 digits after the negative sign
         formattedInput = `-${integerPart.slice(1, 13)}.${decimalPart.slice(
           0,
-          2
+          currentDecimalPlaces
         )}`;
       } else {
         // For positive values, limit to 5 digits before the decimal point
         formattedInput = `${integerPart.slice(0, 12)}.${decimalPart.slice(
           0,
-          2
+          currentDecimalPlaces
         )}`;
       }
     } else {
@@ -1654,6 +1667,7 @@ function Modal(props) {
       );
     } else if (Type === "slabTo") {
       const updatedSlabs = [...slabs];
+      var decimalPlaces = updatedSlabs[index].decimalPlaces;
       updatedSlabs[index].slabTo = formattedInput.replace(
         /-/g,
         (match, index) => (index === 0 ? match : "")
@@ -1661,7 +1675,15 @@ function Modal(props) {
       // Update the next slab's slabFrom based on the current slab's slabTo
       const nextSlabIndex = index + 1;
       if (nextSlabIndex < slabs.length) {
-        var fromValueForNewSlab = Number(formattedInput) + 0.01;
+        if (decimalPlaces === 0) {
+          var fromValueForNewSlab = Math.floor(Number(formattedInput)) + 1;
+        } else if (decimalPlaces === 1) {
+          fromValueForNewSlab =
+            Math.round((Number(formattedInput) + 0.1) * 100) / 100;
+        }
+        else {
+          var fromValueForNewSlab = Number(formattedInput) + 0.01;
+        }
         fromValueForNewSlab = Math.round(fromValueForNewSlab * 100) / 100;
         updatedSlabs[nextSlabIndex].slabFrom = fromValueForNewSlab; //Number(formattedInput) + 0.01;
       }
@@ -1990,7 +2012,7 @@ function Modal(props) {
                                         capitalizedValue
                                       );
                                     }}
-                                    maxLength={50}
+                                    maxLength={200}
                                   />
                                 </div>
                                 {variationError?.variationName &&

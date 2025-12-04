@@ -1541,25 +1541,42 @@ const PricingDriversComponent = (props) => {
                                     isMulti
                                     className="basic-multi-select"
                                     classNamePrefix="select"
-                                    options={specialCharOptions}
-                                    value={specialCharOptions.filter((opt) =>
-                                      (
-                                        i.text?.[0]?.allowedSpecialCharacters ||
-                                        ""
-                                      )
+                                    options={(() => {
+                                      const allowedChars = (i.text?.[0]?.allowedSpecialCharacters || "")
                                         .split(",")
-                                        .includes(opt.value)
-                                    )}
+                                        .filter(Boolean);
+
+                                      // Show only "real" options
+                                      const remaining = specialCharOptions.filter(opt => !allowedChars.includes(opt.value));
+
+                                      // If everything is selected — show nothing
+                                      if (remaining.length === 0) return [];
+
+                                      // Otherwise, include a temporary "Select All" at top
+                                      return [{ label: "All", value: "__ALL_TEMP__" }, ...remaining];
+                                    })()}
+                                    value={(() => {
+                                      const allowedChars = (i.text?.[0]?.allowedSpecialCharacters || "")
+                                        .split(",")
+                                        .filter(Boolean);
+
+                                      return specialCharOptions.filter(opt => allowedChars.includes(opt.value));
+                                    })()}
                                     onChange={(selected) => {
-                                      const chars = selected
-                                        .map((s) => s.value)
-                                        .join(",");
-                                      props.OnPricingDriverChange(
-                                        mainIndex,
-                                        "AllowedSpecialCharacters",
-                                        chars
-                                      );
+                                      const selectedValues = selected || [];
+                                      const isSelectAll = selectedValues.some(s => s.value === "__ALL_TEMP__");
+
+                                      let chars;
+                                      if (isSelectAll) {
+                                        //  If user chose “All”, set all possible special characters
+                                        chars = specialCharOptions.map(s => s.value).join(",");
+                                      } else {
+                                        chars = selectedValues.map(s => s.value).join(",");
+                                      }
+
+                                      props.OnPricingDriverChange(mainIndex, "AllowedSpecialCharacters", chars);
                                     }}
+
                                     placeholder="Select special characters..."
                                   />
                                 </div>
@@ -1620,10 +1637,7 @@ const PricingDriversComponent = (props) => {
                                   <input
                                     type="text"
                                     className="input-text"
-                                    value={
-                                      props.pricingDriver[mainIndex].date?.[0]
-                                        ?.defaultDateValue
-                                    }
+                                    value={props.pricingDriver[mainIndex].date?.[0]?.defaultDateValue || null}
                                     onChange={(e) =>
                                       props.OnPricingDriverChange(
                                         mainIndex,
@@ -1835,40 +1849,38 @@ const PricingDriversComponent = (props) => {
                                               </p>
                                             </div>
 
-                                            {dateItem.blocks.length > 0 && (
-                                              <button
-                                                disabled={
-                                                  props.pricingDriver[
-                                                    mainIndex
-                                                  ] &&
-                                                  props.pricingDriver[mainIndex]
-                                                    .parentGlobalPricingDriverKeyID
-                                                    ? true
-                                                    : false
-                                                }
-                                                style={{ marginTop: "-34px" }}
-                                                className="btn btn-sm btn-danger gpd-title-1"
-                                                onClick={() =>
-                                                  OnDeletePeriodBlock(
-                                                    mainIndex,
-                                                    dateGroupIndex,
-                                                    blockIndex
-                                                  )
-                                                }
-                                              >
-                                                <i
-                                                  className="bi bi-trash3"
-                                                  style={{
-                                                    marginRight: isMobile
-                                                      ? "0px"
-                                                      : "5px",
-                                                  }}
-                                                ></i>
-                                                <span className="d-none d-sm-inline-block">
-                                                  Delete Period
-                                                </span>
-                                              </button>
-                                            )}
+                                           {dateItem.blocks.length > 0 && (
+                                        <button
+                                          disabled={
+                                            props.pricingDriver[mainIndex] &&
+                                            props.pricingDriver[mainIndex].parentGlobalPricingDriverKeyID
+                                            ? true
+                                            : false
+                                          }
+                                          style={{ marginTop: "-34px" }}
+                                          className="btn btn-sm btn-danger gpd-title-1"
+                                          onClick={() =>
+                                            props.OnDeletePeriodBlock(
+                                              mainIndex,
+                                              dateGroupIndex,
+                                              blockIndex
+                                            )
+                                          }
+                                        >
+                                          <i
+                                            className="bi bi-trash3"
+                                            style={{
+                                              marginRight: isMobile
+                                                ? "0px"
+                                                : "5px",
+                                            }}
+                                          ></i>
+                                          <span className="d-none d-sm-inline-block">
+                                            Delete Period
+                                          </span>
+                                        </button>
+                                      )}
+
 
                                             <div className="row">
                                               {/* From Date */}
@@ -6135,8 +6147,8 @@ const Add_Update_Service = (props) => {
       return matchingService || null;
     })
     .filter(Boolean);
-  console.log("List", ServiceDependencyLookupList);
-  console.log("Final ServiceDependencyValue:", ServiceDependencyValue);
+  // console.log("List", ServiceDependencyLookupList);
+  // console.log("Final ServiceDependencyValue:", ServiceDependencyValue);
   // D] handle Function :
   const HandleClose = async () => {
     if (isCheck) {
@@ -7033,7 +7045,7 @@ const Add_Update_Service = (props) => {
         setPricingDriver(updatedVariations);
         return;
       } else if (field === "defaultDateValue") {
-        if (cleanValue === "") {
+        if (cleanValue.trim() === "") {
           cleanValue = null;
         }
         if (
@@ -7260,7 +7272,9 @@ const Add_Update_Service = (props) => {
         common.userKeyID,
         saveLocationState.serviceKeyID,
         null,
-        pricingDriverCopy[mainIndex].slab[index].slabKeyID
+        pricingDriverCopy[mainIndex].slab[index].slabKeyID,
+        null,
+        null
       );
       if (pricingDriverDelete.data.statusCode === 200) {
         setLoader(false);
@@ -7326,6 +7340,79 @@ const Add_Update_Service = (props) => {
       }
     }
   };
+
+// Delete Date Period
+  const OnDeletePeriodBlock = async (mainIndex, dateGroupIndex, blockIndex) => {
+    const pricingDriverCopy = [...pricingDriver];
+
+    const dateGroups = pricingDriverCopy[mainIndex]?.date;
+    if (!dateGroups) return;
+
+    const dateGroup = dateGroups[dateGroupIndex];
+    if (!dateGroup) return;
+
+    const block = dateGroup.blocks?.[blockIndex];
+    if (!block) return;
+
+    // Only check with API if this block already exists in DB
+    if (block.dateKeyID !== null && block.dateKeyID !== undefined) {
+      try {
+        setLoader(true);
+
+        const response = await GetPricingDriverUsedInModules(
+          pricingDriverCopy[mainIndex].globalPricingDriverKeyID,
+          common.userKeyID,
+          saveLocationState.serviceKeyID,
+          null,
+          null,
+          null,
+          block.dateKeyID
+        );
+
+        setLoader(false);
+
+        if (response?.data?.statusCode === 200) {
+          const moduleList = response.data.responseData.moduleList || [];
+
+          if (moduleList.length > 0) {
+            //  Date block is used in modules — show modal and stop deletion
+            setModelRequestData({
+              ...modelRequestData,
+              Action: "PricingDriverDelete",
+              message: `Cannot delete date block already exist in following`,
+              ServiceName: moduleList,
+            });
+
+            $("#DeleteDriverModel").modal("show");
+            return;
+          }
+        }
+
+        //  Safe to delete
+        dateGroup.blocks.splice(blockIndex, 1);
+
+        // If this group has no blocks left, remove the entire date group
+        if (dateGroup.blocks.length === 0) {
+          dateGroups.splice(dateGroupIndex, 1);
+        }
+
+        props.setPricingDriver(pricingDriverCopy);
+      } catch (error) {
+        console.error("Error checking used modules before deleting date block:", error);
+        setLoader(false);
+      }
+    } else {
+      // Unsaved block — just delete locally
+      dateGroup.blocks.splice(blockIndex, 1);
+
+      if (dateGroup.blocks.length === 0) {
+        dateGroups.splice(dateGroupIndex, 1);
+      }
+
+      props.setPricingDriver(pricingDriverCopy);
+    }
+  };
+  //Handle change slab 
 
   //Handle change slab
   // const OnSlabChange = (mainIndex, index, field, value) => {
@@ -8341,6 +8428,7 @@ const Add_Update_Service = (props) => {
                   moduleName={moduleName}
                   OnVariationsRadioChange={OnVariationsRadioChange}
                   OnDeleteVariations={OnDeleteVariations}
+                  OnDeletePeriodBlock={OnDeletePeriodBlock}
                   globalPricingDrivers={globalPricingDrivers}
                   OnShowGPD={OnShowGPD}
                   GlobalPricingDriverEditBtnClicked={

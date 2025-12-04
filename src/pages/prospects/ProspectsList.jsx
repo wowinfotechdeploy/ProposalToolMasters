@@ -515,59 +515,59 @@ const Prospects = () => {
   };
 
   return (
-    <div className="container">
-      <div class="main-content">
+    <div className="container-fluid">
+      {/* <div class="main-content"> */}
         <div class="services page-background">
-          <div class="page-info-header page-info-strip">
-            <div class="container">
-              <div className="row">
-                <div className="col-md-12 ">
-                  <ul className="nav nav-tabs" role="tablist">
-                    <li className="nav-item">
-                      <a
-                        className={`nav-link tab_nav ${activeTab === "Prospect" ? "active" : ""
-                          }`}
-                        data-bs-toggle="tab"
-                        href="#Prospect"
-                        role="tab"
-                        aria-selected={activeTab === "Prospect"}
-                        onClick={() => {
-                          setActiveTab("Prospect");
-                          TabHandle("Prospect");
-                        }}
-                      >
-                        <b>{moduleName} </b>
-                      </a>
-                    </li>
-                    {singleclientList?.length > 0 && (
-                      <li className="nav-item">
-                        <a
-                          className={`nav-link tab_nav ${activeTab === "Web Prospect" ? "active" : ""
-                            }`}
-                          data-bs-toggle="tab"
-                          href="#Web Prospect"
-                          role="tab"
-                          aria-selected={activeTab === "Web Prospect"}
-                          onClick={() => TabHandle("Web Prospect")}
-                        >
-                          <b>API {moduleName}</b>
-                        </a>
-                      </li>
-                    )}
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
           <div class="">
             <div class="row">
               <div class="col-lg-12">
                 <div class="card">
                   {/* end card header  */}
-                  <div class="card-body">
-                    <div id="customerList">
-                      <div class="row g-4 mb-3"></div>
-                      <div class="table-responsive table-card mb-3 table-padding">
+                  <div class="card-body mb-2">
+                    <div id="customerList" style={{marginTop: "3rem"}}>
+                      <div class="bg-light border-bottom px-2">
+                        {/* <div className="container"> */}
+                          <div className="row">
+                            <div className="col-md-12 p-0">
+                              <ul className="nav nav-tabs" role="tablist">
+                                <li className="nav-item">
+                                  <a
+                                    className={`nav-link tab_nav ${activeTab === "Prospect" ? "active" : ""
+                                      }`}
+                                    data-bs-toggle="tab"
+                                    href="#Prospect"
+                                    role="tab"
+                                    aria-selected={activeTab === "Prospect"}
+                                    onClick={() => {
+                                      setActiveTab("Prospect");
+                                      TabHandle("Prospect");
+                                    }}
+                                  >
+                                    <b>{moduleName} </b>
+                                  </a>
+                                </li>
+                                {singleclientList?.length > 0 && (
+                                  <li className="nav-item">
+                                    <a
+                                      className={`nav-link tab_nav ${activeTab === "Web Prospect" ? "active" : ""
+                                        }`}
+                                      data-bs-toggle="tab"
+                                      href="#Web Prospect"
+                                      role="tab"
+                                      aria-selected={activeTab === "Web Prospect"}
+                                      onClick={() => TabHandle("Web Prospect")}
+                                    >
+                                      <b>API {moduleName}</b>
+                                    </a>
+                                  </li>
+                                )}
+                              </ul>
+                            </div>
+                          </div>
+                        {/* </div> */}
+                      </div>
+                      {/* <div class="row g-4"></div> */}
+                      <div class="table-responsive table-card mb-3 mt-2 table-padding">
                         <div className="row">
                           {/* <div class="col-md-3 col-lg-3 col-12  mb-2"> */}
                           {activeTab === "Web Prospect" && (
@@ -1386,7 +1386,7 @@ const Prospects = () => {
           {/* container-fluid  */}
         </div>
         {/* End Page-content */}
-      </div>
+      {/* </div> */}
       <ConfirmModel
         openErrorModal={openErrorModal}
         openSuccessModal={openSuccessModal}
@@ -1435,7 +1435,7 @@ const Prospects = () => {
         prospectType={prospectType}
         setProspectType={setProspectType}
       />
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 };

@@ -37,7 +37,7 @@ const SuccessModal = (props) => {
         >
           <div class="modal-content">
             <div class="modal-header" style={{ paddingBottom: "10px" }}></div>
-            <div class="modal-body">
+            {/* <div class="modal-body"> */}
               <div class="mt-2 text-center">
                 <div className="modallogo">
                   <div className="modallogo1"></div>
@@ -250,7 +250,7 @@ const SuccessModal = (props) => {
                   </div>
                 </p>
               </div>
-            </div>
+            {/* </div> */}
           </div>
         </div>
       </Modal>

@@ -203,7 +203,7 @@ const View_Engagement_Latter = () => {
   // const sentOn = location.state.sentOn;
   // const signedOn = location.state.SignedOn;
   // const VoidOn = location.state.voidOn;
-  const isSignedStatus = location.state.isSigned;
+  const isSignedStatus = location.state?.isSigned;
 
   useEffect(() => {
     if (location.state?.contractKeyID !== null) {
@@ -635,9 +635,9 @@ const View_Engagement_Latter = () => {
 
   return (
     <div className="container">
-      <div class="main-content">
+      {/* <div class="main-content"> */}
         <div class="page-content page-background prospect-bg">
-          <div class="page-info-header page-info-strip">
+          {/* <div class="page-info-header page-info-strip"> */}
             <div class="container">
               <div className="row">
                 <div className="col-md-6 col-sm-6 col-6">
@@ -700,7 +700,7 @@ const View_Engagement_Latter = () => {
                 </div>
               </div>
             </div>
-          </div>
+          {/* </div> */}
           <div class="container-fluid ">
             <div class="row">
               <div class="col-lg-12">
@@ -2545,7 +2545,7 @@ const View_Engagement_Latter = () => {
           ErrorMessage={errorMessage}
         />
         <Footer />
-      </div>
+      {/* </div> */}
 
       {/* start back-to-top */}
       <button

@@ -1186,6 +1186,7 @@ const Engagement_Letter = () => {
               RefId: modelRequestData.refId,
             });
             setIsCopyPending(true);
+            setShowModal(false);
             $("#ConfirmModel").modal("show");
             return;
           }
@@ -1209,12 +1210,12 @@ const Engagement_Letter = () => {
       $("#ConfirmModel").modal("hide");
       console.log(response);
       if (response) {
-        if (response.data.statusCode === 200) {
+        if (response?.data?.statusCode === 200) {
           setLoader(false);
           setOpenSuccessModal(true);
         } else {
           setLoader(false);
-          setErrorMessage(response?.data?.errorMessage);
+          setErrorMessage(response?.response?.data?.errorMessage);
           setOpenErrorModal(true);
         }
         setIsCopyPending(false); // Reset the flag
@@ -1314,13 +1315,20 @@ const Engagement_Letter = () => {
   };
 
   return (
-    <div className="container">
-      <div class="main-content">
+    <div className="container-fluid">
+      {/* <div class="main-content"> */}
         <div class="services page-background">
-          <div class="page-info-header page-info-strip">
-            <div class="container">
-              <div className="row">
-                <div className="col-md-12 ">
+          <div class="">
+            <div class="row">
+              <div class="col-lg-12">
+                <div class="card">
+                  {/* end card header  */}
+                  <div class="card-body mb-2">
+                    <div id="customerList" style={{marginTop: "3rem"}}>
+                      <div class="bg-light border-bottom px-2">
+                        {/* <div class="container"> */}
+                          <div className="row">
+                            <div className="col-md-12 p-0 ">
                   <ul className="nav nav-tabs" role="tablist">
                     <li className="nav-item">
                       <a
@@ -1372,7 +1380,7 @@ const Engagement_Letter = () => {
                   </ul>
                 </div>
               </div>
-            </div>
+            {/* </div> */}
           </div>
           <div class="">
             <div class="row">
@@ -1382,7 +1390,7 @@ const Engagement_Letter = () => {
                   <div class="card-body">
                     <div id="customerList">
                       <div class="row g-4 mb-3"></div>
-                      <div class="table-responsive table-card  mb-3 table-padding">
+                      <div class="table-responsive table-card mt-2 mb-3 table-padding">
                         <div className="row">
                           <div class="col-md-6 col-lg-6 col-9  mb-2">
                             {activeTab === "OldEL" && (
@@ -3368,7 +3376,7 @@ const Engagement_Letter = () => {
                           </div>
                         )}
                       </div>
-                    </div>
+                    
                   </div>
                   {activeTab === "NewEL" && (
                     <div>
@@ -3427,7 +3435,7 @@ const Engagement_Letter = () => {
                     </div>
                   )}
                   {/* */}
-
+                  </div>
                   {/* end card  */}
                 </div>
                 {/* end col */}
@@ -3545,6 +3553,13 @@ const Engagement_Letter = () => {
       >
         <i class="ri-arrow-up-line"></i>
       </button>
+    
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    {/* </div> */}
     </div>
   );
 };

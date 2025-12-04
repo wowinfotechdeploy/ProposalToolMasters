@@ -1418,7 +1418,6 @@ export default function PreviewComponentPdf(props) {
   };
 
   const GetTemplatePdfListData = async () => {
-    debugger;
     setLoader(true);
     // const pageNoList = i - 1;
     try {
@@ -7447,6 +7446,7 @@ ${
                 // width="100%"
                 // height="700px"
                 style={{ width: "100%", height: "100vh", border: "none" }}
+                loading="lazy"
               ></iframe>
             ))}
 
@@ -7809,7 +7809,7 @@ ${
                 </div>
               </div>
             )}
-            {common.enableEL == 1 &&
+            {(common.enableEL == 1 || !props?.pricingSettingObj?.remainingESignatures) &&
               userAccessData.Admin_Engagement_Latter_CanAdd &&
               userAccessData.Admin_Engagement_Latter_CanView &&
               props.moduleName == "Quote" && (

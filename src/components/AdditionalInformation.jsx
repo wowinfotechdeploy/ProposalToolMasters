@@ -137,6 +137,17 @@ export const AdditionalInformation = (props) => {
         props.setAdditionalInformationList(updateAdditionalInformationList);
     };
 
+    const formatNumber = (num, decimalPlaces) => {
+      if (num == null || num === "") return "";  // empty safety
+      const n = parseFloat(num);                // ensure it's a number
+      if (isNaN(n)) return "";
+      const str = n.toFixed(decimalPlaces);     // fix decimals
+      const [intPart, fracPart] = str.split(".");
+      // add commas only to integer part
+      return intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+        + (decimalPlaces > 0 ? "." + fracPart : "");
+    };
+
     const OnIncrementalValueChange = (slabObject, slabValue) => {
         props.DisableTabOnChange();
         const inputValue = slabValue.replace(/[^0-9.-]/g, ""); // Allow only numeric, dot, comma, and hyphen characters
@@ -854,44 +865,17 @@ export const AdditionalInformation = (props) => {
                                           <Select
                                             options={i.slab?.map((item) => ({
                                               value: item.slabID,
-                                              label:
-                                                item.slabTypeID === 2
-                                                  ? "Other"
-                                                  : `${item.slabFrom
-                                                      .toString()
-                                                      .replace(
-                                                        /\B(?=(\d{3})+(?!\d))/g,
-                                                        ","
-                                                      )} - ${item.slabTo
-                                                      .toString()
-                                                      .replace(
-                                                        /\B(?=(\d{3})+(?!\d))/g,
-                                                        ","
-                                                      )}`,
+                                              label: item.slabTypeID === 2
+                                                ? "Other"
+                                                : `${formatNumber(item.slabFrom, item.decimalPlaces ?? 2)} - ${formatNumber(item.slabTo, item.decimalPlaces ?? 2)}`,
                                               variationValue: item.slabValue,
                                             }))}
-                                            value={i?.slab
-                                              ?.filter(
-                                                (slab) =>
-                                                  slab.isDefault === true
-                                              )
-                                              .map((i) => ({
-                                                value: i.slabID,
-                                                label:
-                                                  i.slabTypeID === 2
-                                                    ? "Other"
-                                                    : `${i.slabFrom
-                                                        .toString()
-                                                        .replace(
-                                                          /\B(?=(\d{3})+(?!\d))/g,
-                                                          ","
-                                                        )} - ${i.slabTo
-                                                        .toString()
-                                                        .replace(
-                                                          /\B(?=(\d{3})+(?!\d))/g,
-                                                          ","
-                                                        )}`,
-                                              }))}
+                                            value={i?.slab?.filter(slab => slab.isDefault)?.map(item => ({
+                                              value: item.slabID,
+                                              label: item.slabTypeID === 2
+                                                ? "Other"
+                                                : `${formatNumber(item.slabFrom, item.decimalPlaces ?? 2)} - ${formatNumber(item.slabTo, item.decimalPlaces ?? 2)}`
+                                            }))}
                                             onChange={(value) =>
                                               HandleAdditionalInformation(
                                                 value,
@@ -1192,6 +1176,7 @@ export const AdditionalInformation = (props) => {
                                             src={props?.engagementObj?.pdf}
                                             width="100%"
                                             height="600px"
+                                            loading="lazy"
                                         ></iframe>
                                     </div>
                                 ) : props?.engagementObj?.tnCTemplateContent !== null ? (

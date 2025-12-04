@@ -113,6 +113,8 @@ export const GetPricingDriverUsedInModules = async (
   ServiceKeyID,
   variationKeyID,
   slabKeyID,
+  textKeyID,
+  dateKeyID
 ) => {
   let url = `${globalPricingDriverListUrl}/GetPricingDriverUsedInModules?GlobalPricingDriverKeyID=${globalPricingDriverKeyID}&UserKeyID=${userKeyID}`;
   if (ServiceKeyID) {
@@ -124,7 +126,13 @@ export const GetPricingDriverUsedInModules = async (
   if (slabKeyID) {
     url += `&SlabKeyID=${slabKeyID}`;
   }
-  if (!slabKeyID && !variationKeyID && !ServiceKeyID) {
+  if (textKeyID) {
+    url += `&TextKeyID=${textKeyID}`;
+  }
+  if (dateKeyID) {
+    url += `&DateKeyID=${dateKeyID}`;
+  }
+  if (!slabKeyID && !variationKeyID && !ServiceKeyID && !textKeyID && !dateKeyID) {
     url = url
   }
 

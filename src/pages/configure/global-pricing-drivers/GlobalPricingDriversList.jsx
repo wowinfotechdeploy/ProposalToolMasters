@@ -391,16 +391,22 @@ function Predefined_Global_Pricing_Drivers() {
 
   //Design part :
   return (
-    <div className="container">
-      <div class="main-content">
+   <div className="container-fluid">
+      {/* <div class="main-content"> */}
         <div class="services page-background">
-          <div class="page-info-header page-info-strip">
-            <div class="container">
-              <div className="row">
-                <div className="col-md-6 col-6">
+          <div class="">
+            <div class="row">
+              <div class="col-lg-12">
+                <div class="card">
+                  {/* end card header  */}
+                  <div class="card-body mb-2">
+                    <div id="customerList" style={{ marginTop: "3rem" }}>
+                      <div class="bg-light border-bottom px-2">
+                          <div className="row">
+                            <div className="col-md-6 p-0 ">
                   <div class="page-title-cls">Global Pricing Drivers</div>
                 </div>
-                <div className="col-md-6 col-6">
+                <div className="col-auto ms-auto">
                   <div className="d-flex justify-content-sm-end add-new-letter">
                     {((userAccessData.Admin_Config_Global_Driver_CanAdd &&
                       common.organisationKeyID !== null) ||
@@ -418,10 +424,9 @@ function Predefined_Global_Pricing_Drivers() {
                       )}
                   </div>
                 </div>
+                </div>
+                </div>
               </div>
-            </div>
-          </div>
-          <div>
             <div class="row">
               <div class="col-lg-12">
                 <div class="card">
@@ -429,8 +434,13 @@ function Predefined_Global_Pricing_Drivers() {
                   <div class="card-body">
                     <div id="customerList">
                       <div class="row g-4 mb-3"></div>
-                      <div class="table-responsive table-card mb-3 table-padding">
-                        <div class="search-box  col-md-3 col-6 width-searchbox mb-2">
+                      <div class="table-responsive table-card mt-2 mb-3 table-padding">
+                        <div class="search-box ms-2 width-searchbox">
+                          <div class="row">
+                            <div className="col-lg-12 col-md-12 col-sm-12 ">
+                              <div className="row align-items-center">
+                                <div className="col-3 mb-2">
+                                  <div class="search-box w-100 width-searchbox">
                           <i class="ri-search-line search-icon"></i>
                           <input
                             type="text"
@@ -445,6 +455,11 @@ function Predefined_Global_Pricing_Drivers() {
                                 : getPlaceholderTextName("Search", moduleName)
                             }
                           />
+                        </div>
+                        </div>
+                </div>
+                </div>
+                </div>
                         </div>
                         <table
                           class="table align-middle table-nowrap"
@@ -843,7 +858,6 @@ function Predefined_Global_Pricing_Drivers() {
                         )}
                       </div>
                     </div>
-                  </div>
                   {listCount > pageSize && (
                     <PaginationComponent
                       totalCount={listCount}
@@ -852,6 +866,7 @@ function Predefined_Global_Pricing_Drivers() {
                       onPageChange={handlePageChange}
                     />
                   )}
+                  </div>
                   {/* end card  */}
                 </div>
                 {/* end col */}
@@ -912,6 +927,9 @@ function Predefined_Global_Pricing_Drivers() {
       </div>
       {/* End Page-content */}
       <Footer />
+    </div>
+    </div>
+    </div>
     </div>
   );
 }

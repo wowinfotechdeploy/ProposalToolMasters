@@ -367,44 +367,56 @@ const Service_Categories = () => {
 
   //Design part :
   return (
-    <div>
-      <div class="main-content">
+    <div className="container-fluid">
+      {/* <div class="main-content"> */}
         <div class="services page-background">
-          <div class="page-info-header page-info-strip">
-            <div class="container ">
-              <div className="row">
-                <div className="col-md-6 col-6">
+          <div class="">
+            <div class="row">
+              <div class="col-lg-12">
+                <div class="card">
+                  <div class="card-body mb-2">
+                  {/* end card header  */}
+                    <div id="customerList" style={{ marginTop: "3rem" }}>
+                      <div class="bg-light border-bottom px-2">
+                          <div className="row">
+                            <div className="col-md-6 p-0 ">
                   <div class="page-title-cls">Service Categories
                   </div>
                 </div>
-                <div class="col-md-6 col-6">
-                  <div className="d-flex justify-content-sm-end add-new-btn">
-                    {((userAccessData.Admin_Config_ServiceCat_CanAdd &&
-                      common.organisationKeyID !== null) ||
-                      (userAccessData.SuperAdmin_Config_ServiceCat_CanAdd &&
-                        common.organisationKeyID === null)) && (
-                        <CommonButtonComponent
-                          title={getCrudButtonToolTipName("Add", moduleName)}
-                          dataBsTarget="#addUpdateModal"
-                          data_bs_toggle="modal"
-                          name={getCrudButtonTextName("Add", moduleName)}
-                          AddBtn={() => ServiceCategoryAddBtnClicked()}
-                        />
-                      )}
+                <div class="col-auto ms-auto">
+                          <div className="d-flex justify-content-sm-end add-new-btn">
+                            {((userAccessData.Admin_Config_ServiceCat_CanAdd &&
+                              common.organisationKeyID !== null) ||
+                              (userAccessData.SuperAdmin_Config_ServiceCat_CanAdd &&
+                                common.organisationKeyID === null)) && (
+                                <CommonButtonComponent
+                                  title={getCrudButtonToolTipName("Add", moduleName)}
+                                  dataBsTarget="#addUpdateModal"
+                                  data_bs_toggle="modal"
+                                  name={getCrudButtonTextName("Add", moduleName)}
+                                  AddBtn={() => ServiceCategoryAddBtnClicked()}
+                                />
+                              )}
+                          </div>
+                          </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
-          <div class="container">
+          <div class="">
             <div class="row">
               <div class="col-lg-12">
                 <div class="card ">
                   <div class="card-body">
                     <div id="customerList">
                       <div class="row g-4 mb-3"></div>
-                      <div class="table-responsive table-card mb-3 table-padding">
-                        <div className="search-box col-md-3 col-6 width-searchbox mb-2">
+                      <div class="table-responsive table-card mt-2 mb-3 table-padding">
+                        <div className="div mb-2">
+                        <div className="search-box ms-2 width-searchbox ">
+                          <div class="row">
+                            <div className="col-lg-12 col-md-12 col-sm-12 ">
+                              <div className="row align-items-center">
+                            <div className="col-md-3 col-7">
+                              <div class="search-box w-100 width-searchbox">
                           <i class="ri-search-line search-icon"></i>
                           <input
                             type="text"
@@ -419,6 +431,12 @@ const Service_Categories = () => {
                                 : getPlaceholderTextName("Search", moduleName)
                             }
                           />
+                            </div>
+                          </div>
+                          </div>
+                        </div>
+                        </div>
+                        </div>
                         </div>
                         <table
                           class="table align-middle table-nowrap"
@@ -784,8 +802,8 @@ const Service_Categories = () => {
                               })}
                           </tbody>
                         </table>
-
-                        {totalRecords <= 0 && (
+                </div>
+                {totalRecords <= 0 && (
                           <NoResultFoundModel
                             name={moduleName}
                             totalRecords={totalRecords}
@@ -803,10 +821,14 @@ const Service_Categories = () => {
                       onPageChange={handlePageChange}
                     />
                   )}
-                </div>
               </div>
             </div>
-
+            </div>
+        </div>
+        </div>
+        </div>
+        </div>
+        </div>
             <ErrorModel
               ErrorModel={openErrorModal}
               handleClose={handleClose}
@@ -851,8 +873,7 @@ const Service_Categories = () => {
               setIsAddUpdateActionDone={setIsAddUpdateActionDone}
               modelRequestData={modelRequestData}
             />
-          </div>
-        </div>
+          
         <Footer />
       </div>
 

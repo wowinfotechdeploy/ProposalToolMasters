@@ -632,13 +632,20 @@ const InviteUser = () => {
   };
   //Design part :
   return (
-    <div>
-      <div class="main-content">
+    <div className="container-fluid">
+      {/* <div class="main-content"> */}
         <div class="services page-background">
-          <div class="page-info-header page-info-strip">
-            <div class="container">
-              <div className="row">
-                <div className="col-md-3 col-6">
+          <div class="">
+            <div class="row">
+              <div class="col-lg-12">
+                <div class="card">
+                  {/* end card header  */}
+                  <div class="card-body mb-2">
+                    <div id="customerList" style={{ marginTop: "3rem" }}>
+                      <div class="bg-light border-bottom px-2">
+                        <div className="container">
+                          <div className="row">
+                            <div className="col-md-6 p-0 ">
                   {/* <div class="page-title-cls">Users</div> */}
                   <ul class="nav nav-tabs " role="tablist">
                     <li class="nav-item">
@@ -694,7 +701,7 @@ const InviteUser = () => {
               </div>
             </div>
           </div>
-          <div class="container ">
+          <div class="">
             <div class="row">
               <div class="col-lg-12">
                 <div class="card ">
@@ -708,7 +715,7 @@ const InviteUser = () => {
                           id="base-justified-home"
                           role="tabpanel"
                         >
-                          <div class="table-responsive table-card  mb-3 table-padding">
+                          <div class="table-responsive table-card mt-2 mb-3 table-padding">
                             <div className="row align-items-center justify-content">
                             
                               <div className="search-box col-md-3 col-sm-4 width-searchbox mb-2">
@@ -1267,7 +1274,6 @@ const InviteUser = () => {
                                 totalRecords={totalRecords}
                               />
                             )}
-                          </div>
 
                           {UserListCount > pageSize && (
                             <PaginationComponent
@@ -1277,10 +1283,11 @@ const InviteUser = () => {
                               onPageChange={HandlePageChangeUsers}
                             />
                           )}
+                          </div>
                         </div>
 
                         <div class="tab-pane" id="product" role="tabpanel">
-                          <div class="table-responsive table-card  mb-3 table-padding">
+                          <div class="table-responsive table-card mt-2 mb-3 table-padding">
                             <div className="row align-items-center justify-content">
                               <div class="col-md-6 col-6">
                                 <div className="search-box col-md-6 col-sm-4 width-searchbox mb-2">
@@ -1631,6 +1638,11 @@ const InviteUser = () => {
           </div>
         </div>
         <Footer />
+      </div>
+      </div>
+      </div>
+      </div>
+      </div>
       </div>
 
       {/* start back-to-top */}

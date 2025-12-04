@@ -257,9 +257,9 @@ const Topbar = () => {
     const selectBox = document.querySelector(".nav-select");
     // Check if the clicked element is outside of the navbar-header, hamburger icon, and select box
     if (
-      !navbarHeader.contains(event.target) &&
-      !hamburger.contains(event.target) &&
-      !selectBox.contains(event.target)
+      !navbarHeader?.contains(event.target) &&
+      !hamburger?.contains(event.target) &&
+      !selectBox?.contains(event.target)
     ) {
       // Close the dropdown menu
       document.body.classList.remove("menu");
@@ -932,7 +932,7 @@ const Topbar = () => {
               <div class="d-flex">
                 <div
                   class="navbar-menu topdropdowm"
-                  style={{ position: "fixed", top: "10px" }}
+                  style={{ position: "fixed", top: "10px", backgroundColor: TopbarStyle.backgroundColor }}
                 >
                   <div class="container">
                     <div class="row">
@@ -1144,7 +1144,7 @@ const Topbar = () => {
               </ul>
               {common.organisationKeyID !== null && (
                 <div class="d-flex">
-                  <div class="navbar-menu">
+                  <div class="navbar-menu" style={{backgroundColor: TopbarStyle.backgroundColor}}>
                     <div class="container">
                       <div class="row" style={{ marginTop: "5px" }}>
                         <ul
@@ -2033,7 +2033,7 @@ const Topbar = () => {
               {common.roleTypeId == USER_ROLE_TYPE.SuperAdmin &&
                 common.organisationKeyID === null && (
                   <div class="d-flex">
-                    <div class="navbar-menu pb-3">
+                    <div class="navbar-menu pb-3" style={{backgroundColor: TopbarStyle.backgroundColor}}>
                       <div class="container">
                         <div class="row" style={{ marginTop: "5px" }}>
                           <ul class="navbar-nav changed-nav" id="navbar-UL-nav">
