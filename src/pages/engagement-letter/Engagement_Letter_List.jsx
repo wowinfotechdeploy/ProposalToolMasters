@@ -1315,6 +1315,7 @@ const Engagement_Letter = () => {
   };
 
   return (
+    <>
     <div className="container-fluid">
       {/* <div class="main-content"> */}
         <div class="services page-background">
@@ -3497,7 +3498,7 @@ const Engagement_Letter = () => {
           }
           refIdStore={modelRequestData.refId}
         />
-        <Footer />
+        
         <ErrorModel
           ErrorModel={openErrorModal}
           emailError={emailError}
@@ -3561,6 +3562,8 @@ const Engagement_Letter = () => {
     </div>
     {/* </div> */}
     </div>
+    <Footer />
+    </>
   );
 };
 

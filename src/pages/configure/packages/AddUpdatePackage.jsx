@@ -1,5 +1,6 @@
 /* global $ */
 import React, { useContext, useEffect, useState } from "react";
+import { lazy, Suspense } from "react";
 import "./Package.css";
 import Select from "react-select";
 import SuccessModal from "../../../components/SuccessModal";
@@ -17,7 +18,7 @@ import { PackageHeader } from "../../../Middleware/enums";
 import { ERROR_MESSAGES } from "../../../components/GlobalMessage";
 import { useSelector } from "react-redux";
 import { GetProfessionTypeLookupList } from "../../../redux/Services/Master/ProfessionTypeApi";
-import { SelectServices } from "../../../components/SelectServices";
+// import { SelectServices } from "../../../components/SelectServices";
 import { AdditionalInformation } from "../../../components/AdditionalInformation";
 import {
   GetCalculatedServicesPrice,
@@ -37,6 +38,7 @@ import { DeclineSuperAdminChanges } from "../../../redux/Services/Config/Service
 import SAPredefinedChangesNotifyMessageModel from "../../../components/SAPredefinedChangesNotifyMessageModel";
 import RecordsAvailablePopupModel from "../../../components/RecordsAvailablePopupModel";
 import { Message } from "@mui/icons-material";
+const SelectServices = lazy(() => import("../../../components/SelectServices"));
 
 export const BasicInformationComponent = (props) => {
   return (
@@ -3792,6 +3794,7 @@ const AddUpdatePackage = (props) => {
                 />
               )}
               {activeTab === PackageHeader.SelectServices && (
+                <Suspense>
                 <SelectServices
                   DisableTabOnChange={DisableTabOnChange}
                   oneOffObj={oneOffObj}
@@ -3823,6 +3826,7 @@ const AddUpdatePackage = (props) => {
                   handleCancel={handleCancel}
                   HandleBack={HandleBack}
                 />
+                </Suspense>
               )}
               {activeTab === PackageHeader.AdditionalInformation && (
                 <AdditionalInformation

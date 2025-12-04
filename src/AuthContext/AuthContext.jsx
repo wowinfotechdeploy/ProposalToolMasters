@@ -22,14 +22,16 @@ const AuthContext = ({ children }) => {
   /* -------------------------------------------------------------------------- */
   const dispatch = useDispatch();
   const [activeOrganization, setActiveOrganization] = useState([]);
-  const [activeOrganizationSubscriptionPlan, setActiveOrganizationSubscriptionPlan] = useState(() => {
-    const storedData = JSON.parse(localStorage.getItem("OrganisationLocalList"));
-    if (!storedData || !Array.isArray(storedData)) return null;
-    const match = storedData.find(
-      org => org.organisationKeyID === common.organisationKeyID
-    );
-    return match ? match.subscriptionPlan : null;
-  });
+  // const [activeOrganizationSubscriptionPlan, setActiveOrganizationSubscriptionPlan] = useState(() => {
+  //   const storedData = JSON.parse(localStorage.getItem("OrganisationLocalList"));
+  //   if (!storedData || !Array.isArray(storedData)) return null;
+  //   const match = storedData.find(
+  //     org => org.organisationKeyID === common.organisationKeyID
+  //   );
+  //   return match ? match.subscriptionPlan : null;
+  // });
+  const [activeOrganizationSubscriptionPlan, setActiveOrganizationSubscriptionPlan] = useState(null);
+  const [isSubscriptionLoading, setIsSubscriptionLoading] = useState(true);
   const [topbar, setTopbar] = useState("block");
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [loader, setLoader] = useState(false);
@@ -61,6 +63,7 @@ const AuthContext = ({ children }) => {
     useState(false);
   const [DashboardActivityLogLoader, setDashboardActivityLogLoader] =
     useState(false);
+  const [orientationID, setOrientationID] = useState(1);
 
   let engagementSetting;
   let proposalSetting;
@@ -293,9 +296,9 @@ const AuthContext = ({ children }) => {
     const handleResize = () => {
       const width = window.innerWidth;
       const height = window.innerHeight;
-      if (width <= 768) {
+      if (width <= 1040) {
         setIsMobile(true);
-      } else if (width > 768) {
+      } else if (width > 1040) {
         setIsMobile(false);
       }
       // Set isMobile based on width
@@ -345,6 +348,22 @@ const AuthContext = ({ children }) => {
     window.addEventListener("resize", handleResize); // Listen for viewport changes
     return () => window.removeEventListener("resize", handleResize); // Clean up on unmount
   }, []);
+
+  useEffect(() => {
+    const storedData = JSON.parse(localStorage.getItem("OrganisationLocalList"));
+    if (!storedData || !Array.isArray(storedData)) {
+      setActiveOrganizationSubscriptionPlan(null);
+      setIsSubscriptionLoading(false);
+      return;
+    }
+
+    const match = storedData.find(
+      org => org.organisationKeyID === common.organisationKeyID
+    );
+
+    setActiveOrganizationSubscriptionPlan(match ? match.subscriptionPlan : null);
+    setIsSubscriptionLoading(false);
+  }, [common.organisationKeyID]);
 
   useEffect(() => {
     if (
@@ -1035,6 +1054,11 @@ const AuthContext = ({ children }) => {
   };
   const setInitializeValidationError = () => {
     setRequireErrorMessage("");
+  };
+
+  // handle orientation toggle
+  const handleOrientationChange = (e) => {
+    setOrientationID((Number(e.target.value)));
   };
 
   const getCrudButtonTextName = (actionName, moduleName) => {
@@ -3672,6 +3696,8 @@ const replaceUrlInHtml = (htmlContent) => {
         setDashboardActivityLogLoader,
         activeOrganizationSubscriptionPlan,
         setActiveOrganizationSubscriptionPlan,
+        isSubscriptionLoading,
+        setIsSubscriptionLoading,
         isAddUpdatePurchaseDone,
         setIsAddUpdatePurchaseDone,
         handleErrorMessage,
@@ -3688,6 +3714,9 @@ const replaceUrlInHtml = (htmlContent) => {
         toggleMenuVisibility,
         maxCountToRecallApi,
         setMaxCountToRecallApi,
+        orientationID,
+        setOrientationID,
+        handleOrientationChange
       }}
     >
       {children}

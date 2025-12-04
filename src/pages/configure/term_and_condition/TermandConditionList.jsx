@@ -522,6 +522,7 @@ function Term_and_Condition() {
   };
 
   return (
+    <>
     <div className="container-fluid">
       {/* <div class="main-content"> */}
         <div class="services page-background">
@@ -1166,7 +1167,7 @@ function Term_and_Condition() {
         />
         {/* End Page-content */}
 
-        <Footer />
+        
       </div>
       </div>
             </div>
@@ -1184,7 +1185,8 @@ function Term_and_Condition() {
       </button>
       {/* end back-to-top */}
     </div>
-    
+    <Footer />
+    </>
   );
 }
 

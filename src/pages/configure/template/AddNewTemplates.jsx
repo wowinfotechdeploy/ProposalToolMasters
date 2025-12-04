@@ -39,6 +39,7 @@ import {
   GetTemplatePdfList,
   GetTemplateLookupPDFList,
   GetFontFamilyList,
+  AddUpdateTemplateWatermark,
 } from "../../../redux/Services/Config/TemplateApi";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -53,6 +54,7 @@ import ErrorModel from "../../../components/ErrorModel";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import SAPredefinedChangesNotifyMessageModel from "../../../components/SAPredefinedChangesNotifyMessageModel";
 import CommonProspectVariable from "../../../components/Variables/CommonProspectVariable";
+import FileTablePreview from "../../../components/FileTablePreview";
 
 function Add_New_Templates(props) {
   //Declare State:
@@ -69,6 +71,9 @@ function Add_New_Templates(props) {
     scrollUptoCurrentPosition,
     HtmlToPlainText,
     hasActionAccess,
+    orientationID,
+    setOrientationID,
+    handleOrientationChange
   } = useContext(AuthContextProvider);
   const navigate = useNavigate();
   const TemplateDivContainerRef = useRef(null);
@@ -99,7 +104,10 @@ function Add_New_Templates(props) {
     useState([]);
   const [selectedPdf, setSelectedPdf] = useState(null);
   const [selectedPdfDetails, setSelectedPdfDetails] = useState([]);
-
+  const [selectedFile, setSelectedFile] = useState({
+      fileName: null,
+      size: null,
+  });
   const [modelAction, setModelAction] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [FirstPageHeading, setFirstPageHeading] = useState(1);
@@ -134,6 +142,8 @@ function Add_New_Templates(props) {
     orgBusinessTypeID: common.businessTypeID,
     isPredefined: null,
     fontFamilyID: null,
+    watermarkImage: null,
+    orientationID: orientationID,
     professionTypeList: [],
     pricingTableColumnIDs: null,
     // Service description main heading
@@ -264,6 +274,8 @@ function Add_New_Templates(props) {
       templateKeyID: null,
       organisationID: null,
       enableFirstPage: false,
+      watermarkImage: null,
+      orientationID: orientationID,
       createdByID: null,
       templateName: undefined,
       templateTypeID: null,
@@ -462,6 +474,53 @@ function Add_New_Templates(props) {
     }
   };
 
+  // handle Upload file
+  const handleFileUpload = (e) => {
+    e.preventDefault();
+    setErrorMessage(""); // Clear any existing error message
+    setRequireErrorMessage(false);
+
+    const file = e.target.files[0];
+
+    if (file) {
+      // Validate file extension
+      const fileNameParts = file.name.split(".");
+      const fileExtension =
+        fileNameParts[fileNameParts.length - 1].toLowerCase();
+      const allowedExtensions = ["jpg", "jpeg", "png"];
+
+      if (!allowedExtensions.includes(fileExtension)) {
+        setErrorMessage(
+          "Invalid file type. Only JPG, JPEG, and PNG files are allowed."
+        );
+        return;
+      }
+
+      // Validate file size (max 10MB)
+      if (file.size > 10 * 1024 * 1024) {
+        setErrorMessage("File size must be less than 10MB.");
+        return;
+      }
+
+      // File is valid
+      setSelectedFile({
+        fileName: file,
+        size: file.size,
+      });
+    }
+  };
+
+  const handleWatermarkImageDelete = () => {
+    setTemplateObj({
+      ...TemplateObj,
+      watermarkImage: null,
+    });
+    setSelectedFile({
+      fileName: null,
+      size: null,
+    });
+  };
+
   const TemplateElementLookeupListOptions = TemplateElementTypeLookupList.map(
     (templateElementType) => {
       if (TemplateObj.templateTypeID === 1) {
@@ -525,11 +584,16 @@ function Add_New_Templates(props) {
             orgBusinessTypeID: ModelData.orgBusinessTypeID,
             isPredefined: ModelData.isPredefined,
             fontFamilyID: ModelData.fontFamilyID,
+            watermarkImage: ModelData.watermarkImage,
+            orientationID: ModelData.orientationID,
             professionTypeList: ModelData.professionTypeList,
             originalBusinessTypeID: ModelData.originalBusinessTypeID,
             originalBusinessTypeIDs: ModelData.originalBusinessTypeIDs,
             // pricingTableColumnIDs: ModelData.pricingTableColumnIDs,
           });
+          if (ModelData.orientationID) {
+            setOrientationID(ModelData.orientationID);
+          }
           setTemplateElementList(
             ...templateElementList,
             ModelData.templateElementList
@@ -944,6 +1008,7 @@ function Add_New_Templates(props) {
       templateTypeID: TemplateObj.templateTypeID, //will change module wise
       templateKeyID: TemplateObj.templateKeyID,
       enableFirstPage: TemplateObj.enableFirstPage,
+      orientationID: orientationID,
       userKeyID: common.userKeyID,
       clientBusinessTypeID: TemplateObj.clientBusinessTypeID,
       clientBusinessTypeIDs: TemplateObj.clientBusinessTypeIDs,
@@ -983,6 +1048,39 @@ function Add_New_Templates(props) {
       if (response) {
         setLoader(false);
         if (response?.data?.statusCode === 200) {
+          const TemplateKeyID = response.data.responseData.data;
+          const formData = new FormData();
+          const isBinary =
+            selectedFile.fileName instanceof Blob ||
+            selectedFile.fileName instanceof File;
+          // Instead, you should append the entire file
+          if (isBinary) {
+            formData.set("file", selectedFile.fileName); // Append the file itself
+            const uploadResponse = await AddUpdateTemplateWatermark(
+              selectedFile.size,
+              TemplateKeyID,
+              formData
+            );
+
+            if (uploadResponse) {
+              if (apiRequestParams.templateKeyID === null) {
+                $("#" + props.id).modal("show");
+                setOpenSuccessModal(true);
+                setLoader(false);
+                // navigate("/terms-and-conditions");
+              } else {
+                setOpenSuccessModal(true);
+                setLoader(false);
+                // navigate("/terms-and-conditions");
+              }
+            } else {
+              setErrorMessage(uploadResponse?.response?.data?.errorMessage);
+              setLoader(false);
+            }
+          } else {
+            setOpenSuccessModal(true);
+            setLoader(false);
+          }
           if (apiRequestParams.templateKeyID === null) {
             setOpenSuccessModal(true);
             props.setIsAddUpdateActionDone(true);
@@ -1886,7 +1984,103 @@ function Add_New_Templates(props) {
                     </div>
                   </div>
                 </div>
-                <div className="row mb-2" id="FontFamily">
+                <div className="row mb-2" id="WatermarkDiv">
+                  <div
+                    style={{ padding: "10px" }}
+                    className="col-lg-3  text-left"
+                  >
+                    <div className="mb-1">
+                      <label className="form-label">Upload Watermark</label>
+                    </div>
+                  </div>
+                  <div className="col-lg-9 col-md-9">
+                    {(TemplateObj.watermarkImage || selectedFile.fileName) && (
+                      <button
+                        onClick={handleWatermarkImageDelete}
+                        style={{
+                          marginBottom: "5px",
+                          fontSize: "75%",
+                        }}
+                        className="btn btn-sm btn-danger remove-item-btn"
+                      >
+                        <i className="bi bi-trash3 margin-right"></i> Delete
+                      </button>
+                    )}
+
+                    <div className="mb-2 input-group">
+                      {!selectedFile.fileName && !TemplateObj.watermarkImage ? (
+                        <input
+                          type="file"
+                          accept=".jpg, .jpeg, .png"
+                          onChange={(e) => {
+                            e.preventDefault();
+                            const file = e.target.files[0];
+
+                            if (file) {
+                              const fileNameParts = file.name.split(".");
+                              const fileExtension =
+                                fileNameParts[fileNameParts.length - 1].toLowerCase();
+                              const allowedExtensions = ["jpg", "jpeg", "png"];
+
+                              if (!allowedExtensions.includes(fileExtension)) {
+                                console.error("Please select a JPG, JPEG, or PNG file.");
+                                return;
+                              }
+
+                              handleFileUpload(e);
+                            }
+                          }}
+                        />
+                      ) : (
+                        <div className="input-group mt-3">
+                          {/* Preview for newly selected file */}
+                          {selectedFile.fileName && (() => {
+                            const file = selectedFile.fileName;
+                            const fileExtension = file.name.split(".").pop().toLowerCase();
+
+                            if (["jpg", "jpeg", "png"].includes(fileExtension)) {
+                              return (
+                                <div style={{ width: "100%" }}>
+                                  <p>
+                                    <strong>Preview:</strong> {file.name}
+                                  </p>
+                                  <iframe
+                                    title="Watermark Preview"
+                                    src={URL.createObjectURL(file)}
+                                    width="100%"
+                                    height="350px"
+                                    loading="lazy"
+                                    style={{ border: "1px solid #000" }}
+                                  />
+                                </div>
+                              );
+                            }
+
+                            return <p className="text-danger">Unsupported file format.</p>;
+                          })()}
+
+                          {/* Preview for existing watermark*/}
+                          {!selectedFile.fileName && TemplateObj.watermarkImage && (
+                            <div style={{ width: "100%" }}>
+                              <p>
+                                <strong>Current Watermark:</strong>
+                              </p>
+                                <iframe
+                                  title="Current Watermark"
+                                  src={TemplateObj.watermarkImage}
+                                  width="100%"
+                                  height="350px"
+                                  loading="lazy"
+                                  style={{ border: "1px solid #000" }}
+                                />
+                            </div>
+                          )}
+                        </div>
+                      )}
+                  </div>
+                  </div>
+                </div>
+                <div className="row mb-2" id="FirstPage">
                   <div
                     style={{ padding: "10px" }}
                     className="col-lg-3  text-left"
@@ -1938,6 +2132,55 @@ function Add_New_Templates(props) {
                           displayed.
                         </div>
                       </FormGroup>
+                    </div>
+                  </div>
+                </div>
+                <div className="row mb-2" id="ViewMode">
+                  <div
+                    style={{ padding: "10px" }}
+                    className="col-lg-3  text-left"
+                  >
+                    <div className="mb-1">
+                      <label className="form-label">Select Orientation</label>
+                    </div>
+                  </div>
+                  <div className="col-lg-9">
+                    <div
+                      class="col-md-9 col-sm-9 col-lg-9 me-4"
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                      }}
+                    >
+                      <div className="row">
+                      <div className="col-md-3 col-lg-3 me-4">
+                        <input
+                        className="form-check-input"
+                        type="radio"
+                        name="orientation"
+                        value={1}
+                        checked={orientationID === 1}
+                        onChange={handleOrientationChange}
+                        defaultChecked
+                        />
+                        <label className="form-check-lable">
+                          Portrait
+                        </label>
+                      </div>
+                      <div className="col-md-3 col-lg-3">
+                        <input
+                          className="form-check-input"
+                          type="radio"
+                          name="orientation"
+                          value={2}
+                          checked={orientationID === 2}
+                          onChange={handleOrientationChange}
+                        />
+                        <label className="form-check-label">
+                          Landscape
+                        </label>
+                      </div>
+                      </div>
                     </div>
                   </div>
                 </div>

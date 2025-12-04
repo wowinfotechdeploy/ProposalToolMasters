@@ -58,6 +58,7 @@ const AccessKeyList = () => {
     getCrudButtonToolTipName,
     userAccessData,
     activeOrganizationSubscriptionPlan,
+    isSubscriptionLoading,
     desktopRecords,
     isMobileRecords
   } = useContext(AuthContextProvider);
@@ -68,12 +69,14 @@ const AccessKeyList = () => {
   // B] Initial useEffect :
   // 1) Will Call Initial Api Like List Api
   useEffect(() => {
+    console.log("activeOrganizationSubscriptionPlan", activeOrganizationSubscriptionPlan);
+    if (isSubscriptionLoading || !activeOrganizationSubscriptionPlan) return;
     if (common.organisationKeyID !== null && !activeOrganizationSubscriptionPlan?.apiIntegration) {
       navigate(-1); // Redirect to the previous page
     }
     setTopbar("block");
     GetAccessKeyListData(1);
-  }, []);
+  }, [isSubscriptionLoading, activeOrganizationSubscriptionPlan]);
 
   //2) This useEffect will trigger when we successfully add or update record from popup model
   useEffect(() => {
@@ -249,6 +252,7 @@ const AccessKeyList = () => {
 
   //Design part :
   return (
+    <>
      <div className="container-fluid">
       {/* <div class="main-content"> */}
         <div class="services page-background">
@@ -649,7 +653,7 @@ const AccessKeyList = () => {
         </div>
         </div>
 
-        <Footer />
+
       </div>
 
       {/* start back-to-top */}
@@ -662,6 +666,8 @@ const AccessKeyList = () => {
       </button>
       {/* end back-to-top */}
     </div>
+    <Footer />
+    </>
   );
 };
 

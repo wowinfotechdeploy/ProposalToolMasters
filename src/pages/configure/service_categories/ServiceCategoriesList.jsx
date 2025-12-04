@@ -367,6 +367,7 @@ const Service_Categories = () => {
 
   //Design part :
   return (
+    <>
     <div className="container-fluid">
       {/* <div class="main-content"> */}
         <div class="services page-background">
@@ -874,7 +875,6 @@ const Service_Categories = () => {
               modelRequestData={modelRequestData}
             />
           
-        <Footer />
       </div>
 
       {/* start back-to-top */}
@@ -887,6 +887,8 @@ const Service_Categories = () => {
       </button>
       {/* end back-to-top */}
     </div>
+    <Footer />
+    </>
   );
 };
 

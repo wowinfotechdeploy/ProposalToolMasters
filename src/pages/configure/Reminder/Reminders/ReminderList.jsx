@@ -463,6 +463,7 @@ function ReminderList() {
   };
 
   return (
+    <>
     <div className="container-fluid">
       {/* <div class="main-content"> */}
         <div class="services page-background">
@@ -1024,7 +1025,7 @@ function ReminderList() {
           setTriggerPointType={setTriggerPointType}
           setDocumentStatus={setDocumentStatus}
         />
-        <Footer />
+        
         </div>
             </div>
           </div>
@@ -1033,6 +1034,8 @@ function ReminderList() {
       </div>
       {/* end back-to-top */}
     </div>
+    <Footer />
+    </>
   );
 }
 

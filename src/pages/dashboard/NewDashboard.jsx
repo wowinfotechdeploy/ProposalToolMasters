@@ -1251,7 +1251,7 @@ const NewDashboard = () => {
 
   return (
       // <div className= {(isMobile || window.innerWidth <= 1040) ? "page-content" : "main-content"}>
-        <div class="container mt-3">
+        <div class="container mt-3 pb-3">
         <div style={{ maxWidth: "1400px" }}>
           {accessCount === undefined || loader ? (
             <div className="center-screen">
@@ -1366,62 +1366,6 @@ const NewDashboard = () => {
                           {(userAccessData.Admin_Proposal_CanView ||
                             common.organisationKeyID == null) && (
                               <>
-                                {/* <div
-                                  className={`col-xl-4 col-lg-4s col-md-4 dashboard-box col-sm-12  ${common.organisationKeyID !== null
-                                    ? "cursor-pointer"
-                                    : ""
-                                    } `}
-                                >
-                                  <div className="dashboard-new-design">
-                                    <div
-                                      class="card"
-                                      onClick={() =>
-                                        handleAddData("Draft", statusID.Draft)
-                                      }
-                                    >
-                                      <div
-                                        class="card-header p-3 pt-2"
-                                        style={cardStyle}
-                                      >
-                                        <div className="row">
-                                          <div className="col-lg-3">
-                                            <img
-                                              src={DraftProposalPng}
-                                              className="CardImage"
-                                              alt
-                                            />
-                                          </div>
-                                          <div className="col-lg-9">
-                                            <div class="text-end pt-1">
-                                              <h5 class="text-white mb-0">
-                                                {calculateGBPAmount(
-                                                  dashboardCount.quotationDraft_AmountOneOff,
-                                                  dashboardCount.quotationDraft_AmountRecc
-                                                )}
-                                              </h5>
-                                            </div>
-                                          </div>
-                                        </div>
-                                        <div class="text-end pt-1"></div>
-                                      </div>
-                                      <hr class="dark horizontal my-0" />
-                                      <div
-                                        class="card-footer p-3 d-flex justify-content-between align-items-center"
-                                        style={cardStyle}
-                                      >
-                                        <p class="mb-0 font-weight-bolder">
-                                          <span class="text-success  text-white text-sm font-weight-bolder" />
-                                          Draft {proposalName}
-                                        </p>
-                                        <div class="text-end pt-1">
-                                          <h5 class="text-white mb-0">
-                                            {dashboardCount?.quotationDraft}
-                                          </h5>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div> */}
                                 <div
                                   className={`col-xl-4 col-lg-4 col-md-4 col-sm-12 dashboard-box 
                                     ${common.organisationKeyID !== null ? "cursor-pointer" : ""}`}
@@ -1451,65 +1395,6 @@ const NewDashboard = () => {
                                   </div>
                                 </div>
                               
-                                {/* <div
-                                  className={`col-xl-4 col-lg-4 col-md-4 dashboard-box col-sm-12  ${common.organisationKeyID !== null
-                                    ? "cursor-pointer"
-                                    : ""
-                                    } `}
-                                >
-                                  <div className="dashboard-new-design">
-                                    <div
-                                      class="card"
-                                      onClick={() =>
-                                        handleAddData("Sent", statusID.Sent)
-                                      }
-                                    >
-                                      <div
-                                        class="card-header p-3 pt-2"
-                                        style={cardStyle}
-                                      >
-                                        <div className="row">
-                                          <div className="col-lg-3">
-                                            <img
-                                              src={SentProposalPng}
-                                              className="CardImage"
-                                              alt
-                                            />
-                                          </div>
-                                          <div className="col-lg-9">
-                                            <div class="text-end pt-1">
-                                              <h5 class=" text-white  mb-0">
-                                                {calculateGBPAmount(
-                                                  dashboardCount.quotationSent_AmountOneOff,
-                                                  dashboardCount.quotationSent_AmountRecc
-                                                )}
-                                              </h5>
-                                            </div>
-                                          </div>
-                                        </div>
-                                        <div class="text-end pt-1">
-                                          <p class="text-sm mb-0 text-capitalize">Sent</p>
-                                          <h4 class=" text-white  mb-0">44</h4>
-                                        </div>
-                                      </div>
-                                      <hr class="dark horizontal my-0" />
-                                      <div
-                                        class="card-footer p-3 d-flex justify-content-between align-items-center"
-                                        style={cardStyle}
-                                      >
-                                        <p class="mb-0 font-weight-bolder">
-                                          <span class="text-success text-sm font-weight-bolder" />
-                                          {proposalName} Sent
-                                        </p>
-                                        <div class="text-end pt-1">
-                                          <h5 class=" text-white  mb-0">
-                                            {dashboardCount?.quotationSent}{" "}
-                                          </h5>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div> */}
                                 <div
                                   className={`col-xl-4 col-lg-4 col-md-4 col-sm-12 dashboard-box 
                                     ${common.organisationKeyID !== null ? "cursor-pointer" : ""}`}
@@ -1541,62 +1426,6 @@ const NewDashboard = () => {
 
                                 {/* Proposal Accepted */}
 
-                                {/* <div
-                                  className={`col-xl-4 col-lg-4 col-md-4 dashboard-box col-sm-12  ${common.organisationKeyID !== null
-                                    ? "cursor-pointer"
-                                    : ""
-                                    } `}
-                                >
-                                  <div className="dashboard-new-design">
-                                    <div
-                                      class="card"
-                                      onClick={() =>
-                                        handleAddData("Accepted", statusID.Accepted)
-                                      }
-                                    >
-                                      <div
-                                        class="card-header p-3 pt-2"
-                                        style={cardStyle}
-                                      >
-                                        <div className="row">
-                                          <div className="col-lg-3">
-                                            <img
-                                              src={DraftEngagementLatterPng}
-                                              className="CardImage"
-                                              alt
-                                            />
-                                          </div>
-                                          <div className="col-lg-9">
-                                            <div class="text-end pt-1">
-                                              <h5 class="mb-0 text-white ">
-                                                {calculateGBPAmount(
-                                                  dashboardCount.quotationAccepted_AmountOneOff,
-                                                  dashboardCount.quotationAccepted_AmountRecc
-                                                )}
-                                              </h5>
-                                            </div>
-                                          </div>
-                                        </div>
-                                        <div class="text-end pt-1"></div>
-                                      </div>
-                                      <hr class="dark horizontal my-0" />
-                                      <div
-                                        class="card-footer p-3 d-flex justify-content-between align-items-center"
-                                        style={cardStyle}
-                                      >
-                                        <p class="mb-0 font-weight-bolder">
-                                          <span class="text-success text-sm font-weight-bolder" />
-                                          {proposalName} Accepted
-                                        </p>
-                                        <div class="text-end pt-1">
-                                          <h5 class="mb-0 text-white ">
-                                            {dashboardCount?.quotationAccepted}{" "}
-                                          </h5>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div> */}
                                 <div
                                   className={`col-xl-4 col-lg-4 col-md-4 col-sm-12 dashboard-box 
                                     ${common.organisationKeyID !== null ? "cursor-pointer" : ""}`}
@@ -1630,65 +1459,6 @@ const NewDashboard = () => {
                                 {(common.enableEL == 0 ||
                                   common.enableEL == null) && (
                                     <>
-                                      {/* <div
-                                        className={`col-xl-4 col-lg-4 col-md-4 dashboard-box col-sm-12  ${common.organisationKeyID !== null
-                                          ? "cursor-pointer"
-                                          : ""
-                                          } `}
-                                      >
-                                        <div className="dashboard-new-design">
-                                          <div
-                                            class="card"
-                                            onClick={() =>
-                                              handleAddData(
-                                                "Sent",
-                                                statusID.Awaiting_Signature
-                                              )
-                                            }
-                                          >
-                                            <div
-                                              class="card-header p-3 pt-2"
-                                              style={cardStyle}
-                                            >
-                                              <div className="row">
-                                                <div className="col-lg-3">
-                                                  <img
-                                                    src={DraftEngagementLatterPng}
-                                                    className="CardImage"
-                                                    alt
-                                                  />
-                                                </div>
-                                                <div className="col-lg-9">
-                                                  <div class="text-end pt-1">
-                                                    <h5 class="mb-0 text-white ">
-                                                      {calculateGBPAmount(
-                                                        dashboardCount.quotationAwaitingSignatureEnd_AmountOneOff,
-                                                        dashboardCount.quotationAwaitingSignatureEnd_AmountRecc
-                                                      )}
-                                                    </h5>
-                                                  </div>
-                                                </div>
-                                              </div>
-                                              <div class="text-end pt-1"></div>
-                                            </div>
-                                            <hr class="dark horizontal my-0" />
-                                            <div
-                                              class="card-footer p-3 d-flex justify-content-between align-items-center"
-                                              style={cardStyle}
-                                            >
-                                              <p class="mb-0 font-weight-bolder">
-                                                <span class="text-success text-sm font-weight-bolder" />
-                                                Awaiting Response
-                                              </p>
-                                              <div class="text-end pt-1">
-                                                <h5 class="mb-0 text-white ">
-                                                  {dashboardCount?.quotationAccepted}{" "}
-                                                </h5>
-                                              </div>
-                                            </div>
-                                          </div>
-                                        </div>
-                                      </div> */}
                                     <div
                                       className={`col-xl-4 col-lg-4 col-md-4 col-sm-12 dashboard-box 
                                     ${common.organisationKeyID !== null ? "cursor-pointer" : ""}`}
@@ -1722,120 +1492,6 @@ const NewDashboard = () => {
                                 {(common.enableEL == 0 ||
                                   common.enableEL == null) && (
                                     <>
-                                      {/* <div
-                                  className={`col-xl-4 col-lg-4 col-md-4 dashboard-box col-sm-12  ${
-                                    common.organisationKeyID !== null
-                                      ? "cursor-pointer"
-                                      : ""
-                                  } `}
-                                >
-                                  <div className="dashboard-new-design">
-                                    <div
-                                      class="card"
-                                      onClick={() =>
-                                        handleAddData(
-                                          "Accepted",
-                                          statusID.Accepted
-                                        )
-                                      }
-                                    >
-                                      <div
-                                        class="card-header p-3 pt-2"
-                                        style={cardStyle}
-                                      >
-                                        <div className="row">
-                                          <div className="col-lg-6">
-                                            <img
-                                              src={DraftEngagementLatterPng}
-                                              className="CardImage"
-                                              alt
-                                            />
-                                          </div>
-                                          <div className="col-lg-6">
-                                            <div class="text-end pt-1">
-                                              <h4 class="mb-0 text-white ">
-                                                {
-                                                  dashboardCount?.quotationAccepted
-                                                }{" "}
-                                              </h4>
-                                            </div>
-                                          </div>
-                                        </div>
-                                        <div class="text-end pt-1"></div>
-                                      </div>
-                                      <hr class="dark horizontal my-0" />
-                                      <div
-                                        class="card-footer p-3"
-                                        style={cardStyle}
-                                      >
-                                        <p class="mb-0 font-weight-bolder">
-                                          <span class="text-success text-sm font-weight-bolder" />
-                                          {proposalName} Accepted
-                                        </p>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div> */}
-
-                                      {/* <div
-                                        className={`col-xl-4 col-lg-4 col-md-4 dashboard-box col-sm-12  ${common.organisationKeyID !== null
-                                          ? "cursor-pointer"
-                                          : ""
-                                          } `}
-                                      >
-                                        <div className="dashboard-new-design">
-                                          <div
-                                            class="card"
-                                            onClick={() =>
-                                              handleAddData(
-                                                "Decline",
-                                                statusID.Declined
-                                              )
-                                            }
-                                          >
-                                            <div
-                                              class="card-header p-3 pt-2"
-                                              style={cardStyle}
-                                            >
-                                              <div className="row">
-                                                <div className="col-lg-3">
-                                                  <img
-                                                    src={EngagementLatterSendSvg}
-                                                    className="CardImage"
-                                                    alt
-                                                  />
-                                                </div>
-                                                <div className="col-lg-9">
-                                                  <div class="text-end pt-1">
-                                                    <h5 class="mb-0 text-white ">
-                                                      {calculateGBPAmount(
-                                                        dashboardCount.quotationDeclined_AmountOneOff,
-                                                        dashboardCount.quotationDeclined_AmountRecc
-                                                      )}
-                                                    </h5>
-                                                  </div>
-                                                </div>
-                                              </div>
-                                              <div class="text-end pt-1"></div>
-                                            </div>
-                                            <hr class="dark horizontal my-0" />
-                                            <div
-                                              class="card-footer p-3 d-flex justify-content-between align-items-center"
-                                              style={cardStyle}
-                                            >
-                                              <p class="mb-0 font-weight-bolder">
-                                                <span class="text-success text-sm font-weight-bolder" />
-                                                {proposalName} Declined
-                                              </p>
-                                              <div class="text-end pt-1">
-                                                <h5 class="mb-0 text-white ">
-                                                  {dashboardCount?.quotationDeclined}
-                                                </h5>
-                                              </div>
-                                            </div>
-                                          </div>
-                                        </div>
-                                      </div> */}
                                     <div
                                       className={`col-xl-4 col-lg-4 col-md-4 col-sm-12 dashboard-box 
                                       ${common.organisationKeyID !== null ? "cursor-pointer" : ""}`}
@@ -1877,65 +1533,6 @@ const NewDashboard = () => {
                             (userAccessData.Admin_Engagement_Latter_CanView ||
                               common.organisationKeyID == null) && (
                               <>
-                                {/* <div
-                                  className={`col-xl-4 col-lg-4 col-md-4 dashboard-box col-sm-12  ${common.organisationKeyID !== null
-                                    ? "cursor-pointer"
-                                    : ""
-                                    } `}
-                                >
-                                  <div className="dashboard-new-design">
-                                    <div
-                                      class="card"
-                                      onClick={() =>
-                                        GetHandleChangeFilter(
-                                          "Draft",
-                                          statusID.Draft
-                                        )
-                                      }
-                                    >
-                                      <div
-                                        class="card-header p-3 pt-2"
-                                        style={cardStyle}
-                                      >
-                                        <div className="row">
-                                          <div className="col-lg-3">
-                                            <img
-                                              src={EngagementLatterSendSvg}
-                                              className="CardImage"
-                                              alt
-                                            />
-                                          </div>
-                                          <div className="col-lg-9">
-                                            <div class="text-end pt-1">
-                                              <h5 class="mb-0 text-white ">
-                                                {calculateGBPAmount(
-                                                  dashboardCount.contractDraft_AmountOneOff,
-                                                  dashboardCount.contractDraft_AmountRecc
-                                                )}
-                                              </h5>
-                                            </div>
-                                          </div>
-                                        </div>
-                                        <div class="text-end pt-1"></div>
-                                      </div>
-                                      <hr class="dark horizontal my-0" />
-                                      <div
-                                        className="card-footer p-3 d-flex justify-content-between align-items-center"
-                                        style={cardStyle}
-                                      >
-                                        <p className="mb-0 font-weight-bolder">
-                                          <span className="text-success text-sm font-weight-bolder"></span>
-                                          Draft {EngagementName}
-                                        </p>
-                                        <div class="text-end pt-1">
-                                          <h5 class="mb-0 text-white ">
-                                            {dashboardCount?.contractDraft}
-                                          </h5>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div> */}
                                 <div
                                   className={`col-xl-4 col-lg-4 col-md-4 col-sm-12 dashboard-box 
                                     ${common.organisationKeyID !== null ? "cursor-pointer" : ""}`}
@@ -1968,58 +1565,6 @@ const NewDashboard = () => {
                                 {/* Void EL hidden */}
 
                                 {dashboardCount?.contractVoid > 0 && (
-                                  // <div
-                                  //   className={`col-xl-4 col-lg-4 col-md-4 dashboard-box col-sm-12  ${common.organisationKeyID !== null
-                                  //     ? "cursor-pointer"
-                                  //     : ""
-                                  //     } `}
-                                  // >
-                                  //   <div className="dashboard-new-design">
-                                  //     <div
-                                  //       class="card"
-                                  //       onClick={() =>
-                                  //         GetHandleChangeFilter(
-                                  //           "Void",
-                                  //           statusID.Void
-                                  //         )
-                                  //       }
-                                  //     >
-                                  //       <div
-                                  //         class="card-header p-3 pt-2"
-                                  //         style={cardStyle}
-                                  //       >
-                                  //         <div className="row">
-                                  //           <div className="col-lg-6">
-                                  //             <img
-                                  //               src={EngagementLatterSignedSvg}
-                                  //               className="CardImage"
-                                  //               alt
-                                  //             />
-                                  //           </div>
-                                  //           <div className="col-lg-6">
-                                  //             <div class="text-end pt-1">
-                                  //               <h4 class="mb-0 text-white ">
-                                  //                 {" "}
-                                  //                 {dashboardCount?.contractVoid}
-                                  //               </h4>
-                                  //             </div>
-                                  //           </div>
-                                  //         </div>
-                                  //         <div class="text-end pt-1"></div>
-                                  //       </div>
-                                  //       <hr class="dark horizontal my-0" />
-                                  //       <div
-                                  //         class="card-footer p-3"
-                                  //         style={cardStyle}
-                                  //       >
-                                  //         <p class="mb-0 font-weight-bolder">
-                                  //           <span class="text-success text-sm font-weight-bolder" />
-                                  //           Void {EngagementName}
-                                  //         </p>
-                                  //       </div>
-                                  //     </div>
-                                  //   </div>
-                                  // </div>
                                   <div
                                     className={`col-xl-4 col-lg-4 col-md-4 col-sm-12 dashboard-box 
                                     ${common.organisationKeyID !== null ? "cursor-pointer" : ""}`}
@@ -2050,65 +1595,6 @@ const NewDashboard = () => {
                                   </div>
                                 )}
 
-                                {/* <div
-                                  className={`col-xl-4 col-lg-4 col-md-4 dashboard-box col-sm-12  ${common.organisationKeyID !== null
-                                    ? "cursor-pointer"
-                                    : ""
-                                    } `}
-                                >
-                                  <div className="dashboard-new-design">
-                                    <div
-                                      class="card"
-                                      onClick={() =>
-                                        GetHandleChangeFilter(
-                                          "sent",
-                                          statusID.Sent
-                                        )
-                                      }
-                                    >
-                                      <div
-                                        class="card-header p-3 pt-2"
-                                        style={cardStyle}
-                                      >
-                                        <div className="row">
-                                          <div className="col-lg-3">
-                                            <img
-                                              src={EngagementLatterSendSvg}
-                                              className="CardImage"
-                                              alt
-                                            />
-                                          </div>
-                                          <div className="col-lg-9">
-                                            <div class="text-end pt-1">
-                                              <h5 class="mb-0 text-white ">
-                                                {calculateGBPAmount(
-                                                  dashboardCount.contractSent_AmountOneOff,
-                                                  dashboardCount.contractSent_AmountRecc
-                                                )}
-                                              </h5>
-                                            </div>
-                                          </div>
-                                        </div>
-                                        <div class="text-end pt-1"></div>
-                                      </div>
-                                      <hr class="dark horizontal my-0" />
-                                      <div
-                                        class="card-footer p-3 d-flex justify-content-between align-items-center"
-                                        style={cardStyle}
-                                      >
-                                        <p class="mb-0 font-weight-bolder">
-                                          <span class="text-success text-sm font-weight-bolder" />
-                                          {EngagementName} Sent
-                                        </p>
-                                        <div class="text-end pt-1">
-                                          <h5 class="mb-0 text-white ">
-                                            {dashboardCount?.contractSent}
-                                          </h5>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div> */}
                                 <div
                                   className={`col-xl-4 col-lg-4 col-md-4 col-sm-12 dashboard-box 
                                     ${common.organisationKeyID !== null ? "cursor-pointer" : ""}`}
@@ -2140,62 +1626,6 @@ const NewDashboard = () => {
 
                                 {/* EL viewed hidden */}
 
-                                {/* <div
-                                    className={`col-xl-3 col-lg-3 col-md-4 dashboard-box col-sm-12  ${common.organisationKeyID !== null
-                                      ? "cursor-pointer"
-                                      : ""
-                                      } `}
-                                  >
-                                    <div className="dashboard-new-design">
-                                      <div
-                                        class="card"
-                                        onClick={() =>
-                                          GetHandleChangeFilter(
-                                            "Awaiting",
-                                            statusID.Awaiting_Signature
-                                          )
-                                        }
-                                      >
-                                        <div
-                                          class="card-header p-3 pt-2"
-                                          style={cardStyle}
-                                        >
-                                          <div className="row">
-                                            <div className="col-lg-6">
-                                              <img
-                                                src={
-                                                  EngagementLatterAwaitingSignatureSvg
-                                                }
-                                                className="CardImage"
-                                                alt
-                                              />
-                                            </div>
-                                            <div className="col-lg-6">
-                                              <div class="text-end pt-1">
-                                                <h4 class="mb-0 text-white ">
-                                                  {
-                                                    dashboardCount?.contractAwaitingSignature
-                                                  }
-                                                </h4>
-                                              </div>
-                                            </div>
-                                          </div>
-
-                                          <div class="text-end pt-1"></div>
-                                        </div>
-                                        <hr class="dark horizontal my-0" />
-                                        <div
-                                          class="card-footer p-3"
-                                          style={cardStyle}
-                                        >
-                                          <p class="mb-0 font-weight-bolder">
-                                            <span class="text-success text-sm font-weight-bolder" />
-                                            {EngagementName} Viewed
-                                          </p>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div> */}
 
                                 {/* <div
                                   className={`col-xl-4 col-lg-4 col-md-4 dashboard-box col-sm-12  ${common.organisationKeyID !== null
@@ -2287,68 +1717,6 @@ const NewDashboard = () => {
                                   </div>
                                 </div>
 
-                                {/* <div
-                                  className={`col-xl-4 col-lg-4 col-md-4 dashboard-box col-sm-12  ${common.organisationKeyID !== null
-                                    ? "cursor-pointer"
-                                    : ""
-                                    } `}
-                                >
-                                  <div className="dashboard-new-design">
-                                    <div
-                                      class="card"
-                                      onClick={() =>
-                                        GetHandleChangeFilter(
-                                          "Decline",
-                                          statusID.Declined
-                                        )
-                                      }
-                                    >
-                                      <div
-                                        class="card-header p-3 pt-2"
-                                        style={cardStyle}
-                                      >
-                                        <div className="row">
-                                          <div className="col-lg-3">
-                                            <img
-                                              src={EngagementLaterDeclinedSvg}
-                                              className="CardImage"
-                                              alt
-                                            />
-                                          </div>
-                                          <div className="col-lg-9">
-                                            <div class="text-end pt-1">
-                                              <h4 class="mb-0 text-white ">
-                                                {calculateGBPAmount(
-                                                  dashboardCount.contractDeclined_AmountOneOff,
-                                                  dashboardCount.contractDeclined_AmountRecc
-                                                )}
-                                              </h4>
-                                            </div>
-                                          </div>
-                                        </div>
-                                        <div class="text-end pt-1"></div>
-                                      </div>
-                                      <hr class="dark horizontal my-0" />
-                                      <div
-                                        class="card-footer p-3 d-flex justify-content-between align-items-center"
-                                        style={cardStyle}
-                                      >
-                                        <p
-                                          class="mb-0 font-weight-bolder"
-                                          style={{ fontSize: "0.9rem" }}
-                                        >
-                                          <span class="text-success text-sm font-weight-bolder" />
-                                          {EngagementName} Declined
-                                        </p>
-                                        <div class="text-end pt-1">
-                                          <h5 class="mb-0 text-white ">
-                                            {dashboardCount?.contractDeclined}
-                                          </h5>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div> */}
                                 <div
                                   className={`col-xl-4 col-lg-4 col-md-4 col-sm-12 dashboard-box 
                                     ${common.organisationKeyID !== null ? "cursor-pointer" : ""}`}

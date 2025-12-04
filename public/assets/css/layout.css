@@ -4,12 +4,31 @@
   min-height: 100vh;
   height: auto;
 }
+.app-menu {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+#scrollbar {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0; /* Important for flex scrolling */
+}
 
+.sidebar-bottom {
+  flex-shrink: 0;
+  margin-top: auto;
+  padding: 10px 0;
+  z-index: 9999;
+}
 .app-layout-clone .topbar-clone {
   flex: 0 0 17%;
   max-width: 90%;
+  flex-direction: column;
+  justify-content: space-between;
   min-height: 100vh;
-  overflow-y: auto;
+  height:auto;
+  overflow-y: hidden;
   position: relative;
 }
 
@@ -24,12 +43,20 @@
   overflow-y: auto;
 }
 
+.sidebar-menu-scroll {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+  padding-bottom: 0; /* prevent content from touching bottom */
+}
+
 .app-layout-clone .main-content > *:not(.footer) {
   flex: 1;
 }
 
 .footer {
   margin-top: auto;
+  flex-shrink: 0;
 }
 
 .app-layout-clone .topbar-clone.collapsed {
@@ -182,7 +209,7 @@ body.modal-open .app-layout-clone .topbar-clone {
     display: block;
     width: 100%;
   }
-
+  
   .menu-dropdown .nav-link,
   .menu_dropdown .nav-link {
     display: block;
@@ -198,8 +225,7 @@ body.modal-open .app-layout-clone .topbar-clone {
   max-width: 100%;
   box-sizing: border-box;
   /* overflow: hidden; */
-  overflow-x: auto; 
-  white-space: normal;
+  white-space: nowrap;
   text-overflow: ellipsis;
   display: none;
   transition: all 0.3s ease-in-out;

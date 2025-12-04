@@ -1,5 +1,6 @@
 /* global $ */
 import React, { useContext, useEffect, useRef, useState } from "react";
+import { lazy, Suspense } from "react";
 import "../configure/packages/Package.css";
 import "./Proposals.css";
 import Select from "react-select";
@@ -38,7 +39,7 @@ import {
   GetProposalLookupList,
 } from "../../redux/Services/client/clientAPI";
 import { ERROR_MESSAGES } from "../../components/GlobalMessage";
-import { SelectServices } from "../../components/SelectServices";
+// import { SelectServices } from "../../components/SelectServices";
 
 import {
   GetTemplateListLookupList,
@@ -46,7 +47,7 @@ import {
   TemplateAvailableData,
 } from "../../redux/Services/Config/TemplateApi";
 import { SelectedProposalCustomize } from "../../components/SelectedProposalCustomize";
-import PreviewComponentPdf from "../../components/PreviewComponentpdf";
+// import PreviewComponentPdf from "../../components/PreviewComponentpdf";
 import { GetOrganisationInformationModel } from "../../redux/Services/Setting/Organisation";
 import {
   AddUpdateQuote,
@@ -60,9 +61,9 @@ import ErrorModel from "../../components/ErrorModel";
 import { GetPaymentGatewayModel } from "../../redux/Services/Setting/PaymentGatewayApi";
 import RecordsAvailablePopupModel from "../../components/RecordsAvailablePopupModel";
 import ViewModuleIcon from "@mui/icons-material/ViewModule";
-import PricingTableTemplatesModal from "../../components/PricingTableTemplatesModal";
+// import PricingTableTemplatesModal from "../../components/PricingTableTemplatesModal";
 import EditIcon from "@mui/icons-material/Edit";
-import PricingTableCustomizationModal from "../../components/PricingTableCustomizationModal";
+// import PricingTableCustomizationModal from "../../components/PricingTableCustomizationModal";
 import Text_Editor from "../../components/Text_Editor";
 import EmailFailurePopUP from "../../components/EmailFailurePopUp";
 import {
@@ -70,6 +71,10 @@ import {
   GetProspectSendMailStatus,
   ResendAddUpdateQuote,
 } from "../../redux/Services/EmailFailureStatusAPI/EmailFailureStatusAPI";
+const SelectServices = lazy(() => import("../../components/SelectServices"));
+const PreviewComponentPdf = lazy(() => import("../../components/PreviewComponentpdf"));
+const PricingTableCustomizationModal = lazy(() => import("../../components/PricingTableCustomizationModal"));
+const PricingTableTemplatesModal = lazy(() => import("../../components/PricingTableTemplatesModal"));
 
 const BasicInformationComponent = (props) => {
   const navigate = useNavigate();
@@ -128,6 +133,7 @@ const BasicInformationComponent = (props) => {
       props.setHeaderHeight(selectedTemplate.headerHeight);
       props.setFooterHeight(selectedTemplate.footerHeight);
       props.setFontFamily(props.getFontNameById(selectedTemplate.fontFamilyID));
+      props.setWatermarkImage(selectedTemplate?.watermarkImage);
       props.setShowSeparatorLines(selectedTemplate.showSeparatorLines);
 
       // props.updateVisibleFieldsFromIds(selectedTemplate.pricingTableColumnIDs);
@@ -17112,6 +17118,7 @@ const Add_Update_Proposal = (props) => {
   const [DocumentCode, setDocumentCode] = useState("");
   const [BrandColor, setBrandColor] = useState("");
   const [fontFamily, setFontFamily] = useState("");
+  const [watermarkImage, setWatermarkImage] = useState("");
   const [headerHeight, setHeaderHeight] = useState(null);
   const [footerHeight, setFooterHeight] = useState(null);
   const [headerImage, setHeaderImage] = useState(null);
@@ -21962,6 +21969,7 @@ const Add_Update_Proposal = (props) => {
           headerHeight: item.headerHeight,
           footerHeight: item.footerHeight,
           showSeparatorLine: Boolean(item.showSeparatorLines),
+          watermarkImage: item.watermarkImage,
           pricingTableColumnIDs: item.pricingTableColumnIDs
             ? item.pricingTableColumnIDs
             : "",
@@ -22006,6 +22014,7 @@ const Add_Update_Proposal = (props) => {
               headerHeight: filteredRecords[0].headerHeight,
               footerHeight: filteredRecords[0].footerHeight,
               showSeparatorLine: filteredRecords[0].showSeparatorLine,
+              watermarkImage: filteredRecords[0]?.watermarkImage,
               pricingTableColumnIDs: filteredRecords[0]?.pricingTableColumnIDs
                 ? filteredRecords[0]?.pricingTableColumnIDs
                 : "",
@@ -22031,6 +22040,7 @@ const Add_Update_Proposal = (props) => {
             setHeaderHeight(defaultTemplateObject?.headerHeight);
             setFooterHeight(defaultTemplateObject?.footerHeight);
             setShowSeparatorLines(defaultTemplateObject?.showSeparatorLine);
+            setWatermarkImage(defaultTemplateObject?.watermarkImage);
             setPricingTableColumnIDs(
               defaultTemplateObject?.pricingTableColumnIDs
                 ? defaultTemplateObject?.pricingTableColumnIDs
@@ -22058,6 +22068,7 @@ const Add_Update_Proposal = (props) => {
             setHeaderHeight(defaultTemplateOptions[0]?.headerHeight);
             setFooterHeight(defaultTemplateOptions[0]?.footerHeight);
             setShowSeparatorLines(defaultTemplateOptions[0]?.showSeparatorLine);
+            setWatermarkImage(defaultTemplateOptions[0]?.watermarkImage);
             setPricingTableColumnIDs(
               defaultTemplateOptions[0]?.pricingTableColumnIDs
                 ? defaultTemplateOptions[0]?.pricingTableColumnIDs
@@ -22112,6 +22123,7 @@ const Add_Update_Proposal = (props) => {
         setHeaderHeight(defaultTemplateOptions[0]?.headerHeight);
         setFooterHeight(defaultTemplateOptions[0]?.footerHeight);
         setShowSeparatorLines(defaultTemplateOptions[0]?.showSeparatorLine);
+        setWatermarkImage(defaultTemplateOptions[0]?.watermarkImage);
         // console.log(getFontNameById(defaultTemplateObject?.fontFamilyID));
         // Set the state with the default template object
         setProposalObject((prevState) => ({
@@ -25699,6 +25711,7 @@ const Add_Update_Proposal = (props) => {
                   setFooterImage={setFooterImage}
                   setHeaderHeight={setHeaderHeight}
                   setFooterHeight={setFooterHeight}
+                  setWatermarkImage={setWatermarkImage}
                   setFontFamily={setFontFamily}
                   getFontNameById={getFontNameById}
                   setShowSeparatorLines={setShowSeparatorLines}
@@ -25759,6 +25772,7 @@ const Add_Update_Proposal = (props) => {
                  
               )} */}
               {activeTab === ProposalHeader.SelectServices && (
+                <Suspense>
                 <SelectServices
                   selectedProposalValue={selectedProposalValue}
                   ongoingServiceObj={ongoingServiceObj}
@@ -25791,6 +25805,7 @@ const Add_Update_Proposal = (props) => {
                   requireMessage={requireMessage}
                   proposalName={proposalName}
                 />
+                </Suspense>
               )}
               {activeTab === ProposalHeader.SelectPackages && (
                 <SelectedProposalCustomize
@@ -26082,6 +26097,7 @@ const Add_Update_Proposal = (props) => {
                 />
               )}
               {activeTab === ProposalHeader.Preview && (
+                <Suspense>
                 <PreviewComponentPdf
                   isDefaultFirstPage={isDefaultFirstPage}
                   DocumentCode={DocumentCode}
@@ -26164,7 +26180,9 @@ const Add_Update_Proposal = (props) => {
                   currencySymbol={currencySymbol}
                   pricingSettingObj={pricingSettingObj}
                   vatPercentageOneOff={vatPercentageOneOff}
-                />
+                  watermarkImage={watermarkImage}
+                  />
+                  </Suspense>
               )}
             </div>
           </div>
@@ -26205,7 +26223,7 @@ const Add_Update_Proposal = (props) => {
           message={proposalName}
           refIdStore={refIdStore}
         />
-
+        <Suspense>
         <PricingTableTemplatesModal
           show={showSelectTemplateModal}
           onHide={() => setShowSelectTemplateModal(false)}
@@ -26241,7 +26259,9 @@ const Add_Update_Proposal = (props) => {
           visibleFieldsCustomTemp={visibleFieldsCustomTemp}
           vatPercentageOneOff={vatPercentageOneOff}
         />
+        </Suspense>
 
+        <Suspense>
         <PricingTableCustomizationModal
           show={showTemplateCustomizationModal}
           onHide={() => setShowTemplateCustomizationModal(false)}
@@ -26257,6 +26277,7 @@ const Add_Update_Proposal = (props) => {
           }
           serviceTypeID={serviceTypeID}
         />
+        </Suspense>
 
         <EmailFailurePopUP
           open={openEmailFailurePopUp}

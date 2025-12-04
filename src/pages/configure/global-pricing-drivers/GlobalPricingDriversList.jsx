@@ -1,8 +1,8 @@
 /* global $ */
-import React, { useContext, useEffect, useState } from "react";
+import React, { lazy, Suspense, useContext, useEffect, useState } from "react";
 import "./GlobalPricingDriversStyle.css";
 import CommonButtonComponent from "../../../components/CommonButtonComponent";
-import Global_Pricing_Driver_model from "./GlobalPricingDriverModel";
+// import Global_Pricing_Driver_model from "./GlobalPricingDriverModel";
 import {
   CopyGlobalPricingDriver,
   DeleteGlobalPricingDriver,
@@ -23,6 +23,7 @@ import SuccessModal from "../../../components/SuccessModal";
 import ErrorModel from "../../../components/ErrorModel";
 import Footer from "../../../components/Footer";
 import RecordsAvailablePopupModel from "../../../components/RecordsAvailablePopupModel";
+const Global_Pricing_Driver_model = lazy(() => import("./GlobalPricingDriverModel"))
 
 function Predefined_Global_Pricing_Drivers() {
   let getGlobalPricingDriverListApiCallCount = 0;
@@ -391,6 +392,7 @@ function Predefined_Global_Pricing_Drivers() {
 
   //Design part :
   return (
+    <>
    <div className="container-fluid">
       {/* <div class="main-content"> */}
         <div class="services page-background">
@@ -911,7 +913,7 @@ function Predefined_Global_Pricing_Drivers() {
               }`}
             />
             {/* Model */}
-
+            <Suspense>
             <Global_Pricing_Driver_model
               class="modal fade"
               id="GlobalPricingModel"
@@ -921,16 +923,18 @@ function Predefined_Global_Pricing_Drivers() {
               setIsAddUpdateActionDone={setIsAddUpdateActionDone}
               modelRequestData={modelRequestData}
             />
+            </Suspense>
           </div>
         </div>
         {/* container-fluid  */}
       </div>
       {/* End Page-content */}
-      <Footer />
     </div>
     </div>
     </div>
     </div>
+    <Footer />
+    </>
   );
 }
 

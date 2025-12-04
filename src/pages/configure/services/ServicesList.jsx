@@ -359,6 +359,7 @@ const Services = () => {
 
   //Design part :
   return (
+    <>
     <div className="container-fluid">
       {/* <div class="main-content"> */}
       <div class="services page-background">
@@ -959,7 +960,7 @@ const Services = () => {
         {/* container-fluid  */}
       </div>
       {/* End Page-content */}
-      <Footer />
+      
       {/* </div> */}
       <FilterModel
         class="modal fade"
@@ -982,6 +983,8 @@ const Services = () => {
       </button>
       {/* end back-to-top */}
     </div>
+    <Footer />
+    </>
   );
 };
 

@@ -463,6 +463,7 @@ const Organisation = () => {
       // console.log(fromDate,toDate);
     };
   return (
+    <>
     <div className="container-fluid">
       {/* <div class="main-content"> */}
         <div class="services page-background">
@@ -967,7 +968,6 @@ const Organisation = () => {
         </div>
         {/* End Page-content */}
       </div>
-      <Footer />
     </div>
     </div>
     </div>
@@ -975,6 +975,8 @@ const Organisation = () => {
     </div>
     </div>
     </div>
+    <Footer />
+    </>
   );
 };
 

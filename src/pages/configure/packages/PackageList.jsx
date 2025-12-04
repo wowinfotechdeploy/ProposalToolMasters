@@ -393,6 +393,7 @@ const Predefined_Package = () => {
   };
 
   return (
+    <>
     <div className="container-fluid">
       {/* <div class="main-content"> */}
         <div class="services page-background">
@@ -905,7 +906,6 @@ const Predefined_Package = () => {
           prospectType={prospectType}
           setProspectType={setProspectType}
         />
-        <Footer />
       </div>
       </div>
       </div>
@@ -922,6 +922,8 @@ const Predefined_Package = () => {
       </button>
       {/* end back-to-top */}
     </div>
+    <Footer />
+    </>
   );
 };
 

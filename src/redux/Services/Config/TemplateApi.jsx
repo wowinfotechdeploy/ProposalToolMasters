@@ -176,6 +176,17 @@ export const AddUpdateTemplatePDF = async (size, TemplatePdfKeyID, params) => {
 
   return res;
 };
+
+//AddUpdate Template Callback function
+export const AddUpdateTemplateWatermark = async (size, TemplateKeyID, params) => {
+  const res = await postApiWithAuthenticated(
+    `${TemplatePDFBaseUrl}/UploadTemplateWatermarkAsync?ModuleKeyID=${TemplateKeyID}`,
+    params
+  );
+
+  return res;
+};
+
 //AddUpdate Template Callback function
 export const AddUpdateTemplateHeaderFooter = async (params) => {
   const res = await postApiWithAuthenticated(

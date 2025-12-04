@@ -515,6 +515,7 @@ const Prospects = () => {
   };
 
   return (
+    <>
     <div className="container-fluid">
       {/* <div class="main-content"> */}
         <div class="services page-background">
@@ -1435,8 +1436,9 @@ const Prospects = () => {
         prospectType={prospectType}
         setProspectType={setProspectType}
       />
-      {/* <Footer /> */}
     </div>
+    <Footer />
+    </>
   );
 };
 

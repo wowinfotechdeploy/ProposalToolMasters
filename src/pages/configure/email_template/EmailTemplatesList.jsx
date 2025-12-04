@@ -472,6 +472,7 @@ function EmailTemplate() {
   };
 
   return (
+    <>
     <div className="container-fluid">
       {/* <div class="main-content"> */}
         <div class="services page-background">
@@ -1002,7 +1003,6 @@ function EmailTemplate() {
               : "Status has been changed successfully!"
           }`}
         />
-        <Footer />
         </div>
             </div>
           </div>
@@ -1011,6 +1011,8 @@ function EmailTemplate() {
       </div>
       {/* end back-to-top */}
     </div>
+    <Footer />
+    </>
   );
 }
 

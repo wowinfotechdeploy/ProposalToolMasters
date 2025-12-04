@@ -1,5 +1,6 @@
 /* global $ */
 import React, { useContext, useEffect, useState, useRef } from "react";
+import { lazy, Suspense } from "react";
 import "../../pages/configure/packages/Package.css";
 import Select from "react-select";
 import ReactDOMServer from "react-dom/server";
@@ -42,9 +43,9 @@ import {
   GetTemplateListLookupList,
   GetTemplateModelData,
 } from "../../redux/Services/Config/TemplateApi";
-import { SelectServices } from "../../components/SelectServices";
+// import { SelectServices } from "../../components/SelectServices";
 import { AdditionalInformation } from "../../components/AdditionalInformation";
-import PreviewComponentPdf from "../../components/PreviewComponentpdf";
+// import PreviewComponentPdf from "../../components/PreviewComponentpdf";
 import { GetOrganisationInformationModel } from "../../redux/Services/Setting/Organisation";
 import BackButtonSvg from "../../components/BackButtonSvg";
 import {
@@ -71,13 +72,16 @@ import PaymentGatewayModel from "../../components/PaymentGatewayModel";
 import RecordsAvailablePopupModel from "../../components/RecordsAvailablePopupModel";
 import Text_Editor from "../../components/Text_Editor";
 import ViewModuleIcon from "@mui/icons-material/ViewModule";
-import PricingTableTemplatesModal from "../../components/PricingTableTemplatesModal";
+// import PricingTableTemplatesModal from "../../components/PricingTableTemplatesModal";
 import {
   ChangeFailedMailLogStatus,
   GetProspectSendMailStatus,
   ResendAddUpdateQuote,
 } from "../../redux/Services/EmailFailureStatusAPI/EmailFailureStatusAPI";
 import EmailFailurePopUP from "../../components/EmailFailurePopUp";
+const SelectServices = lazy(() => import("../../components/SelectServices"));
+const PreviewComponentPdf = lazy(() => import("../../components/PreviewComponentpdf"));
+const PricingTableTemplatesModal = lazy(() => import("../../components/PricingTableTemplatesModal"));
 
 const BasicInformationComponent = (props) => {
   const navigate = useNavigate();
@@ -300,6 +304,7 @@ const BasicInformationComponent = (props) => {
                           props.setFooterImage(selectedTemplate.footerImage);
                           props.setHeaderHeight(selectedTemplate.headerHeight);
                           props.setFooterHeight(selectedTemplate.footerHeight);
+                          props.setWatermarkImage(selectedTemplate?.watermarkImage);
                           props.setFontFamily(
                             props.getFontNameById(selectedTemplate.fontFamilyID)
                           );
@@ -11552,6 +11557,7 @@ const Add_Update_Engagement_Letter = () => {
   const [isTypeChange, setIsTypeChange] = useState(false);
   const [BrandColor, setBrandColor] = useState(false);
   const [fontFamily, setFontFamily] = useState("");
+  const [watermarkImage, setWatermarkImage] = useState("");
   const [headerHeight, setHeaderHeight] = useState(null);
   const [footerHeight, setFooterHeight] = useState(null);
   const [headerImage, setHeaderImage] = useState(null);
@@ -12725,6 +12731,7 @@ const Add_Update_Engagement_Letter = () => {
           footerImage: item.footerImage,
           headerHeight: item.headerHeight,
           footerHeight: item.footerHeight,
+          watermarkImage: item.watermarkImage,
           showSeparatorLines: Boolean(item.showSeparatorLines),
           pricingTableColumnIDs: item.pricingTableColumnIDs
             ? item.pricingTableColumnIDs
@@ -12807,6 +12814,7 @@ const Add_Update_Engagement_Letter = () => {
           setFooterImage(isSelectedDefault[0].footerImage);
           setHeaderHeight(isSelectedDefault[0].headerHeight);
           setFooterHeight(isSelectedDefault[0].footerHeight);
+          setWatermarkImage(isSelectedDefault[0].watermarkImage);
           setShowSeparatorLines(isSelectedDefault[0]?.showSeparatorLines);
           setPricingTableColumnIDs(
             isSelectedDefault[0]?.pricingTableColumnIDs
@@ -18865,6 +18873,7 @@ const Add_Update_Engagement_Letter = () => {
                 footerImage: item.footerImage,
                 headerHeight: item.headerHeight,
                 footerHeight: item.footerHeight,
+                watermarkImage: item.watermarkImage,
                 showSeparatorLines: Boolean(item.showSeparatorLines),
               }));
               setTemplateLookUpOptions(TemplateOption);
@@ -18892,6 +18901,7 @@ const Add_Update_Engagement_Letter = () => {
                 footerImage: item.footerImage,
                 headerHeight: item.headerHeight,
                 footerHeight: item.footerHeight,
+                watermarkImage: item.watermarkImage,
                 showSeparatorLines: Boolean(item.showSeparatorLines),
               }));
               setTemplateLookUpOptions(TemplateOption);
@@ -18913,6 +18923,7 @@ const Add_Update_Engagement_Letter = () => {
           setFooterImage(TemplateValue.footerImage);
           setHeaderHeight(TemplateValue.headerHeight);
           setFooterHeight(TemplateValue.footerHeight);
+          setWatermarkImage(TemplateValue.watermarkImage);
           setLoader(true);
           setContractFinalPackageAmountList(ModelData.contractFinalAmountList);
           setEngagementObj({
@@ -20189,6 +20200,7 @@ const Add_Update_Engagement_Letter = () => {
                   setFooterImage={setFooterImage}
                   setHeaderHeight={setHeaderHeight}
                   setFooterHeight={setFooterHeight}
+                  setWatermarkImage={setWatermarkImage}
                   setFontFamily={setFontFamily}
                   getFontNameById={getFontNameById}
                   setShowSeparatorLines={setShowSeparatorLines}
@@ -20196,6 +20208,7 @@ const Add_Update_Engagement_Letter = () => {
                 />
               )}
               {activeTab === EngagementLetterHeader.SelectServices && (
+                <Suspense>
                 <SelectServices
                   DisableTabOnChange={DisableTabOnChange}
                   oneOffObj={oneOffObj}
@@ -20226,6 +20239,7 @@ const Add_Update_Engagement_Letter = () => {
                   handleCancel={handleCancel}
                   HandleBack={HandleBack}
                 />
+                </Suspense>
               )}
               {activeTab === EngagementLetterHeader.AdditionalInformation && (
                 <AdditionalInformation
@@ -20438,6 +20452,7 @@ const Add_Update_Engagement_Letter = () => {
                   visibleFieldsCustomTemp={visibleFieldsCustomTemp}
                 />
               )}
+              <Suspense>
               <PricingTableTemplatesModal
                 show={showSelectTemplateModal}
                 onHide={() => setShowSelectTemplateModal(false)}
@@ -20477,7 +20492,9 @@ const Add_Update_Engagement_Letter = () => {
                 visibleFieldsCustomTemp={visibleFieldsCustomTemp}
                 vatPercentageOneOff={vatPercentageOneOff}
               />
+              </Suspense>
               {activeTab === EngagementLetterHeader.Preview && (
+                <Suspense>
                 <PreviewComponentPdf
                   isDefaultFirstPage={isDefaultFirstPage}
                   common={common}
@@ -20526,6 +20543,7 @@ const Add_Update_Engagement_Letter = () => {
                   templateElementList={templateElementList}
                   additionalInformationList={additionalInformationList}
                   // engagementObj={engagementObj}
+                  pdf={engagementObj.pdf}
                   ProposalObject={engagementObj}
                   getCrudButtonTextName={getCrudButtonTextName}
                   getCrudPopUpTitleName={getCrudPopUpTitleName}
@@ -20552,6 +20570,7 @@ const Add_Update_Engagement_Letter = () => {
                   footerImage={footerImage}
                   headerHeight={headerHeight}
                   footerHeight={footerHeight}
+                  watermarkImage={watermarkImage}
                   showSeparatorLines={showSeparatorLines}
                   serviceDescriptionHTML={serviceDescriptionHTML}
                   statementOfFactsHTML={statementOfFactsHTML}
@@ -20560,6 +20579,7 @@ const Add_Update_Engagement_Letter = () => {
                   visibleFieldsCustomTemp={visibleFieldsCustomTemp}
                   vatPercentageOneOff={vatPercentageOneOff}
                 />
+                </Suspense>
               )}
             </div>
           </div>

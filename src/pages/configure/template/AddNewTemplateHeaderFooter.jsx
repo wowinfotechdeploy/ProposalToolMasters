@@ -17,18 +17,15 @@ import { USER_ROLE_TYPE } from "../../../Middleware/enums";
 import SAPredefinedChangesNotifyMessageModel from "../../../components/SAPredefinedChangesNotifyMessageModel";
 import { AddUpdateTemplateFooterPdf, AddUpdateTemplateHeaderFooterWithPdf, AddUpdateTemplateHeaderPdf, GetTemplateList,GetTemplateHeaderFooterModel,AddUpdateTemplateHeaderFooter, GetTemplatesList, GetAllTemplatesList } from "../../../redux/Services/Config/TemplateApi";
 
-import { Base_Url } from "../../../Base-Url/Base_Url";
-import axios from "axios";
+
 import { ERROR_MESSAGES } from "../../../components/GlobalMessage";
 import SuccessModal from "../../../components/SuccessModal";
 import AccountantVariables from "../../../components/Variables/AccountantVariables";
 import { GetBusinessTypeLookupList } from "../../../redux/Services/Master/BusinessTypeLookupListApi";
 import Utils from "../../../Middleware/Utils";
 import BackButtonSvg from "../../../components/BackButtonSvg";
-import AcceptSuperAdminChangesConfirmation from "../../../components/AcceptSuperAdminChangesConfirmation";
 import Text_Editor from "../../../components/Text_Editor";
 import { NotifySuperAdminPredefinedChangesToAdmin } from "../../../redux/Services/Setting/NotificationApi";
-import { DeclineSuperAdminChanges } from "../../../redux/Services/Config/ServiceCategoryApi";
 import ErrorModel from "../../../components/ErrorModel";
 function Add_New_Header_And_Footer(props) {
   //Declare State:
@@ -375,90 +372,7 @@ function Add_New_Header_And_Footer(props) {
     }
   };
 
-  // F] Calling CRUD Api here
-  // 1) Get Model Data Api
-  // const GetTemplateListData = async (
-  //   i,
-  //   searchKeywordValue,
-  //   sortValue,
-  //   TemplateSort,
-  //   templateTypeID,
-  //   clientBusinessTypeID,
-  //   businessTypeId
-  // ) => {
-  //   setLoader(true);
-  //   const pageNoList = i ? i - 1 : 0;
-  //   try {
-  //     const data = await GetTemplateList({
-  //       pageSize: Number(pageSize),
-  //       pageNo: pageNoList,
-  //       organisationID: common.organisationID,
-  //       organisationKeyID: common.organisationKeyID,
-  //       SearchKeyword:
-  //         searchKeywordValue === undefined ? searchKeyword : searchKeywordValue,
-  //       primarySortDirection:
-  //         sortValue === undefined ? primarySortDirection : sortValue,
-  //       PrimarySortColumnName: sortType == "" ? TemplateSort : sortType,
-  //       templateTypeID:
-  //         templateTypeID === undefined ? selectedTemplateType : templateTypeID,
-  //       clientBusinessTypeID:
-  //         clientBusinessTypeID === undefined
-  //           ? prospectType
-  //           : clientBusinessTypeID,
-  //       businessTypeID:
-  //         businessTypeId === undefined ? businessTypeID : businessTypeId,
-  //     });
-  //     if (data) {
-  //       if (data?.data?.statusCode === 200) {
-  //         setLoader(false);
-  //         getTemplateListApiCallCount = 0;
-  //         if (data?.data?.responseData?.data) {
-  //           const totalCount = data.data.totalCount;
-  //           const TemplateListData = data.data.responseData.data.map((item) => ({
-  //               label: `${item.templateName}(${item.clientBusinessType})`,
-  //               value: item.templateID,
-  //             }));
-  //             setTemplateList(TemplateListData);
-  //             setTotalRecords(TemplateListData.length);
-  //           // if (pageNoList > 0 && TemplateListData.length === 0) {
-  //           //   let newPaneNo = Number(pageNoList);
-  //           //   if (newPaneNo > 1) {
-  //           //     newPaneNo = newPaneNo - 1;
-  //           //   }
-  //           //   GetTemplateListData(
-  //           //     newPaneNo,
-  //           //     searchKeywordValue,
-  //           //     sortValue,
-  //           //     TemplateSort
-  //           //   );
-  //           //   setCurrentPage(pageNoList);
-  //           //   return;
-  //           // }
-  //           setListCount(totalCount);
-  //         }
-  //       } else {
-  //         if (getTemplateListApiCallCount < maxCountToRecallApi) {
-  //           getTemplateListApiCallCount += 1;
-  //           setTimeout(function () {
-  //             GetTemplateListData(
-  //               i,
-  //               searchKeywordValue,
-  //               sortValue,
-  //               TemplateSort
-  //             );
-  //           }, 2000);
-  //         } else {
-  //           setLoader(false);
-  //         }
-
-  //         setErrorMessage(data?.data?.errorMessage);
-  //       }
-  //     }
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
-  const GetTemplateListData = async () => {
+   const GetTemplateListData = async () => {
     setLoader(true);
     try {
       const data = await GetAllTemplatesList(1, common.organisationKeyID);
@@ -507,133 +421,7 @@ function Add_New_Header_And_Footer(props) {
       console.log(error);
     }
   };
-  // 2) Add Update Button Click Function
-  // const TemplateAddUpdateBtnClicked = (Accept) => {
-  //   if (Accept === "Accept") {
-  //     $("#" + "ConfirmSAChangesModel").modal("show");
-
-  //     setStatus(true)
-  //     return
-  //   }
-  //   // Check Validations will be done here
-  //   if (
-  //     (common.professionTypeLists?.length > 1 ||
-  //       common.organisationKeyID === null) &&
-  //     professionTypeValue?.length === 0
-  //   ) {
-  //     scrollUpDownByElementID("ProfessionTypeDiv");
-  //     setRequireErrorMessage(true);
-  //     return false; // Return false or handle your error logic here if needed.
-  //   } else if (
-  //     TemplateObj.templateName === undefined ||
-  //     TemplateObj.templateName === "" ||
-  //     TemplateObj.templateTypeID === undefined ||
-  //     TemplateObj.templateTypeID === "" ||
-  //     TemplateObj.templateTypeID === null ||
-  //     (common.organisationKeyID === null &&
-  //       (TemplateObj.orgBusinessTypeID === "" ||
-  //         TemplateObj.orgBusinessTypeID === null ||
-  //         TemplateObj.orgBusinessTypeID === undefined))
-  //   ) {
-  //     if (
-  //       common.organisationKeyID === null &&
-  //       (TemplateObj.orgBusinessTypeID === "" ||
-  //         TemplateObj.orgBusinessTypeID === null ||
-  //         TemplateObj.orgBusinessTypeID === undefined)
-  //     ) {
-  //       scrollUpDownByElementID("OrganisationBusinessDiv");
-  //     } else if (
-  //       TemplateObj.templateTypeID === undefined ||
-  //       TemplateObj.templateTypeID === "" ||
-  //       TemplateObj.templateTypeID === null
-  //     ) {
-  //       scrollUpDownByElementID("TemplateTypeDiv");
-  //     } else if (
-  //       TemplateObj.templateName === undefined ||
-  //       TemplateObj.templateName === ""
-  //     ) {
-  //       scrollUpDownByElementID("TemplateNameDiv");
-  //     }
-  //     setRequireErrorMessage(true);
-  //     return false; // Return false or handle your error logic here if needed.
-  //   } else if (TemplateObj.templateTypeID === 3 && !selectedFile.fileName) {
-  //     // Check if PDF file is not selected
-  //     setRequireErrorMessage(true);
-  //     return false;
-  //   } else if (
-  //     (templateElementList[0].htmlContent === null ||
-  //       templateElementList[0].htmlContent === "" ||
-  //       templateElementList[0].htmlContent === undefined ||
-  //       templateElementList[0].htmlContent === "<p></p>\n" ||
-  //       templateElementList[0].htmlContent === "<p></p>" ||
-  //       templateElementList[0].htmlContent === "<p><br></p>") &&
-  //     TemplateObj.templateTypeID === 4
-  //   ) {
-  //     scrollUpDownByElementID(
-  //       `EditorDiv_${templateElementList[0].htmlContent}`
-  //     );
-  //     setRequireErrorMessage(true);
-  //     return false;
-  //   } else if (!editorState && TemplateObj.templateTypeID === 4) {
-  //     setRequireErrorMessage(true);
-  //     return false;
-  //   } else if (editorState) {
-  //     const indexToUpdate = 0;
-  //     const trimmedContent = HtmlToPlainText(editorState, moduleName);
-  //     const hasTextAtZeroPosition = trimmedContent.trim().length > 0;
-  //     if (!hasTextAtZeroPosition) {
-  //       setEditorState("");
-  //       const updatedTemplateElementList = [...templateElementList];
-  //       updatedTemplateElementList[indexToUpdate] = {
-  //         ...updatedTemplateElementList[indexToUpdate],
-  //         htmlContent: null,
-  //       };
-  //       setTemplateElementList(updatedTemplateElementList);
-
-  //       setRequireErrorMessage(true);
-  //       return false;
-  //     }
-  //   } else {
-  //     setRequireErrorMessage(false);
-  //     setErrorMessage(""); // Clear the error message if there is content
-  //   }
-
-  //   // Preparing Object For Add Update and if any modification then it will done here
-  //   const ApiRequest_ParamsObj = {
-  //     //global level params : fixed
-  //     acceptSAChanges: Accept,
-  //     organisationKeyID: common.organisationKeyID,
-  //     organisationID: common.organisationID,
-  //     //form level params : fixed
-  //     templateTypeID: TemplateObj.templateTypeID, //will change module wise
-  //     hfTemplateID: TemplateObj.hfTemplateID,
-  //     userKeyID: common.userKeyID,
-  //     orgBusinessTypeID:
-  //       TemplateObj.orgBusinessTypeID === null
-  //         ? common.businessTypeID
-  //         : TemplateObj.orgBusinessTypeID,
-  //     isDefault: TemplateObj.isDefault,
-  //     isPredefined: common.roleTypeId === USER_ROLE_TYPE.SuperAdmin ? 1 : 0,
-  //     //form level params : will change according to module
-  //     templateName: TemplateObj.templateName,
-  //     status: TemplateObj.status,
-  //     templateElementList:
-  //       TemplateObj.templateTypeID == 3 ? null : templateElementList,
-  //     professionTypeList:
-  //       common.professionTypeLists?.length > 1 ||
-  //         common.organisationKeyID === null
-  //         ? TemplateObj.professionTypeList
-  //         : [
-  //           {
-  //             professionTypeId: professionTypeInputValue[0]?.professionTypeId,
-  //             professionTypeName:
-  //               professionTypeInputValue[0]?.professionTypeName,
-  //           },
-  //         ],
-  //   };
-  //   AddUpdateTermAndConditionData(ApiRequest_ParamsObj);
-  // };
-
+ 
   const TemplateAddUpdateBtnClicked = () => {
     // Modal display logic for Accept action
   
@@ -654,39 +442,7 @@ function Add_New_Header_And_Footer(props) {
       setRequireErrorMessage(true);
       isValid = false;
     } 
-    // if (
-    //   !TemplateObj.templateContentForHeader ||
-    //   TemplateObj.templateContentForHeader.trim() === "" ||
-    //   TemplateObj.templateContentForHeader === "<p><br></p>" ||
-    //   TemplateObj.templateContentForHeader === "<p></p>"
-    // ) {
-    //   scrollUpDownByElementID("HeaderContentDiv");
-    //   setRequireErrorMessage(false);
-    //   isValid = true;
-    // }
-  
-    // if (
-    //   !TemplateObj.templateContentForFooter ||
-    //   TemplateObj.templateContentForFooter.trim() === "" ||
-    //   TemplateObj.templateContentForFooter === "<p><br></p>" ||
-    //   TemplateObj.templateContentForFooter === "<p></p>"
-    // ) {
-    //   scrollUpDownByElementID("FooterContentDiv");
-    //   setRequireErrorMessage(false);
-    //   isValid = true;
-    // }
 
-  //   const isHeaderEmpty =
-  //   TemplateObj.templateContentForHeader === null ||
-  //   TemplateObj.templateContentForHeader === undefined ||
-  //   TemplateObj.templateContentForHeader === "<p><br></p>" ||
-  //   TemplateObj.templateContentForHeader === "<p></p>";
-
-  // const isFooterEmpty =
-  //   TemplateObj.templateContentForFooter === null ||
-  //   TemplateObj.templateContentForFooter === undefined ||
-  //   TemplateObj.templateContentForFooter === "<p><br></p>" ||
-  //   TemplateObj.templateContentForFooter === "<p></p>";
   const isHeaderEmpty =
   TemplateObj.templateContentForHeader === null ||
   TemplateObj.templateContentForHeader === undefined || 
@@ -759,83 +515,6 @@ if (isHeaderEmpty && isFooterEmpty) {
   const AddUpdateHeaderFooterTemplateData = async (apiRequestParams) => {
     setLoader(true);
     try {
-      // if (
-      //   apiRequestParams.templateTypeID === 3 ||
-      //   apiRequestParams.templateTypeID === "3"
-      // ) {
-      //   const response = await AddUpdateTermAndCondition(url, apiRequestParams);
-      //   if (response) {
-
-      //     if (response?.data?.statusCode === 200) {
-      //       const ModuleKeyID = response.data.responseData.data;
-      //       const formData = new FormData();
-      //       // Instead, you should append the entire file
-      //       const isBinary = selectedFile.fileName instanceof Blob || selectedFile.fileName instanceof File;
-      //       if (isBinary) {
-      //         formData.set("file", selectedFile.fileName); // Append the file itself
-      //         const uploadResponse = await AddUpdateTemplateDataWithPdf(
-      //           selectedFile.size,
-      //           ModuleKeyID,
-      //           formData
-      //         );
-
-      //         if (uploadResponse) {
-      //           if (apiRequestParams.hfTemplateID === null) {
-      //             $("#" + props.id).modal("show");
-      //             $("#" + "ConfirmSAChangesModel").modal("hide");
-      //             setOpenSuccessModal(true);
-      //             props.setIsAddUpdateActionDone(true);
-      //             setLoader(false);
-      //             navigate("/templates", { state: "Header and Footer" });
-      //           } else {
-      //             $("#" + "ConfirmSAChangesModel").modal("hide");
-      //             setOpenSuccessModal(true);
-      //             setLoader(false);
-      //             props.setIsAddUpdateActionDone(true);
-      //             navigate("/templates", { state: "Header and Footer" });
-      //           }
-      //         } else {
-      //           setErrorMessage(uploadResponse?.response?.data?.errorMessage);
-      //           setLoader(false);
-      //         }
-      //       } else {
-      //         $("#" + props.id).modal("show");
-      //         $("#" + "ConfirmSAChangesModel").modal("hide");
-      //         setOpenSuccessModal(true);
-      //         props.setIsAddUpdateActionDone(true);
-      //         setLoader(false);
-      //         navigate("/templates", { state: "Header and Footer" });
-      //       }
-      //     } else {
-      //       setErrorMessage(response?.response?.data?.errorMessage);
-      //       setLoader(false);
-      //     }
-      //   }
-      // } else if (
-      //   apiRequestParams.templateTypeID === 4 ||
-      //   apiRequestParams.templateTypeID === "4"
-      // ) {
-      //   const response = await AddUpdateTermAndCondition(url, apiRequestParams);
-      //   if (response) {
-      //     if (response?.data?.statusCode === 200) {
-      //       if (apiRequestParams.hfTemplateID === null) {
-      //         // toast.success("Added Successfully.");
-      //         $("#" + props.id).modal("show");
-      //         setOpenSuccessModal(true);
-      //         props.setIsAddUpdateActionDone(true);
-      //         setLoader(false);
-      //         navigate("/terms-and-conditions");
-      //       } else {
-      //         // toast.success("Updated Successfully.");
-      //         setOpenSuccessModal(true);
-      //         props.setIsAddUpdateActionDone(true);
-      //       }
-      //     } else {
-      //       setLoader(false);
-      //       setErrorMessage(response?.response?.data?.errorMessage);
-      //     }
-      //   }
-      // }
       const response = await AddUpdateTemplateHeaderFooter(apiRequestParams);
       if(response?.data?.statusCode == 200) {
         if(apiRequestParams.templateTypeID === 42) {

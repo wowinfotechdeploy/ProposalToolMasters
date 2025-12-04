@@ -576,7 +576,7 @@ const TopbarClone = () => {
   //   }
   // };
 
-  const toggleConfigSubList = (id) => {
+const toggleConfigSubList = (id) => {
   const list = document.getElementById(id);
   const parent = list.parentElement;
   const toggleLink = parent.querySelector(".nav-link");
@@ -604,8 +604,8 @@ const TopbarClone = () => {
         list.classList.add("d-none");
         toggleLink.setAttribute("aria-expanded", "false");
         parent.removeEventListener("mouseleave", handleMouseLeave);
-      }
-    };
+  }
+};
     parent.addEventListener("mouseleave", handleMouseLeave);
   }
 };
@@ -625,7 +625,7 @@ const TopbarClone = () => {
 
     if (list.style.display !== "block") {
       list.style.display = "block";
-      list.scrollIntoView({ behavior: "smooth", block: "start" });
+      // list.scrollIntoView({ behavior: "smooth", block: "start" });
     } else {
       list.style.display = "none";
     }
@@ -669,6 +669,7 @@ const TopbarClone = () => {
   const parent = list.parentElement; // parent <li> (top-level menu item)
   const toggleLink = parent.querySelector(".nav-link");
   const allLists = document.querySelectorAll(".subList");
+  const settingsContainer = document.getElementById("Setting");
 
   // Close all other sublists
   allLists.forEach((element) => {
@@ -698,18 +699,20 @@ const TopbarClone = () => {
     list.classList.remove("d-none");
     toggleLink.setAttribute("aria-expanded", "true");
 
-    list.scrollIntoView({ behavior: "smooth", block: "start" });
+    list.scrollIntoView({ behavior: "smooth", block: "nearest" });
 
-    // 👇 Add hover-out close behavior
+    //  Add hover-out close behavior
     const handleMouseLeave = (event) => {
-      if (!parent.contains(event.relatedTarget)) {
+      // Close ONLY if mouse leaves SETTINGS, not sublist
+      if (!settingsContainer.contains(event.relatedTarget)) {
         list.classList.remove("d-block");
         list.classList.add("d-none");
         toggleLink.setAttribute("aria-expanded", "false");
-        parent.removeEventListener("mouseleave", handleMouseLeave);
+
+        settingsContainer.removeEventListener("mouseleave", handleMouseLeave);
       }
     };
-    parent.addEventListener("mouseleave", handleMouseLeave);
+    settingsContainer.addEventListener("mouseleave", handleMouseLeave);
   }
 };
 
@@ -1097,70 +1100,6 @@ const TopbarClone = () => {
     <>
     <div className={`topbar-clone ${isSidebarOpen ? '' : 'collapsed'}`}>
       {/* Hamburger Icon - Position changes based on sidebar state */}
-     <Tooltip title={isSidebarOpen ? 'Close menu' : 'Open menu'}>
-  <button
-    onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-    style={{
-      position: 'fixed',
-      top: '16px',
-      left: isSidebarOpen ? 'calc(17% - 44px)' : '16px', // centers within sidebar accounting for button width
-      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-      background: 'rgba(255, 255, 255, 0.2)',
-      backdropFilter: 'blur(10px)',
-      border: '1px solid rgba(0, 0, 0, 0.05)',
-      borderRadius: '8px',
-      cursor: 'pointer',
-      padding: '6.5px',
-      zIndex: 2001,
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '4px',
-      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-    }}
-    onMouseEnter={(e) => {
-      e.currentTarget.style.transform = 'scale(1.05)';
-      e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
-    }}
-    onMouseLeave={(e) => {
-      e.currentTarget.style.transform = 'scale(1)';
-      e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
-    }}
-    aria-label="Toggle sidebar"
-  >
-    {isSidebarOpen ? <i class="fa-solid fa-arrow-left"></i> : (
-      <>
-    <span style={{
-      width: isSidebarOpen ? '16px' : '22px',
-      height: '2.5px',
-      backgroundColor: '#1a1a1a',
-      display: 'block',
-      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-      borderRadius: '2px',
-      transform: isSidebarOpen ? 'translateY(6.5px) rotate(-45deg)' : 'none'
-    }}></span>
-    <span style={{
-      width: isSidebarOpen ? '16px' : '22px',
-      height: '2.5px',
-      backgroundColor: '#1a1a1a',
-      display: 'block',
-      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-      borderRadius: '2px',
-      opacity: isSidebarOpen ? '0' : '1'
-    }}></span>
-    <span style={{
-      width: isSidebarOpen ? '16px' : '22px',
-      height: '2.5px',
-      backgroundColor: '#1a1a1a',
-      display: 'block',
-      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-      borderRadius: '2px',
-      transform: isSidebarOpen ? 'translateY(-6.5px) rotate(45deg)' : 'none'
-    }}></span>
-    </>
-  )}
-  </button>
-</Tooltip>
-      <div className="row"></div>
 
       {/* Original mobile hamburger button */}
       <button
@@ -1176,7 +1115,7 @@ const TopbarClone = () => {
         </span>
       </button>
       <div
-        className={`app-menu ${isMobile || window.innerWidth <= 1040 ? (menuOpen ? "d-block" : "d-none") : "d-block"}`}
+        className={`app-menu d-flex flex-column ${isMobile || window.innerWidth <= 1040 ? (menuOpen ? "d-block" : "d-none") : "d-block"}`}
         style={{
           height: "100%",
           // width: isMobile || window.innerWidth <= 1040 ? "100%" : "300px",
@@ -1192,14 +1131,15 @@ const TopbarClone = () => {
         <div id="scrollbar" className= "mt-2" style={TopbarStyle}>
           <div class="container">
             <div id="two-column-menu">
+              <div>
               <div className="pt-4"
                 style={{
-                  width: "60%",
                   display: "flex",
                   justifyContent: "start",
                   position: "relative"
                 }}
               >
+                <div style={{width: "60%"}}>
                 <a className="lna" href="https://outbooks.com/proposal/">
                   <img
                     src={logoImg}
@@ -1214,6 +1154,80 @@ const TopbarClone = () => {
                     }}
                   />
                 </a>
+                </div>
+                <Tooltip title={isSidebarOpen ? 'Close menu' : 'Open menu'}>
+                  <div
+                    style={{
+                      width: "40%",
+                      display: "flex",
+                      justifyContent: "flex-end",
+                      alignItems: "center",
+                    }}
+                  >
+                  <button
+                    onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                    style={{
+                      position: isSidebarOpen ? "relative" : "fixed",
+                      left: isSidebarOpen ? 'calc(17% - 15px)' : '16px', // centers within sidebar accounting for button width
+                      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                      background: 'rgba(255, 255, 255, 0.2)',
+                      backdropFilter: 'blur(10px)',
+                      border: '1px solid rgba(0, 0, 0, 0.05)',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      padding: '6.5px',
+                      zIndex: 2001,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '4px',
+                      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'scale(1.05)';
+                      e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'scale(1)';
+                      e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
+                    }}
+                    aria-label="Toggle sidebar"
+                  >
+                    {isSidebarOpen ? <i class="fa-solid fa-arrow-left"></i> : (
+                      <>
+                        <span style={{
+                          width: isSidebarOpen ? '16px' : '22px',
+                          height: '2.5px',
+                          backgroundColor: '#1a1a1a',
+                          display: 'block',
+                          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                          borderRadius: '2px',
+                          transform: isSidebarOpen ? 'translateY(6.5px) rotate(-45deg)' : 'none'
+                        }}></span>
+                        <span style={{
+                          width: isSidebarOpen ? '16px' : '22px',
+                          height: '2.5px',
+                          backgroundColor: '#1a1a1a',
+                          display: 'block',
+                          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                          borderRadius: '2px',
+                          opacity: isSidebarOpen ? '0' : '1'
+                        }}></span>
+                        <span style={{
+                          width: isSidebarOpen ? '16px' : '22px',
+                          height: '2.5px',
+                          backgroundColor: '#1a1a1a',
+                          display: 'block',
+                          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                          borderRadius: '2px',
+                          transform: isSidebarOpen ? 'translateY(-6.5px) rotate(45deg)' : 'none'
+                        }}></span>
+                      </>
+                    )}
+                  </button>
+                  </div>
+                </Tooltip>
+            <div className="row"></div>
+            </div>
               </div>
             <ul class="navbar-nav d-none d-md-block pt-4" style={{paddingLeft: "0.5rem"}}id="navbar-nav">
               <li class="nav-item edit-dropdown-cls">
@@ -1572,380 +1586,6 @@ const TopbarClone = () => {
               {/* Engagement latter End */}
               {/* Admin Config Modal Start */}
               {userAccessData.Admin_Config_CanView && (
-                // <li
-                //   class="nav-item"
-                //   style={{position: "relative"}}
-                //   onMouseLeave={() => hideConfigList()}
-                //   onMouseEnter={() => showConfigList()}
-                // >
-                //   <a
-                //     class="nav-link menu-link collapsed"
-                //     data-bs-toggle="collapse"
-                //     role="button"
-                //     aria-expanded="false"
-                //     onClick={toggleConfigList}
-                //     aria-controls="sidebarPages"
-                //     onMouseOver={() => setIsHoveredConfigure(true)}
-                //     onMouseOut={() => setIsHoveredConfigure(false)}
-                //     ref={settingsRef}
-                //     style={{
-                //       color: isHoveredConfigure
-                //         ? "#438eff"
-                //         : TopTextColor.color,
-                //       fontWeight: "bold"
-                //     }}
-                //   >
-                //     {/* <i class="bi bi-tools mr-2"></i>{" "} */}
-
-                //     <img
-                //       src={ConfigSvg}
-                //       alt="ConfigSvg"
-                //       style={{ width: "16px", marginRight: "5px" }}
-                //     />
-                //     <span data-key="t-pages" style={{color: "#fff"}}>Configure</span>
-                //   </a>
-                //   <div
-                //     id="config"
-                //     style={{
-                //           border: "none",
-                //           position: "absolute",  // floats over other items
-                //           top: "100%",           // directly below the parent <li>
-                //           left: 0,               // align left with parent
-                //           width: "100%",         // same width as parent
-                //           zIndex: 1000,          // above other elements
-                //         }}
-                //     class="collapse menu-dropdown menu_dropdown Responsive-Config-service-package"
-                //   >
-                //     <ul class="nav nav-sm flex-column">
-                //       {/* Admin Config Modal SubList Start */}
-                //       {userAccessData.Admin_Config_ServiceCat_CanView && (
-                //         <li
-                //           class="nav-item"
-                //           onMouseLeave={() =>
-                //             hideConfigSubList("servicesAndPackage")
-                //           }
-                //           onMouseEnter={() =>
-                //             showConfigSubList("servicesAndPackage")
-                //           }
-                //         >
-                //           <a
-                //             href="#sidebarProfile"
-                //             class="nav-link collapsed"
-                //             data-bs-toggle="collapse"
-                //             role="button"
-                //             aria-expanded="false"
-                //             aria-controls="sidebarProfile"
-                //             onClick={() =>
-                //               toggleConfigSubList(
-                //                 "servicesAndPackage"
-                //               )
-                //             }
-                //           >
-                //             Services/Packages
-                //           </a>
-                //           <div
-                //             class="subList collapse menu-dropdown Service-package-bgColor"
-                //             style={style}
-                //             id="servicesAndPackage" // sub list id pass
-                //           >
-                //             <ul class="nav nav-sm flex-column">
-                //               {/* Admin Config Modal SubList of SubList Start */}
-                //               <li class="nav-item ">
-                //                 <NavLink
-                //                   to="/service-category"
-                //                   onClick={togglenav}
-                //                 >
-                //                   <a
-                //                     onClick={() => {
-                //                       closeDropdown("config");
-                //                       NotificationCountData();
-                //                       togglenav();
-                //                     }} // pass main list id
-                //                     style={{ whiteSpace: "nowrap" }}
-                //                     class="nav-link"
-                //                     data-key="t-simple-page"
-                //                   >
-                //                     Service Categories
-                //                   </a>
-                //                 </NavLink>
-                //               </li>
-                //               <li class="nav-item ">
-                //                 <NavLink
-                //                   to="/services"
-                //                 // onClick={togglenav}
-                //                 >
-                //                   <a
-                //                     onClick={() => {
-                //                       closeDropdown("config");
-                //                       NotificationCountData();
-                //                     }}
-                //                     class="nav-link"
-                //                     data-key="t-simple-page"
-                //                   >
-                //                     Services
-                //                   </a>
-                //                 </NavLink>
-                //               </li>
-                //               <li class="nav-item ">
-                //                 <NavLink
-                //                   to="/packages"
-                //                 // onClick={togglenav}
-                //                 >
-                //                   <a
-                //                     onClick={() => {
-                //                       closeDropdown("config");
-                //                       NotificationCountData();
-                //                     }}
-                //                     class="nav-link"
-                //                     data-key="t-simple-page"
-                //                   >
-                //                     Packages
-                //                   </a>
-                //                 </NavLink>
-                //               </li>
-                //               {/* Admin Config Modal SubList of SubList End */}
-                //             </ul>
-                //           </div>
-                //         </li>
-                //       )}
-
-                //       {/* Admin Config Modal sec SubList  Start */}
-                //       {userAccessData.Admin_Config_Global_Constant_CanView && (
-                //         <li
-                //           class="nav-item"
-                //           onMouseLeave={() =>
-                //             hideConfigSubList("variable")
-                //           }
-                //           onMouseEnter={() =>
-                //             showConfigSubList("variable")
-                //           }
-                //         >
-                //           <a
-                //             href="#sidebarProfile"
-                //             class="nav-link collapsed"
-                //             data-bs-toggle="collapse"
-                //             role="button"
-                //             aria-expanded="false"
-                //             aria-controls="sidebarProfile"
-                //             data-key="t-profile"
-                //             onClick={() =>
-                //               toggleConfigSubList("variable")
-                //             }
-                //           >
-                //             Variables
-                //           </a>
-                //           <div
-                //             id="variable" 
-                //               style={{
-                //                 ...style,
-                //                 position: "absolute",
-                //                 top: "0",
-                //                 left: "50%",
-                //               }}
-                //             class="subList collapse Responsive-Config-Variables"
-                //           >
-                //             <ul class="nav nav-sm flex-column bg-light rounded border-start ps-3 mt-2">
-                //               <li class="nav-item ">
-                //                 <NavLink
-                //                   to="/global-constant"
-                //                 // onClick={togglenav}
-                //                 >
-                //                   <a
-                //                     onClick={() => {
-                //                       closeDropdown("config");
-                //                       NotificationCountData();
-                //                     }}
-                //                     style={{ whiteSpace: "nowrap" }}
-                //                     class="nav-link"
-                //                     data-key="t-simple-page"
-                //                   >
-                //                     Global Constants
-                //                   </a>
-                //                 </NavLink>
-                //               </li>
-                //               <li class="nav-item ">
-                //                 <NavLink
-                //                   to="/global-pricing-driver"
-                //                 // onClick={togglenav}
-                //                 >
-                //                   <a
-                //                     style={{ whiteSpace: "nowrap" }}
-                //                     onClick={() => {
-                //                       closeDropdown("config");
-                //                       NotificationCountData();
-                //                     }}
-                //                     class="nav-link"
-                //                     data-key="t-simple-page"
-                //                   >
-                //                     Global Pricing Drivers
-                //                   </a>
-                //                 </NavLink>
-                //               </li>
-                //             </ul>
-                //           </div>
-                //         </li>
-                //       )}
-                //       {userAccessData.Admin_Config_Email_Template_CanView && (
-                //         <li
-                //           class="nav-item"
-                //           onMouseLeave={() =>
-                //             hideConfigSubList("Template")
-                //           }
-                //           onMouseEnter={() =>
-                //             showConfigSubList("Template")
-                //           }
-                //         >
-                //           <a
-                //             href="#sidebarProfile"
-                //             class="nav-link collapsed"
-                //             data-bs-toggle="collapse"
-                //             role="button"
-                //             aria-expanded="false"
-                //             aria-controls="sidebarProfile"
-                //             data-key="t-profile"
-                //             onClick={() =>
-                //               toggleConfigSubList("Template")
-                //             }
-                //           >
-                //             Templates
-                //           </a>
-                //           <div
-                //             style={style}
-                //             class="subList collapse menu-dropdown"
-                //             id="Template"
-                //           >
-                //             <ul class="nav nav-sm flex-column Responsive-Config-Variables ">
-                //               <li class="nav-item ">
-                //                 <NavLink
-                //                   to="/templates"
-                //                 // onClick={togglenav}
-                //                 >
-                //                   <a
-                //                     style={{ whiteSpace: "nowrap" }}
-                //                     onClick={() => {
-                //                       closeDropdown("config");
-                //                       NotificationCountData();
-                //                     }}
-                //                     class="nav-link"
-                //                     data-key="t-simple-page"
-                //                   >
-                //                     {proposalName}/{EngagementName}
-                //                   </a>
-                //                 </NavLink>
-                //               </li>
-                //               <li class="nav-item ">
-                //                 <NavLink
-                //                   to="/terms-and-conditions"
-                //                 // onClick={togglenav}
-                //                 >
-                //                   <a
-                //                     style={{ whiteSpace: "nowrap" }}
-                //                     onClick={() => {
-                //                       closeDropdown("config");
-                //                       NotificationCountData();
-                //                     }}
-                //                     class="nav-link"
-                //                     data-key="t-simple-page"
-                //                   >
-                //                     Terms & Conditions
-                //                   </a>
-                //                 </NavLink>
-                //               </li>
-                //               <li class="nav-item ">
-                //                 <NavLink
-                //                   to="/email-template"
-                //                 // onClick={togglenav}
-                //                 >
-                //                   <a
-                //                     onClick={() => {
-                //                       closeDropdown("config");
-                //                       NotificationCountData();
-                //                     }}
-                //                     class="nav-link"
-                //                     data-key="t-simple-page"
-                //                   >
-                //                     Email Templates
-                //                   </a>
-                //                 </NavLink>
-                //               </li>
-                //             </ul>
-                //           </div>
-                //         </li>
-                //       )}
-                //       {/* this is reminder  */}
-                //       {userAccessData.Admin_Config_Email_Template_CanView && (
-                //         <li
-                //           class="nav-item"
-                //           onMouseLeave={() =>
-                //             hideConfigSubList("Reminder")
-                //           }
-                //           onMouseEnter={() =>
-                //             showConfigSubList("Reminder")
-                //           }
-                //         >
-                //           <a
-                //             href="#sidebarProfile"
-                //             class="nav-link collapsed"
-                //             data-bs-toggle="collapse"
-                //             role="button"
-                //             aria-expanded="false"
-                //             aria-controls="sidebarProfile"
-                //             data-key="t-profile"
-                //             onClick={() =>
-                //               toggleConfigSubList("Reminder")
-                //             }
-                //           >
-                //             Workflows
-                //           </a>
-                //           <div
-                //             id="Reminder"
-                //             style={style}
-                //             class="subList collapse menu-dropdown Responsive-Config-Variables"
-                //           >
-                //             <ul class="nav nav-sm flex-column">
-                //               <li class="nav-item ">
-                //                 <NavLink
-                //                   to="/reminder-email-template"
-                //                 // onClick={togglenav}
-                //                 >
-                //                   <a
-                //                     onClick={() => {
-                //                       closeDropdown("config");
-                //                       NotificationCountData();
-                //                     }}
-                //                     style={{ whiteSpace: "nowrap" }}
-                //                     class="nav-link"
-                //                     data-key="t-simple-page"
-                //                   >
-                //                     Email Templates
-                //                   </a>
-                //                 </NavLink>
-                //               </li>
-                //               <li class="nav-item ">
-                //                 <NavLink
-                //                   to="/reminder"
-                //                 // onClick={togglenav}
-                //                 >
-                //                   <a
-                //                     style={{ whiteSpace: "nowrap" }}
-                //                     onClick={() => {
-                //                       closeDropdown("config");
-                //                       NotificationCountData();
-                //                     }}
-                //                     class="nav-link"
-                //                     data-key="t-simple-page"
-                //                   >
-                //                     Reminders
-                //                   </a>
-                //                 </NavLink>
-                //               </li>
-                //             </ul>
-                //           </div>
-                //         </li>
-                //       )}
-                //     </ul>
-                //   </div>
-                // </li>
                     <li
                       className="nav-item"
                       onMouseLeave={hideConfigList}
@@ -2007,7 +1647,7 @@ const TopbarClone = () => {
                                 className="nav-link collapsed"
                                 // data-bs-toggle="collapse"
                                 aria-expanded="false"
-                                aria-controls="sidebarProfile"
+                                // aria-controls="sidebarProfile"
                                 onClick={(e) =>{ 
                                   e.preventDefault();
                                   toggleConfigSubList("servicesAndPackage")}}
@@ -2399,7 +2039,7 @@ const TopbarClone = () => {
                               API Integration
                             </a>
                             <div
-                              class="subList collapse Responsive-Config-Variables"
+                              class="subList Service-package-bgColor"
                               id="WebIntegration"
                               style={style}
                             >
@@ -2426,25 +2066,19 @@ const TopbarClone = () => {
                                     </a>
                                   </Link>
                                 </li>
-                                <li class="nav-item">
-                                  <Link
-                                    to="/AccessKey"
-                                    onClick={togglenav}
-                                  >
-                                    <a
-                                      onClick={() => {
-                                        toggleSettingList(
-                                          "Setting"
-                                        );
-                                        NotificationCountData();
-                                      }}
-                                      class="nav-link"
-                                      data-key="t-basic-6"
-                                    >
-                                      Access Key
-                                    </a>
-                                  </Link>
-                                </li>
+                                    <li className="nav-item">
+                                      <NavLink
+                                        to="/AccessKey"
+                                        className="nav-link"
+                                        data-key="t-simple page"
+                                        onClick={() => {
+                                          toggleSettingList("Setting");
+                                          NotificationCountData();
+                                        }}
+                                      >
+                                        Access Key
+                                      </NavLink>
+                                    </li>
                                 <li class="nav-item">
                                   <Link
                                     to="/coupon"
@@ -3450,8 +3084,9 @@ const TopbarClone = () => {
                                       onClick={togglenav}
                                     >
                                       <a
-                                        onClick={() => {
-                                          toggleSettingList("Setting");
+                                        onClick={(e) => {
+                                          e.preventDefault();
+                                          // toggleSettingList("Setting");
                                           NotificationCountData();
                                         }}
                                         class="nav-link"
@@ -3592,16 +3227,19 @@ const TopbarClone = () => {
 
               {/* <div class="d-flex"> */}
                 {/* <div class="d-flex search"> */}
-                <div
-                  className="d-flex align-items-center justify-content-start"
-                  style={{
-                    position: "absolute",
-                    bottom: "20px",
-                    left: "35px",
-                    zIndex: 9999,
-                    marginTop: "auto",
-                  }}
-                >
+                  {/* Profile DropDown modal End  */}
+                {/* </div> */}
+              {/* </div> */}
+            </div>
+          </div>
+        </div>
+        <div
+    className="d-flex sidebar-bottom align-items-center justify-content-start"
+    style={{
+      zIndex: 9999,
+      padding: "10px 35px",
+    }}
+  >
                   <Tooltip title={"Notifications"}>
                       <div
                       // class="dropdown topbar-head-dropdown ms-1 header-item"
@@ -3778,12 +3416,6 @@ const TopbarClone = () => {
                     </div>
                   </div>
                   </div>
-                  {/* Profile DropDown modal End  */}
-                {/* </div> */}
-              {/* </div> */}
-            </div>
-          </div>
-        </div>
         {/* <div class="sidebar-background"></div> */}
       </div>
       {/* <!-- Left Sidebar End -->

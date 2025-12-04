@@ -130,6 +130,7 @@ function Modal(props) {
   const [driverTypeValue1, setDriverTypeValue1] = useState("");
   const [count, setCount] = useState(0);
   const [isCheck, setIsCheck] = useState(false);
+  const [slabDecimalPlaces,setSlabDecimalPlaces] = useState(2);
   const [globalPricingDriverObj, setGlobalPricingDriverObj] = useState({
     globalPricingDriverKeyID: null,
     keyID: null,
@@ -250,9 +251,9 @@ function Modal(props) {
     const newSlabs = {
       slabTypeID: "",
       slabValue: "",
-      slabFrom: 0,
-      slabTo: 0,
-      decimalPlaces: 2,
+      slabFrom: (0).toFixed(slabDecimalPlaces),
+      slabTo: (0).toFixed(slabDecimalPlaces),
+      decimalPlaces: slabDecimalPlaces,
       isDefault: true,
     };
     slabs.push(newSlabs);
@@ -360,11 +361,19 @@ function Modal(props) {
   //Add Slab 
   const OnAddSlab = (i) => {
     setCount(count + 1);
-    var existingDecimalPlaces = Number(slabs[slabs.length - 1].decimalPlaces) ?? 2;
+    var existingDecimalPlaces = slabDecimalPlaces;
     var increment = 1 / Math.pow(10, existingDecimalPlaces);
-    var fromValueForNewSlab = Number(slabs[slabs.length - 1].slabTo) + increment;
-    console.log(existingDecimalPlaces);
-    fromValueForNewSlab = Math.round(fromValueForNewSlab * 100) / 100;
+    let fromValueForNewSlab;
+    
+    // Check if this is the first slab or if adding another slab
+    if (slabs.length === 0 || slabs[slabs.length - 1].slabTo === "") {
+      // First slab or previous slabTo is empty, start from 0
+      fromValueForNewSlab = (0).toFixed(existingDecimalPlaces);
+    } else {
+      // Calculate from previous slabTo
+      var calculatedValue = Number(slabs[slabs.length - 1].slabTo) + increment;
+      fromValueForNewSlab = calculatedValue.toFixed(existingDecimalPlaces);
+    }
     const newSlabs = {
       slabKeyID: null,
       slabTypeID: "",
@@ -1667,7 +1676,7 @@ function Modal(props) {
       );
     } else if (Type === "slabTo") {
       const updatedSlabs = [...slabs];
-      var decimalPlaces = updatedSlabs[index].decimalPlaces;
+      var decimalPlaces = slabDecimalPlaces;
       updatedSlabs[index].slabTo = formattedInput.replace(
         /-/g,
         (match, index) => (index === 0 ? match : "")
@@ -2156,8 +2165,8 @@ function Modal(props) {
                           <Select
                             className="user-role-select"
                             value={{
-                              value: slabs[0]?.decimalPlaces ?? 2,
-                              label: Utils.getDecimalPlaceLabel(slabs[0]?.decimalPlaces ?? 2),
+                              value: slabDecimalPlaces,
+                              label: Utils.getDecimalPlaceLabel(slabDecimalPlaces),
                             }}
                             onChange={(selectedOption) =>
                               OnSlabChange(0, "decimalPlaces", selectedOption.value)

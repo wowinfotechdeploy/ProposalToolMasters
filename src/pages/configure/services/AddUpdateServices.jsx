@@ -2976,11 +2976,11 @@ const PricingDriversComponent = (props) => {
                                           }
                                           value={{
                                             value:
-                                              props.pricingDriver[mainIndex]
-                                                .slab?.[0]?.decimalPlaces ?? 2,
+                                              props.pricingDriver[mainIndex].slab?.[0]?.decimalPlaces ?? 
+                                              props?.slabDecimalPlaces ?? 2,
                                             label: Utils.getDecimalPlaceLabel(
-                                              props.pricingDriver[mainIndex]
-                                                .slab?.[0]?.decimalPlaces ?? 2
+                                              props.pricingDriver[mainIndex].slab?.[0]?.decimalPlaces ?? 
+                                              props?.slabDecimalPlaces ?? 2
                                             ),
                                           }}
                                           options={Utils.DECIMAL_PLACE_OPTIONS}
@@ -4146,6 +4146,7 @@ const Add_Update_Service = (props) => {
   const [pricingDriver, setPricingDriver] = useState([]); // Add for Pricing Driver
   const [isAddUpdateActionDone, setIsAddUpdateActionDone] = useState(false);
   const [professionTypeLookupList, setProfessionTypeLookupList] = useState([]);
+  const [slabDecimalPlaces, setSlabDecimalPlaces] = useState(2);
   const [modelAction, setModelAction] = useState("");
   const tagifyRef = useRef(null);
   const [gdrivererror, setGdriverError] = useState({
@@ -7436,60 +7437,57 @@ const Add_Update_Service = (props) => {
   // };
   const OnSlabChange = (mainIndex, index, field, value) => {
     const updatedSlabs = [...pricingDriver];
-
-    // Ensure the structure exists
-    if (
-      updatedSlabs[mainIndex] &&
-      updatedSlabs[mainIndex].slab &&
-      updatedSlabs[mainIndex].slab[index]
-    ) {
-      updatedSlabs[mainIndex].slab[index][field] = value;
+    if (field !== "decimalPlaces") {
+        if (
+            updatedSlabs[mainIndex] &&
+            updatedSlabs[mainIndex].slab &&
+            updatedSlabs[mainIndex].slab[index]
+        ) {
+            updatedSlabs[mainIndex].slab[index][field] = value;
+        }
     }
-
+    // Always update decimalPlaces state
     if (field === "decimalPlaces") {
-      const decimalPlaces = Number(value);
+        const decimalPlaces = Number(value);
+        setSlabDecimalPlaces(decimalPlaces);
 
-      const step = parseFloat(
-        (1 / Math.pow(10, decimalPlaces)).toFixed(decimalPlaces)
-      );
-
-      // Format all existing slabs according to new decimal places
-      updatedSlabs[mainIndex].slab = updatedSlabs[mainIndex].slab.map(
-        (slab, i) => {
-          const format = (num) => {
-            if (num === "" || num === null || num === undefined) return "";
-            const val =
-              typeof num === "string" ? parseFloat(num.replace(/,/g, "")) : num;
-            if (isNaN(val)) return "";
-            return val.toFixed(decimalPlaces).toString();
-          };
-
-          const formattedSlab = {
-            ...slab,
-            slabFrom: format(slab.slabFrom),
-            slabTo: format(slab.slabTo),
-            decimalPlaces: decimalPlaces,
-          };
-
-          return formattedSlab;
+        // If no slabs exist, still update pricingDriver decimalPlaces
+        if (!updatedSlabs[mainIndex].slab || updatedSlabs[mainIndex].slab.length === 0) {
+            updatedSlabs[mainIndex].slab = [];
+            setPricingDriver(updatedSlabs);
+            return;
         }
-      );
 
-      // Recalculate all slabFrom values based on previous slab's slabTo
-      for (let i = 1; i < updatedSlabs[mainIndex].slab.length; i++) {
-        const prevSlab = updatedSlabs[mainIndex].slab[i - 1];
-        if (prevSlab.slabTo && prevSlab.slabTo !== "") {
-          const prevTo = parseFloat(prevSlab.slabTo);
-          if (!isNaN(prevTo)) {
-            updatedSlabs[mainIndex].slab[i].slabFrom = (prevTo + step).toFixed(
-              decimalPlaces
-            );
-          }
+        // Step
+        const step = parseFloat((1 / Math.pow(10, decimalPlaces)).toFixed(decimalPlaces));
+
+        // Format existing slabs
+        updatedSlabs[mainIndex].slab = updatedSlabs[mainIndex].slab.map((slab) => {
+            const format = (num) => {
+                if (num === "" || num === null || num === undefined) return "";
+                const val = typeof num === "string" ? parseFloat(num.replace(/,/g, "")) : num;
+                return isNaN(val) ? "" : val.toFixed(decimalPlaces);
+            };
+
+            return {
+                ...slab,
+                slabFrom: format(slab.slabFrom),
+                slabTo: format(slab.slabTo),
+                decimalPlaces,
+            };
+        });
+
+        // Recalculate slabFrom chain
+        for (let i = 1; i < updatedSlabs[mainIndex].slab.length; i++) {
+            const prevSlab = updatedSlabs[mainIndex].slab[i - 1];
+            if (prevSlab.slabTo) {
+                const prevTo = parseFloat(prevSlab.slabTo);
+                updatedSlabs[mainIndex].slab[i].slabFrom = (prevTo + step).toFixed(decimalPlaces);
+            }
         }
-      }
 
-      setPricingDriver(updatedSlabs);
-      return;
+        setPricingDriver(updatedSlabs);
+        return;
     }
 
     // Handle slabTo changes - update next slab's slabFrom
@@ -7755,7 +7753,7 @@ const Add_Update_Service = (props) => {
 
     // Get the decimal places for this driver (default to 2 if not set)
     const decimalPlaces = Number(
-      pricingDriver[mainIndex]?.slab?.[0]?.decimalPlaces ?? 2
+      pricingDriver[mainIndex]?.slab?.[0]?.decimalPlaces ?? slabDecimalPlaces ?? 2
     );
 
     // Calculate the step based on decimal places
@@ -8446,6 +8444,7 @@ const Add_Update_Service = (props) => {
                   handleDeleteClick={handleDeleteClick}
                   addGBP={addGBP}
                   pricingDriver={pricingDriver}
+                  slabDecimalPlaces={slabDecimalPlaces}
                   OnDeletePricingDriver={OnDeletePricingDriver}
                   OnPricingDriverChange={OnPricingDriverChange}
                   gdrivererror={gdrivererror}

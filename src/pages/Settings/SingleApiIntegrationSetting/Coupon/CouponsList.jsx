@@ -54,18 +54,20 @@ const CouponCodeList = () => {
     userAccessData,
     formatValue,
     formatValueWithoutCurrencySymbol,
-    activeOrganizationSubscriptionPlan
+    activeOrganizationSubscriptionPlan,
+    isSubscriptionLoading
   } = useContext(AuthContextProvider);
   const pageSize = isMobile ? isMobileRecords : desktopRecords;
   // B] Initial useEffect :
   // 1) Will Call Initial Api Like List Api
   useEffect(() => {
+    if (isSubscriptionLoading || !activeOrganizationSubscriptionPlan) return;
     if (!activeOrganizationSubscriptionPlan?.apiIntegration) {
       navigate(-1); // Redirect to the previous page
     }
     setTopbar("block");
     GetCouponCodeListData(1);
-  }, []);
+  }, [isSubscriptionLoading, activeOrganizationSubscriptionPlan]);
 
   //2) This useEffect will trigger when we successfully add or update record from popup model
   useEffect(() => {

@@ -1151,6 +1151,7 @@ function Predefined_Templates() {
   };
 
   return (
+    <>
     <div className="container-fluid">
       {/* <div class="main-content"> */}
         <div class="services page-background">
@@ -3154,7 +3155,7 @@ function Predefined_Templates() {
         </div>
         </div>
         </div>
-        <Footer />
+        
       </div>
 
       {/* start back-to-top */}
@@ -3167,6 +3168,8 @@ function Predefined_Templates() {
       </button>
       {/* end back-to-top */}
     </div>
+    <Footer />
+    </>
   );
 }
 

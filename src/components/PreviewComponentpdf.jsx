@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { lazy, Suspense, useContext, useEffect, useRef, useState } from "react";
 import { ElementType, EMAIL_TEMPLATE, statusID } from "../Middleware/enums";
 import { useSelector } from "react-redux";
 import { GetOrganisationInformationModel } from "../redux/Services/Setting/Organisation";
@@ -8,7 +8,7 @@ import Utils from "../Middleware/Utils";
 import { ERROR_MESSAGES } from "./GlobalMessage";
 import { AuthContextProvider } from "../AuthContext/AuthContext";
 import { generatePdfUrl, mergePdfApiUrl } from "../Base-Url/Base_Url";
-import PdfViewer from "./PdfViewers";
+// import PdfViewer from "./PdfViewers";
 import PaymentGatewayModel from "./PaymentGatewayModel";
 import ReactDOMServer from "react-dom/server";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -24,6 +24,7 @@ import {
   GetTemplateLookupPDFList,
   GetTemplatePdfList,
 } from "../redux/Services/Config/TemplateApi";
+import { Landscape } from "@mui/icons-material";
 export default function PreviewComponentPdf(props) {
   const moduleNameForSaveAsDraft = "Preview";
   const statusIDForSaveAsDraft = 1;
@@ -50,7 +51,9 @@ export default function PreviewComponentPdf(props) {
     getCurrencySymbol,
     activeOrganizationSubscriptionPlan,
     convertAndParseDate,
+    orientationID
   } = useContext(AuthContextProvider);
+  console.log(orientationID);
   const [totalOnePackageValue, setTotalOnePackageValue] = useState(0);
   const [totalTwoPackageValue, setTotalTwoPackageValue] = useState(0);
   const [totalThreePackageValue, setTotalThreePackageValue] = useState(0);
@@ -64,7 +67,9 @@ export default function PreviewComponentPdf(props) {
   const [initialContent, setInitialContent] = useState("");
   const [isContentChanged, setIsContentChanged] = useState(false);
   const [editorState, setEditorState] = useState("");
+  const [landscapeMode,setLandscapeMode] = useState(orientationID === 2);
   const [isPopUpVisible, setIsPopUpVisible] = useState(false);
+  const PdfViewer = lazy(() => import("./PdfViewers"));
   const openPopup = () => {
     setIsPopUpVisible(true);
   };
@@ -296,6 +301,9 @@ export default function PreviewComponentPdf(props) {
   const FooterImage = props.footerImage;
   const HeaderHeight = props.headerHeight;
   const FooterHeight = props.footerHeight;
+  const WatermarkImage = props.watermarkImage;
+  console.log(WatermarkImage);
+  console.log(props?.pdf);
   const showSeparatorLines = props.showSeparatorLines;
   // console.log(props.selectedOneOffServiceList);
   // console.log(props.selectedRecurringServiceList);
@@ -344,14 +352,14 @@ export default function PreviewComponentPdf(props) {
     }
   };
 
-  useEffect(() => {
-    if (props?.moduleName === "Contract") {
-      props.setEngagementObj((prevState) => ({
-        ...prevState,
-        pdf: null,
-      }));
-    }
-  }, [props?.engagementObj]);
+  // useEffect(() => {
+  //   if (props?.moduleName === "Contract") {
+  //     props.setEngagementObj((prevState) => ({
+  //       ...prevState,
+  //       pdf: null,
+  //     }));
+  //   }
+  // }, [props?.engagementObj]);
   const AcceptRecurringUrl = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.Recurring}&Action=Accepted&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
   // const AcceptRecurringELOffUrl = `https://$AppUrl$/accept-decline-proposal?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.Recurring}&Action=Accepted`;
 
@@ -1360,6 +1368,11 @@ export default function PreviewComponentPdf(props) {
     GetTemplatePdfListData();
   }, []);
 
+  const toggleLandscape = () => {
+    setIsPdfAlreadyGenerated(false);
+    setLandscapeMode((prev) => !prev);
+  };
+
   if (MergePdfUrl) {
   }
   const sendDataToBackend = async (
@@ -1392,7 +1405,9 @@ export default function PreviewComponentPdf(props) {
       FooterImage: FooterImage,
       HeaderHeight: HeaderHeight,
       FooterHeight: FooterHeight,
+      WatermarkImage: WatermarkImage,
       showSeparatorLines: showSeparatorLines,
+      landscapeMode: landscapeMode
     };
 
     try {
@@ -1524,7 +1539,7 @@ export default function PreviewComponentPdf(props) {
             newColorCode,
             BrandLogo,
             fontFamily,
-            showSeparatorLines
+            landscapeMode
           )
         );
         await Promise.all(promises);
@@ -1549,7 +1564,7 @@ export default function PreviewComponentPdf(props) {
         generatePdf();
       }
     }
-  }, [generatePdfData]);
+  }, [generatePdfData,landscapeMode]);
 
   function getPackageName(id, name) {
     const packages = props.lastPaymentFrequencyAndDiscountedPriceForPreview;
@@ -7094,7 +7109,7 @@ ${
               prevElementType === ElementType.PAGE_BREAK ||
               prevElementType === ElementType.AWS_PDF_LINK
             ) {
-              if (props?.updatedTnCData || props?.engagementObj?.pdf) {
+              if (props?.updatedTnCData || props?.pdf) {
                 if (
                   props?.updatedTnCData !== null &&
                   props?.updatedTnCData !== undefined
@@ -7105,19 +7120,19 @@ ${
                       <div style="padding-left: 40px; padding-right: 40px;">${appliedFontTNCContent}</div>`,
                   });
                 } else if (
-                  props?.engagementObj?.pdf !== null ||
+                  props?.pdf !== null ||
                   props?.updatedTnCData === null
                 ) {
                   pdfDataArray.push(currentArray);
                   currentArray = [];
                   currentArray.push({
-                    ["awsLink"]: props.engagementObj.pdf,
+                    ["awsLink"]: props.pdf,
                   });
                 }
               }
             } else {
               pdfDataArray.push(currentArray);
-              if (props?.updatedTnCData || props?.engagementObj?.pdf) {
+              if (props?.updatedTnCData || props?.pdf) {
                 if (
                   props?.updatedTnCData !== null &&
                   props?.updatedTnCData !== undefined
@@ -7130,12 +7145,12 @@ ${
                     },
                   ];
                 } else if (
-                  props?.engagementObj?.pdf !== null ||
+                  props?.pdf !== null ||
                   props?.updatedTnCData === null
                 ) {
                   currentArray = [
                     {
-                      ["awsLink"]: props.engagementObj.pdf,
+                      ["awsLink"]: props?.pdf,
                     },
                   ];
                 }
@@ -7156,7 +7171,7 @@ ${
                   prevElementType === ElementType.PAGE_BREAK ||
                   prevElementType === ElementType.AWS_PDF_LINK
                 ) {
-                  if (props?.updatedTnCData || props?.engagementObj?.pdf) {
+                  if (props?.updatedTnCData || props?.pdf) {
                     if (
                       props?.updatedTnCData !== null &&
                       props?.updatedTnCData !== undefined
@@ -7167,19 +7182,19 @@ ${
                         <div style="padding-left: 40px; padding-right: 40px;">${appliedFontTNCContent}</div>`,
                       });
                     } else if (
-                      props?.engagementObj?.pdf !== null ||
+                      props?.pdf !== null ||
                       props?.updatedTnCData === null
                     ) {
                       pdfDataArray.push(currentArray);
                       currentArray = [];
                       currentArray.push({
-                        ["awsLink"]: props.engagementObj.pdf,
+                        ["awsLink"]: props?.pdf,
                       });
                     }
                   }
                 } else {
                   pdfDataArray.push(currentArray);
-                  if (props?.updatedTnCData || props?.engagementObj?.pdf) {
+                  if (props?.updatedTnCData || props?.pdf) {
                     if (
                       props?.updatedTnCData !== null &&
                       props?.updatedTnCData !== undefined
@@ -7192,12 +7207,12 @@ ${
                         },
                       ];
                     } else if (
-                      props?.engagementObj?.pdf !== null ||
+                      props?.pdf !== null ||
                       props?.updatedTnCData === null
                     ) {
                       currentArray = [
                         {
-                          ["awsLink"]: props.engagementObj.pdf,
+                          ["awsLink"]: props?.pdf,
                         },
                       ];
                     }
@@ -7438,8 +7453,19 @@ ${
         >
           {MergePdfUrl &&
             (isMobile ? (
+              <Suspense>
               <PdfViewer isVisible={false} pdfFile={MergePdfUrl} />
+              </Suspense>
             ) : (
+              <>
+                <button
+                    onClick={toggleLandscape}
+                    className="btn btn-primary btn-sm mt-2"
+                    style={{ marginBottom: 10 }}
+                >
+                    <Landscape />
+                    {landscapeMode ? "Switch to Portrait" : "Switch to Landscape"}
+                </button>
               <iframe
                 title="PDF Viewer"
                 src={MergePdfUrl}
@@ -7448,6 +7474,7 @@ ${
                 style={{ width: "100%", height: "100vh", border: "none" }}
                 loading="lazy"
               ></iframe>
+              </>
             ))}
 
           {/* </div> */}

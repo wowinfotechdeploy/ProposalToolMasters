@@ -748,6 +748,11 @@ const FontSize = [
   { value: 48, label: "48px" },
 ];
 
+const OrientationType = [
+  {value: 1, label: 'Portrait'},
+  {value: 2, label: 'Landscape'},
+]
+
 export default {
   heightOptions,
   DECIMAL_PLACE_OPTIONS,
@@ -783,4 +788,5 @@ export default {
   DiscountLines,
   dropdownOptions,
   DateFilter,
+  OrientationType
 };

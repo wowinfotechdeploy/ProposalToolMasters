@@ -1312,6 +1312,7 @@ const Proposals = () => {
   };
 
   return (
+    <>
      <div className="container-fluid">
       {/* <div class="main-content"> */}
         <div class="services page-background">
@@ -3004,7 +3005,7 @@ const Proposals = () => {
         toDateCalenderForExport={toDateCalenderForExport}
         setToDateCalenderForExport={setToDateCalenderForExport}
       />
-      <Footer />
+      
 
       <EmailFailurePopUP
         open={openEmailFailurePopUp}
@@ -3019,6 +3020,8 @@ const Proposals = () => {
     </div>
     </div>
     </div>
+    <Footer />
+    </>
   );
 };
 

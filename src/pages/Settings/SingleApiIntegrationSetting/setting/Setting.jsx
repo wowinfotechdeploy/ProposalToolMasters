@@ -31,6 +31,7 @@ function Setting() {
     setLoader,
     scrollUpDownByElementID,
     activeOrganizationSubscriptionPlan,
+    isSubscriptionLoading
   } = useContext(AuthContextProvider);
   //Common UseState here
   const [isModalOpen, setISModalOpen] = useState(false);
@@ -123,6 +124,7 @@ function Setting() {
   });
 
   useEffect(() => {
+    if (isSubscriptionLoading || !activeOrganizationSubscriptionPlan) return;
     if (!activeOrganizationSubscriptionPlan?.apiIntegration) {
       navigate(-1); // Redirect to the previous page
     }
@@ -141,7 +143,7 @@ function Setting() {
 
     GetSingleApiSettingTemplateLookupListForContract();
     GetSingleApiSettingTemplateLookupListForQuote();
-  }, []);
+  }, [isSubscriptionLoading, activeOrganizationSubscriptionPlan]);
   useEffect(() => {
     // Check if both userKeyID and organisationKeyID are truthy
     GetPaymentGatewayModelData(common.organisationKeyID);
