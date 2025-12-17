@@ -70,10 +70,7 @@ function Add_New_Templates(props) {
     scrollUpDownByElementID,
     scrollUptoCurrentPosition,
     HtmlToPlainText,
-    hasActionAccess,
-    orientationID,
-    setOrientationID,
-    handleOrientationChange
+    hasActionAccess
   } = useContext(AuthContextProvider);
   const navigate = useNavigate();
   const TemplateDivContainerRef = useRef(null);
@@ -98,7 +95,7 @@ function Add_New_Templates(props) {
     []
   );
   const [TemplateTypeLookupList, setTemplateTypeLookupList] = useState([]);
-
+  // const [orientationID,setOrientationID] = useState(1);
   const [templatePdfList, setTemplatePdfList] = useState([]);
   const [TemplateElementTypeLookupList, setTemplateElementTypeLookupList] =
     useState([]);
@@ -130,6 +127,7 @@ function Add_New_Templates(props) {
   const [TemplateObj, setTemplateObj] = useState({
     templateKeyID: null,
     enableFirstPage: false,
+    headerFooterFirstPage: 1,
     organisationID: null,
     originalBusinessTypeID: [],
     originalBusinessTypeIDs: [],
@@ -143,7 +141,7 @@ function Add_New_Templates(props) {
     isPredefined: null,
     fontFamilyID: null,
     watermarkImage: null,
-    orientationID: orientationID,
+    orientationID: 1,
     professionTypeList: [],
     pricingTableColumnIDs: null,
     // Service description main heading
@@ -274,8 +272,9 @@ function Add_New_Templates(props) {
       templateKeyID: null,
       organisationID: null,
       enableFirstPage: false,
+      headerFooterFirstPage: 1,
       watermarkImage: null,
-      orientationID: orientationID,
+      orientationID: 1,
       createdByID: null,
       templateName: undefined,
       templateTypeID: null,
@@ -574,6 +573,7 @@ function Add_New_Templates(props) {
             ...TemplateObj,
             templateKeyID: ModelData.templateKeyID,
             enableFirstPage: ModelData.enableFirstPage,
+            headerFooterFirstPage: ModelData.headerFooterFirstPage,
             organisationID: ModelData.organisationID,
             createdByID: ModelData.createdByID,
             templateName: ModelData.templateName,
@@ -591,9 +591,6 @@ function Add_New_Templates(props) {
             originalBusinessTypeIDs: ModelData.originalBusinessTypeIDs,
             // pricingTableColumnIDs: ModelData.pricingTableColumnIDs,
           });
-          if (ModelData.orientationID) {
-            setOrientationID(ModelData.orientationID);
-          }
           setTemplateElementList(
             ...templateElementList,
             ModelData.templateElementList
@@ -655,6 +652,13 @@ function Add_New_Templates(props) {
     } catch (error) {
       console.log(error);
     }
+  };
+
+   // handle orientation toggle
+  const handleOrientationChange = (e) => {
+    setTemplateObj({...TemplateObj,
+      orientationID: (Number(e.target.value))
+    });
   };
 
   // 2) Add Update Button Click Function
@@ -1008,7 +1012,8 @@ function Add_New_Templates(props) {
       templateTypeID: TemplateObj.templateTypeID, //will change module wise
       templateKeyID: TemplateObj.templateKeyID,
       enableFirstPage: TemplateObj.enableFirstPage,
-      orientationID: orientationID,
+      headerFooterFirstPage: TemplateObj.headerFooterFirstPage,
+      orientationID: TemplateObj.orientationID,
       userKeyID: common.userKeyID,
       clientBusinessTypeID: TemplateObj.clientBusinessTypeID,
       clientBusinessTypeIDs: TemplateObj.clientBusinessTypeIDs,
@@ -1055,6 +1060,7 @@ function Add_New_Templates(props) {
             selectedFile.fileName instanceof File;
           // Instead, you should append the entire file
           if (isBinary) {
+            setLoader(true);
             formData.set("file", selectedFile.fileName); // Append the file itself
             const uploadResponse = await AddUpdateTemplateWatermark(
               selectedFile.size,
@@ -2135,6 +2141,48 @@ function Add_New_Templates(props) {
                     </div>
                   </div>
                 </div>
+                <div className="row mb-2">
+                  <div
+                    id="FirstPageHeaderFooter"
+                    style={{ padding: "10px" }}
+                    className="col-lg-3  text-left"
+                  >
+                    <div className="mb-1">
+                      <label className="form-label">Header/Footer for First Page</label>
+                    </div>
+                  </div>
+                  <div className="col-lg-3 col-sm-9">
+                    <div
+                      class="col-md-3 col-sm-9 col-lg-3"
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                      }}
+                    >
+                      <FormGroup>
+                        <FormControlLabel
+                          control={
+                            <CustomWidthTooltip
+                              title={`Enable/Disable First Page Header/Footer`}
+                            >
+                              <Android12Switch
+                                id="isHFfirst"
+                                checked={TemplateObj.headerFooterFirstPage}
+                                onChange={() =>
+                                  setTemplateObj({
+                                    ...TemplateObj,
+                                    headerFooterFirstPage:
+                                      !TemplateObj.headerFooterFirstPage,
+                                  })
+                                }
+                              />
+                            </CustomWidthTooltip>
+                          }
+                        />
+                      </FormGroup>
+                    </div>
+                  </div>
+                </div>
                 <div className="row mb-2" id="ViewMode">
                   <div
                     style={{ padding: "10px" }}
@@ -2159,7 +2207,7 @@ function Add_New_Templates(props) {
                         type="radio"
                         name="orientation"
                         value={1}
-                        checked={orientationID === 1}
+                        checked={TemplateObj.orientationID === 1}
                         onChange={handleOrientationChange}
                         defaultChecked
                         />
@@ -2173,7 +2221,7 @@ function Add_New_Templates(props) {
                           type="radio"
                           name="orientation"
                           value={2}
-                          checked={orientationID === 2}
+                          checked={TemplateObj.orientationID === 2}
                           onChange={handleOrientationChange}
                         />
                         <label className="form-check-label">

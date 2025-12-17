@@ -134,6 +134,7 @@ const BasicInformationComponent = (props) => {
       props.setFooterHeight(selectedTemplate.footerHeight);
       props.setFontFamily(props.getFontNameById(selectedTemplate.fontFamilyID));
       props.setWatermarkImage(selectedTemplate?.watermarkImage);
+      props.setOrientationID(selectedTemplate?.orientationID);
       props.setShowSeparatorLines(selectedTemplate.showSeparatorLines);
 
       // props.updateVisibleFieldsFromIds(selectedTemplate.pricingTableColumnIDs);
@@ -17118,7 +17119,10 @@ const Add_Update_Proposal = (props) => {
   const [DocumentCode, setDocumentCode] = useState("");
   const [BrandColor, setBrandColor] = useState("");
   const [fontFamily, setFontFamily] = useState("");
+  const [headerFooterFirstPage, setHeaderFooterFirstPage] = useState(false);
+  const [headerFooterLastPage, setHeaderFooterLastPage] = useState(false);
   const [watermarkImage, setWatermarkImage] = useState("");
+  const [orientationID, setOrientationID] = useState(null);
   const [headerHeight, setHeaderHeight] = useState(null);
   const [footerHeight, setFooterHeight] = useState(null);
   const [headerImage, setHeaderImage] = useState(null);
@@ -21970,6 +21974,7 @@ const Add_Update_Proposal = (props) => {
           footerHeight: item.footerHeight,
           showSeparatorLine: Boolean(item.showSeparatorLines),
           watermarkImage: item.watermarkImage,
+          orientationID: item.orientationID,
           pricingTableColumnIDs: item.pricingTableColumnIDs
             ? item.pricingTableColumnIDs
             : "",
@@ -22015,6 +22020,7 @@ const Add_Update_Proposal = (props) => {
               footerHeight: filteredRecords[0].footerHeight,
               showSeparatorLine: filteredRecords[0].showSeparatorLine,
               watermarkImage: filteredRecords[0]?.watermarkImage,
+              orientationID: filteredRecords[0]?.orientationID,
               pricingTableColumnIDs: filteredRecords[0]?.pricingTableColumnIDs
                 ? filteredRecords[0]?.pricingTableColumnIDs
                 : "",
@@ -22041,6 +22047,7 @@ const Add_Update_Proposal = (props) => {
             setFooterHeight(defaultTemplateObject?.footerHeight);
             setShowSeparatorLines(defaultTemplateObject?.showSeparatorLine);
             setWatermarkImage(defaultTemplateObject?.watermarkImage);
+            setOrientationID(defaultTemplateObject?.orientationID);
             setPricingTableColumnIDs(
               defaultTemplateObject?.pricingTableColumnIDs
                 ? defaultTemplateObject?.pricingTableColumnIDs
@@ -22069,6 +22076,7 @@ const Add_Update_Proposal = (props) => {
             setFooterHeight(defaultTemplateOptions[0]?.footerHeight);
             setShowSeparatorLines(defaultTemplateOptions[0]?.showSeparatorLine);
             setWatermarkImage(defaultTemplateOptions[0]?.watermarkImage);
+            setOrientationID(defaultTemplateOptions[0]?.orientationID);
             setPricingTableColumnIDs(
               defaultTemplateOptions[0]?.pricingTableColumnIDs
                 ? defaultTemplateOptions[0]?.pricingTableColumnIDs
@@ -22124,6 +22132,7 @@ const Add_Update_Proposal = (props) => {
         setFooterHeight(defaultTemplateOptions[0]?.footerHeight);
         setShowSeparatorLines(defaultTemplateOptions[0]?.showSeparatorLine);
         setWatermarkImage(defaultTemplateOptions[0]?.watermarkImage);
+        setOrientationID(defaultTemplateOptions[0]?.orientationID);
         // console.log(getFontNameById(defaultTemplateObject?.fontFamilyID));
         // Set the state with the default template object
         setProposalObject((prevState) => ({
@@ -22324,6 +22333,8 @@ const Add_Update_Proposal = (props) => {
 
           setTemplateElementList(newArray);
           setIsDefaultFirstPage(ModelData?.enableFirstPage);
+          setHeaderFooterFirstPage(Boolean(ModelData?.headerFooterFirstPage));
+          setHeaderFooterLastPage(Boolean(ModelData?.headerFooterLastPage));
           //setTemplateElementList(ModelData.templateElementList);
           setFontSize(smallFontSizes);
           // setFontFamily(uniqueFontFamilies)
@@ -25712,6 +25723,7 @@ const Add_Update_Proposal = (props) => {
                   setHeaderHeight={setHeaderHeight}
                   setFooterHeight={setFooterHeight}
                   setWatermarkImage={setWatermarkImage}
+                  setOrientationID={setOrientationID}
                   setFontFamily={setFontFamily}
                   getFontNameById={getFontNameById}
                   setShowSeparatorLines={setShowSeparatorLines}
@@ -26181,6 +26193,9 @@ const Add_Update_Proposal = (props) => {
                   pricingSettingObj={pricingSettingObj}
                   vatPercentageOneOff={vatPercentageOneOff}
                   watermarkImage={watermarkImage}
+                  orientationID={orientationID}
+                  headerFooterFirstPage={headerFooterFirstPage}
+                  headerFooterLastPage={headerFooterLastPage}
                   />
                   </Suspense>
               )}

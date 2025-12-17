@@ -50,10 +50,9 @@ export default function PreviewComponentPdf(props) {
     replaceUrlInHtml,
     getCurrencySymbol,
     activeOrganizationSubscriptionPlan,
-    convertAndParseDate,
-    orientationID
+    convertAndParseDate
   } = useContext(AuthContextProvider);
-  console.log(orientationID);
+  // console.log(orientationID);
   const [totalOnePackageValue, setTotalOnePackageValue] = useState(0);
   const [totalTwoPackageValue, setTotalTwoPackageValue] = useState(0);
   const [totalThreePackageValue, setTotalThreePackageValue] = useState(0);
@@ -67,7 +66,6 @@ export default function PreviewComponentPdf(props) {
   const [initialContent, setInitialContent] = useState("");
   const [isContentChanged, setIsContentChanged] = useState(false);
   const [editorState, setEditorState] = useState("");
-  const [landscapeMode,setLandscapeMode] = useState(orientationID === 2);
   const [isPopUpVisible, setIsPopUpVisible] = useState(false);
   const PdfViewer = lazy(() => import("./PdfViewers"));
   const openPopup = () => {
@@ -302,6 +300,10 @@ export default function PreviewComponentPdf(props) {
   const HeaderHeight = props.headerHeight;
   const FooterHeight = props.footerHeight;
   const WatermarkImage = props.watermarkImage;
+  const orientationID = props.orientationID;
+  const headerFooterFirstPage = props?.isDefaultFirstPage ? props?.headerFooterFirstPage : null;
+  const headerFooterLastPage = props?.headerFooterLastPage;
+  const [landscapeMode,setLandscapeMode] = useState(orientationID === 2);
   console.log(WatermarkImage);
   console.log(props?.pdf);
   const showSeparatorLines = props.showSeparatorLines;
@@ -1407,7 +1409,9 @@ export default function PreviewComponentPdf(props) {
       FooterHeight: FooterHeight,
       WatermarkImage: WatermarkImage,
       showSeparatorLines: showSeparatorLines,
-      landscapeMode: landscapeMode
+      landscapeMode: landscapeMode,
+      headerFooterFirstPage: headerFooterFirstPage,
+      headerFooterLastPage: headerFooterLastPage
     };
 
     try {
@@ -2108,8 +2112,6 @@ export default function PreviewComponentPdf(props) {
                   {
                     textbox: `
       <div style="
-        padding-left: 40px; 
-        padding-right: 40px; 
         page-break-after: always;
       ">
         ${coloredHtmlContent}
@@ -2123,8 +2125,6 @@ export default function PreviewComponentPdf(props) {
                   {
                     textbox: `
       <div style="
-        padding-left: 40px; 
-        padding-right: 40px; 
         page-break-after: always;
       ">
         ${coloredHtmlContent}
@@ -7451,6 +7451,14 @@ ${
           style={{ height: isMobile ? "" : "54vh" }}
           className="tab-pane active"
         >
+          <button
+            onClick={toggleLandscape}
+            className="btn btn-primary btn-sm mt-2"
+            style={{ marginBottom: 10 }}
+          >
+            <Landscape />
+            {landscapeMode ? "Switch to Portrait" : "Switch to Landscape"}
+          </button>
           {MergePdfUrl &&
             (isMobile ? (
               <Suspense>
@@ -7458,14 +7466,6 @@ ${
               </Suspense>
             ) : (
               <>
-                <button
-                    onClick={toggleLandscape}
-                    className="btn btn-primary btn-sm mt-2"
-                    style={{ marginBottom: 10 }}
-                >
-                    <Landscape />
-                    {landscapeMode ? "Switch to Portrait" : "Switch to Landscape"}
-                </button>
               <iframe
                 title="PDF Viewer"
                 src={MergePdfUrl}
@@ -7987,7 +7987,7 @@ ${
                             <input
                               type="checkbox"
                               className="me-2"
-                              checked={props.engagementObj.selectedAttachments.find(
+                              checked={props?.engagementObj?.selectedAttachments.find(
                                 (att) =>
                                   att.templatePDFKeyID === item.templatePDFKeyID
                               )}

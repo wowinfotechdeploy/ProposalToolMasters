@@ -63,7 +63,6 @@ const AuthContext = ({ children }) => {
     useState(false);
   const [DashboardActivityLogLoader, setDashboardActivityLogLoader] =
     useState(false);
-  const [orientationID, setOrientationID] = useState(1);
 
   let engagementSetting;
   let proposalSetting;
@@ -1054,11 +1053,6 @@ const AuthContext = ({ children }) => {
   };
   const setInitializeValidationError = () => {
     setRequireErrorMessage("");
-  };
-
-  // handle orientation toggle
-  const handleOrientationChange = (e) => {
-    setOrientationID((Number(e.target.value)));
   };
 
   const getCrudButtonTextName = (actionName, moduleName) => {
@@ -3713,10 +3707,7 @@ const replaceUrlInHtml = (htmlContent) => {
         setMenuVisible,
         toggleMenuVisibility,
         maxCountToRecallApi,
-        setMaxCountToRecallApi,
-        orientationID,
-        setOrientationID,
-        handleOrientationChange
+        setMaxCountToRecallApi
       }}
     >
       {children}

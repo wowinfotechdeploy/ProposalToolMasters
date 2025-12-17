@@ -305,6 +305,7 @@ const BasicInformationComponent = (props) => {
                           props.setHeaderHeight(selectedTemplate.headerHeight);
                           props.setFooterHeight(selectedTemplate.footerHeight);
                           props.setWatermarkImage(selectedTemplate?.watermarkImage);
+                          props.setOrientationID(selectedTemplate?.orientationID);
                           props.setFontFamily(
                             props.getFontNameById(selectedTemplate.fontFamilyID)
                           );
@@ -11556,8 +11557,11 @@ const Add_Update_Engagement_Letter = () => {
   const [DocumentCode, setDocumentCode] = useState(false);
   const [isTypeChange, setIsTypeChange] = useState(false);
   const [BrandColor, setBrandColor] = useState(false);
+  const [headerFooterFirstPage, setHeaderFooterFirstPage] = useState(false);
+  const [headerFooterLastPage, setHeaderFooterLastPage] = useState(false);
   const [fontFamily, setFontFamily] = useState("");
   const [watermarkImage, setWatermarkImage] = useState("");
+  const [orientationID, setOrientationID] = useState(null);
   const [headerHeight, setHeaderHeight] = useState(null);
   const [footerHeight, setFooterHeight] = useState(null);
   const [headerImage, setHeaderImage] = useState(null);
@@ -12153,6 +12157,8 @@ const Add_Update_Engagement_Letter = () => {
             setBrandColor(
               ModelData.templateElementListWithRequiredData.brandColor
             );
+            setHeaderFooterFirstPage(Boolean(ModelData?.headerFooterFirstPage));
+            setHeaderFooterLastPage(Boolean(ModelData?.headerFooterLastPage));
             setCompanyLogo(Logo);
             setFontSize(smallFontSizes);
             // setFontFamily(uniqueFontFamilies);
@@ -12732,6 +12738,7 @@ const Add_Update_Engagement_Letter = () => {
           headerHeight: item.headerHeight,
           footerHeight: item.footerHeight,
           watermarkImage: item.watermarkImage,
+          orientationID: item.orientationID,
           showSeparatorLines: Boolean(item.showSeparatorLines),
           pricingTableColumnIDs: item.pricingTableColumnIDs
             ? item.pricingTableColumnIDs
@@ -12815,6 +12822,7 @@ const Add_Update_Engagement_Letter = () => {
           setHeaderHeight(isSelectedDefault[0].headerHeight);
           setFooterHeight(isSelectedDefault[0].footerHeight);
           setWatermarkImage(isSelectedDefault[0].watermarkImage);
+          setOrientationID(isSelectedDefault[0].orientationID);
           setShowSeparatorLines(isSelectedDefault[0]?.showSeparatorLines);
           setPricingTableColumnIDs(
             isSelectedDefault[0]?.pricingTableColumnIDs
@@ -18874,6 +18882,7 @@ const Add_Update_Engagement_Letter = () => {
                 headerHeight: item.headerHeight,
                 footerHeight: item.footerHeight,
                 watermarkImage: item.watermarkImage,
+                orientationID: item.orientationID,
                 showSeparatorLines: Boolean(item.showSeparatorLines),
               }));
               setTemplateLookUpOptions(TemplateOption);
@@ -18902,6 +18911,7 @@ const Add_Update_Engagement_Letter = () => {
                 headerHeight: item.headerHeight,
                 footerHeight: item.footerHeight,
                 watermarkImage: item.watermarkImage,
+                orientationID: item.orientationID,
                 showSeparatorLines: Boolean(item.showSeparatorLines),
               }));
               setTemplateLookUpOptions(TemplateOption);
@@ -18924,6 +18934,7 @@ const Add_Update_Engagement_Letter = () => {
           setHeaderHeight(TemplateValue.headerHeight);
           setFooterHeight(TemplateValue.footerHeight);
           setWatermarkImage(TemplateValue.watermarkImage);
+          setOrientationID(TemplateValue.orientationID);
           setLoader(true);
           setContractFinalPackageAmountList(ModelData.contractFinalAmountList);
           setEngagementObj({
@@ -20201,6 +20212,7 @@ const Add_Update_Engagement_Letter = () => {
                   setHeaderHeight={setHeaderHeight}
                   setFooterHeight={setFooterHeight}
                   setWatermarkImage={setWatermarkImage}
+                  setOrientationID={setOrientationID}
                   setFontFamily={setFontFamily}
                   getFontNameById={getFontNameById}
                   setShowSeparatorLines={setShowSeparatorLines}
@@ -20571,6 +20583,7 @@ const Add_Update_Engagement_Letter = () => {
                   headerHeight={headerHeight}
                   footerHeight={footerHeight}
                   watermarkImage={watermarkImage}
+                  orientationID={orientationID}
                   showSeparatorLines={showSeparatorLines}
                   serviceDescriptionHTML={serviceDescriptionHTML}
                   statementOfFactsHTML={statementOfFactsHTML}
@@ -20578,6 +20591,8 @@ const Add_Update_Engagement_Letter = () => {
                   selectedTemplateID={selectedTemplateID}
                   visibleFieldsCustomTemp={visibleFieldsCustomTemp}
                   vatPercentageOneOff={vatPercentageOneOff}
+                  headerFooterFirstPage={headerFooterFirstPage}
+                  headerFooterLastPage={headerFooterLastPage}
                 />
                 </Suspense>
               )}
