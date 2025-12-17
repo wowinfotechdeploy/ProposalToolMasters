@@ -308,9 +308,8 @@ const BasicInformationComponent = (props) => {
                           props.setFooterImage(selectedTemplate.footerImage);
                           props.setHeaderHeight(selectedTemplate.headerHeight);
                           props.setFooterHeight(selectedTemplate.footerHeight);
-                          props.setWatermarkImage(
-                            selectedTemplate?.watermarkImage
-                          );
+                          props.setWatermarkImage(selectedTemplate?.watermarkImage);
+                          props.setOrientationID(selectedTemplate?.orientationID);
                           props.setFontFamily(
                             props.getFontNameById(selectedTemplate.fontFamilyID)
                           );
@@ -11797,8 +11796,11 @@ const Add_Update_Engagement_Letter = () => {
   const [DocumentCode, setDocumentCode] = useState(false);
   const [isTypeChange, setIsTypeChange] = useState(false);
   const [BrandColor, setBrandColor] = useState(false);
+  const [headerFooterFirstPage, setHeaderFooterFirstPage] = useState(false);
+  const [headerFooterLastPage, setHeaderFooterLastPage] = useState(false);
   const [fontFamily, setFontFamily] = useState("");
   const [watermarkImage, setWatermarkImage] = useState("");
+  const [orientationID, setOrientationID] = useState(null);
   const [headerHeight, setHeaderHeight] = useState(null);
   const [footerHeight, setFooterHeight] = useState(null);
   const [headerImage, setHeaderImage] = useState(null);
@@ -12423,6 +12425,8 @@ const Add_Update_Engagement_Letter = () => {
             setBrandColor(
               ModelData.templateElementListWithRequiredData.brandColor
             );
+            setHeaderFooterFirstPage(Boolean(ModelData?.headerFooterFirstPage));
+            setHeaderFooterLastPage(Boolean(ModelData?.headerFooterLastPage));
             setCompanyLogo(Logo);
             setFontSize(smallFontSizes);
             // setFontFamily(uniqueFontFamilies);
@@ -13002,6 +13006,7 @@ const Add_Update_Engagement_Letter = () => {
           headerHeight: item.headerHeight,
           footerHeight: item.footerHeight,
           watermarkImage: item.watermarkImage,
+          orientationID: item.orientationID,
           showSeparatorLines: Boolean(item.showSeparatorLines),
           pricingTableColumnIDs: item.pricingTableColumnIDs
             ? item.pricingTableColumnIDs
@@ -13210,6 +13215,7 @@ const Add_Update_Engagement_Letter = () => {
           setHeaderHeight(isSelectedDefault[0].headerHeight);
           setFooterHeight(isSelectedDefault[0].footerHeight);
           setWatermarkImage(isSelectedDefault[0].watermarkImage);
+          setOrientationID(isSelectedDefault[0].orientationID);
           setShowSeparatorLines(isSelectedDefault[0]?.showSeparatorLines);
           setPricingTableColumnIDs(
             isSelectedDefault[0]?.pricingTableColumnIDs
@@ -19410,6 +19416,7 @@ const Add_Update_Engagement_Letter = () => {
                 headerHeight: item.headerHeight,
                 footerHeight: item.footerHeight,
                 watermarkImage: item.watermarkImage,
+                orientationID: item.orientationID,
                 showSeparatorLines: Boolean(item.showSeparatorLines),
               }));
               setTemplateLookUpOptions(TemplateOption);
@@ -19438,6 +19445,7 @@ const Add_Update_Engagement_Letter = () => {
                 headerHeight: item.headerHeight,
                 footerHeight: item.footerHeight,
                 watermarkImage: item.watermarkImage,
+                orientationID: item.orientationID,
                 showSeparatorLines: Boolean(item.showSeparatorLines),
               }));
               setTemplateLookUpOptions(TemplateOption);
@@ -19460,6 +19468,7 @@ const Add_Update_Engagement_Letter = () => {
           setHeaderHeight(TemplateValue.headerHeight);
           setFooterHeight(TemplateValue.footerHeight);
           setWatermarkImage(TemplateValue.watermarkImage);
+          setOrientationID(TemplateValue.orientationID);
           setLoader(true);
           setContractFinalPackageAmountList(ModelData.contractFinalAmountList);
           setEngagementObj({
@@ -20737,6 +20746,7 @@ const Add_Update_Engagement_Letter = () => {
                   setHeaderHeight={setHeaderHeight}
                   setFooterHeight={setFooterHeight}
                   setWatermarkImage={setWatermarkImage}
+                  setOrientationID={setOrientationID}
                   setFontFamily={setFontFamily}
                   getFontNameById={getFontNameById}
                   setShowSeparatorLines={setShowSeparatorLines}
@@ -20995,45 +21005,45 @@ const Add_Update_Engagement_Letter = () => {
                 />
               )}
               <Suspense>
-                <PricingTableTemplatesModal
-                  show={showSelectTemplateModal}
-                  onHide={() => setShowSelectTemplateModal(false)}
-                  setSelectedTemplateID={setSelectedTemplateID}
-                  setSelectedTemplateIDOneOff={setSelectedTemplateIDOneOff}
-                  selectedTemplateID={selectedTemplateID}
-                  selectedTemplateIDOneOff={selectedTemplateIDOneOff}
-                  serviceTypeID={serviceTypeID} //1 for recurring and 2 for one-off
-                  selectedRecurringServiceList={selectedRecurringServiceList}
-                  setSelectedRecurringServiceList={
-                    setSelectedRecurringServiceList
-                  }
-                  RecurringPricingInfo={RecurringPricingInfo}
-                  ProposalObject={engagementObj}
-                  formatValue={formatValue}
-                  vatPercentage={vatPercentage}
-                  selectedOneOffServiceList={selectedOneOffServiceList}
-                  OneOffPricingInfo={OneOffPricingInfo}
-                  selectedPackagesList={selectedPackagesList}
-                  getValidationMessage={getValidationMessage}
-                  requireMessage={requireMessage}
-                  pricingSettingObj={pricingSettingObj}
-                  setSelectedOneOffServiceList={setSelectedOneOffServiceList}
-                  hasHyphenAfterNumber={hasHyphenAfterNumber}
-                  GetSingleDefaultDiscountPercentageOfPackages={
-                    GetSingleDefaultDiscountPercentageOfPackages
-                  }
-                  setRecurringPricingInfo={setRecurringPricingInfo}
-                  setRecurringFrequencyPricingInfo={
-                    setRecurringFrequencyPricingInfo
-                  }
-                  RecurringFrequencyPricingInfo={RecurringFrequencyPricingInfo}
-                  OneOffPricingInfoCopy={OneOffPricingInfoCopy}
-                  setOneOffPricingInfoCopy={setOneOffPricingInfoCopy}
-                  setOneOffPricingInfo={setOneOffPricingInfo}
-                  setVisibleFieldsCustomTemp={setVisibleFieldsCustomTemp}
-                  visibleFieldsCustomTemp={visibleFieldsCustomTemp}
-                  vatPercentageOneOff={vatPercentageOneOff}
-                />
+              <PricingTableTemplatesModal
+                show={showSelectTemplateModal}
+                onHide={() => setShowSelectTemplateModal(false)}
+                setSelectedTemplateID={setSelectedTemplateID}
+                setSelectedTemplateIDOneOff={setSelectedTemplateIDOneOff}
+                selectedTemplateID={selectedTemplateID}
+                selectedTemplateIDOneOff={selectedTemplateIDOneOff}
+                serviceTypeID={serviceTypeID} //1 for recurring and 2 for one-off
+                selectedRecurringServiceList={selectedRecurringServiceList}
+                setSelectedRecurringServiceList={
+                  setSelectedRecurringServiceList
+                }
+                RecurringPricingInfo={RecurringPricingInfo}
+                ProposalObject={engagementObj}
+                formatValue={formatValue}
+                vatPercentage={vatPercentage}
+                selectedOneOffServiceList={selectedOneOffServiceList}
+                OneOffPricingInfo={OneOffPricingInfo}
+                selectedPackagesList={selectedPackagesList}
+                getValidationMessage={getValidationMessage}
+                requireMessage={requireMessage}
+                pricingSettingObj={pricingSettingObj}
+                setSelectedOneOffServiceList={setSelectedOneOffServiceList}
+                hasHyphenAfterNumber={hasHyphenAfterNumber}
+                GetSingleDefaultDiscountPercentageOfPackages={
+                  GetSingleDefaultDiscountPercentageOfPackages
+                }
+                setRecurringPricingInfo={setRecurringPricingInfo}
+                setRecurringFrequencyPricingInfo={
+                  setRecurringFrequencyPricingInfo
+                }
+                RecurringFrequencyPricingInfo={RecurringFrequencyPricingInfo}
+                OneOffPricingInfoCopy={OneOffPricingInfoCopy}
+                setOneOffPricingInfoCopy={setOneOffPricingInfoCopy}
+                setOneOffPricingInfo={setOneOffPricingInfo}
+                setVisibleFieldsCustomTemp={setVisibleFieldsCustomTemp}
+                visibleFieldsCustomTemp={visibleFieldsCustomTemp}
+                vatPercentageOneOff={vatPercentageOneOff}
+              />
               </Suspense>
               {activeTab === EngagementLetterHeader.Preview && (
                 <Suspense>
@@ -21120,6 +21130,8 @@ const Add_Update_Engagement_Letter = () => {
                     selectedTemplateID={selectedTemplateID}
                     visibleFieldsCustomTemp={visibleFieldsCustomTemp}
                     vatPercentageOneOff={vatPercentageOneOff}
+                    headerFooterFirstPage={headerFooterFirstPage}
+                    headerFooterLastPage={headerFooterLastPage}
                   />
                 </Suspense>
               )}
