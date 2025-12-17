@@ -1140,7 +1140,7 @@ const toggleConfigSubList = (id) => {
                 }}
               >
                 <div style={{width: "60%"}}>
-                <a className="lna" href="https://outbooks.com/proposal/">
+                <a className="lna" href="https://outbooks.com/proposal/" target="_blank">
                   <img
                     src={logoImg}
                     alt="Outbooks"
