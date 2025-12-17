@@ -72,9 +72,15 @@ import {
   ResendAddUpdateQuote,
 } from "../../redux/Services/EmailFailureStatusAPI/EmailFailureStatusAPI";
 const SelectServices = lazy(() => import("../../components/SelectServices"));
-const PreviewComponentPdf = lazy(() => import("../../components/PreviewComponentpdf"));
-const PricingTableCustomizationModal = lazy(() => import("../../components/PricingTableCustomizationModal"));
-const PricingTableTemplatesModal = lazy(() => import("../../components/PricingTableTemplatesModal"));
+const PreviewComponentPdf = lazy(() =>
+  import("../../components/PreviewComponentpdf")
+);
+const PricingTableCustomizationModal = lazy(() =>
+  import("../../components/PricingTableCustomizationModal")
+);
+const PricingTableTemplatesModal = lazy(() =>
+  import("../../components/PricingTableTemplatesModal")
+);
 
 const BasicInformationComponent = (props) => {
   const navigate = useNavigate();
@@ -2275,6 +2281,7 @@ const ReviewServicesComponent = (props) => {
     let VATPrice = props.RecurringFrequencyPricingInfo.VATPrice;
     let GrandTotal = props.RecurringFrequencyPricingInfo.GrandTotal;
 
+    let staticVATChangeFreq = 0; //  VARIABLE to store total VAT
     const updatedData = JSON.parse(JSON.stringify(props.RecurringServiceCopy));
     // Store original price
     let OriginalPrice = props.RecurringFrequencyPricingInfo.OriginalPrice;
@@ -2307,6 +2314,18 @@ const ReviewServicesComponent = (props) => {
               Number(currentServicePriceWithToFixed)
           )?.toFixed(2);
 
+          // yearly VAT amount
+          if (
+            service.service_vat_amount !== undefined &&
+            service.service_vat_amount !== null
+          ) {
+            const selectedFreqVAT = Number(service.service_vat_amount);
+            service.service_vat_amount = selectedFreqVAT.toFixed(2);
+
+            // total VAT
+            staticVATChangeFreq += selectedFreqVAT;
+          }
+
           // service.price === undefined
           //   ? (service.quotationPrice = Number(service.quotationPrice))
           //   : (service.price = Number(service.price));
@@ -2318,7 +2337,7 @@ const ReviewServicesComponent = (props) => {
           lastPaymentFrequencyAndDiscountedPrice.ChangeableYearlyPrice;
       }
 
-      netStaticVatAmount = props.RecurringPricingInfo.staticTotalVAT;
+      // netStaticVatAmount = props.RecurringPricingInfo.staticTotalVAT;
       //lastPaymentFrequencyAndDiscountedPrice.ChangeableYearlyPrice; //DiscountedPrice / 2; // Divide yearly price by 2 for half-yearly
       //OriginalPrice = OriginalPrice;
       OriginalPrice = calculatedOriginalPriceFromServices;
@@ -2327,6 +2346,29 @@ const ReviewServicesComponent = (props) => {
         ...prevState,
         Payment_Frequency: e.value,
       }));
+      // updatedData.forEach((category) => {
+      //   category.servicesList.forEach((service) => {
+      //     // Perform the percentage calculation for each value
+
+      //     let currentServicePrice =
+      //       service.originalServicePrice === undefined
+      //         ? (service.quotationPrice = Number(service.quotationPrice) / 2)
+      //         : (service.originalServicePrice =
+      //             Number(service.originalServicePrice) / 2);
+
+      //     let currentServicePriceWithToFixed =
+      //       Number(currentServicePrice)?.toFixed(2);
+      //     service.price = currentServicePriceWithToFixed;
+      //     calculatedOriginalPriceFromServices = Number(
+      //       Number(calculatedOriginalPriceFromServices) +
+      //         Number(currentServicePriceWithToFixed)
+      //     )?.toFixed(2);
+
+      //     // service.price === undefined
+      //     //   ? (service.quotationPrice = Number(service.quotationPrice) / 2)
+      //     //   : (service.price = Number(service.price) / 2);
+      //   });
+      // });
       updatedData.forEach((category) => {
         category.servicesList.forEach((service) => {
           // Perform the percentage calculation for each value
@@ -2345,21 +2387,30 @@ const ReviewServicesComponent = (props) => {
               Number(currentServicePriceWithToFixed)
           )?.toFixed(2);
 
-          // service.price === undefined
-          //   ? (service.quotationPrice = Number(service.quotationPrice) / 2)
-          //   : (service.price = Number(service.price) / 2);
+          // Half the VAT amount
+          if (
+            service.service_vat_amount !== undefined &&
+            service.service_vat_amount !== null
+          ) {
+            const selectedFreqVAT = Number(service.service_vat_amount / 2);
+            service.service_vat_amount = selectedFreqVAT.toFixed(2);
+
+            // total VAT
+            staticVATChangeFreq += selectedFreqVAT;
+          }
         });
       });
+
       DiscountedPrice = calculatedOriginalPriceFromServices;
       if (props.RecurringPricingInfo.DefaultDiscount > 0) {
         DiscountedPrice =
           lastPaymentFrequencyAndDiscountedPrice.ChangeableYearlyPrice / 2;
       }
-      props.setRecurringPricingInfo({
-        ...props.RecurringPricingInfo,
-        staticTotalVAT: props.RecurringPricingInfo.staticTotalVAT / 2,
-      });
-      netStaticVatAmount = props.RecurringPricingInfo.staticTotalVAT / 2;
+      // props.setRecurringPricingInfo({
+      //   ...props.RecurringPricingInfo,
+      //   staticTotalVAT: props.RecurringPricingInfo.staticTotalVAT / 2,
+      // });
+      // netStaticVatAmount = props.RecurringPricingInfo.staticTotalVAT / 2;
       //lastPaymentFrequencyAndDiscountedPrice.ChangeableYearlyPrice / 2; //DiscountedPrice / 2; // Divide yearly price by 2 for half-yearly
       //OriginalPrice = OriginalPrice / 2;
       OriginalPrice = calculatedOriginalPriceFromServices;
@@ -2385,6 +2436,18 @@ const ReviewServicesComponent = (props) => {
               Number(currentServicePriceWithToFixed)
           )?.toFixed(2);
 
+          // quarterly VAT amount
+          if (
+            service.service_vat_amount !== undefined &&
+            service.service_vat_amount !== null
+          ) {
+            const selectedFreqVAT = Number(service.service_vat_amount / 4);
+            service.service_vat_amount = selectedFreqVAT.toFixed(2);
+
+            // ⭐ NEW: Add to total VAT accumulator
+            staticVATChangeFreq += selectedFreqVAT;
+          }
+
           // service.price === undefined
           //   ? (service.quotationPrice = Number(service.quotationPrice) / 4)
           //   : (service.price = Number(service.price) / 4);
@@ -2395,11 +2458,11 @@ const ReviewServicesComponent = (props) => {
         DiscountedPrice =
           lastPaymentFrequencyAndDiscountedPrice.ChangeableYearlyPrice / 4;
       }
-      props.setRecurringPricingInfo({
-        ...props.RecurringPricingInfo,
-        staticTotalVAT: props.RecurringPricingInfo.staticTotalVAT / 4,
-      });
-      netStaticVatAmount = props.RecurringPricingInfo.staticTotalVAT / 4;
+      // props.setRecurringPricingInfo({
+      //   ...props.RecurringPricingInfo,
+      //   staticTotalVAT: props.RecurringPricingInfo.staticTotalVAT / 4,
+      // });
+      // netStaticVatAmount = props.RecurringPricingInfo.staticTotalVAT / 4;
       //lastPaymentFrequencyAndDiscountedPrice.ChangeableYearlyPrice / 4; //DiscountedPrice / 4; // Divide yearly price by 4 for quarterly
       //OriginalPrice = OriginalPrice / 4; //Divide month
       OriginalPrice = calculatedOriginalPriceFromServices;
@@ -2425,6 +2488,18 @@ const ReviewServicesComponent = (props) => {
               Number(currentServicePriceWithToFixed)
           )?.toFixed(2);
 
+          // monthly VAT amount
+          if (
+            service.service_vat_amount !== undefined &&
+            service.service_vat_amount !== null
+          ) {
+            const selectedFreqVAT = Number(service.service_vat_amount / 12);
+            service.service_vat_amount = selectedFreqVAT.toFixed(2);
+
+            // ⭐ NEW: Add to total VAT accumulator
+            staticVATChangeFreq += selectedFreqVAT;
+          }
+
           // service.price === undefined
           //   ? (service.quotationPrice = Number(service.quotationPrice) / 12)
           //   : (service.price = Number(service.price) / 12);
@@ -2435,11 +2510,11 @@ const ReviewServicesComponent = (props) => {
         DiscountedPrice =
           lastPaymentFrequencyAndDiscountedPrice.ChangeableYearlyPrice / 12;
       }
-      props.setRecurringPricingInfo({
-        ...props.RecurringPricingInfo,
-        staticTotalVAT: props.RecurringPricingInfo.staticTotalVAT / 12,
-      });
-      netStaticVatAmount = props.RecurringPricingInfo.staticTotalVAT / 12;
+      // props.setRecurringPricingInfo({
+      //   ...props.RecurringPricingInfo,
+      //   staticTotalVAT: props.RecurringPricingInfo.staticTotalVAT / 12,
+      // });
+      // netStaticVatAmount = props.RecurringPricingInfo.staticTotalVAT / 12;
       //lastPaymentFrequencyAndDiscountedPrice.ChangeableYearlyPrice / 12; //DiscountedPrice / 12; // Divide yearly price by 12 for monthly
       //OriginalPrice = OriginalPrice / 12; //Divide month
       OriginalPrice = calculatedOriginalPriceFromServices;
@@ -2466,7 +2541,7 @@ const ReviewServicesComponent = (props) => {
       DefaultDiscount: Number(DefaultDiscount).toFixed(2),
       Discount: Discount,
       DiscountedTotal: DiscountedTotal,
-      netStaticVatAmount: netStaticVatAmount,
+      staticTotalVAT: staticVATChangeFreq,
       VATPrice: VATPrice,
       totalServiceWiseVAT: VATPrice,
       VATPriceWithoutDiscount: VATPrice,
@@ -3270,6 +3345,14 @@ const ReviewServicesComponent = (props) => {
   const generateCombinedServicesHTML = () => {
     const fontFamily = "Arial, sans-serif";
     const fontSizeHeading = "18px";
+    const recurringHeadingFontSize = props?.serviceDescriptionObj
+      ?.recurringOnGoingHeadingFontSize
+      ? `${props?.serviceDescriptionObj?.recurringOnGoingHeadingFontSize}px`
+      : "18px";
+    const oneOffHeadingFontSize = props?.serviceDescriptionObj
+      ?.oneOffAdhocFontSize
+      ? `${props?.serviceDescriptionObj?.oneOffAdhocFontSize}px`
+      : "18px";
     const fontSizeContent = "14px";
     const newColorCode = "#b4aba6";
 
@@ -3277,9 +3360,21 @@ const ReviewServicesComponent = (props) => {
   <div style="padding-left: 40px; padding-right: 40px;">
     ${
       props?.selectedRecurringServiceList?.length
-        ? `<p style="font-family:${fontFamily}; font-size: ${fontSizeHeading}; color: ${newColorCode}; font-weight: bold;">
-             Ongoing/Recurring Services
+        ? props?.serviceDescriptionObj?.recurringOnGoingHeading !== null &&
+          props?.serviceDescriptionObj?.recurringOnGoingHeading !== undefined &&
+          props?.serviceDescriptionObj?.recurringOnGoingHeading !== ""
+          ? `<p style="font-family:${fontFamily}; font-size: ${recurringHeadingFontSize}; color: ${newColorCode}; font-weight: ${
+              props?.serviceDescriptionObj?.recurringOnGoingHeadingIsBold
+                ? "bold"
+                : "normal"
+            }; font-style: ${
+              props?.serviceDescriptionObj?.recurringOnGoingHeadingIsItalic
+                ? "italic"
+                : undefined
+            };">
+             ${props?.serviceDescriptionObj?.recurringOnGoingHeading}
            </p>`
+          : ""
         : ""
     }
 
@@ -3314,9 +3409,21 @@ const ReviewServicesComponent = (props) => {
 
     ${
       props?.selectedOneOffServiceList?.length
-        ? `<p style="font-family:${fontFamily}; font-size: ${fontSizeHeading}; color: ${newColorCode}; font-weight: bold;">
-             One-Off/Ad hoc Services
+        ? props?.serviceDescriptionObj?.oneOffAdhocHeading !== null &&
+          props?.serviceDescriptionObj?.oneOffAdhocHeading !== undefined &&
+          props?.serviceDescriptionObj?.oneOffAdhocHeading !== ""
+          ? `<p style="font-family:${fontFamily}; font-size: ${oneOffHeadingFontSize}; color: ${newColorCode}; font-weight: ${
+              props?.serviceDescriptionObj?.oneOffAdhocHeadingIsBold
+                ? "bold"
+                : "normal"
+            }; font-style: ${
+              props?.serviceDescriptionObj?.oneOffAdhocHeadingIsItalic
+                ? "italic"
+                : undefined
+            };">
+             ${props?.serviceDescriptionObj?.oneOffAdhocHeading}
            </p>`
+          : ""
         : ""
     }
 
@@ -3355,6 +3462,13 @@ const ReviewServicesComponent = (props) => {
   function generateSOFHTML() {
     const fontFamily = "Arial, sans-serif";
     const fontSizeHeading = "18px";
+    const rucurringHeadingFontSize = props?.statementOfFactsObj
+      .recurringOnGoingHeadingFontSize
+      ? props?.statementOfFactsObj.recurringOnGoingHeadingFontSize
+      : "18px";
+    const oneOffHeadingFontSize = props?.statementOfFactsObj.oneOffAdhocFontSize
+      ? props?.statementOfFactsObj.oneOffAdhocFontSize
+      : "18px";
     const fontSizeContent = "14px";
     const newColorCode = "#b4aba6";
 
@@ -3374,7 +3488,20 @@ const ReviewServicesComponent = (props) => {
         
         ${
           SelectedPackage.reccuring.length
-            ? `<p style="font-size: ${fontSizeHeading}; color: ${newColorCode}; font-weight: bold;">Ongoing/Recurring Services</p>`
+            ? props?.statementOfFactsObj?.recurringOnGoingHeading !== null &&
+              props?.statementOfFactsObj?.recurringOnGoingHeading !==
+                undefined &&
+              props?.statementOfFactsObj?.recurringOnGoingHeading !== ""
+              ? `<p style="font-size: ${rucurringHeadingFontSize}; color: ${newColorCode}; font-weight: ${
+                  props?.statementOfFactsObj?.recurringOnGoingHeadingIsBold
+                    ? "bold"
+                    : "normal"
+                }; font-style: ${
+                  props?.statementOfFactsObj?.recurringOnGoingHeadingIsItalic
+                    ? "italic"
+                    : undefined
+                };">${props?.statementOfFactsObj?.recurringOnGoingHeading}</p>`
+              : ""
             : ""
         }
 
@@ -3419,7 +3546,20 @@ const ReviewServicesComponent = (props) => {
 
         ${
           SelectedPackage.oneOff.length
-            ? `<p style="font-size: ${fontSizeHeading}; color: ${newColorCode}; font-weight: bold;">One-Off/Ad hoc Services</p>`
+            ? props?.statementOfFactsObj?.oneOffAdhocHeadingIsItalic !== null &&
+              props?.statementOfFactsObj?.oneOffAdhocHeadingIsItalic !==
+                undefined &&
+              props?.statementOfFactsObj?.oneOffAdhocHeadingIsItalic !== ""
+              ? `<p style="font-size: ${fontSizeHeading}; color: ${newColorCode}; font-weight: ${
+                  props?.statementOfFactsObj?.oneOffAdhocHeadingIsBold
+                    ? "bold"
+                    : "normal"
+                }; font-style: ${
+                  props?.statementOfFactsObj?.oneOffAdhocHeadingIsItalic
+                    ? "italic"
+                    : undefined
+                };">${props?.statementOfFactsObj?.oneOffAdhocHeading}</p>`
+              : ""
             : ""
         }
 
@@ -3498,7 +3638,20 @@ const ReviewServicesComponent = (props) => {
       <div style="padding-left: 40px; padding-right: 40px; font-family:${fontFamily};">
         ${
           props?.selectedRecurringServiceList?.length
-            ? `<p style="font-size: ${fontSizeHeading}; color: ${newColorCode}; font-weight: bold;">Ongoing/Recurring Services</p>`
+            ? props?.statementOfFactsObj?.recurringOnGoingHeading !== null &&
+              props?.statementOfFactsObj?.recurringOnGoingHeading !==
+                undefined &&
+              props?.statementOfFactsObj?.recurringOnGoingHeading !== ""
+              ? `<p style="font-size: ${rucurringHeadingFontSize}; color: ${newColorCode}; font-weight: ${
+                  props?.statementOfFactsObj?.recurringOnGoingHeadingIsBold
+                    ? "bold"
+                    : "normal"
+                }; font-style: ${
+                  props?.statementOfFactsObj?.recurringOnGoingHeadingIsItalic
+                    ? "italic"
+                    : undefined
+                };">${props?.statementOfFactsObj?.recurringOnGoingHeading}</p>`
+              : ""
             : ""
         }
 
@@ -3562,7 +3715,20 @@ const ReviewServicesComponent = (props) => {
 
         ${
           props?.selectedOneOffServiceList?.length
-            ? `<p style="font-size: ${fontSizeHeading}; color: ${newColorCode}; font-weight: bold;">One-Off/Ad hoc Services</p>`
+            ? props?.statementOfFactsObj?.oneOffAdhocHeadingIsItalic !== null &&
+              props?.statementOfFactsObj?.oneOffAdhocHeadingIsItalic !==
+                undefined &&
+              props?.statementOfFactsObj?.oneOffAdhocHeadingIsItalic !== ""
+              ? `<p style="font-size: ${oneOffHeadingFontSize}; color: ${newColorCode}; font-weight: ${
+                  props?.statementOfFactsObj?.oneOffAdhocHeadingIsBold
+                    ? "bold"
+                    : "normal"
+                }; font-style: ${
+                  props?.statementOfFactsObj?.oneOffAdhocHeadingIsItalic
+                    ? "italic"
+                    : undefined
+                };">${props?.statementOfFactsObj?.oneOffAdhocHeading}</p>`
+              : ""
             : ""
         }
 
@@ -4447,7 +4613,8 @@ const ReviewServicesComponent = (props) => {
                                 <>
                                   {service.servicesList.map(
                                     (subService, subIndex) => {
-                                      const price = subService.price || 0;
+                                      const price =
+                                        Number(subService.price) || 0;
                                       const vat =
                                         (price *
                                           subService.service_vat_percentage) /
@@ -4478,11 +4645,46 @@ const ReviewServicesComponent = (props) => {
                                               {driverList.length > 0
                                                 ? driverList.map((d, i) => (
                                                     <div key={i}>
-                                                      {d.driverName} ={" "}
+                                                      {d.variation === null ? (
+                                                        <>
+                                                          {d.driverName} ={" "}
+                                                          {d.driverValue}
+                                                          {i !==
+                                                            driverList.length -
+                                                              1 && "; "}
+                                                        </>
+                                                      ) : (
+                                                        (() => {
+                                                          const matched =
+                                                            d.variation.find(
+                                                              (v) =>
+                                                                Number(
+                                                                  v.variationValue
+                                                                ) ===
+                                                                Number(
+                                                                  d.driverValue
+                                                                )
+                                                            );
+
+                                                          return (
+                                                            <>
+                                                              {d.driverName} ={" "}
+                                                              {matched
+                                                                ? matched.variationName
+                                                                : ""}
+                                                              {i !==
+                                                                driverList.length -
+                                                                  1 && "; "}
+                                                            </>
+                                                          );
+                                                        })()
+                                                      )}
+
+                                                      {/* {d.driverName} ={" "}
                                                       {d.driverValue}
                                                       {i !==
                                                         driverList.length - 1 &&
-                                                        "; "}
+                                                        "; "} */}
                                                     </div>
                                                   ))
                                                 : "-"}
@@ -4544,7 +4746,9 @@ const ReviewServicesComponent = (props) => {
                                                   .feeTypeId === 1 &&
                                                   props.formatValue(
                                                     price +
-                                                      subService.service_vat_amount
+                                                      Number(
+                                                        subService.service_vat_amount
+                                                      )
                                                   )}
                                                 {props.ProposalObject
                                                   .feeTypeId === 2 && (
@@ -4703,12 +4907,16 @@ const ReviewServicesComponent = (props) => {
                                       props.visibleFieldsCustomTemp.vat && (
                                         <td className="tr-table-class text-white text-center">
                                           (-){" "}
-                                          {props.formatValue(
+                                          {(
                                             Number(
                                               props.RecurringPricingInfo
-                                                .vatDiscountAmount
+                                                .staticTotalVAT
+                                            ) -
+                                            Number(
+                                              props.RecurringPricingInfo
+                                                .totalServiceWiseVAT
                                             )
-                                          )}
+                                          ).toFixed(2)}
                                         </td>
                                       )}
                                     {props.vatPercentage &&
@@ -5555,11 +5763,46 @@ const ReviewServicesComponent = (props) => {
                                               {driverList.length > 0
                                                 ? driverList.map((d, i) => (
                                                     <div key={i}>
-                                                      {d.driverName} ={" "}
+                                                      {d.variation === null ? (
+                                                        <>
+                                                          {d.driverName} ={" "}
+                                                          {d.driverValue}
+                                                          {i !==
+                                                            driverList.length -
+                                                              1 && "; "}
+                                                        </>
+                                                      ) : (
+                                                        (() => {
+                                                          const matched =
+                                                            d.variation.find(
+                                                              (v) =>
+                                                                Number(
+                                                                  v.variationValue
+                                                                ) ===
+                                                                Number(
+                                                                  d.driverValue
+                                                                )
+                                                            );
+
+                                                          return (
+                                                            <>
+                                                              {d.driverName} ={" "}
+                                                              {matched
+                                                                ? matched.variationName
+                                                                : ""}
+                                                              {i !==
+                                                                driverList.length -
+                                                                  1 && "; "}
+                                                            </>
+                                                          );
+                                                        })()
+                                                      )}
+
+                                                      {/* {d.driverName} ={" "}
                                                       {d.driverValue}
                                                       {i !==
                                                         driverList.length - 1 &&
-                                                        "; "}
+                                                        "; "} */}
                                                     </div>
                                                   ))
                                                 : "-"}
@@ -5846,9 +6089,29 @@ const ReviewServicesComponent = (props) => {
 
           <div className="SOF-SD-Customization d-flex flex-column gap-2">
             <div className="service-description">
-              <div className="separator mb-2"></div>
-              <h6>Service Description</h6>
-              <div className="separator mb-3"></div>
+              {props?.serviceDescriptionObj?.mainHeading !== null &&
+                props?.serviceDescriptionObj?.mainHeading !== undefined &&
+                props?.serviceDescriptionObj?.mainHeading !== "" && (
+                  <>
+                    <div className="separator mb-2"></div>
+                    <h6
+                      style={{
+                        fontSize: `${props?.serviceDescriptionObj?.mainHeadingFontSize}px`,
+                        fontWeight: props?.serviceDescriptionObj
+                          ?.mainHeadingIsBold
+                          ? "bold"
+                          : "normal",
+                        fontStyle: props?.serviceDescriptionObj
+                          ?.mainHeadingIsItalic
+                          ? "italic"
+                          : undefined,
+                      }}
+                    >
+                      {props?.serviceDescriptionObj?.mainHeading}
+                    </h6>
+                    <div className="separator mb-3"></div>
+                  </>
+                )}
               <Text_Editor
                 index={0}
                 handleContentChange={handleSDChange}
@@ -5856,9 +6119,29 @@ const ReviewServicesComponent = (props) => {
               />
             </div>
             <div className="statement-of-facts">
-              <div className="separator mb-2"></div>
-              <h6>Statement Of Facts</h6>
-              <div className="separator mb-3"></div>
+              {props?.statementOfFactsObj?.mainHeading !== null &&
+                props?.statementOfFactsObj?.mainHeading !== undefined &&
+                props?.statementOfFactsObj?.mainHeading !== "" && (
+                  <>
+                    <div className="separator mb-2"></div>
+                    <h6
+                      style={{
+                        fontSize: `${props?.statementOfFactsObj?.mainHeadingFontSize}px`,
+                        fontWeight: props?.statementOfFactsObj
+                          ?.mainHeadingIsBold
+                          ? "bold"
+                          : "normal",
+                        fontStyle: props?.statementOfFactsObj
+                          ?.mainHeadingIsItalic
+                          ? "italic"
+                          : undefined,
+                      }}
+                    >
+                      {props?.statementOfFactsObj?.mainHeading}
+                    </h6>
+                    <div className="separator mb-3"></div>
+                  </>
+                )}
               <Text_Editor
                 index={0}
                 handleContentChange={handleSOFChange}
@@ -11155,6 +11438,14 @@ const ReviewPackagesComponent = (props) => {
   const generateCombinedServicesHTML = () => {
     const fontFamily = "Arial, sans-serif";
     const fontSizeHeading = "18px";
+    const recurringHeadingFontSize = props?.serviceDescriptionObj
+      ?.recurringOnGoingHeadingFontSize
+      ? `${props?.serviceDescriptionObj?.recurringOnGoingHeadingFontSize}px`
+      : "18px";
+    const oneOffHeadingFontSize = props?.serviceDescriptionObj
+      ?.oneOffAdhocFontSize
+      ? `${props?.serviceDescriptionObj?.oneOffAdhocFontSize}px`
+      : "18px";
     const fontSizeContent = "14px";
     const newColorCode = "#b4aba6";
 
@@ -11162,9 +11453,21 @@ const ReviewPackagesComponent = (props) => {
   <div style="padding-left: 40px; padding-right: 40px;">
     ${
       props?.selectedRecurringServiceList?.length
-        ? `<p style="font-family:${fontFamily}; font-size: ${fontSizeHeading}; color: ${newColorCode}; font-weight: bold;">
-             Ongoing/Recurring Services
+        ? props?.serviceDescriptionObj?.recurringOnGoingHeading !== null &&
+          props?.serviceDescriptionObj?.recurringOnGoingHeading !== undefined &&
+          props?.serviceDescriptionObj?.recurringOnGoingHeading !== ""
+          ? `<p style="font-family:${fontFamily}; font-size: ${recurringHeadingFontSize}; color: ${newColorCode}; font-weight: ${
+              props?.serviceDescriptionObj?.recurringOnGoingHeadingIsBold
+                ? "bold"
+                : "normal"
+            }; font-style: ${
+              props?.serviceDescriptionObj?.recurringOnGoingHeadingIsItalic
+                ? "italic"
+                : undefined
+            };">
+             ${props?.serviceDescriptionObj?.recurringOnGoingHeading}
            </p>`
+          : ""
         : ""
     }
 
@@ -11199,9 +11502,21 @@ const ReviewPackagesComponent = (props) => {
 
     ${
       props?.selectedOneOffServiceList?.length
-        ? `<p style="font-family:${fontFamily}; font-size: ${fontSizeHeading}; color: ${newColorCode}; font-weight: bold;">
-             One-Off/Ad hoc Services
+        ? props?.serviceDescriptionObj?.oneOffAdhocHeading !== null &&
+          props?.serviceDescriptionObj?.oneOffAdhocHeading !== undefined &&
+          props?.serviceDescriptionObj?.oneOffAdhocHeading !== ""
+          ? `<p style="font-family:${fontFamily}; font-size: ${oneOffHeadingFontSize}; color: ${newColorCode}; font-weight: ${
+              props?.serviceDescriptionObj?.oneOffAdhocHeadingIsBold
+                ? "bold"
+                : "normal"
+            }; font-style: ${
+              props?.serviceDescriptionObj?.oneOffAdhocHeadingIsItalic
+                ? "italic"
+                : undefined
+            };">
+             ${props?.serviceDescriptionObj?.oneOffAdhocHeading}
            </p>`
+          : ""
         : ""
     }
 
@@ -11240,6 +11555,13 @@ const ReviewPackagesComponent = (props) => {
   function generateSOFHTML() {
     const fontFamily = "Arial, sans-serif";
     const fontSizeHeading = "18px";
+    const rucurringHeadingFontSize = props?.statementOfFactsObj
+      .recurringOnGoingHeadingFontSize
+      ? props?.statementOfFactsObj.recurringOnGoingHeadingFontSize
+      : "18px";
+    const oneOffHeadingFontSize = props?.statementOfFactsObj.oneOffAdhocFontSize
+      ? props?.statementOfFactsObj.oneOffAdhocFontSize
+      : "18px";
     const fontSizeContent = "14px";
     const newColorCode = "#b4aba6";
 
@@ -11259,7 +11581,19 @@ const ReviewPackagesComponent = (props) => {
         
         ${
           SelectedPackage.reccuring.length
-            ? `<p style="font-size: ${fontSizeHeading}; color: ${newColorCode}; font-weight: bold;">Ongoing/Recurring Services</p>`
+            ? props?.serviceDescriptionObj?.recurringOnGoingHeading !== null &&
+              props?.serviceDescriptionObj?.recurringOnGoingHeading !==
+                undefined &&
+              props?.serviceDescriptionObj?.recurringOnGoingHeading !== "" &&
+              `<p style="font-size: ${rucurringHeadingFontSize}; color: ${newColorCode}; font-weight: ${
+                props?.statementOfFactsObj?.recurringOnGoingHeadingIsBold
+                  ? "bold"
+                  : "normal"
+              }; font-style: ${
+                props?.statementOfFactsObj?.recurringOnGoingHeadingIsItalic
+                  ? "italic"
+                  : undefined
+              };">${props?.serviceDescriptionObj?.recurringOnGoingHeading}</p>`
             : ""
         }
 
@@ -11304,7 +11638,19 @@ const ReviewPackagesComponent = (props) => {
 
         ${
           SelectedPackage.oneOff.length
-            ? `<p style="font-size: ${fontSizeHeading}; color: ${newColorCode}; font-weight: bold;">One-Off/Ad hoc Services</p>`
+            ? props?.serviceDescriptionObj?.recurringOnGoingHeading !== null &&
+              props?.serviceDescriptionObj?.recurringOnGoingHeading !==
+                undefined &&
+              props?.serviceDescriptionObj?.recurringOnGoingHeading !== "" &&
+              `<p style="font-size: ${fontSizeHeading}; color: ${newColorCode}; font-weight: ${
+                props?.statementOfFactsObj?.oneOffAdhocHeadingIsBold
+                  ? "bold"
+                  : "normal"
+              }; font-style: ${
+                props?.statementOfFactsObj?.oneOffAdhocHeadingIsItalic
+                  ? "italic"
+                  : undefined
+              };">${props?.serviceDescriptionObj?.oneOffAdhocHeading}</p>`
             : ""
         }
 
@@ -11383,7 +11729,19 @@ const ReviewPackagesComponent = (props) => {
       <div style="padding-left: 40px; padding-right: 40px; font-family:${fontFamily};">
         ${
           props?.selectedRecurringServiceList?.length
-            ? `<p style="font-size: ${fontSizeHeading}; color: ${newColorCode}; font-weight: bold;">Ongoing/Recurring Services</p>`
+            ? props?.serviceDescriptionObj?.recurringOnGoingHeading !== null &&
+              props?.serviceDescriptionObj?.recurringOnGoingHeading !==
+                undefined &&
+              props?.serviceDescriptionObj?.recurringOnGoingHeading !== "" &&
+              `<p style="font-size: ${rucurringHeadingFontSize}; color: ${newColorCode}; font-weight: ${
+                props?.statementOfFactsObj?.recurringOnGoingHeadingIsBold
+                  ? "bold"
+                  : "normal"
+              }; font-style: ${
+                props?.statementOfFactsObj?.recurringOnGoingHeadingIsItalic
+                  ? "italic"
+                  : undefined
+              };">${props?.serviceDescriptionObj?.recurringOnGoingHeading}</p>`
             : ""
         }
 
@@ -11447,7 +11805,18 @@ const ReviewPackagesComponent = (props) => {
 
         ${
           props?.selectedOneOffServiceList?.length
-            ? `<p style="font-size: ${fontSizeHeading}; color: ${newColorCode}; font-weight: bold;">One-Off/Ad hoc Services</p>`
+            ? props?.serviceDescriptionObj?.oneOffAdhocHeading !== null &&
+              props?.serviceDescriptionObj?.oneOffAdhocHeading !== undefined &&
+              props?.serviceDescriptionObj?.oneOffAdhocHeading !== "" &&
+              `<p style="font-size: ${oneOffHeadingFontSize}; color: ${newColorCode}; font-weight: ${
+                props?.statementOfFactsObj?.oneOffAdhocHeadingIsBold
+                  ? "bold"
+                  : "normal"
+              }; font-style: ${
+                props?.statementOfFactsObj?.oneOffAdhocHeadingIsItalic
+                  ? "italic"
+                  : undefined
+              };">${props?.serviceDescriptionObj?.oneOffAdhocHeading}</p>`
             : ""
         }
 
@@ -16954,9 +17323,29 @@ const ReviewPackagesComponent = (props) => {
 
           <div className="SOF-SD-Customization">
             <div className="service-description">
-              <div className="separator mb-2"></div>
-              <h6>Service Description</h6>
-              <div className="separator mb-3"></div>
+              {props?.serviceDescriptionObj?.mainHeading !== null &&
+                props?.serviceDescriptionObj?.mainHeading !== undefined &&
+                props?.serviceDescriptionObj?.mainHeading !== "" && (
+                  <>
+                    <div className="separator mb-2"></div>
+                    <h6
+                      style={{
+                        fontSize: `${props?.serviceDescriptionObj?.mainHeadingFontSize}px`,
+                        fontWeight: props?.serviceDescriptionObj
+                          ?.mainHeadingIsBold
+                          ? "bold"
+                          : "normal",
+                        fontStyle: props?.serviceDescriptionObj
+                          ?.mainHeadingIsItalic
+                          ? "italic"
+                          : undefined,
+                      }}
+                    >
+                      {props?.serviceDescriptionObj?.mainHeading}
+                    </h6>
+                    <div className="separator mb-3"></div>
+                  </>
+                )}
               <Text_Editor
                 index={0}
                 handleContentChange={handleSDChange}
@@ -16964,9 +17353,29 @@ const ReviewPackagesComponent = (props) => {
               />
             </div>
             <div className="statement-of-facts">
-              <div className="separator mb-2"></div>
-              <h6>Statement Of Facts</h6>
-              <div className="separator mb-3"></div>
+              {props?.statementOfFactsObj?.mainHeading !== null &&
+                props?.statementOfFactsObj?.mainHeading !== undefined &&
+                props?.statementOfFactsObj?.mainHeading !== "" && (
+                  <>
+                    <div className="separator mb-2"></div>
+                    <h6
+                      style={{
+                        fontSize: `${props?.statementOfFactsObj?.mainHeadingFontSize}px`,
+                        fontWeight: props?.statementOfFactsObj
+                          ?.mainHeadingIsBold
+                          ? "bold"
+                          : "normal",
+                        fontStyle: props?.statementOfFactsObj
+                          ?.mainHeadingIsItalic
+                          ? "italic"
+                          : undefined,
+                      }}
+                    >
+                      {props?.statementOfFactsObj?.mainHeading}
+                    </h6>
+                    <div className="separator mb-3"></div>
+                  </>
+                )}
               <Text_Editor
                 index={0}
                 handleContentChange={handleSOFChange}
@@ -17092,6 +17501,35 @@ const Add_Update_Proposal = (props) => {
     useState(false);
   const [serviceDescriptionHTML, setServiceDescriptionHTML] = useState("");
   const [statementOfFactsHTML, setStatementOfFactsHTML] = useState("");
+  const [serviceDescriptionObj, setServiceDescriptionObj] = useState({
+    mainHeading: "Service Description",
+    recurringOnGoingHeading: "Ongoing/Recurring Services",
+    oneOffAdhocHeading: "One-Off/Ad hoc Services",
+    mainHeadingFontSize: null,
+    recurringOnGoingHeadingFontSize: null,
+    oneOffAdhocFontSize: null,
+    mainHeadingIsBold: null,
+    mainHeadingIsItalic: null,
+    recurringOnGoingHeadingIsBold: null,
+    recurringOnGoingHeadingIsItalic: null,
+    oneOffAdhocHeadingIsBold: null,
+    oneOffAdhocHeadingIsItalic: null,
+  });
+
+  const [statementOfFactsObj, setStatementOfFactsObj] = useState({
+    mainHeading: "Statement Of Facts",
+    recurringOnGoingHeading: "Ongoing/Recurring Services",
+    oneOffAdhocHeading: "One-Off/Ad hoc Services",
+    mainHeadingFontSize: null,
+    recurringOnGoingHeadingFontSize: null,
+    oneOffAdhocFontSize: null,
+    mainHeadingIsBold: null,
+    mainHeadingIsItalic: null,
+    recurringOnGoingHeadingIsBold: null,
+    recurringOnGoingHeadingIsItalic: null,
+    oneOffAdhocHeadingIsBold: null,
+    oneOffAdhocHeadingIsItalic: null,
+  });
   const [paymentGatewayObj, setPaymentGatewayObj] = useState({
     userKeyID: null,
     goCardlessAccessToken: undefined,
@@ -21973,6 +22411,35 @@ const Add_Update_Proposal = (props) => {
           pricingTableColumnIDs: item.pricingTableColumnIDs
             ? item.pricingTableColumnIDs
             : "",
+          mainHeadingSD: item.mainHeadingSD,
+          recurringOnGoingHeadingSD: item.mainHeadingSD,
+          oneOffAdhocHeadingSD: item.oneOffAdhocHeadingSD,
+          mainHeadingFontSizeSD: item.mainHeadingFontSizeSD,
+          recurringOnGoingHeadingFontSizeSD:
+            item.recurringOnGoingHeadingFontSizeSD,
+          oneOffAdhocFontSizeSD: item.oneOffAdhocFontSizeSD,
+          mainHeadingIsBoldSD: item.mainHeadingIsBoldSD,
+          mainHeadingIsItalicSD: item.mainHeadingIsItalicSD,
+          recurringOnGoingHeadingIsBoldSD: item.recurringOnGoingHeadingIsBoldSD,
+          recurringOnGoingHeadingIsItalicSD:
+            item.recurringOnGoingHeadingIsItalicSD,
+          oneOffAdhocHeadingIsBoldSD: item.oneOffAdhocHeadingIsBoldSD,
+          oneOffAdhocHeadingIsItalicSD: item.oneOffAdhocHeadingIsItalicSD,
+          mainHeadingSOF: item.mainHeadingSOF,
+          recurringOnGoingHeadingSOF: item.recurringOnGoingHeadingSOF,
+          oneOffAdhocHeadingSOF: item.oneOffAdhocHeadingSOF,
+          mainHeadingFontSizeSOF: item.mainHeadingFontSizeSOF,
+          recurringOnGoingHeadingFontSizeSOF:
+            item.recurringOnGoingHeadingFontSizeSOF,
+          oneOffAdhocFontSizeSOF: item.oneOffAdhocFontSizeSOF,
+          mainHeadingIsBoldSOF: item.mainHeadingIsBoldSOF,
+          mainHeadingIsItalicSOF: item.mainHeadingIsItalicSOF,
+          recurringOnGoingHeadingIsBoldSOF:
+            item.recurringOnGoingHeadingIsBoldSOF,
+          recurringOnGoingHeadingIsItalicSOF:
+            item.recurringOnGoingHeadingIsItalicSOF,
+          oneOffAdhocHeadingIsBoldSOF: item.oneOffAdhocHeadingIsBoldSOF,
+          oneOffAdhocHeadingIsItalicSOF: item.oneOffAdhocHeadingIsItalicSOF,
         }));
         setTemplateLookUpOptions(mappedOptions);
         // setProposalObject((prev) => ({
@@ -22026,6 +22493,48 @@ const Add_Update_Proposal = (props) => {
               updateVisibleFieldsFromIds(
                 filteredRecords[0]?.pricingTableColumnIDs
               );
+              setServiceDescriptionObj((prev) => ({
+                ...prev,
+                mainHeading: filteredRecords[0]?.mainHeadingSD,
+                recurringOnGoingHeading:
+                  filteredRecords[0]?.recurringOnGoingHeadingSD,
+                oneOffAdhocHeading: filteredRecords[0]?.oneOffAdhocHeadingSD,
+                mainHeadingFontSize: filteredRecords[0]?.mainHeadingFontSizeSD,
+                recurringOnGoingHeadingFontSize:
+                  filteredRecords[0]?.recurringOnGoingHeadingFontSizeSD,
+                oneOffAdhocFontSize: filteredRecords[0]?.oneOffAdhocFontSizeSD,
+                mainHeadingIsBold: filteredRecords[0]?.mainHeadingIsBoldSD,
+                mainHeadingIsItalic: filteredRecords[0]?.mainHeadingIsItalicSD,
+                recurringOnGoingHeadingIsBold:
+                  filteredRecords[0]?.recurringOnGoingHeadingIsBoldSD,
+                recurringOnGoingHeadingIsItalic:
+                  filteredRecords[0]?.recurringOnGoingHeadingIsItalicSD,
+                oneOffAdhocHeadingIsBold:
+                  filteredRecords[0]?.oneOffAdhocHeadingIsBoldSD,
+                oneOffAdhocHeadingIsItalic:
+                  filteredRecords[0]?.oneOffAdhocHeadingIsItalicSD,
+              }));
+              setStatementOfFactsObj((prev) => ({
+                ...prev,
+                mainHeading: filteredRecords[0]?.mainHeadingSOF,
+                recurringOnGoingHeading:
+                  filteredRecords[0]?.recurringOnGoingHeadingSOF,
+                oneOffAdhocHeading: filteredRecords[0]?.oneOffAdhocHeadingSOF,
+                mainHeadingFontSize: filteredRecords[0]?.mainHeadingFontSizeSOF,
+                recurringOnGoingHeadingFontSize:
+                  filteredRecords[0]?.recurringOnGoingHeadingFontSizeSOF,
+                oneOffAdhocFontSize: filteredRecords[0]?.oneOffAdhocFontSizeSOF,
+                mainHeadingIsBold: filteredRecords[0]?.mainHeadingIsBoldSOF,
+                mainHeadingIsItalic: filteredRecords[0]?.mainHeadingIsItalicSOF,
+                recurringOnGoingHeadingIsBold:
+                  filteredRecords[0]?.recurringOnGoingHeadingIsBoldSOF,
+                recurringOnGoingHeadingIsItalic:
+                  filteredRecords[0]?.recurringOnGoingHeadingIsItalicSOF,
+                oneOffAdhocHeadingIsBold:
+                  filteredRecords[0]?.oneOffAdhocHeadingIsBoldSOF,
+                oneOffAdhocHeadingIsItalic:
+                  filteredRecords[0]?.oneOffAdhocHeadingIsItalicSOF,
+              }));
             }
 
             setProposalObject((prev) => ({
@@ -22057,6 +22566,58 @@ const Add_Update_Proposal = (props) => {
               updateVisibleFieldsFromIds(
                 defaultTemplateOptions[0].pricingTableColumnIDs
               );
+              setServiceDescriptionObj((prev) => ({
+                ...prev,
+                mainHeading: defaultTemplateOptions[0]?.mainHeadingSD,
+                recurringOnGoingHeading:
+                  defaultTemplateOptions[0]?.recurringOnGoingHeadingSD,
+                oneOffAdhocHeading:
+                  defaultTemplateOptions[0]?.oneOffAdhocHeadingSD,
+                mainHeadingFontSize:
+                  defaultTemplateOptions[0]?.mainHeadingFontSizeSD,
+                recurringOnGoingHeadingFontSize:
+                  defaultTemplateOptions[0]?.recurringOnGoingHeadingFontSizeSD,
+                oneOffAdhocFontSize:
+                  defaultTemplateOptions[0]?.oneOffAdhocFontSizeSD,
+                mainHeadingIsBold:
+                  defaultTemplateOptions[0]?.mainHeadingIsBoldSD,
+                mainHeadingIsItalic:
+                  defaultTemplateOptions[0]?.mainHeadingIsItalicSD,
+                recurringOnGoingHeadingIsBold:
+                  defaultTemplateOptions[0]?.recurringOnGoingHeadingIsBoldSD,
+                recurringOnGoingHeadingIsItalic:
+                  defaultTemplateOptions[0]?.recurringOnGoingHeadingIsItalicSD,
+                oneOffAdhocHeadingIsBold:
+                  defaultTemplateOptions[0]?.oneOffAdhocHeadingIsBoldSD,
+                oneOffAdhocHeadingIsItalic:
+                  defaultTemplateOptions[0]?.oneOffAdhocHeadingIsItalicSD,
+              }));
+              setStatementOfFactsObj((prev) => ({
+                ...prev,
+                mainHeading: defaultTemplateOptions[0]?.mainHeadingSOF,
+                recurringOnGoingHeading:
+                  defaultTemplateOptions[0]?.recurringOnGoingHeadingSOF,
+                oneOffAdhocHeading:
+                  defaultTemplateOptions[0]?.oneOffAdhocHeadingSOF,
+                mainHeadingFontSize:
+                  defaultTemplateOptions[0]?.mainHeadingFontSizeSOF,
+                recurringOnGoingHeadingFontSize:
+                  defaultTemplateOptions[0]?.recurringOnGoingHeadingFontSizeSOF,
+                oneOffAdhocFontSize:
+                  defaultTemplateOptions[0]?.oneOffAdhocFontSizeSOF,
+                mainHeadingIsBold:
+                  defaultTemplateOptions[0]?.mainHeadingIsBoldSOF,
+                mainHeadingIsItalic:
+                  defaultTemplateOptions[0]?.mainHeadingIsItalicSOF,
+                recurringOnGoingHeadingIsBold:
+                  defaultTemplateOptions[0]?.recurringOnGoingHeadingIsBoldSOF,
+                recurringOnGoingHeadingIsItalic:
+                  defaultTemplateOptions[0]?.recurringOnGoingHeadingIsItalicSOF,
+                oneOffAdhocHeadingIsBold:
+                  defaultTemplateOptions[0]?.oneOffAdhocHeadingIsBoldSOF,
+                oneOffAdhocHeadingIsItalic:
+                  defaultTemplateOptions[0]?.oneOffAdhocHeadingIsItalicSOF,
+              }));
             }
             setFontFamily(
               getFontNameById(defaultTemplateOptions[0]?.fontFamilyID)
@@ -22087,6 +22648,57 @@ const Add_Update_Proposal = (props) => {
             updateVisibleFieldsFromIds(
               defaultTemplateOptions[0].pricingTableColumnIDs
             );
+            setServiceDescriptionObj((prev) => ({
+              ...prev,
+              mainHeading: defaultTemplateOptions[0]?.mainHeadingSD,
+              recurringOnGoingHeading:
+                defaultTemplateOptions[0]?.recurringOnGoingHeadingSD,
+              oneOffAdhocHeading:
+                defaultTemplateOptions[0]?.oneOffAdhocHeadingSD,
+              mainHeadingFontSize:
+                defaultTemplateOptions[0]?.mainHeadingFontSizeSD,
+              recurringOnGoingHeadingFontSize:
+                defaultTemplateOptions[0]?.recurringOnGoingHeadingFontSizeSD,
+              oneOffAdhocFontSize:
+                defaultTemplateOptions[0]?.oneOffAdhocFontSizeSD,
+              mainHeadingIsBold: defaultTemplateOptions[0]?.mainHeadingIsBoldSD,
+              mainHeadingIsItalic:
+                defaultTemplateOptions[0]?.mainHeadingIsItalicSD,
+              recurringOnGoingHeadingIsBold:
+                defaultTemplateOptions[0]?.recurringOnGoingHeadingIsBoldSD,
+              recurringOnGoingHeadingIsItalic:
+                defaultTemplateOptions[0]?.recurringOnGoingHeadingIsItalicSD,
+              oneOffAdhocHeadingIsBold:
+                defaultTemplateOptions[0]?.oneOffAdhocHeadingIsBoldSD,
+              oneOffAdhocHeadingIsItalic:
+                defaultTemplateOptions[0]?.oneOffAdhocHeadingIsItalicSD,
+            }));
+            setStatementOfFactsObj((prev) => ({
+              ...prev,
+              mainHeading: defaultTemplateOptions[0]?.mainHeadingSOF,
+              recurringOnGoingHeading:
+                defaultTemplateOptions[0]?.recurringOnGoingHeadingSOF,
+              oneOffAdhocHeading:
+                defaultTemplateOptions[0]?.oneOffAdhocHeadingSOF,
+              mainHeadingFontSize:
+                defaultTemplateOptions[0]?.mainHeadingFontSizeSOF,
+              recurringOnGoingHeadingFontSize:
+                defaultTemplateOptions[0]?.recurringOnGoingHeadingFontSizeSOF,
+              oneOffAdhocFontSize:
+                defaultTemplateOptions[0]?.oneOffAdhocFontSizeSOF,
+              mainHeadingIsBold:
+                defaultTemplateOptions[0]?.mainHeadingIsBoldSOF,
+              mainHeadingIsItalic:
+                defaultTemplateOptions[0]?.mainHeadingIsItalicSOF,
+              recurringOnGoingHeadingIsBold:
+                defaultTemplateOptions[0]?.recurringOnGoingHeadingIsBoldSOF,
+              recurringOnGoingHeadingIsItalic:
+                defaultTemplateOptions[0]?.recurringOnGoingHeadingIsItalicSOF,
+              oneOffAdhocHeadingIsBold:
+                defaultTemplateOptions[0]?.oneOffAdhocHeadingIsBoldSOF,
+              oneOffAdhocHeadingIsItalic:
+                defaultTemplateOptions[0]?.oneOffAdhocHeadingIsItalicSOF,
+            }));
           }
           // updateVisibleFieldsFromIds(
           //   defaultTemplateOptions[0]?.pricingTableColumnIDs
@@ -22137,6 +22749,55 @@ const Add_Update_Proposal = (props) => {
           updateVisibleFieldsFromIds(
             defaultTemplateOptions[0]?.pricingTableColumnIDs
           );
+          setServiceDescriptionObj((prev) => ({
+            ...prev,
+            mainHeading: defaultTemplateOptions[0]?.mainHeadingSD,
+            recurringOnGoingHeading:
+              defaultTemplateOptions[0]?.recurringOnGoingHeadingSD,
+            oneOffAdhocHeading: defaultTemplateOptions[0]?.oneOffAdhocHeadingSD,
+            mainHeadingFontSize:
+              defaultTemplateOptions[0]?.mainHeadingFontSizeSD,
+            recurringOnGoingHeadingFontSize:
+              defaultTemplateOptions[0]?.recurringOnGoingHeadingFontSizeSD,
+            oneOffAdhocFontSize:
+              defaultTemplateOptions[0]?.oneOffAdhocFontSizeSD,
+            mainHeadingIsBold: defaultTemplateOptions[0]?.mainHeadingIsBoldSD,
+            mainHeadingIsItalic:
+              defaultTemplateOptions[0]?.mainHeadingIsItalicSD,
+            recurringOnGoingHeadingIsBold:
+              defaultTemplateOptions[0]?.recurringOnGoingHeadingIsBoldSD,
+            recurringOnGoingHeadingIsItalic:
+              defaultTemplateOptions[0]?.recurringOnGoingHeadingIsItalicSD,
+            oneOffAdhocHeadingIsBold:
+              defaultTemplateOptions[0]?.oneOffAdhocHeadingIsBoldSD,
+            oneOffAdhocHeadingIsItalic:
+              defaultTemplateOptions[0]?.oneOffAdhocHeadingIsItalicSD,
+          }));
+          setStatementOfFactsObj((prev) => ({
+            ...prev,
+            mainHeading: defaultTemplateOptions[0]?.mainHeadingSOF,
+            recurringOnGoingHeading:
+              defaultTemplateOptions[0]?.recurringOnGoingHeadingSOF,
+            oneOffAdhocHeading:
+              defaultTemplateOptions[0]?.oneOffAdhocHeadingSOF,
+            mainHeadingFontSize:
+              defaultTemplateOptions[0]?.mainHeadingFontSizeSOF,
+            recurringOnGoingHeadingFontSize:
+              defaultTemplateOptions[0]?.recurringOnGoingHeadingFontSizeSOF,
+            oneOffAdhocFontSize:
+              defaultTemplateOptions[0]?.oneOffAdhocFontSizeSOF,
+            mainHeadingIsBold: defaultTemplateOptions[0]?.mainHeadingIsBoldSOF,
+            mainHeadingIsItalic:
+              defaultTemplateOptions[0]?.mainHeadingIsItalicSOF,
+            recurringOnGoingHeadingIsBold:
+              defaultTemplateOptions[0]?.recurringOnGoingHeadingIsBoldSOF,
+            recurringOnGoingHeadingIsItalic:
+              defaultTemplateOptions[0]?.recurringOnGoingHeadingIsItalicSOF,
+            oneOffAdhocHeadingIsBold:
+              defaultTemplateOptions[0]?.oneOffAdhocHeadingIsBoldSOF,
+            oneOffAdhocHeadingIsItalic:
+              defaultTemplateOptions[0]?.oneOffAdhocHeadingIsItalicSOF,
+          }));
         }
         // setProposalObject((prevState) => ({
         //   ...prevState,
@@ -23585,8 +24246,12 @@ const Add_Update_Proposal = (props) => {
       quoteFormatID: ProposalObject.ProposalFormate || null,
       recurringHtmlContent: ProposalObject.recurringHtmlContent || null,
       oneOffHtmlContent: ProposalObject.oneOffHtmlContent || null,
-      serviceDescriptionHTML: serviceDescriptionHTML, //SD HTML
-      sOFHTML: statementOfFactsHTML, //SOF HTML
+      // serviceDescriptionHTML: serviceDescriptionHTML, //SD HTML
+      // sOFHTML: statementOfFactsHTML, //SOF HTML
+      serviceDescription: serviceDescriptionHTML
+        ? serviceDescriptionHTML
+        : null, //SD HTML
+      statementOfFacts: statementOfFactsHTML ? statementOfFactsHTML : null, //SOF HTML
       customizedEmailContent: updatedTemplateList || null,
       servicePackageID: selectedPackages || null,
       selectedServicesList: modifiedDraftArray.selectedServicesList || null,
@@ -25773,38 +26438,38 @@ const Add_Update_Proposal = (props) => {
               )} */}
               {activeTab === ProposalHeader.SelectServices && (
                 <Suspense>
-                <SelectServices
-                  selectedProposalValue={selectedProposalValue}
-                  ongoingServiceObj={ongoingServiceObj}
-                  setOngoingServiceObj={setOngoingServiceObj}
-                  OneOffServiceObj={OneOffServiceObj}
-                  hasHyphenAfterNumber={hasHyphenAfterNumber}
-                  setOneOffServiceObj={setOneOffServiceObj}
-                  handleCancel={handleCancelBtn}
-                  handleSaveAsDraft={handleSaveAsDraft}
-                  serviceList={serviceList}
-                  DisableTabOnChange={DisableTabOnChange}
-                  errorMessage={errorMessage}
-                  recurringServiceList={recurringServiceList}
-                  oneOffServiceList={oneOffServiceList}
-                  setOneOffPricingInfo={setOneOffPricingInfo}
-                  RecurringPricingInfo={RecurringPricingInfo}
-                  OneOffPricingInfo={OneOffPricingInfo}
-                  OneOffPricingInfoCopy={OneOffPricingInfoCopy}
-                  setRecurringPricingInfo={setRecurringPricingInfo}
-                  setOneOffServiceList={setOneOffServiceList}
-                  setRecurringServiceList={setRecurringServiceList}
-                  requireServiceValidation={requireServiceValidation}
-                  setRequireServiceValidation={setRequireServiceValidation}
-                  HandleTabChange={HandleTabChange}
-                  HandleBack={HandleBack}
-                  ProposalObject={ProposalObject}
-                  TabHide={TabHide}
-                  getCrudButtonTextName={getCrudButtonTextName}
-                  moduleName={"Quote"}
-                  requireMessage={requireMessage}
-                  proposalName={proposalName}
-                />
+                  <SelectServices
+                    selectedProposalValue={selectedProposalValue}
+                    ongoingServiceObj={ongoingServiceObj}
+                    setOngoingServiceObj={setOngoingServiceObj}
+                    OneOffServiceObj={OneOffServiceObj}
+                    hasHyphenAfterNumber={hasHyphenAfterNumber}
+                    setOneOffServiceObj={setOneOffServiceObj}
+                    handleCancel={handleCancelBtn}
+                    handleSaveAsDraft={handleSaveAsDraft}
+                    serviceList={serviceList}
+                    DisableTabOnChange={DisableTabOnChange}
+                    errorMessage={errorMessage}
+                    recurringServiceList={recurringServiceList}
+                    oneOffServiceList={oneOffServiceList}
+                    setOneOffPricingInfo={setOneOffPricingInfo}
+                    RecurringPricingInfo={RecurringPricingInfo}
+                    OneOffPricingInfo={OneOffPricingInfo}
+                    OneOffPricingInfoCopy={OneOffPricingInfoCopy}
+                    setRecurringPricingInfo={setRecurringPricingInfo}
+                    setOneOffServiceList={setOneOffServiceList}
+                    setRecurringServiceList={setRecurringServiceList}
+                    requireServiceValidation={requireServiceValidation}
+                    setRequireServiceValidation={setRequireServiceValidation}
+                    HandleTabChange={HandleTabChange}
+                    HandleBack={HandleBack}
+                    ProposalObject={ProposalObject}
+                    TabHide={TabHide}
+                    getCrudButtonTextName={getCrudButtonTextName}
+                    moduleName={"Quote"}
+                    requireMessage={requireMessage}
+                    proposalName={proposalName}
+                  />
                 </Suspense>
               )}
               {activeTab === ProposalHeader.SelectPackages && (
@@ -25952,6 +26617,8 @@ const Add_Update_Proposal = (props) => {
                   taxName={taxName}
                   currencyID={currencyID}
                   currencySymbol={currencySymbol}
+                  statementOfFactsObj={statementOfFactsObj}
+                  serviceDescriptionObj={serviceDescriptionObj}
                 />
               )}
               {activeTab === ProposalHeader.ReviewPackages && (
@@ -26094,95 +26761,97 @@ const Add_Update_Proposal = (props) => {
                   formatValueWithoutCurrencySymbol_v1={
                     formatValueWithoutCurrencySymbol_v1
                   }
+                  statementOfFactsObj={statementOfFactsObj}
+                  serviceDescriptionObj={serviceDescriptionObj}
                 />
               )}
               {activeTab === ProposalHeader.Preview && (
                 <Suspense>
-                <PreviewComponentPdf
-                  isDefaultFirstPage={isDefaultFirstPage}
-                  DocumentCode={DocumentCode}
-                  setIsAddUpdatePricingActionDone={
-                    setIsAddUpdatePricingActionDone
-                  }
-                  isAddUpdatePricingActionDone={isAddUpdatePricingActionDone}
-                  paymentGatewayObj={paymentGatewayObj}
-                  BrandColor={BrandColor}
-                  common={common}
-                  Logo={CompanyLogo}
-                  fontFamily={fontFamily}
-                  fontSize={fontSize}
-                  StatementOfFact={StatementOfFact}
-                  DisableTabOnChange={DisableTabOnChange}
-                  handleSaveAsDraft={handleSaveAsDraft}
-                  HandleTabChange={HandleTabChange}
-                  handleCancelBtn={handleCancelBtn}
-                  DiscountLines={ProposalObject.DiscountLines}
-                  handleSkipEngagementLetter={handleSkipEngagementLetter}
-                  RecurringPackagesTable={RecurringPackagesTable}
-                  setRecurringPackagesTable={setRecurringPackagesTable}
-                  OneOffPackagesTable={OneOffPackagesTable}
-                  selectedPackagesList={selectedPackagesList}
-                  setOneOffPackagesTable={setOneOffPackagesTable}
-                  ProposalObject={ProposalObject}
-                  MergePdfUrl={MergePdfUrl}
-                  additionalInformationList={additionalInformationList}
-                  setMergePdfUrl={setMergePdfUrl}
-                  vatPercentage={vatPercentage}
-                  feeTypeId={ProposalObject.feeTypeId}
-                  selectedRecurringServiceList={selectedRecurringServiceList}
-                  selectedOneOffServiceList={selectedOneOffServiceList}
-                  templateElementList={templateElementList}
-                  organisationData={organisationData}
-                  moduleName={"Quote"}
-                  RecurringPricingInfo={RecurringPricingInfo}
-                  OneOffPricingInfo={OneOffPricingInfo}
-                  selectedPackages={selectedPackagesDetails}
-                  setProposalObject={setProposalObject}
-                  requireMessage={requireMessage}
-                  setRequireMessage={setRequireMessage}
-                  lastPaymentFrequencyAndDiscountedPriceForPreview={
-                    lastPaymentFrequencyAndDiscountedPriceForPreview
-                  }
-                  formatValue={formatValue}
-                  formatValueWithoutCurrencySymbol={
-                    formatValueWithoutCurrencySymbol
-                  }
-                  setLastPaymentFrequencyAndDiscountedPriceForPreview={
-                    setLastPaymentFrequencyAndDiscountedPriceForPreview
-                  }
-                  setLastPaymentFrequencyAndDiscountedPriceForPreviewForoneoff={
-                    setLastPaymentFrequencyAndDiscountedPriceForPreviewForOneOff
-                  }
-                  lastPaymentFrequencyAndDiscountedPriceForPreviewForoneoff={
-                    lastPaymentFrequencyAndDiscountedPriceForPreviewForOneOff
-                  }
-                  proposalName={proposalName}
-                  headerContent={headerContent}
-                  footerContent={footerContent}
-                  headerImage={headerImage}
-                  footerImage={footerImage}
-                  headerHeight={headerHeight}
-                  footerHeight={footerHeight}
-                  showSeparatorLines={showSeparatorLines}
-                  currentPricingTableDesignOneOff={
-                    currentPricingTableDesignOneOff
-                  }
-                  currentPricingTableDesignRecurring={
-                    currentPricingTableDesignRecurring
-                  }
-                  serviceDescriptionHTML={serviceDescriptionHTML}
-                  statementOfFactsHTML={statementOfFactsHTML}
-                  selectedTemplateIDOneOff={selectedTemplateIDOneOff}
-                  selectedTemplateID={selectedTemplateID}
-                  visibleFieldsCustomTemp={visibleFieldsCustomTemp}
-                  currencyID={currencyID}
-                  taxName={taxName}
-                  currencySymbol={currencySymbol}
-                  pricingSettingObj={pricingSettingObj}
-                  vatPercentageOneOff={vatPercentageOneOff}
-                  watermarkImage={watermarkImage}
+                  <PreviewComponentPdf
+                    isDefaultFirstPage={isDefaultFirstPage}
+                    DocumentCode={DocumentCode}
+                    setIsAddUpdatePricingActionDone={
+                      setIsAddUpdatePricingActionDone
+                    }
+                    isAddUpdatePricingActionDone={isAddUpdatePricingActionDone}
+                    paymentGatewayObj={paymentGatewayObj}
+                    BrandColor={BrandColor}
+                    common={common}
+                    Logo={CompanyLogo}
+                    fontFamily={fontFamily}
+                    fontSize={fontSize}
+                    StatementOfFact={StatementOfFact}
+                    DisableTabOnChange={DisableTabOnChange}
+                    handleSaveAsDraft={handleSaveAsDraft}
+                    HandleTabChange={HandleTabChange}
+                    handleCancelBtn={handleCancelBtn}
+                    DiscountLines={ProposalObject.DiscountLines}
+                    handleSkipEngagementLetter={handleSkipEngagementLetter}
+                    RecurringPackagesTable={RecurringPackagesTable}
+                    setRecurringPackagesTable={setRecurringPackagesTable}
+                    OneOffPackagesTable={OneOffPackagesTable}
+                    selectedPackagesList={selectedPackagesList}
+                    setOneOffPackagesTable={setOneOffPackagesTable}
+                    ProposalObject={ProposalObject}
+                    MergePdfUrl={MergePdfUrl}
+                    additionalInformationList={additionalInformationList}
+                    setMergePdfUrl={setMergePdfUrl}
+                    vatPercentage={vatPercentage}
+                    feeTypeId={ProposalObject.feeTypeId}
+                    selectedRecurringServiceList={selectedRecurringServiceList}
+                    selectedOneOffServiceList={selectedOneOffServiceList}
+                    templateElementList={templateElementList}
+                    organisationData={organisationData}
+                    moduleName={"Quote"}
+                    RecurringPricingInfo={RecurringPricingInfo}
+                    OneOffPricingInfo={OneOffPricingInfo}
+                    selectedPackages={selectedPackagesDetails}
+                    setProposalObject={setProposalObject}
+                    requireMessage={requireMessage}
+                    setRequireMessage={setRequireMessage}
+                    lastPaymentFrequencyAndDiscountedPriceForPreview={
+                      lastPaymentFrequencyAndDiscountedPriceForPreview
+                    }
+                    formatValue={formatValue}
+                    formatValueWithoutCurrencySymbol={
+                      formatValueWithoutCurrencySymbol
+                    }
+                    setLastPaymentFrequencyAndDiscountedPriceForPreview={
+                      setLastPaymentFrequencyAndDiscountedPriceForPreview
+                    }
+                    setLastPaymentFrequencyAndDiscountedPriceForPreviewForoneoff={
+                      setLastPaymentFrequencyAndDiscountedPriceForPreviewForOneOff
+                    }
+                    lastPaymentFrequencyAndDiscountedPriceForPreviewForoneoff={
+                      lastPaymentFrequencyAndDiscountedPriceForPreviewForOneOff
+                    }
+                    proposalName={proposalName}
+                    headerContent={headerContent}
+                    footerContent={footerContent}
+                    headerImage={headerImage}
+                    footerImage={footerImage}
+                    headerHeight={headerHeight}
+                    footerHeight={footerHeight}
+                    showSeparatorLines={showSeparatorLines}
+                    currentPricingTableDesignOneOff={
+                      currentPricingTableDesignOneOff
+                    }
+                    currentPricingTableDesignRecurring={
+                      currentPricingTableDesignRecurring
+                    }
+                    serviceDescriptionHTML={serviceDescriptionHTML}
+                    statementOfFactsHTML={statementOfFactsHTML}
+                    selectedTemplateIDOneOff={selectedTemplateIDOneOff}
+                    selectedTemplateID={selectedTemplateID}
+                    visibleFieldsCustomTemp={visibleFieldsCustomTemp}
+                    currencyID={currencyID}
+                    taxName={taxName}
+                    currencySymbol={currencySymbol}
+                    pricingSettingObj={pricingSettingObj}
+                    vatPercentageOneOff={vatPercentageOneOff}
+                    watermarkImage={watermarkImage}
                   />
-                  </Suspense>
+                </Suspense>
               )}
             </div>
           </div>
@@ -26224,59 +26893,59 @@ const Add_Update_Proposal = (props) => {
           refIdStore={refIdStore}
         />
         <Suspense>
-        <PricingTableTemplatesModal
-          show={showSelectTemplateModal}
-          onHide={() => setShowSelectTemplateModal(false)}
-          setSelectedTemplateID={setSelectedTemplateID}
-          setSelectedTemplateIDOneOff={setSelectedTemplateIDOneOff}
-          selectedTemplateID={selectedTemplateID}
-          selectedTemplateIDOneOff={selectedTemplateIDOneOff}
-          serviceTypeID={serviceTypeID} //1 for recurring and 2 for one-off
-          selectedRecurringServiceList={selectedRecurringServiceList}
-          setSelectedRecurringServiceList={setSelectedRecurringServiceList}
-          RecurringPricingInfo={RecurringPricingInfo}
-          ProposalObject={ProposalObject}
-          formatValue={formatValue}
-          vatPercentage={vatPercentage}
-          selectedOneOffServiceList={selectedOneOffServiceList}
-          OneOffPricingInfo={OneOffPricingInfo}
-          selectedPackagesList={selectedPackagesList}
-          getValidationMessage={getValidationMessage}
-          requireMessage={requireMessage}
-          pricingSettingObj={pricingSettingObj}
-          setSelectedOneOffServiceList={setSelectedOneOffServiceList}
-          hasHyphenAfterNumber={hasHyphenAfterNumber}
-          GetSingleDefaultDiscountPercentageOfPackages={
-            GetSingleDefaultDiscountPercentageOfPackages
-          }
-          setRecurringPricingInfo={setRecurringPricingInfo}
-          setRecurringFrequencyPricingInfo={setRecurringFrequencyPricingInfo}
-          RecurringFrequencyPricingInfo={RecurringFrequencyPricingInfo}
-          OneOffPricingInfoCopy={OneOffPricingInfoCopy}
-          setOneOffPricingInfoCopy={setOneOffPricingInfoCopy}
-          setOneOffPricingInfo={setOneOffPricingInfo}
-          setVisibleFieldsCustomTemp={setVisibleFieldsCustomTemp}
-          visibleFieldsCustomTemp={visibleFieldsCustomTemp}
-          vatPercentageOneOff={vatPercentageOneOff}
-        />
+          <PricingTableTemplatesModal
+            show={showSelectTemplateModal}
+            onHide={() => setShowSelectTemplateModal(false)}
+            setSelectedTemplateID={setSelectedTemplateID}
+            setSelectedTemplateIDOneOff={setSelectedTemplateIDOneOff}
+            selectedTemplateID={selectedTemplateID}
+            selectedTemplateIDOneOff={selectedTemplateIDOneOff}
+            serviceTypeID={serviceTypeID} //1 for recurring and 2 for one-off
+            selectedRecurringServiceList={selectedRecurringServiceList}
+            setSelectedRecurringServiceList={setSelectedRecurringServiceList}
+            RecurringPricingInfo={RecurringPricingInfo}
+            ProposalObject={ProposalObject}
+            formatValue={formatValue}
+            vatPercentage={vatPercentage}
+            selectedOneOffServiceList={selectedOneOffServiceList}
+            OneOffPricingInfo={OneOffPricingInfo}
+            selectedPackagesList={selectedPackagesList}
+            getValidationMessage={getValidationMessage}
+            requireMessage={requireMessage}
+            pricingSettingObj={pricingSettingObj}
+            setSelectedOneOffServiceList={setSelectedOneOffServiceList}
+            hasHyphenAfterNumber={hasHyphenAfterNumber}
+            GetSingleDefaultDiscountPercentageOfPackages={
+              GetSingleDefaultDiscountPercentageOfPackages
+            }
+            setRecurringPricingInfo={setRecurringPricingInfo}
+            setRecurringFrequencyPricingInfo={setRecurringFrequencyPricingInfo}
+            RecurringFrequencyPricingInfo={RecurringFrequencyPricingInfo}
+            OneOffPricingInfoCopy={OneOffPricingInfoCopy}
+            setOneOffPricingInfoCopy={setOneOffPricingInfoCopy}
+            setOneOffPricingInfo={setOneOffPricingInfo}
+            setVisibleFieldsCustomTemp={setVisibleFieldsCustomTemp}
+            visibleFieldsCustomTemp={visibleFieldsCustomTemp}
+            vatPercentageOneOff={vatPercentageOneOff}
+          />
         </Suspense>
 
         <Suspense>
-        <PricingTableCustomizationModal
-          show={showTemplateCustomizationModal}
-          onHide={() => setShowTemplateCustomizationModal(false)}
-          currentPricingTableDesignOneOff={currentPricingTableDesignOneOff}
-          currentPricingTableDesignRecurring={
-            currentPricingTableDesignRecurring
-          }
-          setCurrentPricingTableDesignOneOff={
-            setCurrentPricingTableDesignOneOff
-          }
-          setCurrentPricingTableDesignRecurring={
-            setCurrentPricingTableDesignRecurring
-          }
-          serviceTypeID={serviceTypeID}
-        />
+          <PricingTableCustomizationModal
+            show={showTemplateCustomizationModal}
+            onHide={() => setShowTemplateCustomizationModal(false)}
+            currentPricingTableDesignOneOff={currentPricingTableDesignOneOff}
+            currentPricingTableDesignRecurring={
+              currentPricingTableDesignRecurring
+            }
+            setCurrentPricingTableDesignOneOff={
+              setCurrentPricingTableDesignOneOff
+            }
+            setCurrentPricingTableDesignRecurring={
+              setCurrentPricingTableDesignRecurring
+            }
+            serviceTypeID={serviceTypeID}
+          />
         </Suspense>
 
         <EmailFailurePopUP

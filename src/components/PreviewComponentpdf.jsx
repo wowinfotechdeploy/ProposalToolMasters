@@ -1,4 +1,11 @@
-import React, { lazy, Suspense, useContext, useEffect, useRef, useState } from "react";
+import React, {
+  lazy,
+  Suspense,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { ElementType, EMAIL_TEMPLATE, statusID } from "../Middleware/enums";
 import { useSelector } from "react-redux";
 import { GetOrganisationInformationModel } from "../redux/Services/Setting/Organisation";
@@ -51,7 +58,7 @@ export default function PreviewComponentPdf(props) {
     getCurrencySymbol,
     activeOrganizationSubscriptionPlan,
     convertAndParseDate,
-    orientationID
+    orientationID,
   } = useContext(AuthContextProvider);
   console.log(orientationID);
   const [totalOnePackageValue, setTotalOnePackageValue] = useState(0);
@@ -67,7 +74,7 @@ export default function PreviewComponentPdf(props) {
   const [initialContent, setInitialContent] = useState("");
   const [isContentChanged, setIsContentChanged] = useState(false);
   const [editorState, setEditorState] = useState("");
-  const [landscapeMode,setLandscapeMode] = useState(orientationID === 2);
+  const [landscapeMode, setLandscapeMode] = useState(orientationID === 2);
   const [isPopUpVisible, setIsPopUpVisible] = useState(false);
   const PdfViewer = lazy(() => import("./PdfViewers"));
   const openPopup = () => {
@@ -1407,7 +1414,7 @@ export default function PreviewComponentPdf(props) {
       FooterHeight: FooterHeight,
       WatermarkImage: WatermarkImage,
       showSeparatorLines: showSeparatorLines,
-      landscapeMode: landscapeMode
+      landscapeMode: landscapeMode,
     };
 
     try {
@@ -1564,7 +1571,7 @@ export default function PreviewComponentPdf(props) {
         generatePdf();
       }
     }
-  }, [generatePdfData,landscapeMode]);
+  }, [generatePdfData, landscapeMode]);
 
   function getPackageName(id, name) {
     const packages = props.lastPaymentFrequencyAndDiscountedPriceForPreview;
@@ -6365,24 +6372,37 @@ ${
       ? `<td style="border: 1px solid #dddddd; padding: 8px; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word; text-align: left;">${subService.serviceName}</td>`
       : ""
   }
-  ${
-    props.visibleFieldsCustomTemp.serviceScope
-      ? `<td style="border: 1px solid #dddddd; padding: 8px; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word; text-align: left;">
-          ${
-            driverList.length > 0
-              ? driverList
-                  .map(
-                    (d, i) =>
-                      `${d.driverName} = ${d.driverValue}${
-                        i !== driverList.length - 1 ? "; " : ""
-                      }`
-                  )
-                  .join("")
-              : "-"
-          }
-        </td>`
-      : ""
-  }
+ ${
+   props.visibleFieldsCustomTemp.serviceScope
+     ? `<td style="border: 1px solid #dddddd; padding: 8px; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word; text-align: left;">
+        ${
+          driverList.length > 0
+            ? driverList
+                .map((d, i) => {
+                  // Case 1: No variation
+                  if (!d.variation || d.variation.length === 0) {
+                    return `${d.driverName} = ${d.driverValue}${
+                      i !== driverList.length - 1 ? "; " : ""
+                    }`;
+                  }
+
+                  // Case 2: variation exists → match by variationValue OR variationID
+                  const matched = d.variation.find(
+                    (v) =>
+                      Number(v.variationValue) === Number(d.driverValue) ||
+                      Number(v.variationID) === Number(d.variationID)
+                  );
+
+                  return `${d.driverName} = ${
+                    matched ? matched.variationName : d.driverValue
+                  }${i !== driverList.length - 1 ? "; " : ""}`;
+                })
+                .join("")
+            : "-"
+        }
+      </td>`
+     : ""
+ }
   ${
     props.visibleFieldsCustomTemp.fees
       ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word;">
@@ -6853,20 +6873,36 @@ ${
                 }
                 ${
                   props.visibleFieldsCustomTemp.serviceScope
-                    ? `<td style="border: 1px solid #dddddd; padding: 8px; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word; text-align: left;">${
-                        driverList.length > 0
-                          ? driverList
-                              .map(
-                                (d, i) =>
-                                  `${d.driverName} = ${d.driverValue}${
-                                    i !== driverList.length - 1 ? "; " : ""
-                                  }`
-                              )
-                              .join("")
-                          : "-"
-                      }</td>`
+                    ? `<td style="border: 1px solid #dddddd; padding: 8px; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word; text-align: left;">
+        ${
+          driverList.length > 0
+            ? driverList
+                .map((d, i) => {
+                  // Case 1: No variation
+                  if (!d.variation || d.variation.length === 0) {
+                    return `${d.driverName} = ${d.driverValue}${
+                      i !== driverList.length - 1 ? "; " : ""
+                    }`;
+                  }
+
+                  // Case 2: variation exists → match by variationValue OR variationID
+                  const matched = d.variation.find(
+                    (v) =>
+                      Number(v.variationValue) === Number(d.driverValue) ||
+                      Number(v.variationID) === Number(d.variationID)
+                  );
+
+                  return `${d.driverName} = ${
+                    matched ? matched.variationName : d.driverValue
+                  }${i !== driverList.length - 1 ? "; " : ""}`;
+                })
+                .join("")
+            : "-"
+        }
+      </td>`
                     : ""
                 }
+
                 ${
                   props.visibleFieldsCustomTemp.fees
                     ? `<td style="border: 1px solid #dddddd; padding: 8px; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word; text-align: right;">
@@ -7454,26 +7490,26 @@ ${
           {MergePdfUrl &&
             (isMobile ? (
               <Suspense>
-              <PdfViewer isVisible={false} pdfFile={MergePdfUrl} />
+                <PdfViewer isVisible={false} pdfFile={MergePdfUrl} />
               </Suspense>
             ) : (
               <>
                 <button
-                    onClick={toggleLandscape}
-                    className="btn btn-primary btn-sm mt-2"
-                    style={{ marginBottom: 10 }}
+                  onClick={toggleLandscape}
+                  className="btn btn-primary btn-sm mt-2"
+                  style={{ marginBottom: 10 }}
                 >
-                    <Landscape />
-                    {landscapeMode ? "Switch to Portrait" : "Switch to Landscape"}
+                  <Landscape />
+                  {landscapeMode ? "Switch to Portrait" : "Switch to Landscape"}
                 </button>
-              <iframe
-                title="PDF Viewer"
-                src={MergePdfUrl}
-                // width="100%"
-                // height="700px"
-                style={{ width: "100%", height: "100vh", border: "none" }}
-                loading="lazy"
-              ></iframe>
+                <iframe
+                  title="PDF Viewer"
+                  src={MergePdfUrl}
+                  // width="100%"
+                  // height="700px"
+                  style={{ width: "100%", height: "100vh", border: "none" }}
+                  loading="lazy"
+                ></iframe>
               </>
             ))}
 
@@ -7836,7 +7872,8 @@ ${
                 </div>
               </div>
             )}
-            {(common.enableEL == 1 || !props?.pricingSettingObj?.remainingESignatures) &&
+            {(common.enableEL == 1 ||
+              !props?.pricingSettingObj?.remainingESignatures) &&
               userAccessData.Admin_Engagement_Latter_CanAdd &&
               userAccessData.Admin_Engagement_Latter_CanView &&
               props.moduleName == "Quote" && (

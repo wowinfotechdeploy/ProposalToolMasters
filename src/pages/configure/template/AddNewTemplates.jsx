@@ -73,7 +73,7 @@ function Add_New_Templates(props) {
     hasActionAccess,
     orientationID,
     setOrientationID,
-    handleOrientationChange
+    handleOrientationChange,
   } = useContext(AuthContextProvider);
   const navigate = useNavigate();
   const TemplateDivContainerRef = useRef(null);
@@ -105,8 +105,8 @@ function Add_New_Templates(props) {
   const [selectedPdf, setSelectedPdf] = useState(null);
   const [selectedPdfDetails, setSelectedPdfDetails] = useState([]);
   const [selectedFile, setSelectedFile] = useState({
-      fileName: null,
-      size: null,
+    fileName: null,
+    size: null,
   });
   const [modelAction, setModelAction] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -602,10 +602,79 @@ function Add_New_Templates(props) {
             (item) => item.templateElementTypeID === 3
           );
 
+          const serviceDescriptionObj = ModelData.templateElementList.filter(
+            (item) => item.templateElementTypeID === 4
+          );
+
+          const statementOfFactsObj = ModelData.templateElementList.filter(
+            (item) => item.templateElementTypeID === 8
+          );
+
           setTemplateObj((prev) => ({
             ...prev,
             pricingTableColumnIDs:
               pricingTableCustomIDList[0]?.pricingTableColumnIDs,
+          }));
+
+          setTemplateObj((prev) => ({
+            ...prev,
+            serviceDescriptionMainHeading:
+              serviceDescriptionObj[0]?.mainHeading,
+            serviceDescriptionRecurringHeading:
+              serviceDescriptionObj[0]?.recurringOnGoingHeading,
+            serviceDescriptionOneOffHeading:
+              serviceDescriptionObj[0]?.oneOffAdhocHeading,
+            serviceDescriptionMainHeadingFontSize: Number(
+              serviceDescriptionObj[0]?.mainHeadingFontSize
+            ),
+            serviceDescriptionRecurringHeadingFontSize: Number(
+              serviceDescriptionObj[0]?.recurringOnGoingHeadingFontSize
+            ),
+            serviceDescriptionOneOffHeadingFontSize: Number(
+              serviceDescriptionObj[0]?.oneOffAdhocFontSize
+            ),
+            serviceDescriptionMainHeadingFontWeight:
+              serviceDescriptionObj[0]?.mainHeadingIsBold,
+            serviceDescriptionMainHeadingFontItalic:
+              serviceDescriptionObj[0]?.mainHeadingIsItalic,
+            serviceDescriptionRecurringHeadingFontWeight:
+              serviceDescriptionObj[0]?.recurringOnGoingHeadingIsBold,
+            serviceDescriptionRecurringHeadingFontItalic:
+              serviceDescriptionObj[0]?.recurringOnGoingHeadingIsItalic,
+            serviceDescriptionOneOffHeadingFontWeight:
+              serviceDescriptionObj[0]?.oneOffAdhocHeadingIsBold,
+            serviceDescriptionOneOffHeadingFontItalic:
+              serviceDescriptionObj[0]?.oneOffAdhocHeadingIsItalic,
+          }));
+
+          setTemplateObj((prev) => ({
+            ...prev,
+            statementOfFactsMainHeading: statementOfFactsObj[0]?.mainHeading,
+            statementOfFactsRecurringHeading:
+              statementOfFactsObj[0]?.recurringOnGoingHeading,
+            statementOfFactsOneOffHeading:
+              statementOfFactsObj[0]?.oneOffAdhocHeading,
+            statementOfFactsMainHeadingFontSize: Number(
+              statementOfFactsObj[0]?.mainHeadingFontSize
+            ),
+            statementOfFactsRecurringHeadingFontSize: Number(
+              statementOfFactsObj[0]?.recurringOnGoingHeadingFontSize
+            ),
+            statementOfFactsOneOffHeadingFontSize: Number(
+              statementOfFactsObj[0]?.oneOffAdhocFontSize
+            ),
+            statementOfFactsMainHeadingFontWeight:
+              statementOfFactsObj[0]?.mainHeadingIsBold,
+            statementOfFactsMainHeadingFontItalic:
+              statementOfFactsObj[0]?.mainHeadingIsItalic,
+            statementOfFactsRecurringHeadingFontWeight:
+              statementOfFactsObj[0]?.recurringOnGoingHeadingIsBold,
+            statementOfFactsRecurringHeadingFontItalic:
+              statementOfFactsObj[0]?.recurringOnGoingHeadingIsItalic,
+            statementOfFactsOneOffHeadingFontWeight:
+              statementOfFactsObj[0]?.oneOffAdhocHeadingIsBold,
+            statementOfFactsOneOffHeadingFontItalic:
+              statementOfFactsObj[0]?.oneOffAdhocHeadingIsItalic,
           }));
 
           if (
@@ -996,6 +1065,74 @@ function Add_New_Templates(props) {
         ...item,
         pricingTableColumnIDs:
           selectedTemplateType === 0 ? "" : getVisibleFieldIds(),
+
+        ...(item.templateElementTypeID === 4 && {
+          mainHeading: TemplateObj.serviceDescriptionMainHeading || null,
+          recurringOnGoingHeading:
+            TemplateObj.serviceDescriptionRecurringHeading || null,
+          oneOffAdhocHeading:
+            TemplateObj.serviceDescriptionOneOffHeading || null,
+
+          mainHeadingFontSize: TemplateObj.serviceDescriptionMainHeadingFontSize
+            ? String(TemplateObj.serviceDescriptionMainHeadingFontSize)
+            : null,
+          recurringOnGoingHeadingFontSize:
+            TemplateObj.serviceDescriptionRecurringHeadingFontSize
+              ? String(TemplateObj.serviceDescriptionRecurringHeadingFontSize)
+              : null,
+          oneOffAdhocFontSize:
+            TemplateObj.serviceDescriptionOneOffHeadingFontSize
+              ? String(TemplateObj.serviceDescriptionOneOffHeadingFontSize)
+              : null,
+
+          mainHeadingIsBold:
+            TemplateObj.serviceDescriptionMainHeadingFontWeight || null,
+          mainHeadingIsItalic:
+            TemplateObj.serviceDescriptionMainHeadingFontItalic || null,
+
+          recurringOnGoingHeadingIsBold:
+            TemplateObj.serviceDescriptionRecurringHeadingFontWeight || null,
+          recurringOnGoingHeadingIsItalic:
+            TemplateObj.serviceDescriptionRecurringHeadingFontItalic || null,
+
+          oneOffAdhocHeadingIsBold:
+            TemplateObj.serviceDescriptionOneOffHeadingFontWeight || null,
+          oneOffAdhocHeadingIsItalic:
+            TemplateObj.serviceDescriptionOneOffHeadingFontItalic || null,
+        }),
+
+        ...(item.templateElementTypeID === 8 && {
+          mainHeading: TemplateObj.statementOfFactsMainHeading || null,
+          recurringOnGoingHeading:
+            TemplateObj.statementOfFactsRecurringHeading || null,
+          oneOffAdhocHeading: TemplateObj.statementOfFactsOneOffHeading || null,
+
+          mainHeadingFontSize: TemplateObj.statementOfFactsMainHeadingFontSize
+            ? String(TemplateObj.statementOfFactsMainHeadingFontSize)
+            : null,
+          recurringOnGoingHeadingFontSize:
+            TemplateObj.statementOfFactsRecurringHeadingFontSize
+              ? String(TemplateObj.statementOfFactsRecurringHeadingFontSize)
+              : null,
+          oneOffAdhocFontSize: TemplateObj.statementOfFactsOneOffHeadingFontSize
+            ? String(TemplateObj.statementOfFactsOneOffHeadingFontSize)
+            : null,
+
+          mainHeadingIsBold:
+            TemplateObj.statementOfFactsMainHeadingFontWeight || null,
+          mainHeadingIsItalic:
+            TemplateObj.statementOfFactsMainHeadingFontItalic || null,
+
+          recurringOnGoingHeadingIsBold:
+            TemplateObj.statementOfFactsRecurringHeadingFontWeight || null,
+          recurringOnGoingHeadingIsItalic:
+            TemplateObj.statementOfFactsRecurringHeadingFontItalic || null,
+
+          oneOffAdhocHeadingIsBold:
+            TemplateObj.statementOfFactsOneOffHeadingFontWeight || null,
+          oneOffAdhocHeadingIsItalic:
+            TemplateObj.statementOfFactsOneOffHeadingFontItalic || null,
+        }),
       })
     );
 
@@ -1391,37 +1528,37 @@ function Add_New_Templates(props) {
   const templates = [
     {
       id: 0,
-      label: "Default Template",
+      label: "Default",
       content: null,
     },
     {
       id: 1,
-      label: "Default Template",
+      label: "Default",
       content: null,
     },
     {
       id: 2,
-      label: "Default Template",
+      label: "Default",
       content: null,
     },
     {
       id: 3,
-      label: "Default Template",
+      label: "Default",
       content: null,
     },
     {
       id: 4,
-      label: "Default Template",
+      label: "Default",
       content: null,
     },
     {
       id: 5,
-      label: "Default Template",
+      label: "Default",
       content: null,
     },
     {
       id: 6,
-      label: "Custom Template",
+      label: "Custom",
       content: (
         <div style={{ marginTop: "0px" }} className="table-responsive">
           <table className="table align-middle table-nowrap">
@@ -2019,11 +2156,15 @@ function Add_New_Templates(props) {
                             if (file) {
                               const fileNameParts = file.name.split(".");
                               const fileExtension =
-                                fileNameParts[fileNameParts.length - 1].toLowerCase();
+                                fileNameParts[
+                                  fileNameParts.length - 1
+                                ].toLowerCase();
                               const allowedExtensions = ["jpg", "jpeg", "png"];
 
                               if (!allowedExtensions.includes(fileExtension)) {
-                                console.error("Please select a JPG, JPEG, or PNG file.");
+                                console.error(
+                                  "Please select a JPG, JPEG, or PNG file."
+                                );
                                 return;
                               }
 
@@ -2034,37 +2175,48 @@ function Add_New_Templates(props) {
                       ) : (
                         <div className="input-group mt-3">
                           {/* Preview for newly selected file */}
-                          {selectedFile.fileName && (() => {
-                            const file = selectedFile.fileName;
-                            const fileExtension = file.name.split(".").pop().toLowerCase();
+                          {selectedFile.fileName &&
+                            (() => {
+                              const file = selectedFile.fileName;
+                              const fileExtension = file.name
+                                .split(".")
+                                .pop()
+                                .toLowerCase();
 
-                            if (["jpg", "jpeg", "png"].includes(fileExtension)) {
+                              if (
+                                ["jpg", "jpeg", "png"].includes(fileExtension)
+                              ) {
+                                return (
+                                  <div style={{ width: "100%" }}>
+                                    <p>
+                                      <strong>Preview:</strong> {file.name}
+                                    </p>
+                                    <iframe
+                                      title="Watermark Preview"
+                                      src={URL.createObjectURL(file)}
+                                      width="100%"
+                                      height="350px"
+                                      loading="lazy"
+                                      style={{ border: "1px solid #000" }}
+                                    />
+                                  </div>
+                                );
+                              }
+
                               return (
-                                <div style={{ width: "100%" }}>
-                                  <p>
-                                    <strong>Preview:</strong> {file.name}
-                                  </p>
-                                  <iframe
-                                    title="Watermark Preview"
-                                    src={URL.createObjectURL(file)}
-                                    width="100%"
-                                    height="350px"
-                                    loading="lazy"
-                                    style={{ border: "1px solid #000" }}
-                                  />
-                                </div>
+                                <p className="text-danger">
+                                  Unsupported file format.
+                                </p>
                               );
-                            }
-
-                            return <p className="text-danger">Unsupported file format.</p>;
-                          })()}
+                            })()}
 
                           {/* Preview for existing watermark*/}
-                          {!selectedFile.fileName && TemplateObj.watermarkImage && (
-                            <div style={{ width: "100%" }}>
-                              <p>
-                                <strong>Current Watermark:</strong>
-                              </p>
+                          {!selectedFile.fileName &&
+                            TemplateObj.watermarkImage && (
+                              <div style={{ width: "100%" }}>
+                                <p>
+                                  <strong>Current Watermark:</strong>
+                                </p>
                                 <iframe
                                   title="Current Watermark"
                                   src={TemplateObj.watermarkImage}
@@ -2073,11 +2225,11 @@ function Add_New_Templates(props) {
                                   loading="lazy"
                                   style={{ border: "1px solid #000" }}
                                 />
-                            </div>
-                          )}
+                              </div>
+                            )}
                         </div>
                       )}
-                  </div>
+                    </div>
                   </div>
                 </div>
                 <div className="row mb-2" id="FirstPage">
@@ -2153,33 +2305,29 @@ function Add_New_Templates(props) {
                       }}
                     >
                       <div className="row">
-                      <div className="col-md-3 col-lg-3 me-4">
-                        <input
-                        className="form-check-input"
-                        type="radio"
-                        name="orientation"
-                        value={1}
-                        checked={orientationID === 1}
-                        onChange={handleOrientationChange}
-                        defaultChecked
-                        />
-                        <label className="form-check-lable">
-                          Portrait
-                        </label>
-                      </div>
-                      <div className="col-md-3 col-lg-3">
-                        <input
-                          className="form-check-input"
-                          type="radio"
-                          name="orientation"
-                          value={2}
-                          checked={orientationID === 2}
-                          onChange={handleOrientationChange}
-                        />
-                        <label className="form-check-label">
-                          Landscape
-                        </label>
-                      </div>
+                        <div className="col-md-3 col-lg-3 me-4">
+                          <input
+                            className="form-check-input"
+                            type="radio"
+                            name="orientation"
+                            value={1}
+                            checked={orientationID === 1}
+                            onChange={handleOrientationChange}
+                            defaultChecked
+                          />
+                          <label className="form-check-lable">Portrait</label>
+                        </div>
+                        <div className="col-md-3 col-lg-3">
+                          <input
+                            className="form-check-input"
+                            type="radio"
+                            name="orientation"
+                            value={2}
+                            checked={orientationID === 2}
+                            onChange={handleOrientationChange}
+                          />
+                          <label className="form-check-label">Landscape</label>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -2453,6 +2601,17 @@ function Add_New_Templates(props) {
                               placeholder="Main service description heading"
                               className="input-text"
                               value={TemplateObj.serviceDescriptionMainHeading}
+                              maxLength={150}
+                              onChange={(e) => {
+                                let input = e.target.value;
+                                if (input.startsWith(" ")) {
+                                  input = input.trimStart();
+                                }
+                                setTemplateObj((prev) => ({
+                                  ...prev,
+                                  serviceDescriptionMainHeading: input,
+                                }));
+                              }}
                             />
                           </div>
                           <div className="col-2">
@@ -2467,10 +2626,12 @@ function Add_New_Templates(props) {
                             <div className="input-group">
                               <Select
                                 className=" selectDropDown Drop-down-width"
-                                value={Utils.FontSize.filter(
+                                value={Utils.FontSize.find(
                                   (item) =>
                                     item.value ===
-                                    TemplateObj.serviceDescriptionMainHeadingFontSize
+                                    Number(
+                                      TemplateObj.serviceDescriptionMainHeadingFontSize
+                                    )
                                 )}
                                 onChange={(e) => {
                                   setTemplateObj((prev) => ({
@@ -2559,6 +2720,17 @@ function Add_New_Templates(props) {
                               value={
                                 TemplateObj.serviceDescriptionRecurringHeading
                               }
+                              maxLength={150}
+                              onChange={(e) => {
+                                let input = e.target.value;
+                                if (input.startsWith(" ")) {
+                                  input = input.trimStart();
+                                }
+                                setTemplateObj((prev) => ({
+                                  ...prev,
+                                  serviceDescriptionRecurringHeading: input,
+                                }));
+                              }}
                             />
                           </div>
                           <div className="col-2">
@@ -2661,6 +2833,17 @@ function Add_New_Templates(props) {
                               value={
                                 TemplateObj.serviceDescriptionOneOffHeading
                               }
+                              maxLength={150}
+                              onChange={(e) => {
+                                let input = e.target.value;
+                                if (input.startsWith(" ")) {
+                                  input = input.trimStart();
+                                }
+                                setTemplateObj((prev) => ({
+                                  ...prev,
+                                  serviceDescriptionOneOffHeading: input,
+                                }));
+                              }}
                             />
                           </div>
                           <div className="col-2">
@@ -2879,9 +3062,20 @@ function Add_New_Templates(props) {
                           <div className="col-5">
                             <input
                               type="text"
-                              placeholder="Main service description heading"
+                              placeholder="Main statement of facts heading"
                               className="input-text"
                               value={TemplateObj.statementOfFactsMainHeading}
+                              maxLength={150}
+                              onChange={(e) => {
+                                let input = e.target.value;
+                                if (input.startsWith(" ")) {
+                                  input = input.trimStart();
+                                }
+                                setTemplateObj((prev) => ({
+                                  ...prev,
+                                  statementOfFactsMainHeading: input,
+                                }));
+                              }}
                             />
                           </div>
                           <div className="col-2">
@@ -2988,6 +3182,17 @@ function Add_New_Templates(props) {
                               value={
                                 TemplateObj.statementOfFactsRecurringHeading
                               }
+                              maxLength={150}
+                              onChange={(e) => {
+                                let input = e.target.value;
+                                if (input.startsWith(" ")) {
+                                  input = input.trimStart();
+                                }
+                                setTemplateObj((prev) => ({
+                                  ...prev,
+                                  statementOfFactsRecurringHeading: input,
+                                }));
+                              }}
                             />
                           </div>
                           <div className="col-2">
@@ -3088,6 +3293,17 @@ function Add_New_Templates(props) {
                               placeholder="Enter One-Off/Ad hoc Heading"
                               className="input-text"
                               value={TemplateObj.statementOfFactsOneOffHeading}
+                              maxLength={150}
+                              onChange={(e) => {
+                                let input = e.target.value;
+                                if (input.startsWith(" ")) {
+                                  input = input.trimStart();
+                                }
+                                setTemplateObj((prev) => ({
+                                  ...prev,
+                                  statementOfFactsOneOffHeading: input,
+                                }));
+                              }}
                             />
                           </div>
                           <div className="col-2">

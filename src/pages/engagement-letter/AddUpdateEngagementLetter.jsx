@@ -80,8 +80,12 @@ import {
 } from "../../redux/Services/EmailFailureStatusAPI/EmailFailureStatusAPI";
 import EmailFailurePopUP from "../../components/EmailFailurePopUp";
 const SelectServices = lazy(() => import("../../components/SelectServices"));
-const PreviewComponentPdf = lazy(() => import("../../components/PreviewComponentpdf"));
-const PricingTableTemplatesModal = lazy(() => import("../../components/PricingTableTemplatesModal"));
+const PreviewComponentPdf = lazy(() =>
+  import("../../components/PreviewComponentpdf")
+);
+const PricingTableTemplatesModal = lazy(() =>
+  import("../../components/PricingTableTemplatesModal")
+);
 
 const BasicInformationComponent = (props) => {
   const navigate = useNavigate();
@@ -304,7 +308,9 @@ const BasicInformationComponent = (props) => {
                           props.setFooterImage(selectedTemplate.footerImage);
                           props.setHeaderHeight(selectedTemplate.headerHeight);
                           props.setFooterHeight(selectedTemplate.footerHeight);
-                          props.setWatermarkImage(selectedTemplate?.watermarkImage);
+                          props.setWatermarkImage(
+                            selectedTemplate?.watermarkImage
+                          );
                           props.setFontFamily(
                             props.getFontNameById(selectedTemplate.fontFamilyID)
                           );
@@ -1471,6 +1477,14 @@ const ReviewServicesComponent = (props) => {
   const generateCombinedServicesHTML = () => {
     const fontFamily = "Arial, sans-serif";
     const fontSizeHeading = "18px";
+    const recurringHeadingFontSize = props?.serviceDescriptionObj
+      ?.recurringOnGoingHeadingFontSize
+      ? `${props?.serviceDescriptionObj?.recurringOnGoingHeadingFontSize}px`
+      : "18px";
+    const oneOffHeadingFontSize = props?.serviceDescriptionObj
+      ?.oneOffAdhocFontSize
+      ? `${props?.serviceDescriptionObj?.oneOffAdhocFontSize}px`
+      : "18px";
     const fontSizeContent = "14px";
     const newColorCode = "#b4aba6";
 
@@ -1478,9 +1492,21 @@ const ReviewServicesComponent = (props) => {
   <div style="padding-left: 40px; padding-right: 40px;">
     ${
       props?.selectedRecurringServiceList?.length
-        ? `<p style="font-family:${fontFamily}; font-size: ${fontSizeHeading}; color: ${newColorCode}; font-weight: bold;">
-             Ongoing/Recurring Services
+        ? props?.serviceDescriptionObj?.recurringOnGoingHeading !== null &&
+          props?.serviceDescriptionObj?.recurringOnGoingHeading !== undefined &&
+          props?.serviceDescriptionObj?.recurringOnGoingHeading !== ""
+          ? `<p style="font-family:${fontFamily}; font-size: ${recurringHeadingFontSize}; color: ${newColorCode}; font-weight: ${
+              props?.serviceDescriptionObj?.recurringOnGoingHeadingIsBold
+                ? "bold"
+                : "normal"
+            }; font-style: ${
+              props?.serviceDescriptionObj?.recurringOnGoingHeadingIsItalic
+                ? "italic"
+                : undefined
+            };">
+             ${props?.serviceDescriptionObj?.recurringOnGoingHeading}
            </p>`
+          : ""
         : ""
     }
 
@@ -1515,9 +1541,21 @@ const ReviewServicesComponent = (props) => {
 
     ${
       props?.selectedOneOffServiceList?.length
-        ? `<p style="font-family:${fontFamily}; font-size: ${fontSizeHeading}; color: ${newColorCode}; font-weight: bold;">
-             One-Off/Ad hoc Services
+        ? props?.serviceDescriptionObj?.oneOffAdhocHeading !== null &&
+          props?.serviceDescriptionObj?.oneOffAdhocHeading !== undefined &&
+          props?.serviceDescriptionObj?.oneOffAdhocHeading !== ""
+          ? `<p style="font-family:${fontFamily}; font-size: ${oneOffHeadingFontSize}; color: ${newColorCode}; font-weight: ${
+              props?.serviceDescriptionObj?.oneOffAdhocHeadingIsBold
+                ? "bold"
+                : "normal"
+            }; font-style: ${
+              props?.serviceDescriptionObj?.oneOffAdhocHeadingIsItalic
+                ? "italic"
+                : undefined
+            };">
+             ${props?.serviceDescriptionObj?.oneOffAdhocHeading}
            </p>`
+          : ""
         : ""
     }
 
@@ -1556,10 +1594,15 @@ const ReviewServicesComponent = (props) => {
   function generateSOFHTML() {
     const fontFamily = "Arial, sans-serif";
     const fontSizeHeading = "18px";
+    const rucurringHeadingFontSize = props?.statementOfFactsObj
+      .recurringOnGoingHeadingFontSize
+      ? props?.statementOfFactsObj.recurringOnGoingHeadingFontSize
+      : "18px";
+    const oneOffHeadingFontSize = props?.statementOfFactsObj.oneOffAdhocFontSize
+      ? props?.statementOfFactsObj.oneOffAdhocFontSize
+      : "18px";
     const fontSizeContent = "14px";
     const newColorCode = "#b4aba6";
-
-    debugger;
 
     const formatCurrency = props.formatValueWithoutCurrencySymbol;
 
@@ -1577,7 +1620,20 @@ const ReviewServicesComponent = (props) => {
         
         ${
           SelectedPackage.reccuring.length
-            ? `<p style="font-size: ${fontSizeHeading}; color: ${newColorCode}; font-weight: bold;">Ongoing/Recurring Services</p>`
+            ? props?.statementOfFactsObj?.recurringOnGoingHeading !== null &&
+              props?.statementOfFactsObj?.recurringOnGoingHeading !==
+                undefined &&
+              props?.statementOfFactsObj?.recurringOnGoingHeading !== ""
+              ? `<p style="font-size: ${rucurringHeadingFontSize}; color: ${newColorCode}; font-weight: ${
+                  props?.statementOfFactsObj?.recurringOnGoingHeadingIsBold
+                    ? "bold"
+                    : "normal"
+                }; font-style: ${
+                  props?.statementOfFactsObj?.recurringOnGoingHeadingIsItalic
+                    ? "italic"
+                    : undefined
+                };">${props?.statementOfFactsObj?.recurringOnGoingHeading}</p>`
+              : ""
             : ""
         }
 
@@ -1622,7 +1678,20 @@ const ReviewServicesComponent = (props) => {
 
         ${
           SelectedPackage.oneOff.length
-            ? `<p style="font-size: ${fontSizeHeading}; color: ${newColorCode}; font-weight: bold;">One-Off/Ad hoc Services</p>`
+            ? props?.statementOfFactsObj?.oneOffAdhocHeadingIsItalic !== null &&
+              props?.statementOfFactsObj?.oneOffAdhocHeadingIsItalic !==
+                undefined &&
+              props?.statementOfFactsObj?.oneOffAdhocHeadingIsItalic !== ""
+              ? `<p style="font-size: ${fontSizeHeading}; color: ${newColorCode}; font-weight: ${
+                  props?.statementOfFactsObj?.oneOffAdhocHeadingIsBold
+                    ? "bold"
+                    : "normal"
+                }; font-style: ${
+                  props?.statementOfFactsObj?.oneOffAdhocHeadingIsItalic
+                    ? "italic"
+                    : undefined
+                };">${props?.statementOfFactsObj?.oneOffAdhocHeading}</p>`
+              : ""
             : ""
         }
 
@@ -1701,7 +1770,20 @@ const ReviewServicesComponent = (props) => {
       <div style="padding-left: 40px; padding-right: 40px; font-family:${fontFamily};">
         ${
           props?.selectedRecurringServiceList?.length
-            ? `<p style="font-size: ${fontSizeHeading}; color: ${newColorCode}; font-weight: bold;">Ongoing/Recurring Services</p>`
+            ? props?.statementOfFactsObj?.recurringOnGoingHeading !== null &&
+              props?.statementOfFactsObj?.recurringOnGoingHeading !==
+                undefined &&
+              props?.statementOfFactsObj?.recurringOnGoingHeading !== ""
+              ? `<p style="font-size: ${rucurringHeadingFontSize}; color: ${newColorCode}; font-weight: ${
+                  props?.statementOfFactsObj?.recurringOnGoingHeadingIsBold
+                    ? "bold"
+                    : "normal"
+                }; font-style: ${
+                  props?.statementOfFactsObj?.recurringOnGoingHeadingIsItalic
+                    ? "italic"
+                    : undefined
+                };">${props?.statementOfFactsObj?.recurringOnGoingHeading}</p>`
+              : ""
             : ""
         }
 
@@ -1765,7 +1847,20 @@ const ReviewServicesComponent = (props) => {
 
         ${
           props?.selectedOneOffServiceList?.length
-            ? `<p style="font-size: ${fontSizeHeading}; color: ${newColorCode}; font-weight: bold;">One-Off/Ad hoc Services</p>`
+            ? props?.statementOfFactsObj?.oneOffAdhocHeadingIsItalic !== null &&
+              props?.statementOfFactsObj?.oneOffAdhocHeadingIsItalic !==
+                undefined &&
+              props?.statementOfFactsObj?.oneOffAdhocHeadingIsItalic !== ""
+              ? `<p style="font-size: ${oneOffHeadingFontSize}; color: ${newColorCode}; font-weight: ${
+                  props?.statementOfFactsObj?.oneOffAdhocHeadingIsBold
+                    ? "bold"
+                    : "normal"
+                }; font-style: ${
+                  props?.statementOfFactsObj?.oneOffAdhocHeadingIsItalic
+                    ? "italic"
+                    : undefined
+                };">${props?.statementOfFactsObj?.oneOffAdhocHeading}</p>`
+              : ""
             : ""
         }
 
@@ -2792,11 +2887,48 @@ const ReviewServicesComponent = (props) => {
                                                   {driverList.length > 0
                                                     ? driverList.map((d, i) => (
                                                         <div key={i}>
-                                                          {d.driverName} ={" "}
-                                                          {d.driverValue}
-                                                          {i !==
-                                                            driverList.length -
-                                                              1 && ", "}
+                                                          {d.variation ===
+                                                          null ? (
+                                                            <>
+                                                              {d.driverName} ={" "}
+                                                              {d.driverValue}
+                                                              {i !==
+                                                                driverList.length -
+                                                                  1 && "; "}
+                                                            </>
+                                                          ) : (
+                                                            (() => {
+                                                              const matched =
+                                                                d.variation.find(
+                                                                  (v) =>
+                                                                    Number(
+                                                                      v.variationValue
+                                                                    ) ===
+                                                                    Number(
+                                                                      d.driverValue
+                                                                    )
+                                                                );
+
+                                                              return (
+                                                                <>
+                                                                  {d.driverName}{" "}
+                                                                  ={" "}
+                                                                  {matched
+                                                                    ? matched.variationName
+                                                                    : ""}
+                                                                  {i !==
+                                                                    driverList.length -
+                                                                      1 && "; "}
+                                                                </>
+                                                              );
+                                                            })()
+                                                          )}
+
+                                                          {/* {d.driverName} ={" "}
+                                                      {d.driverValue}
+                                                      {i !==
+                                                        driverList.length - 1 &&
+                                                        "; "} */}
                                                         </div>
                                                       ))
                                                     : "-"}
@@ -3800,11 +3932,47 @@ const ReviewServicesComponent = (props) => {
                                                 {driverList.length > 0
                                                   ? driverList.map((d, i) => (
                                                       <div key={i}>
-                                                        {d.driverName} ={" "}
-                                                        {d.driverValue}
-                                                        {i !==
-                                                          driverList.length -
-                                                            1 && ", "}
+                                                        {d.variation ===
+                                                        null ? (
+                                                          <>
+                                                            {d.driverName} ={" "}
+                                                            {d.driverValue}
+                                                            {i !==
+                                                              driverList.length -
+                                                                1 && "; "}
+                                                          </>
+                                                        ) : (
+                                                          (() => {
+                                                            const matched =
+                                                              d.variation.find(
+                                                                (v) =>
+                                                                  Number(
+                                                                    v.variationValue
+                                                                  ) ===
+                                                                  Number(
+                                                                    d.driverValue
+                                                                  )
+                                                              );
+
+                                                            return (
+                                                              <>
+                                                                {d.driverName} ={" "}
+                                                                {matched
+                                                                  ? matched.variationName
+                                                                  : ""}
+                                                                {i !==
+                                                                  driverList.length -
+                                                                    1 && "; "}
+                                                              </>
+                                                            );
+                                                          })()
+                                                        )}
+
+                                                        {/* {d.driverName} ={" "}
+                                                      {d.driverValue}
+                                                      {i !==
+                                                        driverList.length - 1 &&
+                                                        "; "} */}
                                                       </div>
                                                     ))
                                                   : "-"}
@@ -4116,9 +4284,30 @@ const ReviewServicesComponent = (props) => {
 
                   <div className="SOF-SD-Customization d-flex flex-column gap-2">
                     <div className="service-description">
-                      <div className="separator mb-2"></div>
-                      <h6>Service Description</h6>
-                      <div className="separator mb-3"></div>
+                      {props?.serviceDescriptionObj?.mainHeading !== null &&
+                        props?.serviceDescriptionObj?.mainHeading !==
+                          undefined &&
+                        props?.serviceDescriptionObj?.mainHeading !== "" && (
+                          <>
+                            <div className="separator mb-2"></div>
+                            <h6
+                              style={{
+                                fontSize: `${props?.serviceDescriptionObj?.mainHeadingFontSize}px`,
+                                fontWeight: props?.serviceDescriptionObj
+                                  ?.mainHeadingIsBold
+                                  ? "bold"
+                                  : "normal",
+                                fontStyle: props?.serviceDescriptionObj
+                                  ?.mainHeadingIsItalic
+                                  ? "italic"
+                                  : undefined,
+                              }}
+                            >
+                              {props?.serviceDescriptionObj?.mainHeading}
+                            </h6>
+                            <div className="separator mb-3"></div>
+                          </>
+                        )}
                       <Text_Editor
                         index={0}
                         handleContentChange={handleSDChange}
@@ -4126,9 +4315,29 @@ const ReviewServicesComponent = (props) => {
                       />
                     </div>
                     <div className="statement-of-facts">
-                      <div className="separator mb-2"></div>
-                      <h6>Statement Of Facts</h6>
-                      <div className="separator mb-3"></div>
+                      {props?.statementOfFactsObj?.mainHeading !== null &&
+                        props?.statementOfFactsObj?.mainHeading !== undefined &&
+                        props?.statementOfFactsObj?.mainHeading !== "" && (
+                          <>
+                            <div className="separator mb-2"></div>
+                            <h6
+                              style={{
+                                fontSize: `${props?.statementOfFactsObj?.mainHeadingFontSize}px`,
+                                fontWeight: props?.statementOfFactsObj
+                                  ?.mainHeadingIsBold
+                                  ? "bold"
+                                  : "normal",
+                                fontStyle: props?.statementOfFactsObj
+                                  ?.mainHeadingIsItalic
+                                  ? "italic"
+                                  : undefined,
+                              }}
+                            >
+                              {props?.statementOfFactsObj?.mainHeading}
+                            </h6>
+                            <div className="separator mb-3"></div>
+                          </>
+                        )}
                       <Text_Editor
                         index={0}
                         handleContentChange={handleSOFChange}
@@ -5346,6 +5555,14 @@ const ReviewPackagesComponent = (props) => {
   const generateCombinedServicesHTML = () => {
     const fontFamily = "Arial, sans-serif";
     const fontSizeHeading = "18px";
+    const recurringHeadingFontSize = props?.serviceDescriptionObj
+      ?.recurringOnGoingHeadingFontSize
+      ? `${props?.serviceDescriptionObj?.recurringOnGoingHeadingFontSize}px`
+      : "18px";
+    const oneOffHeadingFontSize = props?.serviceDescriptionObj
+      ?.oneOffAdhocFontSize
+      ? `${props?.serviceDescriptionObj?.oneOffAdhocFontSize}px`
+      : "18px";
     const fontSizeContent = "14px";
     const newColorCode = "#b4aba6";
 
@@ -5353,9 +5570,21 @@ const ReviewPackagesComponent = (props) => {
   <div style="padding-left: 40px; padding-right: 40px;">
     ${
       props?.selectedRecurringServiceList?.length
-        ? `<p style="font-family:${fontFamily}; font-size: ${fontSizeHeading}; color: ${newColorCode}; font-weight: bold;">
-             Ongoing/Recurring Services
+        ? props?.serviceDescriptionObj?.recurringOnGoingHeading !== null &&
+          props?.serviceDescriptionObj?.recurringOnGoingHeading !== undefined &&
+          props?.serviceDescriptionObj?.recurringOnGoingHeading !== ""
+          ? `<p style="font-family:${fontFamily}; font-size: ${recurringHeadingFontSize}; color: ${newColorCode}; font-weight: ${
+              props?.serviceDescriptionObj?.recurringOnGoingHeadingIsBold
+                ? "bold"
+                : "normal"
+            }; font-style: ${
+              props?.serviceDescriptionObj?.recurringOnGoingHeadingIsItalic
+                ? "italic"
+                : undefined
+            };">
+             ${props?.serviceDescriptionObj?.recurringOnGoingHeading}
            </p>`
+          : ""
         : ""
     }
 
@@ -5390,9 +5619,21 @@ const ReviewPackagesComponent = (props) => {
 
     ${
       props?.selectedOneOffServiceList?.length
-        ? `<p style="font-family:${fontFamily}; font-size: ${fontSizeHeading}; color: ${newColorCode}; font-weight: bold;">
-             One-Off/Ad hoc Services
+        ? props?.serviceDescriptionObj?.oneOffAdhocHeading !== null &&
+          props?.serviceDescriptionObj?.oneOffAdhocHeading !== undefined &&
+          props?.serviceDescriptionObj?.oneOffAdhocHeading !== ""
+          ? `<p style="font-family:${fontFamily}; font-size: ${oneOffHeadingFontSize}; color: ${newColorCode}; font-weight: ${
+              props?.serviceDescriptionObj?.oneOffAdhocHeadingIsBold
+                ? "bold"
+                : "normal"
+            }; font-style: ${
+              props?.serviceDescriptionObj?.oneOffAdhocHeadingIsItalic
+                ? "italic"
+                : undefined
+            };">
+             ${props?.serviceDescriptionObj?.oneOffAdhocHeading}
            </p>`
+          : ""
         : ""
     }
 
@@ -11639,6 +11880,35 @@ const Add_Update_Engagement_Letter = () => {
     maxDiscountForQC: null,
     PaymentFrequency: null,
   });
+  const [serviceDescriptionObj, setServiceDescriptionObj] = useState({
+    mainHeading: "Service Description",
+    recurringOnGoingHeading: "Ongoing/Recurring Services",
+    oneOffAdhocHeading: "One-Off/Ad hoc Services",
+    mainHeadingFontSize: null,
+    recurringOnGoingHeadingFontSize: null,
+    oneOffAdhocFontSize: null,
+    mainHeadingIsBold: null,
+    mainHeadingIsItalic: null,
+    recurringOnGoingHeadingIsBold: null,
+    recurringOnGoingHeadingIsItalic: null,
+    oneOffAdhocHeadingIsBold: null,
+    oneOffAdhocHeadingIsItalic: null,
+  });
+
+  const [statementOfFactsObj, setStatementOfFactsObj] = useState({
+    mainHeading: "Statement Of Facts",
+    recurringOnGoingHeading: "Ongoing/Recurring Services",
+    oneOffAdhocHeading: "One-Off/Ad hoc Services",
+    mainHeadingFontSize: null,
+    recurringOnGoingHeadingFontSize: null,
+    oneOffAdhocFontSize: null,
+    mainHeadingIsBold: null,
+    mainHeadingIsItalic: null,
+    recurringOnGoingHeadingIsBold: null,
+    recurringOnGoingHeadingIsItalic: null,
+    oneOffAdhocHeadingIsBold: null,
+    oneOffAdhocHeadingIsItalic: null,
+  });
   const [paymentGatewayObj, setPaymentGatewayObj] = useState({
     userKeyID: null,
     goCardlessAccessToken: undefined,
@@ -12736,6 +13006,35 @@ const Add_Update_Engagement_Letter = () => {
           pricingTableColumnIDs: item.pricingTableColumnIDs
             ? item.pricingTableColumnIDs
             : "",
+          mainHeadingSD: item.mainHeadingSD,
+          recurringOnGoingHeadingSD: item.mainHeadingSD,
+          oneOffAdhocHeadingSD: item.oneOffAdhocHeadingSD,
+          mainHeadingFontSizeSD: item.mainHeadingFontSizeSD,
+          recurringOnGoingHeadingFontSizeSD:
+            item.recurringOnGoingHeadingFontSizeSD,
+          oneOffAdhocFontSizeSD: item.oneOffAdhocFontSizeSD,
+          mainHeadingIsBoldSD: item.mainHeadingIsBoldSD,
+          mainHeadingIsItalicSD: item.mainHeadingIsItalicSD,
+          recurringOnGoingHeadingIsBoldSD: item.recurringOnGoingHeadingIsBoldSD,
+          recurringOnGoingHeadingIsItalicSD:
+            item.recurringOnGoingHeadingIsItalicSD,
+          oneOffAdhocHeadingIsBoldSD: item.oneOffAdhocHeadingIsBoldSD,
+          oneOffAdhocHeadingIsItalicSD: item.oneOffAdhocHeadingIsItalicSD,
+          mainHeadingSOF: item.mainHeadingSOF,
+          recurringOnGoingHeadingSOF: item.recurringOnGoingHeadingSOF,
+          oneOffAdhocHeadingSOF: item.oneOffAdhocHeadingSOF,
+          mainHeadingFontSizeSOF: item.mainHeadingFontSizeSOF,
+          recurringOnGoingHeadingFontSizeSOF:
+            item.recurringOnGoingHeadingFontSizeSOF,
+          oneOffAdhocFontSizeSOF: item.oneOffAdhocFontSizeSOF,
+          mainHeadingIsBoldSOF: item.mainHeadingIsBoldSOF,
+          mainHeadingIsItalicSOF: item.mainHeadingIsItalicSOF,
+          recurringOnGoingHeadingIsBoldSOF:
+            item.recurringOnGoingHeadingIsBoldSOF,
+          recurringOnGoingHeadingIsItalicSOF:
+            item.recurringOnGoingHeadingIsItalicSOF,
+          oneOffAdhocHeadingIsBoldSOF: item.oneOffAdhocHeadingIsBoldSOF,
+          oneOffAdhocHeadingIsItalicSOF: item.oneOffAdhocHeadingIsItalicSOF,
         }));
         setTemplateLookUpOptions(mappedOptions);
         const isSelectedDefault = data.responseData.data.filter(
@@ -12772,6 +13071,54 @@ const Add_Update_Engagement_Letter = () => {
               updateVisibleFieldsFromIds(
                 isSelectedDefault[0]?.pricingTableColumnIDs
               );
+              setServiceDescriptionObj((prev) => ({
+                ...prev,
+                mainHeading: isSelectedDefault[0]?.mainHeadingSD,
+                recurringOnGoingHeading:
+                  isSelectedDefault[0]?.recurringOnGoingHeadingSD,
+                oneOffAdhocHeading: isSelectedDefault[0]?.oneOffAdhocHeadingSD,
+                mainHeadingFontSize:
+                  isSelectedDefault[0]?.mainHeadingFontSizeSD,
+                recurringOnGoingHeadingFontSize:
+                  isSelectedDefault[0]?.recurringOnGoingHeadingFontSizeSD,
+                oneOffAdhocFontSize:
+                  isSelectedDefault[0]?.oneOffAdhocFontSizeSD,
+                mainHeadingIsBold: isSelectedDefault[0]?.mainHeadingIsBoldSD,
+                mainHeadingIsItalic:
+                  isSelectedDefault[0]?.mainHeadingIsItalicSD,
+                recurringOnGoingHeadingIsBold:
+                  isSelectedDefault[0]?.recurringOnGoingHeadingIsBoldSD,
+                recurringOnGoingHeadingIsItalic:
+                  isSelectedDefault[0]?.recurringOnGoingHeadingIsItalicSD,
+                oneOffAdhocHeadingIsBold:
+                  isSelectedDefault[0]?.oneOffAdhocHeadingIsBoldSD,
+                oneOffAdhocHeadingIsItalic:
+                  isSelectedDefault[0]?.oneOffAdhocHeadingIsItalicSD,
+              }));
+              setStatementOfFactsObj((prev) => ({
+                ...prev,
+                mainHeading: isSelectedDefault[0]?.mainHeadingSOF,
+                recurringOnGoingHeading:
+                  isSelectedDefault[0]?.recurringOnGoingHeadingSOF,
+                oneOffAdhocHeading: isSelectedDefault[0]?.oneOffAdhocHeadingSOF,
+                mainHeadingFontSize:
+                  isSelectedDefault[0]?.mainHeadingFontSizeSOF,
+                recurringOnGoingHeadingFontSize:
+                  isSelectedDefault[0]?.recurringOnGoingHeadingFontSizeSOF,
+                oneOffAdhocFontSize:
+                  isSelectedDefault[0]?.oneOffAdhocFontSizeSOF,
+                mainHeadingIsBold: isSelectedDefault[0]?.mainHeadingIsBoldSOF,
+                mainHeadingIsItalic:
+                  isSelectedDefault[0]?.mainHeadingIsItalicSOF,
+                recurringOnGoingHeadingIsBold:
+                  isSelectedDefault[0]?.recurringOnGoingHeadingIsBoldSOF,
+                recurringOnGoingHeadingIsItalic:
+                  isSelectedDefault[0]?.recurringOnGoingHeadingIsItalicSOF,
+                oneOffAdhocHeadingIsBold:
+                  isSelectedDefault[0]?.oneOffAdhocHeadingIsBoldSOF,
+                oneOffAdhocHeadingIsItalic:
+                  isSelectedDefault[0]?.oneOffAdhocHeadingIsItalicSOF,
+              }));
             }
           } else {
             setEngagementObj({
@@ -12804,6 +13151,54 @@ const Add_Update_Engagement_Letter = () => {
               updateVisibleFieldsFromIds(
                 isSelectedDefault[0]?.pricingTableColumnIDs
               );
+              setServiceDescriptionObj((prev) => ({
+                ...prev,
+                mainHeading: isSelectedDefault[0]?.mainHeadingSD,
+                recurringOnGoingHeading:
+                  isSelectedDefault[0]?.recurringOnGoingHeadingSD,
+                oneOffAdhocHeading: isSelectedDefault[0]?.oneOffAdhocHeadingSD,
+                mainHeadingFontSize:
+                  isSelectedDefault[0]?.mainHeadingFontSizeSD,
+                recurringOnGoingHeadingFontSize:
+                  isSelectedDefault[0]?.recurringOnGoingHeadingFontSizeSD,
+                oneOffAdhocFontSize:
+                  isSelectedDefault[0]?.oneOffAdhocFontSizeSD,
+                mainHeadingIsBold: isSelectedDefault[0]?.mainHeadingIsBoldSD,
+                mainHeadingIsItalic:
+                  isSelectedDefault[0]?.mainHeadingIsItalicSD,
+                recurringOnGoingHeadingIsBold:
+                  isSelectedDefault[0]?.recurringOnGoingHeadingIsBoldSD,
+                recurringOnGoingHeadingIsItalic:
+                  isSelectedDefault[0]?.recurringOnGoingHeadingIsItalicSD,
+                oneOffAdhocHeadingIsBold:
+                  isSelectedDefault[0]?.oneOffAdhocHeadingIsBoldSD,
+                oneOffAdhocHeadingIsItalic:
+                  isSelectedDefault[0]?.oneOffAdhocHeadingIsItalicSD,
+              }));
+              setStatementOfFactsObj((prev) => ({
+                ...prev,
+                mainHeading: isSelectedDefault[0]?.mainHeadingSOF,
+                recurringOnGoingHeading:
+                  isSelectedDefault[0]?.recurringOnGoingHeadingSOF,
+                oneOffAdhocHeading: isSelectedDefault[0]?.oneOffAdhocHeadingSOF,
+                mainHeadingFontSize:
+                  isSelectedDefault[0]?.mainHeadingFontSizeSOF,
+                recurringOnGoingHeadingFontSize:
+                  isSelectedDefault[0]?.recurringOnGoingHeadingFontSizeSOF,
+                oneOffAdhocFontSize:
+                  isSelectedDefault[0]?.oneOffAdhocFontSizeSOF,
+                mainHeadingIsBold: isSelectedDefault[0]?.mainHeadingIsBoldSOF,
+                mainHeadingIsItalic:
+                  isSelectedDefault[0]?.mainHeadingIsItalicSOF,
+                recurringOnGoingHeadingIsBold:
+                  isSelectedDefault[0]?.recurringOnGoingHeadingIsBoldSOF,
+                recurringOnGoingHeadingIsItalic:
+                  isSelectedDefault[0]?.recurringOnGoingHeadingIsItalicSOF,
+                oneOffAdhocHeadingIsBold:
+                  isSelectedDefault[0]?.oneOffAdhocHeadingIsBoldSOF,
+                oneOffAdhocHeadingIsItalic:
+                  isSelectedDefault[0]?.oneOffAdhocHeadingIsItalicSOF,
+              }));
             }
           }
           console.log(getFontNameById(isSelectedDefault[0].fontFamilyID));
@@ -12827,6 +13222,48 @@ const Add_Update_Engagement_Letter = () => {
             updateVisibleFieldsFromIds(
               isSelectedDefault[0]?.pricingTableColumnIDs
             );
+            setServiceDescriptionObj((prev) => ({
+              ...prev,
+              mainHeading: isSelectedDefault[0]?.mainHeadingSD,
+              recurringOnGoingHeading:
+                isSelectedDefault[0]?.recurringOnGoingHeadingSD,
+              oneOffAdhocHeading: isSelectedDefault[0]?.oneOffAdhocHeadingSD,
+              mainHeadingFontSize: isSelectedDefault[0]?.mainHeadingFontSizeSD,
+              recurringOnGoingHeadingFontSize:
+                isSelectedDefault[0]?.recurringOnGoingHeadingFontSizeSD,
+              oneOffAdhocFontSize: isSelectedDefault[0]?.oneOffAdhocFontSizeSD,
+              mainHeadingIsBold: isSelectedDefault[0]?.mainHeadingIsBoldSD,
+              mainHeadingIsItalic: isSelectedDefault[0]?.mainHeadingIsItalicSD,
+              recurringOnGoingHeadingIsBold:
+                isSelectedDefault[0]?.recurringOnGoingHeadingIsBoldSD,
+              recurringOnGoingHeadingIsItalic:
+                isSelectedDefault[0]?.recurringOnGoingHeadingIsItalicSD,
+              oneOffAdhocHeadingIsBold:
+                isSelectedDefault[0]?.oneOffAdhocHeadingIsBoldSD,
+              oneOffAdhocHeadingIsItalic:
+                isSelectedDefault[0]?.oneOffAdhocHeadingIsItalicSD,
+            }));
+            setStatementOfFactsObj((prev) => ({
+              ...prev,
+              mainHeading: isSelectedDefault[0]?.mainHeadingSOF,
+              recurringOnGoingHeading:
+                isSelectedDefault[0]?.recurringOnGoingHeadingSOF,
+              oneOffAdhocHeading: isSelectedDefault[0]?.oneOffAdhocHeadingSOF,
+              mainHeadingFontSize: isSelectedDefault[0]?.mainHeadingFontSizeSOF,
+              recurringOnGoingHeadingFontSize:
+                isSelectedDefault[0]?.recurringOnGoingHeadingFontSizeSOF,
+              oneOffAdhocFontSize: isSelectedDefault[0]?.oneOffAdhocFontSizeSOF,
+              mainHeadingIsBold: isSelectedDefault[0]?.mainHeadingIsBoldSOF,
+              mainHeadingIsItalic: isSelectedDefault[0]?.mainHeadingIsItalicSOF,
+              recurringOnGoingHeadingIsBold:
+                isSelectedDefault[0]?.recurringOnGoingHeadingIsBoldSOF,
+              recurringOnGoingHeadingIsItalic:
+                isSelectedDefault[0]?.recurringOnGoingHeadingIsItalicSOF,
+              oneOffAdhocHeadingIsBold:
+                isSelectedDefault[0]?.oneOffAdhocHeadingIsBoldSOF,
+              oneOffAdhocHeadingIsItalic:
+                isSelectedDefault[0]?.oneOffAdhocHeadingIsItalicSOF,
+            }));
           }
         } else {
           // Update non-template fields only
@@ -12855,6 +13292,54 @@ const Add_Update_Engagement_Letter = () => {
               updateVisibleFieldsFromIds(
                 isSelectedDefault[0]?.pricingTableColumnIDs
               );
+              setServiceDescriptionObj((prev) => ({
+                ...prev,
+                mainHeading: isSelectedDefault[0]?.mainHeadingSD,
+                recurringOnGoingHeading:
+                  isSelectedDefault[0]?.recurringOnGoingHeadingSD,
+                oneOffAdhocHeading: isSelectedDefault[0]?.oneOffAdhocHeadingSD,
+                mainHeadingFontSize:
+                  isSelectedDefault[0]?.mainHeadingFontSizeSD,
+                recurringOnGoingHeadingFontSize:
+                  isSelectedDefault[0]?.recurringOnGoingHeadingFontSizeSD,
+                oneOffAdhocFontSize:
+                  isSelectedDefault[0]?.oneOffAdhocFontSizeSD,
+                mainHeadingIsBold: isSelectedDefault[0]?.mainHeadingIsBoldSD,
+                mainHeadingIsItalic:
+                  isSelectedDefault[0]?.mainHeadingIsItalicSD,
+                recurringOnGoingHeadingIsBold:
+                  isSelectedDefault[0]?.recurringOnGoingHeadingIsBoldSD,
+                recurringOnGoingHeadingIsItalic:
+                  isSelectedDefault[0]?.recurringOnGoingHeadingIsItalicSD,
+                oneOffAdhocHeadingIsBold:
+                  isSelectedDefault[0]?.oneOffAdhocHeadingIsBoldSD,
+                oneOffAdhocHeadingIsItalic:
+                  isSelectedDefault[0]?.oneOffAdhocHeadingIsItalicSD,
+              }));
+              setStatementOfFactsObj((prev) => ({
+                ...prev,
+                mainHeading: isSelectedDefault[0]?.mainHeadingSOF,
+                recurringOnGoingHeading:
+                  isSelectedDefault[0]?.recurringOnGoingHeadingSOF,
+                oneOffAdhocHeading: isSelectedDefault[0]?.oneOffAdhocHeadingSOF,
+                mainHeadingFontSize:
+                  isSelectedDefault[0]?.mainHeadingFontSizeSOF,
+                recurringOnGoingHeadingFontSize:
+                  isSelectedDefault[0]?.recurringOnGoingHeadingFontSizeSOF,
+                oneOffAdhocFontSize:
+                  isSelectedDefault[0]?.oneOffAdhocFontSizeSOF,
+                mainHeadingIsBold: isSelectedDefault[0]?.mainHeadingIsBoldSOF,
+                mainHeadingIsItalic:
+                  isSelectedDefault[0]?.mainHeadingIsItalicSOF,
+                recurringOnGoingHeadingIsBold:
+                  isSelectedDefault[0]?.recurringOnGoingHeadingIsBoldSOF,
+                recurringOnGoingHeadingIsItalic:
+                  isSelectedDefault[0]?.recurringOnGoingHeadingIsItalicSOF,
+                oneOffAdhocHeadingIsBold:
+                  isSelectedDefault[0]?.oneOffAdhocHeadingIsBoldSOF,
+                oneOffAdhocHeadingIsItalic:
+                  isSelectedDefault[0]?.oneOffAdhocHeadingIsItalicSOF,
+              }));
             }
           } else {
             setEngagementObj({
@@ -12885,6 +13370,54 @@ const Add_Update_Engagement_Letter = () => {
               updateVisibleFieldsFromIds(
                 isSelectedDefault[0]?.pricingTableColumnIDs
               );
+              setServiceDescriptionObj((prev) => ({
+                ...prev,
+                mainHeading: isSelectedDefault[0]?.mainHeadingSD,
+                recurringOnGoingHeading:
+                  isSelectedDefault[0]?.recurringOnGoingHeadingSD,
+                oneOffAdhocHeading: isSelectedDefault[0]?.oneOffAdhocHeadingSD,
+                mainHeadingFontSize:
+                  isSelectedDefault[0]?.mainHeadingFontSizeSD,
+                recurringOnGoingHeadingFontSize:
+                  isSelectedDefault[0]?.recurringOnGoingHeadingFontSizeSD,
+                oneOffAdhocFontSize:
+                  isSelectedDefault[0]?.oneOffAdhocFontSizeSD,
+                mainHeadingIsBold: isSelectedDefault[0]?.mainHeadingIsBoldSD,
+                mainHeadingIsItalic:
+                  isSelectedDefault[0]?.mainHeadingIsItalicSD,
+                recurringOnGoingHeadingIsBold:
+                  isSelectedDefault[0]?.recurringOnGoingHeadingIsBoldSD,
+                recurringOnGoingHeadingIsItalic:
+                  isSelectedDefault[0]?.recurringOnGoingHeadingIsItalicSD,
+                oneOffAdhocHeadingIsBold:
+                  isSelectedDefault[0]?.oneOffAdhocHeadingIsBoldSD,
+                oneOffAdhocHeadingIsItalic:
+                  isSelectedDefault[0]?.oneOffAdhocHeadingIsItalicSD,
+              }));
+              setStatementOfFactsObj((prev) => ({
+                ...prev,
+                mainHeading: isSelectedDefault[0]?.mainHeadingSOF,
+                recurringOnGoingHeading:
+                  isSelectedDefault[0]?.recurringOnGoingHeadingSOF,
+                oneOffAdhocHeading: isSelectedDefault[0]?.oneOffAdhocHeadingSOF,
+                mainHeadingFontSize:
+                  isSelectedDefault[0]?.mainHeadingFontSizeSOF,
+                recurringOnGoingHeadingFontSize:
+                  isSelectedDefault[0]?.recurringOnGoingHeadingFontSizeSOF,
+                oneOffAdhocFontSize:
+                  isSelectedDefault[0]?.oneOffAdhocFontSizeSOF,
+                mainHeadingIsBold: isSelectedDefault[0]?.mainHeadingIsBoldSOF,
+                mainHeadingIsItalic:
+                  isSelectedDefault[0]?.mainHeadingIsItalicSOF,
+                recurringOnGoingHeadingIsBold:
+                  isSelectedDefault[0]?.recurringOnGoingHeadingIsBoldSOF,
+                recurringOnGoingHeadingIsItalic:
+                  isSelectedDefault[0]?.recurringOnGoingHeadingIsItalicSOF,
+                oneOffAdhocHeadingIsBold:
+                  isSelectedDefault[0]?.oneOffAdhocHeadingIsBoldSOF,
+                oneOffAdhocHeadingIsItalic:
+                  isSelectedDefault[0]?.oneOffAdhocHeadingIsItalicSOF,
+              }));
             }
           }
         }
@@ -17406,7 +17939,6 @@ const Add_Update_Engagement_Letter = () => {
   };
 
   const handleResendQuote = async () => {
-    debugger;
     setLoader(true);
     try {
       const res = await ResendContract(contractKeyIDFromAPI, common.userKeyID);
@@ -17874,6 +18406,10 @@ const Add_Update_Engagement_Letter = () => {
       quoteID: engagementObj.quoteID,
       contractPDFUrl: MergePdfUrl,
       templateID: engagementObj.templateID,
+      serviceDescription: serviceDescriptionHTML
+        ? serviceDescriptionHTML
+        : null, //SD HTML
+      statementOfFacts: statementOfFactsHTML ? statementOfFactsHTML : null, //SOF HTML
       customizedEmailContent: updatedTemplateList,
       templatePDFKeyIDs: engagementObj.selectedAttachments,
       tnCTemplateID:
@@ -20209,36 +20745,38 @@ const Add_Update_Engagement_Letter = () => {
               )}
               {activeTab === EngagementLetterHeader.SelectServices && (
                 <Suspense>
-                <SelectServices
-                  DisableTabOnChange={DisableTabOnChange}
-                  oneOffObj={oneOffObj}
-                  requireMessage={requireMessage}
-                  setOneOffObj={setOneOffObj}
-                  recurringObj={recurringObj}
-                  formatValue={formatValue}
-                  setOneOffPricingInfo={setOneOffPricingInfo}
-                  OneOffPricingInfo={OneOffPricingInfo}
-                  setRecurringPricingInfo={setRecurringPricingInfo}
-                  setRecurringFrequencyPricingInfo={
-                    setRecurringFrequencyPricingInfo
-                  }
-                  hasHyphenAfterNumber={hasHyphenAfterNumber}
-                  RecurringFrequencyPricingInfo={RecurringFrequencyPricingInfo}
-                  RecurringPricingInfo={RecurringPricingInfo}
-                  setRecurringObj={setRecurringObj}
-                  recurringServiceList={recurringServiceList}
-                  setRecurringServiceList={setRecurringServiceList}
-                  setOneOffServiceList={setOneOffServiceList}
-                  oneOffServiceList={oneOffServiceList}
-                  recurringError={recurringError}
-                  moduleName={"Contract"}
-                  setRecurringError={setRecurringError}
-                  getCrudButtonTextName={getCrudButtonTextName}
-                  getCrudPopUpTitleName={getCrudPopUpTitleName}
-                  HandleTabChange={HandleTabChange}
-                  handleCancel={handleCancel}
-                  HandleBack={HandleBack}
-                />
+                  <SelectServices
+                    DisableTabOnChange={DisableTabOnChange}
+                    oneOffObj={oneOffObj}
+                    requireMessage={requireMessage}
+                    setOneOffObj={setOneOffObj}
+                    recurringObj={recurringObj}
+                    formatValue={formatValue}
+                    setOneOffPricingInfo={setOneOffPricingInfo}
+                    OneOffPricingInfo={OneOffPricingInfo}
+                    setRecurringPricingInfo={setRecurringPricingInfo}
+                    setRecurringFrequencyPricingInfo={
+                      setRecurringFrequencyPricingInfo
+                    }
+                    hasHyphenAfterNumber={hasHyphenAfterNumber}
+                    RecurringFrequencyPricingInfo={
+                      RecurringFrequencyPricingInfo
+                    }
+                    RecurringPricingInfo={RecurringPricingInfo}
+                    setRecurringObj={setRecurringObj}
+                    recurringServiceList={recurringServiceList}
+                    setRecurringServiceList={setRecurringServiceList}
+                    setOneOffServiceList={setOneOffServiceList}
+                    oneOffServiceList={oneOffServiceList}
+                    recurringError={recurringError}
+                    moduleName={"Contract"}
+                    setRecurringError={setRecurringError}
+                    getCrudButtonTextName={getCrudButtonTextName}
+                    getCrudPopUpTitleName={getCrudPopUpTitleName}
+                    HandleTabChange={HandleTabChange}
+                    handleCancel={handleCancel}
+                    HandleBack={HandleBack}
+                  />
                 </Suspense>
               )}
               {activeTab === EngagementLetterHeader.AdditionalInformation && (
@@ -20376,6 +20914,8 @@ const Add_Update_Engagement_Letter = () => {
                   showSelectTemplateModal={showSelectTemplateModal}
                   setServiceTypeID={setServiceTypeID}
                   visibleFieldsCustomTemp={visibleFieldsCustomTemp}
+                  statementOfFactsObj={statementOfFactsObj}
+                  serviceDescriptionObj={serviceDescriptionObj}
                 />
               )}
               {activeTab === EngagementLetterHeader.ReviewServices && (
@@ -20450,135 +20990,137 @@ const Add_Update_Engagement_Letter = () => {
                   showSelectTemplateModal={showSelectTemplateModal}
                   setServiceTypeID={setServiceTypeID}
                   visibleFieldsCustomTemp={visibleFieldsCustomTemp}
+                  statementOfFactsObj={statementOfFactsObj}
+                  serviceDescriptionObj={serviceDescriptionObj}
                 />
               )}
               <Suspense>
-              <PricingTableTemplatesModal
-                show={showSelectTemplateModal}
-                onHide={() => setShowSelectTemplateModal(false)}
-                setSelectedTemplateID={setSelectedTemplateID}
-                setSelectedTemplateIDOneOff={setSelectedTemplateIDOneOff}
-                selectedTemplateID={selectedTemplateID}
-                selectedTemplateIDOneOff={selectedTemplateIDOneOff}
-                serviceTypeID={serviceTypeID} //1 for recurring and 2 for one-off
-                selectedRecurringServiceList={selectedRecurringServiceList}
-                setSelectedRecurringServiceList={
-                  setSelectedRecurringServiceList
-                }
-                RecurringPricingInfo={RecurringPricingInfo}
-                ProposalObject={engagementObj}
-                formatValue={formatValue}
-                vatPercentage={vatPercentage}
-                selectedOneOffServiceList={selectedOneOffServiceList}
-                OneOffPricingInfo={OneOffPricingInfo}
-                selectedPackagesList={selectedPackagesList}
-                getValidationMessage={getValidationMessage}
-                requireMessage={requireMessage}
-                pricingSettingObj={pricingSettingObj}
-                setSelectedOneOffServiceList={setSelectedOneOffServiceList}
-                hasHyphenAfterNumber={hasHyphenAfterNumber}
-                GetSingleDefaultDiscountPercentageOfPackages={
-                  GetSingleDefaultDiscountPercentageOfPackages
-                }
-                setRecurringPricingInfo={setRecurringPricingInfo}
-                setRecurringFrequencyPricingInfo={
-                  setRecurringFrequencyPricingInfo
-                }
-                RecurringFrequencyPricingInfo={RecurringFrequencyPricingInfo}
-                OneOffPricingInfoCopy={OneOffPricingInfoCopy}
-                setOneOffPricingInfoCopy={setOneOffPricingInfoCopy}
-                setOneOffPricingInfo={setOneOffPricingInfo}
-                setVisibleFieldsCustomTemp={setVisibleFieldsCustomTemp}
-                visibleFieldsCustomTemp={visibleFieldsCustomTemp}
-                vatPercentageOneOff={vatPercentageOneOff}
-              />
-              </Suspense>
-              {activeTab === EngagementLetterHeader.Preview && (
-                <Suspense>
-                <PreviewComponentPdf
-                  isDefaultFirstPage={isDefaultFirstPage}
-                  common={common}
-                  setRequireMessage={setRequireMessage}
-                  DocumentCode={DocumentCode}
-                  BrandColor={BrandColor}
-                  Logo={CompanyLogo}
-                  fontFamily={fontFamily}
-                  fontSize={fontSize}
-                  selectedPackages={
-                    engagementObj.selectSourceId === 3 ||
-                    engagementObj.selectSourceId === 4
-                      ? [engagementObj.acceptedServicePackageID]
-                      : null
-                  }
-                  formatValueWithoutCurrencySymbol={
-                    formatValueWithoutCurrencySymbol
-                  }
-                  formatValueWithoutCurrencySymbol_v1={
-                    formatValueWithoutCurrencySymbol_v1
-                  }
-                  selectedPackagesList={selectedPackagesList}
-                  lastPaymentFrequencyAndDiscountedPriceForPreview={
-                    lastPaymentFrequencyAndDiscountedPriceForPreview
-                  }
-                  formatValue={formatValue}
-                  setLastPaymentFrequencyAndDiscountedPriceForPreview={
-                    setLastPaymentFrequencyAndDiscountedPriceForPreview
-                  }
-                  setLastPaymentFrequencyAndDiscountedPriceForPreviewForoneoff={
-                    setLastPaymentFrequencyAndDiscountedPriceForPreviewForOneOff
-                  }
-                  lastPaymentFrequencyAndDiscountedPriceForPreviewForoneoff={
-                    lastPaymentFrequencyAndDiscountedPriceForPreviewForOneOff
-                  }
-                  currencyID={currencyID}
-                  currencySymbol={currencySymbol}
-                  taxName={taxName}
-                  RecurringPricingInfo={RecurringPricingInfo}
-                  OneOffPricingInfo={OneOffPricingInfo}
-                  vatPercentage={vatPercentage}
-                  DiscountLines={engagementObj.DiscountLines}
-                  updatedTnCData={updatedTnCData}
-                  selectedRecurringServiceList={selectedRecurringServiceList}
-                  selectedOneOffServiceList={selectedOneOffServiceList}
-                  templateElementList={templateElementList}
-                  additionalInformationList={additionalInformationList}
-                  // engagementObj={engagementObj}
-                  pdf={engagementObj.pdf}
-                  ProposalObject={engagementObj}
-                  getCrudButtonTextName={getCrudButtonTextName}
-                  getCrudPopUpTitleName={getCrudPopUpTitleName}
-                  organisationData={organisationData}
-                  setEngagementObj={setEngagementObj}
-                  quoteAdditionalInfoGlobalPricingDriver={
-                    quoteAdditionalInfoGlobalPricingDriver
-                  }
-                  setServicePackageName={setServicePackageName}
-                  servicePackageName={servicePackageName}
-                  moduleName={"Contract"}
-                  feeTypeId={engagementObj.feeTypeId}
-                  HandleBack={HandleBack}
-                  MergePdfUrl={MergePdfUrl}
-                  setMergePdfUrl={setMergePdfUrl}
-                  handleSaveAsDraft={HandleTabChange}
-                  HandleTabChange={HandleTabChange}
-                  handleCancelBtn={handleCancel}
-                  requireMessage={requireMessage}
-                  contractSignatoriesList={contractSignatoriesList}
-                  headerContent={headerContent}
-                  footerContent={footerContent}
-                  headerImage={headerImage}
-                  footerImage={footerImage}
-                  headerHeight={headerHeight}
-                  footerHeight={footerHeight}
-                  watermarkImage={watermarkImage}
-                  showSeparatorLines={showSeparatorLines}
-                  serviceDescriptionHTML={serviceDescriptionHTML}
-                  statementOfFactsHTML={statementOfFactsHTML}
-                  selectedTemplateIDOneOff={selectedTemplateIDOneOff}
+                <PricingTableTemplatesModal
+                  show={showSelectTemplateModal}
+                  onHide={() => setShowSelectTemplateModal(false)}
+                  setSelectedTemplateID={setSelectedTemplateID}
+                  setSelectedTemplateIDOneOff={setSelectedTemplateIDOneOff}
                   selectedTemplateID={selectedTemplateID}
+                  selectedTemplateIDOneOff={selectedTemplateIDOneOff}
+                  serviceTypeID={serviceTypeID} //1 for recurring and 2 for one-off
+                  selectedRecurringServiceList={selectedRecurringServiceList}
+                  setSelectedRecurringServiceList={
+                    setSelectedRecurringServiceList
+                  }
+                  RecurringPricingInfo={RecurringPricingInfo}
+                  ProposalObject={engagementObj}
+                  formatValue={formatValue}
+                  vatPercentage={vatPercentage}
+                  selectedOneOffServiceList={selectedOneOffServiceList}
+                  OneOffPricingInfo={OneOffPricingInfo}
+                  selectedPackagesList={selectedPackagesList}
+                  getValidationMessage={getValidationMessage}
+                  requireMessage={requireMessage}
+                  pricingSettingObj={pricingSettingObj}
+                  setSelectedOneOffServiceList={setSelectedOneOffServiceList}
+                  hasHyphenAfterNumber={hasHyphenAfterNumber}
+                  GetSingleDefaultDiscountPercentageOfPackages={
+                    GetSingleDefaultDiscountPercentageOfPackages
+                  }
+                  setRecurringPricingInfo={setRecurringPricingInfo}
+                  setRecurringFrequencyPricingInfo={
+                    setRecurringFrequencyPricingInfo
+                  }
+                  RecurringFrequencyPricingInfo={RecurringFrequencyPricingInfo}
+                  OneOffPricingInfoCopy={OneOffPricingInfoCopy}
+                  setOneOffPricingInfoCopy={setOneOffPricingInfoCopy}
+                  setOneOffPricingInfo={setOneOffPricingInfo}
+                  setVisibleFieldsCustomTemp={setVisibleFieldsCustomTemp}
                   visibleFieldsCustomTemp={visibleFieldsCustomTemp}
                   vatPercentageOneOff={vatPercentageOneOff}
                 />
+              </Suspense>
+              {activeTab === EngagementLetterHeader.Preview && (
+                <Suspense>
+                  <PreviewComponentPdf
+                    isDefaultFirstPage={isDefaultFirstPage}
+                    common={common}
+                    setRequireMessage={setRequireMessage}
+                    DocumentCode={DocumentCode}
+                    BrandColor={BrandColor}
+                    Logo={CompanyLogo}
+                    fontFamily={fontFamily}
+                    fontSize={fontSize}
+                    selectedPackages={
+                      engagementObj.selectSourceId === 3 ||
+                      engagementObj.selectSourceId === 4
+                        ? [engagementObj.acceptedServicePackageID]
+                        : null
+                    }
+                    formatValueWithoutCurrencySymbol={
+                      formatValueWithoutCurrencySymbol
+                    }
+                    formatValueWithoutCurrencySymbol_v1={
+                      formatValueWithoutCurrencySymbol_v1
+                    }
+                    selectedPackagesList={selectedPackagesList}
+                    lastPaymentFrequencyAndDiscountedPriceForPreview={
+                      lastPaymentFrequencyAndDiscountedPriceForPreview
+                    }
+                    formatValue={formatValue}
+                    setLastPaymentFrequencyAndDiscountedPriceForPreview={
+                      setLastPaymentFrequencyAndDiscountedPriceForPreview
+                    }
+                    setLastPaymentFrequencyAndDiscountedPriceForPreviewForoneoff={
+                      setLastPaymentFrequencyAndDiscountedPriceForPreviewForOneOff
+                    }
+                    lastPaymentFrequencyAndDiscountedPriceForPreviewForoneoff={
+                      lastPaymentFrequencyAndDiscountedPriceForPreviewForOneOff
+                    }
+                    currencyID={currencyID}
+                    currencySymbol={currencySymbol}
+                    taxName={taxName}
+                    RecurringPricingInfo={RecurringPricingInfo}
+                    OneOffPricingInfo={OneOffPricingInfo}
+                    vatPercentage={vatPercentage}
+                    DiscountLines={engagementObj.DiscountLines}
+                    updatedTnCData={updatedTnCData}
+                    selectedRecurringServiceList={selectedRecurringServiceList}
+                    selectedOneOffServiceList={selectedOneOffServiceList}
+                    templateElementList={templateElementList}
+                    additionalInformationList={additionalInformationList}
+                    // engagementObj={engagementObj}
+                    pdf={engagementObj.pdf}
+                    ProposalObject={engagementObj}
+                    getCrudButtonTextName={getCrudButtonTextName}
+                    getCrudPopUpTitleName={getCrudPopUpTitleName}
+                    organisationData={organisationData}
+                    setEngagementObj={setEngagementObj}
+                    quoteAdditionalInfoGlobalPricingDriver={
+                      quoteAdditionalInfoGlobalPricingDriver
+                    }
+                    setServicePackageName={setServicePackageName}
+                    servicePackageName={servicePackageName}
+                    moduleName={"Contract"}
+                    feeTypeId={engagementObj.feeTypeId}
+                    HandleBack={HandleBack}
+                    MergePdfUrl={MergePdfUrl}
+                    setMergePdfUrl={setMergePdfUrl}
+                    handleSaveAsDraft={HandleTabChange}
+                    HandleTabChange={HandleTabChange}
+                    handleCancelBtn={handleCancel}
+                    requireMessage={requireMessage}
+                    contractSignatoriesList={contractSignatoriesList}
+                    headerContent={headerContent}
+                    footerContent={footerContent}
+                    headerImage={headerImage}
+                    footerImage={footerImage}
+                    headerHeight={headerHeight}
+                    footerHeight={footerHeight}
+                    watermarkImage={watermarkImage}
+                    showSeparatorLines={showSeparatorLines}
+                    serviceDescriptionHTML={serviceDescriptionHTML}
+                    statementOfFactsHTML={statementOfFactsHTML}
+                    selectedTemplateIDOneOff={selectedTemplateIDOneOff}
+                    selectedTemplateID={selectedTemplateID}
+                    visibleFieldsCustomTemp={visibleFieldsCustomTemp}
+                    vatPercentageOneOff={vatPercentageOneOff}
+                  />
                 </Suspense>
               )}
             </div>

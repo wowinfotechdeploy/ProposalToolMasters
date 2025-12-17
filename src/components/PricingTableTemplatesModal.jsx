@@ -9123,8 +9123,38 @@ const PricingTableTemplatesModal = ({
                                 {driverList.length > 0
                                   ? driverList.map((d, i) => (
                                       <div key={i}>
-                                        {d.driverName} = {d.driverValue}
-                                        {i !== driverList.length - 1 && ", "}
+                                        {d.variation === null ? (
+                                          <>
+                                            {d.driverName} = {d.driverValue}
+                                            {i !== driverList.length - 1 &&
+                                              "; "}
+                                          </>
+                                        ) : (
+                                          (() => {
+                                            const matched = d.variation.find(
+                                              (v) =>
+                                                Number(v.variationValue) ===
+                                                Number(d.driverValue)
+                                            );
+
+                                            return (
+                                              <>
+                                                {d.driverName} ={" "}
+                                                {matched
+                                                  ? matched.variationName
+                                                  : ""}
+                                                {i !== driverList.length - 1 &&
+                                                  "; "}
+                                              </>
+                                            );
+                                          })()
+                                        )}
+
+                                        {/* {d.driverName} ={" "}
+                                                      {d.driverValue}
+                                                      {i !==
+                                                        driverList.length - 1 &&
+                                                        "; "} */}
                                       </div>
                                     ))
                                   : "-"}
@@ -9408,8 +9438,37 @@ const PricingTableTemplatesModal = ({
                               {driverList.length > 0
                                 ? driverList.map((d, i) => (
                                     <div key={i}>
-                                      {d.driverName} = {d.driverValue}
-                                      {i !== driverList.length - 1 && ", "}
+                                      {d.variation === null ? (
+                                        <>
+                                          {d.driverName} = {d.driverValue}
+                                          {i !== driverList.length - 1 && "; "}
+                                        </>
+                                      ) : (
+                                        (() => {
+                                          const matched = d.variation.find(
+                                            (v) =>
+                                              Number(v.variationValue) ===
+                                              Number(d.driverValue)
+                                          );
+
+                                          return (
+                                            <>
+                                              {d.driverName} ={" "}
+                                              {matched
+                                                ? matched.variationName
+                                                : ""}
+                                              {i !== driverList.length - 1 &&
+                                                "; "}
+                                            </>
+                                          );
+                                        })()
+                                      )}
+
+                                      {/* {d.driverName} ={" "}
+                                                      {d.driverValue}
+                                                      {i !==
+                                                        driverList.length - 1 &&
+                                                        "; "} */}
                                     </div>
                                   ))
                                 : "-"}
