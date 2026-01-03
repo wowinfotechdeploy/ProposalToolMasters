@@ -217,6 +217,7 @@ function PdfToCsvConvertorModel(props) {
         setOpenSuccessModal(true);
       } else {
         setLoader(false);
+        setIsConverting(false);
         setOpenCurruptedFileModal(true);
         handleRemoveFile();
         setErrorMessage(res.response.data.errorMessage);

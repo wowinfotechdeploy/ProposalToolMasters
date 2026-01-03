@@ -57,7 +57,7 @@ export default function PreviewComponentPdf(props) {
     replaceUrlInHtml,
     getCurrencySymbol,
     activeOrganizationSubscriptionPlan,
-    convertAndParseDate
+    convertAndParseDate,
   } = useContext(AuthContextProvider);
   // console.log(orientationID);
   const [totalOnePackageValue, setTotalOnePackageValue] = useState(0);
@@ -308,9 +308,11 @@ export default function PreviewComponentPdf(props) {
   const FooterHeight = props.footerHeight;
   const WatermarkImage = props.watermarkImage;
   const orientationID = props.orientationID;
-  const headerFooterFirstPage = props?.isDefaultFirstPage ? props?.headerFooterFirstPage : null;
+  const headerFooterFirstPage = props?.isDefaultFirstPage
+    ? props?.headerFooterFirstPage
+    : null;
   const headerFooterLastPage = props?.headerFooterLastPage;
-  const [landscapeMode,setLandscapeMode] = useState(orientationID === 2);
+  const [landscapeMode, setLandscapeMode] = useState(orientationID === 2);
   console.log(WatermarkImage);
   console.log(props?.pdf);
   const showSeparatorLines = props.showSeparatorLines;
@@ -1418,7 +1420,7 @@ export default function PreviewComponentPdf(props) {
       showSeparatorLines: showSeparatorLines,
       landscapeMode: landscapeMode,
       headerFooterFirstPage: headerFooterFirstPage,
-      headerFooterLastPage: headerFooterLastPage
+      headerFooterLastPage: headerFooterLastPage,
     };
 
     try {
@@ -2119,6 +2121,8 @@ export default function PreviewComponentPdf(props) {
                   {
                     textbox: `
       <div style="
+        padding-left: 40px; 
+        padding-right: 40px; 
         page-break-after: always;
       ">
         ${coloredHtmlContent}
@@ -2132,6 +2136,8 @@ export default function PreviewComponentPdf(props) {
                   {
                     textbox: `
       <div style="
+        padding-left: 40px; 
+        padding-right: 40px; 
         page-break-after: always;
       ">
         ${coloredHtmlContent}
@@ -6355,7 +6361,7 @@ ${
 
         ${serviceCat.servicesList
           .map((subService) => {
-            const price = subService.price || 0;
+            const price = Number(subService.price) || 0;
             const vat = (price * subService.service_vat_percentage) / 100;
             const total = price + vat;
             const driverList = subService.pricingDriverList || [];
@@ -6435,7 +6441,7 @@ ${
       ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word;">
           ${
             props.ProposalObject.feeTypeId === 1
-              ? props.formatValue(total)
+              ? props.formatValue(price + Number(subService.service_vat_amount))
               : "&#10003;"
           }
         </td>`
@@ -7145,7 +7151,7 @@ ${
               prevElementType === ElementType.PAGE_BREAK ||
               prevElementType === ElementType.AWS_PDF_LINK
             ) {
-              if (props?.updatedTnCData || props?.pdf) {
+              if (props?.updatedTnCData || props?.engagementObj?.pdf) {
                 if (
                   props?.updatedTnCData !== null &&
                   props?.updatedTnCData !== undefined
@@ -7156,19 +7162,19 @@ ${
                       <div style="padding-left: 40px; padding-right: 40px;">${appliedFontTNCContent}</div>`,
                   });
                 } else if (
-                  props?.pdf !== null ||
+                  props?.engagementObj?.pdf !== null ||
                   props?.updatedTnCData === null
                 ) {
                   pdfDataArray.push(currentArray);
                   currentArray = [];
                   currentArray.push({
-                    ["awsLink"]: props.pdf,
+                    ["awsLink"]: props.engagementObj.pdf,
                   });
                 }
               }
             } else {
               pdfDataArray.push(currentArray);
-              if (props?.updatedTnCData || props?.pdf) {
+              if (props?.updatedTnCData || props?.engagementObj?.pdf) {
                 if (
                   props?.updatedTnCData !== null &&
                   props?.updatedTnCData !== undefined
@@ -7181,12 +7187,12 @@ ${
                     },
                   ];
                 } else if (
-                  props?.pdf !== null ||
+                  props?.engagementObj?.pdf !== null ||
                   props?.updatedTnCData === null
                 ) {
                   currentArray = [
                     {
-                      ["awsLink"]: props?.pdf,
+                      ["awsLink"]: props.engagementObj.pdf,
                     },
                   ];
                 }
@@ -7207,7 +7213,7 @@ ${
                   prevElementType === ElementType.PAGE_BREAK ||
                   prevElementType === ElementType.AWS_PDF_LINK
                 ) {
-                  if (props?.updatedTnCData || props?.pdf) {
+                  if (props?.updatedTnCData || props?.engagementObj?.pdf) {
                     if (
                       props?.updatedTnCData !== null &&
                       props?.updatedTnCData !== undefined
@@ -7218,19 +7224,19 @@ ${
                         <div style="padding-left: 40px; padding-right: 40px;">${appliedFontTNCContent}</div>`,
                       });
                     } else if (
-                      props?.pdf !== null ||
+                      props?.engagementObj?.pdf !== null ||
                       props?.updatedTnCData === null
                     ) {
                       pdfDataArray.push(currentArray);
                       currentArray = [];
                       currentArray.push({
-                        ["awsLink"]: props?.pdf,
+                        ["awsLink"]: props.engagementObj.pdf,
                       });
                     }
                   }
                 } else {
                   pdfDataArray.push(currentArray);
-                  if (props?.updatedTnCData || props?.pdf) {
+                  if (props?.updatedTnCData || props?.engagementObj?.pdf) {
                     if (
                       props?.updatedTnCData !== null &&
                       props?.updatedTnCData !== undefined
@@ -7243,12 +7249,12 @@ ${
                         },
                       ];
                     } else if (
-                      props?.pdf !== null ||
+                      props?.engagementObj?.pdf !== null ||
                       props?.updatedTnCData === null
                     ) {
                       currentArray = [
                         {
-                          ["awsLink"]: props?.pdf,
+                          ["awsLink"]: props.engagementObj.pdf,
                         },
                       ];
                     }
@@ -7502,14 +7508,14 @@ ${
               </Suspense>
             ) : (
               <>
-              <iframe
-                title="PDF Viewer"
-                src={MergePdfUrl}
-                // width="100%"
-                // height="700px"
-                style={{ width: "100%", height: "100vh", border: "none" }}
-                loading="lazy"
-              ></iframe>
+                <iframe
+                  title="PDF Viewer"
+                  src={MergePdfUrl}
+                  // width="100%"
+                  // height="700px"
+                  style={{ width: "100%", height: "100vh", border: "none" }}
+                  loading="lazy"
+                ></iframe>
               </>
             ))}
 

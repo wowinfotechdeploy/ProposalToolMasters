@@ -35,7 +35,7 @@ function AcceptInvitation() {
   const [isDefaultFirstPage, setIsDefaultFirstPage] = useState(null);
   const [fontFamily, setFontFamily] = useState("");
   const [fontSize, setFontSize] = useState("");
-  const [showSeparatorLines,setShowSeparatorLines] = useState(null);
+  const [showSeparatorLines, setShowSeparatorLines] = useState(null);
   const [recurringServiceCatList, setRecurringServiceCatList] = useState([]);
   const [oneOffServiceCatList, setOneOffServiceCatList] = useState([]);
   const [serviceDescriptionList, setServiceDescriptionList] = useState([]);
@@ -293,8 +293,26 @@ function AcceptInvitation() {
   //Generate Pdf Array and objects
   useEffect(() => {
     const currencyID = organisationData?.otherInformation?.[0]?.currencyID;
-    const taxName = currencyID === 1 ? "VAT" : currencyID === 2 ? "EU VAT" : currencyID === 3 ? "Salex Tax" : currencyID === 4 ? "GST" : "";
-    const currencySymbol = currencyID === 1 ? "£" : currencyID === 2 ? "€" : currencyID === 3 ? "$" : currencyID === 4 ? "₹" : "";
+    const taxName =
+      currencyID === 1
+        ? "VAT"
+        : currencyID === 2
+        ? "EU VAT"
+        : currencyID === 3
+        ? "Salex Tax"
+        : currencyID === 4
+        ? "GST"
+        : "";
+    const currencySymbol =
+      currencyID === 1
+        ? "£"
+        : currencyID === 2
+        ? "€"
+        : currencyID === 3
+        ? "$"
+        : currencyID === 4
+        ? "₹"
+        : "";
     if (templateElementList) {
       const pdfDataArray = [];
       let currentArray = [];
@@ -362,7 +380,10 @@ function AcceptInvitation() {
                                        //formatValue(pricingDriver.driverValue)
                                        pricingDriver.driverTypeID === 2
                                          ? Number(pricingDriver.driverValue)
-                                             .toFixed(pricingDriver.quantityDecimalPlaces ?? 2)
+                                             .toFixed(
+                                               pricingDriver.quantityDecimalPlaces ??
+                                                 2
+                                             )
                                              .toString()
                                              .replace(
                                                /\B(?=(\d{3})+(?!\d))/g,
@@ -376,7 +397,10 @@ function AcceptInvitation() {
                                                pricingDriver.driverValue
                                              )
                                            : Number(pricingDriver.slabFrom)
-                                               .toFixed(pricingDriver.decimalPlaces ?? 2)
+                                               .toFixed(
+                                                 pricingDriver.decimalPlaces ??
+                                                   2
+                                               )
                                                .toString()
                                                .replace(
                                                  /\B(?=(\d{3})+(?!\d))/g,
@@ -384,14 +408,19 @@ function AcceptInvitation() {
                                                ) +
                                              "-" +
                                              Number(pricingDriver.slabTo)
-                                               .toFixed(pricingDriver.decimalPlaces ?? 2)
+                                               .toFixed(
+                                                 pricingDriver.decimalPlaces ??
+                                                   2
+                                               )
                                                .toString()
                                                .replace(
                                                  /\B(?=(\d{3})+(?!\d))/g,
                                                  ","
                                                )
-                                        : pricingDriver.driverTypeID === 5 ? pricingDriver?.enteredText :
-                                          pricingDriver.driverTypeID === 6 ? pricingDriver?.enteredDate
+                                         : pricingDriver.driverTypeID === 5
+                                         ? pricingDriver?.enteredText
+                                         : pricingDriver.driverTypeID === 6
+                                         ? pricingDriver?.enteredDate
                                          : ""
                                      }</strong>
                                 </span> 
@@ -423,20 +452,34 @@ function AcceptInvitation() {
         <div>
             <p style="font-family:${fontFamily}; color:black; font-size: ${fontSize};">
                 ${serviceCat.driverName}:
-                ${serviceCat.driverTypeID === 4 ? serviceCat.slabTypeID === 2 ? 
-                  `<strong>${formatValueWithoutCurrencySymbol_v1(serviceCat.driverValue)}</strong>` :
-                  `<strong>
-                  ${formatValueWithoutCurrencySymbol_v1(serviceCat.slabFrom,serviceCat.decimalPlaces ?? 2)}
+                ${
+                  serviceCat.driverTypeID === 4
+                    ? serviceCat.slabTypeID === 2
+                      ? `<strong>${formatValueWithoutCurrencySymbol_v1(
+                          serviceCat.driverValue
+                        )}</strong>`
+                      : `<strong>
+                  ${formatValueWithoutCurrencySymbol_v1(
+                    serviceCat.slabFrom,
+                    serviceCat.decimalPlaces ?? 2
+                  )}
                   -
-                  ${formatValueWithoutCurrencySymbol_v1(serviceCat.slabTo,serviceCat.decimalPlaces ?? 2)}
+                  ${formatValueWithoutCurrencySymbol_v1(
+                    serviceCat.slabTo,
+                    serviceCat.decimalPlaces ?? 2
+                  )}
                   </strong>`
-                 : serviceCat.driverTypeID === 3 ? 
-                 `<strong>${serviceCat.variationName}</strong>`
-                 : serviceCat.driverTypeID === 5 ? 
-                 `<strong>${serviceCat.enteredText}</strong>`
-                 : serviceCat.driverTypeID === 6 ?
-                 `<strong>${serviceCat.enteredDate}</strong>`
-                 : `${serviceCat.driverName}: <strong>${formatValueWithoutCurrencySymbol_v1(serviceCat.driverValue)}</strong>`
+                    : serviceCat.driverTypeID === 3
+                    ? `<strong>${serviceCat.variationName}</strong>`
+                    : serviceCat.driverTypeID === 5
+                    ? `<strong>${serviceCat.enteredText}</strong>`
+                    : serviceCat.driverTypeID === 6
+                    ? `<strong>${serviceCat.enteredDate}</strong>`
+                    : `${
+                        serviceCat.driverName
+                      }: <strong>${formatValueWithoutCurrencySymbol_v1(
+                        serviceCat.driverValue
+                      )}</strong>`
                 }
             </p>
         </div>
@@ -692,7 +735,8 @@ function AcceptInvitation() {
                                  ${
                                    feeTypeId == 1
                                      ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;"> ${formatValue(
-                                         subService.quotationPrice,currencyID
+                                         subService.quotationPrice,
+                                         currencyID
                                        )}</td>`
                                      : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
                                  }
@@ -719,8 +763,14 @@ function AcceptInvitation() {
                                             x.netTotal < x.discountedTotal ||
                                             (x.discounted > 0 &&
                                               !ShowDiscountLine)
-                                              ? formatValue(x.discountedTotal,currencyID)
-                                              : formatValue(x.netTotal,currencyID)
+                                              ? formatValue(
+                                                  x.discountedTotal,
+                                                  currencyID
+                                                )
+                                              : formatValue(
+                                                  x.netTotal,
+                                                  currencyID
+                                                )
                                           )
                                           .join("")}
                                     </td>
@@ -744,7 +794,12 @@ function AcceptInvitation() {
                                               x.servicePackageID ===
                                                 packageList[0]?.servicePackageID
                                           )
-                                          .map((x) => formatValue(x.discounted,currencyID))
+                                          .map((x) =>
+                                            formatValue(
+                                              x.discounted,
+                                              currencyID
+                                            )
+                                          )
                                           .join("")}
                                       </td>
                                     </tr>
@@ -761,7 +816,10 @@ function AcceptInvitation() {
                                                packageList[0]?.servicePackageID
                                          )
                                          .map((x) =>
-                                           formatValue(x.discountedTotal,currencyID)
+                                           formatValue(
+                                             x.discountedTotal,
+                                             currencyID
+                                           )
                                          )
                                          .join("")}
                                     </td>
@@ -787,7 +845,9 @@ function AcceptInvitation() {
                                              x.servicePackageID ===
                                                packageList[0]?.servicePackageID
                                          )
-                                         .map((x) => formatValue(x.vat,currencyID))
+                                         .map((x) =>
+                                           formatValue(x.vat, currencyID)
+                                         )
                                          .join("")}
                                     </td>
                                   </tr>
@@ -803,7 +863,9 @@ function AcceptInvitation() {
                                              x.servicePackageID ===
                                                packageList[0]?.servicePackageID
                                          )
-                                         .map((x) => formatValue(x.grandTotal,currencyID))
+                                         .map((x) =>
+                                           formatValue(x.grandTotal, currencyID)
+                                         )
                                          .join("")}
                                     </td>
                                   </tr>`
@@ -852,7 +914,8 @@ function AcceptInvitation() {
                                         ${
                                           feeTypeId == 1
                                             ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;"> ${formatValue(
-                                                subService.quotationPrice,currencyID
+                                                subService.quotationPrice,
+                                                currencyID
                                               )}</td>`
                                             : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
                                         }
@@ -878,8 +941,11 @@ function AcceptInvitation() {
                                        .map((x) =>
                                          x.netTotal < x.discountedTotal ||
                                          (x.discounted > 0 && !ShowDiscountLine)
-                                           ? formatValue(x.discountedTotal,currencyID)
-                                           : formatValue(x.netTotal,currencyID)
+                                           ? formatValue(
+                                               x.discountedTotal,
+                                               currencyID
+                                             )
+                                           : formatValue(x.netTotal, currencyID)
                                        )
                                        .join("")}
                                     </td>
@@ -903,7 +969,12 @@ function AcceptInvitation() {
                                               x.servicePackageID ===
                                                 packageList[0]?.servicePackageID
                                           )
-                                          .map((x) => formatValue(x.discounted,currencyID))
+                                          .map((x) =>
+                                            formatValue(
+                                              x.discounted,
+                                              currencyID
+                                            )
+                                          )
                                           .join("")}
                                       </td>
                                     </tr>
@@ -920,7 +991,10 @@ function AcceptInvitation() {
                                                packageList[0]?.servicePackageID
                                          )
                                          .map((x) =>
-                                           formatValue(x.discountedTotal,currencyID)
+                                           formatValue(
+                                             x.discountedTotal,
+                                             currencyID
+                                           )
                                          )
                                          .join("")}
                                     </td>
@@ -946,7 +1020,9 @@ function AcceptInvitation() {
                                              x.servicePackageID ===
                                                packageList[0]?.servicePackageID
                                          )
-                                         .map((x) => formatValue(x.vat,currencyID))
+                                         .map((x) =>
+                                           formatValue(x.vat, currencyID)
+                                         )
                                          .join("")}
                                     </td>
                                   </tr>
@@ -962,7 +1038,9 @@ function AcceptInvitation() {
                                              x.servicePackageID ===
                                                packageList[0]?.servicePackageID
                                          )
-                                         .map((x) => formatValue(x.grandTotal,currencyID))
+                                         .map((x) =>
+                                           formatValue(x.grandTotal, currencyID)
+                                         )
                                          .join("")}
                                     </td>
                                   </tr>`
@@ -1003,7 +1081,8 @@ function AcceptInvitation() {
                                           ${
                                             feeTypeId == 1
                                               ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;"> ${formatValue(
-                                                  subService.quotationPrice,currencyID
+                                                  subService.quotationPrice,
+                                                  currencyID
                                                 )}</td>`
                                               : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
                                           }
@@ -1024,8 +1103,14 @@ function AcceptInvitation() {
                                        value.netTotal < value.discountedTotal ||
                                        (Number(value?.discounted) > 0 &&
                                          !ShowDiscountLine)
-                                         ? formatValue(value.discountedTotal,currencyID)
-                                         : formatValue(value.netTotal,currencyID)
+                                         ? formatValue(
+                                             value.discountedTotal,
+                                             currencyID
+                                           )
+                                         : formatValue(
+                                             value.netTotal,
+                                             currencyID
+                                           )
                                      }
                                   </td>
                                 </tr>
@@ -1039,7 +1124,10 @@ function AcceptInvitation() {
                                       Discount
                                     </td>
                                     <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: black;">
-                                      (-)  ${formatValue(value?.discounted,currencyID)}
+                                      (-)  ${formatValue(
+                                        value?.discounted,
+                                        currencyID
+                                      )}
                                     </td>
                                   </tr>
                                   <tr style="background-color:#808080;">
@@ -1047,7 +1135,10 @@ function AcceptInvitation() {
                                       Discounted Total
                                     </td>
                                     <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
-                                       ${formatValue(value?.discountedTotal,currencyID)}
+                                       ${formatValue(
+                                         value?.discountedTotal,
+                                         currencyID
+                                       )}
                                     </td>
                                   </tr>`
                                     : ""
@@ -1060,7 +1151,7 @@ function AcceptInvitation() {
                                       ${taxName}
                                     </td>
                                     <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: black;">
-                                       ${formatValue(value?.vat,currencyID)}
+                                       ${formatValue(value?.vat, currencyID)}
                                     </td>
                                   </tr>
                                   <tr style="background-color:#808080;">
@@ -1068,7 +1159,10 @@ function AcceptInvitation() {
                                       Grand Total
                                     </td>
                                     <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
-                                       ${formatValue(value?.grandTotal,currencyID)}
+                                       ${formatValue(
+                                         value?.grandTotal,
+                                         currencyID
+                                       )}
                                     </td>
                                   </tr>`
                                     : ""
@@ -1111,7 +1205,8 @@ function AcceptInvitation() {
                                           ${
                                             feeTypeId == 1
                                               ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;"> ${formatValue(
-                                                  subService.quotationPrice,currencyID
+                                                  subService.quotationPrice,
+                                                  currencyID
                                                 )}</td>`
                                               : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
                                           }
@@ -1134,9 +1229,13 @@ function AcceptInvitation() {
                                              (Number(value?.discounted) > 0 &&
                                                !ShowDiscountLine)
                                                ? formatValue(
-                                                   value.discountedTotal,currencyID
+                                                   value.discountedTotal,
+                                                   currencyID
                                                  )
-                                               : formatValue(value.netTotal,currencyID)
+                                               : formatValue(
+                                                   value.netTotal,
+                                                   currencyID
+                                                 )
                                            }
                                         </td>
                                       </tr>
@@ -1151,7 +1250,8 @@ function AcceptInvitation() {
                                           </td>
                                           <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: black;">
                                             (-)  ${formatValue(
-                                              value.discounted,currencyID
+                                              value.discounted,
+                                              currencyID
                                             )}
                                           </td>
                                         </tr>
@@ -1161,7 +1261,8 @@ function AcceptInvitation() {
                                           </td>
                                           <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
                                              ${formatValue(
-                                               value.discountedTotal,currencyID
+                                               value.discountedTotal,
+                                               currencyID
                                              )}
                                           </td>
                                         </tr>`
@@ -1176,7 +1277,10 @@ function AcceptInvitation() {
                                             ${taxName}
                                           </td>
                                           <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: black;">
-                                             ${formatValue(value.vat,currencyID)}
+                                             ${formatValue(
+                                               value.vat,
+                                               currencyID
+                                             )}
                                           </td>
                                         </tr>
                                         <tr style="background-color:#808080;">
@@ -1184,7 +1288,10 @@ function AcceptInvitation() {
                                             Grand Total
                                           </td>
                                           <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
-                                             ${formatValue(value.grandTotal,currencyID)}
+                                             ${formatValue(
+                                               value.grandTotal,
+                                               currencyID
+                                             )}
                                           </td>
                                         </tr>`
                                           : ""
@@ -1537,7 +1644,7 @@ function AcceptInvitation() {
       FooterHeight: FooterHeight,
       HeaderImage: HeaderImage,
       FooterImage: FooterImage,
-      showSeparatorLines: showSeparatorLines
+      showSeparatorLines: showSeparatorLines,
     };
     try {
       const response = await fetch(generatePdfUrl, {
@@ -2053,7 +2160,7 @@ function AcceptInvitation() {
               signatureImageUrl:
                 ModelData.organisationDetails.signatureImageUrl,
               signatoryName: ModelData.organisationDetails?.signatoryName || "",
-              currencyID: ModelData.organisationDetails?.currencyID
+              currencyID: ModelData.organisationDetails?.currencyID,
             },
           ];
 
