@@ -127,7 +127,7 @@ function Add_New_Templates(props) {
   const [TemplateObj, setTemplateObj] = useState({
     templateKeyID: null,
     enableFirstPage: false,
-    headerFooterFirstPage: 1,
+    headerFooterFirstPage: true,
     organisationID: null,
     originalBusinessTypeID: [],
     originalBusinessTypeIDs: [],
@@ -272,7 +272,7 @@ function Add_New_Templates(props) {
       templateKeyID: null,
       organisationID: null,
       enableFirstPage: false,
-      headerFooterFirstPage: 1,
+      headerFooterFirstPage: true,
       watermarkImage: null,
       orientationID: 1,
       createdByID: null,
@@ -1148,6 +1148,7 @@ function Add_New_Templates(props) {
       //form level params : fixed
       templateTypeID: TemplateObj.templateTypeID, //will change module wise
       templateKeyID: TemplateObj.templateKeyID,
+      watermarkImage: TemplateObj.watermarkImage,
       enableFirstPage: TemplateObj.enableFirstPage,
       headerFooterFirstPage: TemplateObj.headerFooterFirstPage,
       orientationID: TemplateObj.orientationID,
@@ -2341,7 +2342,7 @@ function Add_New_Templates(props) {
                     className="col-lg-3  text-left"
                   >
                     <div className="mb-1">
-                      <label className="form-label">Select Orientation</label>
+                      <label className="form-label">Orientation</label>
                     </div>
                   </div>
                   <div className="col-lg-9">

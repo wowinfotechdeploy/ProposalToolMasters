@@ -578,37 +578,57 @@ const TopbarClone = () => {
 
 const toggleConfigSubList = (id) => {
   const list = document.getElementById(id);
+  if (!list) return;
+
   const parent = list.parentElement;
   const toggleLink = parent.querySelector(".nav-link");
+  const configContainer = document.getElementById("config");
 
-  const allLists = document.querySelectorAll(".subList");
-  allLists.forEach((element) => {
-    if (element.id !== id && element.classList.contains("d-block")) {
-      element.classList.remove("d-block");
-      element.classList.add("d-none");
-      const link = element.parentElement.querySelector(".nav-link");
+  // Close all other sublists
+  document.querySelectorAll("#config .subList").forEach((el) => {
+    if (el !== list) {
+      el.classList.remove("d-block");
+      el.classList.add("d-none");
+
+      const link = el.parentElement.querySelector(".nav-link");
       if (link) link.setAttribute("aria-expanded", "false");
     }
   });
 
   const isOpen = list.classList.contains("d-block");
-  list.classList.toggle("d-block", !isOpen);
-  list.classList.toggle("d-none", isOpen);
-  toggleLink.setAttribute("aria-expanded", !isOpen);
 
-  // 👇 Add hover-out close behavior
-  if (!isOpen) {
-    const handleMouseLeave = (event) => {
-      if (!parent.contains(event.relatedTarget)) {
-        list.classList.remove("d-block");
-        list.classList.add("d-none");
-        toggleLink.setAttribute("aria-expanded", "false");
-        parent.removeEventListener("mouseleave", handleMouseLeave);
+  if (isOpen) {
+    // Close clicked sublist
+    list.classList.remove("d-block");
+    list.classList.add("d-none");
+    toggleLink.setAttribute("aria-expanded", "false");
+  } else {
+    // Open clicked sublist
+    list.classList.add("d-block");
+    list.classList.remove("d-none");
+    toggleLink.setAttribute("aria-expanded", "true");
+
+    list.scrollIntoView({ behavior: "smooth", block: "nearest" });
+
+    // Bind hover-out close ONCE to config container
+    if (configContainer && !configContainer.dataset.mouseleaveBound) {
+      configContainer.dataset.mouseleaveBound = "true";
+
+      configContainer.addEventListener("mouseleave", (event) => {
+        if (!configContainer.contains(event.relatedTarget)) {
+          document.querySelectorAll("#config .subList").forEach((el) => {
+            el.classList.remove("d-block");
+            el.classList.add("d-none");
+
+            const link = el.parentElement.querySelector(".nav-link");
+            if (link) link.setAttribute("aria-expanded", "false");
+          });
+        }
+      });
+    }
   }
 };
-    parent.addEventListener("mouseleave", handleMouseLeave);
-  }
-};
+
 
 
 
@@ -625,7 +645,12 @@ const toggleConfigSubList = (id) => {
 
     if (list.style.display !== "block") {
       list.style.display = "block";
-      // list.scrollIntoView({ behavior: "smooth", block: "start" });
+      setTimeout(() => {
+      list.scrollIntoView({
+        behavior: "smooth",
+        block: "end"
+      });
+    }, 100);
     } else {
       list.style.display = "none";
     }
@@ -1117,18 +1142,18 @@ const toggleConfigSubList = (id) => {
       <div
         className={`app-menu d-flex flex-column ${isMobile || window.innerWidth <= 1040 ? (menuOpen ? "d-block" : "d-none") : "d-block"}`}
         style={{
-          height: "100%",
+          // height: "100%",
           // width: isMobile || window.innerWidth <= 1040 ? "100%" : "300px",
           // maxWidth: "300px",
           background: currentTopbarColor,
-          overflowY: "auto",
+          // overflowY: "auto",
           position: isMobile || window.innerWidth <= 1040 ? "absolute" : "relative",
           top: isMobile || window.innerWidth <= 1040 ? "56px" : "0",
           left: 0,
           zIndex: 2000,
         }}
       >
-        <div id="scrollbar" className= "mt-2" style={TopbarStyle}>
+        <div id="scrollbar" className= "mb-2" style={TopbarStyle}>
           <div class="container">
             <div id="two-column-menu">
               <div>
@@ -1229,6 +1254,7 @@ const toggleConfigSubList = (id) => {
             <div className="row"></div>
             </div>
               </div>
+            <div className="sidebar-menu-scroll">
             <ul class="navbar-nav d-none d-md-block pt-4" style={{paddingLeft: "0.5rem"}}id="navbar-nav">
               <li class="nav-item edit-dropdown-cls">
                 {accessCount !== 0 && (
@@ -1301,7 +1327,7 @@ const toggleConfigSubList = (id) => {
                           className="edit-topbar"
                         >
                           {/* <i className="fa fa-regular fa fa-circle-plus" */}
-                          <i className="bi bi-plus-circle-fill"
+                          <i className="fa-solid fa-circle-plus"
                              style={{ cursor: "pointer",
                                    color: TopTextColor.color }}
                           ></i>
@@ -1316,7 +1342,7 @@ const toggleConfigSubList = (id) => {
                             className="update-practice-details"
                             title="Update Practice"
                           >
-                            <i className="bi bi-pencil-fill"
+                            <i className="fa fa-pencil"
                                style={{ cursor: "pointer", color: TopTextColor.color }}
                             ></i>
                           </div>
@@ -1435,8 +1461,8 @@ const toggleConfigSubList = (id) => {
             {common.organisationKeyID !== null && (
             <ul
               className={`changed-nav navbar-nav ${isDropdownOpen ? " open" : ""
-                } ms-2 mt-2`}
-              style={{paddingRight: "2rem"}}
+                } ms-2 mt-1`}
+              // style={{paddingRight: "1rem"}}
               id="navbar-UL-nav"
             >
               <li class="menu-title">
@@ -1617,7 +1643,7 @@ const toggleConfigSubList = (id) => {
                         <span
                           style={{
                             display: "inline-block",
-                            marginLeft: "8px",
+                            marginLeft: "4px",
                             fontSize: "12px",
                             transform: isDropdownOpen || isHoveredConfigure ? "rotate(180deg)" : "rotate(0deg)",
                             transition: "transform 0.2s ease",
@@ -1745,7 +1771,7 @@ const toggleConfigSubList = (id) => {
                                           closeDropdown("config");
                                           NotificationCountData();
                                         }}
-                                        style={{ whiteSpace: "nowrap" }}
+                                        // style={{ whiteSpace: "nowrap" }}
                                         className="nav-link"
                                         data-key="t-simple-page"
                                       >
@@ -1760,7 +1786,7 @@ const toggleConfigSubList = (id) => {
                                           closeDropdown("config");
                                           NotificationCountData();
                                         }}
-                                        style={{ whiteSpace: "nowrap" }}
+                                        // style={{ whiteSpace: "nowrap" }}
                                         className="nav-link"
                                         data-key="t-simple-page"
                                       >
@@ -1797,9 +1823,9 @@ const toggleConfigSubList = (id) => {
                               >
                                 <ul className="nav nav-sm flex-column">
                                   <li className="nav-item">
-                                    <NavLink to="/templates">
-                                      <a
-                                        style={{ whiteSpace: "nowrap" }}
+                                    <NavLink to="/templates"
+                                      
+                                        // style={{whiteSpace: "nowrap"}}
                                         onClick={() => {
                                           closeDropdown("config");
                                           NotificationCountData();
@@ -1808,13 +1834,13 @@ const toggleConfigSubList = (id) => {
                                         data-key="t-simple-page"
                                       >
                                         {proposalName}/{EngagementName}
-                                      </a>
+                                      
                                     </NavLink>
                                   </li>
                                   <li className="nav-item">
                                     <NavLink to="/terms-and-conditions">
                                       <a
-                                        style={{ whiteSpace: "nowrap" }}
+                                        // style={{ whiteSpace: "nowrap" }}
                                         onClick={() => {
                                           closeDropdown("config");
                                           NotificationCountData();
@@ -1829,7 +1855,7 @@ const toggleConfigSubList = (id) => {
                                   <li className="nav-item">
                                     <NavLink to="/email-template">
                                       <a
-                                        style={{ whiteSpace: "nowrap" }}
+                                        // style={{ whiteSpace: "nowrap" }}
                                         onClick={() => {
                                           closeDropdown("config");
                                           NotificationCountData();
@@ -1880,7 +1906,7 @@ const toggleConfigSubList = (id) => {
                                   <li className="nav-item">
                                     <NavLink to="/reminder-email-template">
                                       <a
-                                        style={{ whiteSpace: "nowrap" }}
+                                        // style={{ whiteSpace: "nowrap" }}
                                         onClick={() => {
                                           closeDropdown("config");
                                           NotificationCountData();
@@ -1895,7 +1921,7 @@ const toggleConfigSubList = (id) => {
                                   <li className="nav-item">
                                     <NavLink to="/reminder">
                                       <a
-                                        style={{ whiteSpace: "nowrap" }}
+                                        // style={{ whiteSpace: "nowrap" }}
                                         onClick={() => {
                                           closeDropdown("config");
                                           NotificationCountData();
@@ -1952,12 +1978,12 @@ const toggleConfigSubList = (id) => {
                       alt="SettingSvg"
                       style={{ width: "16px", marginRight: "5px" }}
                     />
-                    <span data-key="t-dashboard" style={{color: isHoveredSetting ? "#438eff" : "#fff"}}>Settings</span>{" "}
+                    <span data-key="t-dashboard" style={{color: isHoveredSetting ? "#438eff" : "#fff"}}>Settings</span>
                     <span
                           style={{
                             display: "inline-block",
                             color: isHoveredSetting ? "#438eff" : "#fff",
-                            marginLeft: "8px",
+                            marginLeft: "4px",
                             fontSize: "12px",
                             transform: isDropdownOpen || isHoveredSetting ? "rotate(180deg)" : "rotate(0deg)",
                             transition: "transform 0.2s ease",
@@ -2056,9 +2082,9 @@ const toggleConfigSubList = (id) => {
                                         );
                                         NotificationCountData();
                                       }}
-                                      style={{
-                                        whiteSpace: "nowrap"
-                                      }}
+                                      // style={{
+                                      //   whiteSpace: "nowrap"
+                                      // }}
                                       class="nav-link"
                                       data-key="t-basic-3 fw-bold"
                                     >
@@ -2149,7 +2175,7 @@ const toggleConfigSubList = (id) => {
                                       toggleSettingList("Setting");
                                       NotificationCountData();
                                     }}
-                                    style={{ whiteSpace: "nowrap" }}
+                                    // style={{ whiteSpace: "nowrap" }}
                                     class="nav-link"
                                     data-key="t-basic-3"
                                   >
@@ -2289,7 +2315,7 @@ const toggleConfigSubList = (id) => {
                         }}
                       />
                       <span data-key="t-dashboard" style={{color: isHoveredPdfToCsv ? "#438eff" : "#fff"}} className="fw-bold">
-                        {" "}
+                        
                         PDF To CSV
                       </span>{" "}
                     </NavLink>
@@ -2302,7 +2328,7 @@ const toggleConfigSubList = (id) => {
                   <>
                   <ul
                     className={`changed-nav navbar-nav ${isDropdownOpen ? " open" : ""
-                      } ms-2 mt-2`}
+                      } ms-2 mt-1`}
                     style={{paddingRight: "2rem"}}
                     id="navbar-UL-nav"
                     >
@@ -2457,7 +2483,7 @@ const toggleConfigSubList = (id) => {
                           <span
                             style={{
                             display: "inline-block",
-                            marginLeft: "8px",
+                            marginLeft: "4px",
                             fontSize: "12px",
                             transform: isDropdownOpen || isHoveredConfigure ? "rotate(180deg)" : "rotate(0deg)",
                             transition: "transform 0.2s ease",
@@ -2980,7 +3006,7 @@ const toggleConfigSubList = (id) => {
                           <span
                           style={{
                             display: "inline-block",
-                            marginLeft: "8px",
+                            marginLeft: "4px",
                             fontSize: "12px",
                             transform: isDropdownOpen || isHoveredUserRole ? "rotate(180deg)" : "rotate(0deg)",
                             transition: "transform 0.2s ease",
@@ -2999,7 +3025,7 @@ const toggleConfigSubList = (id) => {
                               : "none",
                             width: "200px",
                           }}
-                          class="menu-dropdown menu_dropdown Responsive-Config-service-package"
+                          class="collapse menu-dropdown menu_dropdown Responsive-Config-service-package"
                           id="UserRole"
                         >
                           <ul class="nav nav-sm flex-column">
@@ -3164,9 +3190,9 @@ const toggleConfigSubList = (id) => {
                                             );
                                             NotificationCountData();
                                           }}
-                                          style={{
-                                            whiteSpace: "nowrap",
-                                          }}
+                                          // style={{
+                                          //   whiteSpace: "nowrap",
+                                          // }}
                                           class="nav-link"
                                           data-key="t-basic-3"
                                         >
@@ -3230,6 +3256,7 @@ const toggleConfigSubList = (id) => {
                   {/* Profile DropDown modal End  */}
                 {/* </div> */}
               {/* </div> */}
+              </div>
             </div>
           </div>
         </div>
@@ -3237,7 +3264,7 @@ const toggleConfigSubList = (id) => {
     className="d-flex sidebar-bottom align-items-center justify-content-start"
     style={{
       zIndex: 9999,
-      padding: "10px 35px",
+      padding: "5px 20px",
     }}
   >
                   <Tooltip title={"Notifications"}>

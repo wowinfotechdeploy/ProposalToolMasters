@@ -1474,15 +1474,15 @@ const NewDashboard = () => {
                                           </div>
                                           <div className="stat-amount">
                                             {calculateGBPAmount(
-                                              dashboardCount.quotationAwaitingSignatureEnd_AmountOneOff,
+                                              dashboardCount.quotationAwaitingSignatureEnd_AmountRecc,
                                               dashboardCount.quotationAwaitingSignatureEnd_AmountOneOff
                                             )}
                                           </div>
                                         </div>
                                         <div className="stat-card-body">
-                                          <h6 className="stat-title">Awaiting Signature</h6>
+                                          <h6 className="stat-title">{proposalName} Awaiting Response</h6>
                                           <p className="stat-subtitle fw-bold">
-                                            Total: {dashboardCount?.quotationAccepted}
+                                            Total: {dashboardCount?.quotationAwaitingSignature}
                                           </p>
                                         </div>
                                       </div>

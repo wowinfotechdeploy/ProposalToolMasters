@@ -1795,6 +1795,7 @@ const Update_Practice_Details = () => {
   };
 
   return (
+    <>
     <div className="container-fluid">
       {/* <div class="main-content"> */}
         <div class="services page-background">
@@ -4282,7 +4283,6 @@ const Update_Practice_Details = () => {
                         </div>
                       </div>
                     )}
-                  </div>
                   <span
                     style={{ display: "flex", justifyContent: "center" }}
                     className="validation"
@@ -4299,6 +4299,7 @@ const Update_Practice_Details = () => {
                     >
                       <span> Update Practice Details</span>
                     </button>
+                  </div>
                   </div>
                   {/* end card  */}
                 </div>
@@ -4368,10 +4369,12 @@ const Update_Practice_Details = () => {
           />
         {/* End Page-content */}
         </div>              
-        <Footer />
+        
 
       {/* end back-to-top */}
     </div>
+    <Footer />
+    </>
   );
 };
 
