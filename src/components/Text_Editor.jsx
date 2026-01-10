@@ -4,9 +4,10 @@ import JoditEditor from "jodit-react";
 // Define the separate configuration object
 const editorConfig = {
   placeholder: "",
+  enter: "DIV",
+  beautifyHTML: false,
   uploader: {
     insertImageAsBase64URI: true,
-    enter: "DIV",
     direction: "ltr",
   },
   activeButtonsInReadOnly: ['source', 'fullsize', 'print', 'about'],

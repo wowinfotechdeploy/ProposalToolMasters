@@ -2120,9 +2120,7 @@ export default function PreviewComponentPdf(props) {
                 currentArray = [
                   {
                     textbox: `
-      <div style="
-        padding-left: 40px; 
-        padding-right: 40px; 
+      <div style=" 
         page-break-after: always;
       ">
         ${coloredHtmlContent}
@@ -2136,8 +2134,6 @@ export default function PreviewComponentPdf(props) {
                   {
                     textbox: `
       <div style="
-        padding-left: 40px; 
-        padding-right: 40px; 
         page-break-after: always;
       ">
         ${coloredHtmlContent}
@@ -3769,10 +3765,10 @@ export default function PreviewComponentPdf(props) {
     ${props.selectedPackagesList
       .map(
         () => `
-        <th style="border:1px solid #dddddd; text-align:left; padding:8px; color:white; font-size:18px; width:16.66%;">Fees (£)</th>
+        <th style="border:1px solid #dddddd; text-align:left; padding:8px; color:white; font-size:18px; width:16.66%;">Fees (${props.currencySymbol})</th>
         ${
           props.visibleFieldsCustomTemp.vat
-            ? `<th style="border:1px solid #dddddd; text-align:left; padding:8px; color:white; font-size:18px; width:16.66%;">VAT (£)</th>`
+            ? `<th style="border:1px solid #dddddd; text-align:left; padding:8px; color:white; font-size:18px; width:16.66%;">${props.taxName} (${props.currencySymbol})</th>`
             : ""
         }
         ${
@@ -3889,7 +3885,7 @@ export default function PreviewComponentPdf(props) {
                           subService.packageOneID
                         )
                       ? `<span>&#10007;</span>`
-                      : `${props.formatValue(subService.packageOneValue)}`
+                      : `${props.formatValue(subService.packageOneValue, props.currencyID)}`
                     : Number(subService.packageOneValue) !== null &&
                       subService?.servicePackageIDs.includes(
                         subService.packageOneID
@@ -3917,7 +3913,7 @@ export default function PreviewComponentPdf(props) {
                               )
                             ? `<span>&#10007;</span>`
                             : `${props.formatValue(
-                                (subService.packageOneValue * 20) / 100
+                                (subService.packageOneValue * 20) / 100, props.currencyID
                               )}`
                           : Number(subService.packageOneValue) !== null &&
                             subService?.servicePackageIDs.includes(
@@ -3986,7 +3982,7 @@ export default function PreviewComponentPdf(props) {
                               subService.packageTwoID
                             )
                           ? `<span>&#10007;</span>`
-                          : `${props.formatValue(subService.packageTwoValue)}`
+                          : `${props.formatValue(subService.packageTwoValue, props.currencyID)}`
                         : Number(subService.packageTwoValue) !== null &&
                           subService?.servicePackageIDs.includes(
                             subService.packageTwoID
@@ -4043,7 +4039,7 @@ export default function PreviewComponentPdf(props) {
                   )
                 ? `<span>&#10007;</span>`
                 : `${props.formatValue(
-                    (subService.packageTwoValue * 20) / 100
+                    (subService.packageTwoValue * 20) / 100, props.currencyID
                   )}`
               : Number(subService.packageTwoValue) !== null &&
                 subService?.servicePackageIDs.includes(subService.packageTwoID)
@@ -4112,7 +4108,7 @@ export default function PreviewComponentPdf(props) {
                               subService.packageThreeID
                             )
                           ? `<span>&#10007;</span>`
-                          : `${props.formatValue(subService.packageThreeValue)}`
+                          : `${props.formatValue(subService.packageThreeValue, props.currencyID)}`
                         : Number(subService.packageThreeValue) !== null &&
                           subService?.servicePackageIDs.includes(
                             subService.packageThreeID
@@ -4170,7 +4166,7 @@ export default function PreviewComponentPdf(props) {
                               )
                             ? `<span>&#10007;</span>`
                             : `${props.formatValue(
-                                (subService.packageThreeValue * 20) / 100
+                                (subService.packageThreeValue * 20) / 100, props.currencyID
                               )}`
                           : Number(subService.packageThreeValue) !== null &&
                             subService?.servicePackageIDs.includes(
@@ -4243,17 +4239,17 @@ export default function PreviewComponentPdf(props) {
         ? Number(props.RecurringPricingInfo.packageOneDisCount) > 0 &&
           !props.ProposalObject.DiscountLines
           ? props.formatValue(
-              props.RecurringPricingInfo.packageOneDisCountedTotal
+              props.RecurringPricingInfo.packageOneDisCountedTotal, props.currencyID
             )
-          : props.formatValue(totalOnePackageValue)
-        : props.formatValue(props.RecurringPricingInfo.packageOneNetTotal)
+          : props.formatValue(totalOnePackageValue, props.currencyID)
+        : props.formatValue(props.RecurringPricingInfo.packageOneNetTotal, props.currencyID)
     }
   </td>
   ${
     props.visibleFieldsCustomTemp.vat
       ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
           ${props.formatValue(
-            props.RecurringPricingInfo.PackageOneVaTPriceWithoutDiscout
+            props.RecurringPricingInfo.PackageOneVaTPriceWithoutDiscout, props.currencyID
           )}
         </td>`
       : ""
@@ -4275,17 +4271,17 @@ export default function PreviewComponentPdf(props) {
               ? Number(props.RecurringPricingInfo.packageTwoDisCount) > 0 &&
                 !props.ProposalObject.DiscountLines
                 ? props.formatValue(
-                    props.RecurringPricingInfo.packageTwoDisCountedTotal
+                    props.RecurringPricingInfo.packageTwoDisCountedTotal, props.currencyID
                   )
-                : props.formatValue(totalTwoPackageValue)
-              : props.formatValue(props.RecurringPricingInfo.packageTwoNetTotal)
+                : props.formatValue(totalTwoPackageValue, props.currencyID)
+              : props.formatValue(props.RecurringPricingInfo.packageTwoNetTotal, props.currencyID)
           }
         </td>
         ${
           props.visibleFieldsCustomTemp.vat
             ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
                 ${props.formatValue(
-                  props.RecurringPricingInfo.PackageTwoVaTPriceWithoutDiscout
+                  props.RecurringPricingInfo.PackageTwoVaTPriceWithoutDiscout, props.currencyID
                 )}
               </td>`
             : ""
@@ -4306,11 +4302,11 @@ export default function PreviewComponentPdf(props) {
               ? Number(props.RecurringPricingInfo.packageThreeDisCount) > 0 &&
                 !props.ProposalObject.DiscountLines
                 ? props.formatValue(
-                    props.RecurringPricingInfo.packageThreeDisCountedTotal
+                    props.RecurringPricingInfo.packageThreeDisCountedTotal, props.currencyID
                   )
-                : props.formatValue(totalThreePackageValue)
+                : props.formatValue(totalThreePackageValue, props.currencyID)
               : props.formatValue(
-                  props.RecurringPricingInfo.packageThreeNetTotal
+                  props.RecurringPricingInfo.packageThreeNetTotal, props.currencyID
                 )
           }
         </td>
@@ -4318,7 +4314,7 @@ export default function PreviewComponentPdf(props) {
           props.visibleFieldsCustomTemp.vat
             ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
                 ${props.formatValue(
-                  props.RecurringPricingInfo.PackageThreeVaTPriceWithoutDiscout
+                  props.RecurringPricingInfo.PackageThreeVaTPriceWithoutDiscout, props.currencyID
                 )}
               </td>`
             : ""
@@ -4341,7 +4337,7 @@ ${
         </td>
         <td style="border:1px solid #dddddd; text-align:right; padding:8px; color:black;">
           (-) ${props.formatValue(
-            props.RecurringPricingInfo.packageOneDisCount
+            props.RecurringPricingInfo.packageOneDisCount, props.currencyID
           )}
         </td>
         ${
@@ -4350,7 +4346,7 @@ ${
                 (-) ${props.formatValue(
                   (props.RecurringPricingInfo.PackageOneVaTPriceWithoutDiscout *
                     props.RecurringPricingInfo.DiscountPercentagePackageOne) /
-                    100
+                    100, props.currencyID
                 )}
               </td>`
             : ""
@@ -4366,7 +4362,7 @@ ${
             ? `
               <td style="border:1px solid #dddddd; text-align:right; padding:8px; color:black;">
                 (-) ${props.formatValue(
-                  props.RecurringPricingInfo.packageTwoDisCount
+                  props.RecurringPricingInfo.packageTwoDisCount, props.currencyID
                 )}
               </td>
               ${
@@ -4377,7 +4373,7 @@ ${
                           .PackageTwoVaTPriceWithoutDiscout *
                           props.RecurringPricingInfo
                             .DiscountPercentagePackageTwo) /
-                          100
+                          100, props.currencyID
                       )}
                     </td>`
                   : ""
@@ -4396,7 +4392,7 @@ ${
             ? `
               <td style="border:1px solid #dddddd; text-align:right; padding:8px; color:black;">
                 (-) ${props.formatValue(
-                  props.RecurringPricingInfo.packageThreeDisCount
+                  props.RecurringPricingInfo.packageThreeDisCount, props.currencyID
                 )}
               </td>
               ${
@@ -4407,7 +4403,7 @@ ${
                           .PackageThreeVaTPriceWithoutDiscout *
                           props.RecurringPricingInfo
                             .DiscountPercentagePackageThree) /
-                          100
+                          100, props.currencyID
                       )}
                     </td>`
                   : ""
@@ -4436,15 +4432,15 @@ ${
                 !props.ProposalObject.DiscountLines
                 ? props.formatValue(
                     props.RecurringPricingInfo.packageOneDisCountedTotal -
-                      props.RecurringPricingInfo.packageOneDisCount
+                      props.RecurringPricingInfo.packageOneDisCount, props.currencyID
                   )
                 : props.formatValue(
                     totalOnePackageValue -
-                      props.RecurringPricingInfo.packageOneDisCount
+                      props.RecurringPricingInfo.packageOneDisCount, props.currencyID
                   )
               : props.formatValue(
                   props.RecurringPricingInfo.packageOneNetTotal -
-                    props.RecurringPricingInfo.packageOneDisCount
+                    props.RecurringPricingInfo.packageOneDisCount, props.currencyID
                 )
           }
         </td>
@@ -4456,7 +4452,7 @@ ${
                     (props.RecurringPricingInfo
                       .PackageOneVaTPriceWithoutDiscout *
                       props.RecurringPricingInfo.DiscountPercentagePackageOne) /
-                      100
+                      100, props.currencyID
                 )}
               </td>`
             : ""
@@ -4472,7 +4468,7 @@ ${
             ? `
               <td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
                 ${props.formatValue(
-                  props.RecurringPricingInfo.PackageTwoGrandTotal
+                  props.RecurringPricingInfo.PackageTwoGrandTotal, props.currencyID
                 )}
               </td>
               ${
@@ -4485,7 +4481,7 @@ ${
                             .PackageTwoVaTPriceWithoutDiscout *
                             props.RecurringPricingInfo
                               .DiscountPercentagePackageTwo) /
-                            100
+                            100, props.currencyID
                       )}
                     </td>`
                   : ""
@@ -4504,7 +4500,7 @@ ${
             ? `
               <td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
                 ${props.formatValue(
-                  props.RecurringPricingInfo.PackageThreeGrandTotal
+                  props.RecurringPricingInfo.PackageThreeGrandTotal, props.currencyID
                 )}
               </td>
               ${
@@ -4517,7 +4513,7 @@ ${
                             .PackageThreeVaTPriceWithoutDiscout *
                             props.RecurringPricingInfo
                               .DiscountPercentagePackageThree) /
-                            100
+                            100, props.currencyID
                       )}
                     </td>`
                   : ""
@@ -5107,10 +5103,10 @@ ${
     ${props.selectedPackagesList
       .map(
         () => `
-        <th style="border:1px solid #dddddd; text-align:left; padding:8px; color:white; font-size:18px; width:16.66%;">Fees (£)</th>
+        <th style="border:1px solid #dddddd; text-align:left; padding:8px; color:white; font-size:18px; width:16.66%;">Fees (${props.currencySymbol})</th>
         ${
           props.visibleFieldsCustomTemp.vat
-            ? `<th style="border:1px solid #dddddd; text-align:left; padding:8px; color:white; font-size:18px; width:16.66%;">VAT (£)</th>`
+            ? `<th style="border:1px solid #dddddd; text-align:left; padding:8px; color:white; font-size:18px; width:16.66%;">${props.taxName} (${props.currencySymbol})</th>`
             : ""
         }
         ${
@@ -5237,7 +5233,7 @@ ${
                           subService.packageOneID
                         )
                       ? `<span>&#10007;</span>`
-                      : `${props.formatValue(subService.packageOneValue)}`
+                      : `${props.formatValue(subService.packageOneValue, props.currencyID)}`
                     : Number(subService.packageOneValue) !== null &&
                       subService?.servicePackageIDs.includes(
                         subService.packageOneID
@@ -5265,7 +5261,7 @@ ${
                               )
                             ? `<span>&#10007;</span>`
                             : `${props.formatValue(
-                                (subService.packageOneValue * 20) / 100
+                                (subService.packageOneValue * 20) / 100, props.currencyID
                               )}`
                           : Number(subService.packageOneValue) !== null &&
                             subService?.servicePackageIDs.includes(
@@ -5334,7 +5330,7 @@ ${
                               subService.packageTwoID
                             )
                           ? `<span>&#10007;</span>`
-                          : `${props.formatValue(subService.packageTwoValue)}`
+                          : `${props.formatValue(subService.packageTwoValue, props.currencyID)}`
                         : Number(subService.packageTwoValue) !== null &&
                           subService?.servicePackageIDs.includes(
                             subService.packageTwoID
@@ -5392,7 +5388,7 @@ ${
                               )
                             ? `<span>&#10007;</span>`
                             : `${props.formatValue(
-                                (subService.packageTwoValue * 20) / 100
+                                (subService.packageTwoValue * 20) / 100, props.currencyID
                               )}`
                           : Number(subService.packageTwoValue) !== null &&
                             subService?.servicePackageIDs.includes(
@@ -5463,7 +5459,7 @@ ${
                               subService.packageThreeID
                             )
                           ? `<span>&#10007;</span>`
-                          : `${props.formatValue(subService.packageThreeValue)}`
+                          : `${props.formatValue(subService.packageThreeValue, props.currencyID)}`
                         : Number(subService.packageThreeValue) !== null &&
                           subService?.servicePackageIDs.includes(
                             subService.packageThreeID
@@ -5521,7 +5517,7 @@ ${
                               )
                             ? `<span>&#10007;</span>`
                             : `${props.formatValue(
-                                (subService.packageThreeValue * 20) / 100
+                                (subService.packageThreeValue * 20) / 100, props.currencyID
                               )}`
                           : Number(subService.packageThreeValue) !== null &&
                             subService?.servicePackageIDs.includes(
@@ -5593,9 +5589,9 @@ ${
         !props.ProposalObject.DiscountLines)
         ? Number(props.OneOffPricingInfo.packageOneDisCount) > 0 &&
           !props.ProposalObject.DiscountLines
-          ? props.formatValue(props.OneOffPricingInfo.packageOneDisCountedTotal)
-          : props.formatValue(totalOnePackageValue)
-        : props.formatValue(props.OneOffPricingInfo.packageOneNetTotal)
+          ? props.formatValue(props.OneOffPricingInfo.packageOneDisCountedTotal, props.currencyID)
+          : props.formatValue(totalOnePackageValue, props.currencyID)
+        : props.formatValue(props.OneOffPricingInfo.packageOneNetTotal, props.currencyID)
     }
   </td>
   ${
@@ -5610,11 +5606,11 @@ ${
                 !props.ProposalObject.DiscountLines
                 ? props.formatValue(
                     (props.OneOffPricingInfo.packageOneDisCountedTotal * 20) /
-                      100
+                      100, props.currencyID
                   )
-                : props.formatValue((totalOnePackageValue * 20) / 100)
+                : props.formatValue((totalOnePackageValue * 20) / 100, props.currencyID)
               : props.formatValue(
-                  (props.OneOffPricingInfo.packageOneNetTotal * 20) / 100
+                  (props.OneOffPricingInfo.packageOneNetTotal * 20) / 100, props.currencyID
                 )
           }
         </td>`
@@ -5637,10 +5633,10 @@ ${
               ? Number(props.OneOffPricingInfo.packageTwoDisCount) > 0 &&
                 !props.ProposalObject.DiscountLines
                 ? props.formatValue(
-                    props.OneOffPricingInfo.packageTwoDisCountedTotal
+                    props.OneOffPricingInfo.packageTwoDisCountedTotal, props.currencyID
                   )
-                : props.formatValue(totalTwoPackageValue)
-              : props.formatValue(props.OneOffPricingInfo.packageTwoNetTotal)
+                : props.formatValue(totalTwoPackageValue, props.currencyID)
+              : props.formatValue(props.OneOffPricingInfo.packageTwoNetTotal, props.currencyID)
           }
         </td>
         ${
@@ -5656,11 +5652,11 @@ ${
                       ? props.formatValue(
                           (props.OneOffPricingInfo.packageTwoDisCountedTotal *
                             20) /
-                            100
+                            100, props.currencyID
                         )
-                      : props.formatValue((totalTwoPackageValue * 20) / 100)
+                      : props.formatValue((totalTwoPackageValue * 20) / 100, props.currencyID)
                     : props.formatValue(
-                        (props.OneOffPricingInfo.packageTwoNetTotal * 20) / 100
+                        (props.OneOffPricingInfo.packageTwoNetTotal * 20) / 100, props.currencyID
                       )
                 }
               </td>`
@@ -5682,10 +5678,10 @@ ${
               ? Number(props.OneOffPricingInfo.packageThreeDisCount) > 0 &&
                 !props.ProposalObject.DiscountLines
                 ? props.formatValue(
-                    props.OneOffPricingInfo.packageThreeDisCountedTotal
+                    props.OneOffPricingInfo.packageThreeDisCountedTotal, props.currencyID
                   )
-                : props.formatValue(totalThreePackageValue)
-              : props.formatValue(props.OneOffPricingInfo.packageThreeNetTotal)
+                : props.formatValue(totalThreePackageValue, props.currencyID)
+              : props.formatValue(props.OneOffPricingInfo.packageThreeNetTotal, props.currencyID)
           }
         </td>
         ${
@@ -5701,12 +5697,12 @@ ${
                       ? props.formatValue(
                           (props.OneOffPricingInfo.packageThreeDisCountedTotal *
                             20) /
-                            100
+                            100, props.currencyID
                         )
-                      : props.formatValue((totalThreePackageValue * 20) / 100)
+                      : props.formatValue((totalThreePackageValue * 20) / 100, props.currencyID)
                     : props.formatValue(
                         (props.OneOffPricingInfo.packageThreeNetTotal * 20) /
-                          100
+                          100, props.currencyID
                       )
                 }
               </td>`
@@ -5729,7 +5725,7 @@ ${
           Discount
         </td>
         <td style="border:1px solid #dddddd; text-align:right; padding:8px; color:black;">
-          (-) ${props.formatValue(props.OneOffPricingInfo.packageOneDisCount)}
+          (-) ${props.formatValue(props.OneOffPricingInfo.packageOneDisCount, props.currencyID)}
         </td>
         ${
           props.visibleFieldsCustomTemp.vat
@@ -5747,20 +5743,20 @@ ${
                             100) *
                             props.OneOffPricingInfo
                               .DiscountPercentagePackageOne) /
-                            100
+                            100, props.currencyID
                         )
                       : props.formatValue(
                           (((totalOnePackageValue * 20) / 100) *
                             props.OneOffPricingInfo
                               .DiscountPercentagePackageOne) /
-                            100
+                            100, props.currencyID
                         )
                     : props.formatValue(
                         (((props.OneOffPricingInfo.packageOneNetTotal * 20) /
                           100) *
                           props.OneOffPricingInfo
                             .DiscountPercentagePackageOne) /
-                          100
+                          100, props.currencyID
                       )
                 }
               </td>`
@@ -5777,7 +5773,7 @@ ${
             ? `
               <td style="border:1px solid #dddddd; text-align:right; padding:8px; color:black;">
                 (-) ${props.formatValue(
-                  props.OneOffPricingInfo.packageTwoDisCount
+                  props.OneOffPricingInfo.packageTwoDisCount, props.currencyID
                 )}
               </td>
               ${
@@ -5805,13 +5801,13 @@ ${
                                       100) *
                                       props.OneOffPricingInfo
                                         .DiscountPercentagePackageTwo) /
-                                      100
+                                      100, props.currencyID
                                   )
                                 : props.formatValue(
                                     (((totalTwoPackageValue * 20) / 100) *
                                       props.OneOffPricingInfo
                                         .DiscountPercentagePackageTwo) /
-                                      100
+                                      100, props.currencyID
                                   )
                               : props.formatValue(
                                   (((props.OneOffPricingInfo
@@ -5820,7 +5816,7 @@ ${
                                     100) *
                                     props.OneOffPricingInfo
                                       .DiscountPercentagePackageTwo) /
-                                    100
+                                    100, props.currencyID
                                 )}
                           </td>
                         )
@@ -5842,7 +5838,7 @@ ${
             ? `
               <td style="border:1px solid #dddddd; text-align:right; padding:8px; color:black;">
                 (-) ${props.formatValue(
-                  props.OneOffPricingInfo.packageThreeDisCount
+                  props.OneOffPricingInfo.packageThreeDisCount, props.currencyID
                 )}
               </td>
               ${
@@ -5866,13 +5862,13 @@ ${
                                   100) *
                                   props.OneOffPricingInfo
                                     .DiscountPercentagePackageThree) /
-                                  100
+                                  100, props.currencyID
                               )
                             : props.formatValue(
                                 (((totalThreePackageValue * 20) / 100) *
                                   props.OneOffPricingInfo
                                     .DiscountPercentagePackageThree) /
-                                  100
+                                  100, props.currencyID
                               )
                           : props.formatValue(
                               (((props.OneOffPricingInfo.packageThreeNetTotal *
@@ -5880,7 +5876,7 @@ ${
                                 100) *
                                 props.OneOffPricingInfo
                                   .DiscountPercentagePackageThree) /
-                                100
+                                100, props.currencyID
                             )
                       }
                     </td>`
@@ -5910,15 +5906,15 @@ ${
                 !props.ProposalObject.DiscountLines
                 ? props.formatValue(
                     props.OneOffPricingInfo.packageOneDisCountedTotal -
-                      props.OneOffPricingInfo.packageOneDisCount
+                      props.OneOffPricingInfo.packageOneDisCount, props.currencyID
                   )
                 : props.formatValue(
                     totalOnePackageValue -
-                      props.OneOffPricingInfo.packageOneDisCount
+                      props.OneOffPricingInfo.packageOneDisCount, props.currencyID
                   )
               : props.formatValue(
                   props.OneOffPricingInfo.packageOneNetTotal -
-                    props.OneOffPricingInfo.packageOneDisCount
+                    props.OneOffPricingInfo.packageOneDisCount, props.currencyID
                 )
           }
         </td>
@@ -5942,14 +5938,14 @@ ${
                               100) *
                               props.OneOffPricingInfo
                                 .DiscountPercentagePackageOne) /
-                              100
+                              100, props.currencyID
                         )
                       : props.formatValue(
                           (totalOnePackageValue * 20) / 100 -
                             (((totalOnePackageValue * 20) / 100) *
                               props.OneOffPricingInfo
                                 .DiscountPercentagePackageOne) /
-                              100
+                              100, props.currencyID
                         )
                     : props.formatValue(
                         (props.OneOffPricingInfo.packageOneNetTotal * 20) /
@@ -5958,7 +5954,7 @@ ${
                             100) *
                             props.OneOffPricingInfo
                               .DiscountPercentagePackageOne) /
-                            100
+                            100, props.currencyID
                       )
                 }
               </td>`
@@ -5975,7 +5971,7 @@ ${
             ? `
               <td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
                 ${props.formatValue(
-                  props.OneOffPricingInfo.PackageTwoGrandTotal
+                  props.OneOffPricingInfo.PackageTwoGrandTotal, props.currencyID
                 )}
               </td>
               ${
@@ -6006,14 +6002,14 @@ ${
                                         100) *
                                         props.OneOffPricingInfo
                                           .DiscountPercentagePackageTwo) /
-                                        100
+                                        100, props.currencyID
                                   )
                                 : props.formatValue(
                                     (totalTwoPackageValue * 20) / 100 -
                                       (((totalTwoPackageValue * 20) / 100) *
                                         props.OneOffPricingInfo
                                           .DiscountPercentagePackageTwo) /
-                                        100
+                                        100, props.currencyID
                                   )
                               : props.formatValue(
                                   (props.OneOffPricingInfo.packageTwoNetTotal *
@@ -6025,7 +6021,7 @@ ${
                                       100) *
                                       props.OneOffPricingInfo
                                         .DiscountPercentagePackageTwo) /
-                                      100
+                                      100, props.currencyID
                                 )}
                           </td>
                         )
@@ -6047,7 +6043,7 @@ ${
             ? `
               <td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
                 ${props.formatValue(
-                  props.OneOffPricingInfo.PackageThreeGrandTotal
+                  props.OneOffPricingInfo.PackageThreeGrandTotal, props.currencyID
                 )}
               </td>
               ${
@@ -6078,14 +6074,14 @@ ${
                                         100) *
                                         props.OneOffPricingInfo
                                           .DiscountPercentagePackageThree) /
-                                        100
+                                        100, props.currencyID
                                   )
                                 : props.formatValue(
                                     (totalThreePackageValue * 20) / 100 -
                                       (((totalThreePackageValue * 20) / 100) *
                                         props.OneOffPricingInfo
                                           .DiscountPercentagePackageThree) /
-                                        100
+                                        100, props.currencyID
                                   )
                               : props.formatValue(
                                   (props.OneOffPricingInfo
@@ -6098,7 +6094,7 @@ ${
                                       100) *
                                       props.OneOffPricingInfo
                                         .DiscountPercentagePackageThree) /
-                                      100
+                                      100, props.currencyID
                                 )}
                           </td>
                         )
@@ -6334,22 +6330,22 @@ ${
       }
       ${
         props.visibleFieldsCustomTemp.fees
-          ? `<th style="border: 1px solid #dddddd; text-align: center; padding: 8px; color: white; font-size: 18px;">Fees (£)</th>`
+          ? `<th style="border: 1px solid #dddddd; text-align: center; padding: 8px; color: white; font-size: 18px;">Fees (${props.currencySymbol})</th>`
           : ""
       }
       ${
         props.vatPercentage && props.visibleFieldsCustomTemp.vatRate
-          ? `<th style="border: 1px solid #dddddd; text-align: center; padding: 8px; color: white; font-size: 18px;">VAT Rate</th>`
+          ? `<th style="border: 1px solid #dddddd; text-align: center; padding: 8px; color: white; font-size: 18px;">${props.taxName} Rate</th>`
           : ""
       }
       ${
         props.vatPercentage && props.visibleFieldsCustomTemp.vat
-          ? `<th style="border: 1px solid #dddddd; text-align: center; padding: 8px; color: white; font-size: 18px;">VAT (£)</th>`
+          ? `<th style="border: 1px solid #dddddd; text-align: center; padding: 8px; color: white; font-size: 18px;">${props.taxName} (${props.currencySymbol})</th>`
           : ""
       }
       ${
         props.vatPercentage && props.visibleFieldsCustomTemp.feesIncVat
-          ? `<th style="border: 1px solid #dddddd; text-align: center; padding: 8px; color: white; font-size: 18px;">Fees inc VAT (£)</th>`
+          ? `<th style="border: 1px solid #dddddd; text-align: center; padding: 8px; color: white; font-size: 18px;">Fees inc ${props.taxName} (${props.currencySymbol})</th>`
           : ""
       }
     </tr>
@@ -6414,7 +6410,7 @@ ${
       ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word;">
           ${
             props.ProposalObject.feeTypeId === 1
-              ? props.formatValue(price)
+              ? props.formatValue(price, props.currencyID)
               : "&#10003;"
           }
         </td>`
@@ -6430,7 +6426,7 @@ ${
       ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word;">
           ${
             props.ProposalObject.feeTypeId === 1
-              ? props.formatValue(vat)
+              ? props.formatValue(vat, props.currencyID)
               : "&#10003;"
           }
         </td>`
@@ -6441,7 +6437,7 @@ ${
       ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word;">
           ${
             props.ProposalObject.feeTypeId === 1
-              ? props.formatValue(price + Number(subService.service_vat_amount))
+              ? props.formatValue(price + Number(subService.service_vat_amount), props.currencyID)
               : "&#10003;"
           }
         </td>`
@@ -6478,8 +6474,8 @@ ${
               Number(props.RecurringPricingInfo.DiscountedPrice) ||
             (Number(props.RecurringPricingInfo.Discount) > 0 &&
               !props.ProposalObject.DiscountLines)
-              ? props.formatValue(props.RecurringPricingInfo.DiscountedPrice)
-              : props.formatValue(props.RecurringPricingInfo.OriginalPrice)
+              ? props.formatValue(props.RecurringPricingInfo.DiscountedPrice, props.currencyID)
+              : props.formatValue(props.RecurringPricingInfo.OriginalPrice, props.currencyID)
           }
         </td>`
       : ""
@@ -6493,7 +6489,7 @@ ${
     props.vatPercentage && props.visibleFieldsCustomTemp.vat
       ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; word-break: break-word; white-space: normal; overflow-wrap: break-word;">
           ${props.formatValue(
-            Number(props.RecurringPricingInfo.staticTotalVAT)
+            Number(props.RecurringPricingInfo.staticTotalVAT), props.currencyID
           )}
         </td>`
       : ""
@@ -6508,11 +6504,11 @@ ${
               !props.ProposalObject.DiscountLines)
               ? props.formatValue(
                   Number(props.RecurringPricingInfo.DiscountedPrice) +
-                    Number(props.RecurringPricingInfo.staticTotalVAT)
+                    Number(props.RecurringPricingInfo.staticTotalVAT), props.currencyID
                 )
               : props.formatValue(
                   Number(props.RecurringPricingInfo.OriginalPrice) +
-                    Number(props.RecurringPricingInfo.staticTotalVAT)
+                    Number(props.RecurringPricingInfo.staticTotalVAT), props.currencyID
                 )
           }
         </td>`
@@ -6539,7 +6535,7 @@ ${
   ${
     props.visibleFieldsCustomTemp.fees
       ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: black; word-break: break-word; white-space: normal; overflow-wrap: break-word;">(-) ${props.formatValue(
-          props.RecurringPricingInfo.Discount
+          props.RecurringPricingInfo.Discount, props.currencyID
         )}</td>`
       : ""
   }
@@ -6552,7 +6548,7 @@ ${
     props.vatPercentage && props.visibleFieldsCustomTemp.vat
       ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: black; word-break: break-word; white-space: normal; overflow-wrap: break-word;">(-) ${props.formatValue(
           Number(props.RecurringPricingInfo.staticTotalVAT) -
-            Number(props.RecurringPricingInfo.totalServiceWiseVAT)
+            Number(props.RecurringPricingInfo.totalServiceWiseVAT), props.currencyID
         )}</td>`
       : ""
   }
@@ -6561,7 +6557,7 @@ ${
       ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: black; word-break: break-word; white-space: normal; overflow-wrap: break-word;">(-) ${props.formatValue(
           Number(props.RecurringPricingInfo.Discount) +
             (Number(props.RecurringPricingInfo.staticTotalVAT) -
-              Number(props.RecurringPricingInfo.totalServiceWiseVAT))
+              Number(props.RecurringPricingInfo.totalServiceWiseVAT)), props.currencyID
         )}</td>`
       : ""
   }
@@ -6588,11 +6584,11 @@ ${
             !props.ProposalObject.DiscountLines)
             ? props.formatValue(
                 props.RecurringPricingInfo.DiscountedPrice -
-                  props.RecurringPricingInfo.Discount
+                  props.RecurringPricingInfo.Discount, props.currencyID
               )
             : props.formatValue(
                 props.RecurringPricingInfo.OriginalPrice -
-                  props.RecurringPricingInfo.Discount
+                  props.RecurringPricingInfo.Discount, props.currencyID
               )
         }</td>`
       : ""
@@ -6605,14 +6601,14 @@ ${
   ${
     props.vatPercentage && props.visibleFieldsCustomTemp.vat
       ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word;">${props.formatValue(
-          Number(props.RecurringPricingInfo.totalServiceWiseVAT)
+          Number(props.RecurringPricingInfo.totalServiceWiseVAT), props.currencyID
         )}</td>`
       : ""
   }
   ${
     props.vatPercentage && props.visibleFieldsCustomTemp.feesIncVat
       ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word;">${props.formatValue(
-          props.RecurringPricingInfo.GrandTotal
+          props.RecurringPricingInfo.GrandTotal, props.currencyID
         )}</td>`
       : ""
   }
@@ -6834,22 +6830,22 @@ ${
       }
       ${
         props.visibleFieldsCustomTemp.fees
-          ? `<th style="border: 1px solid #dddddd; text-align: center; padding: 8px; color: white; font-size: 18px;">Fees (£)</th>`
+          ? `<th style="border: 1px solid #dddddd; text-align: center; padding: 8px; color: white; font-size: 18px;">Fees (${props.currencySymbol})</th>`
           : ""
       }
       ${
         props.vatPercentageOneOff && props.visibleFieldsCustomTemp.vatRate
-          ? `<th style="border: 1px solid #dddddd; text-align: center; padding: 8px; color: white; font-size: 18px;">VAT Rate</th>`
+          ? `<th style="border: 1px solid #dddddd; text-align: center; padding: 8px; color: white; font-size: 18px;">${props.taxName} Rate</th>`
           : ""
       }
       ${
         props.vatPercentageOneOff && props.visibleFieldsCustomTemp.vat
-          ? `<th style="border: 1px solid #dddddd; text-align: center; padding: 8px; color: white; font-size: 18px;">VAT (£)</th>`
+          ? `<th style="border: 1px solid #dddddd; text-align: center; padding: 8px; color: white; font-size: 18px;">${props.taxName} (${props.currencySymbol})</th>`
           : ""
       }
       ${
         props.vatPercentageOneOff && props.visibleFieldsCustomTemp.feesIncVat
-          ? `<th style="border: 1px solid #dddddd; text-align: center; padding: 8px; color: white; font-size: 18px;">Fees inc VAT (£)</th>`
+          ? `<th style="border: 1px solid #dddddd; text-align: center; padding: 8px; color: white; font-size: 18px;">Fees inc ${props.taxName} (${props.currencySymbol})</th>`
           : ""
       }
     </tr>
@@ -6914,7 +6910,7 @@ ${
                     ? `<td style="border: 1px solid #dddddd; padding: 8px; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word; text-align: right;">
                         ${
                           props.ProposalObject.feeTypeId === 1
-                            ? props.formatValue(price)
+                            ? props.formatValue(price, props.currencyID)
                             : "&#10003;"
                         }
                       </td>`
@@ -6931,7 +6927,7 @@ ${
                     ? `<td style="border: 1px solid #dddddd; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word; text-align: right; padding: 8px;">
                         ${
                           props.ProposalObject.feeTypeId === 1
-                            ? props.formatValue(vat)
+                            ? props.formatValue(vat, props.currencyID)
                             : "&#10003;"
                         }
                       </td>`
@@ -6943,7 +6939,7 @@ ${
                     ? `<td style="border: 1px solid #dddddd; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word; text-align: right; padding: 8px;">
                         ${
                           props.ProposalObject.feeTypeId === 1
-                            ? props.formatValue(total)
+                            ? props.formatValue(total, props.currencyID)
                             : "&#10003;"
                         }
                       </td>`
@@ -6978,8 +6974,8 @@ ${
               Number(props.OneOffPricingInfo.DiscountedPrice) ||
             (Number(props.OneOffPricingInfo.Discount) > 0 &&
               !props.ProposalObject.DiscountLines)
-              ? props.formatValue(props.OneOffPricingInfo.DiscountedPrice)
-              : props.formatValue(props.OneOffPricingInfo.OriginalPrice)
+              ? props.formatValue(props.OneOffPricingInfo.DiscountedPrice, props.currencyID)
+              : props.formatValue(props.OneOffPricingInfo.OriginalPrice, props.currencyID)
           }
         </td>`
       : ""
@@ -6993,7 +6989,7 @@ ${
     props.vatPercentageOneOff && props.visibleFieldsCustomTemp.vat
       ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; word-break: break-word; white-space: normal; overflow-wrap: break-word;">
           ${props.formatValue(
-            Number(props.OneOffPricingInfo.staticTotalVATOneOff)
+            Number(props.OneOffPricingInfo.staticTotalVATOneOff), props.currencyID
           )}
         </td>`
       : ""
@@ -7008,11 +7004,11 @@ ${
               !props.ProposalObject.DiscountLines)
               ? props.formatValue(
                   Number(props.OneOffPricingInfo.DiscountedPrice) +
-                    Number(props.OneOffPricingInfo.staticTotalVATOneOff)
+                    Number(props.OneOffPricingInfo.staticTotalVATOneOff), props.currencyID
                 )
               : props.formatValue(
                   Number(props.OneOffPricingInfo.OriginalPrice) +
-                    Number(props.OneOffPricingInfo.staticTotalVATOneOff)
+                    Number(props.OneOffPricingInfo.staticTotalVATOneOff), props.currencyID
                 )
           }
         </td>`
@@ -7039,7 +7035,7 @@ ${
   ${
     props.visibleFieldsCustomTemp.fees
       ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: black; word-break: break-word; white-space: normal; overflow-wrap: break-word;">(-) ${props.formatValue(
-          props.OneOffPricingInfo.Discount
+          props.OneOffPricingInfo.Discount, props.currencyID
         )}</td>`
       : ""
   }
@@ -7052,7 +7048,7 @@ ${
     props.vatPercentageOneOff && props.visibleFieldsCustomTemp.vat
       ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: black; word-break: break-word; white-space: normal; overflow-wrap: break-word;">(-) ${props.formatValue(
           Number(props.OneOffPricingInfo.staticTotalVATOneOff) -
-            Number(props.OneOffPricingInfo.totalServiceWiseVATOneOff)
+            Number(props.OneOffPricingInfo.totalServiceWiseVATOneOff), props.currencyID
         )}</td>`
       : ""
   }
@@ -7061,7 +7057,7 @@ ${
       ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: black; word-break: break-word; white-space: normal; overflow-wrap: break-word;">(-) ${props.formatValue(
           Number(props.OneOffPricingInfo.Discount) +
             (Number(props.OneOffPricingInfo.staticTotalVATOneOff) -
-              Number(props.OneOffPricingInfo.totalServiceWiseVATOneOff))
+              Number(props.OneOffPricingInfo.totalServiceWiseVATOneOff)), props.currencyID
         )}</td>`
       : ""
   }
@@ -7082,7 +7078,7 @@ ${
   ${
     props.visibleFieldsCustomTemp.fees
       ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; word-break: break-word; white-space: normal; overflow-wrap: break-word;">${props.formatValue(
-          props.OneOffPricingInfo.DiscountedPrice
+          props.OneOffPricingInfo.DiscountedPrice, props.currencyID
         )}</td>`
       : ""
   }
@@ -7094,7 +7090,7 @@ ${
   ${
     props.vatPercentageOneOff && props.visibleFieldsCustomTemp.vat
       ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; word-break: break-word; white-space: normal; overflow-wrap: break-word;">${props.formatValue(
-          Number(props.OneOffPricingInfo.totalServiceWiseVATOneOff)
+          Number(props.OneOffPricingInfo.totalServiceWiseVATOneOff), props.currencyID
         )}</td>`
       : ""
   }
@@ -7102,7 +7098,7 @@ ${
     props.vatPercentageOneOff && props.visibleFieldsCustomTemp.feesIncVat
       ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; word-break: break-word; white-space: normal; overflow-wrap: break-word;">${props.formatValue(
           Number(props.OneOffPricingInfo.DiscountedPrice) +
-            Number(props.OneOffPricingInfo.totalServiceWiseVATOneOff)
+            Number(props.OneOffPricingInfo.totalServiceWiseVATOneOff), props.currencyID
         )}</td>`
       : ""
   }
@@ -7151,7 +7147,7 @@ ${
               prevElementType === ElementType.PAGE_BREAK ||
               prevElementType === ElementType.AWS_PDF_LINK
             ) {
-              if (props?.updatedTnCData || props?.engagementObj?.pdf) {
+              if (props?.updatedTnCData || props?.pdf) {
                 if (
                   props?.updatedTnCData !== null &&
                   props?.updatedTnCData !== undefined
@@ -7162,19 +7158,19 @@ ${
                       <div style="padding-left: 40px; padding-right: 40px;">${appliedFontTNCContent}</div>`,
                   });
                 } else if (
-                  props?.engagementObj?.pdf !== null ||
+                  props?.pdf !== null ||
                   props?.updatedTnCData === null
                 ) {
                   pdfDataArray.push(currentArray);
                   currentArray = [];
                   currentArray.push({
-                    ["awsLink"]: props.engagementObj.pdf,
+                    ["awsLink"]: props?.pdf,
                   });
                 }
               }
             } else {
               pdfDataArray.push(currentArray);
-              if (props?.updatedTnCData || props?.engagementObj?.pdf) {
+              if (props?.updatedTnCData || props?.pdf) {
                 if (
                   props?.updatedTnCData !== null &&
                   props?.updatedTnCData !== undefined
@@ -7187,12 +7183,12 @@ ${
                     },
                   ];
                 } else if (
-                  props?.engagementObj?.pdf !== null ||
+                  props?.pdf !== null ||
                   props?.updatedTnCData === null
                 ) {
                   currentArray = [
                     {
-                      ["awsLink"]: props.engagementObj.pdf,
+                      ["awsLink"]: props?.pdf,
                     },
                   ];
                 }
@@ -7213,7 +7209,7 @@ ${
                   prevElementType === ElementType.PAGE_BREAK ||
                   prevElementType === ElementType.AWS_PDF_LINK
                 ) {
-                  if (props?.updatedTnCData || props?.engagementObj?.pdf) {
+                  if (props?.updatedTnCData || props?.pdf) {
                     if (
                       props?.updatedTnCData !== null &&
                       props?.updatedTnCData !== undefined
@@ -7224,19 +7220,19 @@ ${
                         <div style="padding-left: 40px; padding-right: 40px;">${appliedFontTNCContent}</div>`,
                       });
                     } else if (
-                      props?.engagementObj?.pdf !== null ||
+                      props?.pdf !== null ||
                       props?.updatedTnCData === null
                     ) {
                       pdfDataArray.push(currentArray);
                       currentArray = [];
                       currentArray.push({
-                        ["awsLink"]: props.engagementObj.pdf,
+                        ["awsLink"]: props?.pdf,
                       });
                     }
                   }
                 } else {
                   pdfDataArray.push(currentArray);
-                  if (props?.updatedTnCData || props?.engagementObj?.pdf) {
+                  if (props?.updatedTnCData || props?.pdf) {
                     if (
                       props?.updatedTnCData !== null &&
                       props?.updatedTnCData !== undefined
@@ -7249,12 +7245,12 @@ ${
                         },
                       ];
                     } else if (
-                      props?.engagementObj?.pdf !== null ||
+                      props?.pdf !== null ||
                       props?.updatedTnCData === null
                     ) {
                       currentArray = [
                         {
-                          ["awsLink"]: props.engagementObj.pdf,
+                          ["awsLink"]: props?.pdf,
                         },
                       ];
                     }
