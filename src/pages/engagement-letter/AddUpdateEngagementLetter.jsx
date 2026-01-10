@@ -3760,7 +3760,7 @@ const ReviewServicesComponent = (props) => {
                                     </td>
                                     <td className="tr-table-class font-14 text-white text-right">
                                       {/* {props.formatValue(
-                                        props.OneOffPricingInfo.VATPrice,
+                                        props.OneOffPricingInfo.VATPrice,                                                 
                                         props.currencyID
                                       )} */}
                                       {props.formatValue(
@@ -4303,67 +4303,73 @@ const ReviewServicesComponent = (props) => {
                   {/* Statement of facts - Service description customization */}
 
                   <div className="SOF-SD-Customization d-flex flex-column gap-2">
-                    <div className="service-description">
-                      {props?.serviceDescriptionObj?.mainHeading !== null &&
-                        props?.serviceDescriptionObj?.mainHeading !==
-                          undefined &&
-                        props?.serviceDescriptionObj?.mainHeading !== "" && (
-                          <>
-                            <div className="separator mb-2"></div>
-                            <h6
-                              style={{
-                                fontSize: `${props?.serviceDescriptionObj?.mainHeadingFontSize}px`,
-                                fontWeight: props?.serviceDescriptionObj
-                                  ?.mainHeadingIsBold
-                                  ? "bold"
-                                  : "normal",
-                                fontStyle: props?.serviceDescriptionObj
-                                  ?.mainHeadingIsItalic
-                                  ? "italic"
-                                  : undefined,
-                              }}
-                            >
-                              {props?.serviceDescriptionObj?.mainHeading}
-                            </h6>
-                            <div className="separator mb-3"></div>
-                          </>
-                        )}
-                      <Text_Editor
-                        index={0}
-                        handleContentChange={handleSDChange}
-                        editorState={props.serviceDescriptionHTML}
-                      />
-                    </div>
-                    <div className="statement-of-facts">
-                      {props?.statementOfFactsObj?.mainHeading !== null &&
-                        props?.statementOfFactsObj?.mainHeading !== undefined &&
-                        props?.statementOfFactsObj?.mainHeading !== "" && (
-                          <>
-                            <div className="separator mb-2"></div>
-                            <h6
-                              style={{
-                                fontSize: `${props?.statementOfFactsObj?.mainHeadingFontSize}px`,
-                                fontWeight: props?.statementOfFactsObj
-                                  ?.mainHeadingIsBold
-                                  ? "bold"
-                                  : "normal",
-                                fontStyle: props?.statementOfFactsObj
-                                  ?.mainHeadingIsItalic
-                                  ? "italic"
-                                  : undefined,
-                              }}
-                            >
-                              {props?.statementOfFactsObj?.mainHeading}
-                            </h6>
-                            <div className="separator mb-3"></div>
-                          </>
-                        )}
-                      <Text_Editor
-                        index={0}
-                        handleContentChange={handleSOFChange}
-                        editorState={props.statementOfFactsHTML}
-                      />
-                    </div>
+                    {props?.serviceDescriptionObj?.mainHeading !== null && (
+                      <div className="service-description">
+                        {props?.serviceDescriptionObj?.mainHeading !== null &&
+                          props?.serviceDescriptionObj?.mainHeading !==
+                            undefined &&
+                          props?.serviceDescriptionObj?.mainHeading !== "" && (
+                            <>
+                              <div className="separator mb-2"></div>
+                              <h6
+                                style={{
+                                  fontSize: `${props?.serviceDescriptionObj?.mainHeadingFontSize}px`,
+                                  fontWeight: props?.serviceDescriptionObj
+                                    ?.mainHeadingIsBold
+                                    ? "bold"
+                                    : "normal",
+                                  fontStyle: props?.serviceDescriptionObj
+                                    ?.mainHeadingIsItalic
+                                    ? "italic"
+                                    : undefined,
+                                }}
+                              >
+                                {props?.serviceDescriptionObj?.mainHeading}
+                              </h6>
+                              <div className="separator mb-3"></div>
+                            </>
+                          )}
+                        <Text_Editor
+                          index={0}
+                          handleContentChange={handleSDChange}
+                          editorState={props.serviceDescriptionHTML}
+                        />
+                      </div>
+                    )}
+
+                    {props?.statementOfFactsObj?.mainHeading !== null && (
+                      <div className="statement-of-facts">
+                        {props?.statementOfFactsObj?.mainHeading !== null &&
+                          props?.statementOfFactsObj?.mainHeading !==
+                            undefined &&
+                          props?.statementOfFactsObj?.mainHeading !== "" && (
+                            <>
+                              <div className="separator mb-2"></div>
+                              <h6
+                                style={{
+                                  fontSize: `${props?.statementOfFactsObj?.mainHeadingFontSize}px`,
+                                  fontWeight: props?.statementOfFactsObj
+                                    ?.mainHeadingIsBold
+                                    ? "bold"
+                                    : "normal",
+                                  fontStyle: props?.statementOfFactsObj
+                                    ?.mainHeadingIsItalic
+                                    ? "italic"
+                                    : undefined,
+                                }}
+                              >
+                                {props?.statementOfFactsObj?.mainHeading}
+                              </h6>
+                              <div className="separator mb-3"></div>
+                            </>
+                          )}
+                        <Text_Editor
+                          index={0}
+                          handleContentChange={handleSOFChange}
+                          editorState={props.statementOfFactsHTML}
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -11693,7 +11699,7 @@ const ReviewPackagesComponent = (props) => {
           {/* Statement of facts - Service description customization */}
 
           <div className="SOF-SD-Customization d-flex flex-column gap-2">
-            <div className="service-description">
+            {/* <div className="service-description">
               <div className="separator mb-2"></div>
               <h6>Service Description</h6>
               <div className="separator mb-3"></div>
@@ -11702,8 +11708,40 @@ const ReviewPackagesComponent = (props) => {
                 handleContentChange={handleSDChange}
                 editorState={props.serviceDescriptionHTML}
               />
-            </div>
-            <div className="statement-of-facts">
+            </div> */}
+            {props?.serviceDescriptionObj?.mainHeading !== null && (
+              <div className="service-description">
+                {props?.serviceDescriptionObj?.mainHeading !== null &&
+                  props?.serviceDescriptionObj?.mainHeading !== undefined &&
+                  props?.serviceDescriptionObj?.mainHeading !== "" && (
+                    <>
+                      <div className="separator mb-2"></div>
+                      <h6
+                        style={{
+                          fontSize: `${props?.serviceDescriptionObj?.mainHeadingFontSize}px`,
+                          fontWeight: props?.serviceDescriptionObj
+                            ?.mainHeadingIsBold
+                            ? "bold"
+                            : "normal",
+                          fontStyle: props?.serviceDescriptionObj
+                            ?.mainHeadingIsItalic
+                            ? "italic"
+                            : undefined,
+                        }}
+                      >
+                        {props?.serviceDescriptionObj?.mainHeading}
+                      </h6>
+                      <div className="separator mb-3"></div>
+                    </>
+                  )}
+                <Text_Editor
+                  index={0}
+                  handleContentChange={handleSDChange}
+                  editorState={props.serviceDescriptionHTML}
+                />
+              </div>
+            )}
+            {/* <div className="statement-of-facts">
               <div className="separator mb-2"></div>
               <h6>Statement Of Facts</h6>
               <div className="separator mb-3"></div>
@@ -11712,7 +11750,39 @@ const ReviewPackagesComponent = (props) => {
                 handleContentChange={handleSOFChange}
                 editorState={props.statementOfFactsHTML}
               />
-            </div>
+            </div> */}
+            {props?.statementOfFactsObj?.mainHeading !== null && (
+              <div className="statement-of-facts">
+                {props?.statementOfFactsObj?.mainHeading !== null &&
+                  props?.statementOfFactsObj?.mainHeading !== undefined &&
+                  props?.statementOfFactsObj?.mainHeading !== "" && (
+                    <>
+                      <div className="separator mb-2"></div>
+                      <h6
+                        style={{
+                          fontSize: `${props?.statementOfFactsObj?.mainHeadingFontSize}px`,
+                          fontWeight: props?.statementOfFactsObj
+                            ?.mainHeadingIsBold
+                            ? "bold"
+                            : "normal",
+                          fontStyle: props?.statementOfFactsObj
+                            ?.mainHeadingIsItalic
+                            ? "italic"
+                            : undefined,
+                        }}
+                      >
+                        {props?.statementOfFactsObj?.mainHeading}
+                      </h6>
+                      <div className="separator mb-3"></div>
+                    </>
+                  )}
+                <Text_Editor
+                  index={0}
+                  handleContentChange={handleSOFChange}
+                  editorState={props.statementOfFactsHTML}
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -11929,9 +11999,9 @@ const Add_Update_Engagement_Letter = () => {
     PaymentFrequency: null,
   });
   const [serviceDescriptionObj, setServiceDescriptionObj] = useState({
-    mainHeading: "Service Description",
-    recurringOnGoingHeading: "Ongoing/Recurring Services",
-    oneOffAdhocHeading: "One-Off/Ad hoc Services",
+    mainHeading: null,
+    recurringOnGoingHeading: null,
+    oneOffAdhocHeading: null,
     mainHeadingFontSize: null,
     recurringOnGoingHeadingFontSize: null,
     oneOffAdhocFontSize: null,
@@ -11944,9 +12014,9 @@ const Add_Update_Engagement_Letter = () => {
   });
 
   const [statementOfFactsObj, setStatementOfFactsObj] = useState({
-    mainHeading: "Statement Of Facts",
-    recurringOnGoingHeading: "Ongoing/Recurring Services",
-    oneOffAdhocHeading: "One-Off/Ad hoc Services",
+    mainHeading: null,
+    recurringOnGoingHeading: null,
+    oneOffAdhocHeading: null,
     mainHeadingFontSize: null,
     recurringOnGoingHeadingFontSize: null,
     oneOffAdhocFontSize: null,
@@ -14273,8 +14343,6 @@ const Add_Update_Engagement_Letter = () => {
               100;
 
             setVATPercentageOneOff(ServiceWiseVATOneOff);
-
-            debugger;
 
             const packageOneVATPercentageOneOff =
               (Number(OneOffVATTotalOne) / Number(OneOffTotalOne)) * 100;
@@ -19751,19 +19819,28 @@ const Add_Update_Engagement_Letter = () => {
               let quotationPriceWithAllDecimal = Number(
                 service.quotationPriceWithAllDecimal
               ).toFixed(2);
+              let service_vat_percentage = Number(service.vatPercentage);
+              let service_vat_amount = Number(service.vatAmount);
+              let price = Number(service.quotationPrice);
 
               switch (recurringOneOffPrice.paymentFrequencyID) {
                 case 4:
                   quotationPrice *= 12;
                   quotationPriceWithAllDecimal *= 12;
+                  price *= 12;
+                  service_vat_amount *= 12;
                   break;
                 case 3:
                   quotationPrice *= 4;
                   quotationPriceWithAllDecimal *= 4;
+                  price *= 4;
+                  service_vat_amount *= 4;
                   break;
                 case 2:
                   quotationPrice *= 2;
                   quotationPriceWithAllDecimal *= 2;
+                  price *= 2;
+                  service_vat_amount *= 2;
                   break;
                 case 1:
                 default:
@@ -19774,6 +19851,9 @@ const Add_Update_Engagement_Letter = () => {
                 ...service,
                 quotationPrice,
                 quotationPriceWithAllDecimal,
+                service_vat_percentage,
+                service_vat_amount,
+                price,
               };
             }),
           }));
@@ -19788,22 +19868,33 @@ const Add_Update_Engagement_Letter = () => {
               let quotationPriceWithAllDecimal = Number(
                 service.quotationPriceWithAllDecimal
               ).toFixed(2);
+              let service_vat_percentage = Number(service.vatPercentage);
+              let service_vat_amount = Number(service.vatAmount);
+              let price = Number(service.quotationPrice);
               switch (engagementObj.Payment_Frequency) {
                 case 1: // Yearly
                   quotationPrice /= 1;
                   quotationPriceWithAllDecimal /= 1;
+                  price /= 1;
+                  service_vat_amount /= 1;
                   break;
                 case 2: // Half-Yearly
                   quotationPrice /= 2;
                   quotationPriceWithAllDecimal /= 2;
+                  price /= 2;
+                  service_vat_amount /= 2;
                   break;
                 case 3: // Quarterly
                   quotationPrice /= 4;
                   quotationPriceWithAllDecimal /= 4;
+                  price /= 4;
+                  service_vat_amount /= 4;
                   break;
                 case 4: // Monthly
                   quotationPrice /= 12;
                   quotationPriceWithAllDecimal /= 12;
+                  price /= 12;
+                  service_vat_amount /= 12;
                   break;
                 default:
                   break;
@@ -19812,6 +19903,9 @@ const Add_Update_Engagement_Letter = () => {
                 ...service,
                 quotationPrice,
                 quotationPriceWithAllDecimal,
+                service_vat_amount,
+                service_vat_percentage,
+                price,
               };
             }),
           }));
@@ -19885,10 +19979,16 @@ const Add_Update_Engagement_Letter = () => {
               let quotationPriceWithAllDecimal = Number(
                 service.quotationPriceWithAllDecimal
               );
+              let service_vat_percentage = Number(service.vatPercentage);
+              let service_vat_amount = Number(service.vatAmount);
+              let price = Number(service.quotationPrice);
               return {
                 ...service,
                 quotationPrice,
                 quotationPriceWithAllDecimal,
+                service_vat_amount,
+                service_vat_percentage,
+                price,
               };
             }),
           }));
@@ -19915,10 +20015,16 @@ const Add_Update_Engagement_Letter = () => {
             let quotationPriceWithAllDecimal = Number(
               service.quotationPriceWithAllDecimal
             ).toFixed(2);
+            let service_vat_percentage = Number(service.vatPercentage);
+            let service_vat_amount = Number(service.vatAmount);
+            let price = Number(service.quotationPrice);
             return {
               ...service,
               quotationPrice,
               quotationPriceWithAllDecimal,
+              service_vat_amount,
+              service_vat_percentage,
+              price,
             };
           }),
         }));
@@ -19941,10 +20047,16 @@ const Add_Update_Engagement_Letter = () => {
               let quotationPriceWithAllDecimal = Number(
                 service.quotationPriceWithAllDecimal
               ).toFixed(2);
+              let service_vat_percentage = Number(service.vatPercentage);
+              let service_vat_amount = Number(service.vatAmount);
+              let price = Number(service.quotationPrice);
               return {
                 ...service,
                 quotationPrice,
                 quotationPriceWithAllDecimal,
+                service_vat_percentage,
+                service_vat_amount,
+                price,
               };
             }),
           }));
@@ -19989,19 +20101,28 @@ const Add_Update_Engagement_Letter = () => {
               let quotationPrice = service.quotationPriceWithAllDecimal;
               let quotationPriceWithAllDecimal =
                 service.quotationPriceWithAllDecimal;
+              let service_vat_percentage = Number(service.vatPercentage);
+              let service_vat_amount = Number(service.vatAmount);
+              let price = Number(service.quotationPrice);
 
               switch (recurringOneOffPrice.paymentFrequencyID) {
                 case 4:
                   quotationPrice *= 12;
                   quotationPriceWithAllDecimal *= 12;
+                  price *= 12;
+                  service_vat_amount *= 12;
                   break;
                 case 3:
                   quotationPrice *= 4;
                   quotationPriceWithAllDecimal *= 4;
+                  price *= 4;
+                  service_vat_amount *= 4;
                   break;
                 case 2:
                   quotationPrice *= 2;
                   quotationPriceWithAllDecimal *= 2;
+                  price *= 2;
+                  service_vat_amount *= 2;
                   break;
                 case 1:
                 default:
@@ -20012,6 +20133,9 @@ const Add_Update_Engagement_Letter = () => {
                 ...service,
                 quotationPrice,
                 quotationPriceWithAllDecimal,
+                service_vat_amount,
+                service_vat_percentage,
+                price,
               };
             }),
           }));
@@ -20057,6 +20181,20 @@ const Add_Update_Engagement_Letter = () => {
             finalQuotationAmount.discountPercentageWithAllDecimal
           ).toFixed(2);
           setServicePackageName(finalQuotationAmount.servicePackageName);
+
+          const totalVATAmount = updatedService.reduce((catSum, category) => {
+            const serviceSum = category.servicesList.reduce(
+              (sum, service) => sum + (service.service_vat_amount || 0),
+              0
+            );
+            return catSum + serviceSum;
+          }, 0);
+
+          const ServiceWiseVAT =
+            (Number(totalVATAmount) / Number(RecTotal)) * 100;
+
+          setVATPercentage(ServiceWiseVAT);
+
           setRecurringPricingInfo((prev) => ({
             ...prev,
             OriginalPrice: Number(RecTotal),
@@ -20068,7 +20206,9 @@ const Add_Update_Engagement_Letter = () => {
               Number(finalQuotationAmount.discountedTotal)
             ),
             VATPrice: Number(finalQuotationAmount.vat),
+            totalServiceWiseVAT: Number(finalQuotationAmount.vat),
             Discount: Number(finalQuotationAmount.discounted),
+            staticTotalVAT: finalQuotationAmount.vat,
             DiscountedTotal: Number(finalQuotationAmount.discountedTotal),
             GrandTotal: Number(finalQuotationAmount.grandTotal),
           }));
@@ -20081,6 +20221,7 @@ const Add_Update_Engagement_Letter = () => {
             DiscountedPrice: recDefaultPriceCopy,
             NetTotal: recOriginalPriceCopy,
             VATPrice: recVATPriceCopy,
+            totalServiceWiseVAT: Number(finalQuotationAmount.vat),
             Discount: Number(finalQuotationAmount.discounted),
             DiscountedTotal: Number(finalQuotationAmount.discountedTotal),
             GrandTotal: recGrandTotalCopy,
@@ -20128,10 +20269,16 @@ const Add_Update_Engagement_Letter = () => {
               let quotationPriceWithAllDecimal = Number(
                 service.quotationPriceWithAllDecimal
               );
+              let service_vat_percentage = Number(service.vatPercentage);
+              let service_vat_amount = Number(service.vatAmount);
+              let price = Number(service.quotationPrice);
               return {
                 ...service,
                 quotationPrice,
                 quotationPriceWithAllDecimal,
+                service_vat_percentage,
+                service_vat_amount,
+                price,
               };
             }),
           }));
@@ -20157,6 +20304,23 @@ const Add_Update_Engagement_Letter = () => {
               finalQuotationAmount.discountPercentageWithAllDecimal
             ).toFixed(2);
             setServicePackageName(finalQuotationAmount.servicePackageName);
+
+            const totalVATAmountOneOff = updatedService.reduce(
+              (catSum, category) => {
+                const serviceSum = category.servicesList.reduce(
+                  (sum, service) => sum + (service.service_vat_amount || 0),
+                  0
+                );
+                return catSum + serviceSum;
+              },
+              0
+            );
+
+            const ServiceWiseVATOneOff =
+              (Number(totalVATAmountOneOff) / Number(OneOffTotal)) * 100;
+
+            setVATPercentageOneOff(ServiceWiseVATOneOff);
+
             setOneOffPricingInfo((prev) => ({
               ...prev,
               OriginalPrice: OneOffTotal,
@@ -20170,6 +20334,8 @@ const Add_Update_Engagement_Letter = () => {
                 Number(finalQuotationAmount.discountedTotal)
               ),
               VATPrice: Number(finalQuotationAmount.vat),
+              totalServiceWiseVATOneOff: finalQuotationAmount.vat,
+              staticTotalVATOneOff: finalQuotationAmount.vat,
               Discount: Number(finalQuotationAmount.discounted),
               DiscountedTotal: Number(finalQuotationAmount.discountedTotal),
               GrandTotal: Number(finalQuotationAmount.grandTotal),
@@ -20185,6 +20351,8 @@ const Add_Update_Engagement_Letter = () => {
               )?.toFixed(2),
               NetTotal: Number(finalQuotationAmount.netTotal)?.toFixed(2),
               VATPrice: Number(finalQuotationAmount.vat),
+              totalServiceWiseVATOneOff: finalQuotationAmount.vat,
+              staticTotalVATOneOff: finalQuotationAmount.vat,
               Discount: Number(finalQuotationAmount.discounted),
               DiscountedTotal: Number(finalQuotationAmount.discountedTotal),
               GrandTotal: Number(finalQuotationAmount.grandTotal),
