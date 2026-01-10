@@ -144,6 +144,47 @@ const BasicInformationComponent = (props) => {
       props.setShowSeparatorLines(selectedTemplate.showSeparatorLines);
 
       // props.updateVisibleFieldsFromIds(selectedTemplate.pricingTableColumnIDs);
+
+      props.updateVisibleFieldsFromIds(selectedTemplate.pricingTableColumnIDs);
+
+      props.setServiceDescriptionObj((prev) => ({
+        ...prev,
+        mainHeading: selectedTemplate?.mainHeadingSD,
+        recurringOnGoingHeading: selectedTemplate?.recurringOnGoingHeadingSD,
+        oneOffAdhocHeading: selectedTemplate?.oneOffAdhocHeadingSD,
+        mainHeadingFontSize: selectedTemplate?.mainHeadingFontSizeSD,
+        recurringOnGoingHeadingFontSize:
+          selectedTemplate?.recurringOnGoingHeadingFontSizeSD,
+        oneOffAdhocFontSize: selectedTemplate?.oneOffAdhocFontSizeSD,
+        mainHeadingIsBold: selectedTemplate?.mainHeadingIsBoldSD,
+        mainHeadingIsItalic: selectedTemplate?.mainHeadingIsItalicSD,
+        recurringOnGoingHeadingIsBold:
+          selectedTemplate?.recurringOnGoingHeadingIsBoldSD,
+        recurringOnGoingHeadingIsItalic:
+          selectedTemplate?.recurringOnGoingHeadingIsItalicSD,
+        oneOffAdhocHeadingIsBold: selectedTemplate?.oneOffAdhocHeadingIsBoldSD,
+        oneOffAdhocHeadingIsItalic:
+          selectedTemplate?.oneOffAdhocHeadingIsItalicSD,
+      }));
+      props.setStatementOfFactsObj((prev) => ({
+        ...prev,
+        mainHeading: selectedTemplate?.mainHeadingSOF,
+        recurringOnGoingHeading: selectedTemplate?.recurringOnGoingHeadingSOF,
+        oneOffAdhocHeading: selectedTemplate?.oneOffAdhocHeadingSOF,
+        mainHeadingFontSize: selectedTemplate?.mainHeadingFontSizeSOF,
+        recurringOnGoingHeadingFontSize:
+          selectedTemplate?.recurringOnGoingHeadingFontSizeSOF,
+        oneOffAdhocFontSize: selectedTemplate?.oneOffAdhocFontSizeSOF,
+        mainHeadingIsBold: selectedTemplate?.mainHeadingIsBoldSOF,
+        mainHeadingIsItalic: selectedTemplate?.mainHeadingIsItalicSOF,
+        recurringOnGoingHeadingIsBold:
+          selectedTemplate?.recurringOnGoingHeadingIsBoldSOF,
+        recurringOnGoingHeadingIsItalic:
+          selectedTemplate?.recurringOnGoingHeadingIsItalicSOF,
+        oneOffAdhocHeadingIsBold: selectedTemplate?.oneOffAdhocHeadingIsBoldSOF,
+        oneOffAdhocHeadingIsItalic:
+          selectedTemplate?.oneOffAdhocHeadingIsItalicSOF,
+      }));
     }
   };
 
@@ -6105,66 +6146,71 @@ const ReviewServicesComponent = (props) => {
           {/* Statement of facts - Service description customization */}
 
           <div className="SOF-SD-Customization d-flex flex-column gap-2">
-            <div className="service-description">
-              {props?.serviceDescriptionObj?.mainHeading !== null &&
-                props?.serviceDescriptionObj?.mainHeading !== undefined &&
-                props?.serviceDescriptionObj?.mainHeading !== "" && (
-                  <>
-                    <div className="separator mb-2"></div>
-                    <h6
-                      style={{
-                        fontSize: `${props?.serviceDescriptionObj?.mainHeadingFontSize}px`,
-                        fontWeight: props?.serviceDescriptionObj
-                          ?.mainHeadingIsBold
-                          ? "bold"
-                          : "normal",
-                        fontStyle: props?.serviceDescriptionObj
-                          ?.mainHeadingIsItalic
-                          ? "italic"
-                          : undefined,
-                      }}
-                    >
-                      {props?.serviceDescriptionObj?.mainHeading}
-                    </h6>
-                    <div className="separator mb-3"></div>
-                  </>
-                )}
-              <Text_Editor
-                index={0}
-                handleContentChange={handleSDChange}
-                editorState={props.serviceDescriptionHTML}
-              />
-            </div>
-            <div className="statement-of-facts">
-              {props?.statementOfFactsObj?.mainHeading !== null &&
-                props?.statementOfFactsObj?.mainHeading !== undefined &&
-                props?.statementOfFactsObj?.mainHeading !== "" && (
-                  <>
-                    <div className="separator mb-2"></div>
-                    <h6
-                      style={{
-                        fontSize: `${props?.statementOfFactsObj?.mainHeadingFontSize}px`,
-                        fontWeight: props?.statementOfFactsObj
-                          ?.mainHeadingIsBold
-                          ? "bold"
-                          : "normal",
-                        fontStyle: props?.statementOfFactsObj
-                          ?.mainHeadingIsItalic
-                          ? "italic"
-                          : undefined,
-                      }}
-                    >
-                      {props?.statementOfFactsObj?.mainHeading}
-                    </h6>
-                    <div className="separator mb-3"></div>
-                  </>
-                )}
-              <Text_Editor
-                index={0}
-                handleContentChange={handleSOFChange}
-                editorState={props.statementOfFactsHTML}
-              />
-            </div>
+            {props?.serviceDescriptionObj?.mainHeading !== null && (
+              <div className="service-description">
+                {props?.serviceDescriptionObj?.mainHeading !== null &&
+                  props?.serviceDescriptionObj?.mainHeading !== undefined &&
+                  props?.serviceDescriptionObj?.mainHeading !== "" && (
+                    <>
+                      <div className="separator mb-2"></div>
+                      <h6
+                        style={{
+                          fontSize: `${props?.serviceDescriptionObj?.mainHeadingFontSize}px`,
+                          fontWeight: props?.serviceDescriptionObj
+                            ?.mainHeadingIsBold
+                            ? "bold"
+                            : "normal",
+                          fontStyle: props?.serviceDescriptionObj
+                            ?.mainHeadingIsItalic
+                            ? "italic"
+                            : undefined,
+                        }}
+                      >
+                        {props?.serviceDescriptionObj?.mainHeading}
+                      </h6>
+                      <div className="separator mb-3"></div>
+                    </>
+                  )}
+                <Text_Editor
+                  index={0}
+                  handleContentChange={handleSDChange}
+                  editorState={props.serviceDescriptionHTML}
+                />
+              </div>
+            )}
+
+            {props?.statementOfFactsObj?.mainHeading !== null && (
+              <div className="statement-of-facts">
+                {props?.statementOfFactsObj?.mainHeading !== null &&
+                  props?.statementOfFactsObj?.mainHeading !== undefined &&
+                  props?.statementOfFactsObj?.mainHeading !== "" && (
+                    <>
+                      <div className="separator mb-2"></div>
+                      <h6
+                        style={{
+                          fontSize: `${props?.statementOfFactsObj?.mainHeadingFontSize}px`,
+                          fontWeight: props?.statementOfFactsObj
+                            ?.mainHeadingIsBold
+                            ? "bold"
+                            : "normal",
+                          fontStyle: props?.statementOfFactsObj
+                            ?.mainHeadingIsItalic
+                            ? "italic"
+                            : undefined,
+                        }}
+                      >
+                        {props?.statementOfFactsObj?.mainHeading}
+                      </h6>
+                      <div className="separator mb-3"></div>
+                    </>
+                  )}
+                <Text_Editor
+                  index={0}
+                  handleContentChange={handleSOFChange}
+                  editorState={props.statementOfFactsHTML}
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -17538,66 +17584,71 @@ const ReviewPackagesComponent = (props) => {
           {/* Statement of facts - Service description customization */}
 
           <div className="SOF-SD-Customization">
-            <div className="service-description">
-              {props?.serviceDescriptionObj?.mainHeading !== null &&
-                props?.serviceDescriptionObj?.mainHeading !== undefined &&
-                props?.serviceDescriptionObj?.mainHeading !== "" && (
-                  <>
-                    <div className="separator mb-2"></div>
-                    <h6
-                      style={{
-                        fontSize: `${props?.serviceDescriptionObj?.mainHeadingFontSize}px`,
-                        fontWeight: props?.serviceDescriptionObj
-                          ?.mainHeadingIsBold
-                          ? "bold"
-                          : "normal",
-                        fontStyle: props?.serviceDescriptionObj
-                          ?.mainHeadingIsItalic
-                          ? "italic"
-                          : undefined,
-                      }}
-                    >
-                      {props?.serviceDescriptionObj?.mainHeading}
-                    </h6>
-                    <div className="separator mb-3"></div>
-                  </>
-                )}
-              <Text_Editor
-                index={0}
-                handleContentChange={handleSDChange}
-                editorState={props.serviceDescriptionHTML}
-              />
-            </div>
-            <div className="statement-of-facts">
-              {props?.statementOfFactsObj?.mainHeading !== null &&
-                props?.statementOfFactsObj?.mainHeading !== undefined &&
-                props?.statementOfFactsObj?.mainHeading !== "" && (
-                  <>
-                    <div className="separator mb-2"></div>
-                    <h6
-                      style={{
-                        fontSize: `${props?.statementOfFactsObj?.mainHeadingFontSize}px`,
-                        fontWeight: props?.statementOfFactsObj
-                          ?.mainHeadingIsBold
-                          ? "bold"
-                          : "normal",
-                        fontStyle: props?.statementOfFactsObj
-                          ?.mainHeadingIsItalic
-                          ? "italic"
-                          : undefined,
-                      }}
-                    >
-                      {props?.statementOfFactsObj?.mainHeading}
-                    </h6>
-                    <div className="separator mb-3"></div>
-                  </>
-                )}
-              <Text_Editor
-                index={0}
-                handleContentChange={handleSOFChange}
-                editorState={props.statementOfFactsHTML}
-              />
-            </div>
+            {props?.serviceDescriptionObj?.mainHeading !== null && (
+              <div className="service-description">
+                {props?.serviceDescriptionObj?.mainHeading !== null &&
+                  props?.serviceDescriptionObj?.mainHeading !== undefined &&
+                  props?.serviceDescriptionObj?.mainHeading !== "" && (
+                    <>
+                      <div className="separator mb-2"></div>
+                      <h6
+                        style={{
+                          fontSize: `${props?.serviceDescriptionObj?.mainHeadingFontSize}px`,
+                          fontWeight: props?.serviceDescriptionObj
+                            ?.mainHeadingIsBold
+                            ? "bold"
+                            : "normal",
+                          fontStyle: props?.serviceDescriptionObj
+                            ?.mainHeadingIsItalic
+                            ? "italic"
+                            : undefined,
+                        }}
+                      >
+                        {props?.serviceDescriptionObj?.mainHeading}
+                      </h6>
+                      <div className="separator mb-3"></div>
+                    </>
+                  )}
+                <Text_Editor
+                  index={0}
+                  handleContentChange={handleSDChange}
+                  editorState={props.serviceDescriptionHTML}
+                />
+              </div>
+            )}
+
+            {props?.statementOfFactsObj?.mainHeading !== null && (
+              <div className="statement-of-facts">
+                {props?.statementOfFactsObj?.mainHeading !== null &&
+                  props?.statementOfFactsObj?.mainHeading !== undefined &&
+                  props?.statementOfFactsObj?.mainHeading !== "" && (
+                    <>
+                      <div className="separator mb-2"></div>
+                      <h6
+                        style={{
+                          fontSize: `${props?.statementOfFactsObj?.mainHeadingFontSize}px`,
+                          fontWeight: props?.statementOfFactsObj
+                            ?.mainHeadingIsBold
+                            ? "bold"
+                            : "normal",
+                          fontStyle: props?.statementOfFactsObj
+                            ?.mainHeadingIsItalic
+                            ? "italic"
+                            : undefined,
+                        }}
+                      >
+                        {props?.statementOfFactsObj?.mainHeading}
+                      </h6>
+                      <div className="separator mb-3"></div>
+                    </>
+                  )}
+                <Text_Editor
+                  index={0}
+                  handleContentChange={handleSOFChange}
+                  editorState={props.statementOfFactsHTML}
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -17718,9 +17769,9 @@ const Add_Update_Proposal = (props) => {
   const [serviceDescriptionHTML, setServiceDescriptionHTML] = useState("");
   const [statementOfFactsHTML, setStatementOfFactsHTML] = useState("");
   const [serviceDescriptionObj, setServiceDescriptionObj] = useState({
-    mainHeading: "Service Description",
-    recurringOnGoingHeading: "Ongoing/Recurring Services",
-    oneOffAdhocHeading: "One-Off/Ad hoc Services",
+    mainHeading: null,
+    recurringOnGoingHeading: null,
+    oneOffAdhocHeading: null,
     mainHeadingFontSize: null,
     recurringOnGoingHeadingFontSize: null,
     oneOffAdhocFontSize: null,
@@ -17733,9 +17784,9 @@ const Add_Update_Proposal = (props) => {
   });
 
   const [statementOfFactsObj, setStatementOfFactsObj] = useState({
-    mainHeading: "Statement Of Facts",
-    recurringOnGoingHeading: "Ongoing/Recurring Services",
-    oneOffAdhocHeading: "One-Off/Ad hoc Services",
+    mainHeading: null,
+    recurringOnGoingHeading: null,
+    oneOffAdhocHeading: null,
     mainHeadingFontSize: null,
     recurringOnGoingHeadingFontSize: null,
     oneOffAdhocFontSize: null,
@@ -24308,7 +24359,14 @@ const Add_Update_Proposal = (props) => {
               ? null
               : RecurringPricingInfo.DiscountedTotal,
           vatPercentage: vatPercentage ? vatPercentage : null,
-          vat: vatPercentage == null ? null : RecurringPricingInfo.VATPrice,
+          vat:
+            vatPercentage == null
+              ? null
+              : RecurringPricingInfo.totalServiceWiseVAT,
+          // staticVatAmount:
+          //   vatPercentage == null
+          //     ? null
+          //     : RecurringPricingInfo.totalServiceWiseVAT,
           grandTotal:
             ProposalObject.selectedProposalTypeValue === 4
               ? null
@@ -24342,7 +24400,11 @@ const Add_Update_Proposal = (props) => {
               ? null
               : OneOffPricingInfo.DiscountedTotal,
           vatPercentage: vatPercentage ? vatPercentage : null,
-          vat: vatPercentage == null ? null : OneOffPricingInfo.VATPrice,
+          // vat: vatPercentage == null ? null : OneOffPricingInfo.VATPrice,
+          vat:
+            vatPercentage == null
+              ? null
+              : OneOffPricingInfo.totalServiceWiseVATOneOff,
           grandTotal:
             ProposalObject.selectedProposalTypeValue === 4
               ? null
@@ -26609,6 +26671,8 @@ const Add_Update_Proposal = (props) => {
                   pricingTableColumnIDs={pricingTableColumnIDs}
                   updateVisibleFieldsFromIds={updateVisibleFieldsFromIds}
                   setRequireMessage={setRequireMessage}
+                  setStatementOfFactsObj={setStatementOfFactsObj}
+                  setServiceDescriptionObj={setServiceDescriptionObj}
                   // ProposalTypeUpdate={ProposalTypeUpdate}
                 />
               )}
