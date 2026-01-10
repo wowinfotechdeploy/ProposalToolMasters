@@ -800,11 +800,11 @@ const Email_Config = () => {
   //Design part :
   return (
     <div>
-        <div class="page-content page-background">
+        <div class="page-content mt-2 page-background">
             <div class="container">
               <div class="page-title-cls">Email Config</div>
             </div>
-          <div class="container ">
+          {/* <div class="container "> */}
             <div className="row">
               <div class="col-12 pricing_settings">
                 <div class="card">
@@ -1262,7 +1262,7 @@ const Email_Config = () => {
                 </div>
               </div>
             </div>
-          </div>
+          {/* </div> */}
 
           {/* new */}
           <div class="container ">

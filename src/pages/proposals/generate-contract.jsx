@@ -36,6 +36,8 @@ function AcceptInvitation() {
   const [fontFamily, setFontFamily] = useState("");
   const [fontSize, setFontSize] = useState("");
   const [showSeparatorLines, setShowSeparatorLines] = useState(null);
+  const [watermarkImage, setWatermarkImage] = useState(null);
+  const [orientationID, setOrientationID] = useState(1);
   const [recurringServiceCatList, setRecurringServiceCatList] = useState([]);
   const [oneOffServiceCatList, setOneOffServiceCatList] = useState([]);
   const [serviceDescriptionList, setServiceDescriptionList] = useState([]);
@@ -1645,6 +1647,8 @@ function AcceptInvitation() {
       HeaderImage: HeaderImage,
       FooterImage: FooterImage,
       showSeparatorLines: showSeparatorLines,
+      WatermarkImage: watermarkImage,
+      landscapMode: orientationID == 2
     };
     try {
       const response = await fetch(generatePdfUrl, {
@@ -1801,20 +1805,24 @@ function AcceptInvitation() {
           headerContent: item.headerContent,
           footerContent: item.footerContent,
           showSeparatorLines: Boolean(item.showSeparatorLines),
+          watermarkImage: item.watermarkImage,
+          orientationID: item.orientationID
         }));
         // setTemplateLookUpOptions(mappedOptions);
         // const isSelectedDefault = data.responseData.data.filter(
         //   (item) => item.isDefault === true
         // );
         setQuoteTypeID(isSelectedDefault[0]?.quoteTypeID);
-        setFontFamily(getFontNameById(mappedOptions[0].fontFamilyID));
-        setHeaderContent(mappedOptions[0]?.headerContent);
-        setFooterContent(mappedOptions[0]?.footerContent);
-        setHeaderImage(mappedOptions[0]?.headerImage);
-        setFooterImage(mappedOptions[0]?.footerImage);
-        setHeaderHeight(mappedOptions[0]?.headerHeight);
-        setFooterHeight(mappedOptions[0]?.footerHeight);
-        setShowSeparatorLines(mappedOptions[0]?.showSeparatorLines);
+        setFontFamily(getFontNameById(isSelectedDefault[0].fontFamilyID));
+        setHeaderContent(isSelectedDefault[0]?.headerContent);
+        setFooterContent(isSelectedDefault[0]?.footerContent);
+        setHeaderImage(isSelectedDefault[0]?.headerImage);
+        setFooterImage(isSelectedDefault[0]?.footerImage);
+        setHeaderHeight(isSelectedDefault[0]?.headerHeight);
+        setFooterHeight(isSelectedDefault[0]?.footerHeight);
+        setShowSeparatorLines(isSelectedDefault[0]?.showSeparatorLines);
+        setWatermarkImage(isSelectedDefault[0]?.watermarkImage);
+        setOrientationID(isSelectedDefault[0]?.orientationID)
       } else {
         setLoader(false);
         console.error("Error fetching data from the API");

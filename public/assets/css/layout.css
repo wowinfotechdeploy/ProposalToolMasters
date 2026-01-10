@@ -1,18 +1,21 @@
 /* only applies when app-layout-clone is added */
 .app-layout-clone {
   display: flex;
-  min-height: 100vh;
+  /* height: 100vh; */
   height: auto;
+  /* overflow: hidden; */
 }
 .app-menu {
   display: flex;
   flex-direction: column;
   height: 100%;
+  /* overflow: hidden; */
 }
 #scrollbar {
   flex: 1;
   overflow-y: auto;
   min-height: 0; /* Important for flex scrolling */
+  scroll-behavior: smooth;
 }
 
 .sidebar-bottom {
@@ -22,19 +25,21 @@
   z-index: 9999;
 }
 .app-layout-clone .topbar-clone {
-  flex: 0 0 17%;
-  max-width: 90%;
+  flex: 0 0 auto;
+  width: 250px;
+  max-width: 100%;
   flex-direction: column;
   justify-content: space-between;
-  min-height: 100vh;
+  /* min-height: 100vh; */
   height:auto;
-  overflow-y: hidden;
+  /* overflow-y: hidden; */
   position: relative;
 }
 
 .app-layout-clone .main-content {
   display: flex;
-  flex: 0 0 83%;
+  /* flex: 0 0 82%; */
+  flex: 1;
   flex-direction: column;
   max-width: 100%;
   height: auto;
@@ -44,9 +49,10 @@
 }
 
 .sidebar-menu-scroll {
-  flex: 1;
-  overflow-y: auto;
-  min-height: 0;
+  flex: 0 0 auto;
+  /* overflow-y: auto; */
+  min-height: auto;
+  overflow: visible;
   padding-bottom: 0; /* prevent content from touching bottom */
 }
 
@@ -66,18 +72,20 @@
 }
 
 /* Adjust main content when sidebar is collapsed */
-.app-layout-clone:has(.topbar-clone.collapsed) .main-content {
+/* .app-layout-clone:has(.topbar-clone.collapsed) .main-content {
   flex: 0 0 100%;
   max-width: 100%;
-}
+} */
 
 /* Smooth transition for layout changes */
 .app-layout-clone .topbar-clone {
-  transition: flex-basis 0.3s ease, max-width 0.3s ease;
+  transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: width; /* GPU acceleration */
 }
 
 .app-layout-clone .main-content {
-  transition: flex-basis 0.3s ease, max-width 0.3s ease;
+  transition: flex 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: flex;
 }
 
 /*
@@ -173,9 +181,20 @@ body.modal-open .app-layout-clone .topbar-clone {
 }
 
 @media (min-width: 1040px) {
+  .nav-item {
+  position: relative;
+  overflow: visible;
+}
+
+#scrollbar .navbar-nav,
+#scrollbar ul.nav {
+  overflow: visible;
+}
   /* Force menu dropdowns to expand vertically downwards */
- .menu-dropdown,
+.main-content .menu-dropdown,
 .menu_dropdown {
+  width: 90%;
+  font-family: "Gantari, sans-serif";
   position: relative;
   top: 100%;
   left: 0;
@@ -184,6 +203,7 @@ body.modal-open .app-layout-clone .topbar-clone {
   background: #1e1e2f; 
   padding: 10px;
   margin: 0;
+  overflow-y: auto;
   margin-top: 8px; /* Space below Configure button */
   list-style: none;
   z-index: 1000;
@@ -194,8 +214,15 @@ body.modal-open .app-layout-clone .topbar-clone {
 .menu_dropdown.show {
   display: flex !important;
   animation: dropdownSlide 0.2s ease-out;
+  scroll-margin-top: 20px;
+  overflow-y: auto;
 }
-
+/* Then in your existing .main-content .menu-dropdown rule, add overflow: visible */
+.main-content .menu-dropdown,
+.menu_dropdown {
+  /* ... your existing styles ... */
+  overflow: visible; /* ADD THIS LINE */
+}
 @keyframes dropdownSlide {
   from { opacity: 0; transform: translateY(-5px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -211,41 +238,61 @@ body.modal-open .app-layout-clone .topbar-clone {
   .menu-dropdown .nav-link,
   .menu_dropdown .nav-link {
     display: block;
-    padding: 6px 16px;
+    padding: 4px 16px;
+    font-family: "Gantari, sans-serif";
   }
 .nav-link:hover {
   color: #438eff !important;
   /* background: rgba(67, 142, 255, 0.1); */
 }
  .subList {
-  width: auto;
-  min-width: max-content;
-  max-width: 100%;
+  width: 90%;
+  /* min-width: max-content; */
+  max-width: 90%;
   box-sizing: border-box;
   /* overflow: hidden; */
-  white-space: nowrap;
+  /* white-space: nowrap; */
   text-overflow: ellipsis;
   display: none;
   transition: all 0.3s ease-in-out;
-  padding-left: 15px; /* indent sublists */
-  margin-left: 10px;
+  padding-left: 8px; /* indent sublists */
+  margin-left: 5px;
   margin-top: 5px;
 }
-
-.subList .nav-link {
-  display: block;
-  padding: 6px 16px;
-  font-size: 13px; /* slightly smaller text */
-  color: #b8b8b8; /* lighter text color */
+.subList.d-block {
+  display: block !important;
+  height: auto; /* Critical for wrapped content */
+  min-height: fit-content;
 }
 
+.subList.d-none {
+  display: none !important;
+}
+.subList .nav-link {
+  display: block;
+  padding: 4px 16px;
+  font-size: 13px; /* slightly smaller text */
+  color: #b8b8b8; /* lighter text color */
+  white-space: normal;
+  word-break: normal;
+  height: auto;
+  min-height: fit-content;
+  font-family: "Gantari, sans-serif" !important;
+  /* overflow-wrap: normal; */
+}
+
+.nav-link > a:not(.nav-link) {
+  pointer-events: none;
+}
 .subList .nav-link:hover {
   color: #438eff;
+  text-decoration: underline;
   /* background: rgba(67, 142, 255, 0.1); */
 }
 
 .subList.show {
   display: block;
+  height: auto;
   animation: dropdownSlide 0.2s ease-out;
 }
 
@@ -262,12 +309,19 @@ body.modal-open .app-layout-clone .topbar-clone {
 } */
 
  .nav .nav-item .nav-link[data-bs-toggle="collapse"]::after,
+.menu-dropdown .nav-item > a[href^="#"] {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Spreads content and ::after apart */
+}
 .menu-dropdown .nav-item > a[href^="#"]::after {
   content: "+";
-  float: right;
+  /* float: right; */
   font-weight: bold;
   margin-left: auto;
+  margin-right: 2px;
   transition: transform 0.2s;
+  flex-shrink: 0;
 }
 
 /* When sublist is open, show minus */

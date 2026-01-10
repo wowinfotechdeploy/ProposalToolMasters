@@ -2819,7 +2819,7 @@ const ReviewServicesComponent = (props) => {
                                     className="tr-table-class text-white text-center"
                                     style={{ width: "16.66%" }}
                                   >
-                                    Fees (£)
+                                    Fees ({props.currencySymbol})
                                   </th>
                                 )}
                                 {props.vatPercentage !== 0 &&
@@ -2828,7 +2828,7 @@ const ReviewServicesComponent = (props) => {
                                       className="tr-table-class text-white text-center"
                                       style={{ width: "16.66%" }}
                                     >
-                                      VAT Rate
+                                      {props.taxName} Rate
                                     </th>
                                   )}
                                 {props.vatPercentage !== 0 &&
@@ -2837,7 +2837,7 @@ const ReviewServicesComponent = (props) => {
                                       className="tr-table-class text-white text-center"
                                       style={{ width: "16.66%" }}
                                     >
-                                      VAT (£)
+                                      {props.taxName} ({props.currencySymbol})
                                     </th>
                                   )}
                                 {props.vatPercentage !== 0 &&
@@ -2846,7 +2846,7 @@ const ReviewServicesComponent = (props) => {
                                       className="tr-table-class text-white text-center"
                                       style={{ width: "16.66%" }}
                                     >
-                                      Fees inc VAT (£)
+                                      Fees inc {props.taxName} ({props.currencySymbol})
                                     </th>
                                   )}
                               </tr>
@@ -2942,7 +2942,7 @@ const ReviewServicesComponent = (props) => {
                                                 <td className="text-center">
                                                   {props.engagementObj
                                                     .feeTypeId === 1 &&
-                                                    props.formatValue(price)}
+                                                    props.formatValue(price,props.currencyID)}
                                                   {props.engagementObj
                                                     .feeTypeId === 2 && (
                                                     <span className="fa fa-check"></span>
@@ -2965,7 +2965,7 @@ const ReviewServicesComponent = (props) => {
                                                   <td className="text-center">
                                                     {props.engagementObj
                                                       .feeTypeId === 1 &&
-                                                      props.formatValue(vat)}
+                                                      props.formatValue(vat,props.currencyID)}
                                                     {props.engagementObj
                                                       .feeTypeId === 2 && (
                                                       <span className="fa fa-check"></span>
@@ -2978,7 +2978,7 @@ const ReviewServicesComponent = (props) => {
                                                   <td className="text-center">
                                                     {props.engagementObj
                                                       .feeTypeId === 1 &&
-                                                      props.formatValue(total)}
+                                                      props.formatValue(total,props.currencyID)}
                                                     {props.engagementObj
                                                       .feeTypeId === 2 && (
                                                       <span className="fa fa-check"></span>
@@ -3022,11 +3022,11 @@ const ReviewServicesComponent = (props) => {
                                       !props.engagementObj.DiscountLines)
                                       ? props.formatValue(
                                           props.RecurringPricingInfo
-                                            .DiscountedPrice
+                                            .DiscountedPrice,props.currencyID
                                         )
                                       : props.formatValue(
                                           props.RecurringPricingInfo
-                                            .OriginalPrice
+                                            .OriginalPrice,props.currencyID
                                         )}
                                   </td>
                                 )}
@@ -3041,7 +3041,7 @@ const ReviewServicesComponent = (props) => {
                                         Number(
                                           props.RecurringPricingInfo
                                             .staticTotalVAT
-                                        )
+                                        ),props.currencyID
                                       )}
                                     </td>
                                   )}
@@ -3067,7 +3067,7 @@ const ReviewServicesComponent = (props) => {
                                               Number(
                                                 props.RecurringPricingInfo
                                                   .staticTotalVAT
-                                              )
+                                              ),props.currencyID
                                           )
                                         : props.formatValue(
                                             Number(
@@ -3077,7 +3077,7 @@ const ReviewServicesComponent = (props) => {
                                               Number(
                                                 props.RecurringPricingInfo
                                                   .staticTotalVAT
-                                              )
+                                              ),props.currencyID
                                           )}
                                     </td>
                                   )}
@@ -3103,7 +3103,7 @@ const ReviewServicesComponent = (props) => {
                                         <td className="tr-table-class font-14 text-white text-center">
                                           (-){" "}
                                           {props.formatValue(
-                                            props.RecurringPricingInfo.Discount
+                                            props.RecurringPricingInfo.Discount,props.currencyID
                                           )}
                                         </td>
                                       )}
@@ -3122,7 +3122,7 @@ const ReviewServicesComponent = (props) => {
                                                 Number(
                                                   props.RecurringPricingInfo
                                                     .totalServiceWiseVAT
-                                                )
+                                                ),props.currencyID
                                             )}
                                           </td>
                                         )}
@@ -3143,7 +3143,7 @@ const ReviewServicesComponent = (props) => {
                                                   Number(
                                                     props.RecurringPricingInfo
                                                       .totalServiceWiseVAT
-                                                  ))
+                                                  )),props.currencyID
                                             )}
                                           </td>
                                         )}
@@ -3178,13 +3178,13 @@ const ReviewServicesComponent = (props) => {
                                                 props.RecurringPricingInfo
                                                   .DiscountedPrice -
                                                   props.RecurringPricingInfo
-                                                    .Discount
+                                                    .Discount,props.currencyID
                                               )
                                             : props.formatValue(
                                                 props.RecurringPricingInfo
                                                   .OriginalPrice -
                                                   props.RecurringPricingInfo
-                                                    .Discount
+                                                    .Discount,props.currencyID
                                               )}
                                         </td>
                                       )}
@@ -3206,7 +3206,7 @@ const ReviewServicesComponent = (props) => {
                                           <td className="tr-table-class font-14 text-white text-center">
                                             {props.formatValue(
                                               props.RecurringPricingInfo
-                                                .GrandTotal
+                                                .GrandTotal,props.currencyID
                                             )}
                                           </td>
                                         )}
@@ -3866,7 +3866,7 @@ const ReviewServicesComponent = (props) => {
                                     className="tr-table-class text-white text-center"
                                     style={{ width: "16.66%" }}
                                   >
-                                    Fees (£)
+                                    Fees ({props.currencySymbol})
                                   </th>
                                 )}
                                 {props.vatPercentageOneOff !== 0 &&
@@ -3875,7 +3875,7 @@ const ReviewServicesComponent = (props) => {
                                       className="tr-table-class text-white text-center"
                                       style={{ width: "16.66%" }}
                                     >
-                                      VAT Rate
+                                      {props.taxName} Rate
                                     </th>
                                   )}
                                 {props.vatPercentageOneOff !== 0 &&
@@ -3884,7 +3884,7 @@ const ReviewServicesComponent = (props) => {
                                       className="tr-table-class text-white text-center"
                                       style={{ width: "16.66%" }}
                                     >
-                                      VAT (£)
+                                      {props.taxName} ({props.currencySymbol})
                                     </th>
                                   )}
                                 {props.vatPercentageOneOff !== 0 &&
@@ -3893,7 +3893,7 @@ const ReviewServicesComponent = (props) => {
                                       className="tr-table-class text-white text-center"
                                       style={{ width: "16.66%" }}
                                     >
-                                      Fees inc VAT (£)
+                                      Fees inc {props.taxName} ({props.currencySymbol})
                                     </th>
                                   )}
                               </tr>
@@ -4000,7 +4000,7 @@ const ReviewServicesComponent = (props) => {
                                               <td className="text-center">
                                                 {props.engagementObj
                                                   .feeTypeId === 1 &&
-                                                  props.formatValue(price)}
+                                                  props.formatValue(price,props.currencyID)}
                                                 {props.engagementObj
                                                   .feeTypeId === 2 && (
                                                   <span className="fa fa-check"></span>
@@ -4025,7 +4025,7 @@ const ReviewServicesComponent = (props) => {
                                                 <td className="text-center">
                                                   {props.engagementObj
                                                     .feeTypeId === 1 &&
-                                                    props.formatValue(vat)}
+                                                    props.formatValue(vat,props.currencyID)}
                                                   {props.engagementObj
                                                     .feeTypeId === 2 && (
                                                     <span className="fa fa-check"></span>
@@ -4039,7 +4039,7 @@ const ReviewServicesComponent = (props) => {
                                                 <td className="text-center">
                                                   {props.engagementObj
                                                     .feeTypeId === 1 &&
-                                                    props.formatValue(total)}
+                                                    props.formatValue(total,props.currencyID)}
                                                   {props.engagementObj
                                                     .feeTypeId === 2 && (
                                                     <span className="fa fa-check"></span>
@@ -4082,10 +4082,10 @@ const ReviewServicesComponent = (props) => {
                                       !props.engagementObj.DiscountLines)
                                       ? props.formatValue(
                                           props.OneOffPricingInfo
-                                            .DiscountedPrice
+                                            .DiscountedPrice,props.currencyID
                                         )
                                       : props.formatValue(
-                                          props.OneOffPricingInfo.OriginalPrice
+                                          props.OneOffPricingInfo.OriginalPrice,props.currencyID
                                         )}
                                   </td>
                                 )}
@@ -4100,7 +4100,7 @@ const ReviewServicesComponent = (props) => {
                                         Number(
                                           props.OneOffPricingInfo
                                             .staticTotalVATOneOff
-                                        )
+                                        ),props.currencyID
                                       )}
                                     </td>
                                   )}
@@ -4126,7 +4126,7 @@ const ReviewServicesComponent = (props) => {
                                               Number(
                                                 props.OneOffPricingInfo
                                                   .staticTotalVATOneOff
-                                              )
+                                              ),props.currencyID
                                           )
                                         : props.formatValue(
                                             Number(
@@ -4136,7 +4136,7 @@ const ReviewServicesComponent = (props) => {
                                               Number(
                                                 props.OneOffPricingInfo
                                                   .staticTotalVATOneOff
-                                              )
+                                              ),props.currencyID
                                           )}
                                     </td>
                                   )}
@@ -4160,7 +4160,7 @@ const ReviewServicesComponent = (props) => {
                                             props.OneOffPricingInfo.Discount
                                           ) > 0
                                             ? props.formatValue(
-                                                props.OneOffPricingInfo.Discount
+                                                props.OneOffPricingInfo.Discount,props.currencyID
                                               )
                                             : "-"}
                                         </td>
@@ -4180,7 +4180,7 @@ const ReviewServicesComponent = (props) => {
                                                 Number(
                                                   props.OneOffPricingInfo
                                                     .totalServiceWiseVATOneOff
-                                                )
+                                                ),props.currencyID
                                             )}
                                           </td>
                                         )}
@@ -4200,7 +4200,7 @@ const ReviewServicesComponent = (props) => {
                                                   Number(
                                                     props.OneOffPricingInfo
                                                       .totalServiceWiseVATOneOff
-                                                  ))
+                                                  )),props.currencyID
                                             )}
                                           </td>
                                         )}
@@ -4218,7 +4218,7 @@ const ReviewServicesComponent = (props) => {
                                         <td className="tr-table-class text-white text-center">
                                           {props.formatValue(
                                             props.OneOffPricingInfo
-                                              .DiscountedPrice
+                                              .DiscountedPrice,props.currencyID
                                           )}
                                         </td>
                                       )}
@@ -4232,7 +4232,7 @@ const ReviewServicesComponent = (props) => {
                                               Number(
                                                 props.OneOffPricingInfo
                                                   .totalServiceWiseVATOneOff
-                                              )
+                                              ),props.currencyID
                                             )}
                                           </td>
                                         )}
@@ -4248,7 +4248,7 @@ const ReviewServicesComponent = (props) => {
                                                 Number(
                                                   props.OneOffPricingInfo
                                                     .totalServiceWiseVATOneOff
-                                                )
+                                                ),props.currencyID
                                             )}
                                           </td>
                                         )}
@@ -7193,7 +7193,7 @@ const ReviewPackagesComponent = (props) => {
                                     className="tr-table-class text-white text-right"
                                     style={{ width: "16.66%" }}
                                   >
-                                    Fees (£)
+                                    Fees ({props.currencySymbol})
                                   </th>
 
                                   {props.vatPercentage !== null &&
@@ -7202,7 +7202,7 @@ const ReviewPackagesComponent = (props) => {
                                         className="tr-table-class text-white text-right"
                                         style={{ width: "16.66%" }}
                                       >
-                                        VAT (£)
+                                        {props.taxName} ({props.currencySymbol})
                                       </th>
                                     )}
 
@@ -7322,7 +7322,7 @@ const ReviewPackagesComponent = (props) => {
                                                       <span className="fa fa-times"></span>
                                                     ) : (
                                                       ` ${props.formatValue(
-                                                        subService.packageOneValue
+                                                        subService.packageOneValue,props.currencyID
                                                       )}`
                                                     )}
                                                   </div>
@@ -7401,7 +7401,7 @@ const ReviewPackagesComponent = (props) => {
                                                           ` ${props.formatValue(
                                                             (subService.packageOneValue *
                                                               20) /
-                                                              100
+                                                              100,props.currencyID
                                                           )}`
                                                         )
                                                       ) : Number(
@@ -7798,7 +7798,7 @@ const ReviewPackagesComponent = (props) => {
                                                           <span className="fa fa-times"></span>
                                                         ) : (
                                                           ` ${props.formatValue(
-                                                            subService.packageTwoValue
+                                                            subService.packageTwoValue,props.currencyID
                                                           )}`
                                                         )}
                                                       </div>
@@ -7872,7 +7872,7 @@ const ReviewPackagesComponent = (props) => {
                                                             ` ${props.formatValue(
                                                               (subService.packageTwoValue *
                                                                 20) /
-                                                                100
+                                                                100,props.currencyID
                                                             )}`
                                                           )
                                                         ) : Number(
@@ -7995,7 +7995,7 @@ const ReviewPackagesComponent = (props) => {
                                                           <span className="fa fa-times"></span>
                                                         ) : (
                                                           ` ${props.formatValue(
-                                                            subService.packageThreeValue
+                                                            subService.packageThreeValue,props.currencyID
                                                           )}`
                                                         )}
                                                       </div>
@@ -8070,7 +8070,7 @@ const ReviewPackagesComponent = (props) => {
                                                             ` ${props.formatValue(
                                                               (subService.packageThreeValue *
                                                                 20) /
-                                                                100
+                                                                100,props.currencyID
                                                             )}`
                                                           )
                                                         ) : Number(
@@ -8361,12 +8361,12 @@ const ReviewPackagesComponent = (props) => {
                                   ) > 0 && !props.engagementObj.DiscountLines
                                   ? props.formatValue(
                                       props.RecurringPricingInfo
-                                        .packageOneDisCountedTotal
+                                        .packageOneDisCountedTotal,props.currencyID
                                     )
-                                  : props.formatValue(totalOnePackageValue)
+                                  : props.formatValue(totalOnePackageValue,props.currencyID)
                                 : props.formatValue(
                                     props.RecurringPricingInfo
-                                      .packageOneNetTotal
+                                      .packageOneNetTotal,props.currencyID
                                   )}
                             </td>
                             {props.vatPercentage !== null &&
@@ -8376,11 +8376,11 @@ const ReviewPackagesComponent = (props) => {
                                     .PackageOneVaTPriceWithoutDiscout
                                     ? props.formatValue(
                                         props.RecurringPricingInfo
-                                          .PackageOneVaTPriceWithoutDiscout
+                                          .PackageOneVaTPriceWithoutDiscout,props.currencyID
                                       )
                                     : props.formatValue(
                                         props.RecurringPricingInfo
-                                          .PackageOneVaTPriceWithoutDiscount
+                                          .PackageOneVaTPriceWithoutDiscount,props.currencyID
                                       )}
                                 </td>
                               )}
@@ -8408,12 +8408,12 @@ const ReviewPackagesComponent = (props) => {
                                       !props.engagementObj.DiscountLines
                                       ? props.formatValue(
                                           props.RecurringPricingInfo
-                                            .packageTwoDisCountedTotal
+                                            .packageTwoDisCountedTotal,props.currencyID
                                         )
-                                      : props.formatValue(totalTwoPackageValue)
+                                      : props.formatValue(totalTwoPackageValue,props.currencyID)
                                     : props.formatValue(
                                         props.RecurringPricingInfo
-                                          .packageTwoNetTotal
+                                          .packageTwoNetTotal,props.currencyID
                                       )}
                                 </td>
 
@@ -8423,7 +8423,7 @@ const ReviewPackagesComponent = (props) => {
                                       {" "}
                                       {props.formatValue(
                                         props.RecurringPricingInfo
-                                          .PackageTwoVaTPriceWithoutDiscout
+                                          .PackageTwoVaTPriceWithoutDiscout,props.currencyID
                                       )}
                                     </td>
                                   )}
@@ -8453,14 +8453,14 @@ const ReviewPackagesComponent = (props) => {
                                       !props.engagementObj.DiscountLines
                                       ? props.formatValue(
                                           props.RecurringPricingInfo
-                                            .packageThreeDisCountedTotal
+                                            .packageThreeDisCountedTotal,props.currencyID
                                         )
                                       : props.formatValue(
-                                          totalThreePackageValue
+                                          totalThreePackageValue,props.currencyID
                                         )
                                     : props.formatValue(
                                         props.RecurringPricingInfo
-                                          .packageThreeNetTotal
+                                          .packageThreeNetTotal,props.currencyID
                                       )}
                                 </td>
 
@@ -8470,7 +8470,7 @@ const ReviewPackagesComponent = (props) => {
                                       {" "}
                                       {props.formatValue(
                                         props.RecurringPricingInfo
-                                          .PackageThreeVaTPriceWithoutDiscout
+                                          .PackageThreeVaTPriceWithoutDiscout,props.currencyID
                                       )}
                                     </td>
                                   )}
@@ -8500,7 +8500,7 @@ const ReviewPackagesComponent = (props) => {
                                     (-){" "}
                                     {props.formatValue(
                                       props.RecurringPricingInfo
-                                        .packageOneDisCount
+                                        .packageOneDisCount,props.currencyID
                                     )}
                                   </td>
                                   {/* Discounted VAT */}
@@ -8532,7 +8532,7 @@ const ReviewPackagesComponent = (props) => {
                                           props.RecurringPricingInfo
                                             .PackageOneVaTPriceWithoutDiscount -
                                             props.RecurringPricingInfo
-                                              .PackageOneVaTPrice
+                                              .PackageOneVaTPrice,props.currencyID
                                         )}
                                       </td>
                                     )}
@@ -8547,7 +8547,7 @@ const ReviewPackagesComponent = (props) => {
                                         (-){" "}
                                         {props.formatValue(
                                           props.RecurringPricingInfo
-                                            .packageTwoDisCount
+                                            .packageTwoDisCount,props.currencyID
                                         )}
                                       </td>
 
@@ -8559,7 +8559,7 @@ const ReviewPackagesComponent = (props) => {
                                               props.RecurringPricingInfo
                                                 .PackageTwoVaTPriceWithoutDiscout -
                                                 props.RecurringPricingInfo
-                                                  .PackageTwoVaTPrice
+                                                  .PackageTwoVaTPrice,props.currencyID
                                             )}
                                           </td>
                                           // <td className="tr-table-class font-14 text-white text-right">
@@ -8581,7 +8581,7 @@ const ReviewPackagesComponent = (props) => {
                                         (-){" "}
                                         {props.formatValue(
                                           props.RecurringPricingInfo
-                                            .packageThreeDisCount
+                                            .packageThreeDisCount,props.currencyID
                                         )}
                                       </td>
 
@@ -8593,7 +8593,7 @@ const ReviewPackagesComponent = (props) => {
                                               props.RecurringPricingInfo
                                                 .PackageThreeVaTPriceWithoutDiscout -
                                                 props.RecurringPricingInfo
-                                                  .PackageThreeVaTPrice
+                                                  .PackageThreeVaTPrice,props.currencyID
                                             )}
                                           </td>
                                           // <td className="tr-table-class font-14 text-white text-right">
@@ -8709,18 +8709,18 @@ const ReviewPackagesComponent = (props) => {
                                             props.RecurringPricingInfo
                                               .packageOneDisCountedTotal -
                                               props.RecurringPricingInfo
-                                                .packageOneDisCount
+                                                .packageOneDisCount,props.currencyID
                                           )
                                         : props.formatValue(
                                             totalOnePackageValue -
                                               props.RecurringPricingInfo
-                                                .packageOneDisCount
+                                                .packageOneDisCount,props.currencyID
                                           )
                                       : props.formatValue(
                                           props.RecurringPricingInfo
                                             .packageOneNetTotal -
                                             props.RecurringPricingInfo
-                                              .packageOneDisCount
+                                              .packageOneDisCount,props.currencyID
                                         )}
                                   </td>
                                   {props.vatPercentage !== null &&
@@ -8728,7 +8728,7 @@ const ReviewPackagesComponent = (props) => {
                                       <td className="tr-table-class font-14 text-white text-right">
                                         {props.formatValue(
                                           props.RecurringPricingInfo
-                                            .PackageOneVaTPrice
+                                            .PackageOneVaTPrice,props.currencyID
                                         )}
                                       </td>
                                       // <td className="tr-table-class font-14 text-white text-right">
@@ -8748,7 +8748,7 @@ const ReviewPackagesComponent = (props) => {
                                         {" "}
                                         {props.formatValue(
                                           props.RecurringPricingInfo
-                                            .PackageTwoGrandTotal
+                                            .PackageTwoGrandTotal,props.currencyID
                                         )}
                                       </td>
                                       {props.vatPercentage !== null &&
@@ -8761,7 +8761,7 @@ const ReviewPackagesComponent = (props) => {
                                                   .PackageTwoVaTPriceWithoutDiscout *
                                                   props.RecurringPricingInfo
                                                     .DiscountPercentagePackageTwo) /
-                                                  100
+                                                  100,props.currencyID
                                             )}
                                           </td>
                                         )}
@@ -8775,7 +8775,7 @@ const ReviewPackagesComponent = (props) => {
                                         {" "}
                                         {props.formatValue(
                                           props.RecurringPricingInfo
-                                            .PackageThreeGrandTotal
+                                            .PackageThreeGrandTotal,props.currencyID
                                         )}
                                       </td>
                                       {props.vatPercentage !== null &&
@@ -8788,7 +8788,7 @@ const ReviewPackagesComponent = (props) => {
                                                   .PackageThreeVaTPriceWithoutDiscout *
                                                   props.RecurringPricingInfo
                                                     .DiscountPercentagePackageThree) /
-                                                  100
+                                                  100,props.currencyID
                                             )}
                                           </td>
                                         )}
@@ -9814,7 +9814,7 @@ const ReviewPackagesComponent = (props) => {
                                     className="tr-table-class text-white text-right"
                                     style={{ width: "16.66%" }}
                                   >
-                                    Fees (£)
+                                    Fees ({props.currencySymbol})
                                   </th>
                                   {props.vatPercentage !== null &&
                                     props.visibleFieldsCustomTemp.vat && (
@@ -9822,7 +9822,7 @@ const ReviewPackagesComponent = (props) => {
                                         className="tr-table-class text-white text-right"
                                         style={{ width: "16.66%" }}
                                       >
-                                        VAT (£)
+                                        {props.taxName} ({props.currencySymbol})
                                       </th>
                                     )}
 
@@ -9942,7 +9942,7 @@ const ReviewPackagesComponent = (props) => {
                                                       <span className="fa fa-times"></span>
                                                     ) : (
                                                       ` ${props.formatValue(
-                                                        subService.packageOneValue
+                                                        subService.packageOneValue,props.currencyID
                                                       )}`
                                                     )}
                                                   </div>
@@ -10021,7 +10021,7 @@ const ReviewPackagesComponent = (props) => {
                                                           ` ${props.formatValue(
                                                             (subService.packageOneValue *
                                                               20) /
-                                                              100
+                                                              100,props.currencyID
                                                           )}`
                                                         )
                                                       ) : Number(
@@ -10418,7 +10418,7 @@ const ReviewPackagesComponent = (props) => {
                                                           <span className="fa fa-times"></span>
                                                         ) : (
                                                           ` ${props.formatValue(
-                                                            subService.packageTwoValue
+                                                            subService.packageTwoValue,props.currencyID
                                                           )}`
                                                         )}
                                                       </div>
@@ -10492,7 +10492,7 @@ const ReviewPackagesComponent = (props) => {
                                                             ` ${props.formatValue(
                                                               (subService.packageTwoValue *
                                                                 20) /
-                                                                100
+                                                                100,props.currencyID
                                                             )}`
                                                           )
                                                         ) : Number(
@@ -10615,7 +10615,7 @@ const ReviewPackagesComponent = (props) => {
                                                           <span className="fa fa-times"></span>
                                                         ) : (
                                                           ` ${props.formatValue(
-                                                            subService.packageThreeValue
+                                                            subService.packageThreeValue,props.currencyID
                                                           )}`
                                                         )}
                                                       </div>
@@ -10690,7 +10690,7 @@ const ReviewPackagesComponent = (props) => {
                                                             ` ${props.formatValue(
                                                               (subService.packageThreeValue *
                                                                 20) /
-                                                                100
+                                                                100,props.currencyID
                                                             )}`
                                                           )
                                                         ) : Number(
@@ -10982,11 +10982,11 @@ const ReviewPackagesComponent = (props) => {
                                   ) > 0 && !props.engagementObj.DiscountLines
                                   ? props.formatValue(
                                       props.OneOffPricingInfo
-                                        .packageOneDisCountedTotal
+                                        .packageOneDisCountedTotal,props.currencyID
                                     )
-                                  : props.formatValue(totalOnePackageValue)
+                                  : props.formatValue(totalOnePackageValue,props.currencyID)
                                 : props.formatValue(
-                                    props.OneOffPricingInfo.packageOneNetTotal
+                                    props.OneOffPricingInfo.packageOneNetTotal,props.currencyID
                                   )}
                             </td>
                             {/* Net VAT */}
@@ -11011,16 +11011,16 @@ const ReviewPackagesComponent = (props) => {
                                           (props.OneOffPricingInfo
                                             .packageOneDisCountedTotal *
                                             20) /
-                                            100
+                                            100,props.currencyID
                                         )
                                       : props.formatValue(
-                                          (totalOnePackageValue * 20) / 100
+                                          (totalOnePackageValue * 20) / 100,props.currencyID
                                         )
                                     : props.formatValue(
                                         (props.OneOffPricingInfo
                                           .packageOneNetTotal *
                                           20) /
-                                          100
+                                          100,props.currencyID
                                       )}
                                 </td>
                               )}
@@ -11046,12 +11046,12 @@ const ReviewPackagesComponent = (props) => {
                                       !props.engagementObj.DiscountLines
                                       ? props.formatValue(
                                           props.OneOffPricingInfo
-                                            .packageTwoDisCountedTotal
+                                            .packageTwoDisCountedTotal,props.currencyID
                                         )
-                                      : props.formatValue(totalTwoPackageValue)
+                                      : props.formatValue(totalTwoPackageValue,props.currencyID)
                                     : props.formatValue(
                                         props.OneOffPricingInfo
-                                          .packageTwoNetTotal
+                                          .packageTwoNetTotal,props.currencyID
                                       )}
                                 </td>
                                 {/* Net VAT */}
@@ -11078,16 +11078,16 @@ const ReviewPackagesComponent = (props) => {
                                               (props.OneOffPricingInfo
                                                 .packageTwoDisCountedTotal *
                                                 20) /
-                                                100
+                                                100,props.currencyID
                                             )
                                           : props.formatValue(
-                                              (totalTwoPackageValue * 20) / 100
+                                              (totalTwoPackageValue * 20) / 100,props.currencyID
                                             )
                                         : props.formatValue(
                                             (props.OneOffPricingInfo
                                               .packageTwoNetTotal *
                                               20) /
-                                              100
+                                              100,props.currencyID
                                           )}
                                     </td>
                                   )}
@@ -11116,14 +11116,14 @@ const ReviewPackagesComponent = (props) => {
                                       !props.engagementObj.DiscountLines
                                       ? props.formatValue(
                                           props.OneOffPricingInfo
-                                            .packageThreeDisCountedTotal
+                                            .packageThreeDisCountedTotal,props.currencyID
                                         )
                                       : props.formatValue(
-                                          totalThreePackageValue
+                                          totalThreePackageValue,props.currencyID
                                         )
                                     : props.formatValue(
                                         props.OneOffPricingInfo
-                                          .packageThreeNetTotal
+                                          .packageThreeNetTotal,props.currencyID
                                       )}
                                 </td>
                                 {/* Net VAT */}
@@ -11150,17 +11150,17 @@ const ReviewPackagesComponent = (props) => {
                                               (props.OneOffPricingInfo
                                                 .packageThreeDisCountedTotal *
                                                 20) /
-                                                100
+                                                100,props.currencyID
                                             )
                                           : props.formatValue(
                                               (totalThreePackageValue * 20) /
-                                                100
+                                                100,props.currencyID
                                             )
                                         : props.formatValue(
                                             (props.OneOffPricingInfo
                                               .packageThreeNetTotal *
                                               20) /
-                                              100
+                                              100,props.currencyID
                                           )}
                                     </td>
                                   )}
@@ -11187,7 +11187,7 @@ const ReviewPackagesComponent = (props) => {
                                   <td className="tr-table-class font-14 text-white text-right">
                                     (-){" "}
                                     {props.formatValue(
-                                      props.OneOffPricingInfo.packageOneDisCount
+                                      props.OneOffPricingInfo.packageOneDisCount,props.currencyID
                                     )}
                                   </td>
                                   {/* Discounted VAT */}
@@ -11218,14 +11218,14 @@ const ReviewPackagesComponent = (props) => {
                                                   100) *
                                                   props.OneOffPricingInfo
                                                     .DiscountPercentagePackageOne) /
-                                                  100
+                                                  100,props.currencyID
                                               )
                                             : props.formatValue(
                                                 (((totalOnePackageValue * 20) /
                                                   100) *
                                                   props.OneOffPricingInfo
                                                     .DiscountPercentagePackageOne) /
-                                                  100
+                                                  100,props.currencyID
                                               )
                                           : props.formatValue(
                                               (((props.OneOffPricingInfo
@@ -11234,7 +11234,7 @@ const ReviewPackagesComponent = (props) => {
                                                 100) *
                                                 props.OneOffPricingInfo
                                                   .DiscountPercentagePackageOne) /
-                                                100
+                                                100,props.currencyID
                                             )}
                                       </td>
                                     )}
@@ -11248,7 +11248,7 @@ const ReviewPackagesComponent = (props) => {
                                         (-){" "}
                                         {props.formatValue(
                                           props.OneOffPricingInfo
-                                            .packageTwoDisCount
+                                            .packageTwoDisCount,props.currencyID
                                         )}
                                       </td>
                                       {/* Discounted VAT */}
@@ -11280,7 +11280,7 @@ const ReviewPackagesComponent = (props) => {
                                                       100) *
                                                       props.OneOffPricingInfo
                                                         .DiscountPercentagePackageTwo) /
-                                                      100
+                                                      100,props.currencyID
                                                   )
                                                 : props.formatValue(
                                                     (((totalTwoPackageValue *
@@ -11288,7 +11288,7 @@ const ReviewPackagesComponent = (props) => {
                                                       100) *
                                                       props.OneOffPricingInfo
                                                         .DiscountPercentagePackageTwo) /
-                                                      100
+                                                      100,props.currencyID
                                                   )
                                               : props.formatValue(
                                                   (((props.OneOffPricingInfo
@@ -11297,7 +11297,7 @@ const ReviewPackagesComponent = (props) => {
                                                     100) *
                                                     props.OneOffPricingInfo
                                                       .DiscountPercentagePackageTwo) /
-                                                    100
+                                                    100,props.currencyID
                                                 )}
                                           </td>
                                         )}
@@ -11311,7 +11311,7 @@ const ReviewPackagesComponent = (props) => {
                                         (-){" "}
                                         {props.formatValue(
                                           props.OneOffPricingInfo
-                                            .packageThreeDisCount
+                                            .packageThreeDisCount,props.currencyID
                                         )}
                                       </td>
 
@@ -11343,7 +11343,7 @@ const ReviewPackagesComponent = (props) => {
                                                       100) *
                                                       props.OneOffPricingInfo
                                                         .DiscountPercentagePackageThree) /
-                                                      100
+                                                      100,props.currencyID
                                                   )
                                                 : props.formatValue(
                                                     (((totalThreePackageValue *
@@ -11351,7 +11351,7 @@ const ReviewPackagesComponent = (props) => {
                                                       100) *
                                                       props.OneOffPricingInfo
                                                         .DiscountPercentagePackageThree) /
-                                                      100
+                                                      100,props.currencyID
                                                   )
                                               : props.formatValue(
                                                   (((props.OneOffPricingInfo
@@ -11360,7 +11360,7 @@ const ReviewPackagesComponent = (props) => {
                                                     100) *
                                                     props.OneOffPricingInfo
                                                       .DiscountPercentagePackageThree) /
-                                                    100
+                                                    100,props.currencyID
                                                 )}
                                           </td>
                                         )}
@@ -11467,18 +11467,18 @@ const ReviewPackagesComponent = (props) => {
                                             props.OneOffPricingInfo
                                               .packageOneDisCountedTotal -
                                               props.OneOffPricingInfo
-                                                .packageOneDisCount
+                                                .packageOneDisCount,props.currencyID
                                           )
                                         : props.formatValue(
                                             totalOnePackageValue -
                                               props.OneOffPricingInfo
-                                                .packageOneDisCount
+                                                .packageOneDisCount,props.currencyID
                                           )
                                       : props.formatValue(
                                           props.OneOffPricingInfo
                                             .packageOneNetTotal -
                                             props.OneOffPricingInfo
-                                              .packageOneDisCount
+                                              .packageOneDisCount,props.currencyID
                                         )}
                                   </td>
                                   {props.vatPercentage !== null &&
@@ -11510,7 +11510,7 @@ const ReviewPackagesComponent = (props) => {
                                                     100) *
                                                     props.OneOffPricingInfo
                                                       .DiscountPercentagePackageOne) /
-                                                    100
+                                                    100,props.currencyID
                                               )
                                             : props.formatValue(
                                                 (totalOnePackageValue * 20) /
@@ -11520,7 +11520,7 @@ const ReviewPackagesComponent = (props) => {
                                                     100) *
                                                     props.OneOffPricingInfo
                                                       .DiscountPercentagePackageOne) /
-                                                    100
+                                                    100,props.currencyID
                                               )
                                           : props.formatValue(
                                               (props.OneOffPricingInfo
@@ -11533,7 +11533,7 @@ const ReviewPackagesComponent = (props) => {
                                                   100) *
                                                   props.OneOffPricingInfo
                                                     .DiscountPercentagePackageOne) /
-                                                  100
+                                                  100,props.currencyID
                                             )}
                                       </td>
                                     )}
@@ -11545,7 +11545,7 @@ const ReviewPackagesComponent = (props) => {
                                         {" "}
                                         {props.formatValue(
                                           props.OneOffPricingInfo
-                                            .PackageTwoGrandTotal
+                                            .PackageTwoGrandTotal,props.currencyID
                                         )}
                                       </td>
                                       {props.vatPercentage !== null &&
@@ -11579,7 +11579,7 @@ const ReviewPackagesComponent = (props) => {
                                                         100) *
                                                         props.OneOffPricingInfo
                                                           .DiscountPercentagePackageTwo) /
-                                                        100
+                                                        100,props.currencyID
                                                   )
                                                 : props.formatValue(
                                                     (totalTwoPackageValue *
@@ -11590,7 +11590,7 @@ const ReviewPackagesComponent = (props) => {
                                                         100) *
                                                         props.OneOffPricingInfo
                                                           .DiscountPercentagePackageTwo) /
-                                                        100
+                                                        100,props.currencyID
                                                   )
                                               : props.formatValue(
                                                   (props.OneOffPricingInfo
@@ -11603,7 +11603,7 @@ const ReviewPackagesComponent = (props) => {
                                                       100) *
                                                       props.OneOffPricingInfo
                                                         .DiscountPercentagePackageTwo) /
-                                                      100
+                                                      100,props.currencyID
                                                 )}
                                           </td>
                                         )}
@@ -11617,7 +11617,7 @@ const ReviewPackagesComponent = (props) => {
                                         {" "}
                                         {props.formatValue(
                                           props.OneOffPricingInfo
-                                            .PackageThreeGrandTotal
+                                            .PackageThreeGrandTotal,props.currencyID
                                         )}
                                       </td>
                                       {props.vatPercentage !== null &&
@@ -11651,7 +11651,7 @@ const ReviewPackagesComponent = (props) => {
                                                         100) *
                                                         props.OneOffPricingInfo
                                                           .DiscountPercentagePackageThree) /
-                                                        100
+                                                        100,props.currencyID
                                                   )
                                                 : props.formatValue(
                                                     (totalThreePackageValue *
@@ -11662,7 +11662,7 @@ const ReviewPackagesComponent = (props) => {
                                                         100) *
                                                         props.OneOffPricingInfo
                                                           .DiscountPercentagePackageThree) /
-                                                        100
+                                                        100,props.currencyID
                                                   )
                                               : props.formatValue(
                                                   (props.OneOffPricingInfo
@@ -11675,7 +11675,7 @@ const ReviewPackagesComponent = (props) => {
                                                       100) *
                                                       props.OneOffPricingInfo
                                                         .DiscountPercentagePackageThree) /
-                                                      100
+                                                      100,props.currencyID
                                                 )}
                                           </td>
                                         )}
@@ -21257,6 +21257,9 @@ const Add_Update_Engagement_Letter = () => {
                   setVisibleFieldsCustomTemp={setVisibleFieldsCustomTemp}
                   visibleFieldsCustomTemp={visibleFieldsCustomTemp}
                   vatPercentageOneOff={vatPercentageOneOff}
+                  currencyID={currencyID}
+                  taxName={taxName}
+                  currencySymbol={currencySymbol}
                 />
               </Suspense>
               {activeTab === EngagementLetterHeader.Preview && (

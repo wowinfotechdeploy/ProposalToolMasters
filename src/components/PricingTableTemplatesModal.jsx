@@ -35,6 +35,9 @@ const PricingTableTemplatesModal = ({
   setVisibleFieldsCustomTemp,
   visibleFieldsCustomTemp,
   vatPercentageOneOff,
+  currencyID,
+  taxName,
+  currencySymbol
 }) => {
   const [totalOnePackageValue, setTotalOnePackageValue] = useState(0);
   const [totalTwoPackageValue, setTotalTwoPackageValue] = useState(0);
@@ -354,7 +357,7 @@ const PricingTableTemplatesModal = ({
                 <tr className="head-row">
                   <th className="tr-table-class text-white">Services</th>
                   <th className="tr-table-class text-white text-right">
-                    Fees (£)
+                    Fees ({currencySymbol})
                   </th>
                 </tr>
               </thead>
@@ -374,7 +377,7 @@ const PricingTableTemplatesModal = ({
                             </td>
                             <td className="text-right">
                               {ProposalObject.feeTypeId === 1 && (
-                                <>{formatValue(subService.price)}</>
+                                <>{formatValue(subService.price, currencyID)}</>
                               )}
                               {ProposalObject.feeTypeId === 2 && (
                                 <span className="fa fa-check"></span>
@@ -395,8 +398,8 @@ const PricingTableTemplatesModal = ({
                       Number(RecurringPricingInfo.DiscountedPrice) ||
                     (Number(RecurringPricingInfo.Discount) > 0 &&
                       !ProposalObject.DiscountLines)
-                      ? formatValue(RecurringPricingInfo.DiscountedPrice)
-                      : formatValue(RecurringPricingInfo.OriginalPrice)}
+                      ? formatValue(RecurringPricingInfo.DiscountedPrice, currencyID)
+                      : formatValue(RecurringPricingInfo.OriginalPrice, currencyID)}
                   </td>
                 </tr>
                 {Number(RecurringPricingInfo.Discount) > 0 &&
@@ -409,7 +412,7 @@ const PricingTableTemplatesModal = ({
                         <td className="tr-table-class font-14 text-white text-right">
                           (-){"  "}
                           {"  "}
-                          {formatValue(RecurringPricingInfo.Discount)}
+                          {formatValue(RecurringPricingInfo.Discount, currencyID)}
                         </td>
                       </tr>
                       <tr class="head-row">
@@ -418,7 +421,7 @@ const PricingTableTemplatesModal = ({
                         </td>
                         <td className="tr-table-class font-14 text-white text-right">
                           {" "}
-                          {formatValue(RecurringPricingInfo.DiscountedTotal)}
+                          {formatValue(RecurringPricingInfo.DiscountedTotal, currencyID)}
                         </td>
                       </tr>
                     </>
@@ -427,10 +430,10 @@ const PricingTableTemplatesModal = ({
                 {vatPercentage !== 0 && (
                   <>
                     <tr class="head-grey-row">
-                      <td className="tr-table-class font-14 text-white">VAT</td>
+                      <td className="tr-table-class font-14 text-white">{taxName}</td>
                       <td className="tr-table-class font-14 text-white text-right">
                         {" "}
-                        {formatValue(RecurringPricingInfo.VATPrice)}
+                        {formatValue(RecurringPricingInfo.VATPrice, currencyID)}
                       </td>
                     </tr>
                     <tr className="head-row">
@@ -439,7 +442,7 @@ const PricingTableTemplatesModal = ({
                       </td>
                       <td className="tr-table-class font-14 text-white text-right">
                         {" "}
-                        {formatValue(RecurringPricingInfo.GrandTotal)}
+                        {formatValue(RecurringPricingInfo.GrandTotal, currencyID)}
                       </td>
                     </tr>
                   </>
@@ -464,7 +467,7 @@ const PricingTableTemplatesModal = ({
                 <tr className="head-row">
                   <th className="tr-table-class text-white">Services</th>
                   <th className="tr-table-class text-white text-right">
-                    Fees (£)
+                    Fees ({currencySymbol})
                   </th>
                 </tr>
               </thead>
@@ -489,7 +492,8 @@ const PricingTableTemplatesModal = ({
                                   {formatValue(
                                     subService.price
                                       ? subService.price
-                                      : subService.quotationPrice
+                                      : subService.quotationPrice,
+                                    currencyID
                                   )}
                                 </>
                               )}
@@ -513,8 +517,8 @@ const PricingTableTemplatesModal = ({
                       Number(OneOffPricingInfo.DiscountedPrice) ||
                     (Number(OneOffPricingInfo.Discount) > 0 &&
                       !ProposalObject.DiscountLines)
-                      ? formatValue(OneOffPricingInfo.DiscountedPrice)
-                      : formatValue(OneOffPricingInfo.OriginalPrice)}
+                      ? formatValue(OneOffPricingInfo.DiscountedPrice, currencyID)
+                      : formatValue(OneOffPricingInfo.OriginalPrice, currencyID)}
                   </td>
                 </tr>
                 {Number(OneOffPricingInfo.Discount) > 0 &&
@@ -528,7 +532,7 @@ const PricingTableTemplatesModal = ({
                         <td className="tr-table-class font-14 text-white text-right">
                           (-){"  "}
                           {"  "}
-                          {formatValue(OneOffPricingInfo.Discount)}
+                          {formatValue(OneOffPricingInfo.Discount, currencyID)}
                         </td>
                       </tr>
                       <tr class="head-row">
@@ -537,7 +541,7 @@ const PricingTableTemplatesModal = ({
                         </td>
                         <td className="tr-table-class font-14 text-white text-right">
                           {"  "}
-                          {formatValue(OneOffPricingInfo.DiscountedTotal)}
+                          {formatValue(OneOffPricingInfo.DiscountedTotal, currencyID)}
                         </td>
                       </tr>
                     </>
@@ -545,10 +549,10 @@ const PricingTableTemplatesModal = ({
                 {vatPercentageOneOff !== null && (
                   <>
                     <tr class="head-grey-row">
-                      <td className="tr-table-class font-14 text-white">VAT</td>
+                      <td className="tr-table-class font-14 text-white">{taxName}</td>
                       <td className="tr-table-class font-14 text-white text-right">
                         {" "}
-                        {formatValue(OneOffPricingInfo.VATPrice)}
+                        {formatValue(OneOffPricingInfo.VATPrice, currencyID)}
                       </td>
                     </tr>
                     <tr className="head-row">
@@ -557,7 +561,7 @@ const PricingTableTemplatesModal = ({
                       </td>
                       <td className="tr-table-class font-14 text-white text-right">
                         {" "}
-                        {formatValue(OneOffPricingInfo.GrandTotal)}
+                        {formatValue(OneOffPricingInfo.GrandTotal, currencyID)}
                       </td>
                     </tr>
                   </>
@@ -657,7 +661,7 @@ const PricingTableTemplatesModal = ({
                                     <span className="fa fa-times"></span>
                                   ) : (
                                     ` ${formatValue(
-                                      subService.packageOneValue
+                                      subService.packageOneValue, currencyID
                                     )}`
                                   )}
                                 </div>
@@ -716,7 +720,7 @@ const PricingTableTemplatesModal = ({
                                       <span className="fa fa-times"></span>
                                     ) : (
                                       ` ${formatValue(
-                                        subService.packageTwoValue
+                                        subService.packageTwoValue, currencyID
                                       )}`
                                     )}
                                   </div>
@@ -779,7 +783,7 @@ const PricingTableTemplatesModal = ({
                                       <span className="fa fa-times"></span>
                                     ) : (
                                       ` ${formatValue(
-                                        subService.packageThreeValue
+                                        subService.packageThreeValue, currencyID
                                       )}`
                                     )}
                                   </div>
@@ -977,10 +981,10 @@ const PricingTableTemplatesModal = ({
                     ? Number(RecurringPricingInfo.packageOneDisCount) > 0 &&
                       !ProposalObject.DiscountLines
                       ? formatValue(
-                          RecurringPricingInfo.packageOneDisCountedTotal
+                          RecurringPricingInfo.packageOneDisCountedTotal, currencyID
                         )
-                      : formatValue(totalOnePackageValue)
-                    : formatValue(RecurringPricingInfo.packageOneNetTotal)}
+                      : formatValue(totalOnePackageValue, currencyID)
+                    : formatValue(RecurringPricingInfo.packageOneNetTotal, currencyID)}
                 </td>
                 {packageCount >= 2 && (
                   <td className="tr-table-class font-14 text-white text-right">
@@ -992,10 +996,10 @@ const PricingTableTemplatesModal = ({
                       ? Number(RecurringPricingInfo.packageTwoDisCount) > 0 &&
                         !ProposalObject.DiscountLines
                         ? formatValue(
-                            RecurringPricingInfo.packageTwoDisCountedTotal
+                            RecurringPricingInfo.packageTwoDisCountedTotal, currencyID
                           )
-                        : formatValue(totalTwoPackageValue)
-                      : formatValue(RecurringPricingInfo.packageTwoNetTotal)}
+                        : formatValue(totalTwoPackageValue, currencyID)
+                      : formatValue(RecurringPricingInfo.packageTwoNetTotal, currencyID)}
                   </td>
                 )}{" "}
                 {packageCount === 3 && (
@@ -1008,10 +1012,10 @@ const PricingTableTemplatesModal = ({
                       ? Number(RecurringPricingInfo.packageThreeDisCount) > 0 &&
                         !ProposalObject.DiscountLines
                         ? formatValue(
-                            RecurringPricingInfo.packageThreeDisCountedTotal
+                            RecurringPricingInfo.packageThreeDisCountedTotal, currencyID
                           )
-                        : formatValue(totalThreePackageValue)
-                      : formatValue(RecurringPricingInfo.packageThreeNetTotal)}
+                        : formatValue(totalThreePackageValue, currencyID)
+                      : formatValue(RecurringPricingInfo.packageThreeNetTotal, currencyID)}
                   </td>
                 )}
               </tr>
@@ -1027,19 +1031,19 @@ const PricingTableTemplatesModal = ({
                       </td>
                       <td className="tr-table-class font-14 text-white text-right">
                         (-){" "}
-                        {formatValue(RecurringPricingInfo.packageOneDisCount)}
+                        {formatValue(RecurringPricingInfo.packageOneDisCount, currencyID)}
                       </td>
                       {packageCount >= 2 && (
                         <td className="tr-table-class font-14 text-white text-right">
                           (-){" "}
-                          {formatValue(RecurringPricingInfo.packageTwoDisCount)}
+                          {formatValue(RecurringPricingInfo.packageTwoDisCount, currencyID)}
                         </td>
                       )}
                       {packageCount === 3 && (
                         <td className="tr-table-class font-14 text-white text-right">
                           (-){" "}
                           {formatValue(
-                            RecurringPricingInfo.packageThreeDisCount
+                            RecurringPricingInfo.packageThreeDisCount, currencyID
                           )}
                         </td>
                       )}
@@ -1051,7 +1055,7 @@ const PricingTableTemplatesModal = ({
                       <td className="tr-table-class font-14 text-white text-right">
                         {" "}
                         {formatValue(
-                          RecurringPricingInfo.packageOneDisCountedTotal
+                          RecurringPricingInfo.packageOneDisCountedTotal, currencyID
                         )}
                       </td>
 
@@ -1059,7 +1063,7 @@ const PricingTableTemplatesModal = ({
                         <td className="tr-table-class font-14 text-white text-right">
                           {" "}
                           {formatValue(
-                            RecurringPricingInfo.packageTwoDisCountedTotal
+                            RecurringPricingInfo.packageTwoDisCountedTotal, currencyID
                           )}
                         </td>
                       )}
@@ -1067,7 +1071,7 @@ const PricingTableTemplatesModal = ({
                         <td className="tr-table-class font-14 text-white text-right">
                           {" "}
                           {formatValue(
-                            RecurringPricingInfo.packageThreeDisCountedTotal
+                            RecurringPricingInfo.packageThreeDisCountedTotal, currencyID
                           )}
                         </td>
                       )}
@@ -1078,21 +1082,21 @@ const PricingTableTemplatesModal = ({
               {vatPercentage !== null && (
                 <>
                   <tr class="head-grey-row">
-                    <td className="tr-table-class font-14 text-white">VAT</td>
+                    <td className="tr-table-class font-14 text-white">{taxName}</td>
                     <td className="tr-table-class font-14 text-white text-right">
                       {" "}
-                      {formatValue(RecurringPricingInfo.PackageOneVaTPrice)}
+                      {formatValue(RecurringPricingInfo.PackageOneVaTPrice, currencyID)}
                     </td>
                     {packageCount >= 2 && (
                       <td className="tr-table-class font-14 text-white text-right">
                         {" "}
-                        {formatValue(RecurringPricingInfo.PackageTwoVaTPrice)}
+                        {formatValue(RecurringPricingInfo.PackageTwoVaTPrice, currencyID)}
                       </td>
                     )}
                     {packageCount === 3 && (
                       <td className="tr-table-class font-14 text-white text-right">
                         {" "}
-                        {formatValue(RecurringPricingInfo.PackageThreeVaTPrice)}
+                        {formatValue(RecurringPricingInfo.PackageThreeVaTPrice, currencyID)}
                       </td>
                     )}
                   </tr>
@@ -1102,19 +1106,19 @@ const PricingTableTemplatesModal = ({
                     </td>
                     <td className="tr-table-class font-14 text-white text-right">
                       {" "}
-                      {formatValue(RecurringPricingInfo.PackageOneGrandTotal)}
+                      {formatValue(RecurringPricingInfo.PackageOneGrandTotal, currencyID)}
                     </td>
                     {packageCount >= 2 && (
                       <td className="tr-table-class font-14 text-white text-right">
                         {" "}
-                        {formatValue(RecurringPricingInfo.PackageTwoGrandTotal)}
+                        {formatValue(RecurringPricingInfo.PackageTwoGrandTotal, currencyID)}
                       </td>
                     )}
                     {packageCount == 3 && (
                       <td className="tr-table-class font-14 text-white text-right">
                         {" "}
                         {formatValue(
-                          RecurringPricingInfo.PackageThreeGrandTotal
+                          RecurringPricingInfo.PackageThreeGrandTotal, currencyID
                         )}
                       </td>
                     )}
@@ -1211,7 +1215,7 @@ const PricingTableTemplatesModal = ({
                                     <span className="fa fa-times"></span>
                                   ) : (
                                     ` ${formatValue(
-                                      subService.packageOneValue
+                                      subService.packageOneValue, currencyID
                                     )}`
                                   )}
                                 </div>
@@ -1271,7 +1275,7 @@ const PricingTableTemplatesModal = ({
                                       <span className="fa fa-times"></span>
                                     ) : (
                                       ` ${formatValue(
-                                        subService.packageTwoValue
+                                        subService.packageTwoValue, currencyID
                                       )}`
                                     )}
                                   </div>
@@ -1335,7 +1339,7 @@ const PricingTableTemplatesModal = ({
                                       <span className="fa fa-times"></span>
                                     ) : (
                                       ` ${formatValue(
-                                        subService.packageThreeValue
+                                        subService.packageThreeValue, currencyID
                                       )}`
                                     )}
                                   </div>
@@ -1529,8 +1533,8 @@ const PricingTableTemplatesModal = ({
                     Number(OneOffPricingInfo.packageOneDisCountedTotal) ||
                   (Number(OneOffPricingInfo.packageOneDisCount) > 0 &&
                     !ProposalObject.DiscountLines)
-                    ? formatValue(OneOffPricingInfo.packageOneDisCountedTotal)
-                    : formatValue(totalOnePackageValueOneOff)}
+                    ? formatValue(OneOffPricingInfo.packageOneDisCountedTotal, currencyID)
+                    : formatValue(totalOnePackageValueOneOff, currencyID)}
                 </td>
                 {packageCount >= 2 && (
                   <td className="tr-table-class font-14 text-white text-right">
@@ -1539,8 +1543,8 @@ const PricingTableTemplatesModal = ({
                       Number(OneOffPricingInfo.packageTwoDisCountedTotal) ||
                     (Number(OneOffPricingInfo.packageTwoDisCount) > 0 &&
                       !ProposalObject.DiscountLines)
-                      ? formatValue(OneOffPricingInfo.packageTwoDisCountedTotal)
-                      : formatValue(totalTwoPackageValueOneOff)}
+                      ? formatValue(OneOffPricingInfo.packageTwoDisCountedTotal, currencyID)
+                      : formatValue(totalTwoPackageValueOneOff, currencyID)}
                   </td>
                 )}{" "}
                 {packageCount === 3 && (
@@ -1551,9 +1555,9 @@ const PricingTableTemplatesModal = ({
                     (Number(OneOffPricingInfo.packageThreeDisCount) > 0 &&
                       !ProposalObject.DiscountLines)
                       ? formatValue(
-                          OneOffPricingInfo.packageThreeDisCountedTotal
+                          OneOffPricingInfo.packageThreeDisCountedTotal, currencyID
                         )
-                      : formatValue(totalThreePackageValueOneOff)}
+                      : formatValue(totalThreePackageValueOneOff, currencyID)}
                   </td>
                 )}
               </tr>
@@ -1568,18 +1572,18 @@ const PricingTableTemplatesModal = ({
                         Discount
                       </td>
                       <td className="tr-table-class font-14 text-white text-right">
-                        (-) {formatValue(OneOffPricingInfo.packageOneDisCount)}
+                        (-) {formatValue(OneOffPricingInfo.packageOneDisCount, currencyID)}
                       </td>
                       {packageCount >= 2 && (
                         <td className="tr-table-class font-14 text-white text-right">
                           (-){" "}
-                          {formatValue(OneOffPricingInfo.packageTwoDisCount)}
+                          {formatValue(OneOffPricingInfo.packageTwoDisCount, currencyID)}
                         </td>
                       )}
                       {packageCount == 3 && (
                         <td className="tr-table-class font-14 text-white text-right">
                           (-){" "}
-                          {formatValue(OneOffPricingInfo.packageThreeDisCount)}
+                          {formatValue(OneOffPricingInfo.packageThreeDisCount, currencyID)}
                         </td>
                       )}
                     </tr>
@@ -1590,14 +1594,14 @@ const PricingTableTemplatesModal = ({
                       <td className="tr-table-class font-14 text-white text-right">
                         {" "}
                         {formatValue(
-                          OneOffPricingInfo.packageOneDisCountedTotal
+                          OneOffPricingInfo.packageOneDisCountedTotal, currencyID
                         )}
                       </td>
                       {packageCount >= 2 && (
                         <td className="tr-table-class font-14 text-white text-right">
                           {" "}
                           {formatValue(
-                            OneOffPricingInfo.packageTwoDisCountedTotal
+                            OneOffPricingInfo.packageTwoDisCountedTotal, currencyID
                           )}
                         </td>
                       )}
@@ -1605,7 +1609,7 @@ const PricingTableTemplatesModal = ({
                         <td className="tr-table-class font-14 text-white text-right">
                           {" "}
                           {formatValue(
-                            OneOffPricingInfo.packageThreeDisCountedTotal
+                            OneOffPricingInfo.packageThreeDisCountedTotal, currencyID
                           )}
                         </td>
                       )}
@@ -1615,21 +1619,21 @@ const PricingTableTemplatesModal = ({
               {vatPercentageOneOff !== null && (
                 <>
                   <tr class="head-grey-row">
-                    <td className="tr-table-class font-14 text-white">VAT</td>
+                    <td className="tr-table-class font-14 text-white">{taxName}</td>
                     <td className="tr-table-class font-14 text-white text-right">
                       {" "}
-                      {formatValue(OneOffPricingInfo.PackageOneVaTPrice)}
+                      {formatValue(OneOffPricingInfo.PackageOneVaTPrice, currencyID)}
                     </td>
                     {packageCount >= 2 && (
                       <td className="tr-table-class text-white text-right">
                         {" "}
-                        {formatValue(OneOffPricingInfo.PackageTwoVaTPrice)}
+                        {formatValue(OneOffPricingInfo.PackageTwoVaTPrice, currencyID)}
                       </td>
                     )}
                     {packageCount === 3 && (
                       <td className="tr-table-class text-white text-right">
                         {" "}
-                        {formatValue(OneOffPricingInfo.PackageThreeVaTPrice)}
+                        {formatValue(OneOffPricingInfo.PackageThreeVaTPrice, currencyID)}
                       </td>
                     )}
                   </tr>
@@ -1639,18 +1643,18 @@ const PricingTableTemplatesModal = ({
                     </td>
                     <td className="tr-table-class font-14 text-white text-right">
                       {" "}
-                      {formatValue(OneOffPricingInfo.PackageOneGrandTotal)}
+                      {formatValue(OneOffPricingInfo.PackageOneGrandTotal, currencyID)}
                     </td>
                     {packageCount >= 2 && (
                       <td className="tr-table-class font-14 text-white text-right">
                         {" "}
-                        {formatValue(OneOffPricingInfo.PackageTwoGrandTotal)}
+                        {formatValue(OneOffPricingInfo.PackageTwoGrandTotal, currencyID)}
                       </td>
                     )}
                     {packageCount == 3 && (
                       <td className="tr-table-class font-14 text-white text-right">
                         {" "}
-                        {formatValue(OneOffPricingInfo.PackageThreeGrandTotal)}
+                        {formatValue(OneOffPricingInfo.PackageThreeGrandTotal, currencyID)}
                       </td>
                     )}
                   </tr>
@@ -1687,25 +1691,25 @@ const PricingTableTemplatesModal = ({
                     className="tr-table-class text-white text-center"
                     style={{ width: "16.66%" }}
                   >
-                    Fees (£)
+                    Fees ({currencySymbol})
                   </th>
                   <th
                     className="tr-table-class text-white text-center"
                     style={{ width: "16.66%" }}
                   >
-                    VAT Rate
+                    {taxName} Rate
                   </th>
                   <th
                     className="tr-table-class text-white text-center"
                     style={{ width: "16.66%" }}
                   >
-                    VAT (£)
+                    {taxName} ({currencySymbol})
                   </th>
                   <th
                     className="tr-table-class text-white text-center"
                     style={{ width: "16.66%" }}
                   >
-                    Fees inc VAT (£)
+                    Fees inc {taxName} ({currencySymbol})
                   </th>
                 </tr>
               </thead>
@@ -1729,7 +1733,7 @@ const PricingTableTemplatesModal = ({
                             </td>
                             <td className="text-center">
                               {ProposalObject.feeTypeId === 1 &&
-                                formatValue(price)}
+                                formatValue(price, currencyID)}
                               {ProposalObject.feeTypeId === 2 && (
                                 <span className="fa fa-check"></span>
                               )}
@@ -1737,14 +1741,14 @@ const PricingTableTemplatesModal = ({
                             <td className="text-center">20%</td>
                             <td className="text-center">
                               {ProposalObject.feeTypeId === 1 &&
-                                formatValue(vat)}
+                                formatValue(vat, currencyID)}
                               {ProposalObject.feeTypeId === 2 && (
                                 <span className="fa fa-check"></span>
                               )}
                             </td>
                             <td className="text-center">
                               {ProposalObject.feeTypeId === 1 &&
-                                formatValue(total)}
+                                formatValue(total, currencyID)}
                               {ProposalObject.feeTypeId === 2 && (
                                 <span className="fa fa-check"></span>
                               )}
@@ -1765,8 +1769,8 @@ const PricingTableTemplatesModal = ({
                       Number(RecurringPricingInfo.DiscountedPrice) ||
                     (Number(RecurringPricingInfo.Discount) > 0 &&
                       !ProposalObject.DiscountLines)
-                      ? formatValue(RecurringPricingInfo.DiscountedPrice)
-                      : formatValue(RecurringPricingInfo.OriginalPrice)}
+                      ? formatValue(RecurringPricingInfo.DiscountedPrice, currencyID)
+                      : formatValue(RecurringPricingInfo.OriginalPrice, currencyID)}
                   </td>
                   <td></td>
                   {/* <td className="tr-table-class text-white text-center">
@@ -1783,11 +1787,13 @@ const PricingTableTemplatesModal = ({
                       !ProposalObject.DiscountLines)
                       ? formatValue(
                           (Number(RecurringPricingInfo.DiscountedPrice) * 20) /
-                            100
+                            100,
+                          currencyID
                         )
                       : formatValue(
                           (Number(RecurringPricingInfo.OriginalPrice) * 20) /
-                            100
+                            100,
+                          currencyID
                         )}
                   </td>
                   {/* <td className="tr-table-class font-14 text-white text-center">
@@ -1806,12 +1812,14 @@ const PricingTableTemplatesModal = ({
                           Number(RecurringPricingInfo.DiscountedPrice) +
                             (Number(RecurringPricingInfo.DiscountedPrice) *
                               20) /
-                              100
+                              100,
+                          currencyID
                         )
                       : formatValue(
                           Number(RecurringPricingInfo.OriginalPrice) +
                             (Number(RecurringPricingInfo.OriginalPrice) * 20) /
-                              100
+                              100,
+                          currencyID
                         )}
                   </td>
                 </tr>
@@ -1827,7 +1835,7 @@ const PricingTableTemplatesModal = ({
                         <td className="tr-table-class font-14 text-white text-center">
                           (-){"  "}
                           {"  "}
-                          {formatValue(RecurringPricingInfo.Discount)}
+                          {formatValue(RecurringPricingInfo.Discount, currencyID)}
                         </td>
                         <td></td>
                         <td className="tr-table-class text-white text-center">
@@ -1840,13 +1848,15 @@ const PricingTableTemplatesModal = ({
                                 ((Number(RecurringPricingInfo.DiscountedPrice) *
                                   20) /
                                   100) *
-                                  (RecurringPricingInfo.DefaultDiscount / 100)
+                                  (RecurringPricingInfo.DefaultDiscount / 100),
+                                currencyID
                               )
                             : formatValue(
                                 ((Number(RecurringPricingInfo.OriginalPrice) *
                                   20) /
                                   100) *
-                                  (RecurringPricingInfo.DefaultDiscount / 100)
+                                  (RecurringPricingInfo.DefaultDiscount / 100),
+                                currencyID
                               )}
                         </td>
 
@@ -1863,14 +1873,16 @@ const PricingTableTemplatesModal = ({
                                   ) *
                                     20) /
                                     100) *
-                                  (RecurringPricingInfo.DefaultDiscount / 100)
+                                  (RecurringPricingInfo.DefaultDiscount / 100),
+                                currencyID
                               )
                             : formatValue(
                                 (Number(RecurringPricingInfo.OriginalPrice) +
                                   (Number(RecurringPricingInfo.OriginalPrice) *
                                     20) /
                                     100) *
-                                  (RecurringPricingInfo.DefaultDiscount / 100)
+                                  (RecurringPricingInfo.DefaultDiscount / 100),
+                                currencyID
                               )}
                         </td>
                       </tr>
@@ -1921,11 +1933,11 @@ const PricingTableTemplatesModal = ({
                             !ProposalObject.DiscountLines)
                             ? formatValue(
                                 RecurringPricingInfo.DiscountedPrice -
-                                  RecurringPricingInfo.Discount
+                                  RecurringPricingInfo.Discount, currencyID
                               )
                             : formatValue(
                                 RecurringPricingInfo.OriginalPrice -
-                                  RecurringPricingInfo.Discount
+                                  RecurringPricingInfo.Discount, currencyID
                               )}
                         </td>
                         <td></td>
@@ -1945,6 +1957,7 @@ const PricingTableTemplatesModal = ({
                                     20) /
                                     100) *
                                     (RecurringPricingInfo.DefaultDiscount / 100)
+                                  , currencyID
                               )
                             : formatValue(
                                 (Number(RecurringPricingInfo.OriginalPrice) *
@@ -1954,11 +1967,12 @@ const PricingTableTemplatesModal = ({
                                     20) /
                                     100) *
                                     (RecurringPricingInfo.DefaultDiscount / 100)
+                                , currencyID
                               )}
                         </td>
                         <td className="tr-table-class font-14 text-white text-center">
                           {" "}
-                          {formatValue(RecurringPricingInfo.GrandTotal)}
+                          {formatValue(RecurringPricingInfo.GrandTotal, currencyID)}
                         </td>
                       </tr>
                     </>
@@ -1992,25 +2006,25 @@ const PricingTableTemplatesModal = ({
                     className="tr-table-class text-white text-center"
                     style={{ width: "16.66%" }}
                   >
-                    Fees (£)
+                    Fees ({currencySymbol})
                   </th>
                   <th
                     className="tr-table-class text-white text-center"
                     style={{ width: "16.66%" }}
                   >
-                    VAT Rate
+                    {taxName} Rate
                   </th>
                   <th
                     className="tr-table-class text-white text-center"
                     style={{ width: "16.66%" }}
                   >
-                    VAT (£)
+                    {taxName} ({currencySymbol})
                   </th>
                   <th
                     className="tr-table-class text-white text-center"
                     style={{ width: "16.66%" }}
                   >
-                    Fees inc VAT (£)
+                    Fees inc {taxName} ({currencySymbol})
                   </th>
                 </tr>
               </thead>
@@ -2034,7 +2048,7 @@ const PricingTableTemplatesModal = ({
                             </td>
                             <td className="text-center">
                               {ProposalObject.feeTypeId === 1 &&
-                                formatValue(price)}
+                                formatValue(price, currencyID)}
                               {ProposalObject.feeTypeId === 2 && (
                                 <span className="fa fa-check"></span>
                               )}
@@ -2042,14 +2056,14 @@ const PricingTableTemplatesModal = ({
                             <td className="text-center">20%</td>
                             <td className="text-center">
                               {ProposalObject.feeTypeId === 1 &&
-                                formatValue(vat)}
+                                formatValue(vat, currencyID)}
                               {ProposalObject.feeTypeId === 2 && (
                                 <span className="fa fa-check"></span>
                               )}
                             </td>
                             <td className="text-center">
                               {ProposalObject.feeTypeId === 1 &&
-                                formatValue(total)}
+                                formatValue(total, currencyID)}
                               {ProposalObject.feeTypeId === 2 && (
                                 <span className="fa fa-check"></span>
                               )}
@@ -2070,8 +2084,8 @@ const PricingTableTemplatesModal = ({
                       Number(OneOffPricingInfo.DiscountedPrice) ||
                     (Number(OneOffPricingInfo.Discount) > 0 &&
                       !ProposalObject.DiscountLines)
-                      ? formatValue(OneOffPricingInfo.DiscountedPrice)
-                      : formatValue(OneOffPricingInfo.OriginalPrice)}
+                      ? formatValue(OneOffPricingInfo.DiscountedPrice, currencyID)
+                      : formatValue(OneOffPricingInfo.OriginalPrice, currencyID)}
                   </td>
                   <td></td>
                   {/* <td className="tr-table-class text-white text-center">
@@ -2087,10 +2101,12 @@ const PricingTableTemplatesModal = ({
                     (Number(OneOffPricingInfo.Discount) > 0 &&
                       !ProposalObject.DiscountLines)
                       ? formatValue(
-                          (Number(OneOffPricingInfo.DiscountedPrice) * 20) / 100
+                          (Number(OneOffPricingInfo.DiscountedPrice) * 20) / 100,
+                          currencyID
                         )
                       : formatValue(
-                          (Number(OneOffPricingInfo.OriginalPrice) * 20) / 100
+                          (Number(OneOffPricingInfo.OriginalPrice) * 20) / 100,
+                          currencyID
                         )}
                   </td>
                   {/* <td className="tr-table-class font-14 text-white text-center">
@@ -2108,11 +2124,13 @@ const PricingTableTemplatesModal = ({
                       ? formatValue(
                           Number(OneOffPricingInfo.DiscountedPrice) +
                             (Number(OneOffPricingInfo.DiscountedPrice) * 20) /
-                              100
+                              100,
+                          currencyID
                         )
                       : formatValue(
                           Number(OneOffPricingInfo.OriginalPrice) +
-                            (Number(OneOffPricingInfo.OriginalPrice) * 20) / 100
+                            (Number(OneOffPricingInfo.OriginalPrice) * 20) / 100,
+                          currencyID
                         )}
                   </td>
                 </tr>
@@ -2129,7 +2147,7 @@ const PricingTableTemplatesModal = ({
                         <td className="tr-table-class font-14 text-white text-center">
                           (-){"  "}
                           {"  "}
-                          {formatValue(OneOffPricingInfo.Discount)}
+                          {formatValue(OneOffPricingInfo.Discount, currencyID)}
                         </td>
                         <td></td>
                         <td className="tr-table-class text-white text-center">
@@ -2142,13 +2160,15 @@ const PricingTableTemplatesModal = ({
                                 ((Number(OneOffPricingInfo.DiscountedPrice) *
                                   20) /
                                   100) *
-                                  (OneOffPricingInfo.DefaultDiscount / 100)
+                                  (OneOffPricingInfo.DefaultDiscount / 100),
+                                currencyID
                               )
                             : formatValue(
                                 ((Number(OneOffPricingInfo.OriginalPrice) *
                                   20) /
                                   100) *
-                                  (OneOffPricingInfo.DefaultDiscount / 100)
+                                  (OneOffPricingInfo.DefaultDiscount / 100),
+                                currencyID
                               )}
                         </td>
 
@@ -2163,14 +2183,16 @@ const PricingTableTemplatesModal = ({
                                   (Number(OneOffPricingInfo.DiscountedPrice) *
                                     20) /
                                     100) *
-                                  (OneOffPricingInfo.DefaultDiscount / 100)
+                                  (OneOffPricingInfo.DefaultDiscount / 100),
+                                currencyID
                               )
                             : formatValue(
                                 (Number(OneOffPricingInfo.OriginalPrice) +
                                   (Number(OneOffPricingInfo.OriginalPrice) *
                                     20) /
                                     100) *
-                                  (OneOffPricingInfo.DefaultDiscount / 100)
+                                  (OneOffPricingInfo.DefaultDiscount / 100),
+                                currencyID
                               )}
                         </td>
                       </tr>
@@ -2221,11 +2243,13 @@ const PricingTableTemplatesModal = ({
                             !ProposalObject.DiscountLines)
                             ? formatValue(
                                 OneOffPricingInfo.DiscountedPrice -
-                                  OneOffPricingInfo.Discount
+                                  OneOffPricingInfo.Discount,
+                                currencyID
                               )
                             : formatValue(
                                 OneOffPricingInfo.OriginalPrice -
-                                  OneOffPricingInfo.Discount
+                                  OneOffPricingInfo.Discount,
+                                currencyID
                               )}
                         </td>
                         <td></td>
@@ -2242,7 +2266,8 @@ const PricingTableTemplatesModal = ({
                                   ((Number(OneOffPricingInfo.DiscountedPrice) *
                                     20) /
                                     100) *
-                                    (OneOffPricingInfo.DefaultDiscount / 100)
+                                    (OneOffPricingInfo.DefaultDiscount / 100),
+                                currencyID
                               )
                             : formatValue(
                                 (Number(OneOffPricingInfo.OriginalPrice) * 20) /
@@ -2250,12 +2275,13 @@ const PricingTableTemplatesModal = ({
                                   ((Number(OneOffPricingInfo.OriginalPrice) *
                                     20) /
                                     100) *
-                                    (OneOffPricingInfo.DefaultDiscount / 100)
+                                    (OneOffPricingInfo.DefaultDiscount / 100),
+                                currencyID
                               )}
                         </td>
                         <td className="tr-table-class font-14 text-white text-center">
                           {" "}
-                          {formatValue(OneOffPricingInfo.GrandTotal)}
+                          {formatValue(OneOffPricingInfo.GrandTotal, currencyID)}
                         </td>
                       </tr>
                     </>
@@ -2306,7 +2332,7 @@ const PricingTableTemplatesModal = ({
                         )}
                       </td>
                       <td className="tr-table-class font-14 text-white text-right">
-                        VAT (£)
+                        {taxName} ({currencySymbol})
                       </td>
                     </>
                   ))}
@@ -2368,7 +2394,7 @@ const PricingTableTemplatesModal = ({
                                     <span className="fa fa-times"></span>
                                   ) : (
                                     ` ${formatValue(
-                                      subService.packageOneValue
+                                      subService.packageOneValue, currencyID
                                     )}`
                                   )}
                                 </div>
@@ -2427,7 +2453,7 @@ const PricingTableTemplatesModal = ({
                                     <span className="fa fa-times"></span>
                                   ) : (
                                     ` ${formatValue(
-                                      (subService.packageOneValue * 20) / 100
+                                      (subService.packageOneValue * 20) / 100, currencyID
                                     )}`
                                   )}
                                 </div>
@@ -2488,7 +2514,7 @@ const PricingTableTemplatesModal = ({
                                         <span className="fa fa-times"></span>
                                       ) : (
                                         ` ${formatValue(
-                                          subService.packageTwoValue
+                                          subService.packageTwoValue, currencyID
                                         )}`
                                       )}
                                     </div>
@@ -2552,7 +2578,8 @@ const PricingTableTemplatesModal = ({
                                       ) : (
                                         ` ${formatValue(
                                           (subService.packageTwoValue * 20) /
-                                            100
+                                            100,
+                                          currencyID
                                         )}`
                                       )}
                                     </div>
@@ -2620,7 +2647,7 @@ const PricingTableTemplatesModal = ({
                                         <span className="fa fa-times"></span>
                                       ) : (
                                         ` ${formatValue(
-                                          subService.packageThreeValue
+                                          subService.packageThreeValue, currencyID
                                         )}`
                                       )}
                                     </div>
@@ -2685,7 +2712,8 @@ const PricingTableTemplatesModal = ({
                                       ) : (
                                         ` ${formatValue(
                                           (subService.packageThreeValue * 20) /
-                                            100
+                                            100,
+                                          currencyID
                                         )}`
                                       )}
                                     </div>
@@ -2891,15 +2919,15 @@ const PricingTableTemplatesModal = ({
                     ? Number(RecurringPricingInfo.packageOneDisCount) > 0 &&
                       !ProposalObject.DiscountLines
                       ? formatValue(
-                          RecurringPricingInfo.packageOneDisCountedTotal
+                          RecurringPricingInfo.packageOneDisCountedTotal, currencyID
                         )
-                      : formatValue(totalOnePackageValue)
-                    : formatValue(RecurringPricingInfo.packageOneNetTotal)}
+                      : formatValue(totalOnePackageValue, currencyID)
+                    : formatValue(RecurringPricingInfo.packageOneNetTotal, currencyID)}
                 </td>
                 <td className="tr-table-class font-14 text-white text-right">
                   {" "}
                   {formatValue(
-                    RecurringPricingInfo.PackageOneVaTPriceWithoutDiscout
+                    RecurringPricingInfo.PackageOneVaTPriceWithoutDiscout, currencyID
                   )}
                 </td>
                 {packageCount >= 2 && (
@@ -2913,15 +2941,15 @@ const PricingTableTemplatesModal = ({
                         ? Number(RecurringPricingInfo.packageTwoDisCount) > 0 &&
                           !ProposalObject.DiscountLines
                           ? formatValue(
-                              RecurringPricingInfo.packageTwoDisCountedTotal
+                              RecurringPricingInfo.packageTwoDisCountedTotal, currencyID
                             )
-                          : formatValue(totalTwoPackageValue)
-                        : formatValue(RecurringPricingInfo.packageTwoNetTotal)}
+                          : formatValue(totalTwoPackageValue, currencyID)
+                        : formatValue(RecurringPricingInfo.packageTwoNetTotal, currencyID)}
                     </td>
                     <td className="tr-table-class font-14 text-white text-right">
                       {" "}
                       {formatValue(
-                        RecurringPricingInfo.PackageTwoVaTPriceWithoutDiscout
+                        RecurringPricingInfo.PackageTwoVaTPriceWithoutDiscout, currencyID
                       )}
                     </td>
                   </>
@@ -2937,17 +2965,17 @@ const PricingTableTemplatesModal = ({
                         ? Number(RecurringPricingInfo.packageThreeDisCount) >
                             0 && !ProposalObject.DiscountLines
                           ? formatValue(
-                              RecurringPricingInfo.packageThreeDisCountedTotal
+                              RecurringPricingInfo.packageThreeDisCountedTotal, currencyID
                             )
-                          : formatValue(totalThreePackageValue)
+                          : formatValue(totalThreePackageValue, currencyID)
                         : formatValue(
-                            RecurringPricingInfo.packageThreeNetTotal
+                            RecurringPricingInfo.packageThreeNetTotal, currencyID
                           )}
                     </td>
                     <td className="tr-table-class font-14 text-white text-right">
                       {" "}
                       {formatValue(
-                        RecurringPricingInfo.PackageThreeVaTPriceWithoutDiscout
+                        RecurringPricingInfo.PackageThreeVaTPriceWithoutDiscout, currencyID
                       )}
                     </td>
                   </>
@@ -2965,7 +2993,7 @@ const PricingTableTemplatesModal = ({
                       </td>
                       <td className="tr-table-class font-14 text-white text-right">
                         (-){" "}
-                        {formatValue(RecurringPricingInfo.packageOneDisCount)}
+                        {formatValue(RecurringPricingInfo.packageOneDisCount, currencyID)}
                       </td>
                       <td className="tr-table-class font-14 text-white text-right">
                         (-){" "}
@@ -2973,6 +3001,7 @@ const PricingTableTemplatesModal = ({
                           (RecurringPricingInfo.PackageOneVaTPriceWithoutDiscout *
                             RecurringPricingInfo.DiscountPercentagePackageOne) /
                             100
+                          , currencyID
                         )}
                       </td>
                       {packageCount >= 2 && (
@@ -2980,7 +3009,7 @@ const PricingTableTemplatesModal = ({
                           <td className="tr-table-class font-14 text-white text-right">
                             (-){" "}
                             {formatValue(
-                              RecurringPricingInfo.packageTwoDisCount
+                              RecurringPricingInfo.packageTwoDisCount, currencyID
                             )}
                           </td>
 
@@ -2990,6 +3019,7 @@ const PricingTableTemplatesModal = ({
                               (RecurringPricingInfo.PackageTwoVaTPriceWithoutDiscout *
                                 RecurringPricingInfo.DiscountPercentagePackageTwo) /
                                 100
+                              , currencyID
                             )}
                           </td>
                         </>
@@ -2999,7 +3029,7 @@ const PricingTableTemplatesModal = ({
                           <td className="tr-table-class font-14 text-white text-right">
                             (-){" "}
                             {formatValue(
-                              RecurringPricingInfo.packageThreeDisCount
+                              RecurringPricingInfo.packageThreeDisCount, currencyID
                             )}
                           </td>
 
@@ -3009,6 +3039,7 @@ const PricingTableTemplatesModal = ({
                               (RecurringPricingInfo.PackageThreeVaTPriceWithoutDiscout *
                                 RecurringPricingInfo.DiscountPercentagePackageThree) /
                                 100
+                              , currencyID
                             )}
                           </td>
                         </>
@@ -3021,7 +3052,7 @@ const PricingTableTemplatesModal = ({
                       <td className="tr-table-class font-14 text-white text-right">
                         {" "}
                         {formatValue(
-                          RecurringPricingInfo.packageOneDisCountedTotal
+                          RecurringPricingInfo.packageOneDisCountedTotal, currencyID
                         )}
                       </td>
                       <td className="tr-table-class font-14 text-white text-right">
@@ -3031,6 +3062,7 @@ const PricingTableTemplatesModal = ({
                             (RecurringPricingInfo.PackageOneVaTPriceWithoutDiscout *
                               RecurringPricingInfo.DiscountPercentagePackageOne) /
                               100
+                          , currencyID
                         )}
                       </td>
 
@@ -3039,7 +3071,7 @@ const PricingTableTemplatesModal = ({
                           <td className="tr-table-class font-14 text-white text-right">
                             {" "}
                             {formatValue(
-                              RecurringPricingInfo.packageTwoDisCountedTotal
+                              RecurringPricingInfo.packageTwoDisCountedTotal, currencyID
                             )}
                           </td>
                           <td className="tr-table-class font-14 text-white text-right">
@@ -3049,6 +3081,7 @@ const PricingTableTemplatesModal = ({
                                 (RecurringPricingInfo.PackageTwoVaTPriceWithoutDiscout *
                                   RecurringPricingInfo.DiscountPercentagePackageTwo) /
                                   100
+                              , currencyID
                             )}
                           </td>
                         </>
@@ -3058,7 +3091,7 @@ const PricingTableTemplatesModal = ({
                           <td className="tr-table-class font-14 text-white text-right">
                             {" "}
                             {formatValue(
-                              RecurringPricingInfo.packageThreeDisCountedTotal
+                              RecurringPricingInfo.packageThreeDisCountedTotal, currencyID
                             )}
                           </td>
                           <td className="tr-table-class font-14 text-white text-right">
@@ -3068,6 +3101,7 @@ const PricingTableTemplatesModal = ({
                                 (RecurringPricingInfo.PackageThreeVaTPriceWithoutDiscout *
                                   RecurringPricingInfo.DiscountPercentagePackageThree) /
                                   100
+                              , currencyID
                             )}
                           </td>
                         </>
@@ -3110,11 +3144,11 @@ const PricingTableTemplatesModal = ({
                                        </tr> */}
                   <tr className="head-row">
                     <td className="tr-table-class font-14 text-white">
-                      Fees inc VAT (£)
+                      Fees inc {taxName} ({currencySymbol})
                     </td>
                     <td className="tr-table-class font-14 text-white text-right">
                       {" "}
-                      {formatValue(RecurringPricingInfo.PackageOneGrandTotal)}
+                      {formatValue(RecurringPricingInfo.PackageOneGrandTotal, currencyID)}
                     </td>
                     <td></td>
                     {packageCount >= 2 && (
@@ -3122,7 +3156,7 @@ const PricingTableTemplatesModal = ({
                         <td className="tr-table-class font-14 text-white text-right">
                           {" "}
                           {formatValue(
-                            RecurringPricingInfo.PackageTwoGrandTotal
+                            RecurringPricingInfo.PackageTwoGrandTotal, currencyID
                           )}
                         </td>
                         <td></td>
@@ -3133,7 +3167,7 @@ const PricingTableTemplatesModal = ({
                         <td className="tr-table-class font-14 text-white text-right">
                           {" "}
                           {formatValue(
-                            RecurringPricingInfo.PackageThreeGrandTotal
+                            RecurringPricingInfo.PackageThreeGrandTotal, currencyID
                           )}
                         </td>
                         <td></td>
@@ -3182,7 +3216,7 @@ const PricingTableTemplatesModal = ({
                         )}
                       </td>
                       <td className="tr-table-class font-14 text-white text-right">
-                        VAT (£)
+                        {taxName} ({currencySymbol})
                       </td>
                     </>
                   ))}
@@ -3244,7 +3278,7 @@ const PricingTableTemplatesModal = ({
                                     <span className="fa fa-times"></span>
                                   ) : (
                                     ` ${formatValue(
-                                      subService.packageOneValue
+                                      subService.packageOneValue, currencyID
                                     )}`
                                   )}
                                 </div>
@@ -3304,6 +3338,7 @@ const PricingTableTemplatesModal = ({
                                   ) : (
                                     ` ${formatValue(
                                       (subService.packageOneValue * 20) / 100
+                                      , currencyID
                                     )}`
                                   )}
                                 </div>
@@ -3364,7 +3399,7 @@ const PricingTableTemplatesModal = ({
                                         <span className="fa fa-times"></span>
                                       ) : (
                                         ` ${formatValue(
-                                          subService.packageTwoValue
+                                          subService.packageTwoValue, currencyID
                                         )}`
                                       )}
                                     </div>
@@ -3429,6 +3464,7 @@ const PricingTableTemplatesModal = ({
                                         ` ${formatValue(
                                           (subService.packageTwoValue * 20) /
                                             100
+                                          , currencyID
                                         )}`
                                       )}
                                     </div>
@@ -3496,7 +3532,7 @@ const PricingTableTemplatesModal = ({
                                         <span className="fa fa-times"></span>
                                       ) : (
                                         ` ${formatValue(
-                                          subService.packageThreeValue
+                                          subService.packageThreeValue, currencyID
                                         )}`
                                       )}
                                     </div>
@@ -3562,6 +3598,7 @@ const PricingTableTemplatesModal = ({
                                         ` ${formatValue(
                                           (subService.packageThreeValue * 20) /
                                             100
+                                          , currencyID
                                         )}`
                                       )}
                                     </div>
@@ -3767,9 +3804,9 @@ const PricingTableTemplatesModal = ({
                     !ProposalObject.DiscountLines)
                     ? Number(OneOffPricingInfo.packageOneDisCount) > 0 &&
                       !ProposalObject.DiscountLines
-                      ? formatValue(OneOffPricingInfo.packageOneDisCountedTotal)
-                      : formatValue(totalOnePackageValueOneOff)
-                    : formatValue(OneOffPricingInfo.packageOneNetTotal)}
+                      ? formatValue(OneOffPricingInfo.packageOneDisCountedTotal, currencyID)
+                      : formatValue(totalOnePackageValueOneOff, currencyID)
+                    : formatValue(OneOffPricingInfo.packageOneNetTotal, currencyID)}
                 </td>
 
                 {/* p1 vat */}
@@ -3783,10 +3820,11 @@ const PricingTableTemplatesModal = ({
                       ? formatValue(
                           (OneOffPricingInfo.packageOneDisCountedTotal * 20) /
                             100
+                          , currencyID
                         )
-                      : formatValue((totalOnePackageValueOneOff * 20) / 100)
+                      : formatValue((totalOnePackageValueOneOff * 20) / 100, currencyID)
                     : formatValue(
-                        (OneOffPricingInfo.packageOneNetTotal * 20) / 100
+                        (OneOffPricingInfo.packageOneNetTotal * 20) / 100, currencyID
                       )}
                 </td>
 
@@ -3801,10 +3839,10 @@ const PricingTableTemplatesModal = ({
                         ? Number(OneOffPricingInfo.packageTwoDisCount) > 0 &&
                           !ProposalObject.DiscountLines
                           ? formatValue(
-                              OneOffPricingInfo.packageTwoDisCountedTotal
+                              OneOffPricingInfo.packageTwoDisCountedTotal, currencyID
                             )
-                          : formatValue(totalTwoPackageValueOneOff)
-                        : formatValue(OneOffPricingInfo.packageTwoNetTotal)}
+                          : formatValue(totalTwoPackageValueOneOff, currencyID)
+                        : formatValue(OneOffPricingInfo.packageTwoNetTotal, currencyID)}
                     </td>
                     <td className="tr-table-class font-14 text-white text-right">
                       {totalTwoPackageValueOneOff >
@@ -3817,10 +3855,11 @@ const PricingTableTemplatesModal = ({
                               (OneOffPricingInfo.packageTwoDisCountedTotal *
                                 20) /
                                 100
+                              , currencyID
                             )
-                          : formatValue((totalTwoPackageValueOneOff * 20) / 100)
+                          : formatValue((totalTwoPackageValueOneOff * 20) / 100, currencyID)
                         : formatValue(
-                            (OneOffPricingInfo.packageTwoNetTotal * 20) / 100
+                            (OneOffPricingInfo.packageTwoNetTotal * 20) / 100, currencyID
                           )}
                     </td>
                   </>
@@ -3836,10 +3875,10 @@ const PricingTableTemplatesModal = ({
                         ? Number(OneOffPricingInfo.packageThreeDisCount) > 0 &&
                           !ProposalObject.DiscountLines
                           ? formatValue(
-                              OneOffPricingInfo.packageThreeDisCountedTotal
+                              OneOffPricingInfo.packageThreeDisCountedTotal, currencyID
                             )
-                          : formatValue(totalThreePackageValueOneOff)
-                        : formatValue(OneOffPricingInfo.packageThreeNetTotal)}
+                          : formatValue(totalThreePackageValueOneOff, currencyID)
+                        : formatValue(OneOffPricingInfo.packageThreeNetTotal, currencyID)}
                     </td>
                     <td className="tr-table-class font-14 text-white text-right">
                       {totalThreePackageValueOneOff >
@@ -3852,12 +3891,13 @@ const PricingTableTemplatesModal = ({
                               (OneOffPricingInfo.packageThreeDisCountedTotal *
                                 20) /
                                 100
+                              , currencyID
                             )
                           : formatValue(
-                              (totalThreePackageValueOneOff * 20) / 100
+                              (totalThreePackageValueOneOff * 20) / 100, currencyID
                             )
                         : formatValue(
-                            (OneOffPricingInfo.packageThreeNetTotal * 20) / 100
+                            (OneOffPricingInfo.packageThreeNetTotal * 20) / 100, currencyID
                           )}
                     </td>
                   </>
@@ -3876,7 +3916,7 @@ const PricingTableTemplatesModal = ({
                         Discount
                       </td>
                       <td className="tr-table-class font-14 text-white text-right">
-                        (-) {formatValue(OneOffPricingInfo.packageOneDisCount)}
+                        (-) {formatValue(OneOffPricingInfo.packageOneDisCount, currencyID)}
                       </td>
                       {/* VAT Discount */}
                       <td className="tr-table-class font-14 text-white text-right">
@@ -3893,24 +3933,27 @@ const PricingTableTemplatesModal = ({
                                   100) *
                                   OneOffPricingInfo.DiscountPercentagePackageOne) /
                                   100
+                                , currencyID
                               )
                             : formatValue(
                                 (((totalOnePackageValueOneOff * 20) / 100) *
                                   OneOffPricingInfo.DiscountPercentagePackageOne) /
                                   100
+                                , currencyID
                               )
                           : formatValue(
                               (((OneOffPricingInfo.packageOneNetTotal * 20) /
                                 100) *
                                 OneOffPricingInfo.DiscountPercentagePackageOne) /
                                 100
+                              , currencyID
                             )}
                       </td>
                       {packageCount >= 2 && (
                         <>
                           <td className="tr-table-class font-14 text-white text-right">
                             (-){" "}
-                            {formatValue(OneOffPricingInfo.packageTwoDisCount)}
+                            {formatValue(OneOffPricingInfo.packageTwoDisCount, currencyID)}
                           </td>
 
                           {/* VAT Discount */}
@@ -3928,11 +3971,13 @@ const PricingTableTemplatesModal = ({
                                       100) *
                                       OneOffPricingInfo.DiscountPercentagePackageTwo) /
                                       100
+                                    , currencyID
                                   )
                                 : formatValue(
                                     (((totalTwoPackageValueOneOff * 20) / 100) *
                                       OneOffPricingInfo.DiscountPercentagePackageTwo) /
                                       100
+                                    , currencyID
                                   )
                               : formatValue(
                                   (((OneOffPricingInfo.packageTwoNetTotal *
@@ -3940,6 +3985,7 @@ const PricingTableTemplatesModal = ({
                                     100) *
                                     OneOffPricingInfo.DiscountPercentagePackageTwo) /
                                     100
+                                  , currencyID
                                 )}
                           </td>
                         </>
@@ -3949,7 +3995,7 @@ const PricingTableTemplatesModal = ({
                           <td className="tr-table-class font-14 text-white text-right">
                             (-){" "}
                             {formatValue(
-                              OneOffPricingInfo.packageThreeDisCount
+                              OneOffPricingInfo.packageThreeDisCount, currencyID
                             )}
                           </td>
 
@@ -3968,12 +4014,14 @@ const PricingTableTemplatesModal = ({
                                       100) *
                                       OneOffPricingInfo.DiscountPercentagePackageThree) /
                                       100
+                                    , currencyID
                                   )
                                 : formatValue(
                                     (((totalThreePackageValueOneOff * 20) /
                                       100) *
                                       OneOffPricingInfo.DiscountPercentagePackageThree) /
                                       100
+                                    , currencyID
                                   )
                               : formatValue(
                                   (((OneOffPricingInfo.packageThreeNetTotal *
@@ -3981,6 +4029,7 @@ const PricingTableTemplatesModal = ({
                                     100) *
                                     OneOffPricingInfo.DiscountPercentagePackageThree) /
                                     100
+                                  , currencyID
                                 )}
                           </td>
                         </>
@@ -3993,7 +4042,7 @@ const PricingTableTemplatesModal = ({
                       <td className="tr-table-class font-14 text-white text-right">
                         {" "}
                         {formatValue(
-                          OneOffPricingInfo.packageOneDisCountedTotal
+                          OneOffPricingInfo.packageOneDisCountedTotal, currencyID
                         )}
                       </td>
                       <td className="tr-table-class font-14 text-white text-right">
@@ -4013,12 +4062,14 @@ const PricingTableTemplatesModal = ({
                                     100) *
                                     OneOffPricingInfo.DiscountPercentagePackageOne) /
                                     100
+                                , currencyID
                               )
                             : formatValue(
                                 (totalOnePackageValueOneOff * 20) / 100 -
                                   (((totalOnePackageValueOneOff * 20) / 100) *
                                     OneOffPricingInfo.DiscountPercentagePackageOne) /
                                     100
+                                , currencyID
                               )
                           : formatValue(
                               (OneOffPricingInfo.packageOneNetTotal * 20) /
@@ -4027,6 +4078,7 @@ const PricingTableTemplatesModal = ({
                                   100) *
                                   OneOffPricingInfo.DiscountPercentagePackageOne) /
                                   100
+                              , currencyID
                             )}
                       </td>
 
@@ -4035,7 +4087,7 @@ const PricingTableTemplatesModal = ({
                           <td className="tr-table-class font-14 text-white text-right">
                             {" "}
                             {formatValue(
-                              OneOffPricingInfo.packageTwoDisCountedTotal
+                              OneOffPricingInfo.packageTwoDisCountedTotal, currencyID
                             )}
                           </td>
                           <td className="tr-table-class font-14 text-white text-right">
@@ -4055,6 +4107,7 @@ const PricingTableTemplatesModal = ({
                                         100) *
                                         OneOffPricingInfo.DiscountPercentagePackageTwo) /
                                         100
+                                    , currencyID
                                   )
                                 : formatValue(
                                     (totalTwoPackageValueOneOff * 20) / 100 -
@@ -4062,6 +4115,7 @@ const PricingTableTemplatesModal = ({
                                         100) *
                                         OneOffPricingInfo.DiscountPercentagePackageTwo) /
                                         100
+                                    , currencyID
                                   )
                               : formatValue(
                                   (OneOffPricingInfo.packageTwoNetTotal * 20) /
@@ -4071,6 +4125,7 @@ const PricingTableTemplatesModal = ({
                                       100) *
                                       OneOffPricingInfo.DiscountPercentagePackageTwo) /
                                       100
+                                  , currencyID
                                 )}
                           </td>
                         </>
@@ -4080,7 +4135,7 @@ const PricingTableTemplatesModal = ({
                           <td className="tr-table-class font-14 text-white text-right">
                             {" "}
                             {formatValue(
-                              OneOffPricingInfo.packageThreeDisCountedTotal
+                              OneOffPricingInfo.packageThreeDisCountedTotal, currencyID
                             )}
                           </td>
                           <td className="tr-table-class font-14 text-white text-right">
@@ -4101,6 +4156,7 @@ const PricingTableTemplatesModal = ({
                                         100) *
                                         OneOffPricingInfo.DiscountPercentagePackageThree) /
                                         100
+                                    , currencyID
                                   )
                                 : formatValue(
                                     (totalThreePackageValueOneOff * 20) / 100 -
@@ -4108,6 +4164,7 @@ const PricingTableTemplatesModal = ({
                                         100) *
                                         OneOffPricingInfo.DiscountPercentagePackageThree) /
                                         100
+                                    , currencyID
                                   )
                               : formatValue(
                                   (OneOffPricingInfo.packageThreeNetTotal *
@@ -4118,6 +4175,7 @@ const PricingTableTemplatesModal = ({
                                       100) *
                                       OneOffPricingInfo.DiscountPercentagePackageThree) /
                                       100
+                                  , currencyID
                                 )}
                           </td>
                         </>
@@ -4160,18 +4218,18 @@ const PricingTableTemplatesModal = ({
                                      </tr> */}
                   <tr className="head-row">
                     <td className="tr-table-class font-14 text-white">
-                      Fees inc VAT (£)
+                      Fees inc {taxName} ({currencySymbol})
                     </td>
                     <td className="tr-table-class font-14 text-white text-right">
                       {" "}
-                      {formatValue(OneOffPricingInfo.PackageOneGrandTotal)}
+                      {formatValue(OneOffPricingInfo.PackageOneGrandTotal, currencyID)}
                     </td>
                     <td></td>
                     {packageCount >= 2 && (
                       <>
                         <td className="tr-table-class font-14 text-white text-right">
                           {" "}
-                          {formatValue(OneOffPricingInfo.PackageTwoGrandTotal)}
+                          {formatValue(OneOffPricingInfo.PackageTwoGrandTotal, currencyID)}
                         </td>
                         <td></td>
                       </>
@@ -4181,7 +4239,7 @@ const PricingTableTemplatesModal = ({
                         <td className="tr-table-class font-14 text-white text-right">
                           {" "}
                           {formatValue(
-                            OneOffPricingInfo.PackageThreeGrandTotal
+                            OneOffPricingInfo.PackageThreeGrandTotal, currencyID
                           )}
                         </td>
                         <td></td>
@@ -4221,25 +4279,25 @@ const PricingTableTemplatesModal = ({
                     className="tr-table-class text-white text-center"
                     style={{ width: "16.66%" }}
                   >
-                    Fees (£)
+                    Fees ({currencySymbol})
                   </th>
                   <th
                     className="tr-table-class text-white text-center"
                     style={{ width: "16.66%" }}
                   >
-                    VAT Rate
+                    {taxName} Rate
                   </th>
                   <th
                     className="tr-table-class text-white text-center"
                     style={{ width: "16.66%" }}
                   >
-                    VAT (£)
+                    {taxName} ({currencySymbol})
                   </th>
                   <th
                     className="tr-table-class text-white text-center"
                     style={{ width: "16.66%" }}
                   >
-                    Fees inc VAT (£)
+                    Fees inc {taxName} ({currencySymbol})
                   </th>
                 </tr>
               </thead>
@@ -4263,7 +4321,7 @@ const PricingTableTemplatesModal = ({
                             </td>
                             <td className="text-center">
                               {ProposalObject.feeTypeId === 1 &&
-                                formatValue(price)}
+                                formatValue(price, currencyID)}
                               {ProposalObject.feeTypeId === 2 && (
                                 <span className="fa fa-check"></span>
                               )}
@@ -4271,14 +4329,14 @@ const PricingTableTemplatesModal = ({
                             <td className="text-center">20%</td>
                             <td className="text-center">
                               {ProposalObject.feeTypeId === 1 &&
-                                formatValue(vat)}
+                                formatValue(vat, currencyID)}
                               {ProposalObject.feeTypeId === 2 && (
                                 <span className="fa fa-check"></span>
                               )}
                             </td>
                             <td className="text-center">
                               {ProposalObject.feeTypeId === 1 &&
-                                formatValue(total)}
+                                formatValue(total, currencyID)}
                               {ProposalObject.feeTypeId === 2 && (
                                 <span className="fa fa-check"></span>
                               )}
@@ -4300,8 +4358,8 @@ const PricingTableTemplatesModal = ({
                       Number(RecurringPricingInfo.DiscountedPrice) ||
                     (Number(RecurringPricingInfo.Discount) > 0 &&
                       !ProposalObject.DiscountLines)
-                      ? formatValue(RecurringPricingInfo.DiscountedPrice)
-                      : formatValue(RecurringPricingInfo.OriginalPrice)}
+                      ? formatValue(RecurringPricingInfo.DiscountedPrice, currencyID)
+                      : formatValue(RecurringPricingInfo.OriginalPrice, currencyID)}
                   </td>
                   <td></td>
                   {/* <td className="tr-table-class text-white text-center">
@@ -4318,11 +4376,13 @@ const PricingTableTemplatesModal = ({
                       !ProposalObject.DiscountLines)
                       ? formatValue(
                           (Number(RecurringPricingInfo.DiscountedPrice) * 20) /
-                            100
+                            100,
+                          currencyID
                         )
                       : formatValue(
                           (Number(RecurringPricingInfo.OriginalPrice) * 20) /
-                            100
+                            100,
+                          currencyID
                         )}
                   </td>
                   {/* <td className="tr-table-class font-14 text-white text-center">
@@ -4341,12 +4401,14 @@ const PricingTableTemplatesModal = ({
                           Number(RecurringPricingInfo.DiscountedPrice) +
                             (Number(RecurringPricingInfo.DiscountedPrice) *
                               20) /
-                              100
+                              100,
+                          currencyID
                         )
                       : formatValue(
                           Number(RecurringPricingInfo.OriginalPrice) +
                             (Number(RecurringPricingInfo.OriginalPrice) * 20) /
-                              100
+                              100,
+                          currencyID
                         )}
                   </td>
                 </tr>
@@ -4361,7 +4423,7 @@ const PricingTableTemplatesModal = ({
                         <td className="tr-table-class font-14 text-white text-center">
                           (-){"  "}
                           {"  "}
-                          {formatValue(RecurringPricingInfo.Discount)}
+                          {formatValue(RecurringPricingInfo.Discount, currencyID)}
                         </td>
                         <td></td>
                         <td className="tr-table-class text-white text-center">
@@ -4374,13 +4436,15 @@ const PricingTableTemplatesModal = ({
                                 ((Number(RecurringPricingInfo.DiscountedPrice) *
                                   20) /
                                   100) *
-                                  (RecurringPricingInfo.DefaultDiscount / 100)
+                                  (RecurringPricingInfo.DefaultDiscount / 100),
+                                currencyID
                               )
                             : formatValue(
                                 ((Number(RecurringPricingInfo.OriginalPrice) *
                                   20) /
                                   100) *
-                                  (RecurringPricingInfo.DefaultDiscount / 100)
+                                  (RecurringPricingInfo.DefaultDiscount / 100),
+                                currencyID
                               )}
                         </td>
 
@@ -4397,14 +4461,16 @@ const PricingTableTemplatesModal = ({
                                   ) *
                                     20) /
                                     100) *
-                                  (RecurringPricingInfo.DefaultDiscount / 100)
+                                  (RecurringPricingInfo.DefaultDiscount / 100),
+                                currencyID
                               )
                             : formatValue(
                                 (Number(RecurringPricingInfo.OriginalPrice) +
                                   (Number(RecurringPricingInfo.OriginalPrice) *
                                     20) /
                                     100) *
-                                  (RecurringPricingInfo.DefaultDiscount / 100)
+                                  (RecurringPricingInfo.DefaultDiscount / 100),
+                                currencyID
                               )}
                         </td>
                       </tr>
@@ -4455,11 +4521,13 @@ const PricingTableTemplatesModal = ({
                             !ProposalObject.DiscountLines)
                             ? formatValue(
                                 RecurringPricingInfo.DiscountedPrice -
-                                  RecurringPricingInfo.Discount
+                                  RecurringPricingInfo.Discount,
+                                currencyID
                               )
                             : formatValue(
                                 RecurringPricingInfo.OriginalPrice -
-                                  RecurringPricingInfo.Discount
+                                  RecurringPricingInfo.Discount,
+                                currencyID
                               )}
                         </td>
                         <td></td>
@@ -4478,7 +4546,8 @@ const PricingTableTemplatesModal = ({
                                   ) *
                                     20) /
                                     100) *
-                                    (RecurringPricingInfo.DefaultDiscount / 100)
+                                    (RecurringPricingInfo.DefaultDiscount / 100),
+                                currencyID
                               )
                             : formatValue(
                                 (Number(RecurringPricingInfo.OriginalPrice) *
@@ -4487,12 +4556,13 @@ const PricingTableTemplatesModal = ({
                                   ((Number(RecurringPricingInfo.OriginalPrice) *
                                     20) /
                                     100) *
-                                    (RecurringPricingInfo.DefaultDiscount / 100)
+                                    (RecurringPricingInfo.DefaultDiscount / 100),
+                                currencyID
                               )}
                         </td>
                         <td className="tr-table-class font-14 text-white text-center">
                           {" "}
-                          {formatValue(RecurringPricingInfo.GrandTotal)}
+                          {formatValue(RecurringPricingInfo.GrandTotal, currencyID)}
                         </td>
                       </tr>
                     </>
@@ -4526,25 +4596,25 @@ const PricingTableTemplatesModal = ({
                     className="tr-table-class text-white text-center"
                     style={{ width: "16.66%" }}
                   >
-                    Fees (£)
+                    Fees ({currencySymbol})
                   </th>
                   <th
                     className="tr-table-class text-white text-center"
                     style={{ width: "16.66%" }}
                   >
-                    VAT Rate
+                    {taxName} Rate
                   </th>
                   <th
                     className="tr-table-class text-white text-center"
                     style={{ width: "16.66%" }}
                   >
-                    VAT (£)
+                    {taxName} ({currencySymbol})
                   </th>
                   <th
                     className="tr-table-class text-white text-center"
                     style={{ width: "16.66%" }}
                   >
-                    Fees inc VAT (£)
+                    Fees inc {taxName} ({currencySymbol})
                   </th>
                 </tr>
               </thead>
@@ -4568,7 +4638,7 @@ const PricingTableTemplatesModal = ({
                             </td>
                             <td className="text-center">
                               {ProposalObject.feeTypeId === 1 &&
-                                formatValue(price)}
+                                formatValue(price, currencyID)}
                               {ProposalObject.feeTypeId === 2 && (
                                 <span className="fa fa-check"></span>
                               )}
@@ -4576,14 +4646,14 @@ const PricingTableTemplatesModal = ({
                             <td className="text-center">20%</td>
                             <td className="text-center">
                               {ProposalObject.feeTypeId === 1 &&
-                                formatValue(vat)}
+                                formatValue(vat, currencyID)}
                               {ProposalObject.feeTypeId === 2 && (
                                 <span className="fa fa-check"></span>
                               )}
                             </td>
                             <td className="text-center">
                               {ProposalObject.feeTypeId === 1 &&
-                                formatValue(total)}
+                                formatValue(total, currencyID)}
                               {ProposalObject.feeTypeId === 2 && (
                                 <span className="fa fa-check"></span>
                               )}
@@ -4604,8 +4674,8 @@ const PricingTableTemplatesModal = ({
                       Number(OneOffPricingInfo.DiscountedPrice) ||
                     (Number(OneOffPricingInfo.Discount) > 0 &&
                       !ProposalObject.DiscountLines)
-                      ? formatValue(OneOffPricingInfo.DiscountedPrice)
-                      : formatValue(OneOffPricingInfo.OriginalPrice)}
+                      ? formatValue(OneOffPricingInfo.DiscountedPrice, currencyID)
+                      : formatValue(OneOffPricingInfo.OriginalPrice, currencyID)}
                   </td>
                   <td></td>
                   {/* <td className="tr-table-class text-white text-center">
@@ -4621,10 +4691,12 @@ const PricingTableTemplatesModal = ({
                     (Number(OneOffPricingInfo.Discount) > 0 &&
                       !ProposalObject.DiscountLines)
                       ? formatValue(
-                          (Number(OneOffPricingInfo.DiscountedPrice) * 20) / 100
+                          (Number(OneOffPricingInfo.DiscountedPrice) * 20) / 100,
+                          currencyID
                         )
                       : formatValue(
-                          (Number(OneOffPricingInfo.OriginalPrice) * 20) / 100
+                          (Number(OneOffPricingInfo.OriginalPrice) * 20) / 100,
+                          currencyID
                         )}
                   </td>
                   {/* <td className="tr-table-class font-14 text-white text-center">
@@ -4642,11 +4714,13 @@ const PricingTableTemplatesModal = ({
                       ? formatValue(
                           Number(OneOffPricingInfo.DiscountedPrice) +
                             (Number(OneOffPricingInfo.DiscountedPrice) * 20) /
-                              100
+                              100,
+                          currencyID
                         )
                       : formatValue(
                           Number(OneOffPricingInfo.OriginalPrice) +
-                            (Number(OneOffPricingInfo.OriginalPrice) * 20) / 100
+                            (Number(OneOffPricingInfo.OriginalPrice) * 20) / 100,
+                          currencyID
                         )}
                   </td>
                 </tr>
@@ -4661,7 +4735,7 @@ const PricingTableTemplatesModal = ({
                         <td className="tr-table-class font-14 text-white text-center">
                           (-){"  "}
                           {"  "}
-                          {formatValue(OneOffPricingInfo.Discount)}
+                          {formatValue(OneOffPricingInfo.Discount, currencyID)}
                         </td>
                         <td></td>
                         <td className="tr-table-class text-white text-center">
@@ -4674,13 +4748,15 @@ const PricingTableTemplatesModal = ({
                                 ((Number(OneOffPricingInfo.DiscountedPrice) *
                                   20) /
                                   100) *
-                                  (OneOffPricingInfo.DefaultDiscount / 100)
+                                  (OneOffPricingInfo.DefaultDiscount / 100),
+                                currencyID
                               )
                             : formatValue(
                                 ((Number(OneOffPricingInfo.OriginalPrice) *
                                   20) /
                                   100) *
-                                  (OneOffPricingInfo.DefaultDiscount / 100)
+                                  (OneOffPricingInfo.DefaultDiscount / 100),
+                                currencyID
                               )}
                         </td>
 
@@ -4695,14 +4771,16 @@ const PricingTableTemplatesModal = ({
                                   (Number(OneOffPricingInfo.DiscountedPrice) *
                                     20) /
                                     100) *
-                                  (OneOffPricingInfo.DefaultDiscount / 100)
+                                  (OneOffPricingInfo.DefaultDiscount / 100),
+                                currencyID
                               )
                             : formatValue(
                                 (Number(OneOffPricingInfo.OriginalPrice) +
                                   (Number(OneOffPricingInfo.OriginalPrice) *
                                     20) /
                                     100) *
-                                  (OneOffPricingInfo.DefaultDiscount / 100)
+                                  (OneOffPricingInfo.DefaultDiscount / 100),
+                                currencyID
                               )}
                         </td>
                       </tr>
@@ -4753,11 +4831,13 @@ const PricingTableTemplatesModal = ({
                             !ProposalObject.DiscountLines)
                             ? formatValue(
                                 OneOffPricingInfo.DiscountedPrice -
-                                  OneOffPricingInfo.Discount
+                                  OneOffPricingInfo.Discount,
+                                currencyID
                               )
                             : formatValue(
                                 OneOffPricingInfo.OriginalPrice -
-                                  OneOffPricingInfo.Discount
+                                  OneOffPricingInfo.Discount,
+                                currencyID
                               )}
                         </td>
                         <td></td>
@@ -4774,7 +4854,8 @@ const PricingTableTemplatesModal = ({
                                   ((Number(OneOffPricingInfo.DiscountedPrice) *
                                     20) /
                                     100) *
-                                    (OneOffPricingInfo.DefaultDiscount / 100)
+                                    (OneOffPricingInfo.DefaultDiscount / 100),
+                                currencyID
                               )
                             : formatValue(
                                 (Number(OneOffPricingInfo.OriginalPrice) * 20) /
@@ -4782,12 +4863,13 @@ const PricingTableTemplatesModal = ({
                                   ((Number(OneOffPricingInfo.OriginalPrice) *
                                     20) /
                                     100) *
-                                    (OneOffPricingInfo.DefaultDiscount / 100)
+                                    (OneOffPricingInfo.DefaultDiscount / 100),
+                                currencyID
                               )}
                         </td>
                         <td className="tr-table-class font-14 text-white text-center">
                           {" "}
-                          {formatValue(OneOffPricingInfo.GrandTotal)}
+                          {formatValue(OneOffPricingInfo.GrandTotal, currencyID)}
                         </td>
                       </tr>
                     </>
@@ -4903,7 +4985,7 @@ const PricingTableTemplatesModal = ({
                                       <span className="fa fa-times"></span>
                                     ) : (
                                       ` ${formatValue(
-                                        subService.packageOneValue
+                                        subService.packageOneValue, currencyID
                                       )}`
                                     )}
                                   </div>
@@ -5007,7 +5089,7 @@ const PricingTableTemplatesModal = ({
                                           <span className="fa fa-times"></span>
                                         ) : (
                                           ` ${formatValue(
-                                            subService.packageTwoValue
+                                            subService.packageTwoValue, currencyID
                                           )}`
                                         )}
                                       </div>
@@ -5113,7 +5195,7 @@ const PricingTableTemplatesModal = ({
                                           <span className="fa fa-times"></span>
                                         ) : (
                                           ` ${formatValue(
-                                            subService.packageThreeValue
+                                            subService.packageThreeValue, currencyID
                                           )}`
                                         )}
                                       </div>
@@ -5358,10 +5440,10 @@ const PricingTableTemplatesModal = ({
                     ? Number(RecurringPricingInfo.packageOneDisCount) > 0 &&
                       !ProposalObject.DiscountLines
                       ? formatValue(
-                          RecurringPricingInfo.packageOneDisCountedTotal
+                          RecurringPricingInfo.packageOneDisCountedTotal, currencyID
                         )
-                      : formatValue(totalOnePackageValue)
-                    : formatValue(RecurringPricingInfo.packageOneNetTotal)}
+                      : formatValue(totalOnePackageValue, currencyID)
+                    : formatValue(RecurringPricingInfo.packageOneNetTotal, currencyID)}
                 </td>
                 <td></td>
                 {packageCount >= 2 && (
@@ -5375,10 +5457,10 @@ const PricingTableTemplatesModal = ({
                         ? Number(RecurringPricingInfo.packageTwoDisCount) > 0 &&
                           !ProposalObject.DiscountLines
                           ? formatValue(
-                              RecurringPricingInfo.packageTwoDisCountedTotal
+                              RecurringPricingInfo.packageTwoDisCountedTotal, currencyID
                             )
-                          : formatValue(totalTwoPackageValue)
-                        : formatValue(RecurringPricingInfo.packageTwoNetTotal)}
+                          : formatValue(totalTwoPackageValue, currencyID)
+                        : formatValue(RecurringPricingInfo.packageTwoNetTotal, currencyID)}
                     </td>
                     <td className="tr-table-class font-14 text-white text-right"></td>
                   </>
@@ -5394,11 +5476,11 @@ const PricingTableTemplatesModal = ({
                         ? Number(RecurringPricingInfo.packageThreeDisCount) >
                             0 && !ProposalObject.DiscountLines
                           ? formatValue(
-                              RecurringPricingInfo.packageThreeDisCountedTotal
+                              RecurringPricingInfo.packageThreeDisCountedTotal, currencyID
                             )
-                          : formatValue(totalThreePackageValue)
+                          : formatValue(totalThreePackageValue, currencyID)
                         : formatValue(
-                            RecurringPricingInfo.packageThreeNetTotal
+                            RecurringPricingInfo.packageThreeNetTotal, currencyID
                           )}
                     </td>
                     <td className="tr-table-class font-14 text-white text-right"></td>
@@ -5417,7 +5499,7 @@ const PricingTableTemplatesModal = ({
                       </td>
                       <td className="tr-table-class font-14 text-white text-right">
                         (-){" "}
-                        {formatValue(RecurringPricingInfo.packageOneDisCount)}
+                        {formatValue(RecurringPricingInfo.packageOneDisCount, currencyID)}
                       </td>
                       <td className="tr-table-class font-14 text-white text-right"></td>
                       {packageCount >= 2 && (
@@ -5425,7 +5507,7 @@ const PricingTableTemplatesModal = ({
                           <td className="tr-table-class font-14 text-white text-right">
                             (-){" "}
                             {formatValue(
-                              RecurringPricingInfo.packageTwoDisCount
+                              RecurringPricingInfo.packageTwoDisCount, currencyID
                             )}
                           </td>
 
@@ -5437,7 +5519,7 @@ const PricingTableTemplatesModal = ({
                           <td className="tr-table-class font-14 text-white text-right">
                             (-){" "}
                             {formatValue(
-                              RecurringPricingInfo.packageThreeDisCount
+                              RecurringPricingInfo.packageThreeDisCount, currencyID
                             )}
                           </td>
 
@@ -5452,7 +5534,7 @@ const PricingTableTemplatesModal = ({
                       <td className="tr-table-class font-14 text-white text-right">
                         {" "}
                         {formatValue(
-                          RecurringPricingInfo.packageOneDisCountedTotal
+                          RecurringPricingInfo.packageOneDisCountedTotal, currencyID
                         )}
                       </td>
                       <td className="tr-table-class font-14 text-white text-right"></td>
@@ -5462,7 +5544,7 @@ const PricingTableTemplatesModal = ({
                           <td className="tr-table-class font-14 text-white text-right">
                             {" "}
                             {formatValue(
-                              RecurringPricingInfo.packageTwoDisCountedTotal
+                              RecurringPricingInfo.packageTwoDisCountedTotal, currencyID
                             )}
                           </td>
                           <td className="tr-table-class font-14 text-white text-right"></td>
@@ -5473,7 +5555,7 @@ const PricingTableTemplatesModal = ({
                           <td className="tr-table-class font-14 text-white text-right">
                             {" "}
                             {formatValue(
-                              RecurringPricingInfo.packageThreeDisCountedTotal
+                              RecurringPricingInfo.packageThreeDisCountedTotal, currencyID
                             )}
                           </td>
                           <td className="tr-table-class font-14 text-white text-right"></td>
@@ -5517,11 +5599,11 @@ const PricingTableTemplatesModal = ({
                                     </tr> */}
                   <tr className="head-row">
                     <td className="tr-table-class font-14 text-white">
-                      Fees inc VAT (£)
+                      Fees inc {taxName} ({currencySymbol})
                     </td>
                     <td className="tr-table-class font-14 text-white text-right">
                       {" "}
-                      {formatValue(RecurringPricingInfo.PackageOneGrandTotal)}
+                      {formatValue(RecurringPricingInfo.PackageOneGrandTotal, currencyID)}
                     </td>
                     <td></td>
                     {packageCount >= 2 && (
@@ -5529,7 +5611,7 @@ const PricingTableTemplatesModal = ({
                         <td className="tr-table-class font-14 text-white text-right">
                           {" "}
                           {formatValue(
-                            RecurringPricingInfo.PackageTwoGrandTotal
+                            RecurringPricingInfo.PackageTwoGrandTotal, currencyID
                           )}
                         </td>
                         <td></td>
@@ -5540,7 +5622,7 @@ const PricingTableTemplatesModal = ({
                         <td className="tr-table-class font-14 text-white text-right">
                           {" "}
                           {formatValue(
-                            RecurringPricingInfo.PackageThreeGrandTotal
+                            RecurringPricingInfo.PackageThreeGrandTotal, currencyID
                           )}
                         </td>
                         <td></td>
@@ -5654,7 +5736,7 @@ const PricingTableTemplatesModal = ({
                                       <span className="fa fa-times"></span>
                                     ) : (
                                       ` ${formatValue(
-                                        subService.packageOneValue
+                                        subService.packageOneValue, currencyID
                                       )}`
                                     )}
                                   </div>
@@ -5758,7 +5840,7 @@ const PricingTableTemplatesModal = ({
                                           <span className="fa fa-times"></span>
                                         ) : (
                                           ` ${formatValue(
-                                            subService.packageTwoValue
+                                            subService.packageTwoValue, currencyID
                                           )}`
                                         )}
                                       </div>
@@ -5864,7 +5946,7 @@ const PricingTableTemplatesModal = ({
                                           <span className="fa fa-times"></span>
                                         ) : (
                                           ` ${formatValue(
-                                            subService.packageThreeValue
+                                            subService.packageThreeValue, currencyID
                                           )}`
                                         )}
                                       </div>
@@ -6109,9 +6191,9 @@ const PricingTableTemplatesModal = ({
                     !ProposalObject.DiscountLines)
                     ? Number(OneOffPricingInfo.packageOneDisCount) > 0 &&
                       !ProposalObject.DiscountLines
-                      ? formatValue(OneOffPricingInfo.packageOneDisCountedTotal)
-                      : formatValue(totalOnePackageValueOneOff)
-                    : formatValue(OneOffPricingInfo.packageOneNetTotal)}
+                      ? formatValue(OneOffPricingInfo.packageOneDisCountedTotal, currencyID)
+                      : formatValue(totalOnePackageValueOneOff, currencyID)
+                    : formatValue(OneOffPricingInfo.packageOneNetTotal, currencyID)}
                 </td>
 
                 {/* p1 vat */}
@@ -6156,10 +6238,10 @@ const PricingTableTemplatesModal = ({
                         ? Number(OneOffPricingInfo.packageTwoDisCount) > 0 &&
                           !ProposalObject.DiscountLines
                           ? formatValue(
-                              OneOffPricingInfo.packageTwoDisCountedTotal
+                              OneOffPricingInfo.packageTwoDisCountedTotal, currencyID
                             )
-                          : formatValue(totalTwoPackageValueOneOff)
-                        : formatValue(OneOffPricingInfo.packageTwoNetTotal)}
+                          : formatValue(totalTwoPackageValueOneOff, currencyID)
+                        : formatValue(OneOffPricingInfo.packageTwoNetTotal, currencyID)}
                     </td>
                     {/* <td className="tr-table-class font-14 text-white text-right">
                                          {totalTwoPackageValueOneOff >
@@ -6206,10 +6288,10 @@ const PricingTableTemplatesModal = ({
                         ? Number(OneOffPricingInfo.packageThreeDisCount) > 0 &&
                           !ProposalObject.DiscountLines
                           ? formatValue(
-                              OneOffPricingInfo.packageThreeDisCountedTotal
+                              OneOffPricingInfo.packageThreeDisCountedTotal, currencyID
                             )
-                          : formatValue(totalThreePackageValueOneOff)
-                        : formatValue(OneOffPricingInfo.packageThreeNetTotal)}
+                          : formatValue(totalThreePackageValueOneOff, currencyID)
+                        : formatValue(OneOffPricingInfo.packageThreeNetTotal, currencyID)}
                     </td>
                     {/* <td className="tr-table-class font-14 text-white text-right">
                                          {totalThreePackageValueOneOff >
@@ -6260,7 +6342,7 @@ const PricingTableTemplatesModal = ({
                         Discount
                       </td>
                       <td className="tr-table-class font-14 text-white text-right">
-                        (-) {formatValue(OneOffPricingInfo.packageOneDisCount)}
+                        (-) {formatValue(OneOffPricingInfo.packageOneDisCount, currencyID)}
                       </td>
                       {/* VAT Discount */}
                       {/* <td className="tr-table-class font-14 text-white text-right">
@@ -6311,7 +6393,7 @@ const PricingTableTemplatesModal = ({
                         <>
                           <td className="tr-table-class font-14 text-white text-right">
                             (-){" "}
-                            {formatValue(OneOffPricingInfo.packageTwoDisCount)}
+                            {formatValue(OneOffPricingInfo.packageTwoDisCount, currencyID)}
                           </td>
 
                           {/* VAT Discount */}
@@ -6367,7 +6449,7 @@ const PricingTableTemplatesModal = ({
                           <td className="tr-table-class font-14 text-white text-right">
                             (-){" "}
                             {formatValue(
-                              OneOffPricingInfo.packageThreeDisCount
+                              OneOffPricingInfo.packageThreeDisCount, currencyID
                             )}
                           </td>
 
@@ -6426,7 +6508,7 @@ const PricingTableTemplatesModal = ({
                       <td className="tr-table-class font-14 text-white text-right">
                         {" "}
                         {formatValue(
-                          OneOffPricingInfo.packageOneDisCountedTotal
+                          OneOffPricingInfo.packageOneDisCountedTotal, currencyID
                         )}
                       </td>
                       {/* <td className="tr-table-class font-14 text-white text-right">
@@ -6489,7 +6571,7 @@ const PricingTableTemplatesModal = ({
                           <td className="tr-table-class font-14 text-white text-right">
                             {" "}
                             {formatValue(
-                              OneOffPricingInfo.packageTwoDisCountedTotal
+                              OneOffPricingInfo.packageTwoDisCountedTotal, currencyID
                             )}
                           </td>
                           {/* <td className="tr-table-class font-14 text-white text-right">
@@ -6555,7 +6637,7 @@ const PricingTableTemplatesModal = ({
                           <td className="tr-table-class font-14 text-white text-right">
                             {" "}
                             {formatValue(
-                              OneOffPricingInfo.packageThreeDisCountedTotal
+                              OneOffPricingInfo.packageThreeDisCountedTotal, currencyID
                             )}
                           </td>
                           {/* <td className="tr-table-class font-14 text-white text-right">
@@ -6654,18 +6736,18 @@ const PricingTableTemplatesModal = ({
                                      </tr> */}
                   <tr className="head-row">
                     <td className="tr-table-class font-14 text-white">
-                      Fees inc VAT (£)
+                      Fees inc {taxName} ({currencySymbol})
                     </td>
                     <td className="tr-table-class font-14 text-white text-right">
                       {" "}
-                      {formatValue(OneOffPricingInfo.PackageOneGrandTotal)}
+                      {formatValue(OneOffPricingInfo.PackageOneGrandTotal, currencyID)}
                     </td>
                     <td></td>
                     {packageCount >= 2 && (
                       <>
                         <td className="tr-table-class font-14 text-white text-right">
                           {" "}
-                          {formatValue(OneOffPricingInfo.PackageTwoGrandTotal)}
+                          {formatValue(OneOffPricingInfo.PackageTwoGrandTotal, currencyID)}
                         </td>
                         <td></td>
                       </>
@@ -6675,7 +6757,7 @@ const PricingTableTemplatesModal = ({
                         <td className="tr-table-class font-14 text-white text-right">
                           {" "}
                           {formatValue(
-                            OneOffPricingInfo.PackageThreeGrandTotal
+                            OneOffPricingInfo.PackageThreeGrandTotal, currencyID
                           )}
                         </td>
                         <td></td>
@@ -6727,7 +6809,7 @@ const PricingTableTemplatesModal = ({
                     className="tr-table-class text-white text-center"
                     style={{ width: "16.66%" }}
                   >
-                    Fees (£)
+                    Fees ({currencySymbol})
                   </th>
                   {/* <th
                                 className="tr-table-class text-white text-center"
@@ -6739,13 +6821,13 @@ const PricingTableTemplatesModal = ({
                     className="tr-table-class text-white text-center"
                     style={{ width: "16.66%" }}
                   >
-                    VAT (£)
+                    {taxName} ({currencySymbol})
                   </th>
                   <th
                     className="tr-table-class text-white text-center"
                     style={{ width: "16.66%" }}
                   >
-                    Fees inc VAT (£)
+                    Fees inc {taxName} ({currencySymbol})
                   </th>
                 </tr>
               </thead>
@@ -6791,21 +6873,21 @@ const PricingTableTemplatesModal = ({
 
                           <td className="text-center">
                             {ProposalObject.feeTypeId === 1 &&
-                              formatValue(price)}
+                              formatValue(price, currencyID)}
                             {ProposalObject.feeTypeId === 2 && (
                               <span className="fa fa-check"></span>
                             )}
                           </td>
                           {/* <td className="text-center">20%</td> */}
                           <td className="text-center">
-                            {ProposalObject.feeTypeId === 1 && formatValue(vat)}
+                            {ProposalObject.feeTypeId === 1 && formatValue(vat, currencyID)}
                             {ProposalObject.feeTypeId === 2 && (
                               <span className="fa fa-check"></span>
                             )}
                           </td>
                           <td className="text-center">
                             {ProposalObject.feeTypeId === 1 &&
-                              formatValue(total)}
+                              formatValue(total, currencyID)}
                             {ProposalObject.feeTypeId === 2 && (
                               <span className="fa fa-check"></span>
                             )}
@@ -6825,8 +6907,8 @@ const PricingTableTemplatesModal = ({
                       Number(RecurringPricingInfo.DiscountedPrice) ||
                     (Number(RecurringPricingInfo.Discount) > 0 &&
                       !ProposalObject.DiscountLines)
-                      ? formatValue(RecurringPricingInfo.DiscountedPrice)
-                      : formatValue(RecurringPricingInfo.OriginalPrice)}
+                      ? formatValue(RecurringPricingInfo.DiscountedPrice, currencyID)
+                      : formatValue(RecurringPricingInfo.OriginalPrice, currencyID)}
                   </td>
                   <td></td>
                   {/* <td className="tr-table-class text-white text-center">
@@ -6843,11 +6925,13 @@ const PricingTableTemplatesModal = ({
                       !ProposalObject.DiscountLines)
                       ? formatValue(
                           (Number(RecurringPricingInfo.DiscountedPrice) * 20) /
-                            100
+                            100,
+                          currencyID
                         )
                       : formatValue(
                           (Number(RecurringPricingInfo.OriginalPrice) * 20) /
-                            100
+                            100,
+                          currencyID
                         )}
                   </td>
                   {/* <td className="tr-table-class font-14 text-white text-center">
@@ -6866,12 +6950,14 @@ const PricingTableTemplatesModal = ({
                           Number(RecurringPricingInfo.DiscountedPrice) +
                             (Number(RecurringPricingInfo.DiscountedPrice) *
                               20) /
-                              100
+                              100,
+                          currencyID
                         )
                       : formatValue(
                           Number(RecurringPricingInfo.OriginalPrice) +
                             (Number(RecurringPricingInfo.OriginalPrice) * 20) /
-                              100
+                              100,
+                          currencyID
                         )}
                   </td>
                 </tr>
@@ -6887,7 +6973,7 @@ const PricingTableTemplatesModal = ({
                         <td className="tr-table-class font-14 text-white text-center">
                           (-){"  "}
                           {"  "}
-                          {formatValue(RecurringPricingInfo.Discount)}
+                          {formatValue(RecurringPricingInfo.Discount, currencyID)}
                         </td>
                         <td></td>
                         <td className="tr-table-class text-white text-center">
@@ -6900,13 +6986,15 @@ const PricingTableTemplatesModal = ({
                                 ((Number(RecurringPricingInfo.DiscountedPrice) *
                                   20) /
                                   100) *
-                                  (RecurringPricingInfo.DefaultDiscount / 100)
+                                  (RecurringPricingInfo.DefaultDiscount / 100),
+                                currencyID
                               )
                             : formatValue(
                                 ((Number(RecurringPricingInfo.OriginalPrice) *
                                   20) /
                                   100) *
-                                  (RecurringPricingInfo.DefaultDiscount / 100)
+                                  (RecurringPricingInfo.DefaultDiscount / 100),
+                                currencyID
                               )}
                         </td>
 
@@ -6923,14 +7011,16 @@ const PricingTableTemplatesModal = ({
                                   ) *
                                     20) /
                                     100) *
-                                  (RecurringPricingInfo.DefaultDiscount / 100)
+                                  (RecurringPricingInfo.DefaultDiscount / 100),
+                                currencyID
                               )
                             : formatValue(
                                 (Number(RecurringPricingInfo.OriginalPrice) +
                                   (Number(RecurringPricingInfo.OriginalPrice) *
                                     20) /
                                     100) *
-                                  (RecurringPricingInfo.DefaultDiscount / 100)
+                                  (RecurringPricingInfo.DefaultDiscount / 100),
+                                currencyID
                               )}
                         </td>
                       </tr>
@@ -6981,11 +7071,13 @@ const PricingTableTemplatesModal = ({
                             !ProposalObject.DiscountLines)
                             ? formatValue(
                                 RecurringPricingInfo.DiscountedPrice -
-                                  RecurringPricingInfo.Discount
+                                  RecurringPricingInfo.Discount,
+                                currencyID
                               )
                             : formatValue(
                                 RecurringPricingInfo.OriginalPrice -
-                                  RecurringPricingInfo.Discount
+                                  RecurringPricingInfo.Discount,
+                                currencyID
                               )}
                         </td>
                         <td></td>
@@ -7004,7 +7096,8 @@ const PricingTableTemplatesModal = ({
                                   ) *
                                     20) /
                                     100) *
-                                    (RecurringPricingInfo.DefaultDiscount / 100)
+                                    (RecurringPricingInfo.DefaultDiscount / 100),
+                                currencyID
                               )
                             : formatValue(
                                 (Number(RecurringPricingInfo.OriginalPrice) *
@@ -7013,12 +7106,13 @@ const PricingTableTemplatesModal = ({
                                   ((Number(RecurringPricingInfo.OriginalPrice) *
                                     20) /
                                     100) *
-                                    (RecurringPricingInfo.DefaultDiscount / 100)
+                                    (RecurringPricingInfo.DefaultDiscount / 100),
+                                currencyID
                               )}
                         </td>
                         <td className="tr-table-class font-14 text-white text-center">
                           {" "}
-                          {formatValue(RecurringPricingInfo.GrandTotal)}
+                          {formatValue(RecurringPricingInfo.GrandTotal, currencyID)}
                         </td>
                       </tr>
                     </>
@@ -7064,7 +7158,7 @@ const PricingTableTemplatesModal = ({
                     className="tr-table-class text-white text-center"
                     style={{ width: "16.66%" }}
                   >
-                    Fees (£)
+                    Fees ({currencySymbol})
                   </th>
                   {/* <th
                                 className="tr-table-class text-white text-center"
@@ -7076,13 +7170,13 @@ const PricingTableTemplatesModal = ({
                     className="tr-table-class text-white text-center"
                     style={{ width: "16.66%" }}
                   >
-                    VAT (£)
+                    {taxName} ({currencySymbol})
                   </th>
                   <th
                     className="tr-table-class text-white text-center"
                     style={{ width: "16.66%" }}
                   >
-                    Fees inc VAT (£)
+                    Fees inc {taxName} ({currencySymbol})
                   </th>
                 </tr>
               </thead>
@@ -7129,21 +7223,21 @@ const PricingTableTemplatesModal = ({
 
                           <td className="text-center">
                             {ProposalObject.feeTypeId === 1 &&
-                              formatValue(price)}
+                              formatValue(price, currencyID)}
                             {ProposalObject.feeTypeId === 2 && (
                               <span className="fa fa-check"></span>
                             )}
                           </td>
                           {/* <td className="text-center">20%</td> */}
                           <td className="text-center">
-                            {ProposalObject.feeTypeId === 1 && formatValue(vat)}
+                            {ProposalObject.feeTypeId === 1 && formatValue(vat, currencyID)}
                             {ProposalObject.feeTypeId === 2 && (
                               <span className="fa fa-check"></span>
                             )}
                           </td>
                           <td className="text-center">
                             {ProposalObject.feeTypeId === 1 &&
-                              formatValue(total)}
+                              formatValue(total, currencyID)}
                             {ProposalObject.feeTypeId === 2 && (
                               <span className="fa fa-check"></span>
                             )}
@@ -7164,8 +7258,8 @@ const PricingTableTemplatesModal = ({
                       Number(OneOffPricingInfo.DiscountedPrice) ||
                     (Number(OneOffPricingInfo.Discount) > 0 &&
                       !ProposalObject.DiscountLines)
-                      ? formatValue(OneOffPricingInfo.DiscountedPrice)
-                      : formatValue(OneOffPricingInfo.OriginalPrice)}
+                      ? formatValue(OneOffPricingInfo.DiscountedPrice, currencyID)
+                      : formatValue(OneOffPricingInfo.OriginalPrice, currencyID)}
                   </td>
                   {/* <td className="tr-table-class text-white text-center">
                                 {formatValue(
@@ -7180,10 +7274,12 @@ const PricingTableTemplatesModal = ({
                     (Number(OneOffPricingInfo.Discount) > 0 &&
                       !ProposalObject.DiscountLines)
                       ? formatValue(
-                          (Number(OneOffPricingInfo.DiscountedPrice) * 20) / 100
+                          (Number(OneOffPricingInfo.DiscountedPrice) * 20) / 100,
+                          currencyID
                         )
                       : formatValue(
-                          (Number(OneOffPricingInfo.OriginalPrice) * 20) / 100
+                          (Number(OneOffPricingInfo.OriginalPrice) * 20) / 100,
+                          currencyID
                         )}
                   </td>
                   {/* <td className="tr-table-class font-14 text-white text-center">
@@ -7201,11 +7297,13 @@ const PricingTableTemplatesModal = ({
                       ? formatValue(
                           Number(OneOffPricingInfo.DiscountedPrice) +
                             (Number(OneOffPricingInfo.DiscountedPrice) * 20) /
-                              100
+                              100,
+                          currencyID
                         )
                       : formatValue(
                           Number(OneOffPricingInfo.OriginalPrice) +
-                            (Number(OneOffPricingInfo.OriginalPrice) * 20) / 100
+                            (Number(OneOffPricingInfo.OriginalPrice) * 20) / 100,
+                          currencyID
                         )}
                   </td>
                 </tr>
@@ -7223,7 +7321,7 @@ const PricingTableTemplatesModal = ({
                         <td className="tr-table-class font-14 text-white text-center">
                           (-){"  "}
                           {"  "}
-                          {formatValue(OneOffPricingInfo.Discount)}
+                          {formatValue(OneOffPricingInfo.Discount, currencyID)}
                         </td>
                         <td className="tr-table-class text-white text-center">
                           (-){"  "}
@@ -7235,13 +7333,15 @@ const PricingTableTemplatesModal = ({
                                 ((Number(OneOffPricingInfo.DiscountedPrice) *
                                   20) /
                                   100) *
-                                  (OneOffPricingInfo.DefaultDiscount / 100)
+                                  (OneOffPricingInfo.DefaultDiscount / 100),
+                                currencyID
                               )
                             : formatValue(
                                 ((Number(OneOffPricingInfo.OriginalPrice) *
                                   20) /
                                   100) *
-                                  (OneOffPricingInfo.DefaultDiscount / 100)
+                                  (OneOffPricingInfo.DefaultDiscount / 100),
+                                currencyID
                               )}
                         </td>
 
@@ -7256,14 +7356,16 @@ const PricingTableTemplatesModal = ({
                                   (Number(OneOffPricingInfo.DiscountedPrice) *
                                     20) /
                                     100) *
-                                  (OneOffPricingInfo.DefaultDiscount / 100)
+                                  (OneOffPricingInfo.DefaultDiscount / 100),
+                                currencyID
                               )
                             : formatValue(
                                 (Number(OneOffPricingInfo.OriginalPrice) +
                                   (Number(OneOffPricingInfo.OriginalPrice) *
                                     20) /
                                     100) *
-                                  (OneOffPricingInfo.DefaultDiscount / 100)
+                                  (OneOffPricingInfo.DefaultDiscount / 100),
+                                currencyID
                               )}
                         </td>
                       </tr>
@@ -7315,11 +7417,13 @@ const PricingTableTemplatesModal = ({
                             !ProposalObject.DiscountLines)
                             ? formatValue(
                                 OneOffPricingInfo.DiscountedPrice -
-                                  OneOffPricingInfo.Discount
+                                  OneOffPricingInfo.Discount,
+                                currencyID
                               )
                             : formatValue(
                                 OneOffPricingInfo.OriginalPrice -
-                                  OneOffPricingInfo.Discount
+                                  OneOffPricingInfo.Discount,
+                                currencyID
                               )}
                         </td>
                         <td className="tr-table-class text-white text-center">
@@ -7335,7 +7439,8 @@ const PricingTableTemplatesModal = ({
                                   ((Number(OneOffPricingInfo.DiscountedPrice) *
                                     20) /
                                     100) *
-                                    (OneOffPricingInfo.DefaultDiscount / 100)
+                                    (OneOffPricingInfo.DefaultDiscount / 100),
+                                currencyID
                               )
                             : formatValue(
                                 (Number(OneOffPricingInfo.OriginalPrice) * 20) /
@@ -7343,12 +7448,13 @@ const PricingTableTemplatesModal = ({
                                   ((Number(OneOffPricingInfo.OriginalPrice) *
                                     20) /
                                     100) *
-                                    (OneOffPricingInfo.DefaultDiscount / 100)
+                                    (OneOffPricingInfo.DefaultDiscount / 100),
+                                currencyID
                               )}
                         </td>
                         <td className="tr-table-class font-14 text-white text-center">
                           {" "}
-                          {formatValue(OneOffPricingInfo.GrandTotal)}
+                          {formatValue(OneOffPricingInfo.GrandTotal, currencyID)}
                         </td>
                       </tr>
                     </>
@@ -7402,7 +7508,7 @@ const PricingTableTemplatesModal = ({
                     className="tr-table-class text-white text-center"
                     style={{ width: "16.66%" }}
                   >
-                    Fees (£)
+                    Fees ({currencySymbol})
                   </th>
                   {/* <th
                     className="tr-table-class text-white text-center"
@@ -7414,13 +7520,13 @@ const PricingTableTemplatesModal = ({
                     className="tr-table-class text-white text-center"
                     style={{ width: "16.66%" }}
                   >
-                    VAT (£)
+                    {taxName} ({currencySymbol})
                   </th>
                   <th
                     className="tr-table-class text-white text-center"
                     style={{ width: "16.66%" }}
                   >
-                    Fees inc VAT (£)
+                    Fees inc {taxName} ({currencySymbol})
                   </th>
                 </tr>
               </thead>
@@ -7466,21 +7572,21 @@ const PricingTableTemplatesModal = ({
 
                           <td className="text-center">
                             {ProposalObject.feeTypeId === 1 &&
-                              formatValue(price)}
+                              formatValue(price, currencyID)}
                             {ProposalObject.feeTypeId === 2 && (
                               <span className="fa fa-check"></span>
                             )}
                           </td>
                           {/* <td className="text-center">20%</td> */}
                           <td className="text-center">
-                            {ProposalObject.feeTypeId === 1 && formatValue(vat)}
+                            {ProposalObject.feeTypeId === 1 && formatValue(vat, currencyID)}
                             {ProposalObject.feeTypeId === 2 && (
                               <span className="fa fa-check"></span>
                             )}
                           </td>
                           <td className="text-center">
                             {ProposalObject.feeTypeId === 1 &&
-                              formatValue(total)}
+                              formatValue(total, currencyID)}
                             {ProposalObject.feeTypeId === 2 && (
                               <span className="fa fa-check"></span>
                             )}
@@ -7500,8 +7606,8 @@ const PricingTableTemplatesModal = ({
                       Number(RecurringPricingInfo.DiscountedPrice) ||
                     (Number(RecurringPricingInfo.Discount) > 0 &&
                       !ProposalObject.DiscountLines)
-                      ? formatValue(RecurringPricingInfo.DiscountedPrice)
-                      : formatValue(RecurringPricingInfo.OriginalPrice)}
+                      ? formatValue(RecurringPricingInfo.DiscountedPrice, currencyID)
+                      : formatValue(RecurringPricingInfo.OriginalPrice, currencyID)}
                   </td>
                   {/* <td className="tr-table-class text-white text-center">
                                 {formatValue(
@@ -7517,11 +7623,13 @@ const PricingTableTemplatesModal = ({
                       !ProposalObject.DiscountLines)
                       ? formatValue(
                           (Number(RecurringPricingInfo.DiscountedPrice) * 20) /
-                            100
+                            100,
+                          currencyID
                         )
                       : formatValue(
                           (Number(RecurringPricingInfo.OriginalPrice) * 20) /
-                            100
+                            100,
+                          currencyID
                         )}
                   </td>
                   {/* <td className="tr-table-class font-14 text-white text-center">
@@ -7540,12 +7648,14 @@ const PricingTableTemplatesModal = ({
                           Number(RecurringPricingInfo.DiscountedPrice) +
                             (Number(RecurringPricingInfo.DiscountedPrice) *
                               20) /
-                              100
+                              100,
+                          currencyID
                         )
                       : formatValue(
                           Number(RecurringPricingInfo.OriginalPrice) +
                             (Number(RecurringPricingInfo.OriginalPrice) * 20) /
-                              100
+                              100,
+                          currencyID
                         )}
                   </td>
                 </tr>
@@ -7561,7 +7671,7 @@ const PricingTableTemplatesModal = ({
                         <td className="tr-table-class font-14 text-white text-center">
                           (-){"  "}
                           {"  "}
-                          {formatValue(RecurringPricingInfo.Discount)}
+                          {formatValue(RecurringPricingInfo.Discount, currencyID)}
                         </td>
                         <td className="tr-table-class text-white text-center">
                           (-){"  "}
@@ -7573,13 +7683,15 @@ const PricingTableTemplatesModal = ({
                                 ((Number(RecurringPricingInfo.DiscountedPrice) *
                                   20) /
                                   100) *
-                                  (RecurringPricingInfo.DefaultDiscount / 100)
+                                  (RecurringPricingInfo.DefaultDiscount / 100),
+                                currencyID
                               )
                             : formatValue(
                                 ((Number(RecurringPricingInfo.OriginalPrice) *
                                   20) /
                                   100) *
-                                  (RecurringPricingInfo.DefaultDiscount / 100)
+                                  (RecurringPricingInfo.DefaultDiscount / 100),
+                                currencyID
                               )}
                         </td>
 
@@ -7596,14 +7708,16 @@ const PricingTableTemplatesModal = ({
                                   ) *
                                     20) /
                                     100) *
-                                  (RecurringPricingInfo.DefaultDiscount / 100)
+                                  (RecurringPricingInfo.DefaultDiscount / 100),
+                                currencyID
                               )
                             : formatValue(
                                 (Number(RecurringPricingInfo.OriginalPrice) +
                                   (Number(RecurringPricingInfo.OriginalPrice) *
                                     20) /
                                     100) *
-                                  (RecurringPricingInfo.DefaultDiscount / 100)
+                                  (RecurringPricingInfo.DefaultDiscount / 100),
+                                currencyID
                               )}
                         </td>
                       </tr>
@@ -7654,11 +7768,13 @@ const PricingTableTemplatesModal = ({
                             !ProposalObject.DiscountLines)
                             ? formatValue(
                                 RecurringPricingInfo.DiscountedPrice -
-                                  RecurringPricingInfo.Discount
+                                  RecurringPricingInfo.Discount,
+                                currencyID
                               )
                             : formatValue(
                                 RecurringPricingInfo.OriginalPrice -
-                                  RecurringPricingInfo.Discount
+                                  RecurringPricingInfo.Discount,
+                                currencyID
                               )}
                         </td>
                         <td className="tr-table-class text-white text-center">
@@ -7676,7 +7792,8 @@ const PricingTableTemplatesModal = ({
                                   ) *
                                     20) /
                                     100) *
-                                    (RecurringPricingInfo.DefaultDiscount / 100)
+                                    (RecurringPricingInfo.DefaultDiscount / 100),
+                                currencyID
                               )
                             : formatValue(
                                 (Number(RecurringPricingInfo.OriginalPrice) *
@@ -7685,12 +7802,13 @@ const PricingTableTemplatesModal = ({
                                   ((Number(RecurringPricingInfo.OriginalPrice) *
                                     20) /
                                     100) *
-                                    (RecurringPricingInfo.DefaultDiscount / 100)
+                                    (RecurringPricingInfo.DefaultDiscount / 100),
+                                currencyID
                               )}
                         </td>
                         <td className="tr-table-class font-14 text-white text-center">
                           {" "}
-                          {formatValue(RecurringPricingInfo.GrandTotal)}
+                          {formatValue(RecurringPricingInfo.GrandTotal, currencyID)}
                         </td>
                       </tr>
                     </>
@@ -7736,13 +7854,13 @@ const PricingTableTemplatesModal = ({
                     className="tr-table-class text-white text-center"
                     style={{ width: "16.66%" }}
                   >
-                    Fees (£)
+                    Fees ({currencySymbol})
                   </th>
                   <th
                     className="tr-table-class text-white text-center"
                     style={{ width: "16.66%" }}
                   >
-                    VAT Rate
+                    {taxName} Rate
                   </th>
                   {/* <th
                                 className="tr-table-class text-white text-center"
@@ -7754,7 +7872,7 @@ const PricingTableTemplatesModal = ({
                     className="tr-table-class text-white text-center"
                     style={{ width: "16.66%" }}
                   >
-                    Fees inc VAT (£)
+                    Fees inc {taxName} ({currencySymbol})
                   </th>
                 </tr>
               </thead>
@@ -7801,7 +7919,7 @@ const PricingTableTemplatesModal = ({
 
                           <td className="text-center">
                             {ProposalObject.feeTypeId === 1 &&
-                              formatValue(price)}
+                              formatValue(price, currencyID)}
                             {ProposalObject.feeTypeId === 2 && (
                               <span className="fa fa-check"></span>
                             )}
@@ -7817,7 +7935,7 @@ const PricingTableTemplatesModal = ({
                                           </td> */}
                           <td className="text-center">
                             {ProposalObject.feeTypeId === 1 &&
-                              formatValue(total)}
+                              formatValue(total, currencyID)}
                             {ProposalObject.feeTypeId === 2 && (
                               <span className="fa fa-check"></span>
                             )}
@@ -7838,8 +7956,8 @@ const PricingTableTemplatesModal = ({
                       Number(OneOffPricingInfo.DiscountedPrice) ||
                     (Number(OneOffPricingInfo.Discount) > 0 &&
                       !ProposalObject.DiscountLines)
-                      ? formatValue(OneOffPricingInfo.DiscountedPrice)
-                      : formatValue(OneOffPricingInfo.OriginalPrice)}
+                      ? formatValue(OneOffPricingInfo.DiscountedPrice, currencyID)
+                      : formatValue(OneOffPricingInfo.OriginalPrice, currencyID)}
                   </td>
                   {/* <td className="tr-table-class text-white text-center">
                                 {formatValue(
@@ -7855,9 +7973,11 @@ const PricingTableTemplatesModal = ({
                       !ProposalObject.DiscountLines)
                       ? formatValue(
                           (Number(OneOffPricingInfo.DiscountedPrice) * 20) / 100
+                          , currencyID
                         )
                       : formatValue(
                           (Number(OneOffPricingInfo.OriginalPrice) * 20) / 100
+                          , currencyID
                         )}
                   </td>
                   {/* <td className="tr-table-class font-14 text-white text-center">
@@ -7876,10 +7996,12 @@ const PricingTableTemplatesModal = ({
                           Number(OneOffPricingInfo.DiscountedPrice) +
                             (Number(OneOffPricingInfo.DiscountedPrice) * 20) /
                               100
+                          , currencyID
                         )
                       : formatValue(
                           Number(OneOffPricingInfo.OriginalPrice) +
                             (Number(OneOffPricingInfo.OriginalPrice) * 20) / 100
+                          , currencyID
                         )}
                   </td>
                 </tr>
@@ -7895,7 +8017,7 @@ const PricingTableTemplatesModal = ({
                         <td className="tr-table-class font-14 text-white text-center">
                           (-){"  "}
                           {"  "}
-                          {formatValue(OneOffPricingInfo.Discount)}
+                          {formatValue(OneOffPricingInfo.Discount, currencyID)}
                         </td>
                         <td className="tr-table-class text-white text-center">
                           (-){"  "}
@@ -7908,12 +8030,14 @@ const PricingTableTemplatesModal = ({
                                   20) /
                                   100) *
                                   (OneOffPricingInfo.DefaultDiscount / 100)
+                                , currencyID
                               )
                             : formatValue(
                                 ((Number(OneOffPricingInfo.OriginalPrice) *
                                   20) /
                                   100) *
                                   (OneOffPricingInfo.DefaultDiscount / 100)
+                                , currencyID
                               )}
                         </td>
 
@@ -7929,6 +8053,7 @@ const PricingTableTemplatesModal = ({
                                     20) /
                                     100) *
                                   (OneOffPricingInfo.DefaultDiscount / 100)
+                                , currencyID
                               )
                             : formatValue(
                                 (Number(OneOffPricingInfo.OriginalPrice) +
@@ -7936,6 +8061,7 @@ const PricingTableTemplatesModal = ({
                                     20) /
                                     100) *
                                   (OneOffPricingInfo.DefaultDiscount / 100)
+                                , currencyID
                               )}
                         </td>
                       </tr>
@@ -7989,10 +8115,12 @@ const PricingTableTemplatesModal = ({
                             ? formatValue(
                                 OneOffPricingInfo.DiscountedPrice -
                                   OneOffPricingInfo.Discount
+                                , currencyID
                               )
                             : formatValue(
                                 OneOffPricingInfo.OriginalPrice -
                                   OneOffPricingInfo.Discount
+                                , currencyID
                               )}
                         </td>
                         {/* Discounted VAT Total */}
@@ -8009,7 +8137,8 @@ const PricingTableTemplatesModal = ({
                                   ((Number(OneOffPricingInfo.DiscountedPrice) *
                                     20) /
                                     100) *
-                                    (OneOffPricingInfo.DefaultDiscount / 100)
+                                    (OneOffPricingInfo.DefaultDiscount / 100),
+                                currencyID
                               )
                             : formatValue(
                                 (Number(OneOffPricingInfo.OriginalPrice) * 20) /
@@ -8017,13 +8146,14 @@ const PricingTableTemplatesModal = ({
                                   ((Number(OneOffPricingInfo.OriginalPrice) *
                                     20) /
                                     100) *
-                                    (OneOffPricingInfo.DefaultDiscount / 100)
+                                    (OneOffPricingInfo.DefaultDiscount / 100),
+                                currencyID
                               )}
                         </td>
                         {/* Discounted Fees inc Total */}
                         <td className="tr-table-class font-14 text-white text-center">
                           {" "}
-                          {formatValue(OneOffPricingInfo.GrandTotal)}
+                          {formatValue(OneOffPricingInfo.GrandTotal, currencyID)}
                         </td>
                       </tr>
                     </>
@@ -8077,7 +8207,7 @@ const PricingTableTemplatesModal = ({
                     className="tr-table-class text-white text-center"
                     style={{ width: "16.66%" }}
                   >
-                    Fees (£)
+                    Fees ({currencySymbol})
                   </th>
                   {/* <th
                                 className="tr-table-class text-white text-center"
@@ -8089,13 +8219,13 @@ const PricingTableTemplatesModal = ({
                     className="tr-table-class text-white text-center"
                     style={{ width: "16.66%" }}
                   >
-                    VAT (£)
+                    {taxName} ({currencySymbol})
                   </th>
                   <th
                     className="tr-table-class text-white text-center"
                     style={{ width: "16.66%" }}
                   >
-                    Fees inc VAT (£)
+                    Fees inc {taxName} ({currencySymbol})
                   </th>
                 </tr>
               </thead>
@@ -8141,14 +8271,14 @@ const PricingTableTemplatesModal = ({
 
                           <td className="text-center">
                             {ProposalObject.feeTypeId === 1 &&
-                              formatValue(price)}
+                              formatValue(price, currencyID)}
                             {ProposalObject.feeTypeId === 2 && (
                               <span className="fa fa-check"></span>
                             )}
                           </td>
                           {/* <td className="text-center">20%</td> */}
                           <td className="text-center">
-                            {ProposalObject.feeTypeId === 1 && formatValue(vat)}
+                            {ProposalObject.feeTypeId === 1 && formatValue(vat, currencyID)}
                             {ProposalObject.feeTypeId === 2 && (
                               <span className="fa fa-check"></span>
                             )}{" "}
@@ -8156,7 +8286,7 @@ const PricingTableTemplatesModal = ({
                           </td>
                           <td className="text-center">
                             {ProposalObject.feeTypeId === 1 &&
-                              formatValue(total)}
+                              formatValue(total, currencyID)}
                             {ProposalObject.feeTypeId === 2 && (
                               <span className="fa fa-check"></span>
                             )}
@@ -8176,8 +8306,8 @@ const PricingTableTemplatesModal = ({
                       Number(RecurringPricingInfo.DiscountedPrice) ||
                     (Number(RecurringPricingInfo.Discount) > 0 &&
                       !ProposalObject.DiscountLines)
-                      ? formatValue(RecurringPricingInfo.DiscountedPrice)
-                      : formatValue(RecurringPricingInfo.OriginalPrice)}
+                      ? formatValue(RecurringPricingInfo.DiscountedPrice, currencyID)
+                      : formatValue(RecurringPricingInfo.OriginalPrice, currencyID)}
                   </td>
                   {/* <td className="tr-table-class text-white text-center">
                                 {formatValue(
@@ -8193,11 +8323,13 @@ const PricingTableTemplatesModal = ({
                       !ProposalObject.DiscountLines)
                       ? formatValue(
                           (Number(RecurringPricingInfo.DiscountedPrice) * 20) /
-                            100
+                            100,
+                          currencyID
                         )
                       : formatValue(
                           (Number(RecurringPricingInfo.OriginalPrice) * 20) /
-                            100
+                            100,
+                          currencyID
                         )}
                   </td>
                   {/* <td className="tr-table-class font-14 text-white text-center">
@@ -8216,12 +8348,14 @@ const PricingTableTemplatesModal = ({
                           Number(RecurringPricingInfo.DiscountedPrice) +
                             (Number(RecurringPricingInfo.DiscountedPrice) *
                               20) /
-                              100
+                              100,
+                          currencyID
                         )
                       : formatValue(
                           Number(RecurringPricingInfo.OriginalPrice) +
                             (Number(RecurringPricingInfo.OriginalPrice) * 20) /
-                              100
+                              100,
+                          currencyID
                         )}
                   </td>
                 </tr>
@@ -8237,7 +8371,7 @@ const PricingTableTemplatesModal = ({
                         <td className="tr-table-class font-14 text-white text-center">
                           (-){"  "}
                           {"  "}
-                          {formatValue(RecurringPricingInfo.Discount)}
+                          {formatValue(RecurringPricingInfo.Discount, currencyID)}
                         </td>
                         <td className="tr-table-class text-white text-center">
                           (-){"  "}
@@ -8249,13 +8383,15 @@ const PricingTableTemplatesModal = ({
                                 ((Number(RecurringPricingInfo.DiscountedPrice) *
                                   20) /
                                   100) *
-                                  (RecurringPricingInfo.DefaultDiscount / 100)
+                                  (RecurringPricingInfo.DefaultDiscount / 100),
+                                currencyID
                               )
                             : formatValue(
                                 ((Number(RecurringPricingInfo.OriginalPrice) *
                                   20) /
                                   100) *
-                                  (RecurringPricingInfo.DefaultDiscount / 100)
+                                  (RecurringPricingInfo.DefaultDiscount / 100),
+                                currencyID
                               )}
                         </td>
 
@@ -8272,14 +8408,16 @@ const PricingTableTemplatesModal = ({
                                   ) *
                                     20) /
                                     100) *
-                                  (RecurringPricingInfo.DefaultDiscount / 100)
+                                  (RecurringPricingInfo.DefaultDiscount / 100),
+                                currencyID
                               )
                             : formatValue(
                                 (Number(RecurringPricingInfo.OriginalPrice) +
                                   (Number(RecurringPricingInfo.OriginalPrice) *
                                     20) /
                                     100) *
-                                  (RecurringPricingInfo.DefaultDiscount / 100)
+                                  (RecurringPricingInfo.DefaultDiscount / 100),
+                                currencyID
                               )}
                         </td>
                       </tr>
@@ -8330,11 +8468,13 @@ const PricingTableTemplatesModal = ({
                             !ProposalObject.DiscountLines)
                             ? formatValue(
                                 RecurringPricingInfo.DiscountedPrice -
-                                  RecurringPricingInfo.Discount
+                                  RecurringPricingInfo.Discount,
+                                currencyID
                               )
                             : formatValue(
                                 RecurringPricingInfo.OriginalPrice -
-                                  RecurringPricingInfo.Discount
+                                  RecurringPricingInfo.Discount,
+                                currencyID
                               )}
                         </td>
                         <td className="tr-table-class text-white text-center">
@@ -8352,7 +8492,8 @@ const PricingTableTemplatesModal = ({
                                   ) *
                                     20) /
                                     100) *
-                                    (RecurringPricingInfo.DefaultDiscount / 100)
+                                    (RecurringPricingInfo.DefaultDiscount / 100),
+                                currencyID
                               )
                             : formatValue(
                                 (Number(RecurringPricingInfo.OriginalPrice) *
@@ -8361,12 +8502,13 @@ const PricingTableTemplatesModal = ({
                                   ((Number(RecurringPricingInfo.OriginalPrice) *
                                     20) /
                                     100) *
-                                    (RecurringPricingInfo.DefaultDiscount / 100)
+                                    (RecurringPricingInfo.DefaultDiscount / 100),
+                                currencyID
                               )}
                         </td>
                         <td className="tr-table-class font-14 text-white text-center">
                           {" "}
-                          {formatValue(RecurringPricingInfo.GrandTotal)}
+                          {formatValue(RecurringPricingInfo.GrandTotal, currencyID)}
                         </td>
                       </tr>
                     </>
@@ -8412,7 +8554,7 @@ const PricingTableTemplatesModal = ({
                     className="tr-table-class text-white text-center"
                     style={{ width: "16.66%" }}
                   >
-                    Fees (£)
+                    Fees ({currencySymbol})
                   </th>
                   {/* <th
                                 className="tr-table-class text-white text-center"
@@ -8424,13 +8566,13 @@ const PricingTableTemplatesModal = ({
                     className="tr-table-class text-white text-center"
                     style={{ width: "16.66%" }}
                   >
-                    VAT (£)
+                    {taxName} ({currencySymbol})
                   </th>
                   <th
                     className="tr-table-class text-white text-center"
                     style={{ width: "16.66%" }}
                   >
-                    Fees inc VAT (£)
+                    Fees inc {taxName} ({currencySymbol})
                   </th>
                 </tr>
               </thead>
@@ -8477,14 +8619,14 @@ const PricingTableTemplatesModal = ({
 
                           <td className="text-center">
                             {ProposalObject.feeTypeId === 1 &&
-                              formatValue(price)}
+                              formatValue(price, currencyID)}
                             {ProposalObject.feeTypeId === 2 && (
                               <span className="fa fa-check"></span>
                             )}
                           </td>
                           {/* <td className="text-center">20%</td> */}
                           <td className="text-center">
-                            {ProposalObject.feeTypeId === 1 && formatValue(vat)}
+                            {ProposalObject.feeTypeId === 1 && formatValue(vat, currencyID)}
                             {ProposalObject.feeTypeId === 2 && (
                               <span className="fa fa-check"></span>
                             )}{" "}
@@ -8492,7 +8634,7 @@ const PricingTableTemplatesModal = ({
                           </td>
                           <td className="text-center">
                             {ProposalObject.feeTypeId === 1 &&
-                              formatValue(total)}
+                              formatValue(total, currencyID)}
                             {ProposalObject.feeTypeId === 2 && (
                               <span className="fa fa-check"></span>
                             )}
@@ -8513,8 +8655,8 @@ const PricingTableTemplatesModal = ({
                       Number(OneOffPricingInfo.DiscountedPrice) ||
                     (Number(OneOffPricingInfo.Discount) > 0 &&
                       !ProposalObject.DiscountLines)
-                      ? formatValue(OneOffPricingInfo.DiscountedPrice)
-                      : formatValue(OneOffPricingInfo.OriginalPrice)}
+                      ? formatValue(OneOffPricingInfo.DiscountedPrice, currencyID)
+                      : formatValue(OneOffPricingInfo.OriginalPrice, currencyID)}
                   </td>
                   {/* <td className="tr-table-class text-white text-center">
                                 {formatValue(
@@ -8529,10 +8671,12 @@ const PricingTableTemplatesModal = ({
                     (Number(OneOffPricingInfo.Discount) > 0 &&
                       !ProposalObject.DiscountLines)
                       ? formatValue(
-                          (Number(OneOffPricingInfo.DiscountedPrice) * 20) / 100
+                          (Number(OneOffPricingInfo.DiscountedPrice) * 20) / 100,
+                          currencyID
                         )
                       : formatValue(
-                          (Number(OneOffPricingInfo.OriginalPrice) * 20) / 100
+                          (Number(OneOffPricingInfo.OriginalPrice) * 20) / 100,
+                          currencyID
                         )}
                   </td>
                   {/* <td className="tr-table-class font-14 text-white text-center">
@@ -8550,11 +8694,13 @@ const PricingTableTemplatesModal = ({
                       ? formatValue(
                           Number(OneOffPricingInfo.DiscountedPrice) +
                             (Number(OneOffPricingInfo.DiscountedPrice) * 20) /
-                              100
+                              100,
+                          currencyID
                         )
                       : formatValue(
                           Number(OneOffPricingInfo.OriginalPrice) +
-                            (Number(OneOffPricingInfo.OriginalPrice) * 20) / 100
+                            (Number(OneOffPricingInfo.OriginalPrice) * 20) / 100,
+                          currencyID
                         )}
                   </td>
                 </tr>
@@ -8571,7 +8717,7 @@ const PricingTableTemplatesModal = ({
                         <td className="tr-table-class font-14 text-white text-center">
                           (-){"  "}
                           {"  "}
-                          {formatValue(OneOffPricingInfo.Discount)}
+                          {formatValue(OneOffPricingInfo.Discount, currencyID)}
                         </td>
                         {/* VAT discount */}
                         <td className="tr-table-class text-white text-center">
@@ -8584,13 +8730,15 @@ const PricingTableTemplatesModal = ({
                                 ((Number(OneOffPricingInfo.DiscountedPrice) *
                                   20) /
                                   100) *
-                                  (OneOffPricingInfo.DefaultDiscount / 100)
+                                  (OneOffPricingInfo.DefaultDiscount / 100),
+                                currencyID
                               )
                             : formatValue(
                                 ((Number(OneOffPricingInfo.OriginalPrice) *
                                   20) /
                                   100) *
-                                  (OneOffPricingInfo.DefaultDiscount / 100)
+                                  (OneOffPricingInfo.DefaultDiscount / 100),
+                                currencyID
                               )}
                         </td>
                         {/* Discounted total */}
@@ -8605,14 +8753,16 @@ const PricingTableTemplatesModal = ({
                                   (Number(OneOffPricingInfo.DiscountedPrice) *
                                     20) /
                                     100) *
-                                  (OneOffPricingInfo.DefaultDiscount / 100)
+                                  (OneOffPricingInfo.DefaultDiscount / 100),
+                                currencyID
                               )
                             : formatValue(
                                 (Number(OneOffPricingInfo.OriginalPrice) +
                                   (Number(OneOffPricingInfo.OriginalPrice) *
                                     20) /
                                     100) *
-                                  (OneOffPricingInfo.DefaultDiscount / 100)
+                                  (OneOffPricingInfo.DefaultDiscount / 100),
+                                currencyID
                               )}
                         </td>
                       </tr>
@@ -8664,11 +8814,13 @@ const PricingTableTemplatesModal = ({
                             !ProposalObject.DiscountLines)
                             ? formatValue(
                                 OneOffPricingInfo.DiscountedPrice -
-                                  OneOffPricingInfo.Discount
+                                  OneOffPricingInfo.Discount,
+                                currencyID
                               )
                             : formatValue(
                                 OneOffPricingInfo.OriginalPrice -
-                                  OneOffPricingInfo.Discount
+                                  OneOffPricingInfo.Discount,
+                                currencyID
                               )}
                         </td>
                         <td className="tr-table-class text-white text-center">
@@ -8684,7 +8836,8 @@ const PricingTableTemplatesModal = ({
                                   ((Number(OneOffPricingInfo.DiscountedPrice) *
                                     20) /
                                     100) *
-                                    (OneOffPricingInfo.DefaultDiscount / 100)
+                                    (OneOffPricingInfo.DefaultDiscount / 100),
+                                currencyID
                               )
                             : formatValue(
                                 (Number(OneOffPricingInfo.OriginalPrice) * 20) /
@@ -8692,12 +8845,13 @@ const PricingTableTemplatesModal = ({
                                   ((Number(OneOffPricingInfo.OriginalPrice) *
                                     20) /
                                     100) *
-                                    (OneOffPricingInfo.DefaultDiscount / 100)
+                                    (OneOffPricingInfo.DefaultDiscount / 100),
+                                currencyID
                               )}
                         </td>
                         <td className="tr-table-class font-14 text-white text-center">
                           {" "}
-                          {formatValue(OneOffPricingInfo.GrandTotal)}
+                          {formatValue(OneOffPricingInfo.GrandTotal, currencyID)}
                         </td>
                       </tr>
                     </>
@@ -8756,7 +8910,7 @@ const PricingTableTemplatesModal = ({
                       className="tr-table-class text-white text-center"
                       style={{ width: "16.66%" }}
                     >
-                      Fees (£)
+                      Fees ({currencySymbol})
                     </th>
                   )}
                   {vatPercentage !== 0 && visibleFieldsCustomTemp.vatRate && (
@@ -8764,7 +8918,7 @@ const PricingTableTemplatesModal = ({
                       className="tr-table-class text-white text-center"
                       style={{ width: "16.66%" }}
                     >
-                      VAT Rate
+                      {taxName} Rate
                     </th>
                   )}
                   {vatPercentage !== 0 && visibleFieldsCustomTemp.vat && (
@@ -8772,7 +8926,7 @@ const PricingTableTemplatesModal = ({
                       className="tr-table-class text-white text-center"
                       style={{ width: "16.66%" }}
                     >
-                      VAT (£)
+                      {taxName} ({currencySymbol})
                     </th>
                   )}
                   {vatPercentage !== 0 &&
@@ -8781,7 +8935,7 @@ const PricingTableTemplatesModal = ({
                         className="tr-table-class text-white text-center"
                         style={{ width: "16.66%" }}
                       >
-                        Fees inc VAT (£)
+                        Fees inc {taxName} ({currencySymbol})
                       </th>
                     )}
                 </tr>
@@ -8855,7 +9009,7 @@ const PricingTableTemplatesModal = ({
                             {visibleFieldsCustomTemp.fees && (
                               <td className="text-center">
                                 {ProposalObject.feeTypeId === 1 &&
-                                  formatValue(price)}
+                                  formatValue(price, currencyID)}
                                 {ProposalObject.feeTypeId === 2 && (
                                   <span className="fa fa-check"></span>
                                 )}
@@ -8871,7 +9025,7 @@ const PricingTableTemplatesModal = ({
                               visibleFieldsCustomTemp.vat && (
                                 <td className="text-center">
                                   {ProposalObject.feeTypeId === 1 &&
-                                    formatValue(vat)}
+                                    formatValue(vat, currencyID)}
                                   {ProposalObject.feeTypeId === 2 && (
                                     <span className="fa fa-check"></span>
                                   )}
@@ -8881,7 +9035,7 @@ const PricingTableTemplatesModal = ({
                               visibleFieldsCustomTemp.feesIncVat && (
                                 <td className="text-center">
                                   {ProposalObject.feeTypeId === 1 &&
-                                    formatValue(total)}
+                                    formatValue(total, currencyID)}
                                   {ProposalObject.feeTypeId === 2 && (
                                     <span className="fa fa-check"></span>
                                   )}
@@ -8908,8 +9062,8 @@ const PricingTableTemplatesModal = ({
                         Number(RecurringPricingInfo.DiscountedPrice) ||
                       (Number(RecurringPricingInfo.Discount) > 0 &&
                         !ProposalObject.DiscountLines)
-                        ? formatValue(RecurringPricingInfo.DiscountedPrice)
-                        : formatValue(RecurringPricingInfo.OriginalPrice)}
+                        ? formatValue(RecurringPricingInfo.DiscountedPrice, currencyID)
+                        : formatValue(RecurringPricingInfo.OriginalPrice, currencyID)}
                     </td>
                   )}
                   {vatPercentage !== 0 && visibleFieldsCustomTemp.vatRate && (
@@ -8917,7 +9071,7 @@ const PricingTableTemplatesModal = ({
                   )}
                   {vatPercentage !== 0 && visibleFieldsCustomTemp.vat && (
                     <td className="tr-table-class text-white text-center">
-                      {formatValue(Number(RecurringPricingInfo.staticTotalVAT))}
+                      {formatValue(Number(RecurringPricingInfo.staticTotalVAT, currencyID))}
                     </td>
                   )}
                   {vatPercentage !== 0 &&
@@ -8929,11 +9083,13 @@ const PricingTableTemplatesModal = ({
                           !ProposalObject.DiscountLines)
                           ? formatValue(
                               Number(RecurringPricingInfo.DiscountedPrice) +
-                                Number(RecurringPricingInfo.staticTotalVAT)
+                                Number(RecurringPricingInfo.staticTotalVAT),
+                              currencyID
                             )
                           : formatValue(
                               Number(RecurringPricingInfo.OriginalPrice) +
-                                Number(RecurringPricingInfo.staticTotalVAT)
+                                Number(RecurringPricingInfo.staticTotalVAT),
+                              currencyID
                             )}
                       </td>
                     )}
@@ -8953,7 +9109,7 @@ const PricingTableTemplatesModal = ({
                         {visibleFieldsCustomTemp.serviceScope && <td></td>}
                         {visibleFieldsCustomTemp.fees && (
                           <td className="tr-table-class font-14 text-white text-center">
-                            (-) {formatValue(RecurringPricingInfo.Discount)}
+                            (-) {formatValue(RecurringPricingInfo.Discount, currencyID)}
                           </td>
                         )}
                         {vatPercentage !== 0 &&
@@ -8963,7 +9119,8 @@ const PricingTableTemplatesModal = ({
                             (-){" "}
                             {formatValue(
                               Number(RecurringPricingInfo.staticTotalVAT) -
-                                Number(RecurringPricingInfo.totalServiceWiseVAT)
+                                Number(RecurringPricingInfo.totalServiceWiseVAT),
+                              currencyID
                             )}
                           </td>
                         )}
@@ -8976,7 +9133,8 @@ const PricingTableTemplatesModal = ({
                                   (Number(RecurringPricingInfo.staticTotalVAT) -
                                     Number(
                                       RecurringPricingInfo.totalServiceWiseVAT
-                                    ))
+                                    )),
+                                currencyID
                               )}
                             </td>
                           )}
@@ -8998,11 +9156,13 @@ const PricingTableTemplatesModal = ({
                               !ProposalObject.DiscountLines)
                               ? formatValue(
                                   RecurringPricingInfo.DiscountedPrice -
-                                    RecurringPricingInfo.Discount
+                                    RecurringPricingInfo.Discount,
+                                  currencyID
                                 )
                               : formatValue(
                                   RecurringPricingInfo.OriginalPrice -
-                                    RecurringPricingInfo.Discount
+                                    RecurringPricingInfo.Discount,
+                                  currencyID
                                 )}
                           </td>
                         )}
@@ -9011,14 +9171,14 @@ const PricingTableTemplatesModal = ({
                         {vatPercentage !== 0 && visibleFieldsCustomTemp.vat && (
                           <td className="tr-table-class font-14 text-white text-center">
                             {formatValue(
-                              Number(RecurringPricingInfo.totalServiceWiseVAT)
+                              Number(RecurringPricingInfo.totalServiceWiseVAT), currencyID
                             )}
                           </td>
                         )}
                         {vatPercentage !== 0 &&
                           visibleFieldsCustomTemp.feesIncVat && (
                             <td className="tr-table-class font-14 text-white text-center">
-                              {formatValue(RecurringPricingInfo.GrandTotal)}
+                              {formatValue(RecurringPricingInfo.GrandTotal, currencyID)}
                             </td>
                           )}
                       </tr>
@@ -9068,7 +9228,7 @@ const PricingTableTemplatesModal = ({
                       className="tr-table-class text-white text-center"
                       style={{ width: "16.66%" }}
                     >
-                      Fees (£)
+                      Fees ({currencySymbol})
                     </th>
                   )}
                   {vatPercentageOneOff !== 0 &&
@@ -9077,7 +9237,7 @@ const PricingTableTemplatesModal = ({
                         className="tr-table-class text-white text-center"
                         style={{ width: "16.66%" }}
                       >
-                        VAT Rate
+                        {taxName} Rate
                       </th>
                     )}
                   {vatPercentageOneOff !== 0 && visibleFieldsCustomTemp.vat && (
@@ -9085,7 +9245,7 @@ const PricingTableTemplatesModal = ({
                       className="tr-table-class text-white text-center"
                       style={{ width: "16.66%" }}
                     >
-                      VAT (£)
+                      {taxName} ({currencySymbol})
                     </th>
                   )}
                   {vatPercentageOneOff !== 0 &&
@@ -9094,7 +9254,7 @@ const PricingTableTemplatesModal = ({
                         className="tr-table-class text-white text-center"
                         style={{ width: "16.66%" }}
                       >
-                        Fees inc VAT (£)
+                        Fees inc {taxName} ({currencySymbol})
                       </th>
                     )}
                 </tr>
@@ -9181,7 +9341,7 @@ const PricingTableTemplatesModal = ({
                           {visibleFieldsCustomTemp.fees && (
                             <td className="text-center">
                               {ProposalObject.feeTypeId === 1 &&
-                                formatValue(price)}
+                                formatValue(price, currencyID)}
                               {ProposalObject.feeTypeId === 2 && (
                                 <span className="fa fa-check"></span>
                               )}
@@ -9199,7 +9359,7 @@ const PricingTableTemplatesModal = ({
                             visibleFieldsCustomTemp.vat && (
                               <td className="text-center">
                                 {ProposalObject.feeTypeId === 1 &&
-                                  formatValue(vat)}
+                                  formatValue(vat, currencyID)}
                                 {ProposalObject.feeTypeId === 2 && (
                                   <span className="fa fa-check"></span>
                                 )}
@@ -9210,7 +9370,7 @@ const PricingTableTemplatesModal = ({
                             visibleFieldsCustomTemp.feesIncVat && (
                               <td className="text-center">
                                 {ProposalObject.feeTypeId === 1 &&
-                                  formatValue(total)}
+                                  formatValue(total, currencyID)}
                                 {ProposalObject.feeTypeId === 2 && (
                                   <span className="fa fa-check"></span>
                                 )}
@@ -9238,8 +9398,8 @@ const PricingTableTemplatesModal = ({
                         Number(OneOffPricingInfo.DiscountedPrice) ||
                       (Number(OneOffPricingInfo.Discount) > 0 &&
                         !ProposalObject.DiscountLines)
-                        ? formatValue(OneOffPricingInfo.DiscountedPrice)
-                        : formatValue(OneOffPricingInfo.OriginalPrice)}
+                        ? formatValue(OneOffPricingInfo.DiscountedPrice, currencyID)
+                        : formatValue(OneOffPricingInfo.OriginalPrice, currencyID)}
                     </td>
                   )}
                   {vatPercentageOneOff !== 0 &&
@@ -9247,7 +9407,7 @@ const PricingTableTemplatesModal = ({
                   {vatPercentageOneOff !== 0 && visibleFieldsCustomTemp.vat && (
                     <td className="tr-table-class text-white text-center">
                       {formatValue(
-                        Number(OneOffPricingInfo.staticTotalVATOneOff)
+                        Number(OneOffPricingInfo.staticTotalVATOneOff), currencyID
                       )}
                     </td>
                   )}
@@ -9260,11 +9420,13 @@ const PricingTableTemplatesModal = ({
                           !ProposalObject.DiscountLines)
                           ? formatValue(
                               Number(OneOffPricingInfo.DiscountedPrice) +
-                                Number(OneOffPricingInfo.staticTotalVATOneOff)
+                                Number(OneOffPricingInfo.staticTotalVATOneOff),
+                              currencyID
                             )
                           : formatValue(
                               Number(OneOffPricingInfo.OriginalPrice) +
-                                Number(OneOffPricingInfo.staticTotalVATOneOff)
+                                Number(OneOffPricingInfo.staticTotalVATOneOff),
+                              currencyID
                             )}
                       </td>
                     )}
@@ -9283,7 +9445,7 @@ const PricingTableTemplatesModal = ({
                         {visibleFieldsCustomTemp.fees && (
                           <td className="tr-table-class text-white text-center">
                             {Number(OneOffPricingInfo.Discount) > 0
-                              ? formatValue(OneOffPricingInfo.Discount)
+                              ? formatValue(OneOffPricingInfo.Discount, currencyID)
                               : "-"}
                           </td>
                         )}
@@ -9297,7 +9459,8 @@ const PricingTableTemplatesModal = ({
                                 Number(OneOffPricingInfo.staticTotalVATOneOff) -
                                   Number(
                                     OneOffPricingInfo.totalServiceWiseVATOneOff
-                                  )
+                                  ),
+                                currencyID
                               )}
                             </td>
                           )}
@@ -9312,7 +9475,8 @@ const PricingTableTemplatesModal = ({
                                   ) -
                                     Number(
                                       OneOffPricingInfo.totalServiceWiseVATOneOff
-                                    ))
+                                    )),
+                                currencyID
                               )}
                             </td>
                           )}
@@ -9326,7 +9490,7 @@ const PricingTableTemplatesModal = ({
                         {visibleFieldsCustomTemp.serviceScope && <td></td>}
                         {visibleFieldsCustomTemp.fees && (
                           <td className="tr-table-class text-white text-center">
-                            {formatValue(OneOffPricingInfo.DiscountedPrice)}
+                            {formatValue(OneOffPricingInfo.DiscountedPrice, currencyID)}
                           </td>
                         )}
                         {vatPercentageOneOff !== 0 &&
@@ -9337,7 +9501,8 @@ const PricingTableTemplatesModal = ({
                               {formatValue(
                                 Number(
                                   OneOffPricingInfo.totalServiceWiseVATOneOff
-                                )
+                                ),
+                              currencyID
                               )}
                             </td>
                           )}
@@ -9348,7 +9513,8 @@ const PricingTableTemplatesModal = ({
                                 Number(OneOffPricingInfo.DiscountedPrice) +
                                   Number(
                                     OneOffPricingInfo.totalServiceWiseVATOneOff
-                                  )
+                                  ),
+                                currencyID
                               )}
                             </td>
                           )}
@@ -9416,7 +9582,7 @@ const PricingTableTemplatesModal = ({
                         className="tr-table-class text-white text-right"
                         style={{ width: "16.66%" }}
                       >
-                        Fees (£)
+                        Fees ({currencySymbol})
                       </th>
 
                       {vatPercentage !== null &&
@@ -9425,7 +9591,7 @@ const PricingTableTemplatesModal = ({
                             className="tr-table-class text-white text-right"
                             style={{ width: "16.66%" }}
                           >
-                            VAT (£)
+                            {taxName} ({currencySymbol})
                           </th>
                         )}
 
@@ -9540,7 +9706,7 @@ const PricingTableTemplatesModal = ({
                                       <span className="fa fa-times"></span>
                                     ) : (
                                       ` ${formatValue(
-                                        subService.packageOneValue
+                                        subService.packageOneValue, currencyID
                                       )}`
                                     )}
                                   </div>
@@ -9608,7 +9774,7 @@ const PricingTableTemplatesModal = ({
                                           ) ? (
                                           <span className="fa fa-times"></span>
                                         ) : (
-                                          ` ${formatValue(vatOne)}`
+                                          ` ${formatValue(vatOne, currencyID)}`
                                         )
                                       ) : Number(subService.packageOneValue) !==
                                           null &&
@@ -9716,7 +9882,7 @@ const PricingTableTemplatesModal = ({
                                           <span className="fa fa-times"></span>
                                         ) : (
                                           ` ${formatValue(
-                                            subService.packageTwoValue
+                                            subService.packageTwoValue, currencyID
                                           )}`
                                         )}
                                       </div>
@@ -9781,7 +9947,7 @@ const PricingTableTemplatesModal = ({
                                             ) ? (
                                             <span className="fa fa-times"></span>
                                           ) : (
-                                            ` ${formatValue(vatTwo)}`
+                                            ` ${formatValue(vatTwo, currencyID)}`
                                           )
                                         ) : Number(
                                             subService.packageTwoValue
@@ -9886,7 +10052,7 @@ const PricingTableTemplatesModal = ({
                                           <span className="fa fa-times"></span>
                                         ) : (
                                           ` ${formatValue(
-                                            subService.packageThreeValue
+                                            subService.packageThreeValue, currencyID
                                           )}`
                                         )}
                                       </div>
@@ -9952,7 +10118,7 @@ const PricingTableTemplatesModal = ({
                                             ) ? (
                                             <span className="fa fa-times"></span>
                                           ) : (
-                                            ` ${formatValue(vatThree)}`
+                                            ` ${formatValue(vatThree, currencyID)}`
                                           )
                                         ) : Number(
                                             subService.packageThreeValue
@@ -10201,14 +10367,14 @@ const PricingTableTemplatesModal = ({
                     ? Number(RecurringPricingInfo.packageOneDisCount) > 0 &&
                       !ProposalObject.DiscountLines
                       ? formatValue(
-                          RecurringPricingInfo.packageOneDisCountedTotal
+                          RecurringPricingInfo.packageOneDisCountedTotal, currencyID
                         )
-                      : formatValue(totalOnePackageValue)
-                    : formatValue(RecurringPricingInfo.packageOneNetTotal)}
+                      : formatValue(totalOnePackageValue, currencyID)
+                    : formatValue(RecurringPricingInfo.packageOneNetTotal, currencyID)}
                 </td>
                 {vatPercentage !== null && visibleFieldsCustomTemp.vat && (
                   <td className="tr-table-class font-14 text-white text-right">
-                    {formatValue(RecurringPricingInfo.PackageOneStaticVaTPrice)}
+                    {formatValue(RecurringPricingInfo.PackageOneStaticVaTPrice, currencyID)}
                   </td>
                 )}
                 {visibleFieldsCustomTemp.serviceScope && <td></td>}
@@ -10223,17 +10389,17 @@ const PricingTableTemplatesModal = ({
                         ? Number(RecurringPricingInfo.packageTwoDisCount) > 0 &&
                           !ProposalObject.DiscountLines
                           ? formatValue(
-                              RecurringPricingInfo.packageTwoDisCountedTotal
+                              RecurringPricingInfo.packageTwoDisCountedTotal, currencyID
                             )
-                          : formatValue(totalTwoPackageValue)
-                        : formatValue(RecurringPricingInfo.packageTwoNetTotal)}
+                          : formatValue(totalTwoPackageValue, currencyID)
+                        : formatValue(RecurringPricingInfo.packageTwoNetTotal, currencyID)}
                     </td>
 
                     {vatPercentage !== null && visibleFieldsCustomTemp.vat && (
                       <td className="tr-table-class font-14 text-white text-right">
                         {" "}
                         {formatValue(
-                          RecurringPricingInfo.PackageTwoStaticVaTPrice
+                          RecurringPricingInfo.PackageTwoStaticVaTPrice, currencyID
                         )}
                       </td>
                     )}
@@ -10251,11 +10417,11 @@ const PricingTableTemplatesModal = ({
                         ? Number(RecurringPricingInfo.packageThreeDisCount) >
                             0 && !ProposalObject.DiscountLines
                           ? formatValue(
-                              RecurringPricingInfo.packageThreeDisCountedTotal
+                              RecurringPricingInfo.packageThreeDisCountedTotal, currencyID
                             )
-                          : formatValue(totalThreePackageValue)
+                          : formatValue(totalThreePackageValue, currencyID)
                         : formatValue(
-                            RecurringPricingInfo.packageThreeNetTotal
+                            RecurringPricingInfo.packageThreeNetTotal, currencyID
                           )}
                     </td>
 
@@ -10263,7 +10429,7 @@ const PricingTableTemplatesModal = ({
                       <td className="tr-table-class font-14 text-white text-right">
                         {" "}
                         {formatValue(
-                          RecurringPricingInfo.PackageThreeStaticVaTPrice
+                          RecurringPricingInfo.PackageThreeStaticVaTPrice, currencyID
                         )}
                       </td>
                     )}
@@ -10283,7 +10449,7 @@ const PricingTableTemplatesModal = ({
                       </td>
                       <td className="tr-table-class font-14 text-white text-right">
                         (-){" "}
-                        {formatValue(RecurringPricingInfo.packageOneDisCount)}
+                        {formatValue(RecurringPricingInfo.packageOneDisCount, currencyID)}
                       </td>
 
                       {vatPercentage !== null &&
@@ -10295,6 +10461,7 @@ const PricingTableTemplatesModal = ({
                                 RecurringPricingInfo.PackageOneStaticVaTPrice
                               ) -
                                 Number(RecurringPricingInfo.PackageOneVaTPrice)
+                              , currencyID
                             )}
                           </td>
                         )}
@@ -10307,7 +10474,7 @@ const PricingTableTemplatesModal = ({
                           <td className="tr-table-class font-14 text-white text-right">
                             (-){" "}
                             {formatValue(
-                              RecurringPricingInfo.packageTwoDisCount
+                              RecurringPricingInfo.packageTwoDisCount, currencyID
                             )}
                           </td>
 
@@ -10322,6 +10489,7 @@ const PricingTableTemplatesModal = ({
                                     Number(
                                       RecurringPricingInfo.PackageTwoVaTPrice
                                     )
+                                  , currencyID
                                 )}
                               </td>
                               // <td className="tr-table-class font-14 text-white text-right">
@@ -10341,7 +10509,7 @@ const PricingTableTemplatesModal = ({
                           <td className="tr-table-class font-14 text-white text-right">
                             (-){" "}
                             {formatValue(
-                              RecurringPricingInfo.packageThreeDisCount
+                              RecurringPricingInfo.packageThreeDisCount, currencyID
                             )}
                           </td>
 
@@ -10356,6 +10524,7 @@ const PricingTableTemplatesModal = ({
                                     Number(
                                       RecurringPricingInfo.PackageThreeVaTPrice
                                     )
+                                  , currencyID
                                 )}
                               </td>
                               // <td className="tr-table-class font-14 text-white text-right">
@@ -10392,21 +10561,24 @@ const PricingTableTemplatesModal = ({
                             ? formatValue(
                                 RecurringPricingInfo.packageOneDisCountedTotal -
                                   RecurringPricingInfo.packageOneDisCount
+                                , currencyID
                               )
                             : formatValue(
                                 totalOnePackageValue -
                                   RecurringPricingInfo.packageOneDisCount
+                                , currencyID
                               )
                           : formatValue(
                               RecurringPricingInfo.packageOneNetTotal -
                                 RecurringPricingInfo.packageOneDisCount
+                              , currencyID
                             )}
                       </td>
                       {vatPercentage !== null &&
                         visibleFieldsCustomTemp.vat && (
                           <td className="tr-table-class font-14 text-white text-right">
                             {formatValue(
-                              RecurringPricingInfo.PackageOneVaTPrice
+                              RecurringPricingInfo.PackageOneVaTPrice, currencyID
                             )}
                           </td>
                         )}
@@ -10416,7 +10588,7 @@ const PricingTableTemplatesModal = ({
                           <td className="tr-table-class font-14 text-white text-right">
                             {" "}
                             {formatValue(
-                              RecurringPricingInfo.PackageTwoGrandTotal
+                              RecurringPricingInfo.PackageTwoGrandTotal, currencyID
                             )}
                           </td>
                           {vatPercentage !== null &&
@@ -10427,6 +10599,7 @@ const PricingTableTemplatesModal = ({
                                     (RecurringPricingInfo.PackageTwoVaTPriceWithoutDiscout *
                                       RecurringPricingInfo.DiscountPercentagePackageTwo) /
                                       100
+                                  , currencyID
                                 )}
                               </td>
                             )}
@@ -10438,7 +10611,7 @@ const PricingTableTemplatesModal = ({
                           <td className="tr-table-class font-14 text-white text-right">
                             {" "}
                             {formatValue(
-                              RecurringPricingInfo.PackageThreeGrandTotal
+                              RecurringPricingInfo.PackageThreeGrandTotal, currencyID
                             )}
                           </td>
                           {vatPercentage !== null &&
@@ -10449,6 +10622,7 @@ const PricingTableTemplatesModal = ({
                                     (RecurringPricingInfo.PackageThreeVaTPriceWithoutDiscout *
                                       RecurringPricingInfo.DiscountPercentagePackageThree) /
                                       100
+                                  , currencyID
                                 )}
                               </td>
                             )}
@@ -10533,7 +10707,7 @@ const PricingTableTemplatesModal = ({
                         className="tr-table-class text-white text-right"
                         style={{ width: "16.66%" }}
                       >
-                        Fees (£)
+                        Fees ({currencySymbol})
                       </th>
                       {vatPercentageOneOff !== null &&
                         visibleFieldsCustomTemp.vat && (
@@ -10541,7 +10715,7 @@ const PricingTableTemplatesModal = ({
                             className="tr-table-class text-white text-right"
                             style={{ width: "16.66%" }}
                           >
-                            VAT (£)
+                            {taxName} ({currencySymbol})
                           </th>
                         )}
 
@@ -10656,7 +10830,7 @@ const PricingTableTemplatesModal = ({
                                       <span className="fa fa-times"></span>
                                     ) : (
                                       ` ${formatValue(
-                                        subService.packageOneValue
+                                        subService.packageOneValue, currencyID
                                       )}`
                                     )}
                                   </div>
@@ -10724,7 +10898,7 @@ const PricingTableTemplatesModal = ({
                                           ) ? (
                                           <span className="fa fa-times"></span>
                                         ) : (
-                                          ` ${formatValue(vatOne)}`
+                                          ` ${formatValue(vatOne, currencyID)}`
                                         )
                                       ) : Number(subService.packageOneValue) !==
                                           null &&
@@ -10832,7 +11006,7 @@ const PricingTableTemplatesModal = ({
                                           <span className="fa fa-times"></span>
                                         ) : (
                                           ` ${formatValue(
-                                            subService.packageTwoValue
+                                            subService.packageTwoValue, currencyID
                                           )}`
                                         )}
                                       </div>
@@ -10897,7 +11071,7 @@ const PricingTableTemplatesModal = ({
                                             ) ? (
                                             <span className="fa fa-times"></span>
                                           ) : (
-                                            ` ${formatValue(vatTwo)}`
+                                            ` ${formatValue(vatTwo, currencyID)}`
                                           )
                                         ) : Number(
                                             subService.packageTwoValue
@@ -11002,7 +11176,7 @@ const PricingTableTemplatesModal = ({
                                           <span className="fa fa-times"></span>
                                         ) : (
                                           ` ${formatValue(
-                                            subService.packageThreeValue
+                                            subService.packageThreeValue, currencyID
                                           )}`
                                         )}
                                       </div>
@@ -11068,7 +11242,7 @@ const PricingTableTemplatesModal = ({
                                             ) ? (
                                             <span className="fa fa-times"></span>
                                           ) : (
-                                            ` ${formatValue(vatThree)}`
+                                            ` ${formatValue(vatThree, currencyID)}`
                                           )
                                         ) : Number(
                                             subService.packageThreeValue
@@ -11316,9 +11490,9 @@ const PricingTableTemplatesModal = ({
                     !ProposalObject.DiscountLines)
                     ? Number(OneOffPricingInfo.packageOneDisCount) > 0 &&
                       !ProposalObject.DiscountLines
-                      ? formatValue(OneOffPricingInfo.packageOneDisCountedTotal)
-                      : formatValue(totalOnePackageValue)
-                    : formatValue(OneOffPricingInfo.packageOneNetTotal)}
+                      ? formatValue(OneOffPricingInfo.packageOneDisCountedTotal, currencyID)
+                      : formatValue(totalOnePackageValue, currencyID)
+                    : formatValue(OneOffPricingInfo.packageOneNetTotal, currencyID)}
                 </td>
                 {/* Net VAT */}
                 {vatPercentageOneOff !== null &&
@@ -11326,7 +11500,7 @@ const PricingTableTemplatesModal = ({
                     <td className="tr-table-class font-14 text-white text-right">
                       {" "}
                       {formatValue(
-                        Number(OneOffPricingInfo.PackageOneStaticVaTPrice)
+                        Number(OneOffPricingInfo.PackageOneStaticVaTPrice), currencyID
                       )}
                     </td>
                   )}
@@ -11342,10 +11516,10 @@ const PricingTableTemplatesModal = ({
                         ? Number(OneOffPricingInfo.packageTwoDisCount) > 0 &&
                           !ProposalObject.DiscountLines
                           ? formatValue(
-                              OneOffPricingInfo.packageTwoDisCountedTotal
+                              OneOffPricingInfo.packageTwoDisCountedTotal, currencyID
                             )
-                          : formatValue(totalTwoPackageValue)
-                        : formatValue(OneOffPricingInfo.packageTwoNetTotal)}
+                          : formatValue(totalTwoPackageValue, currencyID)
+                        : formatValue(OneOffPricingInfo.packageTwoNetTotal, currencyID)}
                     </td>
                     {/* Net VAT */}
                     {vatPercentageOneOff !== null &&
@@ -11353,7 +11527,7 @@ const PricingTableTemplatesModal = ({
                         <td className="tr-table-class font-14 text-white text-right">
                           {" "}
                           {formatValue(
-                            Number(OneOffPricingInfo.PackageTwoStaticVaTPrice)
+                            Number(OneOffPricingInfo.PackageTwoStaticVaTPrice), currencyID
                           )}
                         </td>
                       )}
@@ -11371,10 +11545,10 @@ const PricingTableTemplatesModal = ({
                         ? Number(OneOffPricingInfo.packageThreeDisCount) > 0 &&
                           !ProposalObject.DiscountLines
                           ? formatValue(
-                              OneOffPricingInfo.packageThreeDisCountedTotal
+                              OneOffPricingInfo.packageThreeDisCountedTotal, currencyID
                             )
-                          : formatValue(totalThreePackageValue)
-                        : formatValue(OneOffPricingInfo.packageThreeNetTotal)}
+                          : formatValue(totalThreePackageValue, currencyID)
+                        : formatValue(OneOffPricingInfo.packageThreeNetTotal, currencyID)}
                     </td>
                     {/* Net VAT */}
                     {vatPercentageOneOff !== null &&
@@ -11399,7 +11573,7 @@ const PricingTableTemplatesModal = ({
                         Discount
                       </td>
                       <td className="tr-table-class font-14 text-white text-right">
-                        (-) {formatValue(OneOffPricingInfo.packageOneDisCount)}
+                        (-) {formatValue(OneOffPricingInfo.packageOneDisCount, currencyID)}
                       </td>
                       {/* Discounted VAT */}
 
@@ -11411,6 +11585,7 @@ const PricingTableTemplatesModal = ({
                               Number(
                                 OneOffPricingInfo.PackageOneStaticVaTPrice
                               ) - Number(OneOffPricingInfo.PackageOneVaTPrice)
+                              , currencyID
                             )}
                           </td>
                         )}
@@ -11421,7 +11596,7 @@ const PricingTableTemplatesModal = ({
                         <>
                           <td className="tr-table-class font-14 text-white text-right">
                             (-){" "}
-                            {formatValue(OneOffPricingInfo.packageTwoDisCount)}
+                            {formatValue(OneOffPricingInfo.packageTwoDisCount, currencyID)}
                           </td>
                           {/* Discounted VAT */}
                           {vatPercentageOneOff !== null &&
@@ -11433,6 +11608,7 @@ const PricingTableTemplatesModal = ({
                                     OneOffPricingInfo.PackageTwoStaticVaTPrice
                                   ) -
                                     Number(OneOffPricingInfo.PackageTwoVaTPrice)
+                                  , currencyID
                                 )}
                               </td>
                             )}
@@ -11444,7 +11620,7 @@ const PricingTableTemplatesModal = ({
                           <td className="tr-table-class font-14 text-white text-right">
                             (-){" "}
                             {formatValue(
-                              OneOffPricingInfo.packageThreeDisCount
+                              OneOffPricingInfo.packageThreeDisCount, currencyID
                             )}
                           </td>
 
@@ -11459,6 +11635,7 @@ const PricingTableTemplatesModal = ({
                                     Number(
                                       OneOffPricingInfo.PackageThreeVaTPrice
                                     )
+                                  , currencyID
                                 )}
                               </td>
                             )}
@@ -11487,21 +11664,24 @@ const PricingTableTemplatesModal = ({
                             ? formatValue(
                                 OneOffPricingInfo.packageOneDisCountedTotal -
                                   OneOffPricingInfo.packageOneDisCount
+                                , currencyID
                               )
                             : formatValue(
                                 totalOnePackageValue -
                                   OneOffPricingInfo.packageOneDisCount
+                                , currencyID
                               )
                           : formatValue(
                               OneOffPricingInfo.packageOneNetTotal -
                                 OneOffPricingInfo.packageOneDisCount
+                              , currencyID
                             )}
                       </td>
                       {vatPercentageOneOff !== null &&
                         visibleFieldsCustomTemp.vat && (
                           <td className="tr-table-class font-14 text-white text-right">
                             {formatValue(
-                              Number(OneOffPricingInfo.PackageOneVaTPrice)
+                              Number(OneOffPricingInfo.PackageOneVaTPrice), currencyID
                             )}
                           </td>
                         )}
@@ -11511,14 +11691,14 @@ const PricingTableTemplatesModal = ({
                           <td className="tr-table-class font-14 text-white text-right">
                             {" "}
                             {formatValue(
-                              OneOffPricingInfo.PackageTwoGrandTotal
+                              OneOffPricingInfo.PackageTwoGrandTotal, currencyID
                             )}
                           </td>
                           {vatPercentageOneOff !== null &&
                             visibleFieldsCustomTemp.vat && (
                               <td className="tr-table-class font-14 text-white text-right">
                                 {formatValue(
-                                  Number(OneOffPricingInfo.PackageTwoVaTPrice)
+                                  Number(OneOffPricingInfo.PackageTwoVaTPrice), currencyID
                                 )}
                               </td>
                             )}
@@ -11530,14 +11710,14 @@ const PricingTableTemplatesModal = ({
                           <td className="tr-table-class font-14 text-white text-right">
                             {" "}
                             {formatValue(
-                              OneOffPricingInfo.PackageThreeGrandTotal
+                              OneOffPricingInfo.PackageThreeGrandTotal, currencyID
                             )}
                           </td>
                           {vatPercentageOneOff !== null &&
                             visibleFieldsCustomTemp.vat && (
                               <td className="tr-table-class font-14 text-white text-right">
                                 {formatValue(
-                                  Number(OneOffPricingInfo.PackageThreeVaTPrice)
+                                  Number(OneOffPricingInfo.PackageThreeVaTPrice), currencyID
                                 )}
                               </td>
                             )}
@@ -11560,11 +11740,11 @@ const PricingTableTemplatesModal = ({
   const ALL_COLUMNS = [
     { id: "serviceCategory", label: "Service Category" },
     { id: "serviceName", label: "Service Name" },
-    { id: "vatRate", label: "VAT Rate" },
-    { id: "vat", label: "VAT" },
+    { id: "vatRate", label: `${taxName} Rate` },
+    { id: "vat", label: `${taxName}` },
     { id: "fees", label: "Fees" },
     { id: "serviceScope", label: "Service Scope" },
-    { id: "feesIncVat", label: "Fees inc VAT" },
+    { id: "feesIncVat", label: `Fees inc ${taxName}` },
   ];
 
   // const toggleColumn = (colId) => {
@@ -11605,9 +11785,9 @@ const PricingTableTemplatesModal = ({
 
   const formatFieldLabel = (field) => {
     // Special case for VAT fields
-    if (field === "vatRate") return "VAT Rate";
-    if (field === "feesIncVat") return "Fees Inc VAT";
-    if (field === "vat") return "VAT";
+    if (field === "vatRate") return `${taxName} Rate`;
+    if (field === "feesIncVat") return `Fees Inc ${taxName}`;
+    if (field === "vat") return `${taxName}`;
 
     // Default behavior
     return field
