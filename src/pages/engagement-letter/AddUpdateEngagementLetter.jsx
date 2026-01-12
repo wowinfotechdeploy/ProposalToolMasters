@@ -320,6 +320,62 @@ const BasicInformationComponent = (props) => {
                           props.setShowSeparatorLines(
                             selectedTemplate.showSeparatorLines
                           );
+                          props.updateVisibleFieldsFromIds(
+                            selectedTemplate.pricingTableColumnIDs
+                          );
+
+                          props.setServiceDescriptionObj((prev) => ({
+                            ...prev,
+                            mainHeading: selectedTemplate?.mainHeadingSD,
+                            recurringOnGoingHeading:
+                              selectedTemplate?.recurringOnGoingHeadingSD,
+                            oneOffAdhocHeading:
+                              selectedTemplate?.oneOffAdhocHeadingSD,
+                            mainHeadingFontSize:
+                              selectedTemplate?.mainHeadingFontSizeSD,
+                            recurringOnGoingHeadingFontSize:
+                              selectedTemplate?.recurringOnGoingHeadingFontSizeSD,
+                            oneOffAdhocFontSize:
+                              selectedTemplate?.oneOffAdhocFontSizeSD,
+                            mainHeadingIsBold:
+                              selectedTemplate?.mainHeadingIsBoldSD,
+                            mainHeadingIsItalic:
+                              selectedTemplate?.mainHeadingIsItalicSD,
+                            recurringOnGoingHeadingIsBold:
+                              selectedTemplate?.recurringOnGoingHeadingIsBoldSD,
+                            recurringOnGoingHeadingIsItalic:
+                              selectedTemplate?.recurringOnGoingHeadingIsItalicSD,
+                            oneOffAdhocHeadingIsBold:
+                              selectedTemplate?.oneOffAdhocHeadingIsBoldSD,
+                            oneOffAdhocHeadingIsItalic:
+                              selectedTemplate?.oneOffAdhocHeadingIsItalicSD,
+                          }));
+                          props.setStatementOfFactsObj((prev) => ({
+                            ...prev,
+                            mainHeading: selectedTemplate?.mainHeadingSOF,
+                            recurringOnGoingHeading:
+                              selectedTemplate?.recurringOnGoingHeadingSOF,
+                            oneOffAdhocHeading:
+                              selectedTemplate?.oneOffAdhocHeadingSOF,
+                            mainHeadingFontSize:
+                              selectedTemplate?.mainHeadingFontSizeSOF,
+                            recurringOnGoingHeadingFontSize:
+                              selectedTemplate?.recurringOnGoingHeadingFontSizeSOF,
+                            oneOffAdhocFontSize:
+                              selectedTemplate?.oneOffAdhocFontSizeSOF,
+                            mainHeadingIsBold:
+                              selectedTemplate?.mainHeadingIsBoldSOF,
+                            mainHeadingIsItalic:
+                              selectedTemplate?.mainHeadingIsItalicSOF,
+                            recurringOnGoingHeadingIsBold:
+                              selectedTemplate?.recurringOnGoingHeadingIsBoldSOF,
+                            recurringOnGoingHeadingIsItalic:
+                              selectedTemplate?.recurringOnGoingHeadingIsItalicSOF,
+                            oneOffAdhocHeadingIsBold:
+                              selectedTemplate?.oneOffAdhocHeadingIsBoldSOF,
+                            oneOffAdhocHeadingIsItalic:
+                              selectedTemplate?.oneOffAdhocHeadingIsItalicSOF,
+                          }));
                         }
                         props.setIsTemplateManuallySelected(true);
                       }}
@@ -372,6 +428,7 @@ const BasicInformationComponent = (props) => {
 };
 
 const ReviewServicesComponent = (props) => {
+  console.log(props.serviceDescriptionObj);
   const isInitialMount = useRef(true);
   const modifiedFeesType = Utils.feeInProposal.map((option) =>
     option.value === 1 && props.disableCondition
@@ -1732,10 +1789,9 @@ const ReviewServicesComponent = (props) => {
 
         ${
           SelectedPackage.oneOff.length
-            ? props?.statementOfFactsObj?.oneOffAdhocHeadingIsItalic !== null &&
-              props?.statementOfFactsObj?.oneOffAdhocHeadingIsItalic !==
-                undefined &&
-              props?.statementOfFactsObj?.oneOffAdhocHeadingIsItalic !== ""
+            ? props?.statementOfFactsObj?.oneOffAdhocHeading !== null &&
+              props?.statementOfFactsObj?.oneOffAdhocHeading !== undefined &&
+              props?.statementOfFactsObj?.oneOffAdhocHeading !== ""
               ? `<p style="font-size: ${fontSizeHeading}; color: ${newColorCode}; font-weight: ${
                   props?.statementOfFactsObj?.oneOffAdhocHeadingIsBold
                     ? "bold"
@@ -1901,10 +1957,9 @@ const ReviewServicesComponent = (props) => {
 
         ${
           props?.selectedOneOffServiceList?.length
-            ? props?.statementOfFactsObj?.oneOffAdhocHeadingIsItalic !== null &&
-              props?.statementOfFactsObj?.oneOffAdhocHeadingIsItalic !==
-                undefined &&
-              props?.statementOfFactsObj?.oneOffAdhocHeadingIsItalic !== ""
+            ? props?.statementOfFactsObj?.oneOffAdhocHeading !== null &&
+              props?.statementOfFactsObj?.oneOffAdhocHeading !== undefined &&
+              props?.statementOfFactsObj?.oneOffAdhocHeading !== ""
               ? `<p style="font-size: ${oneOffHeadingFontSize}; color: ${newColorCode}; font-weight: ${
                   props?.statementOfFactsObj?.oneOffAdhocHeadingIsBold
                     ? "bold"
@@ -12566,6 +12621,7 @@ const Add_Update_Engagement_Letter = () => {
         TemplateTypeID: 2,
         ModuleKeyID: engagementObj.contractKeyID,
       });
+      debugger;
       if (data?.data?.statusCode === 200) {
         setLoader(false);
         if (data?.data?.responseData?.data) {
@@ -13285,6 +13341,7 @@ const Add_Update_Engagement_Letter = () => {
   };
 
   const GetTemplateLookupListData = async (ClientId, QuoteId) => {
+    debugger;
     setLoader(true);
     try {
       const response = await GetTemplateListLookupList({
@@ -13315,7 +13372,7 @@ const Add_Update_Engagement_Letter = () => {
             ? item.pricingTableColumnIDs
             : "",
           mainHeadingSD: item.mainHeadingSD,
-          recurringOnGoingHeadingSD: item.mainHeadingSD,
+          recurringOnGoingHeadingSD: item.recurringOnGoingHeadingSD,
           oneOffAdhocHeadingSD: item.oneOffAdhocHeadingSD,
           mainHeadingFontSizeSD: item.mainHeadingFontSizeSD,
           recurringOnGoingHeadingFontSizeSD:
@@ -21172,6 +21229,8 @@ const Add_Update_Engagement_Letter = () => {
                   getFontNameById={getFontNameById}
                   setShowSeparatorLines={setShowSeparatorLines}
                   updateVisibleFieldsFromIds={updateVisibleFieldsFromIds}
+                  setStatementOfFactsObj={setStatementOfFactsObj}
+                  setServiceDescriptionObj={setServiceDescriptionObj}
                 />
               )}
               {activeTab === EngagementLetterHeader.SelectServices && (

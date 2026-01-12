@@ -3759,10 +3759,9 @@ const ReviewServicesComponent = (props) => {
 
         ${
           props?.selectedOneOffServiceList?.length
-            ? props?.statementOfFactsObj?.oneOffAdhocHeadingIsItalic !== null &&
-              props?.statementOfFactsObj?.oneOffAdhocHeadingIsItalic !==
-                undefined &&
-              props?.statementOfFactsObj?.oneOffAdhocHeadingIsItalic !== ""
+            ? props?.statementOfFactsObj?.oneOffAdhocHeading !== null &&
+              props?.statementOfFactsObj?.oneOffAdhocHeading !== undefined &&
+              props?.statementOfFactsObj?.oneOffAdhocHeading !== ""
               ? `<p style="font-size: ${oneOffHeadingFontSize}; color: ${newColorCode}; font-weight: ${
                   props?.statementOfFactsObj?.oneOffAdhocHeadingIsBold
                     ? "bold"
@@ -22800,7 +22799,7 @@ const Add_Update_Proposal = (props) => {
             ? item.pricingTableColumnIDs
             : "",
           mainHeadingSD: item.mainHeadingSD,
-          recurringOnGoingHeadingSD: item.mainHeadingSD,
+          recurringOnGoingHeadingSD: item.recurringOnGoingHeadingSD,
           oneOffAdhocHeadingSD: item.oneOffAdhocHeadingSD,
           mainHeadingFontSizeSD: item.mainHeadingFontSizeSD,
           recurringOnGoingHeadingFontSizeSD:
