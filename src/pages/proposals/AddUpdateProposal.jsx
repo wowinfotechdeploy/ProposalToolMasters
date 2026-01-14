@@ -2307,6 +2307,7 @@ const ReviewServicesComponent = (props) => {
   };
   //Handle Payment Frequency
   const handlePaymentFrequencyChange = (e) => {
+    debugger;
     props.DisableTabOnChange();
     setLastPaymentFrequencyAndDiscountedPrice({
       ...lastPaymentFrequencyAndDiscountedPrice,
@@ -19376,6 +19377,80 @@ const Add_Update_Proposal = (props) => {
 
             debugger;
 
+            let staticVATChangeFreq = 0;
+
+            if (ProposalObject.Payment_Frequency === 4) {
+              recArrayWithPrice.forEach((category) => {
+                category.servicesList.forEach((service) => {
+                  // Half the VAT amount
+                  if (
+                    service.service_vat_amount !== undefined &&
+                    service.service_vat_amount !== null
+                  ) {
+                    const selectedFreqVAT = Number(
+                      service.service_vat_amount / 12
+                    );
+                    service.service_vat_amount = selectedFreqVAT.toFixed(2);
+
+                    // total VAT
+                    staticVATChangeFreq += selectedFreqVAT;
+                  }
+                });
+              });
+            } else if (ProposalObject.Payment_Frequency === 3) {
+              recArrayWithPrice.forEach((category) => {
+                category.servicesList.forEach((service) => {
+                  // Half the VAT amount
+                  if (
+                    service.service_vat_amount !== undefined &&
+                    service.service_vat_amount !== null
+                  ) {
+                    const selectedFreqVAT = Number(
+                      service.service_vat_amount / 4
+                    );
+                    service.service_vat_amount = selectedFreqVAT.toFixed(2);
+
+                    // total VAT
+                    staticVATChangeFreq += selectedFreqVAT;
+                  }
+                });
+              });
+            } else if (ProposalObject.Payment_Frequency === 2) {
+              recArrayWithPrice.forEach((category) => {
+                category.servicesList.forEach((service) => {
+                  // Half the VAT amount
+                  if (
+                    service.service_vat_amount !== undefined &&
+                    service.service_vat_amount !== null
+                  ) {
+                    const selectedFreqVAT = Number(
+                      service.service_vat_amount / 2
+                    );
+                    service.service_vat_amount = selectedFreqVAT.toFixed(2);
+
+                    // total VAT
+                    staticVATChangeFreq += selectedFreqVAT;
+                  }
+                });
+              });
+            } else if (ProposalObject.Payment_Frequency === 1) {
+              recArrayWithPrice.forEach((category) => {
+                category.servicesList.forEach((service) => {
+                  // Half the VAT amount
+                  if (
+                    service.service_vat_amount !== undefined &&
+                    service.service_vat_amount !== null
+                  ) {
+                    const selectedFreqVAT = Number(service.service_vat_amount);
+                    service.service_vat_amount = selectedFreqVAT.toFixed(2);
+
+                    // total VAT
+                    staticVATChangeFreq += selectedFreqVAT;
+                  }
+                });
+              });
+            }
+
             recArrayWithPrice.forEach((category) => {
               category.servicesList.forEach((service) => {
                 // Initialize servicePackageIDs if it's not already an array
@@ -20054,6 +20129,8 @@ const Add_Update_Proposal = (props) => {
                 }
               }
 
+              debugger;
+
               //OneOff Package discount 3
               if (
                 PackageList[2].oneOffOriginalPrice !== null ||
@@ -20207,15 +20284,14 @@ const Add_Update_Proposal = (props) => {
               recMaxDiscountCopy = RecurringPricingInfo.MaxDiscount;
             }
 
-            debugger;
-
             // ✅ Calculate total VAT for all selected services in all categories
             const totalVATAmount = recArrayWithPrice.reduce(
               (catSum, category) => {
                 const serviceSum = category.servicesList
                   .filter((service) => service.isSelected)
                   .reduce(
-                    (sum, service) => sum + (service.service_vat_amount || 0),
+                    (sum, service) =>
+                      Number(sum) + Number(service.service_vat_amount || 0),
                     0
                   );
                 return catSum + serviceSum;
@@ -20241,8 +20317,6 @@ const Add_Update_Proposal = (props) => {
               (Number(totalVATAmount) / Number(recOriginalPrice)) * 100;
 
             setVATPercentage(ServiceWiseVAT);
-
-            debugger;
 
             const packageOneVATPercentage =
               (Number(totalVATOne) / Number(totalOne)) * 100;
@@ -23417,6 +23491,8 @@ const Add_Update_Proposal = (props) => {
       });
       const packageLookUpList = response.data;
 
+      debugger;
+
       const data = await GetProposalModel(id);
       if (data?.data?.statusCode === 200) {
         setLoader(false);
@@ -23435,6 +23511,12 @@ const Add_Update_Proposal = (props) => {
           );
 
           const ModelData = data?.data?.responseData?.data;
+          const recurringServiceVat = ModelData.quotationFinalAmountList.find(
+            (item) => item.serviceChargeTypeID === 1
+          ).vat;
+          const oneOffServiceVat = ModelData.quotationFinalAmountList.find(
+            (item) => item.serviceChargeTypeID === 2
+          ).vat;
           if (ModelData.servicePackageID !== null) {
             const SelectedPackageDetails = ModelData.servicePackageID.map(
               (PackageID) => {
@@ -23520,6 +23602,7 @@ const Add_Update_Proposal = (props) => {
               ...RecurringPricingInfo,
               OriginalPrice: ModelData.recurringOriginalPrice,
               serviceWiseVATPrice: ModelData.recVATPrice,
+              totalServiceWiseVAT: recurringServiceVat,
               DefaultDiscount: recDefaultDiscount,
               DiscountedPrice: Number(ModelData.recurringDiscountedPrice),
             });
@@ -23529,12 +23612,14 @@ const Add_Update_Proposal = (props) => {
               OriginalPrice: ModelData.recurringOriginalPrice_WithAllDecimal,
               DefaultDiscount: PercentageWithDecimal,
               DiscountedPrice: Number(ModelData.recurringDiscountedPrice),
+              totalServiceWiseVAT: recurringServiceVat,
             });
             setOneOffPricingInfo({
               ...OneOffPricingInfo,
               OriginalPrice: ModelData.oneOffOriginalPrice,
               DefaultDiscount: OneOffDefaultDiscount,
               DiscountedPrice: Number(ModelData.oneOffDiscountedPrice),
+              totalServiceWiseVATOneOff: oneOffServiceVat,
             });
             setOneOffPricingInfoCopy({
               ...OneOffPricingInfoCopy,
@@ -23542,6 +23627,7 @@ const Add_Update_Proposal = (props) => {
               DefaultDiscount:
                 ModelData.oneOffDiscountPercentage_WithAllDecimal,
               DiscountedPrice: ModelData.oneOffDiscountedPrice,
+              totalServiceWiseVATOneOff: oneOffServiceVat,
             });
           }
 
