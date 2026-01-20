@@ -61,6 +61,7 @@ function AcceptInvitation() {
   const [FooterHeight, setFooterHeight] = useState(null);
   const [HeaderImage, setHeaderImage] = useState(null);
   const [FooterImage, setFooterImage] = useState(null);
+  const [orgkeyId, setOrgkeyId] = useState("");
   const imgTag = `<img src="${BrandLogo}" alt="Logo" style="display: none; margin: 0 auto 15px;">`;
 
   const [contractSignatoriesList, setContractSignatoriesList] = useState([]);
@@ -85,7 +86,7 @@ function AcceptInvitation() {
 
   useEffect(() => {
     setTopbar("none");
-    GetTemplateLookupListData(quoteKeyID);
+    GetTemplateLookupListData(quoteKeyID,common.organisationKeyID);
     //  GetTemplateModalData()
     GenerateContractFromProposalData();
     // GetOrganisationInformationModelData()
@@ -1779,12 +1780,12 @@ function AcceptInvitation() {
     }
   }, [generatePdfData, organisationData]);
 
-  const GetTemplateLookupListData = async (ClientId, QuoteId) => {
+  const GetTemplateLookupListData = async (QuoteId, OrganisationKeyID) => {
     setLoader(true);
     try {
       const response = await GetTemplateListLookupList({
         TemplateTypeID: 2,
-        organisationKeyID: common.organisationKeyID,
+        organisationKeyID: common.organisationKeyID === "" ? OrganisationKeyID : common.organisationKeyID,
         QuoteKeyID: quoteKeyID,
       });
       const data = response.data;
@@ -2171,14 +2172,15 @@ function AcceptInvitation() {
               currencyID: ModelData.organisationDetails?.currencyID,
             },
           ];
-
+          setOrgkeyId(ModelData.organisationDetails.organisationKeyID);
+          console.log(ModelData.organisationDetails.organisationKeyID);
           // // Set updated organization data
           setOrganisationData({
             otherInformation: updatedOtherInformation,
           });
           setChargeTypeId1Array(chargeTypeId1Array);
           setChargeTypeId2Array(chargeTypeId2Array);
-          await GetTemplateLookupListData(ModelData.quoteKeyID);
+          await GetTemplateLookupListData(ModelData.quoteKeyID,ModelData.organisationDetails.organisationKeyID);
           GetTemplateModalData(
             ModelData.templateKeyID,
             ModelData.clientID,
