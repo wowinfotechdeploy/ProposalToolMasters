@@ -63,6 +63,38 @@ function AcceptInvitation() {
   const [FooterImage, setFooterImage] = useState(null);
   const [orgkeyId, setOrgkeyId] = useState("");
   const imgTag = `<img src="${BrandLogo}" alt="Logo" style="display: none; margin: 0 auto 15px;">`;
+  const [serviceDescriptionObj, setServiceDescriptionObj] = useState({
+    mainHeading: null,
+    recurringOnGoingHeading: null,
+    oneOffAdhocHeading: null,
+    mainHeadingFontSize: null,
+    recurringOnGoingHeadingFontSize: null,
+    oneOffAdhocFontSize: null,
+    mainHeadingIsBold: null,
+    mainHeadingIsItalic: null,
+    recurringOnGoingHeadingIsBold: null,
+    recurringOnGoingHeadingIsItalic: null,
+    oneOffAdhocHeadingIsBold: null,
+    oneOffAdhocHeadingIsItalic: null,
+  });
+
+  const [statementOfFactsObj, setStatementOfFactsObj] = useState({
+    mainHeading: null,
+    recurringOnGoingHeading: null,
+    oneOffAdhocHeading: null,
+    mainHeadingFontSize: null,
+    recurringOnGoingHeadingFontSize: null,
+    oneOffAdhocFontSize: null,
+    mainHeadingIsBold: null,
+    mainHeadingIsItalic: null,
+    recurringOnGoingHeadingIsBold: null,
+    recurringOnGoingHeadingIsItalic: null,
+    oneOffAdhocHeadingIsBold: null,
+    oneOffAdhocHeadingIsItalic: null,
+  });
+
+  const [statementOfFactsHTML, setStatementOfFactsHTML] = useState("");
+  const [serviceDescriptionHTML, setServiceDescriptionHTML] = useState("");
 
   const [contractSignatoriesList, setContractSignatoriesList] = useState([]);
   const [finalQuotationAmountList, setFinalQuotationAmountList] = useState([]);
@@ -86,7 +118,7 @@ function AcceptInvitation() {
 
   useEffect(() => {
     setTopbar("none");
-    GetTemplateLookupListData(quoteKeyID,common.organisationKeyID);
+    GetTemplateLookupListData(quoteKeyID, common.organisationKeyID);
     //  GetTemplateModalData()
     GenerateContractFromProposalData();
     // GetOrganisationInformationModelData()
@@ -300,27 +332,27 @@ function AcceptInvitation() {
       currencyID === 1
         ? "VAT"
         : currencyID === 2
-        ? "EU VAT"
-        : currencyID === 3
-        ? "Salex Tax"
-        : currencyID === 4
-        ? "GST"
-        : "";
+          ? "EU VAT"
+          : currencyID === 3
+            ? "Salex Tax"
+            : currencyID === 4
+              ? "GST"
+              : "";
     const currencySymbol =
       currencyID === 1
         ? "£"
         : currencyID === 2
-        ? "€"
-        : currencyID === 3
-        ? "$"
-        : currencyID === 4
-        ? "₹"
-        : "";
+          ? "€"
+          : currencyID === 3
+            ? "$"
+            : currencyID === 4
+              ? "₹"
+              : "";
     if (templateElementList) {
       const pdfDataArray = [];
       let currentArray = [];
       let TermAndConditionAddedOrNot = templateElementList.some(
-        (item) => item.templateElementTypeID === 11
+        (item) => item.templateElementTypeID === 11,
       );
       let prevElementType = null;
       templateElementList.forEach((element) => {
@@ -355,151 +387,155 @@ function AcceptInvitation() {
               currentArray = [];
             }
             currentArray.push({
-              textbox: ` ${imgTag}<div style="padding-left: 40px; padding-right: 40px;margin-top: 10px"> 
-                ${serviceDescriptionList
-                  .map(
-                    (serviceCat) => `
-                      <div>
-                          <p style="font-family:${fontFamily};color: black; font-size: ${fontSizeHeading}; font-weight: bold;">
-                              ${serviceCat.serviceCatName}
-                          </p>
-                          <hr style="color: gray; margin-top: -15px;">
-                          ${serviceCat.servicesList
-                            .map(
-                              (subService) => `
-                              <p style="font-family:${fontFamily}; color:black; font-size: ${fontSize};">
-                                  ${subService.serviceName}
-                              </p>
-                              ${
-                                subService?.gpdList !== null
-                                  ? subService?.gpdList
-                                      .filter((item) => item.driverTypeID !== 1)
-                                      ?.map(
-                                        (pricingDriver) => `
-                                <li style="font-family:${fontFamily}; color:black; font-size: ${fontSize}; margin-top:5px;">
-                                ${pricingDriver.driverName}: 
-                                <span style="">
-                                     <strong> ${
-                                       //formatValue(pricingDriver.driverValue)
-                                       pricingDriver.driverTypeID === 2
-                                         ? Number(pricingDriver.driverValue)
-                                             .toFixed(
-                                               pricingDriver.quantityDecimalPlaces ??
-                                                 2
-                                             )
-                                             .toString()
-                                             .replace(
-                                               /\B(?=(\d{3})+(?!\d))/g,
-                                               ","
-                                             )
-                                         : pricingDriver.driverTypeID === 3
-                                         ? pricingDriver.variationName
-                                         : pricingDriver.driverTypeID === 4
-                                         ? pricingDriver.slabTypeID === 2
-                                           ? formatValueWithoutCurrencySymbol(
-                                               pricingDriver.driverValue
-                                             )
-                                           : Number(pricingDriver.slabFrom)
-                                               .toFixed(
-                                                 pricingDriver.decimalPlaces ??
-                                                   2
-                                               )
-                                               .toString()
-                                               .replace(
-                                                 /\B(?=(\d{3})+(?!\d))/g,
-                                                 ","
-                                               ) +
-                                             "-" +
-                                             Number(pricingDriver.slabTo)
-                                               .toFixed(
-                                                 pricingDriver.decimalPlaces ??
-                                                   2
-                                               )
-                                               .toString()
-                                               .replace(
-                                                 /\B(?=(\d{3})+(?!\d))/g,
-                                                 ","
-                                               )
-                                         : pricingDriver.driverTypeID === 5
-                                         ? pricingDriver?.enteredText
-                                         : pricingDriver.driverTypeID === 6
-                                         ? pricingDriver?.enteredDate
-                                         : ""
-                                     }</strong>
-                                </span> 
-                            </li>
-                              `
-                                      )
-                                      .join("")
-                                  : ``
-                              }
-                          `
-                            )
-                            .join("")}
-                      </div>
-                  `
-                  )
-                  .join("")}
-                                        ${
-                                          AdditionalInformation?.length > 0
-                                            ? `<p style="font-family:${fontFamily}; color: ${BrandColor}; font-size: ${fontSizeHeading}; font-weight: bold;">
-        Additional Information
-    </p>
-    <hr style="color: gray; margin-top: -15px;" />` +
-                                              AdditionalInformation.filter(
-                                                (item) =>
-                                                  item.driverTypeID !== 1
-                                              )
-                                                .map(
-                                                  (serviceCat) => `
-        <div>
-            <p style="font-family:${fontFamily}; color:black; font-size: ${fontSize};">
-                ${serviceCat.driverName}:
-                ${
-                  serviceCat.driverTypeID === 4
-                    ? serviceCat.slabTypeID === 2
-                      ? `<strong>${formatValueWithoutCurrencySymbol_v1(
-                          serviceCat.driverValue
-                        )}</strong>`
-                      : `<strong>
-                  ${formatValueWithoutCurrencySymbol_v1(
-                    serviceCat.slabFrom,
-                    serviceCat.decimalPlaces ?? 2
-                  )}
-                  -
-                  ${formatValueWithoutCurrencySymbol_v1(
-                    serviceCat.slabTo,
-                    serviceCat.decimalPlaces ?? 2
-                  )}
-                  </strong>`
-                    : serviceCat.driverTypeID === 3
-                    ? `<strong>${serviceCat.variationName}</strong>`
-                    : serviceCat.driverTypeID === 5
-                    ? `<strong>${serviceCat.enteredText}</strong>`
-                    : serviceCat.driverTypeID === 6
-                    ? `<strong>${serviceCat.enteredDate}</strong>`
-                    : `${
-                        serviceCat.driverName
-                      }: <strong>${formatValueWithoutCurrencySymbol_v1(
-                        serviceCat.driverValue
-                      )}</strong>`
-                }
-            </p>
-        </div>
-    `
-                                                )
-                                                .join("")
-                                            : ""
-                                        }
-
-                  </div>`,
+              textbox: statementOfFactsHTML,
             });
+            //         currentArray.push({
+            //           textbox: ` ${imgTag}<div style="padding-left: 40px; padding-right: 40px;margin-top: 10px">
+            //             ${serviceDescriptionList
+            //               .map(
+            //                 (serviceCat) => `
+            //                   <div>
+            //                       <p style="font-family:${fontFamily};color: black; font-size: ${fontSizeHeading}; font-weight: bold;">
+            //                           ${serviceCat.serviceCatName}
+            //                       </p>
+            //                       <hr style="color: gray; margin-top: -15px;">
+            //                       ${serviceCat.servicesList
+            //                         .map(
+            //                           (subService) => `
+            //                           <p style="font-family:${fontFamily}; color:black; font-size: ${fontSize};">
+            //                               ${subService.serviceName}
+            //                           </p>
+            //                           ${
+            //                             subService?.gpdList !== null
+            //                               ? subService?.gpdList
+            //                                   .filter((item) => item.driverTypeID !== 1)
+            //                                   ?.map(
+            //                                     (pricingDriver) => `
+            //                             <li style="font-family:${fontFamily}; color:black; font-size: ${fontSize}; margin-top:5px;">
+            //                             ${pricingDriver.driverName}:
+            //                             <span style="">
+            //                                  <strong> ${
+            //                                    //formatValue(pricingDriver.driverValue)
+            //                                    pricingDriver.driverTypeID === 2
+            //                                      ? Number(pricingDriver.driverValue)
+            //                                          .toFixed(
+            //                                            pricingDriver.quantityDecimalPlaces ??
+            //                                              2,
+            //                                          )
+            //                                          .toString()
+            //                                          .replace(
+            //                                            /\B(?=(\d{3})+(?!\d))/g,
+            //                                            ",",
+            //                                          )
+            //                                      : pricingDriver.driverTypeID === 3
+            //                                        ? pricingDriver.variationName
+            //                                        : pricingDriver.driverTypeID === 4
+            //                                          ? pricingDriver.slabTypeID === 2
+            //                                            ? formatValueWithoutCurrencySymbol(
+            //                                                pricingDriver.driverValue,
+            //                                              )
+            //                                            : Number(pricingDriver.slabFrom)
+            //                                                .toFixed(
+            //                                                  pricingDriver.decimalPlaces ??
+            //                                                    2,
+            //                                                )
+            //                                                .toString()
+            //                                                .replace(
+            //                                                  /\B(?=(\d{3})+(?!\d))/g,
+            //                                                  ",",
+            //                                                ) +
+            //                                              "-" +
+            //                                              Number(pricingDriver.slabTo)
+            //                                                .toFixed(
+            //                                                  pricingDriver.decimalPlaces ??
+            //                                                    2,
+            //                                                )
+            //                                                .toString()
+            //                                                .replace(
+            //                                                  /\B(?=(\d{3})+(?!\d))/g,
+            //                                                  ",",
+            //                                                )
+            //                                          : pricingDriver.driverTypeID === 5
+            //                                            ? pricingDriver?.enteredText
+            //                                            : pricingDriver.driverTypeID ===
+            //                                                6
+            //                                              ? pricingDriver?.enteredDate
+            //                                              : ""
+            //                                  }</strong>
+            //                             </span>
+            //                         </li>
+            //                           `,
+            //                                   )
+            //                                   .join("")
+            //                               : ``
+            //                           }
+            //                       `,
+            //                         )
+            //                         .join("")}
+            //                   </div>
+            //               `,
+            //               )
+            //               .join("")}
+            //                                     ${
+            //                                       AdditionalInformation?.length > 0
+            //                                         ? `<p style="font-family:${fontFamily}; color: ${BrandColor}; font-size: ${fontSizeHeading}; font-weight: bold;">
+            //     Additional Information
+            // </p>
+            // <hr style="color: gray; margin-top: -15px;" />` +
+            //                                           AdditionalInformation.filter(
+            //                                             (item) =>
+            //                                               item.driverTypeID !== 1,
+            //                                           )
+            //                                             .map(
+            //                                               (serviceCat) => `
+            //     <div>
+            //         <p style="font-family:${fontFamily}; color:black; font-size: ${fontSize};">
+            //             ${serviceCat.driverName}:
+            //             ${
+            //               serviceCat.driverTypeID === 4
+            //                 ? serviceCat.slabTypeID === 2
+            //                   ? `<strong>${formatValueWithoutCurrencySymbol_v1(
+            //                       serviceCat.driverValue,
+            //                     )}</strong>`
+            //                   : `<strong>
+            //               ${formatValueWithoutCurrencySymbol_v1(
+            //                 serviceCat.slabFrom,
+            //                 serviceCat.decimalPlaces ?? 2,
+            //               )}
+            //               -
+            //               ${formatValueWithoutCurrencySymbol_v1(
+            //                 serviceCat.slabTo,
+            //                 serviceCat.decimalPlaces ?? 2,
+            //               )}
+            //               </strong>`
+            //                 : serviceCat.driverTypeID === 3
+            //                   ? `<strong>${serviceCat.variationName}</strong>`
+            //                   : serviceCat.driverTypeID === 5
+            //                     ? `<strong>${serviceCat.enteredText}</strong>`
+            //                     : serviceCat.driverTypeID === 6
+            //                       ? `<strong>${serviceCat.enteredDate}</strong>`
+            //                       : `${
+            //                           serviceCat.driverName
+            //                         }: <strong>${formatValueWithoutCurrencySymbol_v1(
+            //                           serviceCat.driverValue,
+            //                         )}</strong>`
+            //             }
+            //         </p>
+            //     </div>
+            // `,
+            //                                             )
+            //                                             .join("")
+            //                                         : ""
+            //                                     }
+
+            //               </div>`,
+            //         });
 
             break;
           case ElementType.TEXT_BLOCK:
             const appliedFontContent = setDefaultFontFamily(
               element.htmlContent,
-              fontFamily
+              fontFamily,
             );
             if (
               prevElementType !== ElementType.PAGE_BREAK &&
@@ -552,10 +588,10 @@ function AcceptInvitation() {
               organisationData?.otherInformation?.[0]?.signatureImageUrl;
 
             let rightSignatureList = contractSignatoriesList.filter(
-              (x) => x.signaturePositionID === 1 && x.officerType === null
+              (x) => x.signaturePositionID === 1 && x.officerType === null,
             );
             let leftSignatureList = contractSignatoriesList.filter(
-              (x) => x.signaturePositionID === 2 && x.officerType === null
+              (x) => x.signaturePositionID === 2 && x.officerType === null,
             );
             let contractSignatoryRowNoForOfficer =
               contractSignatoriesList.filter((x) => x.officerType !== null);
@@ -578,7 +614,7 @@ function AcceptInvitation() {
             let htmlContentForSignatories = "";
             let loopCount = Math.max(
               rightSignatureList.length,
-              leftSignatureList.length
+              leftSignatureList.length,
             );
 
             let orgSignatureInserted = false;
@@ -698,7 +734,7 @@ function AcceptInvitation() {
               currentArray.push({
                 table: packageList.map(
                   (selectedPackagesData) =>
-                    ` ${imgTag}<div style="padding-left: 40px; padding-right: 40px; color:${BrandColor}; font-size: 30px;">Package :${selectedPackagesData.servicePackageName} </div>`
+                    ` ${imgTag}<div style="padding-left: 40px; padding-right: 40px; color:${BrandColor}; font-size: 30px;">Package :${selectedPackagesData.servicePackageName} </div>`,
                 ),
               });
 
@@ -715,7 +751,7 @@ function AcceptInvitation() {
                                         (selectedPackagesData) => `
                                       <th style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; font-size: 18px;">
                                         ${selectedPackagesData.servicePackageName}
-                                      </th>`
+                                      </th>`,
                                       )
                                       .join("")}
                                   </tr>
@@ -739,15 +775,15 @@ function AcceptInvitation() {
                                    feeTypeId == 1
                                      ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;"> ${formatValue(
                                          subService.quotationPrice,
-                                         currencyID
+                                         currencyID,
                                        )}</td>`
                                      : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
                                  }
 
-                                      </tr>`
+                                      </tr>`,
                                       )
                                       .join("")}
-                                  `
+                                  `,
                                     )
                                     .join("")}
                                   <tr style="background-color:#808080;">
@@ -760,7 +796,8 @@ function AcceptInvitation() {
                                             (x) =>
                                               x.serviceChargeTypeID === 1 &&
                                               x.servicePackageID ===
-                                                packageList[0]?.servicePackageID
+                                                packageList[0]
+                                                  ?.servicePackageID,
                                           )
                                           .map((x) =>
                                             x.netTotal < x.discountedTotal ||
@@ -768,12 +805,12 @@ function AcceptInvitation() {
                                               !ShowDiscountLine)
                                               ? formatValue(
                                                   x.discountedTotal,
-                                                  currencyID
+                                                  currencyID,
                                                 )
                                               : formatValue(
                                                   x.netTotal,
-                                                  currencyID
-                                                )
+                                                  currencyID,
+                                                ),
                                           )
                                           .join("")}
                                     </td>
@@ -782,7 +819,7 @@ function AcceptInvitation() {
                                     finalQuotationAmountList.some(
                                       (x) =>
                                         x.serviceChargeTypeID === 1 &&
-                                        x.discounted > 0
+                                        x.discounted > 0,
                                     ) && ShowDiscountLine
                                       ? `
                                     <tr style="background-color: #DCDCDC;">
@@ -795,13 +832,14 @@ function AcceptInvitation() {
                                             (x) =>
                                               x.serviceChargeTypeID === 1 &&
                                               x.servicePackageID ===
-                                                packageList[0]?.servicePackageID
+                                                packageList[0]
+                                                  ?.servicePackageID,
                                           )
                                           .map((x) =>
                                             formatValue(
                                               x.discounted,
-                                              currencyID
-                                            )
+                                              currencyID,
+                                            ),
                                           )
                                           .join("")}
                                       </td>
@@ -816,13 +854,13 @@ function AcceptInvitation() {
                                            (x) =>
                                              x.serviceChargeTypeID === 1 &&
                                              x.servicePackageID ===
-                                               packageList[0]?.servicePackageID
+                                               packageList[0]?.servicePackageID,
                                          )
                                          .map((x) =>
                                            formatValue(
                                              x.discountedTotal,
-                                             currencyID
-                                           )
+                                             currencyID,
+                                           ),
                                          )
                                          .join("")}
                                     </td>
@@ -833,7 +871,7 @@ function AcceptInvitation() {
                                        finalQuotationAmountList.some(
                                          (x) =>
                                            x.serviceChargeTypeID === 1 &&
-                                           x.vat > 0
+                                           x.vat > 0,
                                        )
                                          ? `
                                   <tr style="background-color: #DCDCDC;">
@@ -846,10 +884,10 @@ function AcceptInvitation() {
                                            (x) =>
                                              x.serviceChargeTypeID === 1 &&
                                              x.servicePackageID ===
-                                               packageList[0]?.servicePackageID
+                                               packageList[0]?.servicePackageID,
                                          )
                                          .map((x) =>
-                                           formatValue(x.vat, currencyID)
+                                           formatValue(x.vat, currencyID),
                                          )
                                          .join("")}
                                     </td>
@@ -864,10 +902,13 @@ function AcceptInvitation() {
                                            (x) =>
                                              x.serviceChargeTypeID === 1 &&
                                              x.servicePackageID ===
-                                               packageList[0]?.servicePackageID
+                                               packageList[0]?.servicePackageID,
                                          )
                                          .map((x) =>
-                                           formatValue(x.grandTotal, currencyID)
+                                           formatValue(
+                                             x.grandTotal,
+                                             currencyID,
+                                           ),
                                          )
                                          .join("")}
                                     </td>
@@ -894,7 +935,7 @@ function AcceptInvitation() {
                                         (selectedPackagesData) => `
                                       <th style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; font-size: 18px;">
                                         ${selectedPackagesData.servicePackageName}
-                                      </th>`
+                                      </th>`,
                                       )
                                       .join("")}
                                   </tr>
@@ -918,15 +959,15 @@ function AcceptInvitation() {
                                           feeTypeId == 1
                                             ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;"> ${formatValue(
                                                 subService.quotationPrice,
-                                                currencyID
+                                                currencyID,
                                               )}</td>`
                                             : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
                                         }
 
-                                      </tr>`
+                                      </tr>`,
                                       )
                                       .join("")}
-                                  `
+                                  `,
                                     )
                                     .join("")}
                                   <tr style="background-color:#808080;">
@@ -939,16 +980,19 @@ function AcceptInvitation() {
                                          (x) =>
                                            x.serviceChargeTypeID === 2 &&
                                            x.servicePackageID ===
-                                             packageList[0]?.servicePackageID
+                                             packageList[0]?.servicePackageID,
                                        )
                                        .map((x) =>
                                          x.netTotal < x.discountedTotal ||
                                          (x.discounted > 0 && !ShowDiscountLine)
                                            ? formatValue(
                                                x.discountedTotal,
-                                               currencyID
+                                               currencyID,
                                              )
-                                           : formatValue(x.netTotal, currencyID)
+                                           : formatValue(
+                                               x.netTotal,
+                                               currencyID,
+                                             ),
                                        )
                                        .join("")}
                                     </td>
@@ -957,7 +1001,7 @@ function AcceptInvitation() {
                                      finalQuotationAmountList.some(
                                        (x) =>
                                          x.serviceChargeTypeID === 2 &&
-                                         x.discounted > 0
+                                         x.discounted > 0,
                                      ) && ShowDiscountLine
                                        ? `
                                     <tr style="background-color: #DCDCDC;">
@@ -970,13 +1014,14 @@ function AcceptInvitation() {
                                             (x) =>
                                               x.serviceChargeTypeID === 2 &&
                                               x.servicePackageID ===
-                                                packageList[0]?.servicePackageID
+                                                packageList[0]
+                                                  ?.servicePackageID,
                                           )
                                           .map((x) =>
                                             formatValue(
                                               x.discounted,
-                                              currencyID
-                                            )
+                                              currencyID,
+                                            ),
                                           )
                                           .join("")}
                                       </td>
@@ -991,13 +1036,13 @@ function AcceptInvitation() {
                                            (x) =>
                                              x.serviceChargeTypeID === 2 &&
                                              x.servicePackageID ===
-                                               packageList[0]?.servicePackageID
+                                               packageList[0]?.servicePackageID,
                                          )
                                          .map((x) =>
                                            formatValue(
                                              x.discountedTotal,
-                                             currencyID
-                                           )
+                                             currencyID,
+                                           ),
                                          )
                                          .join("")}
                                     </td>
@@ -1008,7 +1053,7 @@ function AcceptInvitation() {
                                        finalQuotationAmountList.some(
                                          (x) =>
                                            x.serviceChargeTypeID === 2 &&
-                                           x.vat > 0
+                                           x.vat > 0,
                                        )
                                          ? `
                                   <tr style="background-color: #DCDCDC;">
@@ -1021,10 +1066,10 @@ function AcceptInvitation() {
                                            (x) =>
                                              x.serviceChargeTypeID === 2 &&
                                              x.servicePackageID ===
-                                               packageList[0]?.servicePackageID
+                                               packageList[0]?.servicePackageID,
                                          )
                                          .map((x) =>
-                                           formatValue(x.vat, currencyID)
+                                           formatValue(x.vat, currencyID),
                                          )
                                          .join("")}
                                     </td>
@@ -1039,10 +1084,13 @@ function AcceptInvitation() {
                                            (x) =>
                                              x.serviceChargeTypeID === 2 &&
                                              x.servicePackageID ===
-                                               packageList[0]?.servicePackageID
+                                               packageList[0]?.servicePackageID,
                                          )
                                          .map((x) =>
-                                           formatValue(x.grandTotal, currencyID)
+                                           formatValue(
+                                             x.grandTotal,
+                                             currencyID,
+                                           ),
                                          )
                                          .join("")}
                                     </td>
@@ -1085,14 +1133,14 @@ function AcceptInvitation() {
                                             feeTypeId == 1
                                               ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;"> ${formatValue(
                                                   subService.quotationPrice,
-                                                  currencyID
+                                                  currencyID,
                                                 )}</td>`
                                               : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
                                           }
-                                  </tr>`
+                                  </tr>`,
                                   )
                                   .join("")}
-                              `
+                              `,
                                 )
                                 .join("")}
                               ${ChargeTypeId1Array.map(
@@ -1108,11 +1156,11 @@ function AcceptInvitation() {
                                          !ShowDiscountLine)
                                          ? formatValue(
                                              value.discountedTotal,
-                                             currencyID
+                                             currencyID,
                                            )
                                          : formatValue(
                                              value.netTotal,
-                                             currencyID
+                                             currencyID,
                                            )
                                      }
                                   </td>
@@ -1129,7 +1177,7 @@ function AcceptInvitation() {
                                     <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: black;">
                                       (-)  ${formatValue(
                                         value?.discounted,
-                                        currencyID
+                                        currencyID,
                                       )}
                                     </td>
                                   </tr>
@@ -1140,7 +1188,7 @@ function AcceptInvitation() {
                                     <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
                                        ${formatValue(
                                          value?.discountedTotal,
-                                         currencyID
+                                         currencyID,
                                        )}
                                     </td>
                                   </tr>`
@@ -1164,13 +1212,13 @@ function AcceptInvitation() {
                                     <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
                                        ${formatValue(
                                          value?.grandTotal,
-                                         currencyID
+                                         currencyID,
                                        )}
                                     </td>
                                   </tr>`
                                     : ""
                                 }
-                              `
+                              `,
                               ).join("")}
                             </table>
                           </div>
@@ -1209,14 +1257,14 @@ function AcceptInvitation() {
                                             feeTypeId == 1
                                               ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;"> ${formatValue(
                                                   subService.quotationPrice,
-                                                  currencyID
+                                                  currencyID,
                                                 )}</td>`
                                               : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
                                           }
-                                  </tr>`
+                                  </tr>`,
                                         )
                                         .join("")}
-                                    `
+                                    `,
                                       )
                                       .join("")}
                                     ${ChargeTypeId2Array.map(
@@ -1233,11 +1281,11 @@ function AcceptInvitation() {
                                                !ShowDiscountLine)
                                                ? formatValue(
                                                    value.discountedTotal,
-                                                   currencyID
+                                                   currencyID,
                                                  )
                                                : formatValue(
                                                    value.netTotal,
-                                                   currencyID
+                                                   currencyID,
                                                  )
                                            }
                                         </td>
@@ -1254,7 +1302,7 @@ function AcceptInvitation() {
                                           <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: black;">
                                             (-)  ${formatValue(
                                               value.discounted,
-                                              currencyID
+                                              currencyID,
                                             )}
                                           </td>
                                         </tr>
@@ -1265,7 +1313,7 @@ function AcceptInvitation() {
                                           <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
                                              ${formatValue(
                                                value.discountedTotal,
-                                               currencyID
+                                               currencyID,
                                              )}
                                           </td>
                                         </tr>`
@@ -1282,7 +1330,7 @@ function AcceptInvitation() {
                                           <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: black;">
                                              ${formatValue(
                                                value.vat,
-                                               currencyID
+                                               currencyID,
                                              )}
                                           </td>
                                         </tr>
@@ -1293,13 +1341,13 @@ function AcceptInvitation() {
                                           <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
                                              ${formatValue(
                                                value.grandTotal,
-                                               currencyID
+                                               currencyID,
                                              )}
                                           </td>
                                         </tr>`
                                           : ""
                                       }
-                                    `
+                                    `,
                                     ).join("")}
                                   </table>
                                 </div>
@@ -1315,44 +1363,46 @@ function AcceptInvitation() {
               prevElementType !== ElementType.AWS_PDF_LINK
             ) {
               currentArray.push({
-                textbox: ` ${imgTag}<div style="padding-left: 40px; padding-right: 40px;margin-top: 10px">                
-                                ${serviceDescriptionList
-                                  .map(
-                                    (serviceCat) => `
-                      <div>
-                          <p style="font-family:${fontFamily};font-size: ${fontSizeHeading};color: black;font-weight: bold;">
-                              ${serviceCat.serviceCatName}
-                          </p>
-                          <hr style="color: gray; margin-top:-5px;">
-                          ${serviceCat.servicesList
-                            .map(
-                              (subService) => `
-                              <p style="font-family:${fontFamily}; color:black; font-size: ${fontSize}; ">
-                                  ${subService.serviceName}
-                              </p>
-                              <p>
-                                 
-                              ${
-                                subService.description === null ||
-                                subService.description === undefined ||
-                                subService.description === ""
-                                  ? ""
-                                  : subService.description
-                              }
-                              </p>
-                             
-                          `
-                            )
-                            .join("")}
-                      </div>
-                  `
-                                  )
-                                  .join("")}
-                  
-               
-                </div >
-                    `,
+                textbox: serviceDescriptionHTML,
               });
+              // currentArray.push({
+              //   textbox: ` ${imgTag}<div style="padding-left: 40px; padding-right: 40px;margin-top: 10px">
+              //                   ${serviceDescriptionList
+              //                     .map(
+              //                       (serviceCat) => `
+              //         <div>
+              //             <p style="font-family:${fontFamily};font-size: ${fontSizeHeading};color: black;font-weight: bold;">
+              //                 ${serviceCat.serviceCatName}
+              //             </p>
+              //             <hr style="color: gray; margin-top:-5px;">
+              //             ${serviceCat.servicesList
+              //               .map(
+              //                 (subService) => `
+              //                 <p style="font-family:${fontFamily}; color:black; font-size: ${fontSize}; ">
+              //                     ${subService.serviceName}
+              //                 </p>
+              //                 <p>
+
+              //                 ${
+              //                   subService.description === null ||
+              //                   subService.description === undefined ||
+              //                   subService.description === ""
+              //                     ? ""
+              //                     : subService.description
+              //                 }
+              //                 </p>
+
+              //             `,
+              //               )
+              //               .join("")}
+              //         </div>
+              //     `,
+              //                     )
+              //                     .join("")}
+
+              //   </div >
+              //       `,
+              // });
             } else {
               pdfDataArray.push(currentArray);
               currentArray = [
@@ -1382,11 +1432,11 @@ function AcceptInvitation() {
                                   }
                               </p>
                              
-                          `
+                          `,
                             )
                             .join("")}
                       </div>
-                  `
+                  `,
                 )
                 .join("")}
                   </div >
@@ -1410,7 +1460,7 @@ function AcceptInvitation() {
           case ElementType.TermsAndCondition:
             const appliedFontTNCContent = setDefaultFontFamily(
               TnCHtmlContent,
-              fontFamily
+              fontFamily,
             );
             if (
               prevElementType === ElementType.PAGE_BREAK ||
@@ -1457,7 +1507,7 @@ function AcceptInvitation() {
               if (!TermAndConditionAddedOrNot) {
                 const appliedFontTNCContent = setDefaultFontFamily(
                   TnCHtmlContent,
-                  fontFamily
+                  fontFamily,
                 );
                 if (
                   prevElementType === ElementType.PAGE_BREAK ||
@@ -1509,10 +1559,10 @@ function AcceptInvitation() {
                 organisationData?.otherInformation?.[0]?.signatureImageUrl;
 
               let rightSignatureList = contractSignatoriesList.filter(
-                (x) => x.signaturePositionID === 1 && x.officerType === null
+                (x) => x.signaturePositionID === 1 && x.officerType === null,
               );
               let leftSignatureList = contractSignatoriesList.filter(
-                (x) => x.signaturePositionID === 2 && x.officerType === null
+                (x) => x.signaturePositionID === 2 && x.officerType === null,
               );
               let contractSignatoryRowNoForOfficer =
                 contractSignatoriesList.filter((x) => x.officerType !== null);
@@ -1535,7 +1585,7 @@ function AcceptInvitation() {
               let htmlContentForSignatories = "";
               let loopCount = Math.max(
                 rightSignatureList.length,
-                leftSignatureList.length
+                leftSignatureList.length,
               );
 
               let orgSignatureInserted = false;
@@ -1627,7 +1677,7 @@ function AcceptInvitation() {
     phone,
     fullAddress,
     BrandColor,
-    webSite
+    webSite,
   ) => {
     const postData = {
       userId: common.userKeyID,
@@ -1649,7 +1699,7 @@ function AcceptInvitation() {
       FooterImage: FooterImage,
       showSeparatorLines: showSeparatorLines,
       WatermarkImage: watermarkImage,
-      landscapMode: orientationID == 2
+      landscapMode: orientationID == 2,
     };
     try {
       const response = await fetch(generatePdfUrl, {
@@ -1723,8 +1773,8 @@ function AcceptInvitation() {
             organisationData.otherInformation[0].phoneNo,
             organisationData.otherInformation[0].fullAddress,
             BrandColor,
-            webSite
-          )
+            webSite,
+          ),
         );
         await Promise.all(promises);
         // All API calls have completed, now generate the merge PDF URL
@@ -1738,7 +1788,7 @@ function AcceptInvitation() {
   const GetVariableValuesForTnCTemplateData = async (
     ClientID,
     HtmlContent,
-    variablesWithValuesList
+    variablesWithValuesList,
   ) => {
     // const VariableData = await GetVariableValuesForTnCTemplate(
     //   ClientID,
@@ -1758,7 +1808,7 @@ function AcceptInvitation() {
         if (variableValue !== null) {
           replacedHtmlContent = replacedHtmlContent?.replace(
             regex,
-            variableValue
+            variableValue,
           );
         }
       });
@@ -1782,15 +1832,19 @@ function AcceptInvitation() {
 
   const GetTemplateLookupListData = async (QuoteId, OrganisationKeyID) => {
     setLoader(true);
+    debugger;
     try {
       const response = await GetTemplateListLookupList({
         TemplateTypeID: 2,
-        organisationKeyID: common.organisationKeyID === "" ? OrganisationKeyID : common.organisationKeyID,
+        organisationKeyID:
+          common.organisationKeyID === ""
+            ? OrganisationKeyID
+            : common.organisationKeyID,
         QuoteKeyID: quoteKeyID,
       });
       const data = response.data;
       const isSelectedDefault = data.responseData.data.filter(
-        (item) => item.isDefault === true
+        (item) => item.isDefault === true,
       );
       if (data.statusCode === 200) {
         setLoader(false);
@@ -1807,7 +1861,7 @@ function AcceptInvitation() {
           footerContent: item.footerContent,
           showSeparatorLines: Boolean(item.showSeparatorLines),
           watermarkImage: item.watermarkImage,
-          orientationID: item.orientationID
+          orientationID: item.orientationID,
         }));
         // setTemplateLookUpOptions(mappedOptions);
         // const isSelectedDefault = data.responseData.data.filter(
@@ -1823,7 +1877,52 @@ function AcceptInvitation() {
         setFooterHeight(isSelectedDefault[0]?.footerHeight);
         setShowSeparatorLines(isSelectedDefault[0]?.showSeparatorLines);
         setWatermarkImage(isSelectedDefault[0]?.watermarkImage);
-        setOrientationID(isSelectedDefault[0]?.orientationID)
+        setOrientationID(isSelectedDefault[0]?.orientationID);
+        setStatementOfFactsHTML(isSelectedDefault[0]?.statementOfFacts);
+        setServiceDescriptionHTML(isSelectedDefault[0]?.serviceDescription);
+
+        setServiceDescriptionObj((prev) => ({
+          ...prev,
+          mainHeading: isSelectedDefault[0]?.mainHeadingSD,
+          recurringOnGoingHeading:
+            isSelectedDefault[0]?.recurringOnGoingHeadingSD,
+          oneOffAdhocHeading: isSelectedDefault[0]?.oneOffAdhocHeadingSD,
+          mainHeadingFontSize: isSelectedDefault[0]?.mainHeadingFontSizeSD,
+          recurringOnGoingHeadingFontSize:
+            isSelectedDefault[0]?.recurringOnGoingHeadingFontSizeSD,
+          oneOffAdhocFontSize: isSelectedDefault[0]?.oneOffAdhocFontSizeSD,
+          mainHeadingIsBold: isSelectedDefault[0]?.mainHeadingIsBoldSD,
+          mainHeadingIsItalic: isSelectedDefault[0]?.mainHeadingIsItalicSD,
+          recurringOnGoingHeadingIsBold:
+            isSelectedDefault[0]?.recurringOnGoingHeadingIsBoldSD,
+          recurringOnGoingHeadingIsItalic:
+            isSelectedDefault[0]?.recurringOnGoingHeadingIsItalicSD,
+          oneOffAdhocHeadingIsBold:
+            isSelectedDefault[0]?.oneOffAdhocHeadingIsBoldSD,
+          oneOffAdhocHeadingIsItalic:
+            isSelectedDefault[0]?.oneOffAdhocHeadingIsItalicSD,
+        }));
+        setStatementOfFactsObj((prev) => ({
+          ...prev,
+          mainHeading: isSelectedDefault[0]?.mainHeadingSOF,
+          recurringOnGoingHeading:
+            isSelectedDefault[0]?.recurringOnGoingHeadingSOF,
+          oneOffAdhocHeading: isSelectedDefault[0]?.oneOffAdhocHeadingSOF,
+          mainHeadingFontSize: isSelectedDefault[0]?.mainHeadingFontSizeSOF,
+          recurringOnGoingHeadingFontSize:
+            isSelectedDefault[0]?.recurringOnGoingHeadingFontSizeSOF,
+          oneOffAdhocFontSize: isSelectedDefault[0]?.oneOffAdhocFontSizeSOF,
+          mainHeadingIsBold: isSelectedDefault[0]?.mainHeadingIsBoldSOF,
+          mainHeadingIsItalic: isSelectedDefault[0]?.mainHeadingIsItalicSOF,
+          recurringOnGoingHeadingIsBold:
+            isSelectedDefault[0]?.recurringOnGoingHeadingIsBoldSOF,
+          recurringOnGoingHeadingIsItalic:
+            isSelectedDefault[0]?.recurringOnGoingHeadingIsItalicSOF,
+          oneOffAdhocHeadingIsBold:
+            isSelectedDefault[0]?.oneOffAdhocHeadingIsBoldSOF,
+          oneOffAdhocHeadingIsItalic:
+            isSelectedDefault[0]?.oneOffAdhocHeadingIsItalicSOF,
+        }));
       } else {
         setLoader(false);
         console.error("Error fetching data from the API");
@@ -1842,7 +1941,7 @@ function AcceptInvitation() {
     RecurringPricingInfo,
     OneOffPricingInfo,
     paymentFrequencyID,
-    packageData
+    packageData,
   ) => {
     try {
       const data = await GetTemplateModelData({
@@ -1886,12 +1985,12 @@ function AcceptInvitation() {
                   const propertyNames = variableMap[variable];
                   const replacement = signatoriesList
                     .map((signatory) =>
-                      propertyNames.map((prop) => signatory[prop]).join(" ")
+                      propertyNames.map((prop) => signatory[prop]).join(" "),
                     )
                     .join(", ");
                   const regex = new RegExp(
                     "\\$" + variable.replace(/\./g, "\\.") + "\\$",
-                    "g"
+                    "g",
                   );
                   replacedContent = replacedContent.replace(regex, replacement);
                 }
@@ -1909,7 +2008,7 @@ function AcceptInvitation() {
           // Call the function with your array and contract signatories list as arguments
           const newArray = replaceVariables(
             ModelData.templateElementList,
-            contractSignatoriesList
+            contractSignatoriesList,
           );
           const pdfObject = {
             ttetMapID: null, //Template's Template Element Type Mapping Id
@@ -1951,7 +2050,7 @@ function AcceptInvitation() {
   `;
 
           let isAddedFirstPage = updatedTemplateElementList.some(
-            (item) => item.templateElementTypeID === 10
+            (item) => item.templateElementTypeID === 10,
           );
           let AddFirstPageHtmlContent = [...updatedTemplateElementList];
           if (!isAddedFirstPage) {
@@ -1976,12 +2075,12 @@ function AcceptInvitation() {
             OneOffPricingInfo,
             paymentFrequencyID,
             3,
-            packageData
+            packageData,
           );
           setIsDefaultFirstPage(ModelData?.enableFirstPage);
           setTemplateElementList(ReplaceVariableArray);
           setBrandColor(
-            ModelData.templateElementListWithRequiredData.brandColor
+            ModelData.templateElementListWithRequiredData.brandColor,
           );
           // setFontFamily(uniqueFontFamilies)
           // setFontSize(smallestFontSize)
@@ -2063,7 +2162,7 @@ function AcceptInvitation() {
           await GetVariableValuesForTnCTemplateData(
             ModelData.clientID,
             ModelData.tnCTemplateContent,
-            variablesWithValuesList
+            variablesWithValuesList,
           );
           const packageData = data?.data?.responseData?.packageList;
           const finalQuotationAmountList =
@@ -2078,10 +2177,10 @@ function AcceptInvitation() {
           setRecurringServiceCatList(ModelData.recurringServiceCatList);
           setOneOffServiceCatList(ModelData.oneOffServiceCatList);
           const RecurringData = finalQuotationAmountList.filter(
-            (item) => item.serviceChargeTypeID === 1
+            (item) => item.serviceChargeTypeID === 1,
           );
           const OneOffData = finalQuotationAmountList.filter(
-            (item) => item.serviceChargeTypeID === 2
+            (item) => item.serviceChargeTypeID === 2,
           );
           let OneOffPricingInfo = {
             OriginalPrice: "",
@@ -2138,7 +2237,7 @@ function AcceptInvitation() {
             (item, index) => ({
               ...item,
               RowNo: index + 1,
-            })
+            }),
           );
 
           // setContractSignatoriesList(ModelData.contractSignatoriesList)
@@ -2154,10 +2253,10 @@ function AcceptInvitation() {
             clientID: ModelData.clientID,
           });
           const chargeTypeId1Array = finalQuotationAmountList.filter(
-            (obj) => obj.serviceChargeTypeID === 1
+            (obj) => obj.serviceChargeTypeID === 1,
           );
           const chargeTypeId2Array = finalQuotationAmountList.filter(
-            (obj) => obj.serviceChargeTypeID === 2
+            (obj) => obj.serviceChargeTypeID === 2,
           );
 
           // setPackageList(packageData);
@@ -2180,7 +2279,10 @@ function AcceptInvitation() {
           });
           setChargeTypeId1Array(chargeTypeId1Array);
           setChargeTypeId2Array(chargeTypeId2Array);
-          await GetTemplateLookupListData(ModelData.quoteKeyID,ModelData.organisationDetails.organisationKeyID);
+          await GetTemplateLookupListData(
+            ModelData.quoteKeyID,
+            ModelData.organisationDetails.organisationKeyID,
+          );
           GetTemplateModalData(
             ModelData.templateKeyID,
             ModelData.clientID,
@@ -2189,7 +2291,7 @@ function AcceptInvitation() {
             RecurringPricingInfo,
             OneOffPricingInfo,
             ModelData.paymentFrequencyID,
-            packageData
+            packageData,
           );
         }
       } else {
@@ -2209,7 +2311,7 @@ function AcceptInvitation() {
           data?.data?.responseData?.acceptedDeclinedByEmailID;
         const signingUrls = data?.data?.responseData?.sentMailResponse;
         let SignEasyUrlForEmail = signingUrls.find(
-          (item) => item.email == acceptedDeclinedByEmailID
+          (item) => item.email == acceptedDeclinedByEmailID,
         );
         setSvgShow(false);
         if (SignEasyUrlForEmail.signingUrl) {
