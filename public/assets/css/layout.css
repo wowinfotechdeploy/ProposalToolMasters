@@ -195,8 +195,8 @@ body.modal-open .app-layout-clone .topbar-clone {
 .menu_dropdown {
   width: 90%;
   font-family: "Gantari, sans-serif";
-  position: relative;
-  top: 100%;
+  position: static;
+  /* top: 100%; */
   left: 0;
   display: none; /* Hidden by default, NOT flex */
   flex-direction: column;
@@ -209,7 +209,10 @@ body.modal-open .app-layout-clone .topbar-clone {
   z-index: 1000;
   border-radius: 4px; /* Optional: rounded corners */
 }
-
+.menu-dropdown,
+.menu_dropdown {
+  position: static !important;
+}
 .menu-dropdown.show,
 .menu_dropdown.show {
   display: flex !important;
