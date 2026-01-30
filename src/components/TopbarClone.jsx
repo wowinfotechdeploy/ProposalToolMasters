@@ -1180,7 +1180,7 @@ const toggleConfigSubList = (id) => {
                   />
                 </a>
                 </div>
-                <Tooltip title={isSidebarOpen ? 'Close menu' : 'Open menu'}>
+                <Tooltip title={isSidebarOpen ? 'Close menu' : 'Open menu'} disableInteractive>
                   <div
                     style={{
                       width: "40%",

@@ -3575,6 +3575,10 @@ const ReviewServicesComponent = (props) => {
                           ? d.slabTypeID === 2
                             ? formatCurrency(d.value)
                             : `${d.slabFrom}-${d.slabTo}`
+                          : d.driverTypeID === 5 
+                            ? d.enteredText
+                          : d.driverTypeID === 6
+                            ? d.enteredDate
                           : ""
                   }</strong>
                 </li>
@@ -3633,6 +3637,10 @@ const ReviewServicesComponent = (props) => {
                           ? d.slabTypeID === 2
                             ? formatCurrency(d.value)
                             : `${d.slabFrom}-${d.slabTo}`
+                          : d.driverTypeID === 5
+                            ? d.enteredText
+                          : d.driverTypeID === 6
+                            ? d.enteredDate
                           : ""
                   }</strong>
                 </li>
@@ -3666,6 +3674,10 @@ const ReviewServicesComponent = (props) => {
                              : `${formatCurrency(d.slabFrom)}-${formatCurrency(
                                  d.slabTo,
                                )}`
+                           : d.driverTypeID === 5
+                             ? d.enteredText
+                           : d.driverTypeID === 6
+                             ? d.enteredDate
                            : ""
                    }</strong>
                  </p>
@@ -3744,6 +3756,10 @@ const ReviewServicesComponent = (props) => {
                                 : `${formatCurrency(d.slabFrom)}-${formatCurrency(
                                     d.slabTo,
                                   )}`
+                            : d.driverTypeID === 5
+                              ? d.enteredText
+                            : d.driverTypeID === 6
+                              ? d.enteredDate
                             : ""
                     }</strong>
                   </li>
@@ -3821,6 +3837,10 @@ const ReviewServicesComponent = (props) => {
                                 : `${formatCurrency(d.slabFrom)}-${formatCurrency(
                                     d.slabTo,
                                   )}`
+                            : d.driverTypeID === 5
+                              ? d.enteredText
+                            : d.driverTypeID === 6 
+                              ? d.enteredDate
                             : ""
                     }</strong>
                   </li>
@@ -3850,7 +3870,20 @@ const ReviewServicesComponent = (props) => {
                    return `<p style="color: black; font-size: ${fontSizeContent};">${
                      d.driverName
                    }: <strong>${formatCurrency(d.driverValue)}</strong></p>`;
-                 } else {
+                 } 
+                 // Type 5 – Text
+                 if (d.driverTypeID === 5) {
+                   return `<p style="color:black;font-size:${fontSizeContent};">
+      ${d.driverName}: <strong>${d.enteredText}</strong>
+    </p>`;
+                 }
+
+                 // Type 6 – Date
+                 if (d.driverTypeID === 6) {
+                   return `<p style="color:black;font-size:${fontSizeContent};">
+      ${d.driverName}: <strong>${d.enteredDate}</strong>
+    </p>`;
+                 }
                    const source = d.driverTypeID === 4 ? d.slab : d.variation;
                    return source
                      ?.filter((item) => item.isDefault)
@@ -3870,7 +3903,7 @@ const ReviewServicesComponent = (props) => {
                  `,
                      )
                      .join("");
-                 }
+
                })
                .join("")}`
             : ""
@@ -3897,7 +3930,11 @@ const ReviewServicesComponent = (props) => {
                            : `${formatCurrency(d.slabFrom)} - ${formatCurrency(
                                d.slabTo,
                              )}`
-                         : ""
+                          : d.driverTypeID === 5
+                            ? d.enteredText
+                          : d.driverTypeID === 6
+                            ? d.enteredDate
+                          : ""
                  }</strong>
                </p>
              `,
@@ -11727,6 +11764,10 @@ const ReviewPackagesComponent = (props) => {
                           ? d.slabTypeID === 2
                             ? formatCurrency(d.value)
                             : `${d.slabFrom}-${d.slabTo}`
+                          : d.driverTypeID === 5
+                            ? d.enteredText 
+                          : d.driverTypeID === 6 
+                            ? d.enteredDate 
                           : ""
                   }</strong>
                 </li>
@@ -11784,6 +11825,10 @@ const ReviewPackagesComponent = (props) => {
                           ? d.slabTypeID === 2
                             ? formatCurrency(d.value)
                             : `${d.slabFrom}-${d.slabTo}`
+                          : d.driverTypeID === 5 
+                            ? d.enteredText 
+                          : d.driverTypeID === 6 
+                            ? d.enteredDate 
                           : ""
                   }</strong>
                 </li>
@@ -11817,6 +11862,10 @@ const ReviewPackagesComponent = (props) => {
                              : `${formatCurrency(d.slabFrom)}-${formatCurrency(
                                  d.slabTo,
                                )}`
+                           :  d.driverTypeID === 5
+                            ? d.enteredText 
+                           : d.driverTypeID === 6 
+                            ? d.enteredDate 
                            : ""
                    }</strong>
                  </p>
@@ -11894,6 +11943,10 @@ const ReviewPackagesComponent = (props) => {
                                 : `${formatCurrency(d.slabFrom)}-${formatCurrency(
                                     d.slabTo,
                                   )}`
+                            : d.driverTypeID === 5 
+                              ? d.enteredText 
+                            : d.driverTypeID === 6 
+                              ? d.enteredDate 
                             : ""
                     }</strong>
                   </li>
@@ -11970,6 +12023,10 @@ const ReviewPackagesComponent = (props) => {
                                 : `${formatCurrency(d.slabFrom)}-${formatCurrency(
                                     d.slabTo,
                                   )}`
+                            : d.driverTypeID === 5 
+                              ? d.enteredText 
+                            : d.driverTypeID === 6 
+                              ? d.enteredDate 
                             : ""
                     }</strong>
                   </li>
@@ -11999,7 +12056,20 @@ const ReviewPackagesComponent = (props) => {
                    return `<p style="color: black; font-size: ${fontSizeContent};">${
                      d.driverName
                    }: <strong>${formatCurrency(d.driverValue)}</strong></p>`;
-                 } else {
+                 } 
+                 // Type 5 – Text
+                 if (d.driverTypeID === 5) {
+                   return `<p style="color:black;font-size:${fontSizeContent};">
+      ${d.driverName}: <strong>${d.enteredText}</strong>
+    </p>`;
+                 }
+
+                 // Type 6 – Date
+                 if (d.driverTypeID === 6) {
+                   return `<p style="color:black;font-size:${fontSizeContent};">
+      ${d.driverName}: <strong>${d.enteredDate}</strong>
+    </p>`;
+                 }
                    const source = d.driverTypeID === 4 ? d.slab : d.variation;
                    return source
                      ?.filter((item) => item.isDefault)
@@ -12019,7 +12089,7 @@ const ReviewPackagesComponent = (props) => {
                  `,
                      )
                      .join("");
-                 }
+
                })
                .join("")}`
             : ""
@@ -12046,7 +12116,11 @@ const ReviewPackagesComponent = (props) => {
                            : `${formatCurrency(d.slabFrom)} - ${formatCurrency(
                                d.slabTo,
                              )}`
-                         : ""
+                          : d.driverTypeID === 5 
+                            ? d.enteredText 
+                          : d.driverTypeID === 6 
+                            ? d.enteredDate 
+                          : ""
                  }</strong>
                </p>
              `,
@@ -12070,6 +12144,10 @@ const ReviewPackagesComponent = (props) => {
   console.log(
     "selectedRecurringServiceList",
     props.selectedRecurringServiceList,
+  );
+  console.log(
+    "selectedOneOffServiceList",
+    props.selectedOneOffServiceList,
   );
   return (
     <>

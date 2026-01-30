@@ -1097,6 +1097,13 @@ const AuthContext = ({ children }) => {
 
     return emailRegex.test(email);
   };
+
+  const formatName = (value = "") => {
+    if (!value) return "";
+    const cleaned = value.replace(/[.\s]/g, "");
+    return cleaned.charAt(0).toUpperCase() + cleaned.slice(1).toLowerCase();
+  };
+
   function formatValue(value, id) {
     // Ensure value is not null
     value = value == null ? 0 : value;
@@ -3627,6 +3634,7 @@ const AuthContext = ({ children }) => {
     <AuthContextProvider.Provider
       value={{
         formatUKPhoneNumberLocal,
+        formatName,
         isValueGreaterThan20000,
         replaceUrlInHtml,
         replaceTemplatePricingVariables,

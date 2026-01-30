@@ -57,6 +57,7 @@ export default function PreviewComponentPdf(props) {
     replaceUrlInHtml,
     getCurrencySymbol,
     activeOrganizationSubscriptionPlan,
+    formatName,
     convertAndParseDate,
   } = useContext(AuthContextProvider);
   // console.log(orientationID);
@@ -1867,7 +1868,7 @@ export default function PreviewComponentPdf(props) {
 
               if (left) {
                 htmlContentForSignatories += `
-                  <span style="color: white;"><^${left.RowNo}_</span><div style="display: inline-block;">${left.firstName} ${left.lastName}</div><span style="color: white;">^></span>`;
+                  <span style="color: white;"><^${left.RowNo}_</span><div style="display: inline-block;">${left.firstName} ${formatName(left.lastName)}</div><span style="color: white;">^></span>`;
               } else if (!orgSignatureInserted && signatureImageUrl) {
                 const org = props.organisationData.otherInformation[0];
                 htmlContentForSignatories += `
@@ -1892,7 +1893,7 @@ export default function PreviewComponentPdf(props) {
 
               if (right) {
                 htmlContentForSignatories += `
-                  <span style="color: white;"><^${right.RowNo}_</span><div style="display: inline-block;">${right.firstName} ${right.lastName}</div><span style="color: white;">^></span>`;
+                  <span style="color: white;"><^${right.RowNo}_</span><div style="display: inline-block;">${right.firstName} ${formatName(right.lastName)}</div><span style="color: white;">^></span>`;
               } else if (!orgSignatureInserted && signatureImageUrl) {
                 const org = props.organisationData.otherInformation[0];
                 htmlContentForSignatories += `
@@ -2120,7 +2121,7 @@ export default function PreviewComponentPdf(props) {
                 currentArray = [
                   {
                     textbox: `
-      <div style=" 
+      <div data-first-page="true" style=" 
         page-break-after: always;
       ">
         ${coloredHtmlContent}
@@ -2133,7 +2134,7 @@ export default function PreviewComponentPdf(props) {
                 currentArray = [
                   {
                     textbox: `
-      <div style="
+      <div data-first-page="true" style="
         page-break-after: always;
       ">
         ${coloredHtmlContent}
@@ -7323,7 +7324,7 @@ ${
 
                 if (left) {
                   htmlContentForSignatories += `
-                  <span style="color: white;"><^${left.RowNo}_</span><div style="display: inline-block;">${left.firstName} ${left.lastName}</div><span style="color: white;">^></span>`;
+                  <span style="color: white;"><^${left.RowNo}_</span><div style="display: inline-block;">${left.firstName} ${formatName(left.lastName)}</div><span style="color: white;">^></span>`;
                 } else if (!orgSignatureInserted && signatureImageUrl) {
                   const org = props.organisationData.otherInformation[0];
                   htmlContentForSignatories += `
@@ -7348,7 +7349,7 @@ ${
 
                 if (right) {
                   htmlContentForSignatories += `
-                  <span style="color: white;"><^${right.RowNo}_</span><div style="display: inline-block;">${right.firstName} ${right.lastName}</div><span style="color: white;">^></span>`;
+                  <span style="color: white;"><^${right.RowNo}_</span><div style="display: inline-block;">${right.firstName} ${formatName(right.lastName)}</div><span style="color: white;">^></span>`;
                 } else if (!orgSignatureInserted && signatureImageUrl) {
                   const org = props.organisationData.otherInformation[0];
                   htmlContentForSignatories += `
