@@ -66,7 +66,8 @@ const BasicInformationComponent = (props) => {
   const ServiceDivContainerRef = useRef(null);
   const { scrollUptoCurrentPosition } = useContext(AuthContextProvider);
   const serviceChargeTypeFilter = props.serviceChargeTypeList?.find(
-    (item) => item.serviceChargeTypeID === props.servicesObj.serviceChargeTypeID
+    (item) =>
+      item.serviceChargeTypeID === props.servicesObj.serviceChargeTypeID,
   );
   const serviceChargeTypeValue = serviceChargeTypeFilter
     ? {
@@ -76,7 +77,7 @@ const BasicInformationComponent = (props) => {
     : null;
 
   const pricingTypeFilter = props.pricingTypeList?.find(
-    (item) => item.pricingTypeID === props.servicesObj.pricingTypeID
+    (item) => item.pricingTypeID === props.servicesObj.pricingTypeID,
   );
 
   const pricingTypeValue = pricingTypeFilter
@@ -133,7 +134,7 @@ const BasicInformationComponent = (props) => {
         variationKeyIDs,
         slabKeyIDs,
         dateKeyIDs,
-        textKeyIDs
+        textKeyIDs,
       );
 
       if (pricingDriverDelete.data.statusCode === 200) {
@@ -177,11 +178,11 @@ const BasicInformationComponent = (props) => {
   };
 
   const organisationList = JSON.parse(
-    localStorage.getItem("OrganisationLocalList") || "[]"
+    localStorage.getItem("OrganisationLocalList") || "[]",
   );
 
   const proposalPersist = JSON.parse(
-    localStorage.getItem("persist:Proposal Tool") || "{}"
+    localStorage.getItem("persist:Proposal Tool") || "{}",
   );
 
   // Clean up all quoted JSON string fields
@@ -192,15 +193,15 @@ const BasicInformationComponent = (props) => {
       } catch {
         return [key, value];
       }
-    })
+    }),
   );
 
   const vatStatus = organisationList.find(
-    (item) => item.organisationKeyID === proposalData.organisationKeyID
+    (item) => item.organisationKeyID === proposalData.organisationKeyID,
   );
 
-  console.log("Cleaned proposalData:", proposalData);
-  console.log("vatStatus:", vatStatus);
+  // console.log("Cleaned proposalData:", proposalData);
+  // console.log("vatStatus:", vatStatus);
 
   return (
     <>
@@ -271,12 +272,12 @@ const BasicInformationComponent = (props) => {
                       // Handle consecutive spaces
                       const singleSpaceValue = trimmedValue.replace(
                         /\s{2,}/g,
-                        " "
+                        " ",
                       );
                       // Remove dot if it follows a space
                       const sanitizedValue = singleSpaceValue.replace(
                         / \./g,
-                        " "
+                        " ",
                       );
                       const capitalizedValue =
                         sanitizedValue.charAt(0).toUpperCase() +
@@ -430,7 +431,7 @@ const BasicInformationComponent = (props) => {
                         : props.NatureOfBusinessTypeLookupList
                     }
                     value={props.NOBTypeValue.filter(
-                      (item) => item.value !== null
+                      (item) => item.value !== null,
                     )}
                     onChange={(e) => {
                       props.OnNOBChange(e);
@@ -664,7 +665,7 @@ const BasicInformationComponent = (props) => {
                             decimalPart !== undefined
                               ? `${integerPart.slice(
                                   0,
-                                  13
+                                  13,
                                 )}.${decimalPart.slice(0, 2)}`
                               : integerPart.slice(0, 12);
                           props.setServicesObj({
@@ -805,7 +806,7 @@ const DescriptionComponent = (props) => {
                     onClick={() => {
                       props.GlobalPricingDriverAddUpdateBtnClicked(
                         "create service",
-                        "Accept"
+                        "Accept",
                       );
                     }}
                   >
@@ -817,7 +818,7 @@ const DescriptionComponent = (props) => {
                   class="btn btn-md btn-success create-item-btn"
                   onClick={() =>
                     props.GlobalPricingDriverAddUpdateBtnClicked(
-                      "create service"
+                      "create service",
                     )
                   }
                 >
@@ -961,7 +962,7 @@ const PricingDriversComponent = (props) => {
   const toggleContentVisibilityForGlobal = (mainIndex) => {
     if (visibleIndexesGlobal.includes(mainIndex)) {
       setVisibleIndexesGlobal(
-        visibleIndexesGlobal.filter((index) => index !== mainIndex)
+        visibleIndexesGlobal.filter((index) => index !== mainIndex),
       );
     } else {
       setVisibleIndexesGlobal([...visibleIndexesGlobal, mainIndex]);
@@ -973,7 +974,7 @@ const PricingDriversComponent = (props) => {
   const dateFormats = Utils.dateFormats;
 
   const findDriverTypeIndex = props.pricingDriver?.findIndex(
-    (i) => i.driverTypeID === 3
+    (i) => i.driverTypeID === 3,
   );
 
   const OnAddPeriodBlock = (mainIndex, dateGroupIndex = 0) => {
@@ -1050,7 +1051,7 @@ const PricingDriversComponent = (props) => {
     dateGroupIndex,
     blockIndex,
     field,
-    value
+    value,
   ) => {
     const updated = [...props.pricingDriver];
     const dateGroup = updated[mainIndex]?.date?.[dateGroupIndex];
@@ -1092,7 +1093,8 @@ const PricingDriversComponent = (props) => {
       ? props.slabType?.find(
           (item) =>
             item.slabTypeId ===
-            lastPricingDriver.slab[lastPricingDriver.slab.length - 1].slabTypeID
+            lastPricingDriver.slab[lastPricingDriver.slab.length - 1]
+              .slabTypeID,
         )
       : null;
 
@@ -1171,7 +1173,7 @@ const PricingDriversComponent = (props) => {
   // Helper function to initialize default slab values
   const initializeSlabWithDefaults = (mainIndex) => {
     const decimalPlaces = Number(
-      props.pricingDriver[mainIndex]?.decimalPlaces ?? 2
+      props.pricingDriver[mainIndex]?.decimalPlaces ?? 2,
     );
     const defaultFrom = (0).toFixed(decimalPlaces);
     const defaultTo = (0).toFixed(decimalPlaces);
@@ -1223,31 +1225,31 @@ const PricingDriversComponent = (props) => {
                       if (dataType == "DriverDatatype") {
                         const dragOverGlobalPricingDriverKeyId =
                           dragOverData?.dependant_GlobalPricingDriverKeyID?.includes(
-                            dragOverStart?.globalPricingDriverKeyID
+                            dragOverStart?.globalPricingDriverKeyID,
                           );
 
                         const dragOverDriverId =
                           dragOverData?.dependant_GlobalPricingDriverKeyID?.includes(
-                            dragOverStart?.temp_GlobalPricingDriverID_ForDependancy
+                            dragOverStart?.temp_GlobalPricingDriverID_ForDependancy,
                           );
 
                         const dragOverDependsOnDriverId =
                           dragOverData?.globalPricingDriverKeyID?.includes(
-                            dragOverStart.dependsOn_GlobalPricingDriverKeyID
+                            dragOverStart.dependsOn_GlobalPricingDriverKeyID,
                           );
                         const dragOverStartDependsOnDriverId =
                           dragOverData?.dependsOn_GlobalPricingDriverKeyID?.includes(
-                            dragOverStart.globalPricingDriverKeyID
+                            dragOverStart.globalPricingDriverKeyID,
                           );
 
                         const dragOverDependsKeyId =
                           dragOverStart?.dependant_GlobalPricingDriverKeyID?.includes(
-                            dragOverData?.globalPricingDriverKeyID
+                            dragOverData?.globalPricingDriverKeyID,
                           );
 
                         const dragOverDependsId =
                           dragOverStart?.dependant_GlobalPricingDriverKeyID?.includes(
-                            dragOverData?.temp_GlobalPricingDriverID_ForDependancy
+                            dragOverData?.temp_GlobalPricingDriverID_ForDependancy,
                           );
 
                         const sourceIndex = e.dataTransfer.getData("index");
@@ -1262,7 +1264,7 @@ const PricingDriversComponent = (props) => {
                         ) {
                           props.setErrorMessageTitle("Sorry!");
                           props.setErrorMessage(
-                            "You can't move dependant driver"
+                            "You can't move dependant driver",
                           );
                           props.setOpenErrorModal(true);
                           props.setIsDriverDelete(true);
@@ -1272,7 +1274,7 @@ const PricingDriversComponent = (props) => {
                             const updatedList = [...props.pricingDriver];
                             const [draggedItem] = updatedList.splice(
                               sourceIndex,
-                              1
+                              1,
                             );
                             updatedList.splice(targetIndex, 0, draggedItem);
                             props.setPricingDriver(updatedList);
@@ -1293,7 +1295,7 @@ const PricingDriversComponent = (props) => {
                           {props.pricingDriver
                             .filter(
                               (item) =>
-                                item.parentGlobalPricingDriverKeyID === null
+                                item.parentGlobalPricingDriverKeyID === null,
                             )
                             .indexOf(i) + 1}
                           {visibleIndexes.includes(mainIndex) ? (
@@ -1328,7 +1330,7 @@ const PricingDriversComponent = (props) => {
                           {props.pricingDriver
                             .filter(
                               (item) =>
-                                item.parentGlobalPricingDriverKeyID !== null
+                                item.parentGlobalPricingDriverKeyID !== null,
                             )
                             .indexOf(i) + 1}
                           {visibleIndexesGlobal.includes(mainIndex) ? (
@@ -1398,7 +1400,7 @@ const PricingDriversComponent = (props) => {
                                     const inputValue = e.target.value;
                                     const trimmedValue = inputValue.replace(
                                       /^\s+/g,
-                                      ""
+                                      "",
                                     ); // Remove leading spaces
                                     const capitalizedValue =
                                       trimmedValue.charAt(0).toUpperCase() +
@@ -1408,7 +1410,7 @@ const PricingDriversComponent = (props) => {
                                         (item, index) =>
                                           index !== mainIndex &&
                                           item.driverName.toUpperCase() ===
-                                            capitalizedValue.toUpperCase()
+                                            capitalizedValue.toUpperCase(),
                                       );
                                     // if (isDuplicate) {
                                     //   seDuplicateName(true)
@@ -1418,7 +1420,7 @@ const PricingDriversComponent = (props) => {
                                     props.OnPricingDriverChange(
                                       mainIndex,
                                       "driverName",
-                                      capitalizedValue
+                                      capitalizedValue,
                                     );
                                   }}
                                   maxLength={200}
@@ -1449,7 +1451,7 @@ const PricingDriversComponent = (props) => {
                                     (i) =>
                                       i.value ===
                                       props.pricingDriver[mainIndex]
-                                        .driverTypeID
+                                        .driverTypeID,
                                   )}
                                   onChange={(e) =>
                                     props.OnDriverTypeChange(mainIndex, e)
@@ -1492,7 +1494,7 @@ const PricingDriversComponent = (props) => {
                                         props.OnPricingDriverChange(
                                           mainIndex,
                                           "TextValue",
-                                          value
+                                          value,
                                         );
                                       }}
                                     />
@@ -1516,7 +1518,7 @@ const PricingDriversComponent = (props) => {
                                         props.OnPricingDriverChange(
                                           mainIndex,
                                           "TextLength",
-                                          value
+                                          value,
                                         );
                                       }}
                                       min="5"
@@ -1542,41 +1544,65 @@ const PricingDriversComponent = (props) => {
                                     className="basic-multi-select"
                                     classNamePrefix="select"
                                     options={(() => {
-                                      const allowedChars = (i.text?.[0]?.allowedSpecialCharacters || "")
+                                      const allowedChars = (
+                                        i.text?.[0]?.allowedSpecialCharacters ||
+                                        ""
+                                      )
                                         .split(",")
                                         .filter(Boolean);
 
                                       // Show only "real" options
-                                      const remaining = specialCharOptions.filter(opt => !allowedChars.includes(opt.value));
+                                      const remaining =
+                                        specialCharOptions.filter(
+                                          (opt) =>
+                                            !allowedChars.includes(opt.value),
+                                        );
 
                                       // If everything is selected — show nothing
                                       if (remaining.length === 0) return [];
 
                                       // Otherwise, include a temporary "Select All" at top
-                                      return [{ label: "All", value: "__ALL_TEMP__" }, ...remaining];
+                                      return [
+                                        { label: "All", value: "__ALL_TEMP__" },
+                                        ...remaining,
+                                      ];
                                     })()}
                                     value={(() => {
-                                      const allowedChars = (i.text?.[0]?.allowedSpecialCharacters || "")
+                                      const allowedChars = (
+                                        i.text?.[0]?.allowedSpecialCharacters ||
+                                        ""
+                                      )
                                         .split(",")
                                         .filter(Boolean);
 
-                                      return specialCharOptions.filter(opt => allowedChars.includes(opt.value));
+                                      return specialCharOptions.filter((opt) =>
+                                        allowedChars.includes(opt.value),
+                                      );
                                     })()}
                                     onChange={(selected) => {
                                       const selectedValues = selected || [];
-                                      const isSelectAll = selectedValues.some(s => s.value === "__ALL_TEMP__");
+                                      const isSelectAll = selectedValues.some(
+                                        (s) => s.value === "__ALL_TEMP__",
+                                      );
 
                                       let chars;
                                       if (isSelectAll) {
                                         //  If user chose “All”, set all possible special characters
-                                        chars = specialCharOptions.map(s => s.value).join(",");
+                                        chars = specialCharOptions
+                                          .map((s) => s.value)
+                                          .join(",");
                                       } else {
-                                        chars = selectedValues.map(s => s.value).join(",");
+                                        chars = selectedValues
+                                          .map((s) => s.value)
+                                          .join(",");
                                       }
 
-                                      props.OnPricingDriverChange(mainIndex, "AllowedSpecialCharacters", chars);
+                                      props.OnPricingDriverChange(
+                                        mainIndex,
+                                        "AllowedSpecialCharacters",
+                                        chars,
+                                      );
                                     }}
-
                                     placeholder="Select special characters..."
                                   />
                                 </div>
@@ -1608,7 +1634,7 @@ const PricingDriversComponent = (props) => {
                                         f.value ===
                                           props.pricingDriver[mainIndex]
                                             .date?.[0]?.dateFormat ||
-                                        f.value === dateFormats[3].value
+                                        f.value === dateFormats[3].value,
                                     )}
                                     onChange={(selected) => {
                                       const format = selected
@@ -1617,7 +1643,7 @@ const PricingDriversComponent = (props) => {
                                       props.OnPricingDriverChange(
                                         mainIndex,
                                         "DateFormat",
-                                        format
+                                        format,
                                       );
                                     }}
                                   />
@@ -1637,12 +1663,15 @@ const PricingDriversComponent = (props) => {
                                   <input
                                     type="text"
                                     className="input-text"
-                                    value={props.pricingDriver[mainIndex].date?.[0]?.defaultDateValue || null}
+                                    value={
+                                      props.pricingDriver[mainIndex].date?.[0]
+                                        ?.defaultDateValue || null
+                                    }
                                     onChange={(e) =>
                                       props.OnPricingDriverChange(
                                         mainIndex,
                                         "defaultDateValue",
-                                        e.target.value
+                                        e.target.value,
                                       )
                                     }
                                   />
@@ -1849,38 +1878,40 @@ const PricingDriversComponent = (props) => {
                                               </p>
                                             </div>
 
-                                           {dateItem.blocks.length > 0 && (
-                                        <button
-                                          disabled={
-                                            props.pricingDriver[mainIndex] &&
-                                            props.pricingDriver[mainIndex].parentGlobalPricingDriverKeyID
-                                            ? true
-                                            : false
-                                          }
-                                          style={{ marginTop: "-34px" }}
-                                          className="btn btn-sm btn-danger gpd-title-1"
-                                          onClick={() =>
-                                            props.OnDeletePeriodBlock(
-                                              mainIndex,
-                                              dateGroupIndex,
-                                              blockIndex
-                                            )
-                                          }
-                                        >
-                                          <i
-                                            className="bi bi-trash3"
-                                            style={{
-                                              marginRight: isMobile
-                                                ? "0px"
-                                                : "5px",
-                                            }}
-                                          ></i>
-                                          <span className="d-none d-sm-inline-block">
-                                            Delete Period
-                                          </span>
-                                        </button>
-                                      )}
-
+                                            {dateItem.blocks.length > 0 && (
+                                              <button
+                                                disabled={
+                                                  props.pricingDriver[
+                                                    mainIndex
+                                                  ] &&
+                                                  props.pricingDriver[mainIndex]
+                                                    .parentGlobalPricingDriverKeyID
+                                                    ? true
+                                                    : false
+                                                }
+                                                style={{ marginTop: "-34px" }}
+                                                className="btn btn-sm btn-danger gpd-title-1"
+                                                onClick={() =>
+                                                  props.OnDeletePeriodBlock(
+                                                    mainIndex,
+                                                    dateGroupIndex,
+                                                    blockIndex,
+                                                  )
+                                                }
+                                              >
+                                                <i
+                                                  className="bi bi-trash3"
+                                                  style={{
+                                                    marginRight: isMobile
+                                                      ? "0px"
+                                                      : "5px",
+                                                  }}
+                                                ></i>
+                                                <span className="d-none d-sm-inline-block">
+                                                  Delete Period
+                                                </span>
+                                              </button>
+                                            )}
 
                                             <div className="row">
                                               {/* From Date */}
@@ -1893,7 +1924,7 @@ const PricingDriversComponent = (props) => {
                                                     <DatePicker
                                                       selected={props.parseStoredDate(
                                                         blockItem.fromDate,
-                                                        dateItem.dateFormat
+                                                        dateItem.dateFormat,
                                                       )}
                                                       disabled={
                                                         (dateGroupIndex > 0 &&
@@ -1912,9 +1943,9 @@ const PricingDriversComponent = (props) => {
                                                           ? addDays(
                                                               props.parseStoredDate(
                                                                 blockItem.toDate,
-                                                                dateItem.dateFormat
+                                                                dateItem.dateFormat,
                                                               ),
-                                                              -1
+                                                              -1,
                                                             )
                                                           : null
                                                       }
@@ -1926,8 +1957,8 @@ const PricingDriversComponent = (props) => {
                                                           "fromDate",
                                                           props.formatToDisplay(
                                                             date,
-                                                            dateItem.dateFormat
-                                                          )
+                                                            dateItem.dateFormat,
+                                                          ),
                                                         )
                                                       }
                                                       placeholderText={dateItem.dateFormat?.toUpperCase()}
@@ -1950,7 +1981,7 @@ const PricingDriversComponent = (props) => {
                                                     <DatePicker
                                                       selected={props.parseStoredDate(
                                                         blockItem.toDate,
-                                                        dateItem.dateFormat
+                                                        dateItem.dateFormat,
                                                       )}
                                                       disabled={
                                                         props.pricingDriver[
@@ -1966,10 +1997,10 @@ const PricingDriversComponent = (props) => {
                                                                 ? parse(
                                                                     blockItem.fromDate,
                                                                     dateItem.dateFormat,
-                                                                    new Date()
+                                                                    new Date(),
                                                                   )
                                                                 : blockItem.fromDate,
-                                                              1
+                                                              1,
                                                             )
                                                           : null
                                                       }
@@ -1981,8 +2012,8 @@ const PricingDriversComponent = (props) => {
                                                           "toDate",
                                                           props.formatToDisplay(
                                                             date,
-                                                            dateItem.dateFormat
-                                                          )
+                                                            dateItem.dateFormat,
+                                                          ),
                                                         )
                                                       }
                                                       placeholderText={dateItem.dateFormat?.toUpperCase()}
@@ -2031,7 +2062,7 @@ const PricingDriversComponent = (props) => {
                                                       dateGroupIndex,
                                                       blockIndex,
                                                       "dateValue",
-                                                      e.target.value
+                                                      e.target.value,
                                                     )
                                                   }
                                                 />
@@ -2039,8 +2070,8 @@ const PricingDriversComponent = (props) => {
                                             </div>
                                           </div>
                                         );
-                                      }
-                                    )
+                                      },
+                                    ),
                                 )}
                                 <span className="delete-right align-right mt-1">
                                   <button
@@ -2052,7 +2083,7 @@ const PricingDriversComponent = (props) => {
                                         dateGroups.length - 1;
                                       OnAddPeriodBlock(
                                         mainIndex,
-                                        lastGroupIndex
+                                        lastGroupIndex,
                                       );
                                     }}
                                     disabled={(() => {
@@ -2079,7 +2110,7 @@ const PricingDriversComponent = (props) => {
                           )}
                           {(TotalVariationsAddedBeforeMe(
                             props.pricingDriver,
-                            mainIndex
+                            mainIndex,
                           ) > 0 &&
                             visibleIndexes.includes(mainIndex)) ||
                             visibleIndexesGlobal.includes(mainIndex) ||
@@ -2093,7 +2124,7 @@ const PricingDriversComponent = (props) => {
                                         {i.variation !== "" && (
                                           <>
                                             {props.pricingDriver.some(
-                                              (item) => item.driverTypeID === 3
+                                              (item) => item.driverTypeID === 3,
                                             ) &&
                                             findDriverTypeIndex < mainIndex ? (
                                               <>
@@ -2127,7 +2158,7 @@ const PricingDriversComponent = (props) => {
                                                       props.OnPricingDriverChange(
                                                         mainIndex,
                                                         "dependServer",
-                                                        e.target.checked
+                                                        e.target.checked,
                                                       );
                                                     }}
                                                   />
@@ -2181,7 +2212,7 @@ const PricingDriversComponent = (props) => {
                                                                         .pricingDriver[
                                                                         mainIndex
                                                                       ]
-                                                                        .dependsOn_DriverID
+                                                                        .dependsOn_DriverID,
                                                                   )
                                                                   .map(
                                                                     (item) => ({
@@ -2189,7 +2220,7 @@ const PricingDriversComponent = (props) => {
                                                                         item.globalPricingDriverKeyID,
                                                                       label:
                                                                         item.driverName,
-                                                                    })
+                                                                    }),
                                                                   )) ||
                                                               (props
                                                                 .pricingDriver[
@@ -2210,29 +2241,29 @@ const PricingDriversComponent = (props) => {
                                                                           .pricingDriver[
                                                                           mainIndex
                                                                         ]
-                                                                          .dependsOn_GlobalPricingDriverKeyID
+                                                                          .dependsOn_GlobalPricingDriverKeyID,
                                                                     )
                                                                     .map(
                                                                       (
-                                                                        item
+                                                                        item,
                                                                       ) => ({
                                                                         value:
                                                                           item.globalPricingDriverKeyID,
                                                                         label:
                                                                           item.driverName,
-                                                                      })
+                                                                      }),
                                                                     )
                                                                 : undefined) // add appropriate default value or handle undefined as needed
                                                             }
                                                             onChange={(
-                                                              selectedOption
+                                                              selectedOption,
                                                             ) => {
                                                               // Finding the index of the selected option in pricingDriver array
                                                               const index =
                                                                 props.pricingDriver.findIndex(
                                                                   (item) =>
                                                                     item.globalPricingDriverKeyID ===
-                                                                    selectedOption.value
+                                                                    selectedOption.value,
                                                                 );
 
                                                               // Finding the index of the selected option based on temp_GlobalPricingDriverID_ForDependancy
@@ -2240,7 +2271,7 @@ const PricingDriversComponent = (props) => {
                                                                 props.pricingDriver.findIndex(
                                                                   (item) =>
                                                                     item.temp_GlobalPricingDriverID_ForDependancy ===
-                                                                    selectedOption.value
+                                                                    selectedOption.value,
                                                                 );
 
                                                               if (
@@ -2251,7 +2282,7 @@ const PricingDriversComponent = (props) => {
                                                                 props.OnPricingDriverChange(
                                                                   mainIndex,
                                                                   "dependsOn_GlobalPricingDriverKeyID", // Adjusted property name based on your logic, you might need to modify it
-                                                                  selectedOption.value
+                                                                  selectedOption.value,
                                                                 );
 
                                                                 props.OnDependantOnDriver(
@@ -2263,14 +2294,14 @@ const PricingDriversComponent = (props) => {
                                                                     .pricingDriver[
                                                                     mainIndex
                                                                   ]
-                                                                    .globalPricingDriverKeyID
+                                                                    .globalPricingDriverKeyID,
                                                                 );
                                                               } else {
                                                                 {
                                                                   props.OnPricingDriverChange(
                                                                     mainIndex,
                                                                     "dependsOn_DriverID", // Adjusted property name based on your logic, you might need to modify it
-                                                                    selectedOption.value
+                                                                    selectedOption.value,
                                                                   );
 
                                                                   props.OnDependantOnDriver(
@@ -2282,7 +2313,7 @@ const PricingDriversComponent = (props) => {
                                                                       .pricingDriver[
                                                                       mainIndex
                                                                     ]
-                                                                      .temp_GlobalPricingDriverID_ForDependancy
+                                                                      .temp_GlobalPricingDriverID_ForDependancy,
                                                                   );
                                                                 }
                                                               }
@@ -2302,17 +2333,17 @@ const PricingDriversComponent = (props) => {
                                                                     .filter(
                                                                       (
                                                                         item,
-                                                                        index
+                                                                        index,
                                                                       ) =>
                                                                         index <
                                                                           mainIndex &&
                                                                         item.driverTypeID ===
-                                                                          3
+                                                                          3,
                                                                     )
                                                                     .map(
                                                                       (
                                                                         filteredDriver,
-                                                                        index
+                                                                        index,
                                                                       ) => ({
                                                                         value:
                                                                           filteredDriver.temp_GlobalPricingDriverID_ForDependancy !==
@@ -2321,25 +2352,25 @@ const PricingDriversComponent = (props) => {
                                                                             : filteredDriver.globalPricingDriverKeyID,
                                                                         label:
                                                                           filteredDriver.driverName,
-                                                                      })
+                                                                      }),
                                                                     )
                                                                 : // If dependsOn_DriverID is not 2 or 4, use a different set of options
                                                                   props.pricingDriver
                                                                     .filter(
                                                                       (
                                                                         item,
-                                                                        index
+                                                                        index,
                                                                       ) =>
                                                                         index <
                                                                           mainIndex &&
                                                                         item.driverTypeID ===
-                                                                          3
+                                                                          3,
                                                                     )
                                                                     //.slice(0, -1)
                                                                     .map(
                                                                       (
                                                                         filteredDriver,
-                                                                        index
+                                                                        index,
                                                                       ) => ({
                                                                         value:
                                                                           filteredDriver.temp_GlobalPricingDriverID_ForDependancy !==
@@ -2348,7 +2379,7 @@ const PricingDriversComponent = (props) => {
                                                                             : filteredDriver.globalPricingDriverKeyID,
                                                                         label:
                                                                           filteredDriver.driverName,
-                                                                      })
+                                                                      }),
                                                                     )
                                                             }
                                                           />
@@ -2429,111 +2460,113 @@ const PricingDriversComponent = (props) => {
                                                                             .pricingDriver[
                                                                             mainIndex
                                                                           ]
-                                                                            .dependsOn_GlobalPricingDriverKeyID
+                                                                            .dependsOn_GlobalPricingDriverKeyID,
                                                                       )[0]
                                                                       ?.variation?.filter(
                                                                         (
-                                                                          variation
+                                                                          variation,
                                                                         ) =>
                                                                           variation.variationKeyID ===
                                                                           props
                                                                             .pricingDriver[
                                                                             mainIndex
                                                                           ]
-                                                                            .dependsOn_VariationKeyID
+                                                                            .dependsOn_VariationKeyID,
                                                                       )
                                                                       .map(
                                                                         (
-                                                                          item
+                                                                          item,
                                                                         ) => ({
                                                                           value:
                                                                             item.variationKeyID,
                                                                           label:
                                                                             item.variationName,
-                                                                        })
+                                                                        }),
                                                                       )
                                                                   : props
-                                                                      .pricingDriver[
-                                                                      mainIndex
-                                                                    ]
-                                                                      .variationKeyID
-                                                                  ? props
-                                                                      .pricingDriver[
-                                                                      mainIndex
-                                                                    ]
-                                                                      .variationKeyID !==
-                                                                    null
-                                                                    ? props.pricingDriver
+                                                                        .pricingDriver[
+                                                                        mainIndex
+                                                                      ]
+                                                                        .variationKeyID
+                                                                    ? props
+                                                                        .pricingDriver[
+                                                                        mainIndex
+                                                                      ]
+                                                                        .variationKeyID !==
+                                                                      null
+                                                                      ? props.pricingDriver
+                                                                          .filter(
+                                                                            (
+                                                                              i,
+                                                                            ) =>
+                                                                              i.globalPricingDriverKeyID ===
+                                                                              props
+                                                                                .pricingDriver[
+                                                                                mainIndex
+                                                                              ]
+                                                                                .dependsOn_GlobalPricingDriverKeyID,
+                                                                          )[0]
+                                                                          .variation.filter(
+                                                                            (
+                                                                              variation,
+                                                                            ) =>
+                                                                              variation.variationKeyID ===
+                                                                              props
+                                                                                .pricingDriver[
+                                                                                mainIndex
+                                                                              ]
+                                                                                .dependsOn_VariationKeyID,
+                                                                          )
+                                                                          .map(
+                                                                            (
+                                                                              item,
+                                                                            ) => ({
+                                                                              value:
+                                                                                item.variationKeyID,
+                                                                              label:
+                                                                                item.variationName,
+                                                                            }),
+                                                                          )
+                                                                      : undefined
+                                                                    : props
+                                                                        .pricingDriver[
+                                                                        mainIndex
+                                                                      ]
+                                                                        .dependsOn_VariationID &&
+                                                                      props.pricingDriver
                                                                         .filter(
                                                                           (i) =>
-                                                                            i.globalPricingDriverKeyID ===
+                                                                            i.temp_GlobalPricingDriverID_ForDependancy ===
                                                                             props
                                                                               .pricingDriver[
                                                                               mainIndex
                                                                             ]
-                                                                              .dependsOn_GlobalPricingDriverKeyID
+                                                                              .dependsOn_DriverID,
                                                                         )[0]
-                                                                        .variation.filter(
+                                                                        ?.variation?.filter(
                                                                           (
-                                                                            variation
+                                                                            variation,
                                                                           ) =>
-                                                                            variation.variationKeyID ===
+                                                                            variation.temp_VariationID_ForDependancy ===
                                                                             props
                                                                               .pricingDriver[
                                                                               mainIndex
                                                                             ]
-                                                                              .dependsOn_VariationKeyID
+                                                                              .dependsOn_VariationID,
                                                                         )
-                                                                        .map(
+                                                                        ?.map(
                                                                           (
-                                                                            item
+                                                                            item,
                                                                           ) => ({
                                                                             value:
                                                                               item.variationKeyID,
                                                                             label:
                                                                               item.variationName,
-                                                                          })
+                                                                          }),
                                                                         )
-                                                                    : undefined
-                                                                  : props
-                                                                      .pricingDriver[
-                                                                      mainIndex
-                                                                    ]
-                                                                      .dependsOn_VariationID &&
-                                                                    props.pricingDriver
-                                                                      .filter(
-                                                                        (i) =>
-                                                                          i.temp_GlobalPricingDriverID_ForDependancy ===
-                                                                          props
-                                                                            .pricingDriver[
-                                                                            mainIndex
-                                                                          ]
-                                                                            .dependsOn_DriverID
-                                                                      )[0]
-                                                                      ?.variation?.filter(
-                                                                        (
-                                                                          variation
-                                                                        ) =>
-                                                                          variation.temp_VariationID_ForDependancy ===
-                                                                          props
-                                                                            .pricingDriver[
-                                                                            mainIndex
-                                                                          ]
-                                                                            .dependsOn_VariationID
-                                                                      )
-                                                                      ?.map(
-                                                                        (
-                                                                          item
-                                                                        ) => ({
-                                                                          value:
-                                                                            item.variationKeyID,
-                                                                          label:
-                                                                            item.variationName,
-                                                                        })
-                                                                      )
                                                               }
                                                               onChange={(
-                                                                selectedOption
+                                                                selectedOption,
                                                               ) => {
                                                                 let recordsFoundCount = 0;
                                                                 for (const obj of props.pricingDriver) {
@@ -2556,13 +2589,13 @@ const PricingDriversComponent = (props) => {
                                                                   props.OnPricingDriverChange(
                                                                     mainIndex,
                                                                     "dependsOn_VariationKeyID",
-                                                                    selectedOption.value
+                                                                    selectedOption.value,
                                                                   );
                                                                 } else {
                                                                   props.OnPricingDriverChange(
                                                                     mainIndex,
                                                                     "dependsOn_VariationID",
-                                                                    selectedOption.value
+                                                                    selectedOption.value,
                                                                   );
                                                                 }
                                                               }}
@@ -2576,29 +2609,29 @@ const PricingDriversComponent = (props) => {
                                                                   ? props.pricingDriver
                                                                       .filter(
                                                                         (
-                                                                          item
+                                                                          item,
                                                                         ) =>
                                                                           item.globalPricingDriverKeyID ===
                                                                           props
                                                                             .pricingDriver[
                                                                             mainIndex
                                                                           ]
-                                                                            .dependsOn_GlobalPricingDriverKeyID
+                                                                            .dependsOn_GlobalPricingDriverKeyID,
                                                                       )[0]
                                                                       ?.variation.map(
                                                                         (
-                                                                          i
+                                                                          i,
                                                                         ) => ({
                                                                           value:
                                                                             i.variationKeyID,
                                                                           label:
                                                                             i.variationName,
-                                                                        })
+                                                                        }),
                                                                       )
                                                                   : props.pricingDriver
                                                                       .filter(
                                                                         (
-                                                                          item
+                                                                          item,
                                                                         ) =>
                                                                           item.temp_GlobalPricingDriverID_ForDependancy ===
                                                                           Number(
@@ -2606,17 +2639,17 @@ const PricingDriversComponent = (props) => {
                                                                               .pricingDriver[
                                                                               mainIndex
                                                                             ]
-                                                                              .dependsOn_DriverID
-                                                                          )
+                                                                              .dependsOn_DriverID,
+                                                                          ),
                                                                       )
                                                                       .map(
                                                                         (
                                                                           filteredDriver,
-                                                                          index
+                                                                          index,
                                                                         ) =>
                                                                           filteredDriver.variation.map(
                                                                             (
-                                                                              item
+                                                                              item,
                                                                             ) => ({
                                                                               value:
                                                                                 item.temp_VariationID_ForDependancy !==
@@ -2625,8 +2658,8 @@ const PricingDriversComponent = (props) => {
                                                                                   : item.variationKeyID,
                                                                               label:
                                                                                 item.variationName,
-                                                                            })
-                                                                          )
+                                                                            }),
+                                                                          ),
                                                                       )
                                                                       .flat() // Flatten the nested array
                                                               }
@@ -2747,7 +2780,7 @@ const PricingDriversComponent = (props) => {
                                         onChange={(selectedOption) =>
                                           props.OnDecimalPlacesChange(
                                             selectedOption,
-                                            mainIndex
+                                            mainIndex,
                                           )
                                         }
                                         isDisabled={
@@ -2813,7 +2846,7 @@ const PricingDriversComponent = (props) => {
                                           props.OnQuantityChange(
                                             e.target.value,
                                             "from",
-                                            mainIndex
+                                            mainIndex,
                                           )
                                         }
                                         onBlur={() => {
@@ -2838,10 +2871,10 @@ const PricingDriversComponent = (props) => {
                                               const formattedValue =
                                                 decimalPlaces === 0
                                                   ? Math.floor(
-                                                      numValue
+                                                      numValue,
                                                     ).toString()
                                                   : numValue.toFixed(
-                                                      decimalPlaces
+                                                      decimalPlaces,
                                                     );
 
                                               const updatedQuantities = [
@@ -2859,7 +2892,7 @@ const PricingDriversComponent = (props) => {
                                               };
 
                                               props.setPricingDriver(
-                                                updatedDrivers
+                                                updatedDrivers,
                                               );
                                             }
                                           }
@@ -2883,7 +2916,7 @@ const PricingDriversComponent = (props) => {
                                           props.OnQuantityChange(
                                             e.target.value,
                                             "to",
-                                            mainIndex
+                                            mainIndex,
                                           )
                                         }
                                         onBlur={() => {
@@ -2908,10 +2941,10 @@ const PricingDriversComponent = (props) => {
                                               const formattedValue =
                                                 decimalPlaces === 0
                                                   ? Math.floor(
-                                                      numValue
+                                                      numValue,
                                                     ).toString()
                                                   : numValue.toFixed(
-                                                      decimalPlaces
+                                                      decimalPlaces,
                                                     );
 
                                               const updatedQuantities = [
@@ -2929,7 +2962,7 @@ const PricingDriversComponent = (props) => {
                                               };
 
                                               props.setPricingDriver(
-                                                updatedDrivers
+                                                updatedDrivers,
                                               );
                                             }
                                           }
@@ -2967,7 +3000,7 @@ const PricingDriversComponent = (props) => {
                                               mainIndex,
                                               null,
                                               "decimalPlaces",
-                                              selectedOption.value
+                                              selectedOption.value,
                                             )
                                           }
                                           isDisabled={
@@ -2976,11 +3009,15 @@ const PricingDriversComponent = (props) => {
                                           }
                                           value={{
                                             value:
-                                              props.pricingDriver[mainIndex].slab?.[0]?.decimalPlaces ?? 
-                                              props?.slabDecimalPlaces ?? 2,
+                                              props.pricingDriver[mainIndex]
+                                                .slab?.[0]?.decimalPlaces ??
+                                              props?.slabDecimalPlaces ??
+                                              2,
                                             label: Utils.getDecimalPlaceLabel(
-                                              props.pricingDriver[mainIndex].slab?.[0]?.decimalPlaces ?? 
-                                              props?.slabDecimalPlaces ?? 2
+                                              props.pricingDriver[mainIndex]
+                                                .slab?.[0]?.decimalPlaces ??
+                                                props?.slabDecimalPlaces ??
+                                                2,
                                             ),
                                           }}
                                           options={Utils.DECIMAL_PLACE_OPTIONS}
@@ -3043,7 +3080,7 @@ const PricingDriversComponent = (props) => {
                                       decimalPlaces === 0
                                         ? /^\d+$/
                                         : new RegExp(
-                                            `^\\d+(\\.\\d{0,${decimalPlaces}})?$`
+                                            `^\\d+(\\.\\d{0,${decimalPlaces}})?$`,
                                           );
                                     return (
                                       <div
@@ -3080,7 +3117,7 @@ const PricingDriversComponent = (props) => {
                                             ) {
                                               props.OnDeleteSlabs(
                                                 mainIndex,
-                                                index
+                                                index,
                                               );
                                             }
                                           }}
@@ -3115,7 +3152,7 @@ const PricingDriversComponent = (props) => {
                                                       mainIndex,
                                                       index,
                                                       "slabTypeID",
-                                                      selectedOption.value
+                                                      selectedOption.value,
                                                     )
                                                   }
                                                   isDisabled={
@@ -3131,7 +3168,7 @@ const PricingDriversComponent = (props) => {
                                                       i.value ===
                                                       props.pricingDriver[
                                                         mainIndex
-                                                      ].slab[index].slabTypeID
+                                                      ].slab[index].slabTypeID,
                                                   )}
                                                   // options={slabTypeOptions}
 
@@ -3148,7 +3185,7 @@ const PricingDriversComponent = (props) => {
                                                         ]?.slab?.length === 1
                                                           ? true
                                                           : false,
-                                                    })
+                                                    }),
                                                   )}
                                                   placeholder="Select..."
                                                 />
@@ -3198,7 +3235,7 @@ const PricingDriversComponent = (props) => {
                                                                 .toString()
                                                                 .replace(
                                                                   /\B(?=(\d{3})+(?!\d))/g,
-                                                                  ","
+                                                                  ",",
                                                                 )
                                                         }
                                                         onChange={(e) => {
@@ -3206,7 +3243,7 @@ const PricingDriversComponent = (props) => {
                                                             e,
                                                             mainIndex,
                                                             index,
-                                                            "slabValue"
+                                                            "slabValue",
                                                           );
                                                         }}
                                                       />
@@ -3314,7 +3351,7 @@ const PricingDriversComponent = (props) => {
                                                             e,
                                                             mainIndex,
                                                             index,
-                                                            "slabFrom"
+                                                            "slabFrom",
                                                           );
                                                         }}
                                                         onBlur={(e) => {
@@ -3333,7 +3370,7 @@ const PricingDriversComponent = (props) => {
                                                               2;
                                                             let numeric =
                                                               parseFloat(
-                                                                rawValue
+                                                                rawValue,
                                                               );
 
                                                             if (
@@ -3341,7 +3378,7 @@ const PricingDriversComponent = (props) => {
                                                             ) {
                                                               const formatted =
                                                                 numeric.toFixed(
-                                                                  decimalPlaces
+                                                                  decimalPlaces,
                                                                 );
                                                               DriverValue(
                                                                 {
@@ -3352,7 +3389,7 @@ const PricingDriversComponent = (props) => {
                                                                 },
                                                                 mainIndex,
                                                                 index,
-                                                                "slabFrom"
+                                                                "slabFrom",
                                                               );
                                                             }
                                                           }
@@ -3458,7 +3495,7 @@ const PricingDriversComponent = (props) => {
                                                             e,
                                                             mainIndex,
                                                             index,
-                                                            "slabTo"
+                                                            "slabTo",
                                                           );
                                                         }}
                                                         onBlur={(e) => {
@@ -3477,7 +3514,7 @@ const PricingDriversComponent = (props) => {
                                                               2;
                                                             let numeric =
                                                               parseFloat(
-                                                                rawValue
+                                                                rawValue,
                                                               );
 
                                                             if (
@@ -3485,7 +3522,7 @@ const PricingDriversComponent = (props) => {
                                                             ) {
                                                               const formatted =
                                                                 numeric.toFixed(
-                                                                  decimalPlaces
+                                                                  decimalPlaces,
                                                                 );
                                                               DriverValue(
                                                                 {
@@ -3496,7 +3533,7 @@ const PricingDriversComponent = (props) => {
                                                                 },
                                                                 mainIndex,
                                                                 index,
-                                                                "slabTo"
+                                                                "slabTo",
                                                               );
                                                             }
                                                           }
@@ -3508,12 +3545,12 @@ const PricingDriversComponent = (props) => {
                                                     parseFloat(
                                                       props.pricingDriver[
                                                         mainIndex
-                                                      ].slab[index].slabTo
+                                                      ].slab[index].slabTo,
                                                     ) <
                                                       parseFloat(
                                                         props.pricingDriver[
                                                           mainIndex
-                                                        ].slab[index].slabFrom
+                                                        ].slab[index].slabFrom,
                                                       ) ? (
                                                       <label className="validation">
                                                         The field must not be
@@ -3573,7 +3610,7 @@ const PricingDriversComponent = (props) => {
                                                     onChange={(e) =>
                                                       props.OnSlabsRadioChange(
                                                         mainIndex,
-                                                        index
+                                                        index,
                                                       )
                                                     }
                                                   />
@@ -3624,7 +3661,7 @@ const PricingDriversComponent = (props) => {
                                                                 .toString()
                                                                 .replace(
                                                                   /\B(?=(\d{3})+(?!\d))/g,
-                                                                  ","
+                                                                  ",",
                                                                 )
                                                         }
                                                         onChange={(e) => {
@@ -3632,7 +3669,7 @@ const PricingDriversComponent = (props) => {
                                                             e,
                                                             mainIndex,
                                                             index,
-                                                            "slabValue"
+                                                            "slabValue",
                                                           );
                                                         }}
                                                       />
@@ -3671,8 +3708,8 @@ const PricingDriversComponent = (props) => {
                                                             .parentGlobalPricingDriverKeyID
                                                             ? true
                                                             : index === 0
-                                                            ? false
-                                                            : true
+                                                              ? false
+                                                              : true
                                                         }
                                                         value={
                                                           props.pricingDriver[
@@ -3688,7 +3725,7 @@ const PricingDriversComponent = (props) => {
                                                                 .toString()
                                                                 .replace(
                                                                   /\B(?=(\d{3})+(?!\d))/g,
-                                                                  ","
+                                                                  ",",
                                                                 )
                                                         }
                                                         onChange={(e) => {
@@ -3696,7 +3733,7 @@ const PricingDriversComponent = (props) => {
                                                             e,
                                                             mainIndex,
                                                             index,
-                                                            "slabFrom"
+                                                            "slabFrom",
                                                           );
                                                         }}
                                                       />
@@ -3751,7 +3788,7 @@ const PricingDriversComponent = (props) => {
                                                                 .toString()
                                                                 .replace(
                                                                   /\B(?=(\d{3})+(?!\d))/g,
-                                                                  ","
+                                                                  ",",
                                                                 )
                                                         }
                                                         onChange={(e) => {
@@ -3759,7 +3796,7 @@ const PricingDriversComponent = (props) => {
                                                             e,
                                                             mainIndex,
                                                             index,
-                                                            "slabTo"
+                                                            "slabTo",
                                                           );
                                                         }}
                                                       />
@@ -3809,7 +3846,7 @@ const PricingDriversComponent = (props) => {
                                                     onChange={(e) =>
                                                       props.OnSlabsRadioChange(
                                                         mainIndex,
-                                                        index
+                                                        index,
                                                       )
                                                     }
                                                   />
@@ -3830,7 +3867,7 @@ const PricingDriversComponent = (props) => {
                                         </div>
                                       </div>
                                     );
-                                  }
+                                  },
                                 )}
                                 {props.pricingDriver[mainIndex].slab &&
                                   props.pricingDriver[mainIndex]?.slab[
@@ -4086,7 +4123,7 @@ const PricingFormulaComponent = (props) => {
                   onClick={() => {
                     props.GlobalPricingDriverAddUpdateBtnClicked(
                       "GetConfirmationBeforeSaveForGPD",
-                      "Accept"
+                      "Accept",
                     );
                   }}
                 >
@@ -4099,7 +4136,7 @@ const PricingFormulaComponent = (props) => {
                   class="btn btn-md btn-success create-item-btn"
                   onClick={() =>
                     props.GlobalPricingDriverAddUpdateBtnClicked(
-                      "GetConfirmationBeforeSaveForGPD"
+                      "GetConfirmationBeforeSaveForGPD",
                     )
                   }
                 >
@@ -4260,7 +4297,7 @@ const Add_Update_Service = (props) => {
   const [isDropdownEnabled, setIsDropdownEnabled] = useState(false);
   // Get Service Category Type Lookup List Data
   const professionTypeInputValue = professionTypeLookupList.filter(
-    (item) => common.professionTypeLists[0] === item.professionTypeId
+    (item) => common.professionTypeLists[0] === item.professionTypeId,
   );
   //Get Service Category List data
   const GetServiceCategoryListData = async (id, professionTypeList) => {
@@ -4276,14 +4313,14 @@ const Add_Update_Service = (props) => {
     } else if (common.professionTypeLists.length === 1) {
       response = await ServiceCategoryList(
         common.organisationKeyID,
-        common.professionTypeLists
+        common.professionTypeLists,
       );
       const serviceCategoryListData = response?.data?.responseData?.data;
       setServiceCategoryList(serviceCategoryListData);
     } else if (saveLocationState.ProfessionTypeId !== null) {
       response = await ServiceCategoryList(
         common.organisationKeyID,
-        saveLocationState.ProfessionTypeId
+        saveLocationState.ProfessionTypeId,
       );
       const serviceCategoryListData = response?.data?.responseData?.data;
       setServiceCategoryList(serviceCategoryListData);
@@ -4315,7 +4352,7 @@ const Add_Update_Service = (props) => {
       });
       GetServiceModelData(
         saveLocationState.serviceKeyID,
-        saveLocationState.Type
+        saveLocationState.Type,
       );
     } else {
       // SetInitialModelData();
@@ -4345,15 +4382,15 @@ const Add_Update_Service = (props) => {
             professionTypeName: pt.professionTypeName,
           }))
         : common.professionTypeLists.length > 0
-        ? professionTypeLookupList
-            .filter((x) =>
-              common.professionTypeLists.includes(x.professionTypeId)
-            )
-            .map((x) => ({
-              professionTypeId: x.professionTypeId,
-              professionTypeName: x.professionTypeName,
-            }))
-        : [];
+          ? professionTypeLookupList
+              .filter((x) =>
+                common.professionTypeLists.includes(x.professionTypeId),
+              )
+              .map((x) => ({
+                professionTypeId: x.professionTypeId,
+                professionTypeName: x.professionTypeName,
+              }))
+          : [];
 
     if (canCallDependencyAPI && common.organisationKeyID) {
       const params = {
@@ -4370,7 +4407,7 @@ const Add_Update_Service = (props) => {
         BusinessTypeID: servicesObj.clientBusinessTypeID ?? [],
         BusinessNatureID: servicesObj.businessNatureID ?? [],
       };
-      console.log(params);
+      // console.log(params);
       GetServiceDependencyListData(params);
     } else {
       setServiceDependencyList([]);
@@ -4406,7 +4443,7 @@ const Add_Update_Service = (props) => {
   //2) This useEffect will trigger when Global Pricing Driver state Changed
   useEffect(() => {
     if (globalPricingDrivers) {
-      console.log(pricingDriver);
+      // console.log(pricingDriver);
       setServicesObj({
         ...servicesObj,
         pricingDriverList: pricingDriver,
@@ -4441,7 +4478,7 @@ const Add_Update_Service = (props) => {
     if (common.professionTypeLists.length === 1) {
       GetServiceCategoryListData(
         null,
-        professionTypeInputValue[0]?.professionTypeId
+        professionTypeInputValue[0]?.professionTypeId,
       );
       setIsAddUpdateActionDone(false);
     } else {
@@ -4663,7 +4700,7 @@ const Add_Update_Service = (props) => {
                   ...dt,
                   dateValue: dt.dateValue,
                 })),
-              })
+              }),
             );
             {
               common.organisationKeyID &&
@@ -4709,7 +4746,7 @@ const Add_Update_Service = (props) => {
     if (
       !arraysEqual(
         servicesObj.serviceCategoryList?.map((x) => x.serviceCatKeyID),
-        originalServicesObj.serviceCategoryList?.map((x) => x.serviceCatKeyID)
+        originalServicesObj.serviceCategoryList?.map((x) => x.serviceCatKeyID),
       )
     ) {
       changed.push("Service Category");
@@ -4719,7 +4756,7 @@ const Add_Update_Service = (props) => {
     if (
       !arraysEqual(
         servicesObj.clientBusinessTypeID,
-        originalServicesObj.clientBusinessTypeID
+        originalServicesObj.clientBusinessTypeID,
       )
     ) {
       changed.push("Prospect Type");
@@ -4729,7 +4766,7 @@ const Add_Update_Service = (props) => {
     if (
       !arraysEqual(
         servicesObj.businessNatureID,
-        originalServicesObj.businessNatureID
+        originalServicesObj.businessNatureID,
       )
     ) {
       changed.push("Nature of Business");
@@ -4738,13 +4775,13 @@ const Add_Update_Service = (props) => {
 
     // Clean handling of dependent services
     const dependentServiceNames = Array.isArray(
-      originalServicesObj.dependingServicesID
+      originalServicesObj.dependingServicesID,
     )
       ? originalServicesObj.dependingServicesID.map((x) => x.serviceName)
       : [];
 
     const preRequisiteServiceNames = Array.isArray(
-      originalServicesObj.prerequisiteServicesID
+      originalServicesObj.prerequisiteServicesID,
     )
       ? originalServicesObj.prerequisiteServicesID.map((x) => x.serviceName)
       : [];
@@ -4761,7 +4798,7 @@ const Add_Update_Service = (props) => {
     dispatch(
       updateState({
         globalPricingDriver: GlobalPricingDriver,
-      })
+      }),
     );
     {
       setModelRequestData({
@@ -4822,7 +4859,7 @@ const Add_Update_Service = (props) => {
             }))
           : [],
     }));
-    console.log(servicesObj.pricingDriverList);
+    // console.log(servicesObj.pricingDriverList);
 
     const ApiRequest_ParamsObj = {
       organisationKeyID: common.organisationKeyID,
@@ -5141,7 +5178,7 @@ const Add_Update_Service = (props) => {
               // Construct the error message
               const duplicateNames = duplicates.join(", ");
               setErrorMessage(
-                `Local pricing driver with name ${duplicateNames} already exist. Please choose different name.`
+                `Local pricing driver with name ${duplicateNames} already exist. Please choose different name.`,
               );
               setActiveTabForm({
                 ...activeTabForm,
@@ -5303,7 +5340,7 @@ const Add_Update_Service = (props) => {
                       .some(
                         (prevItem) =>
                           prevItem.variationName.toUpperCase() ===
-                          item.variationName.toUpperCase()
+                          item.variationName.toUpperCase(),
                       );
                   });
                   if (duplicateVariationFound.length > 0) {
@@ -5311,14 +5348,14 @@ const Add_Update_Service = (props) => {
                     const uniqueVariations = Array.from(
                       new Set(
                         duplicateVariationFound.map(
-                          (item) => item.variationName
-                        )
-                      )
+                          (item) => item.variationName,
+                        ),
+                      ),
                     );
                     // Construct the error message
                     const duplicateNames = uniqueVariations.join(", ");
                     setErrorMessage(
-                      `Variation with name ${duplicateNames} already exist. Please choose different name.`
+                      `Variation with name ${duplicateNames} already exist. Please choose different name.`,
                     );
                     setActiveTabForm({
                       ...activeTabForm,
@@ -5404,7 +5441,7 @@ const Add_Update_Service = (props) => {
                   pricingDriverCopy[index].slab[slabIndex]?.slabTypeID === 1 &&
                   parseFloat(pricingDriverCopy[index].slab[slabIndex].slabTo) <
                     parseFloat(
-                      pricingDriverCopy[index].slab[slabIndex].slabFrom
+                      pricingDriverCopy[index].slab[slabIndex].slabFrom,
                     )
                 ) {
                   scrollUpDownByElementID(`SlabDiv_${index}${slabIndex}`);
@@ -5450,7 +5487,7 @@ const Add_Update_Service = (props) => {
                         textItem.textLength === null ||
                         textItem.textLength === undefined
                       ) {
-                        console.log(textItem);
+                        // console.log(textItem);
                         setGdriverError({ textLengthError: true });
                         scrollUpDownByElementID(`TextDiv_${index}${textIndex}`);
                         hasError = true;
@@ -5469,7 +5506,7 @@ const Add_Update_Service = (props) => {
                   }
                 } else if (pricingDriverCopy[index].driverTypeID === 6) {
                   const dateGroups = pricingDriverCopy[index].date;
-                  console.log(dateGroups);
+                  // console.log(dateGroups);
                   if (
                     dateGroups == [] ||
                     dateGroups === null ||
@@ -5513,7 +5550,7 @@ const Add_Update_Service = (props) => {
                           newErrors.toDateError[index] = {};
                         newErrors.toDateError[index][blockIndex] = true;
                         scrollUpDownByElementID(
-                          `DateDiv_${index}${blockIndex}`
+                          `DateDiv_${index}${blockIndex}`,
                         );
                         hasError = true;
                       }
@@ -5523,7 +5560,7 @@ const Add_Update_Service = (props) => {
                           newErrors.dateValueError[index] = {};
                         newErrors.dateValueError[index][blockIndex] = true;
                         scrollUpDownByElementID(
-                          `DateDiv_${index}${blockIndex}`
+                          `DateDiv_${index}${blockIndex}`,
                         );
                         hasError = true;
                       }
@@ -5536,7 +5573,7 @@ const Add_Update_Service = (props) => {
                           newErrors.toDateError[index] = {};
                         newErrors.toDateError[index][blockIndex] = true;
                         scrollUpDownByElementID(
-                          `DateDiv_${index}${blockIndex}`
+                          `DateDiv_${index}${blockIndex}`,
                         );
                         hasError = true;
                       }
@@ -5667,7 +5704,7 @@ const Add_Update_Service = (props) => {
       } else {
         let trimPricingFormula = EditPricingFormulaValue.replace(
           /\s/g,
-          ""
+          "",
         ).trim();
         if (trimPricingFormula.length === 1) {
           let trimValue = parseInt(trimPricingFormula, 10);
@@ -5718,11 +5755,11 @@ const Add_Update_Service = (props) => {
             (globalDriver) =>
               globalDriver.globalPricingDriverKeyID?.toUpperCase() ===
                 key?.toUpperCase() ||
-              globalDriver.temp_GlobalPricingDriverID_ForDependancy === key
+              globalDriver.temp_GlobalPricingDriverID_ForDependancy === key,
           );
           const localDriverMatch = pricingDriver.some(
             (globalDriver) =>
-              globalDriver.temp_GlobalPricingDriverID_ForDependancy === key
+              globalDriver.temp_GlobalPricingDriverID_ForDependancy === key,
           );
           if (globalDriverMatch) {
             GlobalDriverId.push(key);
@@ -5740,7 +5777,7 @@ const Add_Update_Service = (props) => {
                 driver.globalPricingDriverKeyID?.toUpperCase() ||
               key == driver.temp_GlobalPricingDriverID_ForDependancy ||
               key.toUpperCase() ==
-                driver.parentGlobalPricingDriverKeyID?.toUpperCase()
+                driver.parentGlobalPricingDriverKeyID?.toUpperCase(),
           );
           if (!matched) {
             remainingDriverNames.push(driver.driverName);
@@ -5772,7 +5809,7 @@ const Add_Update_Service = (props) => {
           if (common.organisationKeyID) {
             const { hasChanges, dependingServices, prerequisiteServices } =
               getChangedDependencies();
-            console.log(dependingServices);
+            // console.log(dependingServices);
 
             if (hasChanges && dependingServices.length > 0) {
               setIsServiceDependentandModified(true);
@@ -5967,7 +6004,7 @@ const Add_Update_Service = (props) => {
     try {
       const data = await GetProspectTypeVariationLookupList(
         common.organisationKeyID,
-        common.userKeyID
+        common.userKeyID,
       );
       if (data?.data?.statusCode === 200) {
         if (data?.data?.responseData?.data) {
@@ -5990,7 +6027,7 @@ const Add_Update_Service = (props) => {
     try {
       const data = await GetNOBTypeLookupList(
         common.organisationKeyID,
-        common.userKeyID
+        common.userKeyID,
       );
       if (data?.data?.statusCode === 200) {
         if (data?.data?.responseData?.data) {
@@ -6035,7 +6072,7 @@ const Add_Update_Service = (props) => {
     if (selectedOptions.filter((item) => item.value === null).length > 0) {
       // If "All" is selected, select all options except "All"
       const updatedNOBList = NatureOfBusinessTypeLookupList.filter(
-        (option) => option.value !== null
+        (option) => option.value !== null,
       ).map((option) => option.value);
       setServicesObj({
         ...servicesObj,
@@ -6054,7 +6091,7 @@ const Add_Update_Service = (props) => {
   const NOBTypeValue = servicesObj?.businessNatureID
     ?.map((businessNatureID) => {
       const matchingNature = NatureOfBusinessTypeLookupList.find(
-        (nature) => nature.value === businessNatureID
+        (nature) => nature.value === businessNatureID,
       );
 
       if (matchingNature) {
@@ -6072,7 +6109,7 @@ const Add_Update_Service = (props) => {
   const OnClientTypeChange = (ClientTypeId) => {
     if (ClientTypeId.filter((item) => item.value === null).length > 0) {
       const updatedClientTypeList = BusinessTypeLookupList.map(
-        (option) => option.value
+        (option) => option.value,
       );
       setServicesObj({
         ...servicesObj,
@@ -6090,7 +6127,7 @@ const Add_Update_Service = (props) => {
   const ClientTypeValue = servicesObj?.clientBusinessTypeID
     ?.map((clientBusinessID) => {
       const matchingNature = BusinessTypeLookupList.find(
-        (client) => client.value === clientBusinessID
+        (client) => client.value === clientBusinessID,
       );
 
       if (matchingNature) {
@@ -6123,14 +6160,14 @@ const Add_Update_Service = (props) => {
     (ProfessionType) => ({
       value: ProfessionType.professionTypeId,
       label: ProfessionType.professionTypeName,
-    })
+    }),
   );
 
   const ServiceCategoryLookeupListOptions = serviceCategoryList?.map(
     (ServiceCategoryType) => ({
       value: ServiceCategoryType.serviceCatKeyID,
       label: ServiceCategoryType.serviceCatName,
-    })
+    }),
   );
 
   const ServiceDependencyLookupList = ServiceDependencyList?.map((item) => ({
@@ -6143,7 +6180,7 @@ const Add_Update_Service = (props) => {
       const matchingService = ServiceDependencyLookupList?.find(
         (service) =>
           service.value === prerequisiteID.serviceID &&
-          service.serviceCatID === prerequisiteID.serviceCatID
+          service.serviceCatID === prerequisiteID.serviceCatID,
       );
       return matchingService || null;
     })
@@ -6241,7 +6278,7 @@ const Add_Update_Service = (props) => {
 
       const updatedPricingDriver = [...pricingDriver]; // Create a copy of the array
       updatedPricingDriver.push(
-        pricingDriverCount === 0 ? 1 : AddPricingDriver
+        pricingDriverCount === 0 ? 1 : AddPricingDriver,
       );
       if (pricingDriver.length > 0) {
         if (
@@ -6277,22 +6314,22 @@ const Add_Update_Service = (props) => {
                 return pricingDriverCopy.variation
                   .slice(0, index)
                   .some(
-                    (prevItem) => prevItem.variationName === item.variationName
+                    (prevItem) => prevItem.variationName === item.variationName,
                   );
-              }
+              },
             );
 
             if (duplicateVariationFound.length > 0) {
               // Remove duplicates from the array
               const uniqueVariations = Array.from(
                 new Set(
-                  duplicateVariationFound.map((item) => item.variationName)
-                )
+                  duplicateVariationFound.map((item) => item.variationName),
+                ),
               );
               // Construct the error message
               const duplicateNames = uniqueVariations.join(", ");
               setErrorMessage(
-                `Variation with name ${duplicateNames} already exist. Please choose different name.`
+                `Variation with name ${duplicateNames} already exist. Please choose different name.`,
               );
               setOpenErrorModal(true);
               setIsDriverDelete(true);
@@ -6329,12 +6366,12 @@ const Add_Update_Service = (props) => {
             parseFloat(
               pricingDriver[pricingDriver.length - 1].slab[
                 pricingDriverCopy.slab.length - 1
-              ].slabTo
+              ].slabTo,
             ) <
               parseFloat(
                 pricingDriver[pricingDriver.length - 1].slab[
                   pricingDriverCopy.slab.length - 1
-                ].slabFrom
+                ].slabFrom,
               )
           ) {
             setGdriverError({ slabToMinValue: true });
@@ -6342,7 +6379,7 @@ const Add_Update_Service = (props) => {
             setPricingDriver(updatedPricingDriver);
           }
         } else if (pricingDriverCopy.driverTypeID === 5) {
-          console.log(pricingDriverCopy.text);
+          // console.log(pricingDriverCopy.text);
           // *** use the copy’s text array, not the outer array ***
           if (pricingDriverCopy.text.length === 0) {
             setGdriverError({ textValueError: true });
@@ -6384,7 +6421,7 @@ const Add_Update_Service = (props) => {
       if (
         obj.globalPricingDriverKeyID &&
         pricingDriver[mainIndex]?.dependant_GlobalPricingDriverKeyID?.includes(
-          obj.globalPricingDriverKeyID
+          obj.globalPricingDriverKeyID,
         )
       ) {
         driverNamesSet.push(obj.driverName);
@@ -6392,7 +6429,7 @@ const Add_Update_Service = (props) => {
       if (
         obj.temp_GlobalPricingDriverID_ForDependancy &&
         pricingDriver[mainIndex]?.dependant_GlobalPricingDriverKeyID?.includes(
-          obj.temp_GlobalPricingDriverID_ForDependancy
+          obj.temp_GlobalPricingDriverID_ForDependancy,
         )
       ) {
         driverNamesSet.push(obj.driverName);
@@ -6403,8 +6440,8 @@ const Add_Update_Service = (props) => {
       const ExistInFormulaRecords = EditPricingFormulaValue?.split(" ");
       const matches = ExistInFormulaRecords.map((item) =>
         item.match(
-          /Var\("?(.*?)"?\)|var\("?.*?"?\)|Var\("?.*?"?\)|var\("([^"]+)"\)|var([a-f\d]{8}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{12})/gi
-        )
+          /Var\("?(.*?)"?\)|var\("?.*?"?\)|Var\("?.*?"?\)|var\("([^"]+)"\)|var([a-f\d]{8}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{12})/gi,
+        ),
       )
         .filter(Boolean)
         .flat();
@@ -6429,12 +6466,12 @@ const Add_Update_Service = (props) => {
       let MatchID_Global = GetIdFromFormula.filter(
         (formulaId) =>
           formulaId ==
-          pricingDriver[mainIndex].globalPricingDriverKeyID?.toUpperCase()
+          pricingDriver[mainIndex].globalPricingDriverKeyID?.toUpperCase(),
       );
       let MatchID_Temp = GetIdFromFormula.filter(
         (formulaId) =>
           formulaId ==
-          pricingDriver[mainIndex].temp_GlobalPricingDriverID_ForDependancy
+          pricingDriver[mainIndex].temp_GlobalPricingDriverID_ForDependancy,
       );
 
       const isDependant =
@@ -6447,19 +6484,19 @@ const Add_Update_Service = (props) => {
       ) {
         showModal(
           "This driver is included in the pricing formula, please remove it from there first.",
-          driverNamesSet
+          driverNamesSet,
         );
         return false;
       } else if (MatchID_Temp.length !== 0 || MatchID_Global.length !== 0) {
         showModal(
           "This driver is included in the pricing formula, please remove it from there first.",
-          driverNamesSet
+          driverNamesSet,
         );
         return false;
       } else if (isDependant > 0) {
         showModal(
           "This driver is included in the pricing formula, please remove it from there first.",
-          driverNamesSet
+          driverNamesSet,
         );
         return false;
       } else {
@@ -6474,7 +6511,7 @@ const Add_Update_Service = (props) => {
             null,
             null,
             null,
-            null
+            null,
           );
           if (pricingDriverDelete.data.statusCode === 200) {
             setLoader(false);
@@ -6503,7 +6540,7 @@ const Add_Update_Service = (props) => {
       if (isDependant > 0) {
         showModal(
           "This driver is included in the pricing formula, please remove it from there first.",
-          driverNamesSet
+          driverNamesSet,
         );
         return false;
       }
@@ -6518,7 +6555,7 @@ const Add_Update_Service = (props) => {
           null,
           null,
           null,
-          null
+          null,
         );
         if (pricingDriverDelete.data.statusCode === 200) {
           setLoader(false);
@@ -6558,12 +6595,12 @@ const Add_Update_Service = (props) => {
       if (targetDriverId !== null) {
         // If targetDriverId is not null, filter it out from dependant_GlobalPricingDriverKeyID
         updatedDependant = item.dependant_GlobalPricingDriverKeyID?.filter(
-          (num) => num !== targetDriverId
+          (num) => num !== targetDriverId,
         );
       } else {
         // If targetDriverId is null, search for targetDriverGPDId and filter it out
         updatedDependant = item.dependant_GlobalPricingDriverKeyID?.filter(
-          (num) => num !== targetDriverGPDId
+          (num) => num !== targetDriverGPDId,
         );
       }
       return {
@@ -6651,9 +6688,9 @@ const Add_Update_Service = (props) => {
         (option) => ({
           serviceID: option.serviceID,
           serviceCatID: option.serviceCatID,
-        })
+        }),
       );
-      console.log(updatedServiceDependencyList);
+      // console.log(updatedServiceDependencyList);
       setServicesObj({
         ...servicesObj,
         prerequisiteServicesID: updatedServiceDependencyList,
@@ -6663,7 +6700,7 @@ const Add_Update_Service = (props) => {
         serviceID: option.value,
         serviceCatID: option.serviceCatID,
       }));
-      console.log(updatedServiceDependencyList);
+      // console.log(updatedServiceDependencyList);
       setServicesObj({
         ...servicesObj,
         prerequisiteServicesID: updatedServiceDependencyList,
@@ -6679,7 +6716,7 @@ const Add_Update_Service = (props) => {
       if (
         obj.globalPricingDriverKeyID &&
         pricingDriver[index]?.dependant_GlobalPricingDriverKeyID?.includes(
-          obj.globalPricingDriverKeyID
+          obj.globalPricingDriverKeyID,
         )
       ) {
         driverNamesSet.push(obj.driverName);
@@ -6687,7 +6724,7 @@ const Add_Update_Service = (props) => {
       if (
         obj.temp_GlobalPricingDriverID_ForDependancy &&
         pricingDriver[index]?.dependant_GlobalPricingDriverKeyID?.includes(
-          obj.temp_GlobalPricingDriverID_ForDependancy
+          obj.temp_GlobalPricingDriverID_ForDependancy,
         )
       ) {
         driverNamesSet.push(obj.driverName);
@@ -6751,7 +6788,7 @@ const Add_Update_Service = (props) => {
           variationKeyIDs,
           slabKeyIDs,
           dateKeyIDs,
-          textKeyIDs
+          textKeyIDs,
         );
         if (pricingDriverDelete.data.statusCode === 200) {
           setLoader(false);
@@ -6799,7 +6836,7 @@ const Add_Update_Service = (props) => {
           pricingDriver[mainIndex].globalPricingDriverKeyID &&
         variation.dependsOn_VariationKeyID !== null &&
         variation.dependsOn_VariationKeyID ===
-          pricingDriver[mainIndex].variation[index].variationKeyID
+          pricingDriver[mainIndex].variation[index].variationKeyID,
     );
 
     const MatchVariationID_Temp = pricingDriver.filter(
@@ -6809,7 +6846,7 @@ const Add_Update_Service = (props) => {
         variation.dependsOn_VariationID !== null &&
         variation.dependsOn_VariationID ===
           pricingDriver[mainIndex].variation[index]
-            .temp_VariationID_ForDependancy
+            .temp_VariationID_ForDependancy,
     );
 
     if (
@@ -6837,7 +6874,7 @@ const Add_Update_Service = (props) => {
           common.userKeyID,
           saveLocationState.serviceKeyID,
           pricingDriverCopy[mainIndex].variation[index].variationKeyID,
-          null
+          null,
         );
         if (pricingDriverDelete.data.statusCode === 200) {
           setLoader(false);
@@ -7057,7 +7094,7 @@ const Add_Update_Service = (props) => {
             (group) => ({
               ...group,
               defaultDateValue: cleanValue,
-            })
+            }),
           );
         } else {
           // fallback for empty or undefined
@@ -7089,12 +7126,12 @@ const Add_Update_Service = (props) => {
         if (targetDriverId !== null) {
           // If targetDriverId is not null, filter it out from dependant_GlobalPricingDriverKeyID
           updatedDependant = item.dependant_GlobalPricingDriverKeyID?.filter(
-            (num) => num !== targetDriverId
+            (num) => num !== targetDriverId,
           );
         } else {
           // If targetDriverId is null, search for targetDriverGPDId and filter it out
           updatedDependant = item.dependant_GlobalPricingDriverKeyID?.filter(
-            (num) => num !== targetDriverGPDId
+            (num) => num !== targetDriverGPDId,
           );
         }
         return {
@@ -7145,7 +7182,7 @@ const Add_Update_Service = (props) => {
       // Check if the value already exists in the array
       if (
         !updatedVariations[index].dependant_GlobalPricingDriverKeyID.includes(
-          value
+          value,
         )
       ) {
         // Remove the value from other indices
@@ -7205,7 +7242,7 @@ const Add_Update_Service = (props) => {
     const largest_Temp_VariationID_ForDependancy = pricingDriver[mainIndex]
       .variation
       ? findLargest_Temp_VariationID_ForDependancy(
-          pricingDriver[mainIndex].variation
+          pricingDriver[mainIndex].variation,
         )
       : 0;
 
@@ -7255,7 +7292,7 @@ const Add_Update_Service = (props) => {
       scrollUpDownByElementID(
         `VariationDiv_${pricingDriver.length - 1}${
           pricingDriver[mainIndex].variation.length - 1
-        }`
+        }`,
       );
     }, 200);
     // }
@@ -7275,7 +7312,7 @@ const Add_Update_Service = (props) => {
         null,
         pricingDriverCopy[mainIndex].slab[index].slabKeyID,
         null,
-        null
+        null,
       );
       if (pricingDriverDelete.data.statusCode === 200) {
         setLoader(false);
@@ -7342,7 +7379,7 @@ const Add_Update_Service = (props) => {
     }
   };
 
-// Delete Date Period
+  // Delete Date Period
   const OnDeletePeriodBlock = async (mainIndex, dateGroupIndex, blockIndex) => {
     const pricingDriverCopy = [...pricingDriver];
 
@@ -7367,7 +7404,7 @@ const Add_Update_Service = (props) => {
           null,
           null,
           null,
-          block.dateKeyID
+          block.dateKeyID,
         );
 
         setLoader(false);
@@ -7399,7 +7436,10 @@ const Add_Update_Service = (props) => {
 
         props.setPricingDriver(pricingDriverCopy);
       } catch (error) {
-        console.error("Error checking used modules before deleting date block:", error);
+        console.error(
+          "Error checking used modules before deleting date block:",
+          error,
+        );
         setLoader(false);
       }
     } else {
@@ -7413,7 +7453,7 @@ const Add_Update_Service = (props) => {
       props.setPricingDriver(pricingDriverCopy);
     }
   };
-  //Handle change slab 
+  //Handle change slab
 
   //Handle change slab
   // const OnSlabChange = (mainIndex, index, field, value) => {
@@ -7438,65 +7478,75 @@ const Add_Update_Service = (props) => {
   const OnSlabChange = (mainIndex, index, field, value) => {
     const updatedSlabs = [...pricingDriver];
     if (field !== "decimalPlaces") {
-        if (
-            updatedSlabs[mainIndex] &&
-            updatedSlabs[mainIndex].slab &&
-            updatedSlabs[mainIndex].slab[index]
-        ) {
-            updatedSlabs[mainIndex].slab[index][field] = value;
-        }
+      if (
+        updatedSlabs[mainIndex] &&
+        updatedSlabs[mainIndex].slab &&
+        updatedSlabs[mainIndex].slab[index]
+      ) {
+        updatedSlabs[mainIndex].slab[index][field] = value;
+      }
     }
     // Always update decimalPlaces state
     if (field === "decimalPlaces") {
-        const decimalPlaces = Number(value);
-        setSlabDecimalPlaces(decimalPlaces);
+      const decimalPlaces = Number(value);
+      setSlabDecimalPlaces(decimalPlaces);
 
-        // If no slabs exist, still update pricingDriver decimalPlaces
-        if (!updatedSlabs[mainIndex].slab || updatedSlabs[mainIndex].slab.length === 0) {
-            updatedSlabs[mainIndex].slab = [];
-            setPricingDriver(updatedSlabs);
-            return;
-        }
-
-        // Step
-        const step = parseFloat((1 / Math.pow(10, decimalPlaces)).toFixed(decimalPlaces));
-
-        // Format existing slabs
-        updatedSlabs[mainIndex].slab = updatedSlabs[mainIndex].slab.map((slab) => {
-            const format = (num) => {
-                if (num === "" || num === null || num === undefined) return "";
-                const val = typeof num === "string" ? parseFloat(num.replace(/,/g, "")) : num;
-                return isNaN(val) ? "" : val.toFixed(decimalPlaces);
-            };
-
-            return {
-                ...slab,
-                slabFrom: format(slab.slabFrom),
-                slabTo: format(slab.slabTo),
-                decimalPlaces,
-            };
-        });
-
-        // Recalculate slabFrom chain
-        for (let i = 1; i < updatedSlabs[mainIndex].slab.length; i++) {
-            const prevSlab = updatedSlabs[mainIndex].slab[i - 1];
-            if (prevSlab.slabTo) {
-                const prevTo = parseFloat(prevSlab.slabTo);
-                updatedSlabs[mainIndex].slab[i].slabFrom = (prevTo + step).toFixed(decimalPlaces);
-            }
-        }
-
+      // If no slabs exist, still update pricingDriver decimalPlaces
+      if (
+        !updatedSlabs[mainIndex].slab ||
+        updatedSlabs[mainIndex].slab.length === 0
+      ) {
+        updatedSlabs[mainIndex].slab = [];
         setPricingDriver(updatedSlabs);
         return;
+      }
+
+      // Step
+      const step = parseFloat(
+        (1 / Math.pow(10, decimalPlaces)).toFixed(decimalPlaces),
+      );
+
+      // Format existing slabs
+      updatedSlabs[mainIndex].slab = updatedSlabs[mainIndex].slab.map(
+        (slab) => {
+          const format = (num) => {
+            if (num === "" || num === null || num === undefined) return "";
+            const val =
+              typeof num === "string" ? parseFloat(num.replace(/,/g, "")) : num;
+            return isNaN(val) ? "" : val.toFixed(decimalPlaces);
+          };
+
+          return {
+            ...slab,
+            slabFrom: format(slab.slabFrom),
+            slabTo: format(slab.slabTo),
+            decimalPlaces,
+          };
+        },
+      );
+
+      // Recalculate slabFrom chain
+      for (let i = 1; i < updatedSlabs[mainIndex].slab.length; i++) {
+        const prevSlab = updatedSlabs[mainIndex].slab[i - 1];
+        if (prevSlab.slabTo) {
+          const prevTo = parseFloat(prevSlab.slabTo);
+          updatedSlabs[mainIndex].slab[i].slabFrom = (prevTo + step).toFixed(
+            decimalPlaces,
+          );
+        }
+      }
+
+      setPricingDriver(updatedSlabs);
+      return;
     }
 
     // Handle slabTo changes - update next slab's slabFrom
     if (field === "slabTo") {
       const decimalPlaces = Number(
-        updatedSlabs[mainIndex].slab[index].decimalPlaces ?? 2
+        updatedSlabs[mainIndex].slab[index].decimalPlaces ?? 2,
       );
       const step = parseFloat(
-        (1 / Math.pow(10, decimalPlaces)).toFixed(decimalPlaces)
+        (1 / Math.pow(10, decimalPlaces)).toFixed(decimalPlaces),
       );
       const numericTo = parseFloat(value);
 
@@ -7505,7 +7555,7 @@ const Add_Update_Service = (props) => {
         index + 1 < updatedSlabs[mainIndex].slab.length
       ) {
         const nextSlabFrom = parseFloat(
-          (numericTo + step).toFixed(decimalPlaces)
+          (numericTo + step).toFixed(decimalPlaces),
         );
         updatedSlabs[mainIndex].slab[index + 1].slabFrom =
           nextSlabFrom.toFixed(decimalPlaces);
@@ -7517,7 +7567,7 @@ const Add_Update_Service = (props) => {
     // Handle slab type selection
     const slabTypeFilter = slabType.find(
       (item) =>
-        item.slabTypeId === updatedSlabs[mainIndex].slab[index]?.slabTypeID
+        item.slabTypeId === updatedSlabs[mainIndex].slab[index]?.slabTypeID,
     );
     const slabTypeValue = slabTypeFilter
       ? { value: slabTypeFilter.slabTypeId, label: slabTypeFilter.slabTypeName }
@@ -7753,12 +7803,14 @@ const Add_Update_Service = (props) => {
 
     // Get the decimal places for this driver (default to 2 if not set)
     const decimalPlaces = Number(
-      pricingDriver[mainIndex]?.slab?.[0]?.decimalPlaces ?? slabDecimalPlaces ?? 2
+      pricingDriver[mainIndex]?.slab?.[0]?.decimalPlaces ??
+        slabDecimalPlaces ??
+        2,
     );
 
     // Calculate the step based on decimal places
     const step = parseFloat(
-      (1 / Math.pow(10, decimalPlaces)).toFixed(decimalPlaces)
+      (1 / Math.pow(10, decimalPlaces)).toFixed(decimalPlaces),
     );
 
     // Calculate fromValueForNewSlab based on decimal places
@@ -7820,11 +7872,11 @@ const Add_Update_Service = (props) => {
       } else if (
         parseFloat(
           pricingDriver[mainIndex]?.slab[pricingDriverCopy.slab.length - 1]
-            ?.slabTo
+            ?.slabTo,
         ) <
         parseFloat(
           pricingDriver[mainIndex]?.slab[pricingDriverCopy.slab.length - 1]
-            ?.slabFrom
+            ?.slabFrom,
         )
       ) {
         setGdriverError({ slabToMinValue: true });
@@ -7856,7 +7908,7 @@ const Add_Update_Service = (props) => {
       scrollUpDownByElementID(
         `SlabDiv_${pricingDriver.length - 1}${
           pricingDriver[mainIndex].slab.length - 1
-        }`
+        }`,
       );
     }, 200);
   };
@@ -7866,7 +7918,8 @@ const Add_Update_Service = (props) => {
     const updatedGlobalPricingDrivers = [...globalPricingDrivers];
     const itemIndex = updatedGlobalPricingDrivers.findIndex(
       (globalPricingDriver) =>
-        globalPricingDriver.globalPricingDriverID === item.globalPricingDriverID
+        globalPricingDriver.globalPricingDriverID ===
+        item.globalPricingDriverID,
     );
     if (itemIndex !== -1) {
       updatedGlobalPricingDrivers.splice(itemIndex, 1);
@@ -7933,7 +7986,7 @@ const Add_Update_Service = (props) => {
       formulaParse = formulaParse.map((elem) => elem.trim());
       formulaParse = formulaParse.filter((elem) => elem !== "");
       const GetKeyId = TagTextContent.map((i) =>
-        i.key === null ? i.tempId : i.key
+        i.key === null ? i.tempId : i.key,
       );
 
       parseFormula = GetKey;
@@ -7957,7 +8010,7 @@ const Add_Update_Service = (props) => {
         }
         parseFormula = parseFormula.replace(
           placeholder,
-          " " + KeyFormat.replace(/\\/g, "") + " "
+          " " + KeyFormat.replace(/\\/g, "") + " ",
         );
         parseFormula = parseFormula.replace("varUndefined", "");
       }
@@ -7994,7 +8047,7 @@ const Add_Update_Service = (props) => {
 
         TagTextContent.forEach((tag) => {
           const isKeyIdInteger = Number.isInteger(
-            tag.key == null ? tag.tempId : tag.key
+            tag.key == null ? tag.tempId : tag.key,
           );
           let KeyFormat = null;
           if (isKeyIdInteger) {
@@ -8004,7 +8057,7 @@ const Add_Update_Service = (props) => {
           }
           modifiedValue = modifiedValue.replace(
             tag.value,
-            " " + KeyFormat + " "
+            " " + KeyFormat + " ",
           );
           modifiedValue = modifiedValue.replace("varUndefined", "");
         });
@@ -8026,7 +8079,7 @@ const Add_Update_Service = (props) => {
     } else {
       TagTextContent.forEach((tag) => {
         const isKeyIdInteger = Number.isInteger(
-          tag.key == null ? tag.tempId : tag.key
+          tag.key == null ? tag.tempId : tag.key,
         );
         let KeyFormat = null;
         if (isKeyIdInteger) {
@@ -8058,7 +8111,7 @@ const Add_Update_Service = (props) => {
     // Replace variables with the constant value
     const formulaToEvaluate = trimmedFormula.replace(
       /var\("[^"]+"\)|var[0-9A-Fa-f-]+/g,
-      constantValue
+      constantValue,
     );
 
     try {
@@ -8168,7 +8221,7 @@ const Add_Update_Service = (props) => {
       } else {
         GlobalPricingDriverAddUpdateBtnClicked(
           "GetConfirmationBeforeSaveForGPD",
-          true
+          true,
         );
       }
     } else {
@@ -8194,8 +8247,8 @@ const Add_Update_Service = (props) => {
                       ? ` ${saveLocationState.serviceName.substring(0, 10)}...`
                       : saveLocationState.serviceName
                     : saveLocationState.serviceName?.length > 35
-                    ? `${saveLocationState.serviceName.substring(0, 35)}...`
-                    : saveLocationState.serviceName}
+                      ? `${saveLocationState.serviceName.substring(0, 35)}...`
+                      : saveLocationState.serviceName}
                 </h3>
               </div>
               <div
@@ -8213,8 +8266,8 @@ const Add_Update_Service = (props) => {
                         activeTab === ServiceHeader.BasicInformation
                           ? "step tab-field-center"
                           : activeTabForm.activeBasicInformationForm === true
-                          ? "step tab-field-center"
-                          : "step disabled cursor-not-allowed tab-field-center"
+                            ? "step tab-field-center"
+                            : "step disabled cursor-not-allowed tab-field-center"
                       } w-90`}
                     >
                       <span className="stepCount">1</span>
@@ -8237,8 +8290,8 @@ const Add_Update_Service = (props) => {
                         activeTab === ServiceHeader.Description
                           ? "step tab-field-center"
                           : activeTabForm.activeBasicInformationForm === true
-                          ? "step tab-field-center"
-                          : "step disabled cursor-not-allowed tab-field-center"
+                            ? "step tab-field-center"
+                            : "step disabled cursor-not-allowed tab-field-center"
                       } w-90`}
                     >
                       <span className="stepCount">2</span>
@@ -8257,8 +8310,8 @@ const Add_Update_Service = (props) => {
                             activeTab == ServiceHeader.PricingDrivers
                               ? "step tab-field-center"
                               : activeTabForm.activeDescriptionForm === true
-                              ? "step tab-field-center"
-                              : "step disabled cursor-not-allowed tab-field-center"
+                                ? "step tab-field-center"
+                                : "step disabled cursor-not-allowed tab-field-center"
                           } w-90`}
                         >
                           <span className="stepCount">3</span>
@@ -8299,8 +8352,8 @@ const Add_Update_Service = (props) => {
                             activeTab === ServiceHeader.PricingFormula
                               ? "step tab-field-center"
                               : activeTabForm.activePricingDrivers === true
-                              ? "step tab-field-center"
-                              : "step disabled cursor-not-allowed tab-field-center"
+                                ? "step tab-field-center"
+                                : "step disabled cursor-not-allowed tab-field-center"
                           } w-90`}
                         >
                           <span className="stepCount">4</span>
@@ -8496,7 +8549,7 @@ const Add_Update_Service = (props) => {
                   EditPricingFormulaValue={EditPricingFormulaValue}
                   PricingFormulaValue={servicesObj.pricingFormula?.replace(
                     /\[\[{"value":"​","key":"","class":"private-tag","type":"Private","prefix":"@"}\]\]/g,
-                    ""
+                    "",
                   )}
                   setEditPricingFormulaValue={setEditPricingFormulaValue}
                   PricingFormula={servicesObj?.pricingFormula}

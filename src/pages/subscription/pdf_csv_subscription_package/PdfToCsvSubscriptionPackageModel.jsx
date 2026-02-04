@@ -70,7 +70,7 @@ function PdfToCsvSubscriptionPackageModel(props) {
     setModelAction(
       location?.state?.Action === undefined || location?.state?.Action === null
         ? "Add"
-        : "Update"
+        : "Update",
     ); //Do not change this naming convention
 
     // setModelAction(props.modelRequestData?.Action === null ? "Add" : "Update"); //Do not change this naming convention
@@ -103,7 +103,7 @@ function PdfToCsvSubscriptionPackageModel(props) {
     try {
       const data = await GetPDFToCSVSubscriptionPackageModel(
         id,
-        common.userKeyID
+        common.userKeyID,
       );
       if (data?.data?.statusCode === 200) {
         if (data?.data?.responseData?.data) {
@@ -234,14 +234,13 @@ function PdfToCsvSubscriptionPackageModel(props) {
 
   // 3) Add Update Subscription package Data Api
   const AddUpdatePDFToCSVSubscriptionPackageData = async (
-    ApiRequest_ParamsObj
+    ApiRequest_ParamsObj,
   ) => {
-    debugger;
+    // debugger;
     setLoader(true);
     try {
-      const response = await addUpdatePDFToCSVSubscriptionPackage(
-        ApiRequest_ParamsObj
-      );
+      const response =
+        await addUpdatePDFToCSVSubscriptionPackage(ApiRequest_ParamsObj);
       if (response) {
         setLoader(false);
         if (response?.data?.statusCode === 200) {
@@ -510,7 +509,7 @@ function PdfToCsvSubscriptionPackageModel(props) {
                               value={PdfToCsvValidityList.find(
                                 (item) =>
                                   item.value ===
-                                  subscriptionPackageObj.validityID
+                                  subscriptionPackageObj.validityID,
                               )}
                               onChange={handleSelectChange}
                             />
@@ -636,7 +635,7 @@ function PdfToCsvSubscriptionPackageModel(props) {
                                   inputValue.split(".");
                                 inputValue = `${integerPart.slice(
                                   0,
-                                  7
+                                  7,
                                 )}.${decimalPart.slice(0, 2)}`;
                               } else {
                                 inputValue = inputValue.slice(0, 7);

@@ -30,7 +30,7 @@ function AccessModel(props) {
     status: null,
     Action: "",
   });
-  const [RoleTypeIndex, setRoleTypeIndex] = useState(null)
+  const [RoleTypeIndex, setRoleTypeIndex] = useState(null);
   const {
     setActiveOrganization,
     setLoader,
@@ -153,7 +153,7 @@ function AccessModel(props) {
               localStorage.removeItem("OrganisationLocalList");
               localStorage.setItem(
                 "OrganisationLocalList",
-                JSON.stringify(OrganisationsListData)
+                JSON.stringify(OrganisationsListData),
               );
               setOrganisationsList(OrganisationsListData);
 
@@ -175,7 +175,7 @@ function AccessModel(props) {
 
               localStorage.setItem(
                 "userAccess",
-                JSON.stringify(organisationData.accessList)
+                JSON.stringify(organisationData.accessList),
               );
               setActiveOrganization(organisationData.accessList);
 
@@ -220,7 +220,7 @@ function AccessModel(props) {
                         ? []
                         : organisationData.professionTypeLists,
                     enableEL: organisationData.enableEL,
-                  })
+                  }),
                 );
               }
             }
@@ -259,20 +259,20 @@ function AccessModel(props) {
     dispatch(
       updateState({
         isUpdateRole: true,
-      })
+      }),
     );
     $("#" + props.id).modal("hide");
     setOpenSuccessModal(false);
   };
   const closeConfirmModel = () => {
     $("#" + "DeleteDriverModel").modal("hide");
-  }
+  };
 
   const toggleDropdown = (roleTypeID) => {
     setIsOpens(!isOpens);
     // setOpenRole(openRole === roleTypeID ? null : roleTypeID);
     setOpenRole((prevOpenRole) =>
-      prevOpenRole === roleTypeID ? null : roleTypeID
+      prevOpenRole === roleTypeID ? null : roleTypeID,
     );
   };
 
@@ -280,7 +280,7 @@ function AccessModel(props) {
     roleIndex,
     moduleIndex,
     moduleActionIndex,
-    e
+    e,
   ) => {
     let checked = e.target.checked;
     let data = [...defaultData];
@@ -293,14 +293,13 @@ function AccessModel(props) {
   };
 
   const handleCheckAllModules = (roleIndex, e) => {
-
     const checked = e.target.checked;
     if (checked === false) {
       setModelRequestData({
         ...modelRequestData,
         Action: "AccessModel",
-      })
-      setRoleTypeIndex(roleIndex)
+      });
+      setRoleTypeIndex(roleIndex);
       // $("#" + "ConfirmModel").modal("show");
       $("#" + "DeleteDriverModel").modal("show");
     } else {
@@ -308,34 +307,31 @@ function AccessModel(props) {
 
       data[roleIndex].modules.forEach((module) => {
         module.moduleActions.forEach(
-          (action) => (action.setDefaultAction = checked)
+          (action) => (action.setDefaultAction = checked),
         );
       });
 
       setCheckBox(data);
     }
-
-
   };
   const UpdatedStatus = () => {
-
     const data = [...defaultData];
 
     data[RoleTypeIndex].modules.forEach((module) => {
       module.moduleActions.forEach(
-        (action) => (action.setDefaultAction = false)
+        (action) => (action.setDefaultAction = false),
       );
     });
 
     setCheckBox(data);
     $("#" + "DeleteDriverModel").modal("hide");
-  }
+  };
   const handleCheckAllActionsInModule = (roleIndex, moduleIndex, e) => {
     const checked = e.target.checked;
     const data = [...defaultData];
 
     data[roleIndex].modules[moduleIndex].moduleActions.forEach(
-      (action) => (action.setDefaultAction = checked)
+      (action) => (action.setDefaultAction = checked),
     );
 
     setCheckBox(data);
@@ -350,7 +346,7 @@ function AccessModel(props) {
   const areAllModulesChecked = (roleIndex) => {
     const modules = defaultData[roleIndex].modules;
     return modules.every((module) =>
-      module.moduleActions.every((action) => action.setDefaultAction)
+      module.moduleActions.every((action) => action.setDefaultAction),
     );
   };
 
@@ -502,12 +498,12 @@ function AccessModel(props) {
                                             handleCheckAllActionsInModule(
                                               roleIndex,
                                               moduleIndex,
-                                              e
+                                              e,
                                             )
                                           }
                                           checked={areAllActionsChecked(
                                             roleIndex,
-                                            moduleIndex
+                                            moduleIndex,
                                           )}
                                         />
                                         <label
@@ -541,7 +537,7 @@ function AccessModel(props) {
                                                           roleIndex,
                                                           moduleIndex,
                                                           moduleActionIndex,
-                                                          e
+                                                          e,
                                                         )
                                                       }
                                                     />
@@ -554,13 +550,13 @@ function AccessModel(props) {
                                                         "Can Delete"
                                                           ? "Can Delete / Change Status / Is Default".substring(
                                                               0,
-                                                              26
+                                                              26,
                                                             ) + "..."
                                                           : action?.mActionName}
                                                       </Tooltip>
                                                     </label>
                                                   </div>
-                                                )
+                                                ),
                                               )}
                                             </div>
                                           </div>

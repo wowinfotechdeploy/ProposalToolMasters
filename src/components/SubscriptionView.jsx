@@ -3,9 +3,14 @@ import React, { useEffect, useState, useRef, useContext } from "react";
 import { Row, Col, Card, CardBody } from "reactstrap";
 import { AuthContextProvider } from "../AuthContext/AuthContext";
 function SubscriptionView(props) {
-  const { EngagementName, proposalName, setLoader, formatValue, formatValueWithoutCurrencySymbol } =
-    useContext(AuthContextProvider);
-  console.log(props.subscriptionPackageObj, "props.subscriptionPackageObj")
+  const {
+    EngagementName,
+    proposalName,
+    setLoader,
+    formatValue,
+    formatValueWithoutCurrencySymbol,
+  } = useContext(AuthContextProvider);
+  // console.log(props.subscriptionPackageObj, "props.subscriptionPackageObj")
   return (
     <div>
       <div
@@ -17,9 +22,7 @@ function SubscriptionView(props) {
         data-bs-backdrop="static"
         data-bs-keyboard="false"
       >
-        <div
-          className="modal-dialog model-large modal-dialog-centered"
-        >
+        <div className="modal-dialog model-large modal-dialog-centered">
           <div class="modal-content">
             <div class="modal-header  p-3">
               <h5 class="modal-title" id="exampleModalLabel">
@@ -41,8 +44,8 @@ function SubscriptionView(props) {
                     <Col md="6">
                       <Card
                         className="pricing-box d-flex shadow-lg p-3 rounded"
-                        style={{ marginTop: "15px", height: "56vh" }} >
-
+                        style={{ marginTop: "15px", height: "56vh" }}
+                      >
                         <div className="media">
                           <i className="ion ion-ios-airplane h1 align-self-center"></i>
                           <div className="media-body text-start">
@@ -61,7 +64,7 @@ function SubscriptionView(props) {
                                   .paymentFrequencyID === 1
                                   ? "Yearly"
                                   : props.subscriptionPackageObj
-                                    .paymentFrequencyID === 4
+                                        .paymentFrequencyID === 4
                                     ? "Monthly"
                                     : ""}
                               </p>
@@ -71,22 +74,24 @@ function SubscriptionView(props) {
                                   .paymentFrequencyID === 1
                                   ? "365 Days"
                                   : props.subscriptionPackageObj
-                                    .paymentFrequencyID === 4
+                                        .paymentFrequencyID === 4
                                     ? "30 Days"
                                     : "-"}
                               </p>
                               <p className=" mb-1 text-dark text-nowrap">
                                 <b>Subscription Date</b>:{" "}
-                                {
-                                  props.subscriptionPackageObj
-                                    .subscriptionStartDate === null ? "-" : props.subscriptionPackageObj
-                                    .subscriptionStartDate
-                                }
+                                {props.subscriptionPackageObj
+                                  .subscriptionStartDate === null
+                                  ? "-"
+                                  : props.subscriptionPackageObj
+                                      .subscriptionStartDate}
                               </p>
 
                               <p className=" mb-1 text-dark text-nowrap">
                                 <b>Next Renewal Date</b>:{" "}
-                                {props.subscriptionPackageObj.renewDate === null ? "-" : props.subscriptionPackageObj.renewDate}
+                                {props.subscriptionPackageObj.renewDate === null
+                                  ? "-"
+                                  : props.subscriptionPackageObj.renewDate}
                               </p>
                               <p className=" mb-1 text-dark text-nowrap">
                                 <b>Payment Status</b>:{" "}
@@ -103,16 +108,16 @@ function SubscriptionView(props) {
                                           .subscriptionStatus === "Active"
                                           ? "#008000"
                                           : props.subscriptionPackageObj
-                                            .subscriptionStatus ===
-                                            "Expired"
+                                                .subscriptionStatus ===
+                                              "Expired"
                                             ? "#FF0000"
                                             : props.subscriptionPackageObj
-                                              .subscriptionStatus ===
-                                              "Pending"
+                                                  .subscriptionStatus ===
+                                                "Pending"
                                               ? "#DAA520"
                                               : props.subscriptionPackageObj
-                                                .subscriptionStatus ===
-                                                "InActive"
+                                                    .subscriptionStatus ===
+                                                  "InActive"
                                                 ? "#772424"
                                                 : "gray",
                                       width: "100px",
@@ -130,37 +135,42 @@ function SubscriptionView(props) {
                               </p>
                               <p className="mt-0 mb-1 text-dark">
                                 <b>Remaining E-Signatures</b>:{" "}
-                                {
-                                  props.subscriptionPackageObj.remainingESignatures < 0 ? 0 : props.subscriptionPackageObj.remainingESignatures
-                                }
+                                {props.subscriptionPackageObj
+                                  .remainingESignatures < 0
+                                  ? 0
+                                  : props.subscriptionPackageObj
+                                      .remainingESignatures}
                               </p>
                             </div>
                           </div>
                         </div>
-
                       </Card>
                     </Col>
                     <Col md="6">
                       <Card
                         className="pricing-box d-flex shadow-lg p-3 rounded"
-                        style={{ marginTop: "15px", height: "56vh" }} >
-
+                        style={{ marginTop: "15px", height: "56vh" }}
+                      >
                         <div className="media">
                           <i className="ion ion-ios-airplane h1 align-self-center"></i>
                           <div className="media-body text-start">
                             <h6 className="text-dark text-center">
                               Package Details
                             </h6>
-                            <p style={{ fontWeight: '600' }} className="text-dark text-center ">
-                              {formatValue((
-                                props.subscriptionPackageObj
-                                  ?.yearlyValuePlan / 12
-                              ))}/Month
+                            <p
+                              style={{ fontWeight: "600" }}
+                              className="text-dark text-center "
+                            >
+                              {formatValue(
+                                props.subscriptionPackageObj?.yearlyValuePlan /
+                                  12,
+                              )}
+                              /Month
                             </p>
                             <div className="pricing-features ">
                               <p className="mt-0 mb-1 text-dark">
                                 {props.subscriptionPackageObj?.apiIntegration ==
-                                  true ? (
+                                true ? (
                                   <span
                                     style={{ color: "green" }}
                                     className="fa fa-check"
@@ -171,16 +181,14 @@ function SubscriptionView(props) {
                                     className="fa fa-times"
                                   ></span>
                                 )}
-                                <span
-                                  style={{ marginLeft: "10px" }}
-                                >
+                                <span style={{ marginLeft: "10px" }}>
                                   {" "}
                                   API Integration
                                 </span>
                               </p>
                               <p className="mt-0 mb-1 text-dark">
                                 {props.subscriptionPackageObj?.prepareQuote ==
-                                  true ? (
+                                true ? (
                                   <span
                                     style={{ color: "green" }}
                                     className="fa fa-check"
@@ -216,7 +224,7 @@ function SubscriptionView(props) {
                               </p>
                               <p className="mt-0 mb-1 text-dark">
                                 {props.subscriptionPackageObj?.sendQuote ===
-                                  true ? (
+                                true ? (
                                   <span
                                     style={{ color: "green" }}
                                     className="fa fa-check"
@@ -234,8 +242,8 @@ function SubscriptionView(props) {
                               </p>
 
                               <p className="mt-0 mb-1 text-dark">
-                                {props.subscriptionPackageObj
-                                  ?.signContract === true ? (
+                                {props.subscriptionPackageObj?.signContract ===
+                                true ? (
                                   <span
                                     style={{ color: "green" }}
                                     className="fa fa-check"
@@ -248,16 +256,20 @@ function SubscriptionView(props) {
                                 )}
                                 <span style={{ marginLeft: "10px" }}>
                                   {" "}
-                                  Send And Digitally Sign The {EngagementName}:{" "}
-                                  {formatValueWithoutCurrencySymbol(props.subscriptionPackageObj
-                                    ?.eSignaturePerMonth)}
+                                  Send And Digitally Sign The {
+                                    EngagementName
+                                  }:{" "}
+                                  {formatValueWithoutCurrencySymbol(
+                                    props.subscriptionPackageObj
+                                      ?.eSignaturePerMonth,
+                                  )}
                                   /Month
                                 </span>
                               </p>
                               <p className="mt-0 mb-1 text-dark">
-                                {(props.subscriptionPackageObj
-                                  ?.isMailBox === null || !props.subscriptionPackageObj
-                                    ?.isMailBox) ? (
+                                {props.subscriptionPackageObj?.isMailBox ===
+                                  null ||
+                                !props.subscriptionPackageObj?.isMailBox ? (
                                   <span
                                     style={{ color: "red", marginRight: "2px" }}
                                     className="fa fa-times"
@@ -277,7 +289,6 @@ function SubscriptionView(props) {
                             </div>
                           </div>
                         </div>
-
                       </Card>
                     </Col>
                   </Row>

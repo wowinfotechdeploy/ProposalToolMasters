@@ -13,7 +13,10 @@ import {
 import { ERROR_MESSAGES } from "../../../../components/GlobalMessage";
 import Utils from "../../../../Middleware/Utils";
 
-import { GetEmailAddressTypeLookupList, GetTriggerPointTypeLookupList } from "../../../../redux/Services/Config/ReminderApi";
+import {
+  GetEmailAddressTypeLookupList,
+  GetTriggerPointTypeLookupList,
+} from "../../../../redux/Services/Config/ReminderApi";
 import { useSelector } from "react-redux";
 
 function UnpaidUpdateAccountDeletion() {
@@ -44,11 +47,11 @@ function UnpaidUpdateAccountDeletion() {
   const [ErrorMessage, setErrorMessage] = useState({});
   const [requireErrorMessage, setRequireErrorMessage] = useState(false);
   const [emailAddressTypeLookupList, setEmailAddressTypeLookupList] = useState(
-    []
+    [],
   );
   const [openSuccessModal, setOpenSuccessModal] = useState(false);
   const [triggerPointTypeLookupList, setTriggerPointTypeLookupList] = useState(
-    []
+    [],
   );
 
   const [reminderObj, setReminderObj] = useState({
@@ -65,24 +68,21 @@ function UnpaidUpdateAccountDeletion() {
     isRepeat: null,
     reminderFrequencyID: null,
     documentStatusIDs: null,
-    triggerPointID: null
+    triggerPointID: null,
   });
 
   useEffect(() => {
     setTopbar("none");
-
   }, []);
 
   useEffect(() => {
-
     if (location?.state) {
       setTemplateTypeID(location.state.templateTypeID);
       GetEmailTemplateTypeData(location.state.templateTypeID);
       setModelAction(location.state?.Action || "Unpaid"); // If Action is undefined or null, set to "Unpaid"
       GetReminderModelData(location.state.reminderKeyID);
 
-      GetEmailAddressTypeData(location.state?.reminderTypeID)
-
+      GetEmailAddressTypeData(location.state?.reminderTypeID);
     }
     setTopbar("none");
   }, [location.state, id]);
@@ -90,16 +90,16 @@ function UnpaidUpdateAccountDeletion() {
   const titleVariable = location.state?.listType;
 
   const GetEmailTemplateTypeData = async (TemplateTypeID) => {
-    setLoader(true)
+    setLoader(true);
     try {
       const data = await GetEmailTemplateListLookupList(
         common.organisationKeyID,
         common.userKeyID,
         6,
-        TemplateTypeID === undefined ? templateTypeID : TemplateTypeID
+        TemplateTypeID === undefined ? templateTypeID : TemplateTypeID,
       );
       if (data?.data?.statusCode === 200) {
-        setLoader(false)
+        setLoader(false);
         let emailTemplateTypeData = data?.data?.responseData.data;
         emailTemplateTypeData = emailTemplateTypeData.map((TempType) => ({
           value: TempType.templateID,
@@ -107,19 +107,27 @@ function UnpaidUpdateAccountDeletion() {
         }));
         setEmailTemplateTypeLookupList(emailTemplateTypeData);
       } else {
-        setErrorMessage(data.data.errorMessage)
-        setLoader(false)
+        setErrorMessage(data.data.errorMessage);
+        setLoader(false);
       }
     } catch (error) {
       console.log(error);
     }
   };
-  const GetTriggerPointTypeData = async (Id, emailAddressID, emailAddressIDType) => {
-    setLoader(true)
+  const GetTriggerPointTypeData = async (
+    Id,
+    emailAddressID,
+    emailAddressIDType,
+  ) => {
+    setLoader(true);
     try {
-      const data = await GetTriggerPointTypeLookupList(Id, emailAddressID, emailAddressIDType);
+      const data = await GetTriggerPointTypeLookupList(
+        Id,
+        emailAddressID,
+        emailAddressIDType,
+      );
       if (data?.data?.statusCode === 200) {
-        setLoader(false)
+        setLoader(false);
         let triggerPointTypeData = data?.data?.responseData?.data;
 
         triggerPointTypeData = triggerPointTypeData
@@ -145,8 +153,8 @@ function UnpaidUpdateAccountDeletion() {
 
         setTriggerPointTypeLookupList(triggerPointTypeData);
       } else {
-        setLoader(false)
-        setErrorMessage(data.data.errorMessage)
+        setLoader(false);
+        setErrorMessage(data.data.errorMessage);
       }
     } catch (error) {
       console.log(error);
@@ -185,9 +193,13 @@ function UnpaidUpdateAccountDeletion() {
             isRepeat: ModelData.isRepeat,
             reminderFrequencyID: ModelData.reminderFrequencyID,
             documentStatusIDs: ModelData.documentStatusIDs,
-            reminderNameType: location.state.reminderNameType
+            reminderNameType: location.state.reminderNameType,
           });
-          GetTriggerPointTypeData(location.state?.reminderTypeID, ModelData.emailAddressID, ModelData.emailAddressIDType)
+          GetTriggerPointTypeData(
+            location.state?.reminderTypeID,
+            ModelData.emailAddressID,
+            ModelData.emailAddressIDType,
+          );
         }
       } else {
         setErrorMessage(data?.data?.errorMessage);
@@ -210,8 +222,6 @@ function UnpaidUpdateAccountDeletion() {
       ...reminderObj,
       reminderName: capitalizedValue,
     });
-
-
   };
   const GetEmailAddressTypeData = async (Id) => {
     try {
@@ -227,16 +237,16 @@ function UnpaidUpdateAccountDeletion() {
     }
   };
   const templateTypeFilter = emailTemplateTypeLookupList?.filter(
-    (template) => template.value == reminderObj.templateID
+    (template) => template.value == reminderObj.templateID,
   );
   const TriggerPoints = triggerPointTypeLookupList?.find(
-    (trigger) => trigger.value == reminderObj.triggerPointID
+    (trigger) => trigger.value == reminderObj.triggerPointID,
   );
   const SequenceTypeFilter = Utils.periods?.filter(
-    (sequence) => sequence.value === reminderObj.sequenceID
+    (sequence) => sequence.value === reminderObj.sequenceID,
   );
   const TemplateEmailAddress = emailAddressTypeLookupList?.find(
-    (emailTemp) => emailTemp.value === reminderObj.emailAddressID
+    (emailTemp) => emailTemp.value === reminderObj.emailAddressID,
   );
   const marketingReminderAddUpdateBtnClick = async () => {
     // Check for required fields
@@ -244,34 +254,41 @@ function UnpaidUpdateAccountDeletion() {
       reminderObj.reminderName === undefined ||
       reminderObj.reminderName === null ||
       reminderObj.reminderName === "" ||
-
       reminderObj.templateID === undefined ||
       reminderObj.templateID === null ||
       reminderObj.templateID === "" ||
-
       reminderObj.days === undefined ||
       reminderObj.days === null ||
       reminderObj.days === "" ||
       reminderObj.triggerPointID === null ||
       reminderObj.triggerPointID === "" ||
       reminderObj.triggerPointID === undefined
-
     ) {
       setRequireErrorMessage(true); // Show common error message
       return false; // Validation failed
     }
-    if (location.state.greaterDay !== null && location.state.greaterDay <= reminderObj.days) {
+    if (
+      location.state.greaterDay !== null &&
+      location.state.greaterDay <= reminderObj.days
+    ) {
       setRequireErrorMessage(true);
       return false;
     }
 
-    if (location.state.lessDay !== null && location.state.lessDay >= reminderObj.days) {
+    if (
+      location.state.lessDay !== null &&
+      location.state.lessDay >= reminderObj.days
+    ) {
       setRequireErrorMessage(true);
       return false;
     }
 
-    if (location.state.greaterDay !== null && location.state.lessDay !== null &&
-      location.state.greaterDay <= reminderObj.days && location.state.lessDay >= reminderObj.days) {
+    if (
+      location.state.greaterDay !== null &&
+      location.state.lessDay !== null &&
+      location.state.greaterDay <= reminderObj.days &&
+      location.state.lessDay >= reminderObj.days
+    ) {
       setRequireErrorMessage(true);
       return false;
     }
@@ -296,12 +313,12 @@ function UnpaidUpdateAccountDeletion() {
       if (modelAction === "Paid") {
         response = await UpdatePaidAccount(
           "/AddUpdateLoginToOutbooksReminderPaidUser",
-          formData
+          formData,
         );
       } else {
         response = await UpdateUnpaidAccount(
           "/AddUpdateLoginToOutbooksReminderUnpaidUser",
-          formData
+          formData,
         );
       }
 
@@ -313,7 +330,6 @@ function UnpaidUpdateAccountDeletion() {
     } catch (error) {
       console.error("API call error:", error);
     }
-
   };
 
   const handleClose = () => {
@@ -355,8 +371,8 @@ function UnpaidUpdateAccountDeletion() {
                         </div>
 
                         {requireErrorMessage &&
-                          (reminderObj.reminderName === "" ||
-                            reminderObj.reminderName === undefined) ? (
+                        (reminderObj.reminderName === "" ||
+                          reminderObj.reminderName === undefined) ? (
                           <label className="validation">{ERROR_MESSAGES}</label>
                         ) : (
                           ""
@@ -374,7 +390,10 @@ function UnpaidUpdateAccountDeletion() {
                             readOnly
                             className="input-text"
                             placeholder="Enter Reminder Name"
-                            value={reminderObj.reminderNameType?.replace(/_/g, ' ')}
+                            value={reminderObj.reminderNameType?.replace(
+                              /_/g,
+                              " ",
+                            )}
                             onChange={handleReminderNameChange}
                             required
                             maxLength={100}
@@ -382,8 +401,8 @@ function UnpaidUpdateAccountDeletion() {
                         </div>
 
                         {requireErrorMessage &&
-                          (reminderObj.reminderNameType === "" ||
-                            reminderObj.reminderNameType === undefined) ? (
+                        (reminderObj.reminderNameType === "" ||
+                          reminderObj.reminderNameType === undefined) ? (
                           <label className="validation">{ERROR_MESSAGES}</label>
                         ) : (
                           ""
@@ -412,9 +431,9 @@ function UnpaidUpdateAccountDeletion() {
                           />
                         </div>
                         {requireErrorMessage &&
-                          (reminderObj.templateID === "" ||
-                            reminderObj.templateID === undefined ||
-                            reminderObj.templateID === null) ? (
+                        (reminderObj.templateID === "" ||
+                          reminderObj.templateID === undefined ||
+                          reminderObj.templateID === null) ? (
                           <label className="validation">{ERROR_MESSAGES}</label>
                         ) : (
                           ""
@@ -440,15 +459,18 @@ function UnpaidUpdateAccountDeletion() {
                                 emailAddressID: selectedOption
                                   ? selectedOption.value
                                   : null,
-                              }))
-                              GetTriggerPointTypeData(location.state?.reminderTypeID, selectedOption.value, selectedOption.emailAddressIDType)
-                            }
-                            }
+                              }));
+                              GetTriggerPointTypeData(
+                                location.state?.reminderTypeID,
+                                selectedOption.value,
+                                selectedOption.emailAddressIDType,
+                              );
+                            }}
                           />
                         </div>
                         {requireErrorMessage &&
-                          (reminderObj.emailAddressID == "" ||
-                            reminderObj.emailAddressID == undefined) ? (
+                        (reminderObj.emailAddressID == "" ||
+                          reminderObj.emailAddressID == undefined) ? (
                           <label className="validation">{ERROR_MESSAGES}</label>
                         ) : (
                           ""
@@ -473,45 +495,47 @@ function UnpaidUpdateAccountDeletion() {
                             onInput={(e) => {
                               e.target.value = e.target.value.replace(
                                 /[^0-9]/g,
-                                ""
+                                "",
                               );
                             }}
                           />
                         </div>
-                        {
-                          requireErrorMessage &&
-                          (
-                            // Check if reminderObj.days is empty or undefined
-                            (reminderObj.days === "" || reminderObj.days === undefined) ? (
+                        {requireErrorMessage &&
+                          // Check if reminderObj.days is empty or undefined
+                          (reminderObj.days === "" ||
+                          reminderObj.days === undefined ? (
+                            <label className="validation">
+                              {ERROR_MESSAGES}
+                            </label>
+                          ) : // Check if both greaterDay and lessDay are present and days fall in between
+                          location.state.greaterDay !== null &&
+                            location.state.lessDay !== null ? (
+                            reminderObj.days >= location.state.greaterDay ||
+                            reminderObj.days <= location.state.lessDay ? (
                               <label className="validation">
-                                {ERROR_MESSAGES}
+                                Select a day between {location.state.lessDay}{" "}
+                                and {location.state.greaterDay}
                               </label>
                             ) : (
-                              // Check if both greaterDay and lessDay are present and days fall in between
-                              (location.state.greaterDay !== null && location.state.lessDay !== null) ? (
-                                (reminderObj.days >= location.state.greaterDay || reminderObj.days <= location.state.lessDay) ? (
-                                  <label className="validation">
-                                    Select a day between {location.state.lessDay} and {location.state.greaterDay}
-                                  </label>
-                                ) : ""
-                              ) : (
-                                // If only lessDay is present and reminderObj.days is less
-                                location.state.greaterDay === null && location.state.lessDay !== null && reminderObj.days <= location.state.lessDay ? (
-                                  <label className="validation">
-                                    Select a day greater than {location.state.lessDay}
-                                  </label>
-                                ) : (
-                                  // If only greaterDay is present and reminderObj.days is greater
-                                  location.state.lessDay === null && location.state.greaterDay !== null && reminderObj.days >= location.state.greaterDay ? (
-                                    <label className="validation">
-                                      Select a day less than {location.state.greaterDay}
-                                    </label>
-                                  ) : ""
-                                )
-                              )
+                              ""
                             )
-                          )
-                        }
+                          ) : // If only lessDay is present and reminderObj.days is less
+                          location.state.greaterDay === null &&
+                            location.state.lessDay !== null &&
+                            reminderObj.days <= location.state.lessDay ? (
+                            <label className="validation">
+                              Select a day greater than {location.state.lessDay}
+                            </label>
+                          ) : // If only greaterDay is present and reminderObj.days is greater
+                          location.state.lessDay === null &&
+                            location.state.greaterDay !== null &&
+                            reminderObj.days >= location.state.greaterDay ? (
+                            <label className="validation">
+                              Select a day less than {location.state.greaterDay}
+                            </label>
+                          ) : (
+                            ""
+                          ))}
                       </div>
                     </div>
                     <div className="col-lg-3">
@@ -560,11 +584,13 @@ function UnpaidUpdateAccountDeletion() {
                             }
                           />
                         </div>
-                        {requireErrorMessage && (reminderObj.triggerPointID == "" || reminderObj.triggerPointID == undefined) ?
-                          <label className="validation">
-                            {ERROR_MESSAGES}
-                          </label> : ""
-                        }
+                        {requireErrorMessage &&
+                        (reminderObj.triggerPointID == "" ||
+                          reminderObj.triggerPointID == undefined) ? (
+                          <label className="validation">{ERROR_MESSAGES}</label>
+                        ) : (
+                          ""
+                        )}
                       </div>
                     </div>
                   </div>

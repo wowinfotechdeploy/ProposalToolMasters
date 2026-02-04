@@ -87,7 +87,7 @@ function SubscriptionPackageModel(props) {
     setModelAction(
       location?.state?.Action === undefined || location?.state?.Action === null
         ? "Add"
-        : "Update"
+        : "Update",
     ); //Do not change this naming convention
 
     // setModelAction(props.modelRequestData?.Action === null ? "Add" : "Update"); //Do not change this naming convention
@@ -138,35 +138,35 @@ function SubscriptionPackageModel(props) {
         if (data?.data?.responseData?.data) {
           const ModelData = data?.data?.responseData?.data;
           const discountPriceYear = ModelData.subscriptionOffers.find(
-            (offer) => offer.paymentFrequencyID === 1
+            (offer) => offer.paymentFrequencyID === 1,
           )?.discountPrice;
           const monthFreeYear = ModelData.subscriptionOffers.find(
-            (offer) => offer.paymentFrequencyID === 1
+            (offer) => offer.paymentFrequencyID === 1,
           )?.monthFree;
           const getMonthsYear = ModelData.subscriptionOffers.find(
-            (offer) => offer.paymentFrequencyID === 1
+            (offer) => offer.paymentFrequencyID === 1,
           )?.getMonths;
           const inPriceOfMonthYear = ModelData.subscriptionOffers.find(
-            (offer) => offer.paymentFrequencyID === 1
+            (offer) => offer.paymentFrequencyID === 1,
           )?.inPriceOfMonth;
           const discountPercentageYear = ModelData.subscriptionOffers.find(
-            (offer) => offer.paymentFrequencyID === 1
+            (offer) => offer.paymentFrequencyID === 1,
           )?.discountPercentage;
 
           const discountPriceMonth = ModelData.subscriptionOffers.find(
-            (offer) => offer.paymentFrequencyID === 4
+            (offer) => offer.paymentFrequencyID === 4,
           )?.discountPrice;
           const monthFreeMonth = ModelData.subscriptionOffers.find(
-            (offer) => offer.paymentFrequencyID === 4
+            (offer) => offer.paymentFrequencyID === 4,
           )?.monthFree;
           const getMonthsMonth = ModelData.subscriptionOffers.find(
-            (offer) => offer.paymentFrequencyID === 4
+            (offer) => offer.paymentFrequencyID === 4,
           )?.getMonths;
           const inPriceOfMonthMonth = ModelData.subscriptionOffers.find(
-            (offer) => offer.paymentFrequencyID === 4
+            (offer) => offer.paymentFrequencyID === 4,
           )?.inPriceOfMonth;
           const discountPercentageMonth = ModelData.subscriptionOffers.find(
-            (offer) => offer.paymentFrequencyID === 4
+            (offer) => offer.paymentFrequencyID === 4,
           )?.discountPercentage;
           setSubscriptionPackageObj({
             ...subscriptionPackageObj,
@@ -190,8 +190,8 @@ function SubscriptionPackageModel(props) {
               discountPercentageYear === undefined
                 ? false
                 : discountPercentageYear > 0
-                ? true
-                : false,
+                  ? true
+                  : false,
             discountPercentageMonth:
               discountPercentageMonth === undefined
                 ? 0
@@ -200,52 +200,52 @@ function SubscriptionPackageModel(props) {
               discountPercentageMonth === undefined
                 ? false
                 : discountPercentageMonth > 0
-                ? true
-                : false,
+                  ? true
+                  : false,
             discountPriceYear:
               discountPriceYear === undefined ? 0 : discountPriceYear,
             discountPriceYearCheck:
               discountPriceYear === undefined
                 ? false
                 : discountPriceYear > 0
-                ? true
-                : false,
+                  ? true
+                  : false,
             discountPriceMonth:
               discountPriceMonth === undefined ? 0 : discountPriceMonth,
             discountPriceMonthCheck:
               discountPriceMonth === undefined
                 ? false
                 : discountPriceMonth > 0
-                ? true
-                : false,
+                  ? true
+                  : false,
             monthFreeYear: monthFreeYear === undefined ? 0 : monthFreeYear,
             monthFreeYearCheck:
               monthFreeYear === undefined
                 ? false
                 : monthFreeYear > 0
-                ? true
-                : false,
+                  ? true
+                  : false,
             monthFreeMonth: monthFreeMonth === undefined ? 0 : monthFreeMonth,
             monthFreeMonthCheck:
               monthFreeMonth === undefined
                 ? false
                 : monthFreeMonth > 0
-                ? true
-                : false,
+                  ? true
+                  : false,
             getMonthsYear: getMonthsYear === undefined ? 0 : getMonthsYear,
             getMonthsYearCheck:
               getMonthsYear === undefined
                 ? false
                 : getMonthsYear > 0
-                ? true
-                : false,
+                  ? true
+                  : false,
             getMonthsMonth: getMonthsMonth === undefined ? 0 : getMonthsMonth,
             getMonthsMonthCheck:
               getMonthsMonth === undefined
                 ? false
                 : getMonthsMonth > 0
-                ? true
-                : false,
+                  ? true
+                  : false,
             inPriceOfMonthYear:
               inPriceOfMonthYear === undefined ? 0 : inPriceOfMonthYear,
             inPriceOfMonthYearCheck:
@@ -318,8 +318,8 @@ function SubscriptionPackageModel(props) {
           ?.toString()
           .replace(
             /\B(?=(\d{3})+(?!\d))/g,
-            ","
-          )} exceeds Stripe's transaction limit of £ 20,000. Please enter a lower amount.`
+            ",",
+          )} exceeds Stripe's transaction limit of £ 20,000. Please enter a lower amount.`,
       );
 
       scrollUpDownByElementID("ErrorMessage");
@@ -423,7 +423,7 @@ function SubscriptionPackageModel(props) {
           ],
     };
     AddUpdateSubscriptionPackageData(ApiRequest_ParamsObj);
-    console.log("ApiRequest_ParamsObj", ApiRequest_ParamsObj);
+    // console.log("ApiRequest_ParamsObj", ApiRequest_ParamsObj);
   };
 
   // 3) Add Update Subscription package Data Api
@@ -776,7 +776,7 @@ function SubscriptionPackageModel(props) {
                                 inputValue.split(".");
                               inputValue = `${integerPart.slice(
                                 0,
-                                7
+                                7,
                               )}.${decimalPart.slice(0, 2)}`;
                             } else {
                               inputValue = inputValue.slice(0, 7);
@@ -1007,7 +1007,7 @@ function SubscriptionPackageModel(props) {
                                 inputValue.split(".");
                               inputValue = `${integerPart.slice(
                                 0,
-                                7
+                                7,
                               )}.${decimalPart.slice(0, 2)}`;
                             } else {
                               inputValue = inputValue.slice(0, 7);
@@ -1087,7 +1087,7 @@ function SubscriptionPackageModel(props) {
                                   // Remove any non-numeric characters except dot
                                   inputValue = inputValue.replace(
                                     /[^0-9.]/g,
-                                    ""
+                                    "",
                                   );
                                   // Split the input value by decimal point
                                   const parts = inputValue.split(".");
@@ -1188,7 +1188,7 @@ function SubscriptionPackageModel(props) {
                                   // Remove non-numeric characters except decimal point
                                   inputValue = inputValue.replace(
                                     /[^\d.]/g,
-                                    ""
+                                    "",
                                   );
                                   // Limit to 12 digits before the decimal point
                                   if (inputValue.includes(".")) {
@@ -1196,7 +1196,7 @@ function SubscriptionPackageModel(props) {
                                       inputValue.split(".");
                                     inputValue = `${integerPart.slice(
                                       0,
-                                      7
+                                      7,
                                     )}.${decimalPart.slice(0, 2)}`;
                                   } else {
                                     inputValue = inputValue.slice(0, 7);
@@ -1523,7 +1523,7 @@ function SubscriptionPackageModel(props) {
                                   // Remove any non-numeric characters except dot
                                   inputValue = inputValue.replace(
                                     /[^0-9.]/g,
-                                    ""
+                                    "",
                                   );
                                   // Split the input value by decimal point
                                   const parts = inputValue.split(".");
@@ -1623,7 +1623,7 @@ function SubscriptionPackageModel(props) {
                                   // Remove non-numeric characters except decimal point
                                   inputValue = inputValue.replace(
                                     /[^\d.]/g,
-                                    ""
+                                    "",
                                   );
                                   // Limit to 12 digits before the decimal point
                                   if (inputValue.includes(".")) {
@@ -1631,7 +1631,7 @@ function SubscriptionPackageModel(props) {
                                       inputValue.split(".");
                                     inputValue = `${integerPart.slice(
                                       0,
-                                      7
+                                      7,
                                     )}.${decimalPart.slice(0, 2)}`;
                                   } else {
                                     inputValue = inputValue.slice(0, 7);

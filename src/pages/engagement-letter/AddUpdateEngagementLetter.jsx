@@ -29,7 +29,6 @@ import {
   GetAdditionalInformationList,
   GetPackageServicesList,
   GetServicePackageLookupList,
-  StatementOfFactModal,
 } from "../../redux/Services/Config/PackageApi";
 import {
   GetClientLookupList,
@@ -1722,7 +1721,7 @@ const ReviewServicesComponent = (props) => {
 
     if (
       props.moduleName === "Quote" &&
-      props?.engagementObj?.quoteTypeID === 2
+      props?.ProposalObject?.selectedProposalTypeValue === 2
     ) {
       return props.StatementOfFact.map(
         (SelectedPackage) => `
@@ -1777,10 +1776,6 @@ const ReviewServicesComponent = (props) => {
                           ? d.slabTypeID === 2
                             ? formatCurrency(d.value)
                             : `${d.slabFrom}-${d.slabTo}`
-                          : d.driverTypeID === 5
-                            ? d.enteredText
-                          : d.driverTypeID === 6
-                            ? d.enteredDate
                           : ""
                   }</strong>
                 </li>
@@ -1838,10 +1833,6 @@ const ReviewServicesComponent = (props) => {
                           ? d.slabTypeID === 2
                             ? formatCurrency(d.value)
                             : `${d.slabFrom}-${d.slabTo}`
-                          : d.driverTypeID === 5 
-                            ? d.enteredText 
-                          : d.driverTypeID === 6 
-                            ? d.enteredDate 
                           : ""
                   }</strong>
                 </li>
@@ -1875,10 +1866,6 @@ const ReviewServicesComponent = (props) => {
                              : `${formatCurrency(d.slabFrom)}-${formatCurrency(
                                  d.slabTo,
                                )}`
-                           :  d.driverTypeID === 5 
-                            ? d.enteredText 
-                           : d.driverTypeID === 6 
-                            ? d.enteredDate
                            : ""
                    }</strong>
                  </p>
@@ -1957,10 +1944,6 @@ const ReviewServicesComponent = (props) => {
                                 : `${formatCurrency(d.slabFrom)}-${formatCurrency(
                                     d.slabTo,
                                   )}`
-                            : d.driverTypeID === 5 
-                              ? d.enteredText 
-                            : d.driverTypeID === 6 
-                              ? d.enteredDate 
                             : ""
                     }</strong>
                   </li>
@@ -2038,10 +2021,6 @@ const ReviewServicesComponent = (props) => {
                                 : `${formatCurrency(d.slabFrom)}-${formatCurrency(
                                     d.slabTo,
                                   )}`
-                            : d.driverTypeID === 5 
-                              ? d.enteredText 
-                            : d.driverTypeID === 6 
-                              ? d.enteredDate 
                             : ""
                     }</strong>
                   </li>
@@ -2071,20 +2050,7 @@ const ReviewServicesComponent = (props) => {
                    return `<p style="color: black; font-size: ${fontSizeContent};">${
                      d.driverName
                    }: <strong>${formatCurrency(d.driverValue)}</strong></p>`;
-                 } 
-                 // Type 5 – Text
-                 if (d.driverTypeID === 5 && d.enteredText) {
-                   return `<p style="color:black;font-size:${fontSizeContent};">
-      ${d.driverName}: <strong>${d.enteredText}</strong>
-    </p>`;
-                 }
-
-                 // Type 6 – Date
-                 if (d.driverTypeID === 6 && d.enteredDate) {
-                   return `<p style="color:black;font-size:${fontSizeContent};">
-      ${d.driverName}: <strong>${d.enteredDate}</strong>
-    </p>`;
-                 }
+                 } else {
                    const source = d.driverTypeID === 4 ? d.slab : d.variation;
                    return source
                      ?.filter((item) => item.isDefault)
@@ -2104,7 +2070,7 @@ const ReviewServicesComponent = (props) => {
                  `,
                      )
                      .join("");
-
+                 }
                })
                .join("")}`
             : ""
@@ -2131,10 +2097,6 @@ const ReviewServicesComponent = (props) => {
                            : `${formatCurrency(d.slabFrom)} - ${formatCurrency(
                                d.slabTo,
                              )}`
-                         :  d.driverTypeID === 5 
-                          ? d.enteredText 
-                         :  d.driverTypeID === 6 
-                          ? d.enteredDate 
                          : ""
                  }</strong>
                </p>
@@ -5903,7 +5865,7 @@ const ReviewPackagesComponent = (props) => {
 
     if (
       props.moduleName === "Quote" &&
-      props?.engagementObj?.quoteTypeID === 2
+      props?.ProposalObject?.selectedProposalTypeValue === 2
     ) {
       return props.StatementOfFact.map(
         (SelectedPackage) => `
@@ -5945,10 +5907,6 @@ const ReviewPackagesComponent = (props) => {
                           ? d.slabTypeID === 2
                             ? formatCurrency(d.value)
                             : `${d.slabFrom}-${d.slabTo}`
-                          : d.driverTypeID === 5 
-                            ? d.enteredText 
-                          : d.driverTypeID === 6 
-                            ? d.enteredDate 
                           : ""
                   }</strong>
                 </li>
@@ -5994,10 +5952,6 @@ const ReviewPackagesComponent = (props) => {
                           ? d.slabTypeID === 2
                             ? formatCurrency(d.value)
                             : `${d.slabFrom}-${d.slabTo}`
-                          : d.driverTypeID === 5
-                            ? d.enteredText 
-                          : d.driverTypeID === 6 
-                            ? d.enteredDate 
                           : ""
                   }</strong>
                 </li>
@@ -6031,10 +5985,6 @@ const ReviewPackagesComponent = (props) => {
                              : `${formatCurrency(d.slabFrom)}-${formatCurrency(
                                  d.slabTo,
                                )}`
-                           : d.driverTypeID === 5
-                            ? d.enteredText 
-                           : d.driverTypeID === 6 
-                            ? d.enteredDate 
                            : ""
                    }</strong>
                  </p>
@@ -6100,10 +6050,6 @@ const ReviewPackagesComponent = (props) => {
                                 : `${formatCurrency(d.slabFrom)}-${formatCurrency(
                                     d.slabTo,
                                   )}`
-                            : d.driverTypeID === 5
-                              ? d.enteredText 
-                            : d.driverTypeID === 6
-                              ? d.enteredDate
                             : ""
                     }</strong>
                   </li>
@@ -6169,10 +6115,6 @@ const ReviewPackagesComponent = (props) => {
                                 : `${formatCurrency(d.slabFrom)}-${formatCurrency(
                                     d.slabTo,
                                   )}`
-                            : d.driverTypeID === 5 
-                              ? d.enteredText 
-                            : d.driverTypeID === 6 
-                              ? d.enteredDate 
                             : ""
                     }</strong>
                   </li>
@@ -6202,20 +6144,7 @@ const ReviewPackagesComponent = (props) => {
                    return `<p style="color: black; font-size: ${fontSizeContent};">${
                      d.driverName
                    }: <strong>${formatCurrency(d.driverValue)}</strong></p>`;
-                 } 
-                 // Type 5 – Text
-                 if (d.driverTypeID === 5) {
-                   return `<p style="color:black;font-size:${fontSizeContent};">
-      ${d.driverName}: <strong>${d.enteredText}</strong>
-    </p>`;
-                 }
-
-                 // Type 6 – Date
-                 if (d.driverTypeID === 6) {
-                   return `<p style="color:black;font-size:${fontSizeContent};">
-      ${d.driverName}: <strong>${d.enteredDate}</strong>
-    </p>`;
-                 }
+                 } else {
                    const source = d.driverTypeID === 4 ? d.slab : d.variation;
                    return source
                      ?.filter((item) => item.isDefault)
@@ -6235,7 +6164,7 @@ const ReviewPackagesComponent = (props) => {
                  `,
                      )
                      .join("");
-
+                 }
                })
                .join("")}`
             : ""
@@ -6262,11 +6191,7 @@ const ReviewPackagesComponent = (props) => {
                            : `${formatCurrency(d.slabFrom)} - ${formatCurrency(
                                d.slabTo,
                              )}`
-                          : d.driverTypeID === 5 
-                            ? d.enteredText 
-                          : d.driverTypeID === 6 
-                            ? d.enteredDate 
-                          : ""
+                         : ""
                  }</strong>
                </p>
              `,
@@ -8946,11 +8871,14 @@ const ReviewPackagesComponent = (props) => {
                                     {/* Fees inc VAT (£) */}
                                     Grand Total
                                   </td>
-                                  {/* <td className="tr-table-class font-14 text-white text-right">
-                                              {" "}
-                                              {props.formatValue(props.RecurringPricingInfo.PackageOneGrandTotal)}
-                                            </td> */}
                                   <td className="tr-table-class font-14 text-white text-right">
+                                    {" "}
+                                    {props.formatValue(
+                                      props.RecurringPricingInfo
+                                        .PackageOneGrandTotal,
+                                    )}
+                                  </td>
+                                  {/* <td className="tr-table-class font-14 text-white text-right">
                                     {" "}
                                     {totalOnePackageValue >
                                       Number(
@@ -8987,7 +8915,7 @@ const ReviewPackagesComponent = (props) => {
                                               .packageOneDisCount,
                                           props.currencyID,
                                         )}
-                                  </td>
+                                  </td> */}
                                   {props.vatPercentage !== null &&
                                     props.visibleFieldsCustomTemp.vat && (
                                       <td className="tr-table-class font-14 text-white text-right">
@@ -11244,7 +11172,7 @@ const ReviewPackagesComponent = (props) => {
                             <td className="tr-table-class font-14 text-white">
                               Net Total
                             </td>
-                            <td className="tr-table-class font-14 text-white text-right">
+                            {/* <td className="tr-table-class font-14 text-white text-right">
                               {" "}
                               {totalOnePackageValue >
                                 Number(
@@ -11270,44 +11198,59 @@ const ReviewPackagesComponent = (props) => {
                                     props.OneOffPricingInfo.packageOneNetTotal,
                                     props.currencyID,
                                   )}
+                            </td> */}
+                            <td className="tr-table-class font-14 text-white text-right">
+                              {" "}
+                              {
+                                totalOnePackageValueOneOff <
+                                  Number(
+                                    props.OneOffPricingInfo
+                                      .packageOneDisCountedTotal,
+                                  ) ||
+                                (Number(
+                                  props.OneOffPricingInfo.packageOneDisCount,
+                                ) > 0 &&
+                                  !props.engagementObj.DiscountLines)
+                                  ? props.formatValue(
+                                      props.OneOffPricingInfo
+                                        .packageOneDisCountedTotal,
+                                      props.currencyID,
+                                    )
+                                  : // Number(totalOnePackageValueOneOff)
+                                    //     .toFixed(2)
+                                    //     .toString()
+                                    //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                    props.formatValue(
+                                      totalOnePackageValueOneOff,
+                                      props.currencyID,
+                                    )
+                                // Number(
+                                //     props.OneOffPricingInfo
+                                //       .packageOneDisCountedTotal
+                                //   )
+                                //     .toFixed(2)
+                                //     .toString()
+                                //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                              }
                             </td>
                             {/* Net VAT */}
                             {props.vatPercentage !== null &&
                               props.visibleFieldsCustomTemp.vat && (
                                 <td className="tr-table-class font-14 text-white text-right">
-                                  {" "}
-                                  {totalOnePackageValue >
-                                    Number(
-                                      props.OneOffPricingInfo
-                                        .packageOneNetTotal,
-                                    ) ||
-                                  (Number(
-                                    props.OneOffPricingInfo.packageOneDisCount,
-                                  ) > 0 &&
-                                    !props.engagementObj.DiscountLines)
-                                    ? Number(
+                                  {props.formatValue(
+                                    Number.isNaN(
+                                      Number(
                                         props.OneOffPricingInfo
-                                          .packageOneDisCount,
-                                      ) > 0 &&
-                                      !props.engagementObj.DiscountLines
-                                      ? props.formatValue(
-                                          (props.OneOffPricingInfo
-                                            .packageOneDisCountedTotal *
-                                            20) /
-                                            100,
-                                          props.currencyID,
-                                        )
-                                      : props.formatValue(
-                                          (totalOnePackageValue * 20) / 100,
-                                          props.currencyID,
-                                        )
-                                    : props.formatValue(
-                                        (props.OneOffPricingInfo
-                                          .packageOneNetTotal *
-                                          20) /
-                                          100,
-                                        props.currencyID,
-                                      )}
+                                          .PackageOneStaticVaTPrice,
+                                      ),
+                                    )
+                                      ? 0
+                                      : Number(
+                                          props.OneOffPricingInfo
+                                            .PackageOneStaticVaTPrice,
+                                        ),
+                                    props.currencyID,
+                                  )}
                                 </td>
                               )}
                             {props.visibleFieldsCustomTemp.serviceScope && (
@@ -11500,49 +11443,17 @@ const ReviewPackagesComponent = (props) => {
                                     props.visibleFieldsCustomTemp.vat && (
                                       <td className="tr-table-class font-14 text-white text-right">
                                         (-){" "}
-                                        {totalOnePackageValue >
+                                        {props.formatValue(
                                           Number(
                                             props.OneOffPricingInfo
-                                              .packageOneNetTotal,
-                                          ) ||
-                                        (Number(
-                                          props.OneOffPricingInfo
-                                            .packageOneDisCount,
-                                        ) > 0 &&
-                                          !props.engagementObj.DiscountLines)
-                                          ? Number(
+                                              .PackageOneStaticVaTPrice,
+                                          ) -
+                                            Number(
                                               props.OneOffPricingInfo
-                                                .packageOneDisCount,
-                                            ) > 0 &&
-                                            !props.engagementObj.DiscountLines
-                                            ? props.formatValue(
-                                                (((props.OneOffPricingInfo
-                                                  .packageOneDisCountedTotal *
-                                                  20) /
-                                                  100) *
-                                                  props.OneOffPricingInfo
-                                                    .DiscountPercentagePackageOne) /
-                                                  100,
-                                                props.currencyID,
-                                              )
-                                            : props.formatValue(
-                                                (((totalOnePackageValue * 20) /
-                                                  100) *
-                                                  props.OneOffPricingInfo
-                                                    .DiscountPercentagePackageOne) /
-                                                  100,
-                                                props.currencyID,
-                                              )
-                                          : props.formatValue(
-                                              (((props.OneOffPricingInfo
-                                                .packageOneNetTotal *
-                                                20) /
-                                                100) *
-                                                props.OneOffPricingInfo
-                                                  .DiscountPercentagePackageOne) /
-                                                100,
-                                              props.currencyID,
-                                            )}
+                                                .PackageOneVaTPrice,
+                                            ),
+                                          props.currencyID,
+                                        )}
                                       </td>
                                     )}
                                   {props.visibleFieldsCustomTemp
@@ -11758,11 +11669,14 @@ const ReviewPackagesComponent = (props) => {
                                     {/* Fees inc VAT (£) */}
                                     Grand Total
                                   </td>
-                                  {/* <td className="tr-table-class font-14 text-white text-right">
-                                                {" "}
-                                                {props.formatValue(props.OneOffPricingInfo.PackageOneGrandTotal)}
-                                              </td> */}
                                   <td className="tr-table-class font-14 text-white text-right">
+                                    {" "}
+                                    {props.formatValue(
+                                      props.OneOffPricingInfo
+                                        .PackageOneGrandTotal,
+                                    )}
+                                  </td>
+                                  {/* <td className="tr-table-class font-14 text-white text-right">
                                     {" "}
                                     {totalOnePackageValue >
                                       Number(
@@ -11799,64 +11713,17 @@ const ReviewPackagesComponent = (props) => {
                                               .packageOneDisCount,
                                           props.currencyID,
                                         )}
-                                  </td>
+                                  </td> */}
                                   {props.vatPercentage !== null &&
                                     props.visibleFieldsCustomTemp.vat && (
                                       <td className="tr-table-class font-14 text-white text-right">
-                                        {totalOnePackageValue >
+                                        {props.formatValue(
                                           Number(
                                             props.OneOffPricingInfo
-                                              .packageOneNetTotal,
-                                          ) ||
-                                        (Number(
-                                          props.OneOffPricingInfo
-                                            .packageOneDisCount,
-                                        ) > 0 &&
-                                          !props.engagementObj.DiscountLines)
-                                          ? Number(
-                                              props.OneOffPricingInfo
-                                                .packageOneDisCount,
-                                            ) > 0 &&
-                                            !props.engagementObj.DiscountLines
-                                            ? props.formatValue(
-                                                (props.OneOffPricingInfo
-                                                  .packageOneDisCountedTotal *
-                                                  20) /
-                                                  100 -
-                                                  (((props.OneOffPricingInfo
-                                                    .packageOneDisCountedTotal *
-                                                    20) /
-                                                    100) *
-                                                    props.OneOffPricingInfo
-                                                      .DiscountPercentagePackageOne) /
-                                                    100,
-                                                props.currencyID,
-                                              )
-                                            : props.formatValue(
-                                                (totalOnePackageValue * 20) /
-                                                  100 -
-                                                  (((totalOnePackageValue *
-                                                    20) /
-                                                    100) *
-                                                    props.OneOffPricingInfo
-                                                      .DiscountPercentagePackageOne) /
-                                                    100,
-                                                props.currencyID,
-                                              )
-                                          : props.formatValue(
-                                              (props.OneOffPricingInfo
-                                                .packageOneNetTotal *
-                                                20) /
-                                                100 -
-                                                (((props.OneOffPricingInfo
-                                                  .packageOneNetTotal *
-                                                  20) /
-                                                  100) *
-                                                  props.OneOffPricingInfo
-                                                    .DiscountPercentagePackageOne) /
-                                                  100,
-                                              props.currencyID,
-                                            )}
+                                              .PackageOneVaTPrice,
+                                          ),
+                                          props.currencyID,
+                                        )}
                                       </td>
                                     )}
                                   {props.visibleFieldsCustomTemp
@@ -12273,7 +12140,7 @@ const Add_Update_Engagement_Letter = () => {
     useState([]);
   const [serviceDescriptionHTML, setServiceDescriptionHTML] = useState("");
   const [statementOfFactsHTML, setStatementOfFactsHTML] = useState("");
-  const [StatementOfFact, setStatementOfFact] = useState([]);
+  const [StatementOfFact, setStatementOfFacts] = useState([]);
   const [
     quoteAdditionalInfoGlobalPricingDriver,
     setQuoteAdditionalInfoGlobalPricingDriver,
@@ -15887,6 +15754,8 @@ const Add_Update_Engagement_Letter = () => {
           setPackageTwoVat(packageTwoVATPercentage);
           setPackageThreeVat(packageThreeVATPercentage);
 
+          debugger;
+
           let PackageOneVaTPrice = totalOne * (vatPercentage / 100);
           let PackageTwoVaTPrice = totalTwo * (vatPercentage / 100);
           let PackageThreeVaTPrice = totalThree * (vatPercentage / 100);
@@ -16399,6 +16268,9 @@ const Add_Update_Engagement_Letter = () => {
             PackageTwoVaTPrice: totalVATTwo,
             // PackageThreeVaTPrice: PackageThreeVaTPrice,
             PackageThreeVaTPrice: totalVATThree,
+            PackageOneStaticVaTPrice: PackageOneVaTPrice,
+            PackageTwoStaticVaTPrice: PackageTwoVaTPrice,
+            PackageThreeStaticVaTPrice: PackageThreeVaTPrice,
             PackageOneVaTPriceWithoutDiscount: PackageOneVaTPrice,
             PackageTwoVaTPriceWithoutDiscount: PackageTwoVaTPrice,
             PackageThreeVaTPriceWithoutDiscount: PackageThreeVaTPrice,
@@ -16454,6 +16326,7 @@ const Add_Update_Engagement_Letter = () => {
             PackageTwoGrandTotal: PackageTwoGrandTotal,
             PackageThreeGrandTotal: PackageThreeGrandTotal,
           });
+          debugger;
           let OneOffTotalOne = 0;
           let OneOffTotalTwo = 0;
           let OneOffTotalThree = 0;
@@ -16466,50 +16339,100 @@ const Add_Update_Engagement_Letter = () => {
           OneArrayWithPrice.forEach((category) => {
             category.servicesList.forEach((service) => {
               // Check if the value is not null before adding
-              if (service.packageOneValue !== null)
+              if (Number.isFinite(service.packageOneValue)) {
                 OneOffTotalOne += service.packageOneValue;
-              if (
-                service.service_vat_percentage != null &&
-                service.packageOneValue != null
-              ) {
-                const vatAmount =
-                  (Number(service.packageOneValue) *
-                    Number(service.service_vat_percentage)) /
-                  100;
 
-                OneOffVATTotalOne = (
-                  Number(OneOffVATTotalOne || 0) + vatAmount
-                ).toFixed(2);
+                if (
+                  service.service_vat_percentage != null &&
+                  service.packageOneValue != null
+                ) {
+                  const vatAmount =
+                    (Number(service.packageOneValue) *
+                      Number(service.service_vat_percentage)) /
+                    100;
+
+                  OneOffVATTotalOne = (
+                    Number(OneOffVATTotalOne || 0) + vatAmount
+                  ).toFixed(2);
+                }
               }
-              if (service.packageTwoValue !== null)
+              // if (
+              //   service.service_vat_percentage != null &&
+              //   service.packageOneValue != null
+              // ) {
+              //   const vatAmount =
+              //     (Number(service.packageOneValue) *
+              //       Number(service.service_vat_percentage)) /
+              //     100;
+
+              //   OneOffVATTotalOne = (
+              //     Number(OneOffVATTotalOne || 0) + vatAmount
+              //   ).toFixed(2);
+              // }
+              // if (service.packageTwoValue !== null)
+              //   OneOffTotalTwo += service.packageTwoValue;
+              // if (
+              //   service.service_vat_percentage != null &&
+              //   service.packageTwoValue != null
+              // ) {
+              //   const vatAmount =
+              //     (Number(service.packageTwoValue) *
+              //       Number(service.service_vat_percentage)) /
+              //     100;
+
+              //   OneOffVATTotalTwo = (
+              //     Number(OneOffVATTotalTwo || 0) + vatAmount
+              //   ).toFixed(2);
+              // }
+              if (Number.isFinite(service.packageTwoValue)) {
                 OneOffTotalTwo += service.packageTwoValue;
-              if (
-                service.service_vat_percentage != null &&
-                service.packageTwoValue != null
-              ) {
-                const vatAmount =
-                  (Number(service.packageTwoValue) *
-                    Number(service.service_vat_percentage)) /
-                  100;
 
-                OneOffVATTotalTwo = (
-                  Number(OneOffVATTotalTwo || 0) + vatAmount
-                ).toFixed(2);
+                if (
+                  service.service_vat_percentage != null &&
+                  service.packageTwoValue != null
+                ) {
+                  const vatAmount =
+                    (Number(service.packageTwoValue) *
+                      Number(service.service_vat_percentage)) /
+                    100;
+
+                  OneOffVATTotalTwo = (
+                    Number(OneOffVATTotalTwo || 0) + vatAmount
+                  ).toFixed(2);
+                }
               }
-              if (service.packageThreeValue !== null)
-                OneOffTotalThree += service.packageThreeValue;
-              if (
-                service.service_vat_percentage != null &&
-                service.packageThreeValue != null
-              ) {
-                const vatAmount =
-                  (Number(service.packageThreeValue) *
-                    Number(service.service_vat_percentage)) /
-                  100;
+              // if (service.packageThreeValue !== null)
+              //   OneOffTotalThree += service.packageThreeValue;
+              // if (
+              //   service.service_vat_percentage != null &&
+              //   service.packageThreeValue != null
+              // ) {
+              //   const vatAmount =
+              //     (Number(service.packageThreeValue) *
+              //       Number(service.service_vat_percentage)) /
+              //     100;
 
-                OneOffVATTotalThree = (
-                  Number(OneOffVATTotalThree || 0) + vatAmount
-                ).toFixed(2);
+              //   OneOffVATTotalThree = (
+              //     Number(OneOffVATTotalThree || 0) + vatAmount
+              //   ).toFixed(2);
+              // }
+
+              if (Number.isFinite(service.packageThreeValue)) {
+                OneOffTotalThree += service.packageThreeValue;
+
+                if (
+                  service.service_vat_percentage != null &&
+                  service.packageThreeValue != null
+                ) {
+                  const vatAmount =
+                    (Number(service.packageThreeValue) *
+                      Number(service.service_vat_percentage)) /
+                    100;
+
+                  OneOffVATTotalThree = (
+                    Number(OneOffVATTotalThree || 0) + vatAmount
+                  ).toFixed(2);
+                }
               }
             });
           });
@@ -16636,6 +16559,10 @@ const Add_Update_Engagement_Letter = () => {
             PackageTwoVaTPrice: OneOffVATTotalTwo,
             // PackageThreeVaTPrice: OneOffPackageThreeVaTPrice,
             PackageThreeVaTPrice: OneOffVATTotalThree,
+            PackageOneStaticVaTPrice: OneOffPackageOneVaTPrice,
+            PackageTwoStaticVaTPrice: OneOffPackageTwoVaTPrice,
+            PackageThreeStaticVaTPrice: OneOffPackageThreeVaTPrice,
+
             PackageOneVaTPriceWithoutDiscount: OneOffPackageOneVaTPrice,
             PackageTwoVaTPriceWithoutDiscount: OneOffPackageTwoVaTPrice,
             PackageThreeVaTPriceWithoutDiscount: OneOffPackageThreeVaTPrice,
@@ -20364,21 +20291,7 @@ const Add_Update_Engagement_Letter = () => {
       }
 
       debugger;
-      const matchedServicePackageKeyID = getServicePackageLookupList
-              .find((packages) =>
-                packages.servicePackageKeyID === engagementObj.servicePackageKeyID,
-              )?.servicePackageKeyID;
-              const matchedServicePackageKeyIDs = matchedServicePackageKeyID
-              ? [matchedServicePackageKeyID]
-              : [];
-            setLoader(true);
-            const StatementOfFacts = await StatementOfFactModal(
-              matchedServicePackageKeyIDs,
-            );
 
-            const StatementOfFactsForStandardProposal =
-              StatementOfFacts.data.responseData.data;
-            setStatementOfFact(StatementOfFactsForStandardProposal);
       if (isTypeChange) {
         if (recurringService.selectedServices.length !== 0) {
           const {

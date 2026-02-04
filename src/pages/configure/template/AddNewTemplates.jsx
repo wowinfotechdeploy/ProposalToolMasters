@@ -70,7 +70,7 @@ function Add_New_Templates(props) {
     scrollUpDownByElementID,
     scrollUptoCurrentPosition,
     HtmlToPlainText,
-    hasActionAccess
+    hasActionAccess,
   } = useContext(AuthContextProvider);
   const navigate = useNavigate();
   const TemplateDivContainerRef = useRef(null);
@@ -79,7 +79,7 @@ function Add_New_Templates(props) {
   const [templateElementList, setTemplateElementList] = useState([]);
 
   const [TemplatePdfLookupListList, setTemplatePdfLookupListList] = useState(
-    []
+    [],
   );
   const [modelRequestData, setModelRequestData] = useState({
     Action: null,
@@ -92,7 +92,7 @@ function Add_New_Templates(props) {
   const [fontFamilyList, setFontFamilyList] = useState([]);
   const [BusinessTypeLookupList, setBusinessTypeLookupList] = useState([]);
   const [ProspectTypeVariation, setProspectTypeVariationLookupList] = useState(
-    []
+    [],
   );
   const [TemplateTypeLookupList, setTemplateTypeLookupList] = useState([]);
   // const [orientationID,setOrientationID] = useState(1);
@@ -211,7 +211,7 @@ function Add_New_Templates(props) {
       ) {
         // If no ids provided, set all fields to false (optional)
         const allFalse = Object.fromEntries(
-          Object.keys(fieldToIdMap).map((key) => [key, true])
+          Object.keys(fieldToIdMap).map((key) => [key, true]),
         );
         setVisibleFieldsCustomTemp(allFalse);
         return;
@@ -226,7 +226,7 @@ function Add_New_Templates(props) {
         Object.entries(fieldToIdMap).map(([key, id]) => [
           key,
           idsFromBackend.includes(id),
-        ])
+        ]),
       );
 
       setVisibleFieldsCustomTemp(updatedFields);
@@ -239,13 +239,13 @@ function Add_New_Templates(props) {
   // console.log("visibleFieldsCustomTemp", visibleFieldsCustomTemp);
   const [selectedTemplateType, setSelectedTemplateType] = useState(0);
   const vatPercentage = true;
-  console.log("selectedTemplateType", selectedTemplateType);
+  // console.log("selectedTemplateType", selectedTemplateType);
   // A]  useEffect : Will call when Add/Update button click from list page
   useEffect(() => {
     setModelAction(
       location?.state?.Action === undefined || location?.state?.Action === null
         ? "Add"
-        : "Update"
+        : "Update",
     ); //Do not change this naming convention
     GetProfessionTypeLookupListData();
     GetBusinessTypeLookupListData();
@@ -308,7 +308,7 @@ function Add_New_Templates(props) {
     label: font.label,
   }));
   const FontFamilyValue = FontFamilyLookupList?.find(
-    (font) => font.value === TemplateObj.fontFamilyID || null
+    (font) => font.value === TemplateObj.fontFamilyID || null,
   );
   // D] Calling All Api's like Lookup List and other Here :
   // 1) Profession Type Lookup List Api
@@ -329,7 +329,7 @@ function Add_New_Templates(props) {
     (ptype) => ({
       value: ptype.professionTypeId,
       label: ptype.professionTypeName,
-    })
+    }),
   );
   const professionTypeValue = TemplateObj?.professionTypeList?.map((item) => ({
     value: item.professionTypeId,
@@ -340,7 +340,7 @@ function Add_New_Templates(props) {
     templateElementList.forEach((element) => {
       if (element.templateElementTypeID === 9) {
         const foundPdf = TemplatePdfLookupListList.find(
-          (pdf) => pdf.templatePDFKeyID === element.headings
+          (pdf) => pdf.templatePDFKeyID === element.headings,
         );
         if (foundPdf) {
           setSelectedPdf({
@@ -394,7 +394,7 @@ function Add_New_Templates(props) {
     try {
       const data = await GetProspectTypeVariationLookupList(
         common.organisationKeyID,
-        common.userKeyID
+        common.userKeyID,
       );
       if (data?.data?.statusCode === 200) {
         if (data?.data?.responseData?.data) {
@@ -490,7 +490,7 @@ function Add_New_Templates(props) {
 
       if (!allowedExtensions.includes(fileExtension)) {
         setErrorMessage(
-          "Invalid file type. Only JPG, JPEG, and PNG files are allowed."
+          "Invalid file type. Only JPG, JPEG, and PNG files are allowed.",
         );
         return;
       }
@@ -541,7 +541,7 @@ function Add_New_Templates(props) {
         value: templateElementType.templateElementTypeID,
         label: label,
       };
-    }
+    },
   ).filter(Boolean);
 
   // E] Event Handling Functions will call here.
@@ -593,18 +593,18 @@ function Add_New_Templates(props) {
           });
           setTemplateElementList(
             ...templateElementList,
-            ModelData.templateElementList
+            ModelData.templateElementList,
           );
           const pricingTableCustomIDList = ModelData.templateElementList.filter(
-            (item) => item.templateElementTypeID === 3
+            (item) => item.templateElementTypeID === 3,
           );
 
           const serviceDescriptionObj = ModelData.templateElementList.filter(
-            (item) => item.templateElementTypeID === 4
+            (item) => item.templateElementTypeID === 4,
           );
 
           const statementOfFactsObj = ModelData.templateElementList.filter(
-            (item) => item.templateElementTypeID === 8
+            (item) => item.templateElementTypeID === 8,
           );
 
           setTemplateObj((prev) => ({
@@ -622,13 +622,13 @@ function Add_New_Templates(props) {
             serviceDescriptionOneOffHeading:
               serviceDescriptionObj[0]?.oneOffAdhocHeading,
             serviceDescriptionMainHeadingFontSize: Number(
-              serviceDescriptionObj[0]?.mainHeadingFontSize
+              serviceDescriptionObj[0]?.mainHeadingFontSize,
             ),
             serviceDescriptionRecurringHeadingFontSize: Number(
-              serviceDescriptionObj[0]?.recurringOnGoingHeadingFontSize
+              serviceDescriptionObj[0]?.recurringOnGoingHeadingFontSize,
             ),
             serviceDescriptionOneOffHeadingFontSize: Number(
-              serviceDescriptionObj[0]?.oneOffAdhocFontSize
+              serviceDescriptionObj[0]?.oneOffAdhocFontSize,
             ),
             serviceDescriptionMainHeadingFontWeight:
               serviceDescriptionObj[0]?.mainHeadingIsBold,
@@ -652,13 +652,13 @@ function Add_New_Templates(props) {
             statementOfFactsOneOffHeading:
               statementOfFactsObj[0]?.oneOffAdhocHeading,
             statementOfFactsMainHeadingFontSize: Number(
-              statementOfFactsObj[0]?.mainHeadingFontSize
+              statementOfFactsObj[0]?.mainHeadingFontSize,
             ),
             statementOfFactsRecurringHeadingFontSize: Number(
-              statementOfFactsObj[0]?.recurringOnGoingHeadingFontSize
+              statementOfFactsObj[0]?.recurringOnGoingHeadingFontSize,
             ),
             statementOfFactsOneOffHeadingFontSize: Number(
-              statementOfFactsObj[0]?.oneOffAdhocFontSize
+              statementOfFactsObj[0]?.oneOffAdhocFontSize,
             ),
             statementOfFactsMainHeadingFontWeight:
               statementOfFactsObj[0]?.mainHeadingIsBold,
@@ -723,11 +723,9 @@ function Add_New_Templates(props) {
     }
   };
 
-   // handle orientation toggle
+  // handle orientation toggle
   const handleOrientationChange = (e) => {
-    setTemplateObj({...TemplateObj,
-      orientationID: (Number(e.target.value))
-    });
+    setTemplateObj({ ...TemplateObj, orientationID: Number(e.target.value) });
   };
 
   // 2) Add Update Button Click Function
@@ -796,7 +794,7 @@ function Add_New_Templates(props) {
       } else {
         let hasError = false;
         const elementTypeId = templateElementList.filter(
-          (element, index) => element.templateElementTypeID === null
+          (element, index) => element.templateElementTypeID === null,
         );
         const elementHeadingTypeId = templateElementList.filter((item) => {
           return item.templateElementTypeID === 1;
@@ -804,7 +802,7 @@ function Add_New_Templates(props) {
         const elementFullPageHeadingTypeId = templateElementList.filter(
           (item) => {
             return item.templateElementTypeID === 5;
-          }
+          },
         );
         const elementHtmlContentTypeId = templateElementList.filter((item) => {
           return item.templateElementTypeID === 2;
@@ -826,7 +824,7 @@ function Add_New_Templates(props) {
             ) {
               // If true, setting an error message in the state
               scrollUpDownByElementID(
-                `ElementDiv_${element.templateElementTypeID}`
+                `ElementDiv_${element.templateElementTypeID}`,
               );
               setRequireElementTypeErrorMessage({
                 ...requireElementTypeErrorMessage,
@@ -864,11 +862,11 @@ function Add_New_Templates(props) {
               // If true, setting an error message in the state
               if (element.headings === null || element.headings === "") {
                 scrollUpDownByElementID(
-                  `FullPageHeadingDiv_${element.headings}`
+                  `FullPageHeadingDiv_${element.headings}`,
                 );
               } else {
                 scrollUpDownByElementID(
-                  `FullPageShortDescriptionDiv_${element.shortDesc}`
+                  `FullPageShortDescriptionDiv_${element.shortDesc}`,
                 );
               }
               setRequireElementTypeErrorMessage({
@@ -1013,11 +1011,11 @@ function Add_New_Templates(props) {
         // }
 
         const FirstPageOnTop = templateElementList.filter(
-          (item) => item.templateElementTypeID == 10
+          (item) => item.templateElementTypeID == 10,
         );
         if (FirstPageOnTop.length > 0 && elementTypeId.length === 0) {
           const FirstPage = templateElementList.findIndex(
-            (item) => item.templateElementTypeID == 10
+            (item) => item.templateElementTypeID == 10,
           );
 
           if (FirstPage > 0) {
@@ -1047,7 +1045,7 @@ function Add_New_Templates(props) {
     const isEditorContentEmptyOrOnlyPTags = templateElementList.some(
       (element) =>
         element.templateElementTypeID === 2 &&
-        (!element.htmlContent || element.htmlContent.trim() === "<p></p>")
+        (!element.htmlContent || element.htmlContent.trim() === "<p></p>"),
     );
 
     if (isEditorContentEmptyOrOnlyPTags) {
@@ -1137,7 +1135,7 @@ function Add_New_Templates(props) {
           oneOffAdhocHeadingIsItalic:
             TemplateObj.statementOfFactsOneOffHeadingFontItalic || null,
         }),
-      })
+      }),
     );
 
     const ApiRequest_ParamsObj = {
@@ -1203,7 +1201,7 @@ function Add_New_Templates(props) {
             const uploadResponse = await AddUpdateTemplateWatermark(
               selectedFile.size,
               TemplateKeyID,
-              formData
+              formData,
             );
 
             if (uploadResponse) {
@@ -1251,7 +1249,7 @@ function Add_New_Templates(props) {
   //Add element function
   const AddElementBtnClicked = () => {
     const templateTypeId = templateElementList.filter(
-      (item) => item.templateElementTypeID === null
+      (item) => item.templateElementTypeID === null,
     );
 
     if (templateTypeId.length === 0) {
@@ -1392,7 +1390,7 @@ function Add_New_Templates(props) {
   };
 
   const templateTypeFilter = TemplateTypeLookupList?.filter(
-    (template) => template.value == TemplateObj.templateTypeID
+    (template) => template.value == TemplateObj.templateTypeID,
   );
   useEffect(() => {
     // Check if templateTypeFilter is not empty and has at least one element
@@ -1408,17 +1406,17 @@ function Add_New_Templates(props) {
   //   (businessType) => businessType.value == TemplateObj.clientBusinessTypeIDs
   // );
   const businessTypeFilter = ProspectTypeVariation?.filter((businessType) =>
-    TemplateObj.clientBusinessTypeIDs?.includes(businessType.value)
+    TemplateObj.clientBusinessTypeIDs?.includes(businessType.value),
   );
 
   const orgBusinessTypeFilter = BusinessTypeLookupList?.filter(
-    (businessType) => businessType.value == TemplateObj.orgBusinessTypeID
+    (businessType) => businessType.value == TemplateObj.orgBusinessTypeID,
   );
   const IsActiveFilter = Utils.IS_default.find(
-    (item) => TemplateObj.isDefault == item.value
+    (item) => TemplateObj.isDefault == item.value,
   );
   const professionTypeInputValue = professionTypeLookupList.filter(
-    (item) => common.professionTypeLists[0] === item.professionTypeId
+    (item) => common.professionTypeLists[0] === item.professionTypeId,
   );
 
   const handlePdfSelect = (selectedOption, index) => {
@@ -1440,7 +1438,7 @@ function Add_New_Templates(props) {
   };
 
   const SignataryBlock = templateElementList?.filter(
-    (item) => item.templateElementTypeID == 7
+    (item) => item.templateElementTypeID == 7,
   );
 
   const ElementTypeValue = templateElementList
@@ -1451,7 +1449,7 @@ function Add_New_Templates(props) {
             element.templateElementTypeID !== null &&
             option.value === element.templateElementTypeID
           );
-        }
+        },
       );
       if (matchingOption) {
         return {
@@ -1520,7 +1518,7 @@ function Add_New_Templates(props) {
       ...TemplateObj,
       clientBusinessTypeIDs: selectedOptions.map((opt) => opt.value),
       originalBusinessTypeIDs: selectedOptions.map(
-        (opt) => opt.originalBusinessTypeID
+        (opt) => opt.originalBusinessTypeID,
       ),
     });
   };
@@ -2024,7 +2022,7 @@ function Add_New_Templates(props) {
                             const inputValue = e.target.value;
                             const trimmedValue = inputValue.replace(
                               /^\s+/g,
-                              ""
+                              "",
                             );
                             const capitalizedValue =
                               trimmedValue.charAt(0).toUpperCase() +
@@ -2170,7 +2168,7 @@ function Add_New_Templates(props) {
 
                               if (!allowedExtensions.includes(fileExtension)) {
                                 console.error(
-                                  "Please select a JPG, JPEG, or PNG file."
+                                  "Please select a JPG, JPEG, or PNG file.",
                                 );
                                 return;
                               }
@@ -2301,7 +2299,9 @@ function Add_New_Templates(props) {
                     className="col-lg-3  text-left"
                   >
                     <div className="mb-1">
-                      <label className="form-label">Header/Footer for First Page</label>
+                      <label className="form-label">
+                        Header/Footer for First Page
+                      </label>
                     </div>
                   </div>
                   <div className="col-lg-3 col-sm-9">
@@ -2354,33 +2354,29 @@ function Add_New_Templates(props) {
                       }}
                     >
                       <div className="row">
-                      <div className="col-md-3 col-lg-3 me-4">
-                        <input
-                        className="form-check-input"
-                        type="radio"
-                        name="orientation"
-                        value={1}
-                        checked={TemplateObj.orientationID === 1}
-                        onChange={handleOrientationChange}
-                        defaultChecked
-                        />
-                        <label className="form-check-lable">
-                          Portrait
-                        </label>
-                      </div>
-                      <div className="col-md-3 col-lg-3">
-                        <input
-                          className="form-check-input"
-                          type="radio"
-                          name="orientation"
-                          value={2}
-                          checked={TemplateObj.orientationID === 2}
-                          onChange={handleOrientationChange}
-                        />
-                        <label className="form-check-label">
-                          Landscape
-                        </label>
-                      </div>
+                        <div className="col-md-3 col-lg-3 me-4">
+                          <input
+                            className="form-check-input"
+                            type="radio"
+                            name="orientation"
+                            value={1}
+                            checked={TemplateObj.orientationID === 1}
+                            onChange={handleOrientationChange}
+                            defaultChecked
+                          />
+                          <label className="form-check-lable">Portrait</label>
+                        </div>
+                        <div className="col-md-3 col-lg-3">
+                          <input
+                            className="form-check-input"
+                            type="radio"
+                            name="orientation"
+                            value={2}
+                            checked={TemplateObj.orientationID === 2}
+                            onChange={handleOrientationChange}
+                          />
+                          <label className="form-check-label">Landscape</label>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -2626,7 +2622,7 @@ function Add_New_Templates(props) {
                                       {formatFieldLabel(field)}
                                     </label>
                                   </div>
-                                )
+                                ),
                               )}
                             </div>
 
@@ -2683,8 +2679,8 @@ function Add_New_Templates(props) {
                                   (item) =>
                                     item.value ===
                                     Number(
-                                      TemplateObj.serviceDescriptionMainHeadingFontSize
-                                    )
+                                      TemplateObj.serviceDescriptionMainHeadingFontSize,
+                                    ),
                                 )}
                                 onChange={(e) => {
                                   setTemplateObj((prev) => ({
@@ -2801,7 +2797,7 @@ function Add_New_Templates(props) {
                                 value={Utils.FontSize.filter(
                                   (item) =>
                                     item.value ===
-                                    TemplateObj.serviceDescriptionRecurringHeadingFontSize
+                                    TemplateObj.serviceDescriptionRecurringHeadingFontSize,
                                 )}
                                 onChange={(e) => {
                                   setTemplateObj((prev) => ({
@@ -2906,7 +2902,7 @@ function Add_New_Templates(props) {
                                 value={Utils.FontSize.filter(
                                   (item) =>
                                     item.value ===
-                                    TemplateObj.serviceDescriptionOneOffHeadingFontSize
+                                    TemplateObj.serviceDescriptionOneOffHeadingFontSize,
                                 )}
                                 onChange={(e) => {
                                   setTemplateObj((prev) => ({
@@ -3146,7 +3142,7 @@ function Add_New_Templates(props) {
                                 value={Utils.FontSize.filter(
                                   (item) =>
                                     item.value ===
-                                    TemplateObj.statementOfFactsMainHeadingFontSize
+                                    TemplateObj.statementOfFactsMainHeadingFontSize,
                                 )}
                                 onChange={(e) => {
                                   setTemplateObj((prev) => ({
@@ -3263,7 +3259,7 @@ function Add_New_Templates(props) {
                                 value={Utils.FontSize.filter(
                                   (item) =>
                                     item.value ===
-                                    TemplateObj.statementOfFactsRecurringHeadingFontSize
+                                    TemplateObj.statementOfFactsRecurringHeadingFontSize,
                                 )}
                                 onChange={(e) => {
                                   setTemplateObj((prev) => ({
@@ -3366,7 +3362,7 @@ function Add_New_Templates(props) {
                                 value={Utils.FontSize.filter(
                                   (item) =>
                                     item.value ===
-                                    TemplateObj.statementOfFactsOneOffHeadingFontSize
+                                    TemplateObj.statementOfFactsOneOffHeadingFontSize,
                                 )}
                                 onChange={(e) => {
                                   setTemplateObj((prev) => ({
@@ -3465,7 +3461,7 @@ function Add_New_Templates(props) {
                                     (item) => ({
                                       value: item.templatePDFKeyID,
                                       label: item.templatePDFTitle,
-                                    })
+                                    }),
                                   )}
                                   getOptionLabel={(option) => option.label}
                                   getOptionValue={(option) => option.value}
@@ -3496,7 +3492,7 @@ function Add_New_Templates(props) {
                       const selectedPdf = TemplatePdfLookupListList.find(
                         (item) =>
                           item.templatePDFKeyID ===
-                          templateElementList[index].headings
+                          templateElementList[index].headings,
                       );
                       componentToRender = (
                         <>
@@ -3515,7 +3511,7 @@ function Add_New_Templates(props) {
                                     (item) => ({
                                       value: item.templatePDFKeyID,
                                       label: item.templatePDFTitle,
-                                    })
+                                    }),
                                   )}
                                   getOptionLabel={(option) => option.label}
                                   getOptionValue={(option) => option.value}
@@ -3690,7 +3686,7 @@ function Add_New_Templates(props) {
                         const updatedList = [...templateElementList];
                         const [draggedItem] = updatedList.splice(
                           sourceIndex,
-                          1
+                          1,
                         );
                         updatedList.splice(targetIndex, 0, draggedItem);
 
@@ -3722,8 +3718,8 @@ function Add_New_Templates(props) {
                                   item.value !== 10 ||
                                   templateElementList.every(
                                     (element) =>
-                                      element.templateElementTypeID !== 10
-                                  )
+                                      element.templateElementTypeID !== 10,
+                                  ),
                               )}
                               value={
                                 ElementTypeValue[index] === undefined
@@ -3735,7 +3731,7 @@ function Add_New_Templates(props) {
                                 OnTemplateChange(
                                   index,
                                   "templateElementTypeID",
-                                  e.value
+                                  e.value,
                                 );
                               }}
                               menuPlacement="top"
@@ -3797,7 +3793,7 @@ function Add_New_Templates(props) {
               >
                 {common.professionTypeLists?.length <= 1 &&
                 errorMessage?.includes(
-                  `Please don't choose this profession type`
+                  `Please don't choose this profession type`,
                 )
                   ? errorMessage.split(".")[0]
                   : errorMessage}

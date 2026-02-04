@@ -91,8 +91,8 @@ const NewDashboard = () => {
   let getActivityLogListApiCallCount = 0;
   let getOrganisationLookupListApiCallCount = 0;
   const { TopbarStyle, cardStyle, cardBgColor } = useContext(ColorContext);
-  console.log(cardBgColor);
-  const [isHoveredTrue,setIsHoveredTrue] = useState(false);
+  // console.log(cardBgColor);
+  const [isHoveredTrue, setIsHoveredTrue] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
 
   const [currencyID, setCurrencyID] = useState(1);
@@ -308,7 +308,7 @@ const NewDashboard = () => {
       let BusinessTypeListData = [];
       const ProspectData = await GetProspectTypeVariationLookupList(
         common.organisationKeyID,
-        common.userKeyID
+        common.userKeyID,
       );
       if (ProspectData?.data?.statusCode === 200) {
         if (ProspectData?.data?.responseData?.data) {
@@ -316,17 +316,17 @@ const NewDashboard = () => {
             (BusinessType) => ({
               value: BusinessType.businessTypeID,
               label: BusinessType.businessTypeName,
-            })
+            }),
           );
         }
       }
       let NoBTypeListData = [];
       const NOBType = await GetNOBTypeLookupList(
         common.organisationKeyID,
-        common.userKeyID
+        common.userKeyID,
       );
       if (NOBType?.data?.statusCode === 200) {
-        console.log(NOBType?.data?.responseData?.data);
+        // console.log(NOBType?.data?.responseData?.data);
         if (NOBType?.data?.responseData?.data) {
           NoBTypeListData = NOBType.data.responseData.data.map((NOB) => ({
             value: NOB.businessNatureID,
@@ -351,7 +351,7 @@ const NewDashboard = () => {
           }
           const orgName =
             OrganisationListData.find(
-              (org) => org.organisationKeyID === common.organisationKeyID
+              (org) => org.organisationKeyID === common.organisationKeyID,
             )?.organisationName || "Unknown";
 
           const headersArray = [
@@ -423,7 +423,7 @@ const NewDashboard = () => {
           if (proposalDataResponse?.data?.statusCode === 200) {
             const proposalData =
               proposalDataResponse.data.responseData.data || [];
-            console.log(proposalData);
+            // console.log(proposalData);
             // Define status mappings
             const statusMappings = [
               { id: 1, label: "Draft" },
@@ -433,7 +433,7 @@ const NewDashboard = () => {
             // Filter and process data for each status
             statusMappings.forEach(({ id, label }) => {
               const filteredData = proposalData.filter(
-                (item) => item.statusID === id
+                (item) => item.statusID === id,
               );
               const dataRows = filteredData.map((item) => [
                 item.prefix,
@@ -484,7 +484,7 @@ const NewDashboard = () => {
             if (contractDataResponse?.data?.statusCode === 200) {
               const contractData =
                 contractDataResponse.data.responseData.data || [];
-              console.log(contractData);
+              // console.log(contractData);
               const statusMappings = [
                 { id: 1, label: "Draft" },
                 { id: 2, label: "Sent" },
@@ -495,7 +495,7 @@ const NewDashboard = () => {
               ];
               statusMappings.forEach(({ id, label }) => {
                 const filteredData = contractData.filter(
-                  (item) => item.statusID === id
+                  (item) => item.statusID === id,
                 );
                 const dataRows = filteredData.map((item) => [
                   item.prefix,
@@ -524,10 +524,10 @@ const NewDashboard = () => {
           const workbook = XLSX.utils.book_new();
           const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
           const worksheetProposal = XLSX.utils.aoa_to_sheet(
-            worksheetProposalData
+            worksheetProposalData,
           );
           const worksheetContract = XLSX.utils.aoa_to_sheet(
-            worksheetContractData
+            worksheetContractData,
           );
 
           const maxWidths = worksheetData.reduce((widths, row) => {
@@ -547,7 +547,7 @@ const NewDashboard = () => {
               });
               return widths;
             },
-            []
+            [],
           );
           const maxWidthsContract = worksheetContractData.reduce(
             (widths, row) => {
@@ -558,7 +558,7 @@ const NewDashboard = () => {
               });
               return widths;
             },
-            []
+            [],
           );
           worksheet["!cols"] = maxWidths.map((w) => ({ wch: w + 2 }));
           worksheetProposal["!cols"] = maxWidthsProposal.map((w) => ({
@@ -573,13 +573,13 @@ const NewDashboard = () => {
             XLSX.utils.book_append_sheet(
               workbook,
               worksheetProposal,
-              "Proposal"
+              "Proposal",
             );
             if (common.enableEL === 1) {
               XLSX.utils.book_append_sheet(
                 workbook,
                 worksheetContract,
-                "Engagement Letter"
+                "Engagement Letter",
               );
             }
           }
@@ -620,11 +620,11 @@ const NewDashboard = () => {
       const StartDate = startDate
         ? startDate.format("YYYY-MM-DD")
         : // : defaultStartDate.format("YYYY-MM-DD");
-        null;
+          null;
       const EndDate = endDate
         ? endDate.format("YYYY-MM-DD")
         : // : defaultEndDate.format("YYYY-MM-DD");
-        null;
+          null;
 
       const response = await DashboardCountList({
         organisationKeyID: common?.organisationKeyID,
@@ -694,10 +694,10 @@ const NewDashboard = () => {
         break;
       case CalenderFilterEnum.This_Week:
         setFromDateForFilter(
-          GetCustomDate(dateFormat, CalenderFilterEnum.This_Week).fromDate
+          GetCustomDate(dateFormat, CalenderFilterEnum.This_Week).fromDate,
         );
         setToDateForFilter(
-          GetCustomDate(dateFormat, CalenderFilterEnum.This_Week).toDate
+          GetCustomDate(dateFormat, CalenderFilterEnum.This_Week).toDate,
         );
 
         DashboardCountData(
@@ -705,170 +705,172 @@ const NewDashboard = () => {
           GetCustomDate(dateFormat, CalenderFilterEnum.This_Week).toDate,
 
           setFromDateForExport(
-            GetCustomDate(dateFormat, CalenderFilterEnum.This_Week).fromDate
+            GetCustomDate(dateFormat, CalenderFilterEnum.This_Week).fromDate,
           ),
           setToDateForExport(
-            GetCustomDate(dateFormat, CalenderFilterEnum.This_Week).toDate
-          )
+            GetCustomDate(dateFormat, CalenderFilterEnum.This_Week).toDate,
+          ),
         );
         setShowDatePicker(false);
         break;
       case CalenderFilterEnum.Last_Week:
         setFromDateForFilter(
-          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Week).fromDate
+          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Week).fromDate,
         );
         setToDateForFilter(
-          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Week).toDate
+          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Week).toDate,
         );
         DashboardCountData(
           GetCustomDate(dateFormat, CalenderFilterEnum.Last_Week).fromDate,
           GetCustomDate(dateFormat, CalenderFilterEnum.Last_Week).toDate,
 
           setFromDateForExport(
-            GetCustomDate(dateFormat, CalenderFilterEnum.Last_Week).fromDate
+            GetCustomDate(dateFormat, CalenderFilterEnum.Last_Week).fromDate,
           ),
           setToDateForExport(
-            GetCustomDate(dateFormat, CalenderFilterEnum.Last_Week).toDate
-          )
+            GetCustomDate(dateFormat, CalenderFilterEnum.Last_Week).toDate,
+          ),
         );
         setShowDatePicker(false);
         break;
       case CalenderFilterEnum.This_Month:
         setFromDateForFilter(
-          GetCustomDate(dateFormat, CalenderFilterEnum.This_Month).fromDate
+          GetCustomDate(dateFormat, CalenderFilterEnum.This_Month).fromDate,
         );
         setToDateForFilter(
-          GetCustomDate(dateFormat, CalenderFilterEnum.This_Month).toDate
+          GetCustomDate(dateFormat, CalenderFilterEnum.This_Month).toDate,
         );
         DashboardCountData(
           GetCustomDate(dateFormat, CalenderFilterEnum.This_Month).fromDate,
           GetCustomDate(dateFormat, CalenderFilterEnum.This_Month).toDate,
           setFromDateForFilter(
-            GetCustomDate(dateFormat, CalenderFilterEnum.This_Month).fromDate
+            GetCustomDate(dateFormat, CalenderFilterEnum.This_Month).fromDate,
           ),
           setToDateForFilter(
-            GetCustomDate(dateFormat, CalenderFilterEnum.This_Month).toDate
-          )
+            GetCustomDate(dateFormat, CalenderFilterEnum.This_Month).toDate,
+          ),
         );
         setShowDatePicker(false);
         break;
       case CalenderFilterEnum.Last_Month:
         setFromDateForFilter(
-          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Month).fromDate
+          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Month).fromDate,
         );
         setToDateForFilter(
-          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Month).toDate
+          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Month).toDate,
         );
         DashboardCountData(
           GetCustomDate(dateFormat, CalenderFilterEnum.Last_Month).fromDate,
           GetCustomDate(dateFormat, CalenderFilterEnum.Last_Month).toDate,
           setToDateForExport(
-            GetCustomDate(dateFormat, CalenderFilterEnum.Last_Month).toDate
+            GetCustomDate(dateFormat, CalenderFilterEnum.Last_Month).toDate,
           ),
 
           setFromDateForExport(
-            GetCustomDate(dateFormat, CalenderFilterEnum.Last_Month).fromDate
-          )
+            GetCustomDate(dateFormat, CalenderFilterEnum.Last_Month).fromDate,
+          ),
         );
         setShowDatePicker(false);
         break;
       case CalenderFilterEnum.This_Quarter:
         setFromDateForFilter(
-          GetCustomDate(dateFormat, CalenderFilterEnum.This_Quarter).fromDate
+          GetCustomDate(dateFormat, CalenderFilterEnum.This_Quarter).fromDate,
         );
         setToDateForFilter(
-          GetCustomDate(dateFormat, CalenderFilterEnum.This_Quarter).toDate
+          GetCustomDate(dateFormat, CalenderFilterEnum.This_Quarter).toDate,
         );
         DashboardCountData(
           GetCustomDate(dateFormat, CalenderFilterEnum.This_Quarter).fromDate,
           GetCustomDate(dateFormat, CalenderFilterEnum.This_Quarter).toDate,
 
           setFromDateForExport(
-            GetCustomDate(dateFormat, CalenderFilterEnum.This_Quarter).fromDate
+            GetCustomDate(dateFormat, CalenderFilterEnum.This_Quarter).fromDate,
           ),
           setToDateForExport(
-            GetCustomDate(dateFormat, CalenderFilterEnum.This_Quarter).toDate
-          )
+            GetCustomDate(dateFormat, CalenderFilterEnum.This_Quarter).toDate,
+          ),
         );
         setShowDatePicker(false);
         break;
       case CalenderFilterEnum.Last_Quarter:
         setFromDateForFilter(
-          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Quarter).fromDate
+          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Quarter).fromDate,
         );
         setToDateForFilter(
-          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Quarter).toDate
+          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Quarter).toDate,
         );
         DashboardCountData(
           GetCustomDate(dateFormat, CalenderFilterEnum.Last_Quarter).fromDate,
           GetCustomDate(dateFormat, CalenderFilterEnum.Last_Quarter).toDate,
 
           setFromDateForExport(
-            GetCustomDate(dateFormat, CalenderFilterEnum.Last_Quarter).fromDate
+            GetCustomDate(dateFormat, CalenderFilterEnum.Last_Quarter).fromDate,
           ),
           setToDateForExport(
-            GetCustomDate(dateFormat, CalenderFilterEnum.Last_Quarter).toDate
-          )
+            GetCustomDate(dateFormat, CalenderFilterEnum.Last_Quarter).toDate,
+          ),
         );
         setShowDatePicker(false);
         break;
       case CalenderFilterEnum.This_6_Months:
         setFromDateForFilter(
-          GetCustomDate(dateFormat, CalenderFilterEnum.This_6_Months).fromDate
+          GetCustomDate(dateFormat, CalenderFilterEnum.This_6_Months).fromDate,
         );
         setToDateForFilter(
-          GetCustomDate(dateFormat, CalenderFilterEnum.This_6_Months).toDate
+          GetCustomDate(dateFormat, CalenderFilterEnum.This_6_Months).toDate,
         );
         DashboardCountData(
           GetCustomDate(dateFormat, CalenderFilterEnum.This_6_Months).fromDate,
           GetCustomDate(dateFormat, CalenderFilterEnum.This_6_Months).toDate,
 
           setFromDateForExport(
-            GetCustomDate(dateFormat, CalenderFilterEnum.This_6_Months).fromDate
+            GetCustomDate(dateFormat, CalenderFilterEnum.This_6_Months)
+              .fromDate,
           ),
           setToDateForExport(
-            GetCustomDate(dateFormat, CalenderFilterEnum.This_6_Months).toDate
-          )
+            GetCustomDate(dateFormat, CalenderFilterEnum.This_6_Months).toDate,
+          ),
         );
         setShowDatePicker(false);
         break;
       case CalenderFilterEnum.Last_6_Months:
         setFromDateForFilter(
-          GetCustomDate(dateFormat, CalenderFilterEnum.Last_6_Months).fromDate
+          GetCustomDate(dateFormat, CalenderFilterEnum.Last_6_Months).fromDate,
         );
         setToDateForFilter(
-          GetCustomDate(dateFormat, CalenderFilterEnum.Last_6_Months).toDate
+          GetCustomDate(dateFormat, CalenderFilterEnum.Last_6_Months).toDate,
         );
         DashboardCountData(
           GetCustomDate(dateFormat, CalenderFilterEnum.Last_6_Months).fromDate,
           GetCustomDate(dateFormat, CalenderFilterEnum.Last_6_Months).toDate,
 
           setFromDateForExport(
-            GetCustomDate(dateFormat, CalenderFilterEnum.Last_6_Months).fromDate
+            GetCustomDate(dateFormat, CalenderFilterEnum.Last_6_Months)
+              .fromDate,
           ),
           setToDateForExport(
-            GetCustomDate(dateFormat, CalenderFilterEnum.Last_6_Months).toDate
-          )
+            GetCustomDate(dateFormat, CalenderFilterEnum.Last_6_Months).toDate,
+          ),
         );
         setShowDatePicker(false);
         break;
       case CalenderFilterEnum.This_Year:
         setFromDateForFilter(
-          GetCustomDate(dateFormat, CalenderFilterEnum.This_Year).fromDate
+          GetCustomDate(dateFormat, CalenderFilterEnum.This_Year).fromDate,
         );
         setToDateForFilter(
-          GetCustomDate(dateFormat, CalenderFilterEnum.This_Year).toDate
+          GetCustomDate(dateFormat, CalenderFilterEnum.This_Year).toDate,
         );
         DashboardCountData(
           GetCustomDate(dateFormat, CalenderFilterEnum.This_Year).fromDate,
           GetCustomDate(dateFormat, CalenderFilterEnum.This_Year).toDate,
 
           setFromDateForExport(
-            GetCustomDate(dateFormat, CalenderFilterEnum.This_Year).fromDate
+            GetCustomDate(dateFormat, CalenderFilterEnum.This_Year).fromDate,
           ),
           setToDateForExport(
-            GetCustomDate(dateFormat, CalenderFilterEnum.This_Year).toDate
-          )
+            GetCustomDate(dateFormat, CalenderFilterEnum.This_Year).toDate,
+          ),
         );
         setShowDatePicker(false);
         break;
@@ -881,21 +883,21 @@ const NewDashboard = () => {
         DashboardCountData(dates.fromDate, dates.toDate);
         setShowDatePicker(false);
         setFromDateForFilter(
-          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Year).fromDate
+          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Year).fromDate,
         );
         setToDateForFilter(
-          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Year).toDate
+          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Year).toDate,
         );
         DashboardCountData(
           GetCustomDate(dateFormat, CalenderFilterEnum.Last_Year).fromDate,
           GetCustomDate(dateFormat, CalenderFilterEnum.Last_Year).toDate,
 
           setFromDateForExport(
-            GetCustomDate(dateFormat, CalenderFilterEnum.Last_Year).fromDate
+            GetCustomDate(dateFormat, CalenderFilterEnum.Last_Year).fromDate,
           ),
           setToDateForExport(
-            GetCustomDate(dateFormat, CalenderFilterEnum.Last_Year).toDate
-          )
+            GetCustomDate(dateFormat, CalenderFilterEnum.Last_Year).toDate,
+          ),
         );
         setShowDatePicker(false);
         break;
@@ -918,7 +920,7 @@ const NewDashboard = () => {
       let OrganisationListData = JSON.parse(OrganisationList);
       setOrganisationsList(OrganisationListData);
       const MatchOrganisationKeyID = OrganisationListData.filter(
-        (item) => item.organisationKeyID == common.organisationKeyID
+        (item) => item.organisationKeyID == common.organisationKeyID,
       );
       // Check if userThemeSettings is not null or undefined
 
@@ -950,7 +952,7 @@ const NewDashboard = () => {
 
       localStorage.setItem(
         "userAccess",
-        JSON.stringify(organisationData.accessList)
+        JSON.stringify(organisationData.accessList),
       );
       setActiveOrganization(organisationData.accessList);
 
@@ -990,7 +992,7 @@ const NewDashboard = () => {
               professionTypeLists: organisationData.professionTypeLists,
               organisationCount: OrganisationListData.length,
               enableEL: organisationData.enableEL,
-            })
+            }),
           );
         }
       }
@@ -1000,7 +1002,7 @@ const NewDashboard = () => {
   const getOrganizationNameByKeyID = (organisationsList, organisationKeyID) => {
     // Find the organization object in the organisationsList array that matches the organisationKeyID
     const organization = organisationsList.find(
-      (org) => org.organisationKeyID === organisationKeyID
+      (org) => org.organisationKeyID === organisationKeyID,
     );
 
     // If the organization object is found, return its organisationName
@@ -1015,7 +1017,7 @@ const NewDashboard = () => {
   // Usage
   const orgName = getOrganizationNameByKeyID(
     organisationsList,
-    common.organisationKeyID
+    common.organisationKeyID,
   );
 
   const GetOrganisationsListData = async (KeyID) => {
@@ -1031,7 +1033,7 @@ const NewDashboard = () => {
           localStorage.removeItem("OrganisationLocalList");
           localStorage.setItem(
             "OrganisationLocalList",
-            JSON.stringify(OrganisationsListData)
+            JSON.stringify(OrganisationsListData),
           );
           setOrganisationsList(OrganisationsListData);
 
@@ -1055,7 +1057,7 @@ const NewDashboard = () => {
           }
           localStorage.setItem(
             "userAccess",
-            JSON.stringify(organisationData.accessList)
+            JSON.stringify(organisationData.accessList),
           );
           setActiveOrganization(organisationData.accessList);
 
@@ -1098,7 +1100,7 @@ const NewDashboard = () => {
                     ? []
                     : organisationData.professionTypeLists,
                 enableEL: organisationData.enableEL,
-              })
+              }),
             );
           } else if (
             getOrganisationLookupListApiCallCount < maxCountToRecallApi
@@ -1238,59 +1240,73 @@ const NewDashboard = () => {
       formattedAmount = `${currencySymbol}${formatWithCommas(value)}k`;
     } else {
       formattedAmount = new Intl.NumberFormat(
-        currencyID === 3 ? "en-US" : "en-GB", {
-        style: "currency",
-        currency: currencyID === 1 ? "GBP" : currencyID === 2 ? "EUR" : currencyID === 3 ? "USD" : "INR",
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0,
-      }).format(total);
+        currencyID === 3 ? "en-US" : "en-GB",
+        {
+          style: "currency",
+          currency:
+            currencyID === 1
+              ? "GBP"
+              : currencyID === 2
+                ? "EUR"
+                : currencyID === 3
+                  ? "USD"
+                  : "INR",
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0,
+        },
+      ).format(total);
     }
 
     return formattedAmount;
   };
 
   return (
-      // <div className= {(isMobile || window.innerWidth <= 1040) ? "page-content" : "main-content"}>
-        <div class="container mt-3 pb-3">
-        <div style={{ maxWidth: "1400px" }}>
-          {accessCount === undefined || loader ? (
-            <div className="center-screen">
-              <div className="text-center">
-                <h5 className="mt-4">Loading...</h5>
-              </div>
+    // <div className= {(isMobile || window.innerWidth <= 1040) ? "page-content" : "main-content"}>
+    <div class="container mt-3 pb-3">
+      <div style={{ maxWidth: "1400px" }}>
+        {accessCount === undefined || loader ? (
+          <div className="center-screen">
+            <div className="text-center">
+              <h5 className="mt-4">Loading...</h5>
             </div>
-          ) : accessCount !== 0 ? (
-            <div class="container">
-              <div class="row">
-                <div className="dashboard-header-wrap col-lg-8 col-md-8 col-sm-12">
-                  <div className="dashboard-header" style={TopbarStyle}>
-                    <div className="row align-items-center gx-3">
-                      {/* Left: Title */}
-                      <div className="col-auto">
-                        <div className="dashboard-title">
-                          <h5 className="page-title-cls mb-0">Dashboard</h5>
-                          <div className="dashboard-sub">Here is the overview</div>
+          </div>
+        ) : accessCount !== 0 ? (
+          <div class="container">
+            <div class="row">
+              <div className="dashboard-header-wrap col-lg-8 col-md-8 col-sm-12">
+                <div className="dashboard-header" style={TopbarStyle}>
+                  <div className="row align-items-center gx-3">
+                    {/* Left: Title */}
+                    <div className="col-auto">
+                      <div className="dashboard-title">
+                        <h5 className="page-title-cls mb-0">Dashboard</h5>
+                        <div className="dashboard-sub">
+                          Here is the overview
                         </div>
                       </div>
+                    </div>
 
-                      {/* Right: Filters + Export */}
-                      <div className="col-auto ms-auto">
-                        <div className="d-flex align-items-center justify-content-end header-controls">
-                          {/* Select (react-select) */}
-                          <div className="me-2 select-wrap" style={{ minWidth: "300px" }}>
-                            <Select
-                              className="user-role-select phone-input-country-code text-black"
-                              options={Utils.CalenderFilter}
-                              value={selectedOption}
-                              onChange={(selectedOption) =>
-                                handleCalenderFilterChange(selectedOption)
-                              }
-                              isSearchable={false}
-                            />
-                          </div>
+                    {/* Right: Filters + Export */}
+                    <div className="col-auto ms-auto">
+                      <div className="d-flex align-items-center justify-content-end header-controls">
+                        {/* Select (react-select) */}
+                        <div
+                          className="me-2 select-wrap"
+                          style={{ minWidth: "300px" }}
+                        >
+                          <Select
+                            className="user-role-select phone-input-country-code text-black"
+                            options={Utils.CalenderFilter}
+                            value={selectedOption}
+                            onChange={(selectedOption) =>
+                              handleCalenderFilterChange(selectedOption)
+                            }
+                            isSearchable={false}
+                          />
+                        </div>
 
-                          {/* Date pickers (optional) */}
-                          {/* {showDatePicker && (
+                        {/* Date pickers (optional) */}
+                        {/* {showDatePicker && (
                             <div className="date-wrap">
                               <div className="me-2">
                                 <DatePicker
@@ -1316,318 +1332,376 @@ const NewDashboard = () => {
                             </div>
                           )} */}
 
-                          {/* Export button */}
-                          <div className="ms-auto">
-                            <button
-                              onClick={handleExport}
-                              className="btn export-btn"
-                              type="button"
-                            >
-                              Export
-                            </button>
-                          </div>
+                        {/* Export button */}
+                        <div className="ms-auto">
+                          <button
+                            onClick={handleExport}
+                            className="btn export-btn"
+                            type="button"
+                          >
+                            Export
+                          </button>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
-                {showDatePicker && (
-                  <>
-                  <div className="col-lg-6 col-md-6 col-sm-12 d-flex align-items-center gap-3 mt-2">
-                      <DatePicker
-                        label="From Date"
-                        value={fromDate.toDate()}
-                        maxDate={toDate.subtract(0, "day").toDate()}
-                        onChange={handleFromDateChange}
-                        renderInput={(params) => <input style={{ color: "black" }} {...params.inputProps} />}
-                        popperPlacement="bottom-start"
-                      />
-                      <DatePicker
-                        label="To Date"
-                        value={toDate.toDate()}
-                        minDate={fromDate.toDate()}
-                        maxDate={dayjs().toDate()}
-                        onChange={handleToDateChange}
-                        renderInput={(params) => <input {...params.inputProps} />}
-                        popperPlacement="bottom-start"
-                      />
-                    </div>
-                  </>
-                )}
               </div>
-              <div class="row dashboard-top-class">
-                {/* <div class="col"> */}
-                  <div class="h-100">
-                    <div className="dashboard-top" class="row">
-                      <div class="col-xl-8 col-lg-8 col-sm-12">
-                        <div class="row">
+              {showDatePicker && (
+                <>
+                  <div className="col-lg-6 col-md-6 col-sm-12 d-flex align-items-center gap-3 mt-2">
+                    <DatePicker
+                      label="From Date"
+                      value={fromDate.toDate()}
+                      maxDate={toDate.subtract(0, "day").toDate()}
+                      onChange={handleFromDateChange}
+                      renderInput={(params) => (
+                        <input
+                          style={{ color: "black" }}
+                          {...params.inputProps}
+                        />
+                      )}
+                      popperPlacement="bottom-start"
+                    />
+                    <DatePicker
+                      label="To Date"
+                      value={toDate.toDate()}
+                      minDate={fromDate.toDate()}
+                      maxDate={dayjs().toDate()}
+                      onChange={handleToDateChange}
+                      renderInput={(params) => <input {...params.inputProps} />}
+                      popperPlacement="bottom-start"
+                    />
+                  </div>
+                </>
+              )}
+            </div>
+            <div class="row dashboard-top-class">
+              {/* <div class="col"> */}
+              <div class="h-100">
+                <div className="dashboard-top" class="row">
+                  <div class="col-xl-8 col-lg-8 col-sm-12">
+                    <div class="row">
+                      {/* proposal start */}
+
+                      {(userAccessData.Admin_Proposal_CanView ||
+                        common.organisationKeyID == null) && (
+                        <>
+                          <div
+                            className={`col-xl-4 col-lg-4 col-md-4 col-sm-12 dashboard-box 
+                                    ${common.organisationKeyID !== null ? "cursor-pointer" : ""}`}
+                            onClick={() =>
+                              handleAddData("Draft", statusID.Draft)
+                            }
+                          >
+                            <div
+                              className="stat-card"
+                              style={{ "--hover-bg-color": cardBgColor }}
+                            >
+                              <div className="stat-card-header">
+                                <div className="stat-icon">
+                                  <img src={DraftProposalPng} alt="icon" />
+                                </div>
+                                <div className="stat-amount">
+                                  {calculateGBPAmount(
+                                    dashboardCount.quotationDraft_AmountOneOff,
+                                    dashboardCount.quotationDraft_AmountRecc,
+                                  )}
+                                </div>
+                              </div>
+                              <div className="stat-card-body">
+                                <h6 className="stat-title">
+                                  Draft {proposalName}
+                                </h6>
+                                <p className="stat-subtitle fw-bold">
+                                  Total: {dashboardCount?.quotationDraft}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div
+                            className={`col-xl-4 col-lg-4 col-md-4 col-sm-12 dashboard-box 
+                                    ${common.organisationKeyID !== null ? "cursor-pointer" : ""}`}
+                            onClick={() => handleAddData("Sent", statusID.Sent)}
+                          >
+                            <div
+                              className="stat-card"
+                              style={{ "--hover-bg-color": cardBgColor }}
+                            >
+                              <div className="stat-card-header">
+                                <div className="stat-icon">
+                                  <img src={SentProposalPng} alt="icon" />
+                                </div>
+                                <div className="stat-amount">
+                                  {calculateGBPAmount(
+                                    dashboardCount.quotationSent_AmountOneOff,
+                                    dashboardCount.quotationSent_AmountRecc,
+                                  )}
+                                </div>
+                              </div>
+                              <div className="stat-card-body">
+                                <h6 className="stat-title">
+                                  {proposalName} Sent
+                                </h6>
+                                <p className="stat-subtitle fw-bold">
+                                  Total: {dashboardCount?.quotationSent}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Proposal Accepted */}
+
+                          <div
+                            className={`col-xl-4 col-lg-4 col-md-4 col-sm-12 dashboard-box 
+                                    ${common.organisationKeyID !== null ? "cursor-pointer" : ""}`}
+                            onClick={() =>
+                              handleAddData("Accepted", statusID.Accepted)
+                            }
+                          >
+                            <div
+                              className="stat-card"
+                              style={{ "--hover-bg-color": cardBgColor }}
+                            >
+                              <div className="stat-card-header">
+                                <div className="stat-icon">
+                                  <img
+                                    src={DraftEngagementLatterPng}
+                                    alt="icon"
+                                  />
+                                </div>
+                                <div className="stat-amount">
+                                  {calculateGBPAmount(
+                                    dashboardCount.quotationAccepted_AmountOneOff,
+                                    dashboardCount.quotationAccepted_AmountRecc,
+                                  )}
+                                </div>
+                              </div>
+                              <div className="stat-card-body">
+                                <h6 className="stat-title">
+                                  {proposalName} Accepted
+                                </h6>
+                                <p className="stat-subtitle fw-bold">
+                                  Total: {dashboardCount?.quotationAccepted}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+
                           {/* proposal start */}
-
-                          {(userAccessData.Admin_Proposal_CanView ||
-                            common.organisationKeyID == null) && (
-                              <>
-                                <div
-                                  className={`col-xl-4 col-lg-4 col-md-4 col-sm-12 dashboard-box 
+                          {(common.enableEL == 0 ||
+                            common.enableEL == null) && (
+                            <>
+                              <div
+                                className={`col-xl-4 col-lg-4 col-md-4 col-sm-12 dashboard-box 
                                     ${common.organisationKeyID !== null ? "cursor-pointer" : ""}`}
-                                  onClick={() => handleAddData("Draft", statusID.Draft)}
+                                onClick={() =>
+                                  handleAddData(
+                                    "Sent",
+                                    statusID.Awaiting_Signature,
+                                  )
+                                }
+                              >
+                                <div
+                                  className="stat-card"
+                                  style={{ "--hover-bg-color": cardBgColor }}
                                 >
-                                  <div className="stat-card" style={{ "--hover-bg-color": cardBgColor}}>
-                                    <div className="stat-card-header">
-                                      <div className="stat-icon">
-                                        <img
-                                          src={DraftProposalPng}
-                                          alt="icon"
-                                        />
-                                      </div>
-                                      <div className="stat-amount">
-                                        {calculateGBPAmount(
-                                          dashboardCount.quotationDraft_AmountOneOff,
-                                          dashboardCount.quotationDraft_AmountRecc
-                                        )}
-                                      </div>
+                                  <div className="stat-card-header">
+                                    <div className="stat-icon">
+                                      <img
+                                        src={DraftEngagementLatterPng}
+                                        alt="icon"
+                                      />
                                     </div>
-                                    <div className="stat-card-body">
-                                      <h6 className="stat-title">Draft {proposalName}</h6>
-                                      <p className="stat-subtitle fw-bold">
-                                        Total: {dashboardCount?.quotationDraft}
-                                      </p>
+                                    <div className="stat-amount">
+                                      {calculateGBPAmount(
+                                        dashboardCount.quotationAwaitingSignatureEnd_AmountRecc,
+                                        dashboardCount.quotationAwaitingSignatureEnd_AmountOneOff,
+                                      )}
                                     </div>
                                   </div>
-                                </div>
-                              
-                                <div
-                                  className={`col-xl-4 col-lg-4 col-md-4 col-sm-12 dashboard-box 
-                                    ${common.organisationKeyID !== null ? "cursor-pointer" : ""}`}
-                                  onClick={() => handleAddData("Sent", statusID.Sent)}
-                                >
-                                  <div className="stat-card" style={{ "--hover-bg-color": cardBgColor }}> 
-                                    <div className="stat-card-header">
-                                      <div className="stat-icon">
-                                        <img
-                                          src={SentProposalPng}
-                                          alt="icon"
-                                        />
-                                      </div>
-                                      <div className="stat-amount">
-                                        {calculateGBPAmount(
-                                          dashboardCount.quotationSent_AmountOneOff,
-                                          dashboardCount.quotationSent_AmountRecc
-                                        )}
-                                      </div>
-                                    </div>
-                                    <div className="stat-card-body">
-                                      <h6 className="stat-title">{proposalName} Sent</h6>
-                                      <p className="stat-subtitle fw-bold">
-                                        Total: {dashboardCount?.quotationSent}
-                                      </p>
-                                    </div>
+                                  <div className="stat-card-body">
+                                    <h6 className="stat-title">
+                                      {proposalName} Awaiting Response
+                                    </h6>
+                                    <p className="stat-subtitle fw-bold">
+                                      Total:{" "}
+                                      {
+                                        dashboardCount?.quotationAwaitingSignature
+                                      }
+                                    </p>
                                   </div>
                                 </div>
-
-                                {/* Proposal Accepted */}
-
-                                <div
-                                  className={`col-xl-4 col-lg-4 col-md-4 col-sm-12 dashboard-box 
-                                    ${common.organisationKeyID !== null ? "cursor-pointer" : ""}`}
-                                  onClick={() => handleAddData("Accepted", statusID.Accepted)}
-                                >
-                                  <div className="stat-card" style={{ "--hover-bg-color": cardBgColor}}>
-                                    <div className="stat-card-header">
-                                      <div className="stat-icon">
-                                        <img
-                                          src={DraftEngagementLatterPng}
-                                          alt="icon"
-                                        />
-                                      </div>
-                                      <div className="stat-amount">
-                                        {calculateGBPAmount(
-                                          dashboardCount.quotationAccepted_AmountOneOff,
-                                          dashboardCount.quotationAccepted_AmountRecc
-                                        )}
-                                      </div>
-                                    </div>
-                                    <div className="stat-card-body">
-                                      <h6 className="stat-title">{proposalName} Accepted</h6>
-                                      <p className="stat-subtitle fw-bold">
-                                        Total: {dashboardCount?.quotationAccepted}
-                                      </p>
-                                    </div>
-                                  </div>
-                                </div>
-
-                                {/* proposal start */}
-                                {(common.enableEL == 0 ||
-                                  common.enableEL == null) && (
-                                    <>
-                                    <div
-                                      className={`col-xl-4 col-lg-4 col-md-4 col-sm-12 dashboard-box 
-                                    ${common.organisationKeyID !== null ? "cursor-pointer" : ""}`}
-                                      onClick={() => handleAddData("Sent", statusID.Awaiting_Signature)}
-                                    >
-                                      <div className="stat-card" style={{ "--hover-bg-color": cardBgColor}}>
-                                        <div className="stat-card-header">
-                                          <div className="stat-icon">
-                                            <img
-                                              src={DraftEngagementLatterPng}
-                                              alt="icon"
-                                            />
-                                          </div>
-                                          <div className="stat-amount">
-                                            {calculateGBPAmount(
-                                              dashboardCount.quotationAwaitingSignatureEnd_AmountRecc,
-                                              dashboardCount.quotationAwaitingSignatureEnd_AmountOneOff
-                                            )}
-                                          </div>
-                                        </div>
-                                        <div className="stat-card-body">
-                                          <h6 className="stat-title">{proposalName} Awaiting Response</h6>
-                                          <p className="stat-subtitle fw-bold">
-                                            Total: {dashboardCount?.quotationAwaitingSignature}
-                                          </p>
-                                        </div>
-                                      </div>
-                                    </div>
-                                    </>
-                                  )}
-                                {(common.enableEL == 0 ||
-                                  common.enableEL == null) && (
-                                    <>
-                                    <div
-                                      className={`col-xl-4 col-lg-4 col-md-4 col-sm-12 dashboard-box 
+                              </div>
+                            </>
+                          )}
+                          {(common.enableEL == 0 ||
+                            common.enableEL == null) && (
+                            <>
+                              <div
+                                className={`col-xl-4 col-lg-4 col-md-4 col-sm-12 dashboard-box 
                                       ${common.organisationKeyID !== null ? "cursor-pointer" : ""}`}
-                                      onClick={() => handleAddData("Decline", statusID.Declined)}
-                                    >
-                                      <div className="stat-card" style={{ "--hover-bg-color": cardBgColor}}>
-                                        <div className="stat-card-header">
-                                          <div className="stat-icon">
-                                            <img
-                                              src={EngagementLatterSendSvg}
-                                              alt="icon"
-                                            />
-                                          </div>
-                                          <div className="stat-amount">
-                                            {calculateGBPAmount(
-                                              dashboardCount.quotationDeclined_AmountOneOff,
-                                              dashboardCount.quotationDeclined_AmountRecc
-                                            )}
-                                          </div>
-                                        </div>
-                                        <div className="stat-card-body">
-                                          <h6 className="stat-title">{proposalName} Declined</h6>
-                                          <p className="stat-subtitle fw-bold">
-                                            Total: {dashboardCount?.quotationDeclined}
-                                          </p>
-                                        </div>
-                                      </div>
+                                onClick={() =>
+                                  handleAddData("Decline", statusID.Declined)
+                                }
+                              >
+                                <div
+                                  className="stat-card"
+                                  style={{ "--hover-bg-color": cardBgColor }}
+                                >
+                                  <div className="stat-card-header">
+                                    <div className="stat-icon">
+                                      <img
+                                        src={EngagementLatterSendSvg}
+                                        alt="icon"
+                                      />
                                     </div>
-                                    </>
-                                  )}
-                              </>
+                                    <div className="stat-amount">
+                                      {calculateGBPAmount(
+                                        dashboardCount.quotationDeclined_AmountOneOff,
+                                        dashboardCount.quotationDeclined_AmountRecc,
+                                      )}
+                                    </div>
+                                  </div>
+                                  <div className="stat-card-body">
+                                    <h6 className="stat-title">
+                                      {proposalName} Declined
+                                    </h6>
+                                    <p className="stat-subtitle fw-bold">
+                                      Total: {dashboardCount?.quotationDeclined}
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
+                            </>
+                          )}
+                        </>
+                      )}
+                    </div>
+                    {/* proposal end  */}
+
+                    {/* engagement start */}
+                    <div className="row">
+                      {(common.enableEL == 1 || common.enableEL == null) &&
+                        (userAccessData.Admin_Engagement_Latter_CanView ||
+                          common.organisationKeyID == null) && (
+                          <>
+                            <div
+                              className={`col-xl-4 col-lg-4 col-md-4 col-sm-12 dashboard-box 
+                                    ${common.organisationKeyID !== null ? "cursor-pointer" : ""}`}
+                              onClick={() =>
+                                GetHandleChangeFilter("Draft", statusID.Draft)
+                              }
+                            >
+                              <div
+                                className="stat-card"
+                                style={{ "--hover-bg-color": cardBgColor }}
+                              >
+                                <div className="stat-card-header">
+                                  <div className="stat-icon">
+                                    <img
+                                      src={EngagementLatterSendSvg}
+                                      alt="icon"
+                                    />
+                                  </div>
+                                  <div className="stat-amount">
+                                    {calculateGBPAmount(
+                                      dashboardCount.contractDraft_AmountOneOff,
+                                      dashboardCount.contractDraft_AmountRecc,
+                                    )}
+                                  </div>
+                                </div>
+                                <div className="stat-card-body">
+                                  <h6 className="stat-title">
+                                    Draft {EngagementName}
+                                  </h6>
+                                  <p className="stat-subtitle fw-bold">
+                                    Total: {dashboardCount?.contractDraft}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Void EL hidden */}
+
+                            {dashboardCount?.contractVoid > 0 && (
+                              <div
+                                className={`col-xl-4 col-lg-4 col-md-4 col-sm-12 dashboard-box 
+                                    ${common.organisationKeyID !== null ? "cursor-pointer" : ""}`}
+                                onClick={() =>
+                                  GetHandleChangeFilter("Void", statusID.Void)
+                                }
+                              >
+                                <div
+                                  className="stat-card"
+                                  style={{ "--hover-bg-color": cardBgColor }}
+                                >
+                                  <div className="stat-card-header">
+                                    <div className="stat-icon">
+                                      <img
+                                        src={EngagementLatterSendSvg}
+                                        alt="icon"
+                                      />
+                                    </div>
+                                    <div className="stat-amount">
+                                      {calculateGBPAmount(
+                                        dashboardCount.contractVoid_AmountOneOff,
+                                        dashboardCount.contractVoid_AmountRecc,
+                                      )}
+                                    </div>
+                                  </div>
+                                  <div className="stat-card-body">
+                                    <h6 className="stat-title">
+                                      Voided {EngagementName}
+                                    </h6>
+                                    <p className="stat-subtitle fw-bold">
+                                      Total: {dashboardCount?.contractVoid}
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
                             )}
-                        </div>
-                        {/* proposal end  */}
 
-                        {/* engagement start */}
-                        <div className="row">
-                          {(common.enableEL == 1 || common.enableEL == null) &&
-                            (userAccessData.Admin_Engagement_Latter_CanView ||
-                              common.organisationKeyID == null) && (
-                              <>
-                                <div
-                                  className={`col-xl-4 col-lg-4 col-md-4 col-sm-12 dashboard-box 
+                            <div
+                              className={`col-xl-4 col-lg-4 col-md-4 col-sm-12 dashboard-box 
                                     ${common.organisationKeyID !== null ? "cursor-pointer" : ""}`}
-                                  onClick={() => GetHandleChangeFilter("Draft", statusID.Draft)}
-                                >
-                                  <div className="stat-card" style={{ "--hover-bg-color": cardBgColor}}>
-                                    <div className="stat-card-header">
-                                      <div className="stat-icon">
-                                        <img
-                                          src={EngagementLatterSendSvg}
-                                          alt="icon"
-                                        />
-                                      </div>
-                                      <div className="stat-amount">
-                                        {calculateGBPAmount(
-                                          dashboardCount.contractDraft_AmountOneOff,
-                                          dashboardCount.contractDraft_AmountRecc
-                                        )}
-                                      </div>
-                                    </div>
-                                    <div className="stat-card-body">
-                                      <h6 className="stat-title">Draft {EngagementName}</h6>
-                                      <p className="stat-subtitle fw-bold">
-                                        Total: {dashboardCount?.contractDraft}
-                                      </p>
-                                    </div>
+                              onClick={() =>
+                                GetHandleChangeFilter("Sent", statusID.Sent)
+                              }
+                            >
+                              <div
+                                className="stat-card"
+                                style={{ "--hover-bg-color": cardBgColor }}
+                              >
+                                <div className="stat-card-header">
+                                  <div className="stat-icon">
+                                    <img
+                                      src={EngagementLatterSendSvg}
+                                      alt="icon"
+                                    />
+                                  </div>
+                                  <div className="stat-amount">
+                                    {calculateGBPAmount(
+                                      dashboardCount.contractSent_AmountOneOff,
+                                      dashboardCount.contractSent_AmountRecc,
+                                    )}
                                   </div>
                                 </div>
-
-                                {/* Void EL hidden */}
-
-                                {dashboardCount?.contractVoid > 0 && (
-                                  <div
-                                    className={`col-xl-4 col-lg-4 col-md-4 col-sm-12 dashboard-box 
-                                    ${common.organisationKeyID !== null ? "cursor-pointer" : ""}`}
-                                    onClick={() => GetHandleChangeFilter("Void", statusID.Void)}
-                                  >
-                                    <div className="stat-card" style={{ "--hover-bg-color": cardBgColor}}>
-                                      <div className="stat-card-header">
-                                        <div className="stat-icon">
-                                          <img
-                                            src={EngagementLatterSendSvg}
-                                            alt="icon"
-                                          />
-                                        </div>
-                                        <div className="stat-amount">
-                                          {calculateGBPAmount(
-                                            dashboardCount.contractVoid_AmountOneOff,
-                                            dashboardCount.contractVoid_AmountRecc
-                                          )}
-                                        </div>
-                                      </div>
-                                      <div className="stat-card-body">
-                                        <h6 className="stat-title">Voided {EngagementName}</h6>
-                                        <p className="stat-subtitle fw-bold">
-                                          Total: {dashboardCount?.contractVoid}
-                                        </p>
-                                      </div>
-                                    </div>
-                                  </div>
-                                )}
-
-                                <div
-                                  className={`col-xl-4 col-lg-4 col-md-4 col-sm-12 dashboard-box 
-                                    ${common.organisationKeyID !== null ? "cursor-pointer" : ""}`}
-                                  onClick={() => GetHandleChangeFilter("Sent", statusID.Sent)}
-                                >
-                                  <div className="stat-card" style={{ "--hover-bg-color": cardBgColor}}>
-                                    <div className="stat-card-header">
-                                      <div className="stat-icon">
-                                        <img
-                                          src={EngagementLatterSendSvg}
-                                          alt="icon"
-                                        />
-                                      </div>
-                                      <div className="stat-amount">
-                                        {calculateGBPAmount(
-                                          dashboardCount.contractSent_AmountOneOff,
-                                          dashboardCount.contractSent_AmountRecc
-                                        )}
-                                      </div>
-                                    </div>
-                                    <div className="stat-card-body">
-                                      <h6 className="stat-title">{EngagementName} Sent</h6>
-                                      <p className="stat-subtitle fw-bold">
-                                        Total: {dashboardCount?.contractSent}
-                                      </p>
-                                    </div>
-                                  </div>
+                                <div className="stat-card-body">
+                                  <h6 className="stat-title">
+                                    {EngagementName} Sent
+                                  </h6>
+                                  <p className="stat-subtitle fw-bold">
+                                    Total: {dashboardCount?.contractSent}
+                                  </p>
                                 </div>
+                              </div>
+                            </div>
 
-                                {/* EL viewed hidden */}
+                            {/* EL viewed hidden */}
 
-
-                                {/* <div
+                            {/* <div
                                   className={`col-xl-4 col-lg-4 col-md-4 dashboard-box col-sm-12  ${common.organisationKeyID !== null
                                     ? "cursor-pointer"
                                     : ""
@@ -1688,145 +1762,77 @@ const NewDashboard = () => {
                                     </div>
                                   </div>
                                 </div> */}
-                                <div
-                                  className={`col-xl-4 col-lg-4 col-md-4 col-sm-12 dashboard-box 
+                            <div
+                              className={`col-xl-4 col-lg-4 col-md-4 col-sm-12 dashboard-box 
                                     ${common.organisationKeyID !== null ? "cursor-pointer" : ""}`}
-                                  onClick={() => GetHandleChangeFilter("Signed", statusID.Signed)}
-                                >
-                                  <div className="stat-card" style={{ "--hover-bg-color": cardBgColor}}>
-                                    <div className="stat-card-header">
-                                      <div className="stat-icon">
-                                        <img
-                                          src={EngagementLatterSignedSvg}
-                                          alt="icon"
-                                        />
-                                      </div>
-                                      <div className="stat-amount">
-                                        {calculateGBPAmount(
-                                          dashboardCount.contractSigned_AmountOneOff,
-                                          dashboardCount.contractSigned_AmountRecc
-                                        )}
-                                      </div>
-                                    </div>
-                                    <div className="stat-card-body">
-                                      <h6 className="stat-title">{EngagementName} Signed</h6>
-                                      <p className="stat-subtitle fw-bold">
-                                        Total: {dashboardCount?.contractSigned}
-                                      </p>
-                                    </div>
+                              onClick={() =>
+                                GetHandleChangeFilter("Signed", statusID.Signed)
+                              }
+                            >
+                              <div
+                                className="stat-card"
+                                style={{ "--hover-bg-color": cardBgColor }}
+                              >
+                                <div className="stat-card-header">
+                                  <div className="stat-icon">
+                                    <img
+                                      src={EngagementLatterSignedSvg}
+                                      alt="icon"
+                                    />
                                   </div>
-                                </div>
-
-                                <div
-                                  className={`col-xl-4 col-lg-4 col-md-4 col-sm-12 dashboard-box 
-                                    ${common.organisationKeyID !== null ? "cursor-pointer" : ""}`}
-                                  onClick={() => GetHandleChangeFilter("Decline", statusID.Declined)}
-                                >
-                                  <div className="stat-card" style={{ "--hover-bg-color": cardBgColor}}>
-                                    <div className="stat-card-header">
-                                      <div className="stat-icon">
-                                        <img
-                                          src={EngagementLaterDeclinedSvg}
-                                          alt="icon"
-                                        />
-                                      </div>
-                                      <div className="stat-amount">
-                                        {calculateGBPAmount(
-                                          dashboardCount.contractDeclined_AmountOneOff,
-                                          dashboardCount.contractDeclined_AmountRecc
-                                        )}
-                                      </div>
-                                    </div>
-                                    <div className="stat-card-body">
-                                      <h6 className="stat-title">{EngagementName} Declined</h6>
-                                      <p className="stat-subtitle fw-bold">
-                                        Total: {dashboardCount?.contractDeclined}
-                                      </p>
-                                    </div>
-                                  </div>
-                                </div>
-                              </>
-                            )}
-                        </div>
-                      </div>
-                      {(userAccessData.Admin_Activity_Log_CanView ||
-                        common.organisationKeyID == null) && (
-                          <>
-                            <div class="col-xl-4 col-sm-12 col-lg-4 pb-2">
-                              <div class="card activity-section-cls">
-                                <div class="card-body dashboard-body">
-                                  <h5 className="activity-cls">Activity</h5>
-                                  <ol class="activity-feed">
-                                    {activityLogsList.length == 0 ? (
-                                      <>
-                                        <h6 className="activity-cls">
-                                          No Activity Logs Found Today..
-                                        </h6>
-                                      </>
-                                    ) : (
-                                      <>
-                                        {activityLogsList?.map(
-                                          (ActivityLogList) => {
-                                            return (
-                                              <>
-                                                <li class="feed-item">
-                                                  <div class="feed-item-list">
-                                                    <span
-                                                      style={{ color: "black" }}
-                                                    >
-                                                      {ActivityLogList.logDateTime}
-                                                    </span>
-                                                    <br />
-
-                                                    <span
-                                                      class="activity-text"
-                                                      style={{
-                                                        color: "blue",
-                                                        cursor: "pointer",
-                                                      }}
-                                                      onClick={() => {
-                                                        navigate(
-                                                          `/${ActivityLogList?.moduleURL}`
-                                                        );
-                                                      }}
-                                                    >
-                                                      {ActivityLogList.logMessage
-                                                        ?.replace(
-                                                          /quotation/g,
-                                                          proposalName
-                                                        )
-                                                        ?.replace(
-                                                          /client/g,
-                                                          prospectName
-                                                        )
-                                                        ?.replace(
-                                                          /contract/g,
-                                                          EngagementName
-                                                        )}
-                                                    </span>
-                                                  </div>
-                                                </li>
-                                              </>
-                                            );
-                                          }
-                                        )}
-                                      </>
+                                  <div className="stat-amount">
+                                    {calculateGBPAmount(
+                                      dashboardCount.contractSigned_AmountOneOff,
+                                      dashboardCount.contractSigned_AmountRecc,
                                     )}
-                                  </ol>
-                                  <>
-                                    {" "}
-                                    <div className="col-lg-12 col-md-12 col-sm-12 text-center">
-                                      <div className="add-new-btn">
-                                        <button
-                                          className="btn add-new text-white"
-                                          style={{backgroundColor: "#5a2eca"}}
-                                          onClick={handleActivityLog}
-                                        >
-                                          <span>View All</span>
-                                        </button>
-                                      </div>
-                                    </div>
-                                  </>
+                                  </div>
+                                </div>
+                                <div className="stat-card-body">
+                                  <h6 className="stat-title">
+                                    {EngagementName} Signed
+                                  </h6>
+                                  <p className="stat-subtitle fw-bold">
+                                    Total: {dashboardCount?.contractSigned}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div
+                              className={`col-xl-4 col-lg-4 col-md-4 col-sm-12 dashboard-box 
+                                    ${common.organisationKeyID !== null ? "cursor-pointer" : ""}`}
+                              onClick={() =>
+                                GetHandleChangeFilter(
+                                  "Decline",
+                                  statusID.Declined,
+                                )
+                              }
+                            >
+                              <div
+                                className="stat-card"
+                                style={{ "--hover-bg-color": cardBgColor }}
+                              >
+                                <div className="stat-card-header">
+                                  <div className="stat-icon">
+                                    <img
+                                      src={EngagementLaterDeclinedSvg}
+                                      alt="icon"
+                                    />
+                                  </div>
+                                  <div className="stat-amount">
+                                    {calculateGBPAmount(
+                                      dashboardCount.contractDeclined_AmountOneOff,
+                                      dashboardCount.contractDeclined_AmountRecc,
+                                    )}
+                                  </div>
+                                </div>
+                                <div className="stat-card-body">
+                                  <h6 className="stat-title">
+                                    {EngagementName} Declined
+                                  </h6>
+                                  <p className="stat-subtitle fw-bold">
+                                    Total: {dashboardCount?.contractDeclined}
+                                  </p>
                                 </div>
                               </div>
                             </div>
@@ -1834,23 +1840,103 @@ const NewDashboard = () => {
                         )}
                     </div>
                   </div>
-                {/* </div> */}
+                  {(userAccessData.Admin_Activity_Log_CanView ||
+                    common.organisationKeyID == null) && (
+                    <>
+                      <div class="col-xl-4 col-sm-12 col-lg-4 pb-2">
+                        <div class="card activity-section-cls">
+                          <div class="card-body dashboard-body">
+                            <h5 className="activity-cls">Activity</h5>
+                            <ol class="activity-feed">
+                              {activityLogsList.length == 0 ? (
+                                <>
+                                  <h6 className="activity-cls">
+                                    No Activity Logs Found Today..
+                                  </h6>
+                                </>
+                              ) : (
+                                <>
+                                  {activityLogsList?.map((ActivityLogList) => {
+                                    return (
+                                      <>
+                                        <li class="feed-item">
+                                          <div class="feed-item-list">
+                                            <span style={{ color: "black" }}>
+                                              {ActivityLogList.logDateTime}
+                                            </span>
+                                            <br />
+
+                                            <span
+                                              class="activity-text"
+                                              style={{
+                                                color: "blue",
+                                                cursor: "pointer",
+                                              }}
+                                              onClick={() => {
+                                                navigate(
+                                                  `/${ActivityLogList?.moduleURL}`,
+                                                );
+                                              }}
+                                            >
+                                              {ActivityLogList.logMessage
+                                                ?.replace(
+                                                  /quotation/g,
+                                                  proposalName,
+                                                )
+                                                ?.replace(
+                                                  /client/g,
+                                                  prospectName,
+                                                )
+                                                ?.replace(
+                                                  /contract/g,
+                                                  EngagementName,
+                                                )}
+                                            </span>
+                                          </div>
+                                        </li>
+                                      </>
+                                    );
+                                  })}
+                                </>
+                              )}
+                            </ol>
+                            <>
+                              {" "}
+                              <div className="col-lg-12 col-md-12 col-sm-12 text-center">
+                                <div className="add-new-btn">
+                                  <button
+                                    className="btn add-new text-white"
+                                    style={{ backgroundColor: "#5a2eca" }}
+                                    onClick={handleActivityLog}
+                                  >
+                                    <span>View All</span>
+                                  </button>
+                                </div>
+                              </div>
+                            </>
+                          </div>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
+              {/* </div> */}
             </div>
-          ) : (
-            <>
-              <div class="row dashboard-top-class">
-                <div class="col">
-                  <div class="h-100">
-                    <div class="container">
-                      <div class="row">
-                        <div class="col-md-12 " style={{ textAlign: "center" }}>
-                          <div class="error-template">
-                            <h1>Oops!</h1>
-                            <h2>No Permission </h2>
-                            <div class="error-details">
-                              Sorry, No Permission , Please Contact Admin!
-                            </div>
+          </div>
+        ) : (
+          <>
+            <div class="row dashboard-top-class">
+              <div class="col">
+                <div class="h-100">
+                  <div class="container">
+                    <div class="row">
+                      <div class="col-md-12 " style={{ textAlign: "center" }}>
+                        <div class="error-template">
+                          <h1>Oops!</h1>
+                          <h2>No Permission </h2>
+                          <div class="error-details">
+                            Sorry, No Permission , Please Contact Admin!
                           </div>
                         </div>
                       </div>
@@ -1858,14 +1944,14 @@ const NewDashboard = () => {
                   </div>
                 </div>
               </div>
-            </>
-          )}
-          {/* <!-- container-fluid --> */}
-           <Footer />
-        </div>
-        {/* <!-- End Page-content --> */}
-
+            </div>
+          </>
+        )}
+        {/* <!-- container-fluid --> */}
+        <Footer />
       </div>
+      {/* <!-- End Page-content --> */}
+    </div>
     // </div>
   );
 };

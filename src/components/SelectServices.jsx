@@ -9,7 +9,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import "react-calendar/dist/Calendar.css";
 import { format, parse, isValid } from "date-fns";
-export default function SelectServices(props){
+export default function SelectServices(props) {
   const { isMobile, getCrudButtonTextName, convertAndParseDate } =
     useContext(AuthContextProvider);
 
@@ -250,7 +250,7 @@ export default function SelectServices(props){
         (s) =>
           s.serviceID === service.serviceID &&
           s.serviceChargeTypeName !== service.serviceChargeTypeName &&
-          s.isSelected === true
+          s.isSelected === true,
       );
       // console.log(fullList);
       if (selectedElsewhere) {
@@ -286,7 +286,7 @@ export default function SelectServices(props){
               (s) =>
                 s.serviceID === dep.serviceID &&
                 s.serviceCatID === dep.serviceCatID &&
-                s.isSelected === true
+                s.isSelected === true,
             );
           }
           const depId = Number(dep);
@@ -301,8 +301,8 @@ export default function SelectServices(props){
         const nextSelected = someDepsSelected
           ? !!service.isSelected
           : service.isSelected
-          ? service.isSelected
-          : false;
+            ? service.isSelected
+            : false;
 
         // ALWAYS create a new service object with derived values
         const newService = {
@@ -339,8 +339,8 @@ export default function SelectServices(props){
       ?.flatMap((c) =>
         c.servicesList.map(
           (s) =>
-            `${s.serviceID}-${s.serviceCatID}-${s.isSelected}-${s.isHidden}`
-        )
+            `${s.serviceID}-${s.serviceCatID}-${s.isSelected}-${s.isHidden}`,
+        ),
       )
       .join("|") || "";
 
@@ -349,8 +349,8 @@ export default function SelectServices(props){
       ?.flatMap((c) =>
         c.servicesList.map(
           (s) =>
-            `${s.serviceID}-${s.serviceCatID}-${s.isSelected}-${s.isHidden}`
-        )
+            `${s.serviceID}-${s.serviceCatID}-${s.isSelected}-${s.isHidden}`,
+        ),
       )
       .join("|") || "";
 
@@ -362,14 +362,14 @@ export default function SelectServices(props){
           ...s,
           serviceCatID: c.serviceCatID,
           serviceChargeTypeName: s.serviceChargeTypeName,
-        }))
+        })),
       ),
       ...(props.recurringServiceList || []).flatMap((c) =>
         c.servicesList.map((s) => ({
           ...s,
           serviceCatID: c.serviceCatID,
           serviceChargeTypeName: s.serviceChargeTypeName,
-        }))
+        })),
       ),
     ];
 
@@ -389,14 +389,14 @@ export default function SelectServices(props){
           ...s,
           serviceCatID: c.serviceCatID,
           serviceChargeTypeName: s.serviceChargeTypeName,
-        }))
+        })),
       ),
       ...(props.oneOffServiceList || []).flatMap((c) =>
         c.servicesList.map((s) => ({
           ...s,
           serviceCatID: c.serviceCatID,
           serviceChargeTypeName: s.serviceChargeTypeName,
-        }))
+        })),
       ),
     ];
 
@@ -413,7 +413,7 @@ export default function SelectServices(props){
     subRecurringService,
     id,
     prevId,
-    type
+    type,
   ) => {
     props.DisableTabOnChange();
     const variationIdMatches = prevId?.variation?.map((i) => {
@@ -433,12 +433,12 @@ export default function SelectServices(props){
                       const isVariation =
                         pricingList.variation &&
                         pricingList.variation.some(
-                          (variation) => variation.variationID === id.value
+                          (variation) => variation.variationID === id.value,
                         );
                       const isSlab =
                         pricingList.slab &&
                         pricingList.slab.some(
-                          (slab) => slab.slabID === id.value
+                          (slab) => slab.slabID === id.value,
                         );
                       if (isVariation) {
                         return {
@@ -446,7 +446,7 @@ export default function SelectServices(props){
                           driverVisibility: true,
                           driverValue: pricingList.variation
                             .filter(
-                              (variation) => variation.variationID === id.value
+                              (variation) => variation.variationID === id.value,
                             )
                             .map((varValue) => varValue.variationValue)
                             .join(", "),
@@ -464,7 +464,7 @@ export default function SelectServices(props){
                               .filter(
                                 (Slab) =>
                                   Slab.slabID === id.value &&
-                                  Slab.slabTypeID == 1
+                                  Slab.slabTypeID == 1,
                               )
                               .map((slabsValue) => slabsValue.slabValue)
                               .join(", ") || null,
@@ -492,7 +492,7 @@ export default function SelectServices(props){
                             const bSpec =
                               (b.fromDate ? 1 : 0) + (b.toDate ? 1 : 0);
                             return bSpec - aSpec;
-                          }
+                          },
                         );
 
                         const selectedBlock = sortedDateBlocks.find((block) => {
@@ -508,8 +508,8 @@ export default function SelectServices(props){
                           );
                         });
                         // console.log(selectedBlock.defaultDateValue);
-                        console.log(pricingList.date);
-                        console.log(selectedBlock);
+                        // console.log(pricingList.date);
+                        // console.log(selectedBlock);
                         if (selectedBlock) {
                           return {
                             ...pricingList,
@@ -521,7 +521,7 @@ export default function SelectServices(props){
                               null,
                             enteredDate: format(
                               selectedDate,
-                              selectedBlock.dateFormat
+                              selectedBlock.dateFormat,
                             ),
                             enteredDateFormat: selectedBlock.dateFormat,
                             date: pricingList.date.map((block) => ({
@@ -535,10 +535,10 @@ export default function SelectServices(props){
                                   ? !block.fromDate && !block.toDate
                                     ? "Default"
                                     : block.fromDate &&
-                                      (!block.toDate || block.toDate === "")
-                                    ? `${block.fromDate} to Present`
-                                    : `${block.fromDate} to ${block.toDate}`
-                                  : block.enteredDate ?? "",
+                                        (!block.toDate || block.toDate === "")
+                                      ? `${block.fromDate} to Present`
+                                      : `${block.fromDate} to ${block.toDate}`
+                                  : (block.enteredDate ?? ""),
                             })),
                           };
                         }
@@ -558,7 +558,7 @@ export default function SelectServices(props){
                         };
                       } else if (
                         variationIdMatches?.includes(
-                          pricingList.dependsOnVariationID
+                          pricingList.dependsOnVariationID,
                         )
                       ) {
                         return {
@@ -578,7 +578,7 @@ export default function SelectServices(props){
 
                       // Make sure to return the original object when none of the conditions are met
                       return pricingList;
-                    }
+                    },
                   ),
                 };
               }
@@ -608,7 +608,7 @@ export default function SelectServices(props){
                       if (driver.driverTypeID === 3) {
                         // Find the default variation
                         const defaultVariation = driver.variation.find(
-                          (variation) => variation.isDefault === true
+                          (variation) => variation.isDefault === true,
                         );
                         // Update driverValue and variationID if defaultVariation exists
                         if (defaultVariation) {
@@ -620,7 +620,7 @@ export default function SelectServices(props){
                       else if (driver.driverTypeID === 4) {
                         // Find the default slab
                         const defaultSlab = driver.slab.find(
-                          (slab) => slab.isDefault === true
+                          (slab) => slab.isDefault === true,
                         );
                         // Update driverValue and slabID if defaultSlab exists
                         if (defaultSlab) {
@@ -640,7 +640,7 @@ export default function SelectServices(props){
                             ? id
                             : parseStoredDate(
                                 id,
-                                driver?.date?.[0]?.dateFormat
+                                driver?.date?.[0]?.dateFormat,
                               );
                         const sortedBlocks = [...driver.date].sort((a, b) => {
                           const aSpec =
@@ -667,11 +667,11 @@ export default function SelectServices(props){
                           driver.driverValue = selectedBlock.dateValue
                             ? selectedBlock.dateValue
                             : selectedBlock.defaultDateValue
-                            ? selectedBlock.defaultDateValue
-                            : null;
+                              ? selectedBlock.defaultDateValue
+                              : null;
                           driver.enteredDate = format(
                             selectedDate,
-                            selectedBlock.dateFormat
+                            selectedBlock.dateFormat,
                           );
                           driver.enteredDateFormat = selectedBlock.dateFormat;
                           driver.date = driver.date.map((block) => ({
@@ -683,10 +683,10 @@ export default function SelectServices(props){
                             enteredDate:
                               block.dateID === selectedBlock.dateID
                                 ? driver.enteredDate
-                                : block.enteredDate ?? "",
+                                : (block.enteredDate ?? ""),
                           }));
                         }
-                        console.log(driver.driverValue);
+                        // console.log(driver.driverValue);
                       }
                       // Check if dependsOnGlobalPricingDriverID and dependsOnVariationID are not null
                       if (
@@ -698,7 +698,7 @@ export default function SelectServices(props){
                           service.pricingDriverList.find(
                             (driver2) =>
                               driver2.globalPricingDriverID ===
-                              driver.dependsOnGlobalPricingDriverID
+                              driver.dependsOnGlobalPricingDriverID,
                           );
                         // Check if dependsOnGlobalDriver exists and has variationID equal to dependsOnVariationID
                         if (
@@ -713,7 +713,7 @@ export default function SelectServices(props){
                         }
                       }
                       return driver; // Return the modified or unchanged driver object
-                    }
+                    },
                   );
                 }
               }
@@ -738,12 +738,12 @@ export default function SelectServices(props){
                       const isVariation =
                         pricingList.variation &&
                         pricingList.variation.some(
-                          (variation) => variation.variationID === id.value
+                          (variation) => variation.variationID === id.value,
                         );
                       const isSlab =
                         pricingList.slab &&
                         pricingList.slab.some(
-                          (slab) => slab.slabID === id.value
+                          (slab) => slab.slabID === id.value,
                         );
                       if (isVariation) {
                         return {
@@ -751,7 +751,7 @@ export default function SelectServices(props){
                           driverVisibility: true,
                           driverValue: pricingList.variation
                             .filter(
-                              (variation) => variation.variationID === id.value
+                              (variation) => variation.variationID === id.value,
                             )
                             .map((varValue) => varValue.variationValue)
                             .join(", "),
@@ -769,7 +769,7 @@ export default function SelectServices(props){
                               .filter(
                                 (Slab) =>
                                   Slab.slabID === id.value &&
-                                  Slab.slabTypeID == 1
+                                  Slab.slabTypeID == 1,
                               )
                               .map((slabsValue) => slabsValue.slabValue)
                               .join(", ") || null,
@@ -790,7 +790,7 @@ export default function SelectServices(props){
                           id instanceof Date
                             ? id
                             : parseStoredDate(id, dateFormat); // Support both raw Date or string
-                        console.log(selectedDate);
+                        // console.log(selectedDate);
                         // Detect which block the selected date belongs to
                         const sortedDateBlocks = [...pricingList.date].sort(
                           (a, b) => {
@@ -799,7 +799,7 @@ export default function SelectServices(props){
                             const bSpec =
                               (b.fromDate ? 1 : 0) + (b.toDate ? 1 : 0);
                             return bSpec - aSpec;
-                          }
+                          },
                         );
 
                         const selectedBlock = sortedDateBlocks.find((block) => {
@@ -822,11 +822,11 @@ export default function SelectServices(props){
                             driverValue: selectedBlock.dateValue
                               ? selectedBlock.dateValue
                               : selectedBlock.defaultDateValue
-                              ? selectedBlock.defaultDateValue
-                              : null,
+                                ? selectedBlock.defaultDateValue
+                                : null,
                             enteredDate: format(
                               selectedDate,
-                              selectedBlock.dateFormat
+                              selectedBlock.dateFormat,
                             ),
                             enteredDateFormat: selectedBlock.dateFormat,
                             date: pricingList.date.map((block) => ({
@@ -840,10 +840,10 @@ export default function SelectServices(props){
                                   ? !block.fromDate && !block.toDate
                                     ? "Default"
                                     : block.fromDate &&
-                                      (!block.toDate || block.toDate === "")
-                                    ? `${block.fromDate} to Present`
-                                    : `${block.fromDate} to ${block.toDate}`
-                                  : block.enteredDate ?? "",
+                                        (!block.toDate || block.toDate === "")
+                                      ? `${block.fromDate} to Present`
+                                      : `${block.fromDate} to ${block.toDate}`
+                                  : (block.enteredDate ?? ""),
                             })),
                           };
                         }
@@ -865,7 +865,7 @@ export default function SelectServices(props){
                         };
                       } else if (
                         variationIdMatches?.includes(
-                          pricingList.dependsOnVariationID
+                          pricingList.dependsOnVariationID,
                         )
                       ) {
                         return {
@@ -885,7 +885,7 @@ export default function SelectServices(props){
 
                       // Make sure to return the original object when none of the conditions are met
                       return pricingList;
-                    }
+                    },
                   ),
                 };
               }
@@ -915,7 +915,7 @@ export default function SelectServices(props){
                       if (driver.driverTypeID === 3) {
                         // Find the default variation
                         const defaultVariation = driver.variation.find(
-                          (variation) => variation.isDefault === true
+                          (variation) => variation.isDefault === true,
                         );
                         // Update driverValue and variationID if defaultVariation exists
                         if (defaultVariation) {
@@ -927,7 +927,7 @@ export default function SelectServices(props){
                       else if (driver.driverTypeID === 4) {
                         // Find the default slab
                         const defaultSlab = driver.slab.find(
-                          (slab) => slab.isDefault === true
+                          (slab) => slab.isDefault === true,
                         );
                         // Update driverValue and slabID if defaultSlab exists
                         if (defaultSlab) {
@@ -947,7 +947,7 @@ export default function SelectServices(props){
                             ? id
                             : parseStoredDate(
                                 id,
-                                driver?.date?.[0]?.dateFormat
+                                driver?.date?.[0]?.dateFormat,
                               );
                         const sortedBlocks = [...driver.date].sort((a, b) => {
                           const aSpec =
@@ -974,11 +974,11 @@ export default function SelectServices(props){
                           driver.driverValue = selectedBlock.dateValue
                             ? selectedBlock.dateValue
                             : selectedBlock.defaultDateValue
-                            ? selectedBlock.defaultDateValue
-                            : null;
+                              ? selectedBlock.defaultDateValue
+                              : null;
                           driver.enteredDate = format(
                             selectedDate,
-                            selectedBlock.dateFormat
+                            selectedBlock.dateFormat,
                           );
                           driver.enteredDateFormat = selectedBlock.dateFormat;
                           driver.date = driver.date.map((block) => ({
@@ -990,10 +990,10 @@ export default function SelectServices(props){
                             enteredDate:
                               block.dateID === selectedBlock.dateID
                                 ? driver.enteredDate
-                                : block.enteredDate ?? "",
+                                : (block.enteredDate ?? ""),
                           }));
                         }
-                        console.log(driver.enteredDate);
+                        // console.log(driver.enteredDate);
                       }
                       // Check if dependsOnGlobalPricingDriverID and dependsOnVariationID are not null
                       if (
@@ -1005,7 +1005,7 @@ export default function SelectServices(props){
                           service.pricingDriverList.find(
                             (driver2) =>
                               driver2.globalPricingDriverID ===
-                              driver.dependsOnGlobalPricingDriverID
+                              driver.dependsOnGlobalPricingDriverID,
                           );
                         // Check if dependsOnGlobalDriver exists and has variationID equal to dependsOnVariationID
                         if (
@@ -1020,7 +1020,7 @@ export default function SelectServices(props){
                         }
                       }
                       return driver; // Return the modified or unchanged driver object
-                    }
+                    },
                   );
                 }
               }
@@ -1037,7 +1037,7 @@ export default function SelectServices(props){
 
   const handleRecurringServiceCheckboxClick = (
     recurringService,
-    subRecurringService
+    subRecurringService,
   ) => {
     props.DisableTabOnChange();
 
@@ -1058,13 +1058,13 @@ export default function SelectServices(props){
                       driverValue:
                         pricingList.driverTypeID === 3
                           ? pricingList?.variation?.filter(
-                              (i) => i.isDefault === true
+                              (i) => i.isDefault === true,
                             )[0]?.variationValue
                           : pricingList?.slab?.filter(
-                              (i) => i.isDefault === true
+                              (i) => i.isDefault === true,
                             )[0]?.slabValue || null,
                     };
-                  }
+                  },
                 ),
               };
             }
@@ -1092,14 +1092,14 @@ export default function SelectServices(props){
           };
         }
         return category;
-      }
+      },
     );
     props.setOneOffServiceList(updatedOneOffServiceList);
   };
 
   const handleOneOffServiceCheckboxClick = (
     recurringService,
-    subRecurringService
+    subRecurringService,
   ) => {
     props.DisableTabOnChange();
 
@@ -1121,13 +1121,13 @@ export default function SelectServices(props){
                         driverValue:
                           pricingList.driverTypeID === 3
                             ? pricingList?.variation?.filter(
-                                (i) => i.isDefault === true
+                                (i) => i.isDefault === true,
                               )[0]?.variationValue
                             : pricingList?.slab?.filter(
-                                (i) => i.isDefault === true
+                                (i) => i.isDefault === true,
                               )[0]?.slabValue,
                       };
-                    }
+                    },
                   ),
                 };
               }
@@ -1136,7 +1136,7 @@ export default function SelectServices(props){
           };
         }
         return category;
-      }
+      },
     );
 
     props.setOneOffServiceList(updatedOneOffServiceList);
@@ -1167,7 +1167,7 @@ export default function SelectServices(props){
     prevId,
     value,
     Type,
-    quantityDecimalPlaces
+    quantityDecimalPlaces,
   ) => {
     props.DisableTabOnChange();
     // Ensure that the input only contains numeric characters
@@ -1189,13 +1189,13 @@ export default function SelectServices(props){
         // For negative values, ensure 5 digits after the negative sign
         formattedInput = `-${integerPart.slice(1, 13)}.${decimalPart.slice(
           0,
-          decimalPlaces
+          decimalPlaces,
         )}`;
       } else {
         // For positive values, limit to 5 digits before the decimal point
         formattedInput = `${integerPart.slice(0, 12)}.${decimalPart.slice(
           0,
-          decimalPlaces
+          decimalPlaces,
         )}`;
       }
     } else {
@@ -1225,13 +1225,13 @@ export default function SelectServices(props){
                             ...pricingList,
                             driverValue: formattedInput.replace(
                               /-/g,
-                              (match, index) => (index === 0 ? match : "")
+                              (match, index) => (index === 0 ? match : ""),
                             ),
                           };
                         }
                         // Make sure to return the original object when none of the conditions are met
                         return pricingList;
-                      }
+                      },
                     ),
                   };
                 }
@@ -1240,7 +1240,7 @@ export default function SelectServices(props){
             };
           }
           return category;
-        }
+        },
       );
       props.setRecurringServiceList(updatedRecurringList);
     } else if (Type === "OneOffService") {
@@ -1262,13 +1262,13 @@ export default function SelectServices(props){
                           ...pricingList,
                           driverValue: formattedInput.replace(
                             /-/g,
-                            (match, index) => (index === 0 ? match : "")
+                            (match, index) => (index === 0 ? match : ""),
                           ),
                         };
                       }
                       // Make sure to return the original object when none of the conditions are met
                       return pricingList;
-                    }
+                    },
                   ),
                 };
               }
@@ -1287,7 +1287,7 @@ export default function SelectServices(props){
     subRecurringService,
     prevId,
     value,
-    Type
+    Type,
   ) => {
     props.DisableTabOnChange();
 
@@ -1303,7 +1303,7 @@ export default function SelectServices(props){
     const allowedSpecialPattern = allowed.map(escapeRegexChar).join("");
     const allowedRegex = new RegExp(
       `[^a-zA-Z0-9 ${allowedSpecialPattern}]`,
-      "g"
+      "g",
     );
 
     const sanitized = value.replace(allowedRegex, "").slice(0, maxLength);
@@ -1332,7 +1332,7 @@ export default function SelectServices(props){
                         };
                       }
                       return driver;
-                    }
+                    },
                   ),
                 };
               }
@@ -1367,7 +1367,7 @@ export default function SelectServices(props){
                         };
                       }
                       return driver;
-                    }
+                    },
                   ),
                 };
               }
@@ -1411,7 +1411,7 @@ export default function SelectServices(props){
 
     updateServiceList(
       props.recurringServiceList,
-      props.setRecurringServiceList
+      props.setRecurringServiceList,
     );
     updateServiceList(props.oneOffServiceList, props.setOneOffServiceList);
   };
@@ -1490,7 +1490,7 @@ export default function SelectServices(props){
 
     return `${year.padStart(4, "0")}-${month.padStart(2, "0")}-${day.padStart(
       2,
-      "0"
+      "0",
     )}`;
   };
 
@@ -1501,7 +1501,7 @@ export default function SelectServices(props){
     prevId,
     value,
     Type,
-    dateFormat
+    dateFormat,
   ) => {
     props.DisableTabOnChange();
 
@@ -1529,7 +1529,7 @@ export default function SelectServices(props){
                         };
                       }
                       return driver;
-                    }
+                    },
                   ),
                 };
               }
@@ -1563,7 +1563,7 @@ export default function SelectServices(props){
                         };
                       }
                       return driver;
-                    }
+                    },
                   ),
                 };
               }
@@ -1582,7 +1582,7 @@ export default function SelectServices(props){
     subRecurringService,
     prevId,
     value,
-    Type
+    Type,
   ) => {
     props.DisableTabOnChange();
     // Ensure that the input only contains numeric characters
@@ -1603,13 +1603,13 @@ export default function SelectServices(props){
         // For negative values, ensure 5 digits after the negative sign
         formattedInput = `-${integerPart.slice(1, 13)}.${decimalPart.slice(
           0,
-          2
+          2,
         )}`;
       } else {
         // For positive values, limit to 5 digits before the decimal point
         formattedInput = `${integerPart.slice(0, 12)}.${decimalPart.slice(
           0,
-          2
+          2,
         )}`;
       }
     } else {
@@ -1638,7 +1638,7 @@ export default function SelectServices(props){
                           ...pricingList,
                           driverValue: formattedInput.replace(
                             /-/g,
-                            (match, index) => (index === 0 ? match : "")
+                            (match, index) => (index === 0 ? match : ""),
                           ),
                           slab: pricingList.slab.map((slab) => {
                             if (slab.isDefault === true) {
@@ -1646,7 +1646,7 @@ export default function SelectServices(props){
                                 ...slab,
                                 slabValue: formattedInput.replace(
                                   /-/g,
-                                  (match, index) => (index === 0 ? match : "")
+                                  (match, index) => (index === 0 ? match : ""),
                                 ), // Assuming formattedInput is your desired new value
                               };
                             }
@@ -1656,7 +1656,7 @@ export default function SelectServices(props){
                       }
                       // Make sure to return the original object when none of the conditions are met
                       return pricingList;
-                    }
+                    },
                   ),
                 };
               }
@@ -1687,7 +1687,7 @@ export default function SelectServices(props){
                           ...pricingList,
                           driverValue: formattedInput.replace(
                             /-/g,
-                            (match, index) => (index === 0 ? match : "")
+                            (match, index) => (index === 0 ? match : ""),
                           ),
                           slab: pricingList.slab.map((slab) => {
                             if (slab.isDefault === true) {
@@ -1695,7 +1695,7 @@ export default function SelectServices(props){
                                 ...slab,
                                 slabValue: formattedInput.replace(
                                   /-/g,
-                                  (match, index) => (index === 0 ? match : "")
+                                  (match, index) => (index === 0 ? match : ""),
                                 ), // Assuming formattedInput is your desired new value
                               };
                             }
@@ -1705,7 +1705,7 @@ export default function SelectServices(props){
                       }
                       // Make sure to return the original object when none of the conditions are met
                       return pricingList;
-                    }
+                    },
                   ),
                 };
               }
@@ -1743,11 +1743,11 @@ export default function SelectServices(props){
                                     ? recurringService?.serviceCatName
                                         .substring(0, 20)
                                         .replace(/\b\w/g, (l) =>
-                                          l.toUpperCase()
+                                          l.toUpperCase(),
                                         ) + "..."
                                     : recurringService?.serviceCatName.replace(
                                         /\b\w/g,
-                                        (l) => l.toUpperCase()
+                                        (l) => l.toUpperCase(),
                                       )}
                                 </>
                               ) : (
@@ -1760,14 +1760,14 @@ export default function SelectServices(props){
                                       {recurringService?.serviceCatName
                                         .substring(0, 30)
                                         .replace(/\b\w/g, (l) =>
-                                          l.toUpperCase()
+                                          l.toUpperCase(),
                                         ) + "..."}
                                     </Tooltip>
                                   ) : (
                                     <>
                                       {recurringService?.serviceCatName.replace(
                                         /\b\w/g,
-                                        (l) => l.toUpperCase()
+                                        (l) => l.toUpperCase(),
                                       )}
                                     </>
                                   )}
@@ -1801,7 +1801,7 @@ export default function SelectServices(props){
                                               ) {
                                                 handleRecurringServiceCheckboxClick(
                                                   recurringService,
-                                                  subRecurringService
+                                                  subRecurringService,
                                                 );
                                               }
                                             }}
@@ -1828,7 +1828,7 @@ export default function SelectServices(props){
                                               ) {
                                                 handleRecurringServiceCheckboxClick(
                                                   recurringService,
-                                                  subRecurringService
+                                                  subRecurringService,
                                                 );
                                               }
                                             }}
@@ -1839,7 +1839,7 @@ export default function SelectServices(props){
                                                   .length > 20
                                                   ? subRecurringService.serviceName.substring(
                                                       0,
-                                                      20
+                                                      20,
                                                     ) + "..."
                                                   : subRecurringService.serviceName}
                                               </>
@@ -1854,7 +1854,7 @@ export default function SelectServices(props){
                                                   >
                                                     {subRecurringService.serviceName.substring(
                                                       0,
-                                                      38
+                                                      38,
                                                     ) + "..."}
                                                   </Tooltip>
                                                 ) : (
@@ -1876,7 +1876,8 @@ export default function SelectServices(props){
                                               const isMandatory = i.date?.some(
                                                 (block) =>
                                                   block.dateValue != null ||
-                                                  block.defaultDateValue != null
+                                                  block.defaultDateValue !=
+                                                    null,
                                               );
                                               return (
                                                 <div
@@ -1895,12 +1896,12 @@ export default function SelectServices(props){
                                                                 {i?.driverName
                                                                   .substring(
                                                                     0,
-                                                                    10
+                                                                    10,
                                                                   )
                                                                   .replace(
                                                                     /\b\w/g,
                                                                     (l) =>
-                                                                      l.toUpperCase()
+                                                                      l.toUpperCase(),
                                                                   ) + "..."}
                                                               </>
                                                             ) : (
@@ -1916,12 +1917,12 @@ export default function SelectServices(props){
                                                                     {i?.driverName
                                                                       .substring(
                                                                         0,
-                                                                        38
+                                                                        38,
                                                                       )
                                                                       .replace(
                                                                         /\b\w/g,
                                                                         (l) =>
-                                                                          l.toUpperCase()
+                                                                          l.toUpperCase(),
                                                                       ) + "..."}
                                                                   </Tooltip>
                                                                 ) : (
@@ -1929,7 +1930,7 @@ export default function SelectServices(props){
                                                                     {i?.driverName.replace(
                                                                       /\b\w/g,
                                                                       (l) =>
-                                                                        l.toUpperCase()
+                                                                        l.toUpperCase(),
                                                                     )}
                                                                   </>
                                                                 )}
@@ -1943,7 +1944,7 @@ export default function SelectServices(props){
                                                         <Select
                                                           styles={{
                                                             control: (
-                                                              base
+                                                              base,
                                                             ) => ({
                                                               ...base,
                                                               minHeight: "38px",
@@ -1951,7 +1952,7 @@ export default function SelectServices(props){
                                                                 "center", // keep selected text centered vertically
                                                             }),
                                                             singleValue: (
-                                                              base
+                                                              base,
                                                             ) => ({
                                                               ...base,
                                                               whiteSpace:
@@ -1978,13 +1979,13 @@ export default function SelectServices(props){
                                                                 variation.variationName,
                                                               variationValue:
                                                                 variation.variationValue,
-                                                            })
+                                                            }),
                                                           )}
                                                           value={i?.variation
                                                             .filter(
                                                               (variation) =>
                                                                 variation.isDefault ===
-                                                                true
+                                                                true,
                                                             )
                                                             .map((i) => ({
                                                               value:
@@ -1993,14 +1994,14 @@ export default function SelectServices(props){
                                                                 i.variationName,
                                                             }))}
                                                           onChange={(
-                                                            selectOption
+                                                            selectOption,
                                                           ) =>
                                                             handleRecurringServiceDependsServerClick(
                                                               recurringService,
                                                               subRecurringService,
                                                               selectOption,
                                                               i,
-                                                              "RecurringService"
+                                                              "RecurringService",
                                                             )
                                                           }
                                                         />
@@ -2034,12 +2035,12 @@ export default function SelectServices(props){
                                                                 {i?.driverName
                                                                   .substring(
                                                                     0,
-                                                                    10
+                                                                    10,
                                                                   )
                                                                   .replace(
                                                                     /\b\w/g,
                                                                     (l) =>
-                                                                      l.toUpperCase()
+                                                                      l.toUpperCase(),
                                                                   ) + "..."}
                                                               </>
                                                             ) : (
@@ -2055,12 +2056,12 @@ export default function SelectServices(props){
                                                                     {i?.driverName
                                                                       .substring(
                                                                         0,
-                                                                        38
+                                                                        38,
                                                                       )
                                                                       .replace(
                                                                         /\b\w/g,
                                                                         (l) =>
-                                                                          l.toUpperCase()
+                                                                          l.toUpperCase(),
                                                                       ) + "..."}
                                                                   </Tooltip>
                                                                 ) : (
@@ -2068,7 +2069,7 @@ export default function SelectServices(props){
                                                                     {i?.driverName.replace(
                                                                       /\b\w/g,
                                                                       (l) =>
-                                                                        l.toUpperCase()
+                                                                        l.toUpperCase(),
                                                                     )}
                                                                   </>
                                                                 )}
@@ -2085,7 +2086,7 @@ export default function SelectServices(props){
                                                             ?.toString()
                                                             ?.replace(
                                                               /\B(?=(\d{3})+(?!\d))/g,
-                                                              ","
+                                                              ",",
                                                             )}
                                                           onChange={(e) => {
                                                             OnQuantityValueChange(
@@ -2096,7 +2097,7 @@ export default function SelectServices(props){
                                                               "RecurringService",
                                                               i.quantity?.[0]
                                                                 ?.quantityDecimalPlaces ??
-                                                                0
+                                                                0,
                                                             );
                                                           }}
                                                           className="input-text"
@@ -2122,7 +2123,7 @@ export default function SelectServices(props){
                                                           (() => {
                                                             const driverValue =
                                                               Number(
-                                                                i.driverValue
+                                                                i.driverValue,
                                                               );
                                                             const quantityDetails =
                                                               i.quantity?.[0];
@@ -2165,14 +2166,14 @@ export default function SelectServices(props){
                                                               numValue: fromNum,
                                                             } =
                                                               parseAndValidateValue(
-                                                                quantityFrom
+                                                                quantityFrom,
                                                               );
                                                             const {
                                                               exists: hasTo,
                                                               numValue: toNum,
                                                             } =
                                                               parseAndValidateValue(
-                                                                quantityTo
+                                                                quantityTo,
                                                               );
 
                                                             let showError = false;
@@ -2190,9 +2191,9 @@ export default function SelectServices(props){
                                                               ) {
                                                                 showError = true;
                                                                 message = `Value must be between ${fromNum.toFixed(
-                                                                  quantityDecimalPlaces
+                                                                  quantityDecimalPlaces,
                                                                 )} and ${toNum.toFixed(
-                                                                  quantityDecimalPlaces
+                                                                  quantityDecimalPlaces,
                                                                 )}`;
                                                               }
                                                             } else if (
@@ -2204,7 +2205,7 @@ export default function SelectServices(props){
                                                               ) {
                                                                 showError = true;
                                                                 message = `Value must be greater than or equal to ${fromNum.toFixed(
-                                                                  quantityDecimalPlaces
+                                                                  quantityDecimalPlaces,
                                                                 )}`;
                                                               }
                                                             } else if (hasTo) {
@@ -2214,7 +2215,7 @@ export default function SelectServices(props){
                                                               ) {
                                                                 showError = true;
                                                                 message = `Value must be less than or equal to ${toNum.toFixed(
-                                                                  quantityDecimalPlaces
+                                                                  quantityDecimalPlaces,
                                                                 )}`;
                                                               }
                                                             }
@@ -2247,12 +2248,12 @@ export default function SelectServices(props){
                                                                 {i?.driverName
                                                                   .substring(
                                                                     0,
-                                                                    10
+                                                                    10,
                                                                   )
                                                                   .replace(
                                                                     /\b\w/g,
                                                                     (l) =>
-                                                                      l.toUpperCase()
+                                                                      l.toUpperCase(),
                                                                   ) + "..."}
                                                               </>
                                                             ) : (
@@ -2268,12 +2269,12 @@ export default function SelectServices(props){
                                                                     {i?.driverName
                                                                       .substring(
                                                                         0,
-                                                                        38
+                                                                        38,
                                                                       )
                                                                       .replace(
                                                                         /\b\w/g,
                                                                         (l) =>
-                                                                          l.toUpperCase()
+                                                                          l.toUpperCase(),
                                                                       ) + "..."}
                                                                   </Tooltip>
                                                                 ) : (
@@ -2281,7 +2282,7 @@ export default function SelectServices(props){
                                                                     {i?.driverName.replace(
                                                                       /\b\w/g,
                                                                       (l) =>
-                                                                        l.toUpperCase()
+                                                                        l.toUpperCase(),
                                                                     )}
                                                                   </>
                                                                 )}
@@ -2303,7 +2304,7 @@ export default function SelectServices(props){
                                                             null
                                                           }
                                                           onBeforeInput={(
-                                                            e
+                                                            e,
                                                           ) => {
                                                             const char = e.data;
                                                             if (!char) return;
@@ -2316,17 +2317,17 @@ export default function SelectServices(props){
                                                             )
                                                               .split(",")
                                                               .map((c) =>
-                                                                c.trim()
+                                                                c.trim(),
                                                               )
                                                               .filter(Boolean);
 
                                                             const isAlphanumeric =
                                                               /^[a-zA-Z0-9 ]$/.test(
-                                                                char
+                                                                char,
                                                               );
                                                             const isAllowedSpecial =
                                                               allowed.includes(
-                                                                char
+                                                                char,
                                                               );
 
                                                             if (
@@ -2352,7 +2353,7 @@ export default function SelectServices(props){
                                                             )
                                                               .split(",")
                                                               .map((c) =>
-                                                                c.trim()
+                                                                c.trim(),
                                                               )
                                                               .filter(Boolean);
 
@@ -2361,13 +2362,13 @@ export default function SelectServices(props){
                                                               (char) =>
                                                                 char.replace(
                                                                   /[-/\\^$*+?.()|[\]{}]/g,
-                                                                  "\\$&"
+                                                                  "\\$&",
                                                                 );
 
                                                             const allowedSpecialPattern =
                                                               allowed
                                                                 .map(
-                                                                  escapeRegexChar
+                                                                  escapeRegexChar,
                                                                 )
                                                                 .join("");
 
@@ -2375,18 +2376,18 @@ export default function SelectServices(props){
                                                             const allowedRegex =
                                                               new RegExp(
                                                                 `[^a-zA-Z0-9 ${allowedSpecialPattern}]`,
-                                                                "g"
+                                                                "g",
                                                               );
 
                                                             const sanitized =
                                                               rawInput
                                                                 .replace(
                                                                   allowedRegex,
-                                                                  ""
+                                                                  "",
                                                                 )
                                                                 .slice(
                                                                   0,
-                                                                  maxLength
+                                                                  maxLength,
                                                                 );
 
                                                             OnTextValueChange(
@@ -2394,7 +2395,7 @@ export default function SelectServices(props){
                                                               subRecurringService,
                                                               i,
                                                               sanitized,
-                                                              "RecurringService"
+                                                              "RecurringService",
                                                             );
                                                           }}
                                                           className="input-text"
@@ -2412,7 +2413,7 @@ export default function SelectServices(props){
                                                           i?.text?.[0]
                                                             ?.textValue !==
                                                             null &&
-                                                          1?.text?.[0]
+                                                          (1)?.text?.[0]
                                                             ?.textValue !== 0 &&
                                                           (!i?.enteredText ||
                                                             i?.enteredText ===
@@ -2447,12 +2448,12 @@ export default function SelectServices(props){
                                                                   {i?.driverName
                                                                     .substring(
                                                                       0,
-                                                                      10
+                                                                      10,
                                                                     )
                                                                     .replace(
                                                                       /\b\w/g,
                                                                       (l) =>
-                                                                        l.toUpperCase()
+                                                                        l.toUpperCase(),
                                                                     ) + "..."}
                                                                 </>
                                                               ) : (
@@ -2468,12 +2469,12 @@ export default function SelectServices(props){
                                                                       {i?.driverName
                                                                         .substring(
                                                                           0,
-                                                                          38
+                                                                          38,
                                                                         )
                                                                         .replace(
                                                                           /\b\w/g,
                                                                           (l) =>
-                                                                            l.toUpperCase()
+                                                                            l.toUpperCase(),
                                                                         ) +
                                                                         "..."}
                                                                     </Tooltip>
@@ -2482,7 +2483,7 @@ export default function SelectServices(props){
                                                                       {i?.driverName.replace(
                                                                         /\b\w/g,
                                                                         (l) =>
-                                                                          l.toUpperCase()
+                                                                          l.toUpperCase(),
                                                                       )}
                                                                     </>
                                                                   )}
@@ -2506,7 +2507,7 @@ export default function SelectServices(props){
                                                                         i.enteredDateFormat,
                                                                         i
                                                                           .date?.[0]
-                                                                          ?.dateFormat
+                                                                          ?.dateFormat,
                                                                       );
 
                                                                     const matchingDateBlock =
@@ -2515,7 +2516,7 @@ export default function SelectServices(props){
                                                                         i.date,
                                                                         i
                                                                           .date?.[0]
-                                                                          ?.dateFormat
+                                                                          ?.dateFormat,
                                                                       );
 
                                                                     if (
@@ -2539,13 +2540,13 @@ export default function SelectServices(props){
                                                                   })()
                                                             }
                                                             onChange={(
-                                                              date
+                                                              date,
                                                             ) => {
                                                               i.enteredDate =
                                                                 format(
                                                                   date,
                                                                   i.date?.[0]
-                                                                    ?.dateFormat
+                                                                    ?.dateFormat,
                                                                 );
 
                                                               const block =
@@ -2553,7 +2554,7 @@ export default function SelectServices(props){
                                                                   date,
                                                                   i.date,
                                                                   i.date?.[0]
-                                                                    ?.dateFormat
+                                                                    ?.dateFormat,
                                                                 );
                                                               if (block) {
                                                                 i.driverValue =
@@ -2568,7 +2569,7 @@ export default function SelectServices(props){
                                                                 subRecurringService,
                                                                 date,
                                                                 i,
-                                                                "RecurringService"
+                                                                "RecurringService",
                                                               );
                                                             }}
                                                             dateFormat={
@@ -2578,12 +2579,12 @@ export default function SelectServices(props){
                                                             minDate={getMinDate(
                                                               i.date,
                                                               i.date?.[0]
-                                                                ?.dateFormat
+                                                                ?.dateFormat,
                                                             )}
                                                             maxDate={getMaxDate(
                                                               i.date,
                                                               i.date?.[0]
-                                                                ?.dateFormat
+                                                                ?.dateFormat,
                                                             )}
                                                             placeholderText="Select a valid date"
                                                             showMonthDropdown
@@ -2619,12 +2620,12 @@ export default function SelectServices(props){
                                                                 {i?.driverName
                                                                   .substring(
                                                                     0,
-                                                                    10
+                                                                    10,
                                                                   )
                                                                   .replace(
                                                                     /\b\w/g,
                                                                     (l) =>
-                                                                      l.toUpperCase()
+                                                                      l.toUpperCase(),
                                                                   ) + "..."}
                                                               </>
                                                             ) : (
@@ -2640,12 +2641,12 @@ export default function SelectServices(props){
                                                                     {i?.driverName
                                                                       .substring(
                                                                         0,
-                                                                        38
+                                                                        38,
                                                                       )
                                                                       .replace(
                                                                         /\b\w/g,
                                                                         (l) =>
-                                                                          l.toUpperCase()
+                                                                          l.toUpperCase(),
                                                                       ) + "..."}
                                                                   </Tooltip>
                                                                 ) : (
@@ -2653,7 +2654,7 @@ export default function SelectServices(props){
                                                                     {i?.driverName.replace(
                                                                       /\b\w/g,
                                                                       (l) =>
-                                                                        l.toUpperCase()
+                                                                        l.toUpperCase(),
                                                                     )}
                                                                   </>
                                                                 )}
@@ -2699,35 +2700,35 @@ export default function SelectServices(props){
                                                                   2
                                                                     ? "Other"
                                                                     : `${Number(
-                                                                        slab.slabFrom
+                                                                        slab.slabFrom,
                                                                       )
                                                                         .toFixed(
-                                                                          decimalPlaces
+                                                                          decimalPlaces,
                                                                         )
                                                                         .replace(
                                                                           /\B(?=(\d{3})+(?!\d))/g,
-                                                                          ","
+                                                                          ",",
                                                                         )} - ${Number(
-                                                                        slab.slabTo
+                                                                        slab.slabTo,
                                                                       )
                                                                         .toFixed(
-                                                                          decimalPlaces
+                                                                          decimalPlaces,
                                                                         )
                                                                         .replace(
                                                                           /\B(?=(\d{3})+(?!\d))/g,
-                                                                          ","
+                                                                          ",",
                                                                         )}`,
                                                                 variationValue:
                                                                   slab.slabValue,
                                                               };
-                                                            }
+                                                            },
                                                           )}
                                                           // value={slabSelectedRecValue}
                                                           value={i?.slab
                                                             ?.filter(
                                                               (slab) =>
                                                                 slab.isDefault ===
-                                                                true
+                                                                true,
                                                             )
                                                             .map((slab) => {
                                                               const decimalPlaces =
@@ -2741,36 +2742,36 @@ export default function SelectServices(props){
                                                                   2
                                                                     ? "Other"
                                                                     : `${Number(
-                                                                        slab.slabFrom
+                                                                        slab.slabFrom,
                                                                       )
                                                                         .toFixed(
-                                                                          decimalPlaces
+                                                                          decimalPlaces,
                                                                         )
                                                                         .replace(
                                                                           /\B(?=(\d{3})+(?!\d))/g,
-                                                                          ","
+                                                                          ",",
                                                                         )} -
                                                                    ${Number(
-                                                                     slab.slabTo
+                                                                     slab.slabTo,
                                                                    )
                                                                      .toFixed(
-                                                                       decimalPlaces
+                                                                       decimalPlaces,
                                                                      )
                                                                      .replace(
                                                                        /\B(?=(\d{3})+(?!\d))/g,
-                                                                       ","
+                                                                       ",",
                                                                      )}`,
                                                               };
                                                             })}
                                                           onChange={(
-                                                            selectOption
+                                                            selectOption,
                                                           ) =>
                                                             handleRecurringServiceDependsServerClick(
                                                               recurringService,
                                                               subRecurringService,
                                                               selectOption,
                                                               i,
-                                                              "RecurringService"
+                                                              "RecurringService",
                                                             )
                                                           }
                                                         />
@@ -2778,7 +2779,7 @@ export default function SelectServices(props){
                                                           ?.filter(
                                                             (slab) =>
                                                               slab.isDefault ===
-                                                              true
+                                                              true,
                                                           )
                                                           .map((item) => {
                                                             return (
@@ -2790,10 +2791,10 @@ export default function SelectServices(props){
                                                                     ?.toString()
                                                                     ?.replace(
                                                                       /\B(?=(\d{3})+(?!\d))/g,
-                                                                      ","
+                                                                      ",",
                                                                     )}
                                                                   onChange={(
-                                                                    e
+                                                                    e,
                                                                   ) => {
                                                                     OnIncrementalValueChange(
                                                                       recurringService,
@@ -2801,7 +2802,7 @@ export default function SelectServices(props){
                                                                       i,
                                                                       e.target
                                                                         .value,
-                                                                      "RecurringService"
+                                                                      "RecurringService",
                                                                     );
                                                                   }}
                                                                   className="input-text  mt-2"
@@ -2826,14 +2827,14 @@ export default function SelectServices(props){
                                                     )}
                                                 </div>
                                               );
-                                            }
+                                            },
                                           )}
                                       </td>
                                     </>
                                   )}
                                 </tr>
                               );
-                            }
+                            },
                           )}
                         </tbody>
                       </>
@@ -2859,7 +2860,7 @@ export default function SelectServices(props){
                                   {oneOffService?.serviceCatName.length > 20
                                     ? oneOffService?.serviceCatName.substring(
                                         0,
-                                        20
+                                        20,
                                       ) + "..."
                                     : oneOffService?.serviceCatName}
                                 </>
@@ -2871,7 +2872,7 @@ export default function SelectServices(props){
                                     >
                                       {oneOffService?.serviceCatName.substring(
                                         0,
-                                        38
+                                        38,
                                       ) + "..."}
                                     </Tooltip>
                                   ) : (
@@ -2899,7 +2900,7 @@ export default function SelectServices(props){
                                             if (!subOneOff.isDisabled) {
                                               handleOneOffServiceCheckboxClick(
                                                 oneOffService,
-                                                subOneOff
+                                                subOneOff,
                                               );
                                             }
                                           }}
@@ -2921,7 +2922,7 @@ export default function SelectServices(props){
                                             if (!subOneOff.isDisabled) {
                                               handleOneOffServiceCheckboxClick(
                                                 oneOffService,
-                                                subOneOff
+                                                subOneOff,
                                               );
                                             }
                                           }}
@@ -2931,7 +2932,7 @@ export default function SelectServices(props){
                                               {subOneOff.serviceName.length > 20
                                                 ? subOneOff.serviceName.substring(
                                                     0,
-                                                    20
+                                                    20,
                                                   ) + "..."
                                                 : subOneOff.serviceName}
                                             </>
@@ -2944,7 +2945,7 @@ export default function SelectServices(props){
                                                 >
                                                   {subOneOff.serviceName.substring(
                                                     0,
-                                                    38
+                                                    38,
                                                   ) + "..."}
                                                 </Tooltip>
                                               ) : (
@@ -2962,7 +2963,7 @@ export default function SelectServices(props){
                                             const isMandatory = i.date?.some(
                                               (block) =>
                                                 block.dateValue != null ||
-                                                block.defaultDateValue != null
+                                                block.defaultDateValue != null,
                                             );
                                             return (
                                               <div
@@ -2981,12 +2982,12 @@ export default function SelectServices(props){
                                                               {i?.driverName
                                                                 .substring(
                                                                   0,
-                                                                  10
+                                                                  10,
                                                                 )
                                                                 .replace(
                                                                   /\b\w/g,
                                                                   (l) =>
-                                                                    l.toUpperCase()
+                                                                    l.toUpperCase(),
                                                                 ) + "..."}
                                                             </>
                                                           ) : (
@@ -3001,12 +3002,12 @@ export default function SelectServices(props){
                                                                   {i?.driverName
                                                                     .substring(
                                                                       0,
-                                                                      38
+                                                                      38,
                                                                     )
                                                                     .replace(
                                                                       /\b\w/g,
                                                                       (l) =>
-                                                                        l.toUpperCase()
+                                                                        l.toUpperCase(),
                                                                     ) + "..."}
                                                                 </Tooltip>
                                                               ) : (
@@ -3014,7 +3015,7 @@ export default function SelectServices(props){
                                                                   {i?.driverName.replace(
                                                                     /\b\w/g,
                                                                     (l) =>
-                                                                      l.toUpperCase()
+                                                                      l.toUpperCase(),
                                                                   )}
                                                                 </>
                                                               )}
@@ -3034,7 +3035,7 @@ export default function SelectServices(props){
                                                               "center", // keep selected text centered vertically
                                                           }),
                                                           singleValue: (
-                                                            base
+                                                            base,
                                                           ) => ({
                                                             ...base,
                                                             whiteSpace:
@@ -3060,13 +3061,13 @@ export default function SelectServices(props){
                                                               variation.variationName,
                                                             variationValue:
                                                               variation.variationValue,
-                                                          })
+                                                          }),
                                                         )}
                                                         value={i?.variation
                                                           .filter(
                                                             (variation) =>
                                                               variation.isDefault ===
-                                                              true
+                                                              true,
                                                           )
                                                           .map((i) => ({
                                                             value:
@@ -3075,14 +3076,14 @@ export default function SelectServices(props){
                                                               i.variationName,
                                                           }))}
                                                         onChange={(
-                                                          selectOption
+                                                          selectOption,
                                                         ) =>
                                                           handleRecurringServiceDependsServerClick(
                                                             oneOffService,
                                                             subOneOff,
                                                             selectOption,
                                                             i,
-                                                            "OneOffService"
+                                                            "OneOffService",
                                                           )
                                                         }
                                                       />
@@ -3115,12 +3116,12 @@ export default function SelectServices(props){
                                                               {i?.driverName
                                                                 .substring(
                                                                   0,
-                                                                  10
+                                                                  10,
                                                                 )
                                                                 .replace(
                                                                   /\b\w/g,
                                                                   (l) =>
-                                                                    l.toUpperCase()
+                                                                    l.toUpperCase(),
                                                                 ) + "..."}
                                                             </>
                                                           ) : (
@@ -3135,12 +3136,12 @@ export default function SelectServices(props){
                                                                   {i?.driverName
                                                                     .substring(
                                                                       0,
-                                                                      38
+                                                                      38,
                                                                     )
                                                                     .replace(
                                                                       /\b\w/g,
                                                                       (l) =>
-                                                                        l.toUpperCase()
+                                                                        l.toUpperCase(),
                                                                     ) + "..."}
                                                                 </Tooltip>
                                                               ) : (
@@ -3148,7 +3149,7 @@ export default function SelectServices(props){
                                                                   {i?.driverName.replace(
                                                                     /\b\w/g,
                                                                     (l) =>
-                                                                      l.toUpperCase()
+                                                                      l.toUpperCase(),
                                                                   )}
                                                                 </>
                                                               )}
@@ -3180,17 +3181,17 @@ export default function SelectServices(props){
                                                           )
                                                             .split(",")
                                                             .map((c) =>
-                                                              c.trim()
+                                                              c.trim(),
                                                             )
                                                             .filter(Boolean);
 
                                                           const isAlphanumeric =
                                                             /^[a-zA-Z0-9 ]$/.test(
-                                                              char
+                                                              char,
                                                             );
                                                           const isAllowedSpecial =
                                                             allowed.includes(
-                                                              char
+                                                              char,
                                                             );
 
                                                           if (
@@ -3216,7 +3217,7 @@ export default function SelectServices(props){
                                                           )
                                                             .split(",")
                                                             .map((c) =>
-                                                              c.trim()
+                                                              c.trim(),
                                                             )
                                                             .filter(Boolean);
 
@@ -3225,13 +3226,13 @@ export default function SelectServices(props){
                                                             (char) =>
                                                               char.replace(
                                                                 /[-/\\^$*+?.()|[\]{}]/g,
-                                                                "\\$&"
+                                                                "\\$&",
                                                               );
 
                                                           const allowedSpecialPattern =
                                                             allowed
                                                               .map(
-                                                                escapeRegexChar
+                                                                escapeRegexChar,
                                                               )
                                                               .join("");
 
@@ -3239,18 +3240,18 @@ export default function SelectServices(props){
                                                           const allowedRegex =
                                                             new RegExp(
                                                               `[^a-zA-Z0-9 ${allowedSpecialPattern}]`,
-                                                              "g"
+                                                              "g",
                                                             );
 
                                                           const sanitized =
                                                             rawInput
                                                               .replace(
                                                                 allowedRegex,
-                                                                ""
+                                                                "",
                                                               )
                                                               .slice(
                                                                 0,
-                                                                maxLength
+                                                                maxLength,
                                                               );
 
                                                           OnTextValueChange(
@@ -3258,7 +3259,7 @@ export default function SelectServices(props){
                                                             subOneOff,
                                                             i,
                                                             sanitized,
-                                                            "OneOffService"
+                                                            "OneOffService",
                                                           );
                                                         }}
                                                         className="input-text"
@@ -3308,12 +3309,12 @@ export default function SelectServices(props){
                                                                 {i?.driverName
                                                                   .substring(
                                                                     0,
-                                                                    10
+                                                                    10,
                                                                   )
                                                                   .replace(
                                                                     /\b\w/g,
                                                                     (l) =>
-                                                                      l.toUpperCase()
+                                                                      l.toUpperCase(),
                                                                   ) + "..."}
                                                               </>
                                                             ) : (
@@ -3329,12 +3330,12 @@ export default function SelectServices(props){
                                                                     {i?.driverName
                                                                       .substring(
                                                                         0,
-                                                                        38
+                                                                        38,
                                                                       )
                                                                       .replace(
                                                                         /\b\w/g,
                                                                         (l) =>
-                                                                          l.toUpperCase()
+                                                                          l.toUpperCase(),
                                                                       ) + "..."}
                                                                   </Tooltip>
                                                                 ) : (
@@ -3342,7 +3343,7 @@ export default function SelectServices(props){
                                                                     {i?.driverName.replace(
                                                                       /\b\w/g,
                                                                       (l) =>
-                                                                        l.toUpperCase()
+                                                                        l.toUpperCase(),
                                                                     )}
                                                                   </>
                                                                 )}
@@ -3366,7 +3367,7 @@ export default function SelectServices(props){
                                                                       i.enteredDateFormat,
                                                                       i
                                                                         .date?.[0]
-                                                                        ?.dateFormat
+                                                                        ?.dateFormat,
                                                                     );
 
                                                                   const matchingDateBlock =
@@ -3375,7 +3376,7 @@ export default function SelectServices(props){
                                                                       i.date,
                                                                       i
                                                                         .date?.[0]
-                                                                        ?.dateFormat
+                                                                        ?.dateFormat,
                                                                     );
 
                                                                   if (
@@ -3402,7 +3403,7 @@ export default function SelectServices(props){
                                                                 format(
                                                                   date,
                                                                   i.date[0]
-                                                                    .dateFormat
+                                                                    .dateFormat,
                                                                 );
                                                             } else {
                                                               i.enteredDate =
@@ -3414,7 +3415,7 @@ export default function SelectServices(props){
                                                                 date,
                                                                 i.date,
                                                                 i.date?.[0]
-                                                                  ?.dateFormat
+                                                                  ?.dateFormat,
                                                               );
                                                             if (block) {
                                                               i.driverValue =
@@ -3429,7 +3430,7 @@ export default function SelectServices(props){
                                                               subOneOff,
                                                               date,
                                                               i,
-                                                              "OneOffService"
+                                                              "OneOffService",
                                                             );
                                                           }}
                                                           dateFormat={
@@ -3439,12 +3440,12 @@ export default function SelectServices(props){
                                                           minDate={getMinDate(
                                                             i.date,
                                                             i.date?.[0]
-                                                              ?.dateFormat
+                                                              ?.dateFormat,
                                                           )}
                                                           maxDate={getMaxDate(
                                                             i.date,
                                                             i.date?.[0]
-                                                              ?.dateFormat
+                                                              ?.dateFormat,
                                                           )}
                                                           placeholderText="Select a valid date"
                                                           showMonthDropdown
@@ -3480,12 +3481,12 @@ export default function SelectServices(props){
                                                               {i?.driverName
                                                                 .substring(
                                                                   0,
-                                                                  10
+                                                                  10,
                                                                 )
                                                                 .replace(
                                                                   /\b\w/g,
                                                                   (l) =>
-                                                                    l.toUpperCase()
+                                                                    l.toUpperCase(),
                                                                 ) + "..."}
                                                             </>
                                                           ) : (
@@ -3500,12 +3501,12 @@ export default function SelectServices(props){
                                                                   {i?.driverName
                                                                     .substring(
                                                                       0,
-                                                                      38
+                                                                      38,
                                                                     )
                                                                     .replace(
                                                                       /\b\w/g,
                                                                       (l) =>
-                                                                        l.toUpperCase()
+                                                                        l.toUpperCase(),
                                                                     ) + "..."}
                                                                 </Tooltip>
                                                               ) : (
@@ -3513,7 +3514,7 @@ export default function SelectServices(props){
                                                                   {i?.driverName.replace(
                                                                     /\b\w/g,
                                                                     (l) =>
-                                                                      l.toUpperCase()
+                                                                      l.toUpperCase(),
                                                                   )}
                                                                 </>
                                                               )}
@@ -3530,7 +3531,7 @@ export default function SelectServices(props){
                                                           ?.toString()
                                                           ?.replace(
                                                             /\B(?=(\d{3})+(?!\d))/g,
-                                                            ","
+                                                            ",",
                                                           )}
                                                         onChange={(e) => {
                                                           OnQuantityValueChange(
@@ -3541,7 +3542,7 @@ export default function SelectServices(props){
                                                             "OneOffService",
                                                             i.quantity?.[0]
                                                               ?.quantityDecimalPlaces ??
-                                                              0
+                                                              0,
                                                           );
                                                         }}
                                                         className="input-text"
@@ -3567,7 +3568,7 @@ export default function SelectServices(props){
                                                         (() => {
                                                           const driverValue =
                                                             Number(
-                                                              i.driverValue
+                                                              i.driverValue,
                                                             );
                                                           const quantityDetails =
                                                             i.quantity?.[0];
@@ -3609,14 +3610,14 @@ export default function SelectServices(props){
                                                             numValue: fromNum,
                                                           } =
                                                             parseAndValidateValue(
-                                                              quantityFrom
+                                                              quantityFrom,
                                                             );
                                                           const {
                                                             exists: hasTo,
                                                             numValue: toNum,
                                                           } =
                                                             parseAndValidateValue(
-                                                              quantityTo
+                                                              quantityTo,
                                                             );
 
                                                           let showError = false;
@@ -3634,9 +3635,9 @@ export default function SelectServices(props){
                                                             ) {
                                                               showError = true;
                                                               message = `Value must be between ${fromNum.toFixed(
-                                                                quantityDecimalPlaces
+                                                                quantityDecimalPlaces,
                                                               )} and ${toNum.toFixed(
-                                                                quantityDecimalPlaces
+                                                                quantityDecimalPlaces,
                                                               )}`;
                                                             }
                                                           } else if (hasFrom) {
@@ -3646,7 +3647,7 @@ export default function SelectServices(props){
                                                             ) {
                                                               showError = true;
                                                               message = `Value must be greater than or equal to ${fromNum.toFixed(
-                                                                quantityDecimalPlaces
+                                                                quantityDecimalPlaces,
                                                               )}`;
                                                             }
                                                           } else if (hasTo) {
@@ -3656,7 +3657,7 @@ export default function SelectServices(props){
                                                             ) {
                                                               showError = true;
                                                               message = `Value must be less than or equal to ${toNum.toFixed(
-                                                                quantityDecimalPlaces
+                                                                quantityDecimalPlaces,
                                                               )}`;
                                                             }
                                                           }
@@ -3689,12 +3690,12 @@ export default function SelectServices(props){
                                                               {i?.driverName
                                                                 .substring(
                                                                   0,
-                                                                  10
+                                                                  10,
                                                                 )
                                                                 .replace(
                                                                   /\b\w/g,
                                                                   (l) =>
-                                                                    l.toUpperCase()
+                                                                    l.toUpperCase(),
                                                                 ) + "..."}
                                                             </>
                                                           ) : (
@@ -3709,12 +3710,12 @@ export default function SelectServices(props){
                                                                   {i?.driverName
                                                                     .substring(
                                                                       0,
-                                                                      38
+                                                                      38,
                                                                     )
                                                                     .replace(
                                                                       /\b\w/g,
                                                                       (l) =>
-                                                                        l.toUpperCase()
+                                                                        l.toUpperCase(),
                                                                     ) + "..."}
                                                                 </Tooltip>
                                                               ) : (
@@ -3722,7 +3723,7 @@ export default function SelectServices(props){
                                                                   {i?.driverName.replace(
                                                                     /\b\w/g,
                                                                     (l) =>
-                                                                      l.toUpperCase()
+                                                                      l.toUpperCase(),
                                                                   )}
                                                                 </>
                                                               )}
@@ -3768,28 +3769,28 @@ export default function SelectServices(props){
                                                                 2
                                                                   ? "Other"
                                                                   : `${Number(
-                                                                      slab.slabFrom
+                                                                      slab.slabFrom,
                                                                     )
                                                                       .toFixed(
-                                                                        decimalPlaces
+                                                                        decimalPlaces,
                                                                       )
                                                                       .replace(
                                                                         /\B(?=(\d{3})+(?!\d))/g,
-                                                                        ","
+                                                                        ",",
                                                                       )} - ${Number(
-                                                                      slab.slabTo
+                                                                      slab.slabTo,
                                                                     )
                                                                       .toFixed(
-                                                                        decimalPlaces
+                                                                        decimalPlaces,
                                                                       )
                                                                       .replace(
                                                                         /\B(?=(\d{3})+(?!\d))/g,
-                                                                        ","
+                                                                        ",",
                                                                       )}`,
                                                               variationValue:
                                                                 slab.slabValue,
                                                             };
-                                                          }
+                                                          },
                                                         )}
                                                         // value={slabSelectedRecValue}
                                                         // value={i?.slab
@@ -3819,7 +3820,7 @@ export default function SelectServices(props){
                                                           ?.filter(
                                                             (slab) =>
                                                               slab.isDefault ===
-                                                              true
+                                                              true,
                                                           )
                                                           .map((slab) => {
                                                             const decimalPlaces =
@@ -3833,36 +3834,36 @@ export default function SelectServices(props){
                                                                 2
                                                                   ? "Other"
                                                                   : `${Number(
-                                                                      slab.slabFrom
+                                                                      slab.slabFrom,
                                                                     )
                                                                       .toFixed(
-                                                                        decimalPlaces
+                                                                        decimalPlaces,
                                                                       )
                                                                       .replace(
                                                                         /\B(?=(\d{3})+(?!\d))/g,
-                                                                        ","
+                                                                        ",",
                                                                       )} - 
                                                                 ${Number(
-                                                                  slab.slabTo
+                                                                  slab.slabTo,
                                                                 )
                                                                   .toFixed(
-                                                                    decimalPlaces
+                                                                    decimalPlaces,
                                                                   )
                                                                   .replace(
                                                                     /\B(?=(\d{3})+(?!\d))/g,
-                                                                    ","
+                                                                    ",",
                                                                   )}`,
                                                             };
                                                           })}
                                                         onChange={(
-                                                          selectOption
+                                                          selectOption,
                                                         ) =>
                                                           handleRecurringServiceDependsServerClick(
                                                             oneOffService,
                                                             subOneOff,
                                                             selectOption,
                                                             i,
-                                                            "OneOffService"
+                                                            "OneOffService",
                                                           )
                                                         }
                                                       />
@@ -3870,7 +3871,7 @@ export default function SelectServices(props){
                                                         ?.filter(
                                                           (slab) =>
                                                             slab.isDefault ===
-                                                            true
+                                                            true,
                                                         )
                                                         .map((item) => {
                                                           return (
@@ -3882,10 +3883,10 @@ export default function SelectServices(props){
                                                                   ?.toString()
                                                                   ?.replace(
                                                                     /\B(?=(\d{3})+(?!\d))/g,
-                                                                    ","
+                                                                    ",",
                                                                   )}
                                                                 onChange={(
-                                                                  e
+                                                                  e,
                                                                 ) => {
                                                                   OnIncrementalValueChange(
                                                                     oneOffService,
@@ -3893,7 +3894,7 @@ export default function SelectServices(props){
                                                                     i,
                                                                     e.target
                                                                       .value,
-                                                                    "OneOffService"
+                                                                    "OneOffService",
                                                                   );
                                                                 }}
                                                                 className="input-text mt-2"
@@ -3918,13 +3919,13 @@ export default function SelectServices(props){
                                                   )}
                                               </div>
                                             );
-                                          }
+                                          },
                                         )}
                                     </td>
                                   )}
                                 </tr>
                               );
-                            }
+                            },
                           )}
                         </tbody>
                       </>
@@ -3938,10 +3939,10 @@ export default function SelectServices(props){
       </div>
       {props.requireMessage &&
         (props.recurringServiceList.some((i) =>
-          i.servicesList.some((item) => item.isSelected)
+          i.servicesList.some((item) => item.isSelected),
         ) ||
         props.oneOffServiceList.some((i) =>
-          i.servicesList.some((item) => item.isSelected)
+          i.servicesList.some((item) => item.isSelected),
         ) ? (
           ""
         ) : (
@@ -4068,7 +4069,7 @@ export default function SelectServices(props){
                   props.handleSaveAsDraft(
                     2,
                     moduleNameForSaveAsDraft,
-                    statusID.Draft
+                    statusID.Draft,
                   )
                 }
                 style={{ marginLeft: "5px" }}
@@ -4091,4 +4092,4 @@ export default function SelectServices(props){
       </div>
     </>
   );
-};
+}

@@ -141,7 +141,6 @@ const TopbarClone = () => {
     localStorage.setItem("isSidebarOpen", JSON.stringify(isSidebarOpen));
   }, [isSidebarOpen]);
 
-
   useEffect(() => {
     if (common.token && topbar === "block") {
       NotificationCountData();
@@ -193,7 +192,7 @@ const TopbarClone = () => {
     try {
       const Data = await NotificationCount(
         common.userKeyID,
-        common.organisationKeyID
+        common.organisationKeyID,
       );
       if (Data) {
         setLoader(false);
@@ -211,7 +210,7 @@ const TopbarClone = () => {
     try {
       const Data = await VanishCount(
         common.userKeyID,
-        common.organisationKeyID
+        common.organisationKeyID,
       );
       if (Data) {
         setLoader(false);
@@ -241,7 +240,8 @@ const TopbarClone = () => {
   //   }
   // };
   const closeNav = (event) => {
-    if (isMobile || window.innerWidth <= 1040) { // Changed from 1024 to 1040
+    if (isMobile || window.innerWidth <= 1040) {
+      // Changed from 1024 to 1040
       // Only proceed if the dropdown is currently open
       if (document.body.classList.contains("menu")) {
         setIsDropdownOpen(false);
@@ -251,7 +251,7 @@ const TopbarClone = () => {
         // Remove event listeners
         document.body.removeEventListener("click", handleClickOutside);
         const dropdownButton = document.getElementById(
-          "page-header-user-dropdown"
+          "page-header-user-dropdown",
         );
         dropdownButton.removeEventListener("click", handleCloseDropdown);
       }
@@ -429,12 +429,12 @@ const TopbarClone = () => {
       //alert("OnOrganisationsChange : "+JSON.stringify(selectedOrg))
       localStorage.setItem(
         "userAccess",
-        JSON.stringify(organisationData.accessList)
+        JSON.stringify(organisationData.accessList),
       );
       setActiveOrganization(organisationData.accessList);
       localStorage.setItem(
         "subscriptionPlan",
-        JSON.stringify(organisationData.subscriptionPlan)
+        JSON.stringify(organisationData.subscriptionPlan),
       );
       setActiveOrganizationSubscriptionPlan(organisationData.subscriptionPlan);
       setActiveOrganizationKeyId(organisationData.organisationKeyID);
@@ -454,7 +454,7 @@ const TopbarClone = () => {
               ? []
               : organisationData?.professionTypeLists,
           enableEL: organisationData?.enableEL,
-        })
+        }),
       );
 
       navigate("/");
@@ -510,23 +510,23 @@ const TopbarClone = () => {
     configs.style.display = "none";
   };
 
-//   const hideConfigList = () => {
-//   const configs = document.getElementById("config");
-//   // Add a small delay to allow clicking on items outside hover area
-//   setTimeout(() => {
-//     configs.style.display = "none";
-//   }, 200); // 200ms delay
-// };
+  //   const hideConfigList = () => {
+  //   const configs = document.getElementById("config");
+  //   // Add a small delay to allow clicking on items outside hover area
+  //   setTimeout(() => {
+  //     configs.style.display = "none";
+  //   }, 200); // 200ms delay
+  // };
   const hideConfigList = () => {
     const configs = document.getElementById("config");
     const allSubLists = document.querySelectorAll(".subList");
 
     // Reset all sublists
-    allSubLists.forEach(list => {
+    allSubLists.forEach((list) => {
       list.style.display = "none";
       // Reset aria-expanded states if using them
       const trigger = document.querySelector(`a[href="#${list.id}"]`);
-      if (trigger) trigger.setAttribute('aria-expanded', 'false');
+      if (trigger) trigger.setAttribute("aria-expanded", "false");
     });
 
     setTimeout(() => {
@@ -576,61 +576,58 @@ const TopbarClone = () => {
   //   }
   // };
 
-const toggleConfigSubList = (id) => {
-  const list = document.getElementById(id);
-  if (!list) return;
+  const toggleConfigSubList = (id) => {
+    const list = document.getElementById(id);
+    if (!list) return;
 
-  const parent = list.parentElement;
-  const toggleLink = parent.querySelector(".nav-link");
-  const configContainer = document.getElementById("config");
+    const parent = list.parentElement;
+    const toggleLink = parent.querySelector(".nav-link");
+    const configContainer = document.getElementById("config");
 
-  // Close all other sublists
-  document.querySelectorAll("#config .subList").forEach((el) => {
-    if (el !== list) {
-      el.classList.remove("d-block");
-      el.classList.add("d-none");
+    // Close all other sublists
+    document.querySelectorAll("#config .subList").forEach((el) => {
+      if (el !== list) {
+        el.classList.remove("d-block");
+        el.classList.add("d-none");
 
-      const link = el.parentElement.querySelector(".nav-link");
-      if (link) link.setAttribute("aria-expanded", "false");
+        const link = el.parentElement.querySelector(".nav-link");
+        if (link) link.setAttribute("aria-expanded", "false");
+      }
+    });
+
+    const isOpen = list.classList.contains("d-block");
+
+    if (isOpen) {
+      // Close clicked sublist
+      list.classList.remove("d-block");
+      list.classList.add("d-none");
+      toggleLink.setAttribute("aria-expanded", "false");
+    } else {
+      // Open clicked sublist
+      list.classList.add("d-block");
+      list.classList.remove("d-none");
+      toggleLink.setAttribute("aria-expanded", "true");
+
+      list.scrollIntoView({ behavior: "smooth", block: "nearest" });
+
+      // Bind hover-out close ONCE to config container
+      if (configContainer && !configContainer.dataset.mouseleaveBound) {
+        configContainer.dataset.mouseleaveBound = "true";
+
+        configContainer.addEventListener("mouseleave", (event) => {
+          if (!configContainer.contains(event.relatedTarget)) {
+            document.querySelectorAll("#config .subList").forEach((el) => {
+              el.classList.remove("d-block");
+              el.classList.add("d-none");
+
+              const link = el.parentElement.querySelector(".nav-link");
+              if (link) link.setAttribute("aria-expanded", "false");
+            });
+          }
+        });
+      }
     }
-  });
-
-  const isOpen = list.classList.contains("d-block");
-
-  if (isOpen) {
-    // Close clicked sublist
-    list.classList.remove("d-block");
-    list.classList.add("d-none");
-    toggleLink.setAttribute("aria-expanded", "false");
-  } else {
-    // Open clicked sublist
-    list.classList.add("d-block");
-    list.classList.remove("d-none");
-    toggleLink.setAttribute("aria-expanded", "true");
-
-    list.scrollIntoView({ behavior: "smooth", block: "nearest" });
-
-    // Bind hover-out close ONCE to config container
-    if (configContainer && !configContainer.dataset.mouseleaveBound) {
-      configContainer.dataset.mouseleaveBound = "true";
-
-      configContainer.addEventListener("mouseleave", (event) => {
-        if (!configContainer.contains(event.relatedTarget)) {
-          document.querySelectorAll("#config .subList").forEach((el) => {
-            el.classList.remove("d-block");
-            el.classList.add("d-none");
-
-            const link = el.parentElement.querySelector(".nav-link");
-            if (link) link.setAttribute("aria-expanded", "false");
-          });
-        }
-      });
-    }
-  }
-};
-
-
-
+  };
 
   const showUserSettingList = () => {
     setIsUserRoleDropdownOpen(true);
@@ -646,11 +643,11 @@ const toggleConfigSubList = (id) => {
     if (list.style.display !== "block") {
       list.style.display = "block";
       setTimeout(() => {
-      list.scrollIntoView({
-        behavior: "smooth",
-        block: "end"
-      });
-    }, 100);
+        list.scrollIntoView({
+          behavior: "smooth",
+          block: "end",
+        });
+      }, 100);
     } else {
       list.style.display = "none";
     }
@@ -690,56 +687,56 @@ const toggleConfigSubList = (id) => {
   //   }
   // };
   const toggleSettingSubList = (id) => {
-  const list = document.getElementById(id);
-  const parent = list.parentElement; // parent <li> (top-level menu item)
-  const toggleLink = parent.querySelector(".nav-link");
-  const allLists = document.querySelectorAll(".subList");
-  const settingsContainer = document.getElementById("Setting");
+    const list = document.getElementById(id);
+    const parent = list.parentElement; // parent <li> (top-level menu item)
+    const toggleLink = parent.querySelector(".nav-link");
+    const allLists = document.querySelectorAll(".subList");
+    const settingsContainer = document.getElementById("Setting");
 
-  // Close all other sublists
-  allLists.forEach((element) => {
-    if (element.classList.contains("d-block") && element.id !== id) {
-      element.classList.remove("d-block");
-      element.classList.add("d-none");
-      const link = element.parentElement.querySelector(".nav-link");
-      if (link) link.setAttribute("aria-expanded", "false");
-    }
-  });
-
-  const isOpen = list.classList.contains("d-block");
-
-  // Toggle clicked sublist
-  if (isOpen) {
-    list.classList.remove("d-block");
-    list.classList.add("d-none");
-    toggleLink.setAttribute("aria-expanded", "false");
-  } else {
-    // Constrain width to parent
-    const parentWidth = parent.offsetWidth;
-    list.style.maxWidth = parentWidth + "px";
-    list.style.width = "100%";
-    list.style.boxSizing = "border-box";
-
-    list.classList.add("d-block");
-    list.classList.remove("d-none");
-    toggleLink.setAttribute("aria-expanded", "true");
-
-    list.scrollIntoView({ behavior: "smooth", block: "nearest" });
-
-    //  Add hover-out close behavior
-    const handleMouseLeave = (event) => {
-      // Close ONLY if mouse leaves SETTINGS, not sublist
-      if (!settingsContainer.contains(event.relatedTarget)) {
-        list.classList.remove("d-block");
-        list.classList.add("d-none");
-        toggleLink.setAttribute("aria-expanded", "false");
-
-        settingsContainer.removeEventListener("mouseleave", handleMouseLeave);
+    // Close all other sublists
+    allLists.forEach((element) => {
+      if (element.classList.contains("d-block") && element.id !== id) {
+        element.classList.remove("d-block");
+        element.classList.add("d-none");
+        const link = element.parentElement.querySelector(".nav-link");
+        if (link) link.setAttribute("aria-expanded", "false");
       }
-    };
-    settingsContainer.addEventListener("mouseleave", handleMouseLeave);
-  }
-};
+    });
+
+    const isOpen = list.classList.contains("d-block");
+
+    // Toggle clicked sublist
+    if (isOpen) {
+      list.classList.remove("d-block");
+      list.classList.add("d-none");
+      toggleLink.setAttribute("aria-expanded", "false");
+    } else {
+      // Constrain width to parent
+      const parentWidth = parent.offsetWidth;
+      list.style.maxWidth = parentWidth + "px";
+      list.style.width = "100%";
+      list.style.boxSizing = "border-box";
+
+      list.classList.add("d-block");
+      list.classList.remove("d-none");
+      toggleLink.setAttribute("aria-expanded", "true");
+
+      list.scrollIntoView({ behavior: "smooth", block: "nearest" });
+
+      //  Add hover-out close behavior
+      const handleMouseLeave = (event) => {
+        // Close ONLY if mouse leaves SETTINGS, not sublist
+        if (!settingsContainer.contains(event.relatedTarget)) {
+          list.classList.remove("d-block");
+          list.classList.add("d-none");
+          toggleLink.setAttribute("aria-expanded", "false");
+
+          settingsContainer.removeEventListener("mouseleave", handleMouseLeave);
+        }
+      };
+      settingsContainer.addEventListener("mouseleave", handleMouseLeave);
+    }
+  };
 
   const handleClose = () => {
     $("#" + "SetPersonalizeSettingModal").modal("hide");
@@ -758,15 +755,15 @@ const toggleConfigSubList = (id) => {
   //   }
   // };
   const toggleConfigList = () => {
-  const list = document.getElementById("config");
-  const isOpen = list.style.display === "block";
-  if (!isOpen) {
-    list.style.display = "block";
-    list.scrollIntoView({ behavior: "smooth", block: "start" });
-  } else {
-    list.style.display = "none";
-  }
-};
+    const list = document.getElementById("config");
+    const isOpen = list.style.display === "block";
+    if (!isOpen) {
+      list.style.display = "block";
+      list.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else {
+      list.style.display = "none";
+    }
+  };
 
   const hideUserRoleList = () => {
     setIsUserRoleDropdownOpen(false);
@@ -820,7 +817,7 @@ const toggleConfigSubList = (id) => {
       }
       localStorage.setItem(
         "userAccess",
-        JSON.stringify(organisationData.accessList)
+        JSON.stringify(organisationData.accessList),
       );
       setActiveOrganization(organisationData.accessList);
 
@@ -859,7 +856,7 @@ const toggleConfigSubList = (id) => {
               professionTypeLists: organisationData.professionTypeLists,
               organisationCount: OrganisationListData.length,
               enableEL: organisationData.enableEL,
-            })
+            }),
           );
         }
       }
@@ -883,7 +880,7 @@ const toggleConfigSubList = (id) => {
           localStorage.removeItem("OrganisationLocalList");
           localStorage.setItem(
             "OrganisationLocalList",
-            JSON.stringify(OrganisationsListData)
+            JSON.stringify(OrganisationsListData),
           );
           setOrganisationsList(OrganisationsListData);
 
@@ -910,15 +907,15 @@ const toggleConfigSubList = (id) => {
           }
           localStorage.setItem(
             "userAccess",
-            JSON.stringify(organisationData.accessList)
+            JSON.stringify(organisationData.accessList),
           );
           setActiveOrganization(organisationData.accessList);
           localStorage.setItem(
             "subscriptionPlan",
-            JSON.stringify(organisationData.subscriptionPlan)
+            JSON.stringify(organisationData.subscriptionPlan),
           );
           setActiveOrganizationSubscriptionPlan(
-            organisationData.subscriptionPlan
+            organisationData.subscriptionPlan,
           );
 
           if (organisationData) {
@@ -952,7 +949,7 @@ const toggleConfigSubList = (id) => {
           if (organisationData.organisationKeyID !== null) {
             await OrganisationLoginUpdate(
               common.userKeyID,
-              organisationData.organisationKeyID
+              organisationData.organisationKeyID,
             );
           }
           if (organisationData) {
@@ -966,7 +963,7 @@ const toggleConfigSubList = (id) => {
                     ? []
                     : organisationData.professionTypeLists,
                 enableEL: organisationData.enableEL,
-              })
+              }),
             );
           } else if (
             getOrganisationLookupListApiCallCount < maxCountToRecallApi
@@ -1123,236 +1120,273 @@ const toggleConfigSubList = (id) => {
   //Design part :
   return (
     <>
-    <div className={`topbar-clone ${isSidebarOpen ? '' : 'collapsed'}`}>
-      {/* Hamburger Icon - Position changes based on sidebar state */}
+      <div className={`topbar-clone ${isSidebarOpen ? "" : "collapsed"}`}>
+        {/* Hamburger Icon - Position changes based on sidebar state */}
 
-      {/* Original mobile hamburger button */}
-      <button
-        type="button"
-        onClick={togglenav}
-        className="btn btn-sm px-2 fs-16 header-item vertical-menu-btn topnav-hamburger d-md-none"
-        id="topnav-hamburger-icon"
-      >
-        <span className="hamburger-icon">
-          <span></span>
-          <span></span>
-          <span></span>
-        </span>
-      </button>
-      <div
-        className={`app-menu d-flex flex-column ${isMobile || window.innerWidth <= 1040 ? (menuOpen ? "d-block" : "d-none") : "d-block"}`}
-        style={{
-          // height: "100%",
-          // width: isMobile || window.innerWidth <= 1040 ? "100%" : "300px",
-          // maxWidth: "300px",
-          background: currentTopbarColor,
-          // overflowY: "auto",
-          position: isMobile || window.innerWidth <= 1040 ? "absolute" : "relative",
-          top: isMobile || window.innerWidth <= 1040 ? "56px" : "0",
-          left: 0,
-          zIndex: 2000,
-        }}
-      >
-        <div id="scrollbar" className= "mb-2" style={TopbarStyle}>
-          <div class="container">
-            <div id="two-column-menu">
-              <div>
-              <div className="pt-4"
-                style={{
-                  display: "flex",
-                  justifyContent: "start",
-                  position: "relative"
-                }}
-              >
-                <div style={{width: "60%"}}>
-                <a className="lna" href="https://outbooks.com/proposal/" target="_blank">
-                  <img
-                    src={logoImg}
-                    alt="Outbooks"
-                    style={{
-                      width: "100%",   // scales down if needed
-                      height: "auto",    // keep aspect ratio
-                      display: "block",  // remove inline spacing
-                      objectFit: "contain",
-                      margin: "0 auto", 
-                      paddingLeft: "10px"
-                    }}
-                  />
-                </a>
-                </div>
-                <Tooltip title={isSidebarOpen ? 'Close menu' : 'Open menu'} disableInteractive>
+        {/* Original mobile hamburger button */}
+        <button
+          type="button"
+          onClick={togglenav}
+          className="btn btn-sm px-2 fs-16 header-item vertical-menu-btn topnav-hamburger d-md-none"
+          id="topnav-hamburger-icon"
+        >
+          <span className="hamburger-icon">
+            <span></span>
+            <span></span>
+            <span></span>
+          </span>
+        </button>
+        <div
+          className={`app-menu d-flex flex-column ${isMobile || window.innerWidth <= 1040 ? (menuOpen ? "d-block" : "d-none") : "d-block"}`}
+          style={{
+            // height: "100%",
+            // width: isMobile || window.innerWidth <= 1040 ? "100%" : "300px",
+            // maxWidth: "300px",
+            background: currentTopbarColor,
+            // overflowY: "auto",
+            position:
+              isMobile || window.innerWidth <= 1040 ? "absolute" : "relative",
+            top: isMobile || window.innerWidth <= 1040 ? "56px" : "0",
+            left: 0,
+            zIndex: 2000,
+          }}
+        >
+          <div id="scrollbar" className="mb-2" style={TopbarStyle}>
+            <div class="container">
+              <div id="two-column-menu">
+                <div>
                   <div
+                    className="pt-4"
                     style={{
-                      width: "40%",
                       display: "flex",
-                      justifyContent: "flex-end",
-                      alignItems: "center",
+                      justifyContent: "start",
+                      position: "relative",
                     }}
                   >
-                  <button
-                    onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                    style={{
-                      position: isSidebarOpen ? "relative" : "fixed",
-                      left: isSidebarOpen ? 'calc(17% - 15px)' : '16px', // centers within sidebar accounting for button width
-                      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                      background: 'rgba(255, 255, 255, 0.2)',
-                      backdropFilter: 'blur(10px)',
-                      border: '1px solid rgba(0, 0, 0, 0.05)',
-                      borderRadius: '8px',
-                      cursor: 'pointer',
-                      padding: '6.5px',
-                      zIndex: 2001,
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '4px',
-                      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.transform = 'scale(1.05)';
-                      e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = 'scale(1)';
-                      e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
-                    }}
-                    aria-label="Toggle sidebar"
-                  >
-                    {isSidebarOpen ? <i class="fa-solid fa-arrow-left"></i> : (
-                      <>
-                        <span style={{
-                          width: isSidebarOpen ? '16px' : '22px',
-                          height: '2.5px',
-                          backgroundColor: '#1a1a1a',
-                          display: 'block',
-                          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                          borderRadius: '2px',
-                          transform: isSidebarOpen ? 'translateY(6.5px) rotate(-45deg)' : 'none'
-                        }}></span>
-                        <span style={{
-                          width: isSidebarOpen ? '16px' : '22px',
-                          height: '2.5px',
-                          backgroundColor: '#1a1a1a',
-                          display: 'block',
-                          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                          borderRadius: '2px',
-                          opacity: isSidebarOpen ? '0' : '1'
-                        }}></span>
-                        <span style={{
-                          width: isSidebarOpen ? '16px' : '22px',
-                          height: '2.5px',
-                          backgroundColor: '#1a1a1a',
-                          display: 'block',
-                          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                          borderRadius: '2px',
-                          transform: isSidebarOpen ? 'translateY(-6.5px) rotate(45deg)' : 'none'
-                        }}></span>
-                      </>
-                    )}
-                  </button>
-                  </div>
-                </Tooltip>
-            <div className="row"></div>
-            </div>
-              </div>
-            <div className="sidebar-menu-scroll">
-            <ul class="navbar-nav d-none d-md-block pt-4" style={{paddingLeft: "0.5rem"}}id="navbar-nav">
-              <li class="nav-item edit-dropdown-cls">
-                {accessCount !== 0 && (
-                  <>
-                    <div
-                      style={{
-                        position: "relative",
-                        display: "inline-block",
-                        marginLeft: "1rem",
-                        marginTop: "1rem",
-                      }}
-                    >
-                      {/* Organisation List */}
-                      <select
-                        className="nav-select form-select"
-                        onChange={(e) => OnOrganisationsChange(e)}
-                        value={`${common.organisationKeyID},${common.businessTypeID},${common.enableEL}`}
-                        style={{
-                          cursor: "pointer",
-                          padding: "8px 15px 8px 12px",
-                        }}
-                        onClick={toggleSelect} // Add onClick event to toggle select
-                        onBlur={() => setIsOpens(false)} // Add onBlur event to close select when clicked outside
+                    <div style={{ width: "60%" }}>
+                      <a
+                        className="lna"
+                        href="https://outbooks.com/proposal/"
+                        target="_blank"
                       >
-                        {organisationsList.map((organisations) => (
-                          <option
-                            key={organisations.organisationKeyID}
-                            value={`${organisations.organisationKeyID},${organisations.businessTypeID},${organisations.enableEL}`}
-                          >
-                            {organisations.organisationName}
-                          </option>
-                        ))}
-
-                        <option value="1">Create New Practice</option>
-                      </select>
-                      <i
-                        className={
-                          isOpens
-                            ? "  ri-arrow-up-s-line"
-                            : " ri-arrow-down-s-line "
-                        }
-                        style={{
-                          position: "absolute",
-                          top: "50%",
-                          right: "5px",
-                          transform: "translateY(-50%)",
-                          cursor: "pointer",
-                          pointerEvents: "none",
-                          zIndex: "1000",
-                          backgroundColor: "#1b1c25",
-                          color: "white",
-                          ...(isOpens ? { fontWeight: "bold" } : {}),
-                        }}
-                      ></i>
-                    </div>
-                      <div
-                        className="d-flex"
-                        style={{
-                          alignItems: "center", // ensures vertical alignment
-                          marginLeft: "0.5rem",  
-                          marginTop: "1rem",    // same top margin for both
-                        }}
-                      >
-                        <div
-                          onClick={() => {
-                            navigate("/create-new-practice");
-                            togglenav();
+                        <img
+                          src={logoImg}
+                          alt="Outbooks"
+                          style={{
+                            width: "100%", // scales down if needed
+                            height: "auto", // keep aspect ratio
+                            display: "block", // remove inline spacing
+                            objectFit: "contain",
+                            margin: "0 auto",
+                            paddingLeft: "10px",
                           }}
-                          title="Create New Practice"
-                          className="edit-topbar"
+                        />
+                      </a>
+                    </div>
+                    <Tooltip
+                      title={isSidebarOpen ? "Close menu" : "Open menu"}
+                      disableInteractive
+                    >
+                      <div
+                        style={{
+                          width: "40%",
+                          display: "flex",
+                          justifyContent: "flex-end",
+                          alignItems: "center",
+                        }}
+                      >
+                        <button
+                          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                          style={{
+                            position: isSidebarOpen ? "relative" : "fixed",
+                            left: isSidebarOpen ? "calc(17% - 15px)" : "16px", // centers within sidebar accounting for button width
+                            transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                            background: "rgba(255, 255, 255, 0.2)",
+                            backdropFilter: "blur(10px)",
+                            border: "1px solid rgba(0, 0, 0, 0.05)",
+                            borderRadius: "8px",
+                            cursor: "pointer",
+                            padding: "6.5px",
+                            zIndex: 2001,
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: "4px",
+                            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.transform = "scale(1.05)";
+                            e.currentTarget.style.boxShadow =
+                              "0 4px 12px rgba(0, 0, 0, 0.15)";
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.transform = "scale(1)";
+                            e.currentTarget.style.boxShadow =
+                              "0 2px 8px rgba(0, 0, 0, 0.1)";
+                          }}
+                          aria-label="Toggle sidebar"
                         >
-                          {/* <i className="fa fa-regular fa fa-circle-plus" */}
-                          <i className="fa-solid fa-circle-plus"
-                             style={{ cursor: "pointer",
-                                   color: TopTextColor.color }}
-                          ></i>
-                        </div>
-
-                        {common.organisationKeyID !== null && (
+                          {isSidebarOpen ? (
+                            <i class="fa-solid fa-arrow-left"></i>
+                          ) : (
+                            <>
+                              <span
+                                style={{
+                                  width: isSidebarOpen ? "16px" : "22px",
+                                  height: "2.5px",
+                                  backgroundColor: "#1a1a1a",
+                                  display: "block",
+                                  transition:
+                                    "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                                  borderRadius: "2px",
+                                  transform: isSidebarOpen
+                                    ? "translateY(6.5px) rotate(-45deg)"
+                                    : "none",
+                                }}
+                              ></span>
+                              <span
+                                style={{
+                                  width: isSidebarOpen ? "16px" : "22px",
+                                  height: "2.5px",
+                                  backgroundColor: "#1a1a1a",
+                                  display: "block",
+                                  transition:
+                                    "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                                  borderRadius: "2px",
+                                  opacity: isSidebarOpen ? "0" : "1",
+                                }}
+                              ></span>
+                              <span
+                                style={{
+                                  width: isSidebarOpen ? "16px" : "22px",
+                                  height: "2.5px",
+                                  backgroundColor: "#1a1a1a",
+                                  display: "block",
+                                  transition:
+                                    "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                                  borderRadius: "2px",
+                                  transform: isSidebarOpen
+                                    ? "translateY(-6.5px) rotate(45deg)"
+                                    : "none",
+                                }}
+                              ></span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </Tooltip>
+                    <div className="row"></div>
+                  </div>
+                </div>
+                <div className="sidebar-menu-scroll">
+                  <ul
+                    class="navbar-nav d-none d-md-block pt-4"
+                    style={{ paddingLeft: "0.5rem" }}
+                    id="navbar-nav"
+                  >
+                    <li class="nav-item edit-dropdown-cls">
+                      {accessCount !== 0 && (
+                        <>
                           <div
-                            onClick={() => {
-                              navigate("/update-practice-details");
-                              closeNav();
+                            style={{
+                              position: "relative",
+                              display: "inline-block",
+                              marginLeft: "1rem",
+                              marginTop: "1rem",
                             }}
-                            className="update-practice-details"
-                            title="Update Practice"
                           >
-                            <i className="fa fa-pencil"
-                               style={{ cursor: "pointer", color: TopTextColor.color }}
+                            {/* Organisation List */}
+                            <select
+                              className="nav-select form-select"
+                              onChange={(e) => OnOrganisationsChange(e)}
+                              value={`${common.organisationKeyID},${common.businessTypeID},${common.enableEL}`}
+                              style={{
+                                cursor: "pointer",
+                                padding: "8px 15px 8px 12px",
+                              }}
+                              onClick={toggleSelect} // Add onClick event to toggle select
+                              onBlur={() => setIsOpens(false)} // Add onBlur event to close select when clicked outside
+                            >
+                              {organisationsList.map((organisations) => (
+                                <option
+                                  key={organisations.organisationKeyID}
+                                  value={`${organisations.organisationKeyID},${organisations.businessTypeID},${organisations.enableEL}`}
+                                >
+                                  {organisations.organisationName}
+                                </option>
+                              ))}
+
+                              <option value="1">Create New Practice</option>
+                            </select>
+                            <i
+                              className={
+                                isOpens
+                                  ? "  ri-arrow-up-s-line"
+                                  : " ri-arrow-down-s-line "
+                              }
+                              style={{
+                                position: "absolute",
+                                top: "50%",
+                                right: "5px",
+                                transform: "translateY(-50%)",
+                                cursor: "pointer",
+                                pointerEvents: "none",
+                                zIndex: "1000",
+                                backgroundColor: "#1b1c25",
+                                color: "white",
+                                ...(isOpens ? { fontWeight: "bold" } : {}),
+                              }}
                             ></i>
                           </div>
-                        )}
-                      </div>
-                  </>
-                )}
-              </li>
-            </ul>
-              {/* <button
+                          <div
+                            className="d-flex"
+                            style={{
+                              alignItems: "center", // ensures vertical alignment
+                              marginLeft: "0.5rem",
+                              marginTop: "1rem", // same top margin for both
+                            }}
+                          >
+                            <div
+                              onClick={() => {
+                                navigate("/create-new-practice");
+                                togglenav();
+                              }}
+                              title="Create New Practice"
+                              className="edit-topbar"
+                            >
+                              {/* <i className="fa fa-regular fa fa-circle-plus" */}
+                              <i
+                                className="fa-solid fa-circle-plus"
+                                style={{
+                                  cursor: "pointer",
+                                  color: TopTextColor.color,
+                                }}
+                              ></i>
+                            </div>
+
+                            {common.organisationKeyID !== null && (
+                              <div
+                                onClick={() => {
+                                  navigate("/update-practice-details");
+                                  closeNav();
+                                }}
+                                className="update-practice-details"
+                                title="Update Practice"
+                              >
+                                <i
+                                  className="fa fa-pencil"
+                                  style={{
+                                    cursor: "pointer",
+                                    color: TopTextColor.color,
+                                  }}
+                                ></i>
+                              </div>
+                            )}
+                          </div>
+                        </>
+                      )}
+                    </li>
+                  </ul>
+                  {/* <button
                 type="button"
                 onClick={togglenav}
                 class="btn btn-sm px-2  fs-16 header-item vertical-menu-btn topnav-hamburger"
@@ -1364,663 +1398,710 @@ const toggleConfigSubList = (id) => {
                   <span></span>
                 </span>
               </button> */}
-            {/* <ul class="navbar-nav" id="navbar-nav"></ul> */}
-            <ul class="d-md-none d-block navbar-nav" id="navbar-nav">
-              <li class="nav-item edit-dropdown-cls">
-                {accessCount !== 0 && (
-                  <>
-                    <div
-                      style={{
-                        position: "relative",
-                        display: "inline-block",
-                      }}
-                    >
-                      {/* Organisation List */}
-                      <select
-                        className="nav-select form-select c-select"
-                        onChange={(e) => OnOrganisationsChange(e)}
-                        value={`${common.organisationKeyID},${common.businessTypeID},${common.enableEL}`}
-                        style={{
-                          cursor: "pointer",
-                          padding: "8px 15px 8px 12px",
-                        }}
-                        onClick={toggleSelect} // Add onClick event to toggle select
-                        onBlur={() => setIsOpens(false)} // Add onBlur event to close select when clicked outside
-                      >
-                        {organisationsList.map((organisations) => (
-                          <option
-                            key={organisations.organisationKeyID}
-                            value={`${organisations.organisationKeyID},${organisations.businessTypeID},${organisations.enableEL}`}
-                          >
-                            {organisations.organisationName}
-                          </option>
-                        ))}
-
-                        <option value="1">Create New Practice</option>
-                      </select>
-                      <i
-                        className={
-                          isOpens
-                            ? "  ri-arrow-up-s-line"
-                            : " ri-arrow-down-s-line "
-                        }
-                        style={{
-                          position: "absolute",
-                          top: "50%",
-                          right: "5px",
-                          transform: "translateY(-50%)",
-                          cursor: "pointer",
-                          pointerEvents: "none",
-                          zIndex: "1000",
-                          backgroundColor: "#1b1c25",
-                          color: "white",
-                          ...(isOpens ? { fontWeight: "bold" } : {}),
-                        }}
-                      ></i>
-                    </div>
-
-                    <div className="edit-topbar">
-                      <div
-                        onClick={() => (
-                          navigate("/create-new-practice"), togglenav()
-                        )}
-                        title="Create New Practice "
-                      >
-                        <i
-                          style={{
-                            cursor: "pointer",
-                            color: TopTextColor.color,
-                          }}
-                          class="fa fa-regular fa fa-circle-plus"
-                        ></i>
-                      </div>
-                    </div>
-                    {common.organisationKeyID !== null && (
-                      <div className="update-practice-details">
-                        <div
-                          onClick={() =>
-                            navigate("/update-practice-details", closeNav())
-                          }
-                          title="Update Practice"
-                        >
-                          <i
-                            className="ri-pencil-fill"
+                  {/* <ul class="navbar-nav" id="navbar-nav"></ul> */}
+                  <ul class="d-md-none d-block navbar-nav" id="navbar-nav">
+                    <li class="nav-item edit-dropdown-cls">
+                      {accessCount !== 0 && (
+                        <>
+                          <div
                             style={{
-                              cursor: "pointer",
-                              color: TopTextColor.color,
-                              fill: TopTextColor.color,
+                              position: "relative",
+                              display: "inline-block",
                             }}
-                          ></i>
-                        </div>
-                      </div>
-                    )}
-                  </>
-                )}
-              </li>
-            </ul>
-            {common.organisationKeyID !== null && (
-            <ul
-              className={`changed-nav navbar-nav ${isDropdownOpen ? " open" : ""
-                } ms-2 mt-1`}
-              // style={{paddingRight: "1rem"}}
-              id="navbar-UL-nav"
-            >
-              <li class="menu-title">
-                <span data-key="t-menu">Menu</span>
-              </li>
-              {/* Dashboard Start */}
-              {userAccessData.Dashboard_CanView && common.organisationKeyID !== null && (
-                <li class="nav-item">
-                  <NavLink
-                    to="/"
-                    exact
-                    onClick={() => {
-                      NotificationCountData();
-                      togglenav();
-                    }}
-                    className="nav-link menu-link"
-                    activeclassname="active"
-                    onMouseOver={() => setIsHoveredDashboard(true)}
-                    onMouseOut={() => setIsHoveredDashboard(false)}
-                    style={{
-                      color: isHoveredDashboard
-                        ? "#438eff"
-                        : TopTextColor.color,
-                      fontWeight: "bold"
-                    }}
-                  >
-                    <img
-                      src={DashboardSvg}
-                      alt="Dashboard"
-                      style={{ width: "16px", marginRight: "5px" }}
-                    />
-                    {/* <i class="bi bi-graph-up mr-2"></i> */}
-                    <span data-key="t-dashboard" style={{color: isHoveredDashboard ? "#438eff" : "#fff"}}>Dashboard</span>
-                  </NavLink>
-                </li>
-              )}
-              {/* Dashboard end */}
-              {/* Prospect/Client Start */}
-              {userAccessData.Admin_Prospect_CanView && (
-                // hasAccess(1, 4)
-                <li class="nav-item">
-                  <NavLink
-                    to="/prospects"
-                    onClick={() => {
-                      NotificationCountData();
-                      togglenav();
-                    }}
-                    className="nav-link menu-link"
-                    activeclassname="active"
-                    onMouseOver={() => setIsHoveredProspect(true)}
-                    onMouseOut={() => setIsHoveredProspect(false)}
-                    style={{
-                      color: isHoveredProspect
-                        ? "#438eff"
-                        : TopTextColor.color,
-                      fontWeight: "bold"
-                    }}
-                  >
-                    <img
-                      src={ProspectSvg}
-                      alt="ProspectSvg"
-                      style={{ width: "16px", marginRight: "5px" }}
-                    />
-                    <span data-key="t-dashboard" style={{color: isHoveredProspect ? "#438eff" : "#fff"}}>
-                      {prospectName}
-                    </span>{" "}
-                  </NavLink>
-                </li>
-              )}
-              {/* Prospect End */}
-              {/* proposalName latter Start */}
-              {userAccessData.Admin_Proposal_CanView && (
-                <li class="nav-item">
-                  <NavLink
-                    to="/proposals"
-                    activeclassname="active"
-                    onClick={() => {
-                      NotificationCountData();
-                      togglenav();
-                    }}
-                    className="nav-link menu-link"
-                    onMouseOver={() => setIsHoveredProposal(true)}
-                    onMouseOut={() => setIsHoveredProposal(false)}
-                    style={{
-                      color: isHoveredProposal
-                        ? "#438eff"
-                        : TopTextColor.color,
-                      fontWeight: "bold"
-                    }}
-                  >
-                    {" "}
-                    <img
-                      src={ProposalSvg}
-                      alt="ProposalSvg"
-                      style={{ width: "16px", marginRight: "5px" }}
-                    />
-                    {/* <i class="bi bi-card-list mr-2"  ></i>{" "} */}
-                    <span data-key="t-dashboard" style={{color: isHoveredProposal ? "#438eff" : "#fff"}}>
-                      {proposalName}
-                    </span>{" "}
-                  </NavLink>
-                </li>
-              )}
-              {/*proposalName  latter End */}
-              {/* Engagement latter Start */}
-              {common.enableEL == 1 &&
-                userAccessData.Admin_Engagement_Latter_CanView && (
-                  <li class="nav-item">
-                    <NavLink
-                      to="/engagement-letters"
-                      onClick={() => {
-                        NotificationCountData();
-                        togglenav();
-                      }}
-                      activeclassname="active"
-                      className="nav-link menu-link"
-                      onMouseOver={() =>
-                        setIsHoveredEngagement(true)
-                      }
-                      onMouseOut={() =>
-                        setIsHoveredEngagement(false)
-                      }
-                      style={{
-                        color: isHoveredEngagement
-                          ? "#438eff"
-                          : TopTextColor.color,
-                        fontWeight: "bold"
-                      }}
-                    >
-                      {" "}
-                      <img
-                        src={EngagementSvg}
-                        alt="EngagementSvg"
-                        style={{
-                          width: "16px",
-                          marginRight: "5px",
-                        }}
-                      />
-                      {/* <i class="bi bi-envelope-paper mr-2"  ></i>{" "} */}
-                      <span data-key="t-dashboard" style={{color: isHoveredEngagement ? "#438eff" : "#fff"}}>
-                        {EngagementName}
-                      </span>{" "}
-                    </NavLink>
-                  </li>
-                )}
-
-              {/* Engagement latter End */}
-              {/* Admin Config Modal Start */}
-              {userAccessData.Admin_Config_CanView && (
-                    <li
-                      className="nav-item"
-                      onMouseLeave={hideConfigList}
-                      onMouseEnter={showConfigList}
-                    >
-                      <a
-                        class="nav-link menu-link"
-                        data-bs-toggle="collapse"
-                        role="button"
-                        aria-expanded="false"
-                        aria-controls="sidebarPages"
-                        onClick={() => toggleConfigList()}
-                        onMouseOver={() => setIsHoveredConfigure(true)}
-                        onMouseOut={() => setIsHoveredConfigure(false)}
-                        ref={settingsRef}
-                        style={{
-                          color: isHoveredConfigure ? "#438eff" : TopTextColor.color,
-                          fontWeight: "bold",
-                          cursor: "pointer"
-                        }}
-                      >
-                        <img
-                          src={ConfigSvg}
-                          alt="ConfigSvg"
-                          style={{ width: "16px", marginRight: "5px" }}
-                        />
-                        <span data-key="t-pages" 
-                        style={{color: isHoveredConfigure ? "#438eff" : "#fff"}}>Configure
-                        <span
-                          style={{
-                            display: "inline-block",
-                            marginLeft: "4px",
-                            fontSize: "12px",
-                            transform: isDropdownOpen || isHoveredConfigure ? "rotate(180deg)" : "rotate(0deg)",
-                            transition: "transform 0.2s ease",
-                            lineHeight: 1
-                          }}
-                        >
-                          ▼
-                        </span>
-                        </span>
-                      </a>
-                      {/* Main dropdown: normal flow */}
-                      <div
-                        id="config"
-                        // data-bs-parent="#sidebar"
-                        // style={{
-                        //   display: isDropdownOpen ? "block" : "none",
-                        //   border: "none",
-                        //   // background: "#1e1e2f",
-                        // }}
-                        className="menu-dropdown menu_dropdown Responsive-Config-service-package"
-                      >
-                        <ul className="nav nav-sm flex-column">
-                          {userAccessData.Admin_Config_ServiceCat_CanView && (
-                            <li className="nav-item">
-                              <a
-                                href="#sidebarProfile"
-                                className="nav-link collapsed"
-                                // data-bs-toggle="collapse"
-                                aria-expanded="false"
-                                // aria-controls="sidebarProfile"
-                                onClick={(e) =>{ 
-                                  e.preventDefault();
-                                  toggleConfigSubList("servicesAndPackage")}}
-                                style={{ cursor: "pointer" }}
-                              >
-                                Services/Packages
-                              </a>
-
-                              {/* Sublist in normal flow */}
-                              <div
-                                id="servicesAndPackage"
-                                className="subList Service-package-bgColor"
-                                data-bs-parent="#config"
-                                // style={{
-                                //   color: style.backgroundColor,
-                                //   // display: "none", // controlled via toggleConfigSubList
-                                //   width: "100%",
-                                //   paddingLeft: "16px", // optional: visual indentation
-                                // }}
-                              >
-                                <ul className="nav nav-sm flex-column">
-                                  <li className="nav-item">
-                                    <NavLink to="/service-category">
-                                      <a
-                                        onClick={() => {
-                                          // closeDropdown("config");
-                                          toggleConfigList("config");
-                                          NotificationCountData();
-                                        }}
-                                        className="nav-link"
-                                      >
-                                        Service Categories
-                                      </a>
-                                    </NavLink>
-                                  </li>
-                                  <li className="nav-item">
-                                    <NavLink to="/services">
-                                      <a
-                                        onClick={() => {
-                                          closeDropdown("config");
-                                          NotificationCountData();
-                                        }}
-                                        className="nav-link"
-                                      >
-                                        Services
-                                      </a>
-                                    </NavLink>
-                                  </li>
-                                  <li className="nav-item">
-                                    <NavLink to="/packages">
-                                      <a
-                                        onClick={() => {
-                                          closeDropdown("config");
-                                          NotificationCountData();
-                                        }}
-                                        className="nav-link"
-                                      >
-                                        Packages
-                                      </a>
-                                    </NavLink>
-                                  </li>
-                                </ul>
-                              </div>
-                            </li>
-                          )}
-                          {userAccessData.Admin_Config_Global_Constant_CanView && (
-                              <li className="nav-item"
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  toggleConfigSubList("variable")}
-                                }
-                              >
-                              <a
-                                href="#variable"
-                                className="nav-link collapsed"
-                                // data-bs-toggle="collapse"
-                                aria-expanded="false"
-                                // aria-controls="sidebarProfile"
-                                style={{ cursor: "pointer" }}
-                                data-key="t-profile"
-                              >
-                                Variables
-                              </a>
-
-                              {/* Sublist: normal flow so it pushes siblings down */}
-                              <div
-                                id="variable"
-                                className=" subList Service-package-bgColor"
-                              >
-                                <ul className="nav nav-sm flex-column">
-                                  <li className="nav-item">
-                                    <NavLink to="/global-constant">
-                                      <a
-                                        onClick={() => {
-                                          closeDropdown("config");
-                                          NotificationCountData();
-                                        }}
-                                        // style={{ whiteSpace: "nowrap" }}
-                                        className="nav-link"
-                                        data-key="t-simple-page"
-                                      >
-                                        Global Constants
-                                      </a>
-                                    </NavLink>
-                                  </li>
-                                  <li className="nav-item">
-                                    <NavLink to="/global-pricing-driver">
-                                      <a
-                                        onClick={() => {
-                                          closeDropdown("config");
-                                          NotificationCountData();
-                                        }}
-                                        // style={{ whiteSpace: "nowrap" }}
-                                        className="nav-link"
-                                        data-key="t-simple-page"
-                                      >
-                                        Global Pricing Drivers
-                                      </a>
-                                    </NavLink>
-                                  </li>
-                                </ul>
-                              </div>
-                            </li>
-                          )}
-                          {userAccessData.Admin_Config_Email_Template_CanView && (
-                            <li className="nav-item">
-                              <a
-                                href="#Template"
-                                className="nav-link collapsed"
-                                // data-bs-toggle="collapse"
-                                aria-expanded="false"
-                                // aria-controls="sidebarProfile"
-                                onClick={(e) => {
-                                  e.preventDefault(); 
-                                  toggleConfigSubList("Template")}
-                                }
-                                style={{ cursor: "pointer" }}
-                                data-key="t-profile"
-                              >
-                                Templates
-                              </a>
-
-                              {/* Sublist: normal flow */}
-                              <div
-                                id="Template"
-                                className=" subList Service-package-bgColor"
-                              >
-                                <ul className="nav nav-sm flex-column">
-                                  <li className="nav-item">
-                                    <NavLink to="/templates"
-                                      
-                                        // style={{whiteSpace: "nowrap"}}
-                                        onClick={() => {
-                                          closeDropdown("config");
-                                          NotificationCountData();
-                                        }}
-                                        className="nav-link"
-                                        data-key="t-simple-page"
-                                      >
-                                        {proposalName}/{EngagementName}
-                                      
-                                    </NavLink>
-                                  </li>
-                                  <li className="nav-item">
-                                    <NavLink to="/terms-and-conditions">
-                                      <a
-                                        // style={{ whiteSpace: "nowrap" }}
-                                        onClick={() => {
-                                          closeDropdown("config");
-                                          NotificationCountData();
-                                        }}
-                                        className="nav-link"
-                                        data-key="t-simple-page"
-                                      >
-                                        Terms & Conditions
-                                      </a>
-                                    </NavLink>
-                                  </li>
-                                  <li className="nav-item">
-                                    <NavLink to="/email-template">
-                                      <a
-                                        // style={{ whiteSpace: "nowrap" }}
-                                        onClick={() => {
-                                          closeDropdown("config");
-                                          NotificationCountData();
-                                        }}
-                                        className="nav-link"
-                                        data-key="t-simple-page"
-                                      >
-                                        Email Templates
-                                      </a>
-                                    </NavLink>
-                                  </li>
-                                </ul>
-                              </div>
-                            </li>
-                          )}
-                          {userAccessData.Admin_Config_Email_Template_CanView && (
-                            <li className="nav-item">
-                              <a
-                                href="#Reminder"
-                                className="nav-link collapsed"
-                                // data-bs-toggle="collapse"
-                                aria-expanded="false"
-                                // aria-controls="sidebarProfile"
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  toggleConfigSubList("Reminder")}
-                                }
-                                style={{ cursor: "pointer" }}
-                                data-key="t-profile"
-                              >
-                                Workflows
-                              </a>
-
-                              {/* Sublist: normal flow */}
-                              <div
-                                id="Reminder"
-                                className=" subList Service-package-bgColor"
-                                // style={{
-                                //   display: "none",      // toggled via toggleConfigSubList
-                                //   width: "100%",        // full parent width
-                                //   paddingLeft: "16px",  // optional indentation
-                                //   background: "#f8f9fa",
-                                //   borderRadius: "4px",
-                                //   marginTop: "4px",
-                                // }}
-                              >
-                                <ul className="nav nav-sm flex-column">
-                                  <li className="nav-item">
-                                    <NavLink to="/reminder-email-template">
-                                      <a
-                                        // style={{ whiteSpace: "nowrap" }}
-                                        onClick={() => {
-                                          closeDropdown("config");
-                                          NotificationCountData();
-                                        }}
-                                        className="nav-link"
-                                        data-key="t-simple-page"
-                                      >
-                                        Email Templates
-                                      </a>
-                                    </NavLink>
-                                  </li>
-                                  <li className="nav-item">
-                                    <NavLink to="/reminder">
-                                      <a
-                                        // style={{ whiteSpace: "nowrap" }}
-                                        onClick={() => {
-                                          closeDropdown("config");
-                                          NotificationCountData();
-                                        }}
-                                        className="nav-link"
-                                        data-key="t-simple-page"
-                                      >
-                                        Reminders
-                                      </a>
-                                    </NavLink>
-                                  </li>
-                                </ul>
-                              </div>
-                            </li>
-                          )}
-                        </ul>
-                      </div>
-                    </li>
-              )}
-              {/* Admin Config Modal End */}
-
-              {/* Setting Admin Modal */}
-              {userAccessData.Admin_Setting_CanView && (
-                <li
-                  class="nav-item"
-                  // style={{
-                  //   paddingLeft:
-                  //     windowWidth <= 767 ? "0px" : "10px",
-                  // }}
-                  onMouseLeave={() => hideSettingList()}
-                  onMouseEnter={() => showSettingList()}
-                >
-                  <a
-                    href="#sidebarSignUp1"
-                    data-bs-toggle="collapse"
-                    class="nav-link menu-link"
-                    role="button"
-                    aria-expanded="false"
-                    aria-controls="sidebarSignUp1"
-                    data-key="t-signup"
-                    onClick={() => toggleSettingList()}
-                    onMouseOver={() => setIsHoveredSetting(true)}
-                    onMouseOut={() => setIsHoveredSetting(false)}
-                    ref={settingsRef}
-                    style={{
-                      color: isHoveredSetting
-                        ? "#438eff"
-                        : TopTextColor.color,
-                      fontWeight: "bold"
-                    }}
-                  >
-                    <img
-                      src={SettingSvg}
-                      alt="SettingSvg"
-                      style={{ width: "16px", marginRight: "5px" }}
-                    />
-                    <span data-key="t-dashboard" style={{color: isHoveredSetting ? "#438eff" : "#fff"}}>Settings</span>
-                    <span
-                          style={{
-                            display: "inline-block",
-                            color: isHoveredSetting ? "#438eff" : "#fff",
-                            marginLeft: "4px",
-                            fontSize: "12px",
-                            transform: isDropdownOpen || isHoveredSetting ? "rotate(180deg)" : "rotate(0deg)",
-                            transition: "transform 0.2s ease",
-                            lineHeight: 1
-                          }}
-                        >
-                          ▼
-                        </span>
-                  </a>
-                  <div
-                    class="collapse menu-dropdown menu_dropdown Responsive-Config-service-package"
-                    id="Setting"
-                    style={{
-                      ...style,
-                      display: isSettingDropdownOpen
-                        ? "block"
-                        : "none",
-                    }}
-                  >
-                    <ul class="nav nav-sm flex-column">
-                      {userAccessData.Admin_Setting_user_CanView && (
-                        <li class="nav-item ">
-                          <Link to="/users" onClick={togglenav}>
-                            <a
-                              onClick={() => {
-                                toggleSettingList("Setting");
-                                NotificationCountData();
+                          >
+                            {/* Organisation List */}
+                            <select
+                              className="nav-select form-select c-select"
+                              onChange={(e) => OnOrganisationsChange(e)}
+                              value={`${common.organisationKeyID},${common.businessTypeID},${common.enableEL}`}
+                              style={{
+                                cursor: "pointer",
+                                padding: "8px 15px 8px 12px",
                               }}
-                              class="nav-link"
-                              data-key="t-basic-2"
+                              onClick={toggleSelect} // Add onClick event to toggle select
+                              onBlur={() => setIsOpens(false)} // Add onBlur event to close select when clicked outside
                             >
-                              Users
-                            </a>
-                          </Link>
+                              {organisationsList.map((organisations) => (
+                                <option
+                                  key={organisations.organisationKeyID}
+                                  value={`${organisations.organisationKeyID},${organisations.businessTypeID},${organisations.enableEL}`}
+                                >
+                                  {organisations.organisationName}
+                                </option>
+                              ))}
+
+                              <option value="1">Create New Practice</option>
+                            </select>
+                            <i
+                              className={
+                                isOpens
+                                  ? "  ri-arrow-up-s-line"
+                                  : " ri-arrow-down-s-line "
+                              }
+                              style={{
+                                position: "absolute",
+                                top: "50%",
+                                right: "5px",
+                                transform: "translateY(-50%)",
+                                cursor: "pointer",
+                                pointerEvents: "none",
+                                zIndex: "1000",
+                                backgroundColor: "#1b1c25",
+                                color: "white",
+                                ...(isOpens ? { fontWeight: "bold" } : {}),
+                              }}
+                            ></i>
+                          </div>
+
+                          <div className="edit-topbar">
+                            <div
+                              onClick={() => (
+                                navigate("/create-new-practice"),
+                                togglenav()
+                              )}
+                              title="Create New Practice "
+                            >
+                              <i
+                                style={{
+                                  cursor: "pointer",
+                                  color: TopTextColor.color,
+                                }}
+                                class="fa fa-regular fa fa-circle-plus"
+                              ></i>
+                            </div>
+                          </div>
+                          {common.organisationKeyID !== null && (
+                            <div className="update-practice-details">
+                              <div
+                                onClick={() =>
+                                  navigate(
+                                    "/update-practice-details",
+                                    closeNav(),
+                                  )
+                                }
+                                title="Update Practice"
+                              >
+                                <i
+                                  className="ri-pencil-fill"
+                                  style={{
+                                    cursor: "pointer",
+                                    color: TopTextColor.color,
+                                    fill: TopTextColor.color,
+                                  }}
+                                ></i>
+                              </div>
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </li>
+                  </ul>
+                  {common.organisationKeyID !== null && (
+                    <ul
+                      className={`changed-nav navbar-nav ${
+                        isDropdownOpen ? " open" : ""
+                      } ms-2 mt-1`}
+                      // style={{paddingRight: "1rem"}}
+                      id="navbar-UL-nav"
+                    >
+                      <li class="menu-title">
+                        <span data-key="t-menu">Menu</span>
+                      </li>
+                      {/* Dashboard Start */}
+                      {userAccessData.Dashboard_CanView &&
+                        common.organisationKeyID !== null && (
+                          <li class="nav-item">
+                            <NavLink
+                              to="/"
+                              exact
+                              onClick={() => {
+                                NotificationCountData();
+                                togglenav();
+                              }}
+                              className="nav-link menu-link"
+                              activeclassname="active"
+                              onMouseOver={() => setIsHoveredDashboard(true)}
+                              onMouseOut={() => setIsHoveredDashboard(false)}
+                              style={{
+                                color: isHoveredDashboard
+                                  ? "#438eff"
+                                  : TopTextColor.color,
+                                fontWeight: "bold",
+                              }}
+                            >
+                              <img
+                                src={DashboardSvg}
+                                alt="Dashboard"
+                                style={{ width: "16px", marginRight: "5px" }}
+                              />
+                              {/* <i class="bi bi-graph-up mr-2"></i> */}
+                              <span
+                                data-key="t-dashboard"
+                                style={{
+                                  color: isHoveredDashboard
+                                    ? "#438eff"
+                                    : "#fff",
+                                }}
+                              >
+                                Dashboard
+                              </span>
+                            </NavLink>
+                          </li>
+                        )}
+                      {/* Dashboard end */}
+                      {/* Prospect/Client Start */}
+                      {userAccessData.Admin_Prospect_CanView && (
+                        // hasAccess(1, 4)
+                        <li class="nav-item">
+                          <NavLink
+                            to="/prospects"
+                            onClick={() => {
+                              NotificationCountData();
+                              togglenav();
+                            }}
+                            className="nav-link menu-link"
+                            activeclassname="active"
+                            onMouseOver={() => setIsHoveredProspect(true)}
+                            onMouseOut={() => setIsHoveredProspect(false)}
+                            style={{
+                              color: isHoveredProspect
+                                ? "#438eff"
+                                : TopTextColor.color,
+                              fontWeight: "bold",
+                            }}
+                          >
+                            <img
+                              src={ProspectSvg}
+                              alt="ProspectSvg"
+                              style={{ width: "16px", marginRight: "5px" }}
+                            />
+                            <span
+                              data-key="t-dashboard"
+                              style={{
+                                color: isHoveredProspect ? "#438eff" : "#fff",
+                              }}
+                            >
+                              {prospectName}
+                            </span>{" "}
+                          </NavLink>
                         </li>
                       )}
-                      {/* {userAccessData.Admin_Setting_AccessKeyCanView && (
+                      {/* Prospect End */}
+                      {/* proposalName latter Start */}
+                      {userAccessData.Admin_Proposal_CanView && (
+                        <li class="nav-item">
+                          <NavLink
+                            to="/proposals"
+                            activeclassname="active"
+                            onClick={() => {
+                              NotificationCountData();
+                              togglenav();
+                            }}
+                            className="nav-link menu-link"
+                            onMouseOver={() => setIsHoveredProposal(true)}
+                            onMouseOut={() => setIsHoveredProposal(false)}
+                            style={{
+                              color: isHoveredProposal
+                                ? "#438eff"
+                                : TopTextColor.color,
+                              fontWeight: "bold",
+                            }}
+                          >
+                            {" "}
+                            <img
+                              src={ProposalSvg}
+                              alt="ProposalSvg"
+                              style={{ width: "16px", marginRight: "5px" }}
+                            />
+                            {/* <i class="bi bi-card-list mr-2"  ></i>{" "} */}
+                            <span
+                              data-key="t-dashboard"
+                              style={{
+                                color: isHoveredProposal ? "#438eff" : "#fff",
+                              }}
+                            >
+                              {proposalName}
+                            </span>{" "}
+                          </NavLink>
+                        </li>
+                      )}
+                      {/*proposalName  latter End */}
+                      {/* Engagement latter Start */}
+                      {common.enableEL == 1 &&
+                        userAccessData.Admin_Engagement_Latter_CanView && (
+                          <li class="nav-item">
+                            <NavLink
+                              to="/engagement-letters"
+                              onClick={() => {
+                                NotificationCountData();
+                                togglenav();
+                              }}
+                              activeclassname="active"
+                              className="nav-link menu-link"
+                              onMouseOver={() => setIsHoveredEngagement(true)}
+                              onMouseOut={() => setIsHoveredEngagement(false)}
+                              style={{
+                                color: isHoveredEngagement
+                                  ? "#438eff"
+                                  : TopTextColor.color,
+                                fontWeight: "bold",
+                              }}
+                            >
+                              {" "}
+                              <img
+                                src={EngagementSvg}
+                                alt="EngagementSvg"
+                                style={{
+                                  width: "16px",
+                                  marginRight: "5px",
+                                }}
+                              />
+                              {/* <i class="bi bi-envelope-paper mr-2"  ></i>{" "} */}
+                              <span
+                                data-key="t-dashboard"
+                                style={{
+                                  color: isHoveredEngagement
+                                    ? "#438eff"
+                                    : "#fff",
+                                }}
+                              >
+                                {EngagementName}
+                              </span>{" "}
+                            </NavLink>
+                          </li>
+                        )}
+
+                      {/* Engagement latter End */}
+                      {/* Admin Config Modal Start */}
+                      {userAccessData.Admin_Config_CanView && (
+                        <li
+                          className="nav-item"
+                          onMouseLeave={hideConfigList}
+                          onMouseEnter={showConfigList}
+                        >
+                          <a
+                            class="nav-link menu-link"
+                            data-bs-toggle="collapse"
+                            role="button"
+                            aria-expanded="false"
+                            aria-controls="sidebarPages"
+                            onClick={() => toggleConfigList()}
+                            onMouseOver={() => setIsHoveredConfigure(true)}
+                            onMouseOut={() => setIsHoveredConfigure(false)}
+                            ref={settingsRef}
+                            style={{
+                              color: isHoveredConfigure
+                                ? "#438eff"
+                                : TopTextColor.color,
+                              fontWeight: "bold",
+                              cursor: "pointer",
+                            }}
+                          >
+                            <img
+                              src={ConfigSvg}
+                              alt="ConfigSvg"
+                              style={{ width: "16px", marginRight: "5px" }}
+                            />
+                            <span
+                              data-key="t-pages"
+                              style={{
+                                color: isHoveredConfigure ? "#438eff" : "#fff",
+                              }}
+                            >
+                              Configure
+                              <span
+                                style={{
+                                  display: "inline-block",
+                                  marginLeft: "4px",
+                                  fontSize: "12px",
+                                  transform:
+                                    isDropdownOpen || isHoveredConfigure
+                                      ? "rotate(180deg)"
+                                      : "rotate(0deg)",
+                                  transition: "transform 0.2s ease",
+                                  lineHeight: 1,
+                                }}
+                              >
+                                ▼
+                              </span>
+                            </span>
+                          </a>
+                          {/* Main dropdown: normal flow */}
+                          <div
+                            id="config"
+                            // data-bs-parent="#sidebar"
+                            // style={{
+                            //   display: isDropdownOpen ? "block" : "none",
+                            //   border: "none",
+                            //   // background: "#1e1e2f",
+                            // }}
+                            className="menu-dropdown menu_dropdown Responsive-Config-service-package"
+                          >
+                            <ul className="nav nav-sm flex-column">
+                              {userAccessData.Admin_Config_ServiceCat_CanView && (
+                                <li className="nav-item">
+                                  <a
+                                    href="#sidebarProfile"
+                                    className="nav-link collapsed"
+                                    // data-bs-toggle="collapse"
+                                    aria-expanded="false"
+                                    // aria-controls="sidebarProfile"
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      toggleConfigSubList("servicesAndPackage");
+                                    }}
+                                    style={{ cursor: "pointer" }}
+                                  >
+                                    Services/Packages
+                                  </a>
+
+                                  {/* Sublist in normal flow */}
+                                  <div
+                                    id="servicesAndPackage"
+                                    className="subList Service-package-bgColor"
+                                    data-bs-parent="#config"
+                                    // style={{
+                                    //   color: style.backgroundColor,
+                                    //   // display: "none", // controlled via toggleConfigSubList
+                                    //   width: "100%",
+                                    //   paddingLeft: "16px", // optional: visual indentation
+                                    // }}
+                                  >
+                                    <ul className="nav nav-sm flex-column">
+                                      <li className="nav-item">
+                                        <NavLink to="/service-category">
+                                          <a
+                                            onClick={() => {
+                                              // closeDropdown("config");
+                                              toggleConfigList("config");
+                                              NotificationCountData();
+                                            }}
+                                            className="nav-link"
+                                          >
+                                            Service Categories
+                                          </a>
+                                        </NavLink>
+                                      </li>
+                                      <li className="nav-item">
+                                        <NavLink to="/services">
+                                          <a
+                                            onClick={() => {
+                                              closeDropdown("config");
+                                              NotificationCountData();
+                                            }}
+                                            className="nav-link"
+                                          >
+                                            Services
+                                          </a>
+                                        </NavLink>
+                                      </li>
+                                      <li className="nav-item">
+                                        <NavLink to="/packages">
+                                          <a
+                                            onClick={() => {
+                                              closeDropdown("config");
+                                              NotificationCountData();
+                                            }}
+                                            className="nav-link"
+                                          >
+                                            Packages
+                                          </a>
+                                        </NavLink>
+                                      </li>
+                                    </ul>
+                                  </div>
+                                </li>
+                              )}
+                              {userAccessData.Admin_Config_Global_Constant_CanView && (
+                                <li
+                                  className="nav-item"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    toggleConfigSubList("variable");
+                                  }}
+                                >
+                                  <a
+                                    href="#variable"
+                                    className="nav-link collapsed"
+                                    // data-bs-toggle="collapse"
+                                    aria-expanded="false"
+                                    // aria-controls="sidebarProfile"
+                                    style={{ cursor: "pointer" }}
+                                    data-key="t-profile"
+                                  >
+                                    Variables
+                                  </a>
+
+                                  {/* Sublist: normal flow so it pushes siblings down */}
+                                  <div
+                                    id="variable"
+                                    className=" subList Service-package-bgColor"
+                                  >
+                                    <ul className="nav nav-sm flex-column">
+                                      <li className="nav-item">
+                                        <NavLink to="/global-constant">
+                                          <a
+                                            onClick={() => {
+                                              closeDropdown("config");
+                                              NotificationCountData();
+                                            }}
+                                            // style={{ whiteSpace: "nowrap" }}
+                                            className="nav-link"
+                                            data-key="t-simple-page"
+                                          >
+                                            Global Constants
+                                          </a>
+                                        </NavLink>
+                                      </li>
+                                      <li className="nav-item">
+                                        <NavLink to="/global-pricing-driver">
+                                          <a
+                                            onClick={() => {
+                                              closeDropdown("config");
+                                              NotificationCountData();
+                                            }}
+                                            // style={{ whiteSpace: "nowrap" }}
+                                            className="nav-link"
+                                            data-key="t-simple-page"
+                                          >
+                                            Global Pricing Drivers
+                                          </a>
+                                        </NavLink>
+                                      </li>
+                                    </ul>
+                                  </div>
+                                </li>
+                              )}
+                              {userAccessData.Admin_Config_Email_Template_CanView && (
+                                <li className="nav-item">
+                                  <a
+                                    href="#Template"
+                                    className="nav-link collapsed"
+                                    // data-bs-toggle="collapse"
+                                    aria-expanded="false"
+                                    // aria-controls="sidebarProfile"
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      toggleConfigSubList("Template");
+                                    }}
+                                    style={{ cursor: "pointer" }}
+                                    data-key="t-profile"
+                                  >
+                                    Templates
+                                  </a>
+
+                                  {/* Sublist: normal flow */}
+                                  <div
+                                    id="Template"
+                                    className=" subList Service-package-bgColor"
+                                  >
+                                    <ul className="nav nav-sm flex-column">
+                                      <li className="nav-item">
+                                        <NavLink
+                                          to="/templates"
+                                          // style={{whiteSpace: "nowrap"}}
+                                          onClick={() => {
+                                            closeDropdown("config");
+                                            NotificationCountData();
+                                          }}
+                                          className="nav-link"
+                                          data-key="t-simple-page"
+                                        >
+                                          {proposalName}/{EngagementName}
+                                        </NavLink>
+                                      </li>
+                                      <li className="nav-item">
+                                        <NavLink to="/terms-and-conditions">
+                                          <a
+                                            // style={{ whiteSpace: "nowrap" }}
+                                            onClick={() => {
+                                              closeDropdown("config");
+                                              NotificationCountData();
+                                            }}
+                                            className="nav-link"
+                                            data-key="t-simple-page"
+                                          >
+                                            Terms & Conditions
+                                          </a>
+                                        </NavLink>
+                                      </li>
+                                      <li className="nav-item">
+                                        <NavLink to="/email-template">
+                                          <a
+                                            // style={{ whiteSpace: "nowrap" }}
+                                            onClick={() => {
+                                              closeDropdown("config");
+                                              NotificationCountData();
+                                            }}
+                                            className="nav-link"
+                                            data-key="t-simple-page"
+                                          >
+                                            Email Templates
+                                          </a>
+                                        </NavLink>
+                                      </li>
+                                    </ul>
+                                  </div>
+                                </li>
+                              )}
+                              {userAccessData.Admin_Config_Email_Template_CanView && (
+                                <li className="nav-item">
+                                  <a
+                                    href="#Reminder"
+                                    className="nav-link collapsed"
+                                    // data-bs-toggle="collapse"
+                                    aria-expanded="false"
+                                    // aria-controls="sidebarProfile"
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      toggleConfigSubList("Reminder");
+                                    }}
+                                    style={{ cursor: "pointer" }}
+                                    data-key="t-profile"
+                                  >
+                                    Workflows
+                                  </a>
+
+                                  {/* Sublist: normal flow */}
+                                  <div
+                                    id="Reminder"
+                                    className=" subList Service-package-bgColor"
+                                    // style={{
+                                    //   display: "none",      // toggled via toggleConfigSubList
+                                    //   width: "100%",        // full parent width
+                                    //   paddingLeft: "16px",  // optional indentation
+                                    //   background: "#f8f9fa",
+                                    //   borderRadius: "4px",
+                                    //   marginTop: "4px",
+                                    // }}
+                                  >
+                                    <ul className="nav nav-sm flex-column">
+                                      <li className="nav-item">
+                                        <NavLink to="/reminder-email-template">
+                                          <a
+                                            // style={{ whiteSpace: "nowrap" }}
+                                            onClick={() => {
+                                              closeDropdown("config");
+                                              NotificationCountData();
+                                            }}
+                                            className="nav-link"
+                                            data-key="t-simple-page"
+                                          >
+                                            Email Templates
+                                          </a>
+                                        </NavLink>
+                                      </li>
+                                      <li className="nav-item">
+                                        <NavLink to="/reminder">
+                                          <a
+                                            // style={{ whiteSpace: "nowrap" }}
+                                            onClick={() => {
+                                              closeDropdown("config");
+                                              NotificationCountData();
+                                            }}
+                                            className="nav-link"
+                                            data-key="t-simple-page"
+                                          >
+                                            Reminders
+                                          </a>
+                                        </NavLink>
+                                      </li>
+                                    </ul>
+                                  </div>
+                                </li>
+                              )}
+                            </ul>
+                          </div>
+                        </li>
+                      )}
+                      {/* Admin Config Modal End */}
+
+                      {/* Setting Admin Modal */}
+                      {userAccessData.Admin_Setting_CanView && (
+                        <li
+                          class="nav-item"
+                          // style={{
+                          //   paddingLeft:
+                          //     windowWidth <= 767 ? "0px" : "10px",
+                          // }}
+                          onMouseLeave={() => hideSettingList()}
+                          onMouseEnter={() => showSettingList()}
+                        >
+                          <a
+                            href="#sidebarSignUp1"
+                            data-bs-toggle="collapse"
+                            class="nav-link menu-link"
+                            role="button"
+                            aria-expanded="false"
+                            aria-controls="sidebarSignUp1"
+                            data-key="t-signup"
+                            onClick={() => toggleSettingList()}
+                            onMouseOver={() => setIsHoveredSetting(true)}
+                            onMouseOut={() => setIsHoveredSetting(false)}
+                            ref={settingsRef}
+                            style={{
+                              color: isHoveredSetting
+                                ? "#438eff"
+                                : TopTextColor.color,
+                              fontWeight: "bold",
+                            }}
+                          >
+                            <img
+                              src={SettingSvg}
+                              alt="SettingSvg"
+                              style={{ width: "16px", marginRight: "5px" }}
+                            />
+                            <span
+                              data-key="t-dashboard"
+                              style={{
+                                color: isHoveredSetting ? "#438eff" : "#fff",
+                              }}
+                            >
+                              Settings
+                            </span>
+                            <span
+                              style={{
+                                display: "inline-block",
+                                color: isHoveredSetting ? "#438eff" : "#fff",
+                                marginLeft: "4px",
+                                fontSize: "12px",
+                                transform:
+                                  isDropdownOpen || isHoveredSetting
+                                    ? "rotate(180deg)"
+                                    : "rotate(0deg)",
+                                transition: "transform 0.2s ease",
+                                lineHeight: 1,
+                              }}
+                            >
+                              ▼
+                            </span>
+                          </a>
+                          <div
+                            class="collapse menu-dropdown menu_dropdown Responsive-Config-service-package"
+                            id="Setting"
+                            style={{
+                              ...style,
+                              display: isSettingDropdownOpen ? "block" : "none",
+                            }}
+                          >
+                            <ul class="nav nav-sm flex-column">
+                              {userAccessData.Admin_Setting_user_CanView && (
+                                <li class="nav-item ">
+                                  <Link to="/users" onClick={togglenav}>
+                                    <a
+                                      onClick={() => {
+                                        toggleSettingList("Setting");
+                                        NotificationCountData();
+                                      }}
+                                      class="nav-link"
+                                      data-key="t-basic-2"
+                                    >
+                                      Users
+                                    </a>
+                                  </Link>
+                                </li>
+                              )}
+                              {/* {userAccessData.Admin_Setting_AccessKeyCanView && (
                                     <li class="nav-item ">
                                       <Link
                                         to="/access-key"
@@ -2039,181 +2120,235 @@ const toggleConfigSubList = (id) => {
                                       </Link>
                                     </li>
                                   )} */}
-                      {userAccessData.Admin_Setting_Practice_Config_CanView &&
-                        activeOrganizationSubscriptionPlan?.apiIntegration && (
-                          <li
-                            class="nav-item"
-                            // onMouseLeave={() =>
-                            //   hideSettingSubList("WebIntegration")
-                            // }
-                            // onMouseEnter={() =>
-                            //   showSettingSubList("WebIntegration")
-                            // }
-                            onClick={() =>
-                              toggleSettingSubList("WebIntegration")
-                            }
-                          >
-                            <a
-                              href="#sidebarProfile"
-                              class="nav-link collapsed"
-                              data-bs-toggle="collapse"
-                              role="button"
-                              aria-expanded="false"
-                              aria-controls="sidebarProfile"
-                              data-key="t-profile"
-                            >
-                              API Integration
-                            </a>
-                            <div
-                              class="subList Service-package-bgColor"
-                              id="WebIntegration"
-                              style={style}
-                            >
-                              <ul class="nav nav-sm flex-column">
-                                <li class="nav-item">
-                                  <Link
-                                    to="/WebSetting"
-                                    onClick={togglenav}
+                              {userAccessData.Admin_Setting_Practice_Config_CanView &&
+                                activeOrganizationSubscriptionPlan?.apiIntegration && (
+                                  <li
+                                    class="nav-item"
+                                    // onMouseLeave={() =>
+                                    //   hideSettingSubList("WebIntegration")
+                                    // }
+                                    // onMouseEnter={() =>
+                                    //   showSettingSubList("WebIntegration")
+                                    // }
+                                    onClick={() =>
+                                      toggleSettingSubList("WebIntegration")
+                                    }
                                   >
                                     <a
+                                      href="#sidebarProfile"
+                                      class="nav-link collapsed"
+                                      data-bs-toggle="collapse"
+                                      role="button"
+                                      aria-expanded="false"
+                                      aria-controls="sidebarProfile"
+                                      data-key="t-profile"
+                                    >
+                                      API Integration
+                                    </a>
+                                    <div
+                                      class="subList Service-package-bgColor"
+                                      id="WebIntegration"
+                                      style={style}
+                                    >
+                                      <ul class="nav nav-sm flex-column">
+                                        <li class="nav-item">
+                                          <Link
+                                            to="/WebSetting"
+                                            onClick={togglenav}
+                                          >
+                                            <a
+                                              onClick={() => {
+                                                toggleSettingList("Setting");
+                                                NotificationCountData();
+                                              }}
+                                              // style={{
+                                              //   whiteSpace: "nowrap"
+                                              // }}
+                                              class="nav-link"
+                                              data-key="t-basic-3 fw-bold"
+                                            >
+                                              Setting
+                                            </a>
+                                          </Link>
+                                        </li>
+                                        <li className="nav-item">
+                                          <NavLink
+                                            to="/AccessKey"
+                                            className="nav-link"
+                                            data-key="t-simple page"
+                                            onClick={() => {
+                                              toggleSettingList("Setting");
+                                              NotificationCountData();
+                                            }}
+                                          >
+                                            Access Key
+                                          </NavLink>
+                                        </li>
+                                        <li class="nav-item">
+                                          <Link
+                                            to="/coupon"
+                                            onClick={togglenav}
+                                          >
+                                            <a
+                                              onClick={() => {
+                                                toggleSettingList("Setting");
+                                                NotificationCountData();
+                                              }}
+                                              class="nav-link"
+                                              data-key="t-basic-7"
+                                            >
+                                              Coupons
+                                            </a>
+                                          </Link>
+                                        </li>
+                                      </ul>
+                                    </div>
+                                  </li>
+                                )}
+                              {userAccessData.Admin_Setting_Practice_Config_CanView && (
+                                <li
+                                  class="nav-item"
+                                  // onMouseLeave={() =>
+                                  //   hideSettingSubList("PracticeConfig")
+                                  // }
+                                  // onMouseEnter={() =>
+                                  //   showSettingSubList("PracticeConfig")
+                                  // }
+                                  onClick={() =>
+                                    toggleSettingSubList("PracticeConfig")
+                                  }
+                                >
+                                  <a
+                                    href="#sidebarProfile"
+                                    class="nav-link collapsed"
+                                    data-bs-toggle="collapse"
+                                    role="button"
+                                    aria-expanded="false"
+                                    aria-controls="sidebarProfile"
+                                    data-key="t-profile"
+                                  >
+                                    Practice Config
+                                  </a>
+                                  <div
+                                    class="subList collapse Responsive-Config-Variables"
+                                    id="PracticeConfig"
+                                    // style={{
+                                    //       display: "none",      // toggled via toggleConfigSubList
+                                    //       width: "100%",        // full parent width
+                                    //       paddingLeft: "16px",  // optional indentation
+                                    //       background: "#f8f9fa",
+                                    //       borderRadius: "4px",
+                                    //       marginTop: "4px",
+                                    //     }}
+                                  >
+                                    <ul class="nav nav-sm flex-column">
+                                      <li class="nav-item">
+                                        <Link
+                                          to="/payment-gateway"
+                                          onClick={togglenav}
+                                        >
+                                          <a
+                                            onClick={() => {
+                                              toggleSettingList("Setting");
+                                              NotificationCountData();
+                                            }}
+                                            // style={{ whiteSpace: "nowrap" }}
+                                            class="nav-link"
+                                            data-key="t-basic-3"
+                                          >
+                                            Payment Gateways
+                                          </a>
+                                        </Link>
+                                      </li>
+                                      <li class="nav-item">
+                                        <Link
+                                          to="/pricing-setting"
+                                          onClick={togglenav}
+                                        >
+                                          <a
+                                            onClick={() => {
+                                              toggleSettingList("Setting");
+                                              NotificationCountData();
+                                            }}
+                                            class="nav-link"
+                                            data-key="t-basic-6"
+                                          >
+                                            Pricing Settings
+                                          </a>
+                                        </Link>
+                                      </li>
+                                      <li class="nav-item">
+                                        <Link
+                                          to="/email-config"
+                                          onClick={togglenav}
+                                        >
+                                          <a
+                                            onClick={() => {
+                                              toggleSettingList("Setting");
+                                              NotificationCountData();
+                                            }}
+                                            class="nav-link"
+                                            data-key="t-basic-7"
+                                          >
+                                            Email Config
+                                          </a>
+                                        </Link>
+                                      </li>
+                                    </ul>
+                                  </div>
+                                </li>
+                              )}
+                              {userAccessData.Admin_Activity_Log_CanView && (
+                                <li class="nav-item ">
+                                  <Link to="/activity-logs" onClick={togglenav}>
+                                    <a
                                       onClick={() => {
-                                        toggleSettingList(
-                                          "Setting"
-                                        );
+                                        toggleSettingList("Setting");
                                         NotificationCountData();
                                       }}
-                                      // style={{
-                                      //   whiteSpace: "nowrap"
-                                      // }}
                                       class="nav-link"
-                                      data-key="t-basic-3 fw-bold"
+                                      data-key="t-basic-4"
                                     >
-                                      Setting
+                                      Activity Logs
                                     </a>
                                   </Link>
                                 </li>
-                                    <li className="nav-item">
-                                      <NavLink
-                                        to="/AccessKey"
-                                        className="nav-link"
-                                        data-key="t-simple page"
-                                        onClick={() => {
-                                          toggleSettingList("Setting");
-                                          NotificationCountData();
-                                        }}
-                                      >
-                                        Access Key
-                                      </NavLink>
-                                    </li>
+                              )}
+                              {userAccessData.Admin_Personalize_SettingCanView && (
                                 <li class="nav-item">
-                                  <Link
-                                    to="/coupon"
-                                    onClick={togglenav}
-                                  >
-                                    <a
-                                      onClick={() => {
-                                        toggleSettingList(
-                                          "Setting"
-                                        );
-                                        NotificationCountData();
-                                      }}
-                                      class="nav-link"
-                                      data-key="t-basic-7"
-                                    >
-                                      Coupons
-                                    </a>
-                                  </Link>
-                                </li>
-                              </ul>
-                            </div>
-                          </li>
-                        )}
-                      {userAccessData.Admin_Setting_Practice_Config_CanView && (
-                        <li
-                          class="nav-item"
-                          // onMouseLeave={() =>
-                          //   hideSettingSubList("PracticeConfig")
-                          // }
-                          // onMouseEnter={() =>
-                          //   showSettingSubList("PracticeConfig")
-                          // }
-                          onClick={() =>
-                            toggleSettingSubList("PracticeConfig")
-                          }
-                        >
-                          <a
-                            href="#sidebarProfile"
-                            class="nav-link collapsed"
-                            data-bs-toggle="collapse"
-                            role="button"
-                            aria-expanded="false"
-                            aria-controls="sidebarProfile"
-                            data-key="t-profile"
-                          >
-                            Practice Config
-                          </a>
-                          <div
-                            class="subList collapse Responsive-Config-Variables"
-                            id="PracticeConfig"
-                            // style={{
-                            //       display: "none",      // toggled via toggleConfigSubList
-                            //       width: "100%",        // full parent width
-                            //       paddingLeft: "16px",  // optional indentation
-                            //       background: "#f8f9fa",
-                            //       borderRadius: "4px",
-                            //       marginTop: "4px",
-                            //     }}
-                          >
-                            <ul class="nav nav-sm flex-column">
-                              <li class="nav-item">
-                                <Link
-                                  to="/payment-gateway"
-                                  onClick={togglenav}
-                                >
                                   <a
                                     onClick={() => {
                                       toggleSettingList("Setting");
                                       NotificationCountData();
-                                    }}
-                                    // style={{ whiteSpace: "nowrap" }}
-                                    class="nav-link"
-                                    data-key="t-basic-3"
-                                  >
-                                    Payment Gateways
-                                  </a>
-                                </Link>
-                              </li>
-                              <li class="nav-item">
-                                <Link
-                                  to="/pricing-setting"
-                                  onClick={togglenav}
-                                >
-                                  <a
-                                    onClick={() => {
-                                      toggleSettingList("Setting");
-                                      NotificationCountData();
-                                    }}
-                                    class="nav-link"
-                                    data-key="t-basic-6"
-                                  >
-                                    Pricing Settings
-                                  </a>
-                                </Link>
-                              </li>
-                              <li class="nav-item">
-                                <Link
-                                  to="/email-config"
-                                  onClick={togglenav}
-                                >
-                                  <a
-                                    onClick={() => {
-                                      toggleSettingList("Setting");
-                                      NotificationCountData();
+                                      togglenav();
                                     }}
                                     class="nav-link"
                                     data-key="t-basic-7"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#SetPersonalizeSettingModal"
+                                    style={{ cursor: "pointer" }}
                                   >
-                                    Email Config
+                                    <span
+                                      class="align-middle"
+                                      data-key="t-logout"
+                                    >
+                                      Personalize Setting
+                                    </span>
+                                  </a>
+                                </li>
+                              )}
+
+                              <li class="nav-item ">
+                                <Link to="/mySubscription" onClick={togglenav}>
+                                  <a
+                                    onClick={() => {
+                                      toggleSettingList("Setting");
+                                      NotificationCountData();
+                                    }}
+                                    class="nav-link"
+                                    data-key="t-basic-4"
+                                  >
+                                    My Subscription
                                   </a>
                                 </Link>
                               </li>
@@ -2221,1237 +2356,1235 @@ const toggleConfigSubList = (id) => {
                           </div>
                         </li>
                       )}
-                      {userAccessData.Admin_Activity_Log_CanView && (
-                        <li class="nav-item ">
-                          <Link
-                            to="/activity-logs"
-                            onClick={togglenav}
-                          >
-                            <a
-                              onClick={() => {
-                                toggleSettingList("Setting");
-                                NotificationCountData();
-                              }}
-                              class="nav-link"
-                              data-key="t-basic-4"
-                            >
-                              Activity Logs
-                            </a>
-                          </Link>
-                        </li>
-                      )}
-                      {userAccessData.Admin_Personalize_SettingCanView && (
-                        <li class="nav-item">
-                          <a
-                            onClick={() => {
-                              toggleSettingList("Setting");
-                              NotificationCountData();
-                              togglenav();
-                            }}
-                            class="nav-link"
-                            data-key="t-basic-7"
-                            data-bs-toggle="modal"
-                            data-bs-target="#SetPersonalizeSettingModal"
-                            style={{ cursor: "pointer" }}
-                          >
-                            <span
-                              class="align-middle"
-                              data-key="t-logout"
-                            >
-                              Personalize Setting
-                            </span>
-                          </a>
-                        </li>
-                      )}
 
-                      <li class="nav-item ">
-                        <Link
-                          to="/mySubscription"
-                          onClick={togglenav}
-                        >
-                          <a
-                            onClick={() => {
-                              toggleSettingList("Setting");
-                              NotificationCountData();
-                            }}
-                            class="nav-link"
-                            data-key="t-basic-4"
-                          >
-                            My Subscription
-                          </a>
-                        </Link>
-                      </li>
-                    </ul>
-                  </div>
-                </li>
-              )}
+                      {/* PDF to CSV section starts */}
 
-              {/* PDF to CSV section starts */}
-
-                  <li class="nav-item">
-                    <NavLink
-                      to="/pdf-to-csv"
-                      onClick={() => {
-                        NotificationCountData();
-                        togglenav();
-                      }}
-                      activeclassname="active"
-                      className="nav-link menu-link"
-                      onMouseOver={() => setIsHoveredPdfToCsv(true)}
-                      onMouseOut={() => setIsHoveredPdfToCsv(false)}
-                      style={{
-                        color: isHoveredPdfToCsv
-                          ? "#438eff"
-                          : TopTextColor.color,
-                      }}
-                    >
-                      {" "}
-                      <img
-                        src={EngagementSvg}
-                        alt="PdfToCsvSvg"
-                        style={{
-                          width: "16px",
-                          marginRight: "5px",
-                        }}
-                      />
-                      <span data-key="t-dashboard" style={{color: isHoveredPdfToCsv ? "#438eff" : "#fff"}} className="fw-bold">
-                        
-                        PDF To CSV
-                      </span>{" "}
-                    </NavLink>
-                  </li>
-              {/* PDF to CSV section ends */}
-              </ul>
-              )}
-                {common.roleTypeId == USER_ROLE_TYPE.SuperAdmin &&
-                  common.organisationKeyID === null && (
-                  <>
-                  <ul
-                    className={`changed-nav navbar-nav ${isDropdownOpen ? " open" : ""
-                      } ms-2 mt-1`}
-                    style={{paddingRight: "2rem"}}
-                    id="navbar-UL-nav"
-                    >
-                    <li class="menu-title">
-                      <span data-key="t-menu fw-bold" style={{color: "#fff"}}>Menu</span>
-                    </li>
-                    {/* Dashboard Super Admin Modal */}
-                    {userAccessData.Dashboard_CanView && (
-                      <li class="nav-item user-name-sub-text">
-                        <NavLink
-                          to="/"
-                          onClick={() => {
-                            togglenav();
-                            NotificationCountData();
-                          }}
-                          activeclassname="active"
-                          className="nav-link menu-link"
-                          onMouseOver={() =>
-                            setIsHoveredDashboards(true)
-                          }
-                          onMouseOut={() =>
-                            setIsHoveredDashboards(false)
-                          }
-                          style={{
-                            color: isHoveredDashboards
-                              ? "#438eff"
-                              : TopTextColor.color,
-                            fontWeight: "bold",
-                          }}
-                        >
-                          <img
-                            src={DashboardSvg}
-                            alt="DashboardSvg"
-                            style={{
-                              width: "16px",
-                              marginRight: "5px",
-                            }}
-                          />
-                          {/* <i class="bi bi-graph-up mr-2"></i> */}
-                          <span data-key="t-dashboard" style={{color: isHoveredDashboards ? "#438eff" : "#fff"}}>
-                            Dashboard
-                          </span>{" "}
-                        </NavLink>
-                      </li>
-                    )}
-                    {/* DashBoard End */}
-                    {/* Organisation Super Admin Modal */}
-                    {userAccessData.Organisation_CanView && (
-                      <li class="nav-item user-name-sub-text">
-                        <NavLink
-                          to="/organisations"
-                          onClick={() => {
-                            togglenav();
-                            NotificationCountData();
-                          }}
-                          activeclassname="active"
-                          className="nav-link menu-link"
-                          onMouseOver={() =>
-                            setIsHoveredOrganization(true)
-                          }
-                          onMouseOut={() =>
-                            setIsHoveredOrganization(false)
-                          }
-                          style={{
-                            color: isHoveredOrganization
-                              ? "#438eff"
-                              : TopTextColor.color,
-                            fontWeight: "bold",
-                          }}
-                        >
-                          {" "}
-                          <i class="bi bi-buildings-fill" style={{marginRight: "5px"}}></i>
-                          <span data-key="t-dashboard" style={{color: isHoveredOrganization ? "#438eff" : "#fff"}}>
-                            Organisations
-                          </span>{" "}
-                        </NavLink>
-                      </li>
-                    )}
-
-                    {/* Organisations End */}
-                    {/* User Super Admin Modal */}
-                    {userAccessData.User_CanView && (
                       <li class="nav-item">
                         <NavLink
-                          to="/invite-user"
+                          to="/pdf-to-csv"
                           onClick={() => {
-                            togglenav();
                             NotificationCountData();
+                            togglenav();
                           }}
                           activeclassname="active"
                           className="nav-link menu-link"
-                          onMouseOver={() => setIsHoveredUser(true)}
-                          onMouseOut={() => setIsHoveredUser(false)}
+                          onMouseOver={() => setIsHoveredPdfToCsv(true)}
+                          onMouseOut={() => setIsHoveredPdfToCsv(false)}
                           style={{
-                            color: isHoveredUser
+                            color: isHoveredPdfToCsv
                               ? "#438eff"
                               : TopTextColor.color,
-                            fontWeight: "bold",
                           }}
                         >
                           {" "}
-                          <i class="bi bi-people-fill"
-                              style={{
-                                width: "16px",
-                                marginRight: "5px",
-                              }}></i>
-                          <span data-key="t-dashboard" style={{color: isHoveredUser ? "#438eff" : "#fff"}}>Users</span>{" "}
+                          <img
+                            src={EngagementSvg}
+                            alt="PdfToCsvSvg"
+                            style={{
+                              width: "16px",
+                              marginRight: "5px",
+                            }}
+                          />
+                          <span
+                            data-key="t-dashboard"
+                            style={{
+                              color: isHoveredPdfToCsv ? "#438eff" : "#fff",
+                            }}
+                            className="fw-bold"
+                          >
+                            PDF To CSV
+                          </span>{" "}
                         </NavLink>
                       </li>
-                    )}
-
-                    {/* User Super Admin Modal end */}
-
-                    {/*  Super Admin Config Modal Start */}
-                    {userAccessData.SuperAdmin_Config_CanView && (
-                      <li
-                        class="nav-item"
-                        onMouseLeave={hideConfigList}
-                        onMouseEnter={showConfigList}
-                      >
-                        <a
-                          class="nav-link menu-link"
-                          href="#sidebarPages"
-                          // data-bs-toggle="collapse"
-                          // role="button"
-                          // aria-expanded="false"
-                          // aria-controls="sidebarPages"
-                          onClick={toggleConfigList}
-                          onMouseOver={() =>
-                            setIsHoveredConfigure(true)
-                          }
-                          onMouseOut={() =>
-                            setIsHoveredConfigure(false)
-                          }
-                          style={{
-                            color: isHoveredConfigure
-                              ? "#438eff"
-                              : TopTextColor.color,
-                            fontWeight: "bold",
-                          }}
+                      {/* PDF to CSV section ends */}
+                    </ul>
+                  )}
+                  {common.roleTypeId == USER_ROLE_TYPE.SuperAdmin &&
+                    common.organisationKeyID === null && (
+                      <>
+                        <ul
+                          className={`changed-nav navbar-nav ${
+                            isDropdownOpen ? " open" : ""
+                          } ms-2 mt-1`}
+                          style={{ paddingRight: "2rem" }}
+                          id="navbar-UL-nav"
                         >
-                          <img
-                            src={ConfigSvg}
-                            alt="ConfigSvg"
-                            style={{
-                              width: "16px",
-                              marginRight: "5px",
-                            }}
-                          />
-                          {/* <i class="bi bi-tools mr-2"></i>{" "} */}
-                          <span data-key="t-pages" style={{color: isHoveredConfigure ? "#438eff" : "#fff"}}>Configure
-                          <span
-                            style={{
-                            display: "inline-block",
-                            marginLeft: "4px",
-                            fontSize: "12px",
-                            transform: isDropdownOpen || isHoveredConfigure ? "rotate(180deg)" : "rotate(0deg)",
-                            transition: "transform 0.2s ease",
-                            lineHeight: 1
-                          }}
-                        >
-                          ▼
-                        </span>
-                          </span>
-                        </a>
-                        <div
-                          id="config"
-                          // style={{
-                          //   ...style,
-                          //   display: isDropdownOpen ? "block" : "none",
-                          //   border: "none",
-                          // }}
-                          class="menu-dropdown menu_dropdown Responsive-Config-service-package"
-                        >
-                          <ul class="nav nav-sm flex-column">
-                            {/*  Super Admin Config SubList Modal Start */}
-                            {userAccessData.SuperAdmin_Config_ServicePackage_CanView && (
-                              <li
-                                class="nav-item"
-                                // onMouseLeave={() =>
-                                //   hideConfigSubList(
-                                //     "PredefinedServicesAndPackage"
-                                //   )
-                                // }
-                                // onMouseEnter={() =>
-                                //   showConfigSubList(
-                                //     "PredefinedServicesAndPackage"
-                                //   )
-                                // }
-                              >
-                                <a
-                                  href="#sidebarProfile"
-                                  class="nav-link collapsed"
-                                  // data-bs-toggle="collapse"
-                                  // role="button"
-                                  aria-expanded="false"
-                                  // aria-controls="sidebarProfile"
-                                  // data-key="t-profile"
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    toggleConfigSubList(
-                                      "PredefinedServicesAndPackage"
-                                    )
-                                  }}
-                                >
-                                  Predefined Services/Packages
-                                </a>
-                                <div
-                                  class="subList Service-package-bgColor"
-                                  id="PredefinedServicesAndPackage"
-                                  style={style}
-                                >
-                                  <ul class="nav nav-sm flex-column">
-                                    {/*  Super Admin Config SubList Of SubList Modal Start */}
-                                    <li class="nav-item">
-                                      <NavLink
-                                        to="/service-category"
-                                        onClick={togglenav}
-                                      >
-                                        <a
-                                          onClick={() => {
-                                            toggleConfigList("config");
-                                            NotificationCountData();
-                                            togglenav();
-                                          }}
-                                          class="nav-link"
-                                          data-key="t-simple-page"
-                                        >
-                                          Predefined Service Categories
-                                        </a>
-                                      </NavLink>
-                                    </li>
-                                    <li class="nav-item">
-                                      <NavLink to="/services">
-                                        <a
-                                          onClick={() => {
-                                            closeDropdown("config");
-                                            NotificationCountData();
-                                          }}
-                                          class="nav-link"
-                                          data-key="t-simple-page"
-                                        >
-                                          Predefined Services
-                                        </a>
-                                      </NavLink>
-                                    </li>
-                                    <li class="nav-item">
-                                      <NavLink to="/packages">
-                                        <a
-                                          onClick={() => {
-                                            closeDropdown("config");
-                                            NotificationCountData();
-                                          }}
-                                          class="nav-link"
-                                          data-key="t-simple-page"
-                                        >
-                                          Predefined Packages
-                                        </a>
-                                      </NavLink>
-                                    </li>
-                                  </ul>
-                                </div>
-                              </li>
-                            )}
-                            {/*  Super Admin Config first SubList Modal End */}
-                            {/*  Super Admin Config Second SubList Modal start */}
-                            {userAccessData.SuperAdmin_Config_Global_Constant_CanView && (
-                              <li
-                                class="nav-item"
-                                // onMouseLeave={() =>
-                                //   hideConfigSubList(
-                                //     "PredefinedVariable"
-                                //   )
-                                // }
-                                // onMouseEnter={() =>
-                                //   showConfigSubList(
-                                //     "PredefinedVariable"
-                                //   )
-                                // }
-                              >
-                                <a
-                                  href="#sidebarProfile"
-                                  class="nav-link collapsed"
-                                  // data-bs-toggle="collapse"
-                                  // role="button"
-                                  aria-expanded="false"
-                                  // aria-controls="sidebarProfile"
-                                  // data-key="t-profile"
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    toggleConfigSubList(
-                                      "PredefinedVariable"
-                                    )
-                                  }}
-                                >
-                                  Predefined Variables
-                                </a>
-                                <div
-                                  style={style}
-                                  class="subList Service-package-bgColor"
-                                  id="PredefinedVariable"
-                                >
-                                  <ul class="nav nav-sm flex-column">
-                                    {/*  Super Admin Config Second SubList of subList Modal start */}
-                                    <li class="nav-item">
-                                      <NavLink to="/global-constant">
-                                        <a
-                                          onClick={() => {
-                                            closeDropdown("config");
-                                            NotificationCountData();
-                                            // togglenav()
-                                          }}
-                                          class="nav-link"
-                                          data-key="t-simple-page"
-                                        >
-                                          Predefined Global Constants
-                                        </a>
-                                      </NavLink>
-                                    </li>
-                                    <li class="nav-item">
-                                      <NavLink to="/global-pricing-driver">
-                                        <a
-                                          onClick={() => {
-                                            closeDropdown("config");
-                                            NotificationCountData();
-                                          }}
-                                          class="nav-link"
-                                          data-key="t-simple-page"
-                                        >
-                                          Predefined Global Pricing
-                                          Drivers
-                                        </a>
-                                      </NavLink>
-                                    </li>
-                                  </ul>
-                                </div>
-                              </li>
-                            )}
-                            {/*  Super Admin Config Sec SubList of subList Modal end  */}
-                            {/*  Super Admin Config Third SubList  Modal start */}
-                            {userAccessData.SuperAdmin_Config_Template_CanView && (
-                              <li
-                                class="nav-item"
-                                // onMouseLeave={() =>
-                                //   hideConfigSubList(
-                                //     "PredefinedTemplate"
-                                //   )
-                                // }
-                                // onMouseEnter={() =>
-                                //   showConfigSubList(
-                                //     "PredefinedTemplate"
-                                //   )
-                                // }
-                              >
-                                <a
-                                  href="#sidebarProfile"
-                                  class="nav-link collapsed"
-                                  // data-bs-toggle="collapse"
-                                  // role="button"
-                                  aria-expanded="false"
-                                  // aria-controls="sidebarProfile"
-                                  data-key="t-profile"
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    toggleConfigSubList(
-                                      "PredefinedTemplate"
-                                    )
-                                  }}
-                                >
-                                  Predefined Templates
-                                </a>
-                                <div
-                                  style={style}
-                                  className="subList Service-package-bgColor"
-                                  id="PredefinedTemplate"
-                                >
-                                  <ul class="nav nav-sm flex-column">
-                                    {/*  Super Admin Config Third SubList of subList Modal start */}
-                                    <li class="nav-item">
-                                      <NavLink to="/templates">
-                                        <a
-                                          onClick={() => {
-                                            closeDropdown("config");
-                                            NotificationCountData();
-                                          }}
-                                          class="nav-link"
-                                          data-key="t-simple-page"
-                                        >
-                                          Predefined {proposalName}/
-                                          {EngagementName}
-                                        </a>
-                                      </NavLink>
-                                    </li>
-                                    <li class="nav-item">
-                                      <NavLink to="/terms-and-conditions">
-                                        <a
-                                          onClick={() => {
-                                            closeDropdown("config");
-                                            NotificationCountData();
-                                          }}
-                                          class="nav-link"
-                                          data-key="t-simple-page"
-                                        >
-                                          Predefined Terms & Conditions
-                                        </a>
-                                      </NavLink>
-                                    </li>
-                                    <li class="nav-item">
-                                      <NavLink to="/email-template">
-                                        <a
-                                          onClick={() => {
-                                            closeDropdown("config");
-                                            NotificationCountData();
-                                          }}
-                                          class="nav-link"
-                                          data-key="t-simple-page"
-                                        >
-                                          Predefined Email Templates
-                                        </a>
-                                      </NavLink>
-                                    </li>
-                                  </ul>
-                                </div>
-                              </li>
-                            )}
-
-                            {userAccessData.SuperAdmin_Config_Template_CanView && (
-                              <li
-                                class="nav-item"
-                                // onMouseLeave={() =>
-                                //   hideConfigSubList(
-                                //     "PredefinedReminder"
-                                //   )
-                                // }
-                                // onMouseEnter={() =>
-                                //   showConfigSubList(
-                                //     "PredefinedReminder"
-                                //   )
-                                // }
-                              >
-                                <a
-                                  href="#sidebarProfile"
-                                  class="nav-link collapsed"
-                                  // data-bs-toggle="collapse"
-                                  // role="button"
-                                  aria-expanded="false"
-                                  // aria-controls="sidebarProfile"
-                                  data-key="t-profile"
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    toggleConfigSubList(
-                                      "PredefinedReminder"
-                                    )
-                                  }}
-                                >
-                                  Predefined Workflows
-                                </a>
-                                <div
-                                  style={style}
-                                  class="subList Service-package-bgColor"
-                                  id="PredefinedReminder"
-                                >
-                                  <ul class="nav nav-sm flex-column">
-                                    <li class="nav-item">
-                                      <NavLink to="/reminder-email-template">
-                                        <a
-                                          onClick={() => {
-                                            closeDropdown("config");
-                                            NotificationCountData();
-                                          }}
-                                          class="nav-link"
-                                          data-key="t-simple-page"
-                                        >
-                                          Predefined Workflows Email
-                                          Templates
-                                        </a>
-                                      </NavLink>
-                                    </li>
-                                    <li class="nav-item">
-                                      <NavLink to="/reminder">
-                                        <a
-                                          onClick={() => {
-                                            closeDropdown("config");
-                                            NotificationCountData();
-                                          }}
-                                          class="nav-link"
-                                          data-key="t-simple-page"
-                                        >
-                                          Predefined Reminder
-                                        </a>
-                                      </NavLink>
-                                    </li>
-                                  </ul>
-                                </div>
-                              </li>
-                            )}
-                          </ul>
-                        </div>
-                      </li>
-                    )}
-
-                    {/*  Super Admin Config End */}
-                    {/*  Super Admin Subscription Start */}
-                    {userAccessData.Subscription_CanView && (
-                      <li
-                        class="nav-item"
-                        // style={{
-                        //   paddingLeft:
-                        //     windowWidth <= 767 ? "0px" : "10px",
-                        // }}
-                        onMouseLeave={() => hideSettingList()}
-                        onMouseEnter={() => showSettingList()}
-                      >
-                        <a
-                          href="#sidebarSignUp2"
-                          class="nav-link menu-link"
-                          role="button"
-                          data-bs-toggle="collapse"
-                          aria-expanded="false"
-                          aria-controls="sidebarSignUp2"
-                          data-key="t-signup"
-                          onClick={toggleSettingDropdown}
-                          // onMouseOver={() =>
-                          //   setIsHoveredSubscription(true)
-                          // }
-                          // onMouseOut={() =>
-                          //   setIsHoveredSubscription(false)
-                          // }
-                          style={{
-                            color: isHoveredSubscription
-                              ? "#438eff"
-                              : TopTextColor.color,
-                            fontWeight: "bold",
-                          }}
-                        // any issue arise ,undo this code
-
-                        // onMouseOver={() =>
-                        //   setIsHoveredSubscription(true)
-                        // }
-                        // onMouseOut={() =>
-                        //   setIsHoveredSubscription(false)
-                        // }
-                        >
-                          <i class="bi bi-credit-card" style={{marginRight: "5px"}}></i>
-                          <span data-key="t-dashboard" style={{color: isHoveredSubscription ? "#438eff" : "#fff"}}>
-                            Subscription
-                          <span
-                          style={{
-                            display: "inline-block",
-                            marginLeft: "8px",
-                            fontSize: "12px",
-                            transform: isDropdownOpen || isHoveredSubscription ? "rotate(180deg)" : "rotate(0deg)",
-                            transition: "transform 0.2s ease",
-                            lineHeight: 1
-                          }}
-                        >
-                          ▼
-                        </span>
-                          </span>{" "}
-                        </a>
-                        <div
-                          style={{
-                            ...style,
-                            display: isSettingDropdownOpen
-                              ? "block"
-                              : "none",
-                          }}
-                          class="menu-dropdown menu_dropdown Responsive-Config-service-package"
-                          id="Subscription"
-                        >
-                          <ul class="nav nav-sm flex-column">
-                            {userAccessData.SuperAdmin_Config_Subscription_Package_CanView && (
-                              <li class="nav-item">
-                                <NavLink
-                                  onClick={() => {
-                                    closeDropdown("Subscription");
-                                    NotificationCountData();
-                                  }}
-                                  to="/sub-package"
-                                  activeclassname="active"
-                                  className="nav-link"
-                                >
-                                  Subscription Packages
-                                </NavLink>
-                              </li>
-                            )}
-                              {userAccessData.SuperAdmin_Config_Subscription_Package_CanView && (
-                                <li class="nav-item">
-                                  <NavLink
-                                    onClick={() => {
-                                      closeDropdown("Subscription");
-                                      NotificationCountData();
-                                    }}
-                                    to="/pdf-csv-sub-package"
-                                    activeclassname="active"
-                                    className="nav-link"
-                                  >
-                                    PDF to CSV Subscription Packages
-                                  </NavLink>
-                                </li>
-                              )}
-                            {userAccessData.SuperAdmin_Config_Subscription_User_CanView && (
-                              <li class="nav-item">
-                                <NavLink
-                                  onClick={() => {
-                                    closeDropdown("Subscription");
-                                    NotificationCountData();
-                                  }}
-                                  to="/user"
-                                  activeclassname="active"
-                                  className="nav-link"
-                                >
-                                  Users
-                                </NavLink>
-                              </li>
-                            )}
-                            {userAccessData.SuperAdmin_Config_Subscription_Invoices_CanView && (
-                              <li class="nav-item">
-                                <NavLink
-                                  onClick={() => {
-                                    closeDropdown("Subscription");
-                                    NotificationCountData();
-                                  }}
-                                  to="/invoices"
-                                  activeclassname="active"
-                                  className="nav-link"
-                                >
-                                  Invoices
-                                </NavLink>
-                              </li>
-                            )}
-
-                            {/* Config End */}
-                          </ul>
-                        </div>
-                      </li>
-                    )}
-                    {userAccessData.SuperAdmin_Setting_CanView && (
-                      <li
-                        class="nav-item"
-                        // style={{
-                        //   paddingLeft:
-                        //     windowWidth <= 767 ? "0px" : "10px",
-                        // }}
-                        onMouseLeave={() => hideUserRoleList()}
-                        onMouseEnter={() => showUserSettingList()}
-                      >
-                        <a
-                          href="#sidebarSignUp3"
-                          class="nav-link menu-link"
-                          // role="button"
-                          // data-bs-toggle="collapse"
-                          // aria-expanded="false"
-                          // aria-controls="sidebarSignUp3"
-                          data-key="t-signup"
-                          onClick={toggleUserRoleDropdown}
-                          onMouseOver={() => setIsHoveredUserRole(true)}
-                          onMouseOut={() => setIsHoveredUserRole(false)}
-                          style={{
-                            color: isHoveredUserRole
-                              ? "#438EFF"
-                              : TopTextColor.color,
-                            fontWeight: "bold",
-                          }}
-                        >
-                          <img
-                            src={SettingSvg}
-                            alt="SettingSvg"
-                            style={{
-                              width: "16px",
-                              marginRight: "5px",
-                            }}
-                          />
-                          <span data-key="t-dashboard" style={{color: isHoveredUserRole ? "#438eff" : "#fff"}}>Settings
-                          <span
-                          style={{
-                            display: "inline-block",
-                            marginLeft: "4px",
-                            fontSize: "12px",
-                            transform: isDropdownOpen || isHoveredUserRole ? "rotate(180deg)" : "rotate(0deg)",
-                            transition: "transform 0.2s ease",
-                            lineHeight: 1
-                          }}
-                        >
-                          ▼
-                        </span>
-                        </span>{" "}
-                        </a>
-                        <div
-                          style={{
-                            ...style,
-                            display: isUserRoleDropdownOpen
-                              ? "block"
-                              : "none",
-                            width: "200px",
-                          }}
-                          class="collapse menu-dropdown menu_dropdown Responsive-Config-service-package"
-                          id="UserRole"
-                        >
-                          <ul class="nav nav-sm flex-column">
-                            {userAccessData.SuperAdmin_Setting_User_Role_CanView && (
-                              <li class="nav-item">
-                                <NavLink
-                                  onClick={() => {
-                                    closeDropdown("UserRole");
-                                    NotificationCountData();
-                                  }}
-                                  to="/user-role"
-                                  activeclassname="active"
-                                  className="nav-link"
-                                >
-                                  User Role
-                                </NavLink>
-                              </li>
-                            )}
-                            {userAccessData.SuperAdmin_Setting_Email_Template_CanView && (
-                              <li class="nav-item">
-                                <NavLink
-                                  onClick={() => {
-                                    closeDropdown("Subscription");
-                                    NotificationCountData();
-                                  }}
-                                  to="/super-admin-email-template-list"
-                                  activeclassname="active"
-                                  className="nav-link"
-                                >
-                                  Super Admin Email Template
-                                </NavLink>
-                              </li>
-                            )}
-                            {/* {userAccessData.SuperAdmin_Setting_Email_Template_CanView && ( */}
-                            <li class="nav-item">
+                          <li class="menu-title">
+                            <span
+                              data-key="t-menu fw-bold"
+                              style={{ color: "#fff" }}
+                            >
+                              Menu
+                            </span>
+                          </li>
+                          {/* Dashboard Super Admin Modal */}
+                          {userAccessData.Dashboard_CanView && (
+                            <li class="nav-item user-name-sub-text">
                               <NavLink
+                                to="/"
                                 onClick={() => {
-                                  closeDropdown("Subscription");
+                                  togglenav();
                                   NotificationCountData();
                                 }}
-                                to="/activity-logs"
                                 activeclassname="active"
-                                className="nav-link"
+                                className="nav-link menu-link"
+                                onMouseOver={() => setIsHoveredDashboards(true)}
+                                onMouseOut={() => setIsHoveredDashboards(false)}
+                                style={{
+                                  color: isHoveredDashboards
+                                    ? "#438eff"
+                                    : TopTextColor.color,
+                                  fontWeight: "bold",
+                                }}
                               >
-                                Activity Logs
+                                <img
+                                  src={DashboardSvg}
+                                  alt="DashboardSvg"
+                                  style={{
+                                    width: "16px",
+                                    marginRight: "5px",
+                                  }}
+                                />
+                                {/* <i class="bi bi-graph-up mr-2"></i> */}
+                                <span
+                                  data-key="t-dashboard"
+                                  style={{
+                                    color: isHoveredDashboards
+                                      ? "#438eff"
+                                      : "#fff",
+                                  }}
+                                >
+                                  Dashboard
+                                </span>{" "}
                               </NavLink>
                             </li>
-                            {/* )} */}
+                          )}
+                          {/* DashBoard End */}
+                          {/* Organisation Super Admin Modal */}
+                          {userAccessData.Organisation_CanView && (
+                            <li class="nav-item user-name-sub-text">
+                              <NavLink
+                                to="/organisations"
+                                onClick={() => {
+                                  togglenav();
+                                  NotificationCountData();
+                                }}
+                                activeclassname="active"
+                                className="nav-link menu-link"
+                                onMouseOver={() =>
+                                  setIsHoveredOrganization(true)
+                                }
+                                onMouseOut={() =>
+                                  setIsHoveredOrganization(false)
+                                }
+                                style={{
+                                  color: isHoveredOrganization
+                                    ? "#438eff"
+                                    : TopTextColor.color,
+                                  fontWeight: "bold",
+                                }}
+                              >
+                                {" "}
+                                <i
+                                  class="bi bi-buildings-fill"
+                                  style={{ marginRight: "5px" }}
+                                ></i>
+                                <span
+                                  data-key="t-dashboard"
+                                  style={{
+                                    color: isHoveredOrganization
+                                      ? "#438eff"
+                                      : "#fff",
+                                  }}
+                                >
+                                  Organisations
+                                </span>{" "}
+                              </NavLink>
+                            </li>
+                          )}
 
+                          {/* Organisations End */}
+                          {/* User Super Admin Modal */}
+                          {userAccessData.User_CanView && (
+                            <li class="nav-item">
+                              <NavLink
+                                to="/invite-user"
+                                onClick={() => {
+                                  togglenav();
+                                  NotificationCountData();
+                                }}
+                                activeclassname="active"
+                                className="nav-link menu-link"
+                                onMouseOver={() => setIsHoveredUser(true)}
+                                onMouseOut={() => setIsHoveredUser(false)}
+                                style={{
+                                  color: isHoveredUser
+                                    ? "#438eff"
+                                    : TopTextColor.color,
+                                  fontWeight: "bold",
+                                }}
+                              >
+                                {" "}
+                                <i
+                                  class="bi bi-people-fill"
+                                  style={{
+                                    width: "16px",
+                                    marginRight: "5px",
+                                  }}
+                                ></i>
+                                <span
+                                  data-key="t-dashboard"
+                                  style={{
+                                    color: isHoveredUser ? "#438eff" : "#fff",
+                                  }}
+                                >
+                                  Users
+                                </span>{" "}
+                              </NavLink>
+                            </li>
+                          )}
+
+                          {/* User Super Admin Modal end */}
+
+                          {/*  Super Admin Config Modal Start */}
+                          {userAccessData.SuperAdmin_Config_CanView && (
                             <li
                               class="nav-item"
-                              // onMouseLeave={() =>
-                              //   hideSettingSubList("WebIntegration")
-                              // }
-                              // onMouseEnter={() =>
-                              //   showSettingSubList("WebIntegration")
-                              // }
-                              onClick={() =>
-                                toggleSettingSubList("WebIntegration")
-                              }
+                              onMouseLeave={hideConfigList}
+                              onMouseEnter={showConfigList}
                             >
                               <a
-                                href="#sidebarProfile"
-                                class="nav-link collapsed"
+                                class="nav-link menu-link"
+                                href="#sidebarPages"
                                 // data-bs-toggle="collapse"
                                 // role="button"
-                                aria-expanded="false"
-                                // aria-controls="sidebarProfile"
-                                data-key="t-profile"
+                                // aria-expanded="false"
+                                // aria-controls="sidebarPages"
+                                onClick={toggleConfigList}
+                                onMouseOver={() => setIsHoveredConfigure(true)}
+                                onMouseOut={() => setIsHoveredConfigure(false)}
+                                style={{
+                                  color: isHoveredConfigure
+                                    ? "#438eff"
+                                    : TopTextColor.color,
+                                  fontWeight: "bold",
+                                }}
                               >
-                                API Integration
+                                <img
+                                  src={ConfigSvg}
+                                  alt="ConfigSvg"
+                                  style={{
+                                    width: "16px",
+                                    marginRight: "5px",
+                                  }}
+                                />
+                                {/* <i class="bi bi-tools mr-2"></i>{" "} */}
+                                <span
+                                  data-key="t-pages"
+                                  style={{
+                                    color: isHoveredConfigure
+                                      ? "#438eff"
+                                      : "#fff",
+                                  }}
+                                >
+                                  Configure
+                                  <span
+                                    style={{
+                                      display: "inline-block",
+                                      marginLeft: "4px",
+                                      fontSize: "12px",
+                                      transform:
+                                        isDropdownOpen || isHoveredConfigure
+                                          ? "rotate(180deg)"
+                                          : "rotate(0deg)",
+                                      transition: "transform 0.2s ease",
+                                      lineHeight: 1,
+                                    }}
+                                  >
+                                    ▼
+                                  </span>
+                                </span>
                               </a>
                               <div
-                                class="subList Service-package-bgColor"
-                                id="WebIntegration"
-                                style={style}
+                                id="config"
+                                // style={{
+                                //   ...style,
+                                //   display: isDropdownOpen ? "block" : "none",
+                                //   border: "none",
+                                // }}
+                                class="menu-dropdown menu_dropdown Responsive-Config-service-package"
                               >
                                 <ul class="nav nav-sm flex-column">
-                                  <li class="nav-item">
-                                    <Link
-                                      to="/AccessKey"
-                                      onClick={togglenav}
+                                  {/*  Super Admin Config SubList Modal Start */}
+                                  {userAccessData.SuperAdmin_Config_ServicePackage_CanView && (
+                                    <li
+                                      class="nav-item"
+                                      // onMouseLeave={() =>
+                                      //   hideConfigSubList(
+                                      //     "PredefinedServicesAndPackage"
+                                      //   )
+                                      // }
+                                      // onMouseEnter={() =>
+                                      //   showConfigSubList(
+                                      //     "PredefinedServicesAndPackage"
+                                      //   )
+                                      // }
                                     >
                                       <a
+                                        href="#sidebarProfile"
+                                        class="nav-link collapsed"
+                                        // data-bs-toggle="collapse"
+                                        // role="button"
+                                        aria-expanded="false"
+                                        // aria-controls="sidebarProfile"
+                                        // data-key="t-profile"
                                         onClick={(e) => {
                                           e.preventDefault();
-                                          // toggleSettingList("Setting");
-                                          NotificationCountData();
+                                          toggleConfigSubList(
+                                            "PredefinedServicesAndPackage",
+                                          );
                                         }}
-                                        class="nav-link"
-                                        data-key="t-basic-6"
                                       >
-                                        Access Key
+                                        Predefined Services/Packages
                                       </a>
-                                    </Link>
-                                  </li>
+                                      <div
+                                        class="subList Service-package-bgColor"
+                                        id="PredefinedServicesAndPackage"
+                                        style={style}
+                                      >
+                                        <ul class="nav nav-sm flex-column">
+                                          {/*  Super Admin Config SubList Of SubList Modal Start */}
+                                          <li class="nav-item">
+                                            <NavLink
+                                              to="/service-category"
+                                              onClick={togglenav}
+                                            >
+                                              <a
+                                                onClick={() => {
+                                                  toggleConfigList("config");
+                                                  NotificationCountData();
+                                                  togglenav();
+                                                }}
+                                                class="nav-link"
+                                                data-key="t-simple-page"
+                                              >
+                                                Predefined Service Categories
+                                              </a>
+                                            </NavLink>
+                                          </li>
+                                          <li class="nav-item">
+                                            <NavLink to="/services">
+                                              <a
+                                                onClick={() => {
+                                                  closeDropdown("config");
+                                                  NotificationCountData();
+                                                }}
+                                                class="nav-link"
+                                                data-key="t-simple-page"
+                                              >
+                                                Predefined Services
+                                              </a>
+                                            </NavLink>
+                                          </li>
+                                          <li class="nav-item">
+                                            <NavLink to="/packages">
+                                              <a
+                                                onClick={() => {
+                                                  closeDropdown("config");
+                                                  NotificationCountData();
+                                                }}
+                                                class="nav-link"
+                                                data-key="t-simple-page"
+                                              >
+                                                Predefined Packages
+                                              </a>
+                                            </NavLink>
+                                          </li>
+                                        </ul>
+                                      </div>
+                                    </li>
+                                  )}
+                                  {/*  Super Admin Config first SubList Modal End */}
+                                  {/*  Super Admin Config Second SubList Modal start */}
+                                  {userAccessData.SuperAdmin_Config_Global_Constant_CanView && (
+                                    <li
+                                      class="nav-item"
+                                      // onMouseLeave={() =>
+                                      //   hideConfigSubList(
+                                      //     "PredefinedVariable"
+                                      //   )
+                                      // }
+                                      // onMouseEnter={() =>
+                                      //   showConfigSubList(
+                                      //     "PredefinedVariable"
+                                      //   )
+                                      // }
+                                    >
+                                      <a
+                                        href="#sidebarProfile"
+                                        class="nav-link collapsed"
+                                        // data-bs-toggle="collapse"
+                                        // role="button"
+                                        aria-expanded="false"
+                                        // aria-controls="sidebarProfile"
+                                        // data-key="t-profile"
+                                        onClick={(e) => {
+                                          e.preventDefault();
+                                          toggleConfigSubList(
+                                            "PredefinedVariable",
+                                          );
+                                        }}
+                                      >
+                                        Predefined Variables
+                                      </a>
+                                      <div
+                                        style={style}
+                                        class="subList Service-package-bgColor"
+                                        id="PredefinedVariable"
+                                      >
+                                        <ul class="nav nav-sm flex-column">
+                                          {/*  Super Admin Config Second SubList of subList Modal start */}
+                                          <li class="nav-item">
+                                            <NavLink to="/global-constant">
+                                              <a
+                                                onClick={() => {
+                                                  closeDropdown("config");
+                                                  NotificationCountData();
+                                                  // togglenav()
+                                                }}
+                                                class="nav-link"
+                                                data-key="t-simple-page"
+                                              >
+                                                Predefined Global Constants
+                                              </a>
+                                            </NavLink>
+                                          </li>
+                                          <li class="nav-item">
+                                            <NavLink to="/global-pricing-driver">
+                                              <a
+                                                onClick={() => {
+                                                  closeDropdown("config");
+                                                  NotificationCountData();
+                                                }}
+                                                class="nav-link"
+                                                data-key="t-simple-page"
+                                              >
+                                                Predefined Global Pricing
+                                                Drivers
+                                              </a>
+                                            </NavLink>
+                                          </li>
+                                        </ul>
+                                      </div>
+                                    </li>
+                                  )}
+                                  {/*  Super Admin Config Sec SubList of subList Modal end  */}
+                                  {/*  Super Admin Config Third SubList  Modal start */}
+                                  {userAccessData.SuperAdmin_Config_Template_CanView && (
+                                    <li
+                                      class="nav-item"
+                                      // onMouseLeave={() =>
+                                      //   hideConfigSubList(
+                                      //     "PredefinedTemplate"
+                                      //   )
+                                      // }
+                                      // onMouseEnter={() =>
+                                      //   showConfigSubList(
+                                      //     "PredefinedTemplate"
+                                      //   )
+                                      // }
+                                    >
+                                      <a
+                                        href="#sidebarProfile"
+                                        class="nav-link collapsed"
+                                        // data-bs-toggle="collapse"
+                                        // role="button"
+                                        aria-expanded="false"
+                                        // aria-controls="sidebarProfile"
+                                        data-key="t-profile"
+                                        onClick={(e) => {
+                                          e.preventDefault();
+                                          toggleConfigSubList(
+                                            "PredefinedTemplate",
+                                          );
+                                        }}
+                                      >
+                                        Predefined Templates
+                                      </a>
+                                      <div
+                                        style={style}
+                                        className="subList Service-package-bgColor"
+                                        id="PredefinedTemplate"
+                                      >
+                                        <ul class="nav nav-sm flex-column">
+                                          {/*  Super Admin Config Third SubList of subList Modal start */}
+                                          <li class="nav-item">
+                                            <NavLink to="/templates">
+                                              <a
+                                                onClick={() => {
+                                                  closeDropdown("config");
+                                                  NotificationCountData();
+                                                }}
+                                                class="nav-link"
+                                                data-key="t-simple-page"
+                                              >
+                                                Predefined {proposalName}/
+                                                {EngagementName}
+                                              </a>
+                                            </NavLink>
+                                          </li>
+                                          <li class="nav-item">
+                                            <NavLink to="/terms-and-conditions">
+                                              <a
+                                                onClick={() => {
+                                                  closeDropdown("config");
+                                                  NotificationCountData();
+                                                }}
+                                                class="nav-link"
+                                                data-key="t-simple-page"
+                                              >
+                                                Predefined Terms & Conditions
+                                              </a>
+                                            </NavLink>
+                                          </li>
+                                          <li class="nav-item">
+                                            <NavLink to="/email-template">
+                                              <a
+                                                onClick={() => {
+                                                  closeDropdown("config");
+                                                  NotificationCountData();
+                                                }}
+                                                class="nav-link"
+                                                data-key="t-simple-page"
+                                              >
+                                                Predefined Email Templates
+                                              </a>
+                                            </NavLink>
+                                          </li>
+                                        </ul>
+                                      </div>
+                                    </li>
+                                  )}
+
+                                  {userAccessData.SuperAdmin_Config_Template_CanView && (
+                                    <li
+                                      class="nav-item"
+                                      // onMouseLeave={() =>
+                                      //   hideConfigSubList(
+                                      //     "PredefinedReminder"
+                                      //   )
+                                      // }
+                                      // onMouseEnter={() =>
+                                      //   showConfigSubList(
+                                      //     "PredefinedReminder"
+                                      //   )
+                                      // }
+                                    >
+                                      <a
+                                        href="#sidebarProfile"
+                                        class="nav-link collapsed"
+                                        // data-bs-toggle="collapse"
+                                        // role="button"
+                                        aria-expanded="false"
+                                        // aria-controls="sidebarProfile"
+                                        data-key="t-profile"
+                                        onClick={(e) => {
+                                          e.preventDefault();
+                                          toggleConfigSubList(
+                                            "PredefinedReminder",
+                                          );
+                                        }}
+                                      >
+                                        Predefined Workflows
+                                      </a>
+                                      <div
+                                        style={style}
+                                        class="subList Service-package-bgColor"
+                                        id="PredefinedReminder"
+                                      >
+                                        <ul class="nav nav-sm flex-column">
+                                          <li class="nav-item">
+                                            <NavLink to="/reminder-email-template">
+                                              <a
+                                                onClick={() => {
+                                                  closeDropdown("config");
+                                                  NotificationCountData();
+                                                }}
+                                                class="nav-link"
+                                                data-key="t-simple-page"
+                                              >
+                                                Predefined Workflows Email
+                                                Templates
+                                              </a>
+                                            </NavLink>
+                                          </li>
+                                          <li class="nav-item">
+                                            <NavLink to="/reminder">
+                                              <a
+                                                onClick={() => {
+                                                  closeDropdown("config");
+                                                  NotificationCountData();
+                                                }}
+                                                class="nav-link"
+                                                data-key="t-simple-page"
+                                              >
+                                                Predefined Reminder
+                                              </a>
+                                            </NavLink>
+                                          </li>
+                                        </ul>
+                                      </div>
+                                    </li>
+                                  )}
                                 </ul>
                               </div>
                             </li>
+                          )}
 
-                            {userAccessData.SuperAdmin_Personalize_SettingCanView && (
-                              <li class="nav-item">
-                                <a
-                                  onClick={() => {
-                                    closeDropdown("Setting");
-                                    NotificationCountData();
-                                  }}
-                                  class="nav-link"
-                                  data-key="t-basic-7"
-                                  data-bs-toggle="modal"
-                                  data-bs-target="#SetPersonalizeSettingModal"
-                                  style={{ cursor: "pointer" }}
-                                >
-                                  <span
-                                    class="align-middle"
-                                    data-key="t-logout"
-                                  >
-                                    Personalize Setting
-                                  </span>
-                                </a>
-                              </li>
-                            )}
-                            {userAccessData.SuperAdmin_Setting_Email_Template_CanView && (
-                              <li
-                                class="nav-item"
-                                // onMouseLeave={() =>
-                                //   hideSettingSubList("Setting")
+                          {/*  Super Admin Config End */}
+                          {/*  Super Admin Subscription Start */}
+                          {userAccessData.Subscription_CanView && (
+                            <li
+                              class="nav-item"
+                              // style={{
+                              //   paddingLeft:
+                              //     windowWidth <= 767 ? "0px" : "10px",
+                              // }}
+                              onMouseLeave={() => hideSettingList()}
+                              onMouseEnter={() => showSettingList()}
+                            >
+                              <a
+                                href="#sidebarSignUp2"
+                                class="nav-link menu-link"
+                                role="button"
+                                data-bs-toggle="collapse"
+                                aria-expanded="false"
+                                aria-controls="sidebarSignUp2"
+                                data-key="t-signup"
+                                onClick={toggleSettingDropdown}
+                                // onMouseOver={() =>
+                                //   setIsHoveredSubscription(true)
                                 // }
-                                // onMouseEnter={() =>
-                                //   showSettingSubList("Setting")
+                                // onMouseOut={() =>
+                                //   setIsHoveredSubscription(false)
                                 // }
-                                onClick={() =>
-                                  toggleSettingSubList("Setting")
-                                }
+                                style={{
+                                  color: isHoveredSubscription
+                                    ? "#438eff"
+                                    : TopTextColor.color,
+                                  fontWeight: "bold",
+                                }}
+                                // any issue arise ,undo this code
+
+                                // onMouseOver={() =>
+                                //   setIsHoveredSubscription(true)
+                                // }
+                                // onMouseOut={() =>
+                                //   setIsHoveredSubscription(false)
+                                // }
                               >
-                                <a
-                                  href="#sidebarProfile"
-                                  class="nav-link collapsed"
-                                  // data-bs-toggle="collapse"
-                                  // role="button"
-                                  aria-expanded="false"
-                                  // aria-controls="sidebarProfile"
-                                  data-key="t-profile"
+                                <i
+                                  class="bi bi-credit-card"
+                                  style={{ marginRight: "5px" }}
+                                ></i>
+                                <span
+                                  data-key="t-dashboard"
+                                  style={{
+                                    color: isHoveredSubscription
+                                      ? "#438eff"
+                                      : "#fff",
+                                  }}
                                 >
-                                  Super Admin Workflows
-                                </a>
-                                <div
-                                  class="subList Service-package-bgColor"
-                                  id="Setting"
-                                  style={style}
-                                >
-                                  <ul class="nav nav-sm flex-column">
+                                  Subscription
+                                  <span
+                                    style={{
+                                      display: "inline-block",
+                                      marginLeft: "8px",
+                                      fontSize: "12px",
+                                      transform:
+                                        isDropdownOpen || isHoveredSubscription
+                                          ? "rotate(180deg)"
+                                          : "rotate(0deg)",
+                                      transition: "transform 0.2s ease",
+                                      lineHeight: 1,
+                                    }}
+                                  >
+                                    ▼
+                                  </span>
+                                </span>{" "}
+                              </a>
+                              <div
+                                style={{
+                                  ...style,
+                                  display: isSettingDropdownOpen
+                                    ? "block"
+                                    : "none",
+                                }}
+                                class="menu-dropdown menu_dropdown Responsive-Config-service-package"
+                                id="Subscription"
+                              >
+                                <ul class="nav nav-sm flex-column">
+                                  {userAccessData.SuperAdmin_Config_Subscription_Package_CanView && (
                                     <li class="nav-item">
-                                      <Link
-                                        to="/super-admin-reminder-template-list"
-                                        onClick={togglenav}
+                                      <NavLink
+                                        onClick={() => {
+                                          closeDropdown("Subscription");
+                                          NotificationCountData();
+                                        }}
+                                        to="/sub-package"
+                                        activeclassname="active"
+                                        className="nav-link"
                                       >
-                                        <a
-                                          onClick={() => {
-                                            toggleSettingList(
-                                              "Setting"
-                                            );
-                                            NotificationCountData();
-                                          }}
-                                          // style={{
-                                          //   whiteSpace: "nowrap",
-                                          // }}
-                                          class="nav-link"
-                                          data-key="t-basic-3"
-                                        >
-                                          Super Admin Workflow Email
-                                          Templates
-                                        </a>
-                                      </Link>
+                                        Subscription Packages
+                                      </NavLink>
                                     </li>
+                                  )}
+                                  {userAccessData.SuperAdmin_Config_Subscription_Package_CanView && (
                                     <li class="nav-item">
-                                      <Link
-                                        to="/paid-unpaid-list"
-                                        onClick={togglenav}
+                                      <NavLink
+                                        onClick={() => {
+                                          closeDropdown("Subscription");
+                                          NotificationCountData();
+                                        }}
+                                        to="/pdf-csv-sub-package"
+                                        activeclassname="active"
+                                        className="nav-link"
                                       >
-                                        <a
-                                          onClick={() => {
-                                            toggleSettingList(
-                                              "Setting"
-                                            );
-                                            NotificationCountData();
-                                          }}
-                                          class="nav-link"
-                                          data-key="t-basic-6"
-                                        >
-                                          Account Login/Deletion
-                                        </a>
-                                      </Link>
+                                        PDF to CSV Subscription Packages
+                                      </NavLink>
                                     </li>
+                                  )}
+                                  {userAccessData.SuperAdmin_Config_Subscription_User_CanView && (
                                     <li class="nav-item">
-                                      <Link
-                                        to="/marketing-reminder"
-                                        onClick={togglenav}
+                                      <NavLink
+                                        onClick={() => {
+                                          closeDropdown("Subscription");
+                                          NotificationCountData();
+                                        }}
+                                        to="/user"
+                                        activeclassname="active"
+                                        className="nav-link"
                                       >
-                                        <a
-                                          onClick={() => {
-                                            toggleSettingList(
-                                              "Setting"
-                                            );
-                                            NotificationCountData();
-                                          }}
-                                          class="nav-link"
-                                          data-key="t-basic-6"
-                                        >
-                                          Other Reminders
-                                        </a>
-                                      </Link>
+                                        Users
+                                      </NavLink>
                                     </li>
-                                  </ul>
-                                </div>
-                              </li>
-                            )}
-                          </ul>
-                        </div>
-                      </li>
-                    )}
-                    </ul>
-                  </>
-                  )}
+                                  )}
+                                  {userAccessData.SuperAdmin_Config_Subscription_Invoices_CanView && (
+                                    <li class="nav-item">
+                                      <NavLink
+                                        onClick={() => {
+                                          closeDropdown("Subscription");
+                                          NotificationCountData();
+                                        }}
+                                        to="/invoices"
+                                        activeclassname="active"
+                                        className="nav-link"
+                                      >
+                                        Invoices
+                                      </NavLink>
+                                    </li>
+                                  )}
 
-              {/* <div class="d-flex"> */}
-                {/* <div class="d-flex search"> */}
+                                  {/* Config End */}
+                                </ul>
+                              </div>
+                            </li>
+                          )}
+                          {userAccessData.SuperAdmin_Setting_CanView && (
+                            <li
+                              class="nav-item"
+                              // style={{
+                              //   paddingLeft:
+                              //     windowWidth <= 767 ? "0px" : "10px",
+                              // }}
+                              onMouseLeave={() => hideUserRoleList()}
+                              onMouseEnter={() => showUserSettingList()}
+                            >
+                              <a
+                                href="#sidebarSignUp3"
+                                class="nav-link menu-link"
+                                // role="button"
+                                // data-bs-toggle="collapse"
+                                // aria-expanded="false"
+                                // aria-controls="sidebarSignUp3"
+                                data-key="t-signup"
+                                onClick={toggleUserRoleDropdown}
+                                onMouseOver={() => setIsHoveredUserRole(true)}
+                                onMouseOut={() => setIsHoveredUserRole(false)}
+                                style={{
+                                  color: isHoveredUserRole
+                                    ? "#438EFF"
+                                    : TopTextColor.color,
+                                  fontWeight: "bold",
+                                }}
+                              >
+                                <img
+                                  src={SettingSvg}
+                                  alt="SettingSvg"
+                                  style={{
+                                    width: "16px",
+                                    marginRight: "5px",
+                                  }}
+                                />
+                                <span
+                                  data-key="t-dashboard"
+                                  style={{
+                                    color: isHoveredUserRole
+                                      ? "#438eff"
+                                      : "#fff",
+                                  }}
+                                >
+                                  Settings
+                                  <span
+                                    style={{
+                                      display: "inline-block",
+                                      marginLeft: "4px",
+                                      fontSize: "12px",
+                                      transform:
+                                        isDropdownOpen || isHoveredUserRole
+                                          ? "rotate(180deg)"
+                                          : "rotate(0deg)",
+                                      transition: "transform 0.2s ease",
+                                      lineHeight: 1,
+                                    }}
+                                  >
+                                    ▼
+                                  </span>
+                                </span>{" "}
+                              </a>
+                              <div
+                                style={{
+                                  ...style,
+                                  display: isUserRoleDropdownOpen
+                                    ? "block"
+                                    : "none",
+                                  width: "200px",
+                                }}
+                                class="collapse menu-dropdown menu_dropdown Responsive-Config-service-package"
+                                id="UserRole"
+                              >
+                                <ul class="nav nav-sm flex-column">
+                                  {userAccessData.SuperAdmin_Setting_User_Role_CanView && (
+                                    <li class="nav-item">
+                                      <NavLink
+                                        onClick={() => {
+                                          closeDropdown("UserRole");
+                                          NotificationCountData();
+                                        }}
+                                        to="/user-role"
+                                        activeclassname="active"
+                                        className="nav-link"
+                                      >
+                                        User Role
+                                      </NavLink>
+                                    </li>
+                                  )}
+                                  {userAccessData.SuperAdmin_Setting_Email_Template_CanView && (
+                                    <li class="nav-item">
+                                      <NavLink
+                                        onClick={() => {
+                                          closeDropdown("Subscription");
+                                          NotificationCountData();
+                                        }}
+                                        to="/super-admin-email-template-list"
+                                        activeclassname="active"
+                                        className="nav-link"
+                                      >
+                                        Super Admin Email Template
+                                      </NavLink>
+                                    </li>
+                                  )}
+                                  {/* {userAccessData.SuperAdmin_Setting_Email_Template_CanView && ( */}
+                                  <li class="nav-item">
+                                    <NavLink
+                                      onClick={() => {
+                                        closeDropdown("Subscription");
+                                        NotificationCountData();
+                                      }}
+                                      to="/activity-logs"
+                                      activeclassname="active"
+                                      className="nav-link"
+                                    >
+                                      Activity Logs
+                                    </NavLink>
+                                  </li>
+                                  {/* )} */}
+
+                                  <li
+                                    class="nav-item"
+                                    // onMouseLeave={() =>
+                                    //   hideSettingSubList("WebIntegration")
+                                    // }
+                                    // onMouseEnter={() =>
+                                    //   showSettingSubList("WebIntegration")
+                                    // }
+                                    onClick={() =>
+                                      toggleSettingSubList("WebIntegration")
+                                    }
+                                  >
+                                    <a
+                                      href="#sidebarProfile"
+                                      class="nav-link collapsed"
+                                      // data-bs-toggle="collapse"
+                                      // role="button"
+                                      aria-expanded="false"
+                                      // aria-controls="sidebarProfile"
+                                      data-key="t-profile"
+                                    >
+                                      API Integration
+                                    </a>
+                                    <div
+                                      class="subList Service-package-bgColor"
+                                      id="WebIntegration"
+                                      style={style}
+                                    >
+                                      <ul class="nav nav-sm flex-column">
+                                        <li class="nav-item">
+                                          <Link
+                                            to="/AccessKey"
+                                            onClick={togglenav}
+                                          >
+                                            <a
+                                              onClick={(e) => {
+                                                e.preventDefault();
+                                                // toggleSettingList("Setting");
+                                                NotificationCountData();
+                                              }}
+                                              class="nav-link"
+                                              data-key="t-basic-6"
+                                            >
+                                              Access Key
+                                            </a>
+                                          </Link>
+                                        </li>
+                                      </ul>
+                                    </div>
+                                  </li>
+
+                                  {userAccessData.SuperAdmin_Personalize_SettingCanView && (
+                                    <li class="nav-item">
+                                      <a
+                                        onClick={() => {
+                                          closeDropdown("Setting");
+                                          NotificationCountData();
+                                        }}
+                                        class="nav-link"
+                                        data-key="t-basic-7"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#SetPersonalizeSettingModal"
+                                        style={{ cursor: "pointer" }}
+                                      >
+                                        <span
+                                          class="align-middle"
+                                          data-key="t-logout"
+                                        >
+                                          Personalize Setting
+                                        </span>
+                                      </a>
+                                    </li>
+                                  )}
+                                  {userAccessData.SuperAdmin_Setting_Email_Template_CanView && (
+                                    <li
+                                      class="nav-item"
+                                      // onMouseLeave={() =>
+                                      //   hideSettingSubList("Setting")
+                                      // }
+                                      // onMouseEnter={() =>
+                                      //   showSettingSubList("Setting")
+                                      // }
+                                      onClick={() =>
+                                        toggleSettingSubList("Setting")
+                                      }
+                                    >
+                                      <a
+                                        href="#sidebarProfile"
+                                        class="nav-link collapsed"
+                                        // data-bs-toggle="collapse"
+                                        // role="button"
+                                        aria-expanded="false"
+                                        // aria-controls="sidebarProfile"
+                                        data-key="t-profile"
+                                      >
+                                        Super Admin Workflows
+                                      </a>
+                                      <div
+                                        class="subList Service-package-bgColor"
+                                        id="Setting"
+                                        style={style}
+                                      >
+                                        <ul class="nav nav-sm flex-column">
+                                          <li class="nav-item">
+                                            <Link
+                                              to="/super-admin-reminder-template-list"
+                                              onClick={togglenav}
+                                            >
+                                              <a
+                                                onClick={() => {
+                                                  toggleSettingList("Setting");
+                                                  NotificationCountData();
+                                                }}
+                                                // style={{
+                                                //   whiteSpace: "nowrap",
+                                                // }}
+                                                class="nav-link"
+                                                data-key="t-basic-3"
+                                              >
+                                                Super Admin Workflow Email
+                                                Templates
+                                              </a>
+                                            </Link>
+                                          </li>
+                                          <li class="nav-item">
+                                            <Link
+                                              to="/paid-unpaid-list"
+                                              onClick={togglenav}
+                                            >
+                                              <a
+                                                onClick={() => {
+                                                  toggleSettingList("Setting");
+                                                  NotificationCountData();
+                                                }}
+                                                class="nav-link"
+                                                data-key="t-basic-6"
+                                              >
+                                                Account Login/Deletion
+                                              </a>
+                                            </Link>
+                                          </li>
+                                          <li class="nav-item">
+                                            <Link
+                                              to="/marketing-reminder"
+                                              onClick={togglenav}
+                                            >
+                                              <a
+                                                onClick={() => {
+                                                  toggleSettingList("Setting");
+                                                  NotificationCountData();
+                                                }}
+                                                class="nav-link"
+                                                data-key="t-basic-6"
+                                              >
+                                                Other Reminders
+                                              </a>
+                                            </Link>
+                                          </li>
+                                        </ul>
+                                      </div>
+                                    </li>
+                                  )}
+                                </ul>
+                              </div>
+                            </li>
+                          )}
+                        </ul>
+                      </>
+                    )}
+
+                  {/* <div class="d-flex"> */}
+                  {/* <div class="d-flex search"> */}
                   {/* Profile DropDown modal End  */}
-                {/* </div> */}
-              {/* </div> */}
+                  {/* </div> */}
+                  {/* </div> */}
+                </div>
               </div>
             </div>
           </div>
-        </div>
-        <div
-    className="d-flex sidebar-bottom align-items-center justify-content-start"
-    style={{
-      zIndex: 9999,
-      padding: "5px 20px",
-    }}
-  >
-                  <Tooltip title={"Notifications"}>
-                      <div
-                      // class="dropdown topbar-head-dropdown ms-1 header-item"
-                      // id="notificationDropdown"
-                        class= "dropdown ms-sm-3 header-item justify-content-center d-block me-1"
-                      >
-                        <button
-                          type="button"
-                          class="btn btn-icon btn-topbar  d-flex justify-content-center align-items-center"
-                          id="page-header-notifications-dropdown"
-                          onClick={() => {
-                            Notifications();
-                            closeNav();
-                          }}
-                        >
-                          <span>
-                            <i
-                              style={{
-                                cursor: "pointer",
-                                color: TopTextColor.color,
-                              }}
-                              class="fa fa-regular fa-bell" // Change to fa-bell for a notification icon
-                            ></i>
-                          </span>
-                          <span
-                            style={{
-                              cursor: "pointer",
-                              backgroundColor: TopTextColor.color,
-                            }}
-                            class="position-absolute topbar-badge translate-middle badge rounded-pill fs-10"
-                          >
-                            <span class="notification-badge">
-                              {notificationCount}
-                            </span>
-                            <span class="visually-hidden">unread messages</span>
-                          </span>
-                        </button>
-                      </div>
-                    </Tooltip>
-                  <div className="dropdown header-item justify-content-center d-block ps-2">
-                    <Tooltip
-                      title={
-                        common.name.length > 15
-                          ? `${common.name.slice(0, 15)}....`
-                          : common.name
-                      }
+          <div
+            className="d-flex sidebar-bottom align-items-center justify-content-start"
+            style={{
+              zIndex: 9999,
+              padding: "5px 20px",
+            }}
+          >
+            <Tooltip title={"Notifications"}>
+              <div
+                // class="dropdown topbar-head-dropdown ms-1 header-item"
+                // id="notificationDropdown"
+                class="dropdown ms-sm-3 header-item justify-content-center d-block me-1"
+              >
+                <button
+                  type="button"
+                  class="btn btn-icon btn-topbar  d-flex justify-content-center align-items-center"
+                  id="page-header-notifications-dropdown"
+                  onClick={() => {
+                    Notifications();
+                    closeNav();
+                  }}
+                >
+                  <span>
+                    <i
+                      style={{
+                        cursor: "pointer",
+                        color: TopTextColor.color,
+                      }}
+                      class="fa fa-regular fa-bell" // Change to fa-bell for a notification icon
+                    ></i>
+                  </span>
+                  <span
+                    style={{
+                      cursor: "pointer",
+                      backgroundColor: TopTextColor.color,
+                    }}
+                    class="position-absolute topbar-badge translate-middle badge rounded-pill fs-10"
+                  >
+                    <span class="notification-badge">{notificationCount}</span>
+                    <span class="visually-hidden">unread messages</span>
+                  </span>
+                </button>
+              </div>
+            </Tooltip>
+            <div className="dropdown header-item justify-content-center d-block ps-2">
+              <Tooltip
+                title={
+                  common.name.length > 15
+                    ? `${common.name.slice(0, 15)}....`
+                    : common.name
+                }
+              >
+                <button
+                  style={{
+                    background: "transparent",
+                    border: "none",
+                    marginTop: "17px",
+                  }}
+                  type="button"
+                  class="btn"
+                  id="page-header-user-dropdown"
+                  data-bs-toggle="dropdown"
+                  aria-haspopup="true"
+                  aria-expanded="false"
+                >
+                  <span class="d-flex align-items-center justify-content-center">
+                    <img
+                      class="rounded-circle header-profile-user"
+                      src={profile}
+                      style={{
+                        width: "2rem", // scales with root font size
+                        height: "2rem",
+                        objectFit: "cover",
+                      }}
+                    />
+                    <span
+                      className="d-flex justify-content-center ps-2 fw-bold"
+                      style={{ fontSize: "16px", color: TopTextColor.color }}
                     >
-                      <button
-                        style={{
-                          background: "transparent",
-                          border: "none",
-                          marginTop: "17px",
-                        }}
-                        type="button"
-                        class="btn"
-                        id="page-header-user-dropdown"
-                        data-bs-toggle="dropdown"
-                        aria-haspopup="true"
-                        aria-expanded="false"
-                      >
-                        <span class="d-flex align-items-center justify-content-center">
-                          <img
-                            class="rounded-circle header-profile-user"
-                            src={profile}
-                            style={{
-                              width: "2rem",   // scales with root font size
-                              height: "2rem",
-                              objectFit: "cover"
-                            }}
-                          />
-                        <span className="d-flex justify-content-center ps-2 fw-bold" style={{fontSize:"16px", color: TopTextColor.color}}>Profile</span>
-                        </span>
-                      </button>
-                    </Tooltip>
-                    <div class="dropdown-menu" style={{inset: "auto 10px 0px auto"}}>
-                      <a
-                        class="dropdown-item"
-                        onClick={() => setShowUserModal(true)}
-                        data-bs-toggle="modal"
-                        data-bs-target="#TopbarUserProfileEdit"
-                        style={{ cursor: "pointer" }}
-                      // onClick={ResetPasswordClicked}
-                      >
-                        <span class="align-middle" data-key="t-logout">
-                          Hello{" "}
-                          <strong class="FontW">
-                            {common.name.length > 15
-                              ? ` ${common.name.slice(0, 15)}....`
-                              : ` ${common.name}`}
-                          </strong>
-                          <hr />
-                        </span>
-                        {/* <i class="mdi mdi-logout text-muted fs-16 align-middle me-1"></i>{" "} */}
-                        <i
-                          style={{
-                            marginRight: "5px",
-                          }}
-                          class="bi bi-person"
-                        ></i>{" "}
-                        <span class="align-middle" data-key="t-logout">
-                          My Profile
-                        </span>
-                      </a>
-                      <a
-                        class="dropdown-item appearance-btn"
-                        style={{ cursor: "pointer" }}
-                      >
-                        {/* <i class="mdi mdi-settings-outline text-muted fs-16 align-middle me-1"></i>{" "} */}
-                        <i
-                          style={{ marginRight: "9px" }}
-                          class="bi bi-gear-fill text-muted fs-16 align-middle"
-                        ></i>
-                        {""}
-                        <span class="align-middle" data-key="t-logout">
-                          {["right"].map((anchor) => (
-                            <React.Fragment key={anchor}>
-                              <Button
-                                style={{ textTransform: "capitalize" }}
-                                onClick={ToggleDrawer(anchor, true)}
-                              >
-                                Appearance
-                              </Button>
-                              <Drawer anchor={anchor} open={state[anchor]}>
-                                {List(anchor)}
-                              </Drawer>
-                            </React.Fragment>
-                          ))}
-                        </span>
-                      </a>
-                      <a
-                        class="dropdown-item"
-                        data-bs-toggle="modal"
-                        data-bs-target="#ResetPasswordModal"
-                        style={{ cursor: "pointer" }}
-                      // onClick={ResetPasswordClicked}
-                      >
-                        {/* <i class="mdi mdi-logout text-muted fs-16 align-middle me-1"></i>{" "} */}
-                        <i class=" mdi mdi-key-star text-muted fs-16 align-middle me-1"></i>{" "}
-                        <span class="align-middle" data-key="t-logout">
-                          {common.isPasswordSet
-                            ? "Reset Password"
-                            : "Set Password"}
-                        </span>
-                      </a>
-                      <a
-                        class="dropdown-item"
-                        // data-bs-toggle="modal"
-                        // data-bs-target="#SetLogoutTimeModal"
-                        onClick={handleOpenSessionModel}
-                        style={{ cursor: "pointer" }}
-                      >
-                        <i class="mdi mdi-clock-outline text-muted fs-16 align-middle me-1"></i>{" "}
-                        <span class="align-middle" data-key="t-logout">
-                          Set Session Timeout
-                        </span>
-                      </a>
-                      <Link to="/security" className="dropdown-item">
-                        <i className="  fas fa-lock text-muted fs-14 align-middle me-1"></i>{" "}
-                        <span className="align-middle" data-key="t-logout">
-                          Security
-                        </span>
-                      </Link>
-                      <a
-                        class="dropdown-item"
-                        data-bs-toggle="modal"
-                        data-bs-target="#logoutModal"
-                        style={{ cursor: "pointer" }}
-                      >
-                        <i class="mdi mdi-logout text-muted fs-16 align-middle me-1"></i>{" "}
-                        <span class="align-middle " data-key="t-logout">
-                          Logout
-                        </span>
-                      </a>
-                    </div>
-                  </div>
-                  </div>
-        {/* <div class="sidebar-background"></div> */}
-      </div>
-      {/* <!-- Left Sidebar End -->
+                      Profile
+                    </span>
+                  </span>
+                </button>
+              </Tooltip>
+              <div
+                class="dropdown-menu"
+                style={{ inset: "auto 10px 0px auto" }}
+              >
+                <a
+                  class="dropdown-item"
+                  onClick={() => setShowUserModal(true)}
+                  data-bs-toggle="modal"
+                  data-bs-target="#TopbarUserProfileEdit"
+                  style={{ cursor: "pointer" }}
+                  // onClick={ResetPasswordClicked}
+                >
+                  <span class="align-middle" data-key="t-logout">
+                    Hello{" "}
+                    <strong class="FontW">
+                      {common.name.length > 15
+                        ? ` ${common.name.slice(0, 15)}....`
+                        : ` ${common.name}`}
+                    </strong>
+                    <hr />
+                  </span>
+                  {/* <i class="mdi mdi-logout text-muted fs-16 align-middle me-1"></i>{" "} */}
+                  <i
+                    style={{
+                      marginRight: "5px",
+                    }}
+                    class="bi bi-person"
+                  ></i>{" "}
+                  <span class="align-middle" data-key="t-logout">
+                    My Profile
+                  </span>
+                </a>
+                <a
+                  class="dropdown-item appearance-btn"
+                  style={{ cursor: "pointer" }}
+                >
+                  {/* <i class="mdi mdi-settings-outline text-muted fs-16 align-middle me-1"></i>{" "} */}
+                  <i
+                    style={{ marginRight: "9px" }}
+                    class="bi bi-gear-fill text-muted fs-16 align-middle"
+                  ></i>
+                  {""}
+                  <span class="align-middle" data-key="t-logout">
+                    {["right"].map((anchor) => (
+                      <React.Fragment key={anchor}>
+                        <Button
+                          style={{ textTransform: "capitalize" }}
+                          onClick={ToggleDrawer(anchor, true)}
+                        >
+                          Appearance
+                        </Button>
+                        <Drawer anchor={anchor} open={state[anchor]}>
+                          {List(anchor)}
+                        </Drawer>
+                      </React.Fragment>
+                    ))}
+                  </span>
+                </a>
+                <a
+                  class="dropdown-item"
+                  data-bs-toggle="modal"
+                  data-bs-target="#ResetPasswordModal"
+                  style={{ cursor: "pointer" }}
+                  // onClick={ResetPasswordClicked}
+                >
+                  {/* <i class="mdi mdi-logout text-muted fs-16 align-middle me-1"></i>{" "} */}
+                  <i class=" mdi mdi-key-star text-muted fs-16 align-middle me-1"></i>{" "}
+                  <span class="align-middle" data-key="t-logout">
+                    {common.isPasswordSet ? "Reset Password" : "Set Password"}
+                  </span>
+                </a>
+                <a
+                  class="dropdown-item"
+                  // data-bs-toggle="modal"
+                  // data-bs-target="#SetLogoutTimeModal"
+                  onClick={handleOpenSessionModel}
+                  style={{ cursor: "pointer" }}
+                >
+                  <i class="mdi mdi-clock-outline text-muted fs-16 align-middle me-1"></i>{" "}
+                  <span class="align-middle" data-key="t-logout">
+                    Set Session Timeout
+                  </span>
+                </a>
+                <Link to="/security" className="dropdown-item">
+                  <i className="  fas fa-lock text-muted fs-14 align-middle me-1"></i>{" "}
+                  <span className="align-middle" data-key="t-logout">
+                    Security
+                  </span>
+                </Link>
+                <a
+                  class="dropdown-item"
+                  data-bs-toggle="modal"
+                  data-bs-target="#logoutModal"
+                  style={{ cursor: "pointer" }}
+                >
+                  <i class="mdi mdi-logout text-muted fs-16 align-middle me-1"></i>{" "}
+                  <span class="align-middle " data-key="t-logout">
+                    Logout
+                  </span>
+                </a>
+              </div>
+            </div>
+          </div>
+          {/* <div class="sidebar-background"></div> */}
+        </div>
+        {/* <!-- Left Sidebar End -->
         <!-- Vertical Overlay--> */}
-      <div class="vertical-overlay"></div>
+        <div class="vertical-overlay"></div>
 
-      {/* <!-- end main content--> */}
-    </div>
-    <LogoutModal Logout={Logout} />
+        {/* <!-- end main content--> */}
+      </div>
+      <LogoutModal Logout={Logout} />
 
       {/* --------Reset Modal----------- */}
       <ResetPasswordModal id="ResetPasswordModal" />
@@ -3654,7 +3787,7 @@ const toggleConfigSubList = (id) => {
         isOpenSessionTimeout={isOpenSessionTimeout}
         handleCloseSessionModel={handleCloseSessionModel}
       />
-      </>
+    </>
   );
 };
 

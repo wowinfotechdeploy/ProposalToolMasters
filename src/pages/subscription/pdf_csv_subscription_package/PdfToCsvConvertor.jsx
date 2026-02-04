@@ -132,14 +132,14 @@ function PdfToCsvConvertorModel(props) {
         if (res?.data?.responseData?.data) {
           const OrganisationsListData = res.data.responseData.data;
           const CurrentOrganisation = OrganisationsListData.find(
-            (item) => item.organisationKeyID === common.organisationKeyID
+            (item) => item.organisationKeyID === common.organisationKeyID,
           );
           setRemainingCount(
             CurrentOrganisation.subscriptionPlan
-              .availablePages_SubscriptionPackage
+              .availablePages_SubscriptionPackage,
           );
           setPDFToCSVSubscriptionStatus(
-            CurrentOrganisation.subscriptionPlan.enablePdfToCsv
+            CurrentOrganisation.subscriptionPlan.enablePdfToCsv,
           );
         }
       }
@@ -177,7 +177,7 @@ function PdfToCsvConvertorModel(props) {
             setOpenNosubscriptionModal(true);
             handleRemoveFile();
           }
-          console.log("Total Pages:", totalPages);
+          // console.log("Total Pages:", totalPages);
           // setPdfPageCount(totalPages);
         } catch (err) {
           console.error("Error reading PDF:", err);
@@ -247,7 +247,7 @@ function PdfToCsvConvertorModel(props) {
         const listData = res.data.responseData.data;
         const totalConsumed = listData.reduce(
           (sum, item) => sum + item.pagesProcessed,
-          0
+          0,
         );
 
         setTotalPagesUsed(totalConsumed);
@@ -293,14 +293,14 @@ function PdfToCsvConvertorModel(props) {
 
   const CreateStripeCheckoutSessionRedirection = async (
     userKeyID,
-    InvoiceKeyID
+    InvoiceKeyID,
   ) => {
     setLoader(true);
 
     try {
       const response = await CreateStripeCheckoutSession(
         userKeyID,
-        InvoiceKeyID
+        InvoiceKeyID,
       );
       const data = response.data;
 
@@ -353,7 +353,7 @@ function PdfToCsvConvertorModel(props) {
         if (finalBillingAmount !== null) {
           CreateStripeCheckoutSessionRedirection(
             common.userKeyID,
-            invoiceKeyID
+            invoiceKeyID,
           );
         } else {
           navigate("/pdf-to-csv");
@@ -632,119 +632,119 @@ function PdfToCsvConvertorModel(props) {
         break;
       case CalenderFilterEnum.This_Week:
         setFromDateForFilter(
-          GetCustomDate(dateFormat, CalenderFilterEnum.This_Week).fromDate
+          GetCustomDate(dateFormat, CalenderFilterEnum.This_Week).fromDate,
         );
         setToDateForFilter(
-          GetCustomDate(dateFormat, CalenderFilterEnum.This_Week).toDate
+          GetCustomDate(dateFormat, CalenderFilterEnum.This_Week).toDate,
         );
 
         GetPreviouslyConvertedFilesList(
           GetCustomDate(dateFormat, CalenderFilterEnum.This_Week).fromDate,
-          GetCustomDate(dateFormat, CalenderFilterEnum.This_Week).toDate
+          GetCustomDate(dateFormat, CalenderFilterEnum.This_Week).toDate,
         );
         setShowDatePicker(false);
         break;
       case CalenderFilterEnum.Last_Week:
         setFromDateForFilter(
-          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Week).fromDate
+          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Week).fromDate,
         );
         setToDateForFilter(
-          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Week).toDate
+          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Week).toDate,
         );
         GetPreviouslyConvertedFilesList(
           GetCustomDate(dateFormat, CalenderFilterEnum.Last_Week).fromDate,
-          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Week).toDate
+          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Week).toDate,
         );
         setShowDatePicker(false);
         break;
       case CalenderFilterEnum.This_Month:
         setFromDateForFilter(
-          GetCustomDate(dateFormat, CalenderFilterEnum.This_Month).fromDate
+          GetCustomDate(dateFormat, CalenderFilterEnum.This_Month).fromDate,
         );
         setToDateForFilter(
-          GetCustomDate(dateFormat, CalenderFilterEnum.This_Month).toDate
+          GetCustomDate(dateFormat, CalenderFilterEnum.This_Month).toDate,
         );
         GetPreviouslyConvertedFilesList(
           GetCustomDate(dateFormat, CalenderFilterEnum.This_Month).fromDate,
-          GetCustomDate(dateFormat, CalenderFilterEnum.This_Month).toDate
+          GetCustomDate(dateFormat, CalenderFilterEnum.This_Month).toDate,
         );
         setShowDatePicker(false);
         break;
       case CalenderFilterEnum.Last_Month:
         setFromDateForFilter(
-          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Month).fromDate
+          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Month).fromDate,
         );
         setToDateForFilter(
-          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Month).toDate
+          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Month).toDate,
         );
         GetPreviouslyConvertedFilesList(
           GetCustomDate(dateFormat, CalenderFilterEnum.Last_Month).fromDate,
-          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Month).toDate
+          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Month).toDate,
         );
         setShowDatePicker(false);
         break;
       case CalenderFilterEnum.This_Quarter:
         setFromDateForFilter(
-          GetCustomDate(dateFormat, CalenderFilterEnum.This_Quarter).fromDate
+          GetCustomDate(dateFormat, CalenderFilterEnum.This_Quarter).fromDate,
         );
         setToDateForFilter(
-          GetCustomDate(dateFormat, CalenderFilterEnum.This_Quarter).toDate
+          GetCustomDate(dateFormat, CalenderFilterEnum.This_Quarter).toDate,
         );
         GetPreviouslyConvertedFilesList(
           GetCustomDate(dateFormat, CalenderFilterEnum.This_Quarter).fromDate,
-          GetCustomDate(dateFormat, CalenderFilterEnum.This_Quarter).toDate
+          GetCustomDate(dateFormat, CalenderFilterEnum.This_Quarter).toDate,
         );
         setShowDatePicker(false);
         break;
       case CalenderFilterEnum.Last_Quarter:
         setFromDateForFilter(
-          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Quarter).fromDate
+          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Quarter).fromDate,
         );
         setToDateForFilter(
-          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Quarter).toDate
+          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Quarter).toDate,
         );
         GetPreviouslyConvertedFilesList(
           GetCustomDate(dateFormat, CalenderFilterEnum.Last_Quarter).fromDate,
-          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Quarter).toDate
+          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Quarter).toDate,
         );
         setShowDatePicker(false);
         break;
       case CalenderFilterEnum.This_6_Months:
         setFromDateForFilter(
-          GetCustomDate(dateFormat, CalenderFilterEnum.This_6_Months).fromDate
+          GetCustomDate(dateFormat, CalenderFilterEnum.This_6_Months).fromDate,
         );
         setToDateForFilter(
-          GetCustomDate(dateFormat, CalenderFilterEnum.This_6_Months).toDate
+          GetCustomDate(dateFormat, CalenderFilterEnum.This_6_Months).toDate,
         );
         GetPreviouslyConvertedFilesList(
           GetCustomDate(dateFormat, CalenderFilterEnum.This_6_Months).fromDate,
-          GetCustomDate(dateFormat, CalenderFilterEnum.This_6_Months).toDate
+          GetCustomDate(dateFormat, CalenderFilterEnum.This_6_Months).toDate,
         );
         setShowDatePicker(false);
         break;
       case CalenderFilterEnum.Last_6_Months:
         setFromDateForFilter(
-          GetCustomDate(dateFormat, CalenderFilterEnum.Last_6_Months).fromDate
+          GetCustomDate(dateFormat, CalenderFilterEnum.Last_6_Months).fromDate,
         );
         setToDateForFilter(
-          GetCustomDate(dateFormat, CalenderFilterEnum.Last_6_Months).toDate
+          GetCustomDate(dateFormat, CalenderFilterEnum.Last_6_Months).toDate,
         );
         GetPreviouslyConvertedFilesList(
           GetCustomDate(dateFormat, CalenderFilterEnum.Last_6_Months).fromDate,
-          GetCustomDate(dateFormat, CalenderFilterEnum.Last_6_Months).toDate
+          GetCustomDate(dateFormat, CalenderFilterEnum.Last_6_Months).toDate,
         );
         setShowDatePicker(false);
         break;
       case CalenderFilterEnum.This_Year:
         setFromDateForFilter(
-          GetCustomDate(dateFormat, CalenderFilterEnum.This_Year).fromDate
+          GetCustomDate(dateFormat, CalenderFilterEnum.This_Year).fromDate,
         );
         setToDateForFilter(
-          GetCustomDate(dateFormat, CalenderFilterEnum.This_Year).toDate
+          GetCustomDate(dateFormat, CalenderFilterEnum.This_Year).toDate,
         );
         GetPreviouslyConvertedFilesList(
           GetCustomDate(dateFormat, CalenderFilterEnum.This_Year).fromDate,
-          GetCustomDate(dateFormat, CalenderFilterEnum.This_Year).toDate
+          GetCustomDate(dateFormat, CalenderFilterEnum.This_Year).toDate,
         );
         setShowDatePicker(false);
         break;
@@ -755,14 +755,14 @@ function PdfToCsvConvertorModel(props) {
         GetPreviouslyConvertedFilesList(dates.fromDate, dates.toDate);
         setShowDatePicker(false);
         setFromDateForFilter(
-          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Year).fromDate
+          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Year).fromDate,
         );
         setToDateForFilter(
-          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Year).toDate
+          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Year).toDate,
         );
         GetPreviouslyConvertedFilesList(
           GetCustomDate(dateFormat, CalenderFilterEnum.Last_Year).fromDate,
-          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Year).toDate
+          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Year).toDate,
         );
         setShowDatePicker(false);
         break;
@@ -994,7 +994,7 @@ function PdfToCsvConvertorModel(props) {
                                   >
                                     {file?.pdfFileName?.replace(
                                       /\.pdf$/,
-                                      ".csv"
+                                      ".csv",
                                     )}
                                   </a>
                                 </td>
@@ -1120,7 +1120,7 @@ function PdfToCsvConvertorModel(props) {
                                                       <div>
                                                         £
                                                         {formatWithCommas(
-                                                          PurchasePlanList?.discountedPrice
+                                                          PurchasePlanList?.discountedPrice,
                                                         )}
                                                       </div>
                                                     </div>
@@ -1143,7 +1143,7 @@ function PdfToCsvConvertorModel(props) {
                                                         {PurchasePlanList.months !==
                                                         null
                                                           ? String(
-                                                              PurchasePlanList.months
+                                                              PurchasePlanList.months,
                                                             ) +
                                                             " " +
                                                             PurchasePlanList.validity
@@ -1178,7 +1178,7 @@ function PdfToCsvConvertorModel(props) {
                                                       onClick={() =>
                                                         handleButtonClick(
                                                           index,
-                                                          PurchasePlanList.pcspKeyID
+                                                          PurchasePlanList.pcspKeyID,
                                                         )
                                                       }
                                                       className="btn btn-success create-item-btn add-new "
@@ -1191,7 +1191,7 @@ function PdfToCsvConvertorModel(props) {
                                             </Col>
                                           </>
                                         );
-                                      }
+                                      },
                                     )}
                                   </Row>
                                 </div>
@@ -1400,15 +1400,15 @@ function PdfToCsvConvertorModel(props) {
                                             "Active"
                                               ? "#008000"
                                               : subscription.subscriptionStatus ===
-                                                "Expired"
-                                              ? "#FF0000"
-                                              : subscription.subscriptionStatus ===
-                                                "Pending"
-                                              ? "#DAA520"
-                                              : subscription.subscriptionStatus ===
-                                                "InActive"
-                                              ? "#772424"
-                                              : "gray",
+                                                  "Expired"
+                                                ? "#FF0000"
+                                                : subscription.subscriptionStatus ===
+                                                    "Pending"
+                                                  ? "#DAA520"
+                                                  : subscription.subscriptionStatus ===
+                                                      "InActive"
+                                                    ? "#772424"
+                                                    : "gray",
                                           width: "100px",
                                           padding: "5px 8px 6px 5px", // Add padding to the button
                                           display: "inline-block", // Ensure button stays in line
@@ -1444,7 +1444,7 @@ function PdfToCsvConvertorModel(props) {
                                 </div>
                               </td> */}
                               </tr>
-                            )
+                            ),
                           )}
                         </tbody>
                       </table>

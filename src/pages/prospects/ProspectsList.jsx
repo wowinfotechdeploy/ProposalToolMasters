@@ -113,7 +113,7 @@ const Prospects = () => {
         primarySortDirection,
         sortType,
         null,
-        null
+        null,
       );
       setShouldFetch(false);
     }
@@ -149,7 +149,7 @@ const Prospects = () => {
     sortValue,
     ProspectSortType,
     businessNatureId,
-    businessTypeId
+    businessTypeId,
   ) => {
     setLoader(true);
     const pageNoList = i - 1;
@@ -186,7 +186,7 @@ const Prospects = () => {
                 newPaneNo,
                 searchKeywordValue,
                 sortValue,
-                ProspectSortType
+                ProspectSortType,
               );
               setCurrentPage(pageNoList);
               return;
@@ -203,7 +203,7 @@ const Prospects = () => {
                 i,
                 searchKeywordValue,
                 sortValue,
-                ProspectSortType
+                ProspectSortType,
               );
             }, 2000);
           } else {
@@ -223,7 +223,7 @@ const Prospects = () => {
     sortValue,
     ProspectSortType,
     businessNatureId,
-    businessTypeId
+    businessTypeId,
   ) => {
     setLoader(true);
     const pageNoList = i - 1;
@@ -260,7 +260,7 @@ const Prospects = () => {
                 newPaneNo,
                 searchKeywordValue,
                 sortValue,
-                ProspectSortType
+                ProspectSortType,
               );
               setSingleCurrentPage(pageNoList);
               return;
@@ -277,7 +277,7 @@ const Prospects = () => {
                 i,
                 searchKeywordValue,
                 sortValue,
-                ProspectSortType
+                ProspectSortType,
               );
             }, 2000);
           } else {
@@ -316,8 +316,9 @@ const Prospects = () => {
           });
           if (data?.data?.statusCode === 200) {
             setLoader(false);
-            debugger;
-            let clientExistsInModule = data.data.responseData.clientExistsInModule;
+            // debugger;
+            let clientExistsInModule =
+              data.data.responseData.clientExistsInModule;
 
             if (clientExistsInModule.length > 0) {
               // moduleList.map()
@@ -325,7 +326,7 @@ const Prospects = () => {
                 ...modelRequestData,
                 Action: "ClientDelete",
                 message: `Cannot delete ${prospectName} as it already have linked records.`,
-                clientExistsInModule: clientExistsInModule
+                clientExistsInModule: clientExistsInModule,
               });
               $("#" + "DeleteDriverModel").modal("show");
               $("#" + "ConfirmModel").modal("hide");
@@ -341,7 +342,7 @@ const Prospects = () => {
         } else {
           const Data = await DeleteClient(
             modelRequestData.clientKeyID,
-            modelRequestData.userKeyID
+            modelRequestData.userKeyID,
           );
           if (Data) {
             setLoader(false);
@@ -367,7 +368,7 @@ const Prospects = () => {
       try {
         const Data = await ClientChangeStatus(
           modelRequestData.clientKeyID,
-          modelRequestData.userKeyID
+          modelRequestData.userKeyID,
         );
         if (Data) {
           setLoader(false);
@@ -478,7 +479,7 @@ const Prospects = () => {
       primarySortDirection,
       sortType,
       businessNatureID,
-      prospectType
+      prospectType,
     );
   };
   const ClearFilter = () => {
@@ -490,14 +491,14 @@ const Prospects = () => {
 
   const visibleRows = singleclientList.slice(
     0,
-    isMobile ? isMobileRecords : desktopRecords
+    isMobile ? isMobileRecords : desktopRecords,
   );
 
   const handleRowSelect = (clientKeyID) => {
     setSelectedRows((prevSelected) =>
       prevSelected.includes(clientKeyID)
         ? prevSelected.filter((id) => id !== clientKeyID)
-        : [...prevSelected, clientKeyID]
+        : [...prevSelected, clientKeyID],
     );
   };
 
@@ -516,8 +517,8 @@ const Prospects = () => {
 
   return (
     <>
-    <div className="container-fluid">
-      {/* <div class="main-content"> */}
+      <div className="container-fluid">
+        {/* <div class="main-content"> */}
         <div class="services page-background">
           <div class="">
             <div class="row">
@@ -525,46 +526,50 @@ const Prospects = () => {
                 <div class="card">
                   {/* end card header  */}
                   <div class="card-body mb-2">
-                    <div id="customerList" style={{marginTop: "3rem"}}>
+                    <div id="customerList" style={{ marginTop: "3rem" }}>
                       <div class="bg-light border-bottom px-2">
                         {/* <div className="container"> */}
-                          <div className="row">
-                            <div className="col-md-12 p-0">
-                              <ul className="nav nav-tabs" role="tablist">
+                        <div className="row">
+                          <div className="col-md-12 p-0">
+                            <ul className="nav nav-tabs" role="tablist">
+                              <li className="nav-item">
+                                <a
+                                  className={`nav-link tab_nav ${
+                                    activeTab === "Prospect" ? "active" : ""
+                                  }`}
+                                  data-bs-toggle="tab"
+                                  href="#Prospect"
+                                  role="tab"
+                                  aria-selected={activeTab === "Prospect"}
+                                  onClick={() => {
+                                    setActiveTab("Prospect");
+                                    TabHandle("Prospect");
+                                  }}
+                                >
+                                  <b>{moduleName} </b>
+                                </a>
+                              </li>
+                              {singleclientList?.length > 0 && (
                                 <li className="nav-item">
                                   <a
-                                    className={`nav-link tab_nav ${activeTab === "Prospect" ? "active" : ""
-                                      }`}
+                                    className={`nav-link tab_nav ${
+                                      activeTab === "Web Prospect"
+                                        ? "active"
+                                        : ""
+                                    }`}
                                     data-bs-toggle="tab"
-                                    href="#Prospect"
+                                    href="#Web Prospect"
                                     role="tab"
-                                    aria-selected={activeTab === "Prospect"}
-                                    onClick={() => {
-                                      setActiveTab("Prospect");
-                                      TabHandle("Prospect");
-                                    }}
+                                    aria-selected={activeTab === "Web Prospect"}
+                                    onClick={() => TabHandle("Web Prospect")}
                                   >
-                                    <b>{moduleName} </b>
+                                    <b>API {moduleName}</b>
                                   </a>
                                 </li>
-                                {singleclientList?.length > 0 && (
-                                  <li className="nav-item">
-                                    <a
-                                      className={`nav-link tab_nav ${activeTab === "Web Prospect" ? "active" : ""
-                                        }`}
-                                      data-bs-toggle="tab"
-                                      href="#Web Prospect"
-                                      role="tab"
-                                      aria-selected={activeTab === "Web Prospect"}
-                                      onClick={() => TabHandle("Web Prospect")}
-                                    >
-                                      <b>API {moduleName}</b>
-                                    </a>
-                                  </li>
-                                )}
-                              </ul>
-                            </div>
+                              )}
+                            </ul>
                           </div>
+                        </div>
                         {/* </div> */}
                       </div>
                       {/* <div class="row g-4"></div> */}
@@ -590,9 +595,9 @@ const Prospects = () => {
                                       isMobile
                                         ? "Search"
                                         : getPlaceholderTextName(
-                                          "Search",
-                                          moduleName
-                                        )
+                                            "Search",
+                                            moduleName,
+                                          )
                                     }
                                   />
                                 </div>
@@ -601,7 +606,7 @@ const Prospects = () => {
                                   <Tooltip
                                     title={getCrudButtonToolTipName(
                                       "Delete Selcted",
-                                      prospectName
+                                      prospectName,
                                     )}
                                   >
                                     <div>
@@ -656,9 +661,9 @@ const Prospects = () => {
                                       isMobile
                                         ? "Search"
                                         : getPlaceholderTextName(
-                                          "Search",
-                                          moduleName
-                                        )
+                                            "Search",
+                                            moduleName,
+                                          )
                                     }
                                   />
                                 </div>
@@ -689,7 +694,7 @@ const Prospects = () => {
                                   <Tooltip
                                     title={getCrudButtonToolTipName(
                                       "Filter",
-                                      moduleName
+                                      moduleName,
                                     )}
                                   >
                                     <div>
@@ -742,12 +747,12 @@ const Prospects = () => {
                                 <CommonButtonComponent
                                   title={getCrudButtonToolTipName(
                                     "Add",
-                                    moduleName
+                                    moduleName,
                                   )}
                                   AddBtn={() => AddClientBtn()}
                                   name={getCrudButtonTextName(
                                     "Add",
-                                    moduleName
+                                    moduleName,
                                   )}
                                 />
                               )}{" "}
@@ -757,8 +762,9 @@ const Prospects = () => {
 
                         {/* Table Of Template and Template Pdf */}
                         <div
-                          className={`tab-pane ${activeTab === "Web Prospect" ? "active" : ""
-                            }`}
+                          className={`tab-pane ${
+                            activeTab === "Web Prospect" ? "active" : ""
+                          }`}
                           id="base-justified-home"
                         >
                           {activeTab === "Web Prospect" && (
@@ -784,34 +790,34 @@ const Prospects = () => {
                                     {prospectName} Name{" "}
                                     {primarySortDirectionObj.ProspectNameSort ===
                                       "desc" && (
-                                        <i
-                                          onClick={() => {
-                                            setSortType("ClientName");
-                                            handleSort("asc", "ClientName");
-                                          }}
-                                          style={{ cursor: "pointer" }}
-                                          class="fas fa-sort-alpha-up ml-1"
-                                        ></i>
-                                      )}
+                                      <i
+                                        onClick={() => {
+                                          setSortType("ClientName");
+                                          handleSort("asc", "ClientName");
+                                        }}
+                                        style={{ cursor: "pointer" }}
+                                        class="fas fa-sort-alpha-up ml-1"
+                                      ></i>
+                                    )}
                                     {(primarySortDirectionObj.ProspectNameSort ===
                                       null ||
                                       primarySortDirectionObj.ProspectNameSort ===
-                                      "asc") && (
-                                        <i
-                                          onClick={() => {
-                                            setSortType("ClientName");
-                                            handleSort(
-                                              primarySortDirectionObj.ProspectNameSort ===
-                                                null
-                                                ? "asc"
-                                                : "desc",
-                                              "ClientName"
-                                            );
-                                          }}
-                                          style={{ cursor: "pointer" }}
-                                          class="fas fa-sort-alpha-down ml-1"
-                                        ></i>
-                                      )}
+                                        "asc") && (
+                                      <i
+                                        onClick={() => {
+                                          setSortType("ClientName");
+                                          handleSort(
+                                            primarySortDirectionObj.ProspectNameSort ===
+                                              null
+                                              ? "asc"
+                                              : "desc",
+                                            "ClientName",
+                                          );
+                                        }}
+                                        style={{ cursor: "pointer" }}
+                                        class="fas fa-sort-alpha-down ml-1"
+                                      ></i>
+                                    )}
                                   </td>
                                   <td className="tr-table-class text-white">
                                     Email
@@ -820,34 +826,34 @@ const Prospects = () => {
                                     {prospectName} Type{" "}
                                     {primarySortDirectionObj.ProspectTypeSort ===
                                       "desc" && (
-                                        <i
-                                          onClick={() => {
-                                            setSortType("ClientType");
-                                            handleSort("asc", "ClientType");
-                                          }}
-                                          style={{ cursor: "pointer" }}
-                                          class="fas fa-sort-alpha-up ml-1"
-                                        ></i>
-                                      )}
+                                      <i
+                                        onClick={() => {
+                                          setSortType("ClientType");
+                                          handleSort("asc", "ClientType");
+                                        }}
+                                        style={{ cursor: "pointer" }}
+                                        class="fas fa-sort-alpha-up ml-1"
+                                      ></i>
+                                    )}
                                     {(primarySortDirectionObj.ProspectTypeSort ===
                                       null ||
                                       primarySortDirectionObj.ProspectTypeSort ===
-                                      "asc") && (
-                                        <i
-                                          onClick={() => {
-                                            setSortType("ClientType");
-                                            handleSort(
-                                              primarySortDirectionObj.ProspectTypeSort ===
-                                                null
-                                                ? "asc"
-                                                : "desc",
-                                              "ClientType"
-                                            );
-                                          }}
-                                          style={{ cursor: "pointer" }}
-                                          class="fas fa-sort-alpha-down ml-1"
-                                        ></i>
-                                      )}
+                                        "asc") && (
+                                      <i
+                                        onClick={() => {
+                                          setSortType("ClientType");
+                                          handleSort(
+                                            primarySortDirectionObj.ProspectTypeSort ===
+                                              null
+                                              ? "asc"
+                                              : "desc",
+                                            "ClientType",
+                                          );
+                                        }}
+                                        style={{ cursor: "pointer" }}
+                                        class="fas fa-sort-alpha-down ml-1"
+                                      ></i>
+                                    )}
                                   </td>
                                   <td className="tr-table-class text-white">
                                     Status
@@ -863,7 +869,7 @@ const Prospects = () => {
                                 {singleclientList
                                   .slice(
                                     0,
-                                    isMobile ? isMobileRecords : desktopRecords
+                                    isMobile ? isMobileRecords : desktopRecords,
                                   )
                                   .map((Prospect) => {
                                     const emailArray = Prospect.emailID
@@ -884,11 +890,11 @@ const Prospects = () => {
                                             <input
                                               type="checkbox"
                                               checked={selectedRows.includes(
-                                                Prospect.clientKeyID
+                                                Prospect.clientKeyID,
                                               )}
                                               onChange={() =>
                                                 handleRowSelect(
-                                                  Prospect.clientKeyID
+                                                  Prospect.clientKeyID,
                                                 )
                                               }
                                             />
@@ -928,7 +934,7 @@ const Prospects = () => {
                                                 activeOrganizationSubscriptionPlan.apiIntegration && (
                                                   <Tooltip
                                                     title={getCrudButtonToolTipName(
-                                                      "Change Status"
+                                                      "Change Status",
                                                     )}
                                                   >
                                                     <FormGroup>
@@ -951,7 +957,7 @@ const Prospects = () => {
                                                                     "Status",
                                                                   tabName:
                                                                     "API Prospect",
-                                                                }
+                                                                },
                                                               )
                                                             }
                                                             checked={
@@ -973,7 +979,7 @@ const Prospects = () => {
                                               <Tooltip
                                                 title={getCrudButtonToolTipName(
                                                   "View",
-                                                  moduleName
+                                                  moduleName,
                                                 )}
                                               >
                                                 <div class="view">
@@ -981,7 +987,7 @@ const Prospects = () => {
                                                     class="btn btn-md btn-success create-item-btn view"
                                                     onClick={() =>
                                                       handleViewProspectDetails(
-                                                        Prospect
+                                                        Prospect,
                                                       )
                                                     }
                                                   >
@@ -1002,7 +1008,7 @@ const Prospects = () => {
                                                   <Tooltip
                                                     title={getCrudButtonToolTipName(
                                                       "Update",
-                                                      moduleName
+                                                      moduleName,
                                                     )}
                                                   >
                                                     <div class="edit">
@@ -1010,7 +1016,7 @@ const Prospects = () => {
                                                         class="btn btn-sm btn-success edit-item-btn actionButtonsStyle"
                                                         onClick={() =>
                                                           ClientEditBtnClicked(
-                                                            Prospect
+                                                            Prospect,
                                                           )
                                                         }
                                                       >
@@ -1024,7 +1030,7 @@ const Prospects = () => {
                                                   <Tooltip
                                                     title={getCrudButtonToolTipName(
                                                       "Delete",
-                                                      moduleName
+                                                      moduleName,
                                                     )}
                                                   >
                                                     <div class="remove">
@@ -1061,8 +1067,9 @@ const Prospects = () => {
                           )}
                         </div>
                         <div
-                          className={`tab-pane ${activeTab === "Prospect" ? "active" : ""
-                            }`}
+                          className={`tab-pane ${
+                            activeTab === "Prospect" ? "active" : ""
+                          }`}
                           id="base-justified-home"
                         >
                           {activeTab === "Prospect" && (
@@ -1079,34 +1086,34 @@ const Prospects = () => {
                                     {prospectName} Name{" "}
                                     {primarySortDirectionObj.ProspectNameSort ===
                                       "desc" && (
-                                        <i
-                                          onClick={() => {
-                                            setSortType("ClientName");
-                                            handleSort("asc", "ClientName");
-                                          }}
-                                          style={{ cursor: "pointer" }}
-                                          class="fas fa-sort-alpha-up ml-1"
-                                        ></i>
-                                      )}
+                                      <i
+                                        onClick={() => {
+                                          setSortType("ClientName");
+                                          handleSort("asc", "ClientName");
+                                        }}
+                                        style={{ cursor: "pointer" }}
+                                        class="fas fa-sort-alpha-up ml-1"
+                                      ></i>
+                                    )}
                                     {(primarySortDirectionObj.ProspectNameSort ===
                                       null ||
                                       primarySortDirectionObj.ProspectNameSort ===
-                                      "asc") && (
-                                        <i
-                                          onClick={() => {
-                                            setSortType("ClientName");
-                                            handleSort(
-                                              primarySortDirectionObj.ProspectNameSort ===
-                                                null
-                                                ? "asc"
-                                                : "desc",
-                                              "ClientName"
-                                            );
-                                          }}
-                                          style={{ cursor: "pointer" }}
-                                          class="fas fa-sort-alpha-down ml-1"
-                                        ></i>
-                                      )}
+                                        "asc") && (
+                                      <i
+                                        onClick={() => {
+                                          setSortType("ClientName");
+                                          handleSort(
+                                            primarySortDirectionObj.ProspectNameSort ===
+                                              null
+                                              ? "asc"
+                                              : "desc",
+                                            "ClientName",
+                                          );
+                                        }}
+                                        style={{ cursor: "pointer" }}
+                                        class="fas fa-sort-alpha-down ml-1"
+                                      ></i>
+                                    )}
                                   </td>
                                   <td className="tr-table-class text-white">
                                     Email
@@ -1115,34 +1122,34 @@ const Prospects = () => {
                                     {prospectName} Type{" "}
                                     {primarySortDirectionObj.ProspectTypeSort ===
                                       "desc" && (
-                                        <i
-                                          onClick={() => {
-                                            setSortType("ClientType");
-                                            handleSort("asc", "ClientType");
-                                          }}
-                                          style={{ cursor: "pointer" }}
-                                          class="fas fa-sort-alpha-up ml-1"
-                                        ></i>
-                                      )}
+                                      <i
+                                        onClick={() => {
+                                          setSortType("ClientType");
+                                          handleSort("asc", "ClientType");
+                                        }}
+                                        style={{ cursor: "pointer" }}
+                                        class="fas fa-sort-alpha-up ml-1"
+                                      ></i>
+                                    )}
                                     {(primarySortDirectionObj.ProspectTypeSort ===
                                       null ||
                                       primarySortDirectionObj.ProspectTypeSort ===
-                                      "asc") && (
-                                        <i
-                                          onClick={() => {
-                                            setSortType("ClientType");
-                                            handleSort(
-                                              primarySortDirectionObj.ProspectTypeSort ===
-                                                null
-                                                ? "asc"
-                                                : "desc",
-                                              "ClientType"
-                                            );
-                                          }}
-                                          style={{ cursor: "pointer" }}
-                                          class="fas fa-sort-alpha-down ml-1"
-                                        ></i>
-                                      )}
+                                        "asc") && (
+                                      <i
+                                        onClick={() => {
+                                          setSortType("ClientType");
+                                          handleSort(
+                                            primarySortDirectionObj.ProspectTypeSort ===
+                                              null
+                                              ? "asc"
+                                              : "desc",
+                                            "ClientType",
+                                          );
+                                        }}
+                                        style={{ cursor: "pointer" }}
+                                        class="fas fa-sort-alpha-down ml-1"
+                                      ></i>
+                                    )}
                                   </td>
                                   <td className="tr-table-class text-white">
                                     Status
@@ -1158,7 +1165,7 @@ const Prospects = () => {
                                 {clientList
                                   .slice(
                                     0,
-                                    isMobile ? isMobileRecords : desktopRecords
+                                    isMobile ? isMobileRecords : desktopRecords,
                                   )
                                   .map((Prospect) => {
                                     const emailArray = Prospect.emailID
@@ -1211,7 +1218,7 @@ const Prospects = () => {
                                               {userAccessData.Admin_Prospect_CanDelete && (
                                                 <Tooltip
                                                   title={getCrudButtonToolTipName(
-                                                    "Change Status"
+                                                    "Change Status",
                                                   )}
                                                 >
                                                   <FormGroup>
@@ -1232,7 +1239,7 @@ const Prospects = () => {
                                                                   common.userKeyID,
                                                                 Action:
                                                                   "Status",
-                                                              }
+                                                              },
                                                             )
                                                           }
                                                           checked={
@@ -1254,7 +1261,7 @@ const Prospects = () => {
                                               <Tooltip
                                                 title={getCrudButtonToolTipName(
                                                   "View",
-                                                  moduleName
+                                                  moduleName,
                                                 )}
                                               >
                                                 <div class="view">
@@ -1262,7 +1269,7 @@ const Prospects = () => {
                                                     class="btn btn-md btn-success create-item-btn view"
                                                     onClick={() =>
                                                       handleViewProspectDetails(
-                                                        Prospect
+                                                        Prospect,
                                                       )
                                                     }
                                                   >
@@ -1282,7 +1289,7 @@ const Prospects = () => {
                                                 <Tooltip
                                                   title={getCrudButtonToolTipName(
                                                     "Update",
-                                                    moduleName
+                                                    moduleName,
                                                   )}
                                                 >
                                                   <div class="edit">
@@ -1290,7 +1297,7 @@ const Prospects = () => {
                                                       class="btn btn-sm btn-success edit-item-btn actionButtonsStyle"
                                                       onClick={() =>
                                                         ClientEditBtnClicked(
-                                                          Prospect
+                                                          Prospect,
                                                         )
                                                       }
                                                     >
@@ -1302,7 +1309,7 @@ const Prospects = () => {
                                               {userAccessData.Admin_Prospect_CanDelete && (
                                                 <Tooltip
                                                   title={getCrudButtonToolTipName(
-                                                    `Delete ${prospectName}`
+                                                    `Delete ${prospectName}`,
                                                   )}
                                                 >
                                                   <div class="remove">
@@ -1387,57 +1394,58 @@ const Prospects = () => {
           {/* container-fluid  */}
         </div>
         {/* End Page-content */}
-      {/* </div> */}
-      <ConfirmModel
-        openErrorModal={openErrorModal}
-        openSuccessModal={openSuccessModal}
-        modelRequestData={modelRequestData}
-        UpdatedStatus={ClientDeleteData}
-        handleClose={handleClose}
-      />
-      <ErrorModel
-        ErrorModel={openErrorModal}
-        handleClose={handleClose}
-        ErrorMessage={formattedErrorMessage}
-      />
-      <DeleteDriverModal
-        handleClose={handleCloseDeleteProspect}
-        setOpenSuccessModal={setOpenDeleteDriverModel}
-        openDeleteDriverModel={openDeleteDriverModel}
-        modelRequestData={modelRequestData}
-      />
-      <SuccessModal
-        handleClose={handleClose}
-        setOpenSuccessModal={setOpenSuccessModal}
-        openSuccessModal={openSuccessModal}
-        modelAction={modelRequestData.Action}
-        message={`${modelRequestData.Action === "Delete"
-          ? selectedRows.length !== 0
-            ? prospectName
-            : `${moduleName} ${modelRequestData.clientName}`
-          : "Status has been changed successfully!"
+        {/* </div> */}
+        <ConfirmModel
+          openErrorModal={openErrorModal}
+          openSuccessModal={openSuccessModal}
+          modelRequestData={modelRequestData}
+          UpdatedStatus={ClientDeleteData}
+          handleClose={handleClose}
+        />
+        <ErrorModel
+          ErrorModel={openErrorModal}
+          handleClose={handleClose}
+          ErrorMessage={formattedErrorMessage}
+        />
+        <DeleteDriverModal
+          handleClose={handleCloseDeleteProspect}
+          setOpenSuccessModal={setOpenDeleteDriverModel}
+          openDeleteDriverModel={openDeleteDriverModel}
+          modelRequestData={modelRequestData}
+        />
+        <SuccessModal
+          handleClose={handleClose}
+          setOpenSuccessModal={setOpenSuccessModal}
+          openSuccessModal={openSuccessModal}
+          modelAction={modelRequestData.Action}
+          message={`${
+            modelRequestData.Action === "Delete"
+              ? selectedRows.length !== 0
+                ? prospectName
+                : `${moduleName} ${modelRequestData.clientName}`
+              : "Status has been changed successfully!"
           }`}
-      />
+        />
 
-      <FilterModel
-        class="modal fade"
-        id="FilterModel"
-        tabIndex="-1"
-        aria_labelledby="exampleModalLabel"
-        aria_hidden="true"
-        data-bs-backdrop="static"
-        data-bs-keyboard="false"
-        ModuleName={moduleName}
-        isFilterApply={isFilterApply}
-        setIsFilterApply={setIsFilterApply}
-        ApplyFilter={ApplyFilter}
-        businessNatureID={businessNatureID}
-        setBusinessNatureID={setBusinessNatureID}
-        prospectType={prospectType}
-        setProspectType={setProspectType}
-      />
-    </div>
-    <Footer />
+        <FilterModel
+          class="modal fade"
+          id="FilterModel"
+          tabIndex="-1"
+          aria_labelledby="exampleModalLabel"
+          aria_hidden="true"
+          data-bs-backdrop="static"
+          data-bs-keyboard="false"
+          ModuleName={moduleName}
+          isFilterApply={isFilterApply}
+          setIsFilterApply={setIsFilterApply}
+          ApplyFilter={ApplyFilter}
+          businessNatureID={businessNatureID}
+          setBusinessNatureID={setBusinessNatureID}
+          prospectType={prospectType}
+          setProspectType={setProspectType}
+        />
+      </div>
+      <Footer />
     </>
   );
 };

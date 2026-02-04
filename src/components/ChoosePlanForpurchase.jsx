@@ -115,7 +115,7 @@ const ChoosePlanForPurchase = (props) => {
         if (finalBillingAmount !== null) {
           CreateStripeCheckoutSessionRedirection(
             common.userKeyID,
-            invoiceKeyID
+            invoiceKeyID,
           );
         } else {
           navigate("/mySubscription");
@@ -134,14 +134,14 @@ const ChoosePlanForPurchase = (props) => {
   };
   const CreateStripeCheckoutSessionRedirection = async (
     userKeyID,
-    InvoiceKeyID
+    InvoiceKeyID,
   ) => {
     setLoader(true);
 
     try {
       const response = await CreateStripeCheckoutSession(
         userKeyID,
-        InvoiceKeyID
+        InvoiceKeyID,
       );
       const data = response.data;
 
@@ -176,7 +176,7 @@ const ChoosePlanForPurchase = (props) => {
     subscriptionPackageKeyIDNew,
     packageNameNew,
     yearlyOffer,
-    monthlyOffer
+    monthlyOffer,
   ) => {
     // Extract the offerID and label from the selected option
     const selectedOfferID = selectedOption.value;
@@ -232,7 +232,7 @@ const ChoosePlanForPurchase = (props) => {
       if (selectedOfferID === "GetMonths") {
         offerType = 1;
         const offer = yearlyOffer.find(
-          (item) => item.offerID === selectedOfferID
+          (item) => item.offerID === selectedOfferID,
         );
         const [firstValue, secondValue] = offer.value.split(",").map(Number);
 
@@ -250,7 +250,7 @@ const ChoosePlanForPurchase = (props) => {
       } else if (selectedOfferID === "MonthFree") {
         offerType = 2;
         const offer = yearlyOffer.find(
-          (item) => item.offerID === selectedOfferID
+          (item) => item.offerID === selectedOfferID,
         );
         const firstValue = Number(offer.value); // Rename to match
 
@@ -268,7 +268,7 @@ const ChoosePlanForPurchase = (props) => {
       } else if (selectedOfferID === "DiscountPrice") {
         offerType = 3;
         const offer = yearlyOffer.find(
-          (item) => item.offerID === selectedOfferID
+          (item) => item.offerID === selectedOfferID,
         );
         const firstValue = Number(offer.finalBillingAmount); // Rename to match
 
@@ -286,7 +286,7 @@ const ChoosePlanForPurchase = (props) => {
       } else if (selectedOfferID === "DiscountPercentage") {
         offerType = 4;
         const offer = yearlyOffer.find(
-          (item) => item.offerID === selectedOfferID
+          (item) => item.offerID === selectedOfferID,
         );
         const firstValue = Number(offer.finalBillingAmount); // Rename to match
 
@@ -304,14 +304,14 @@ const ChoosePlanForPurchase = (props) => {
       } else {
         // Remove the object with matching index if it exists
         setDiscountedMonthsYearly((prev) =>
-          prev.filter((obj) => obj.index !== index)
+          prev.filter((obj) => obj.index !== index),
         );
       }
     } else if (!isYearly) {
       if (selectedOfferID === "GetMonths") {
         offerType = 1;
         const offer = monthlyOffer.find(
-          (item) => item.offerID === selectedOfferID
+          (item) => item.offerID === selectedOfferID,
         );
         const [firstValue, secondValue] = offer.value.split(",").map(Number);
 
@@ -329,7 +329,7 @@ const ChoosePlanForPurchase = (props) => {
       } else if (selectedOfferID === "MonthFree") {
         offerType = 2;
         const offer = monthlyOffer.find(
-          (item) => item.offerID === selectedOfferID
+          (item) => item.offerID === selectedOfferID,
         );
         const firstValue = Number(offer.value); // Rename to match
 
@@ -347,7 +347,7 @@ const ChoosePlanForPurchase = (props) => {
       } else if (selectedOfferID === "DiscountPrice") {
         offerType = 3;
         const offer = monthlyOffer.find(
-          (item) => item.offerID === selectedOfferID
+          (item) => item.offerID === selectedOfferID,
         );
         const firstValue = Number(offer.finalBillingAmount); // Rename to match
 
@@ -365,7 +365,7 @@ const ChoosePlanForPurchase = (props) => {
       } else if (selectedOfferID === "DiscountPercentage") {
         offerType = 4;
         const offer = monthlyOffer.find(
-          (item) => item.offerID === selectedOfferID
+          (item) => item.offerID === selectedOfferID,
         );
         const firstValue = Number(offer.finalBillingAmount); // Rename to match
 
@@ -383,7 +383,7 @@ const ChoosePlanForPurchase = (props) => {
       } else {
         // Remove the object with matching index if it exists
         setDiscountedMonthsMonthly((prev) =>
-          prev.filter((obj) => obj.index !== index)
+          prev.filter((obj) => obj.index !== index),
         );
       }
     }
@@ -398,7 +398,7 @@ const ChoosePlanForPurchase = (props) => {
     // 4. Get x months for free   -----> MonthFree
   };
 
-  console.log(chooseApiData);
+  // console.log(chooseApiData);
 
   return (
     <div>
@@ -494,7 +494,7 @@ const ChoosePlanForPurchase = (props) => {
                                                           {discountedMonthsMonthly?.find(
                                                             (item) =>
                                                               item.index ===
-                                                              index
+                                                              index,
                                                           ) && (
                                                             <span
                                                               style={{
@@ -508,7 +508,7 @@ const ChoosePlanForPurchase = (props) => {
                                                             >
                                                               {formatValue(
                                                                 PurchasePlanList?.yearlyValuePlan /
-                                                                  12
+                                                                  12,
                                                               )}{" "}
                                                               /Month
                                                             </span>
@@ -523,7 +523,7 @@ const ChoosePlanForPurchase = (props) => {
                                                               discountedMonthsMonthly?.find(
                                                                 (item) =>
                                                                   item.index ===
-                                                                  index
+                                                                  index,
                                                               );
 
                                                             if (discount) {
@@ -533,7 +533,7 @@ const ChoosePlanForPurchase = (props) => {
                                                               ) {
                                                                 return `${formatValue(
                                                                   PurchasePlanList?.yearlyValuePlan /
-                                                                    12
+                                                                    12,
                                                                 )}/${
                                                                   discount.firstValue
                                                                 } months`;
@@ -545,7 +545,7 @@ const ChoosePlanForPurchase = (props) => {
                                                               ) {
                                                                 return `${formatValue(
                                                                   PurchasePlanList?.yearlyValuePlan /
-                                                                    12
+                                                                    12,
                                                                 )}/${
                                                                   discount.firstValue +
                                                                   1
@@ -559,7 +559,7 @@ const ChoosePlanForPurchase = (props) => {
                                                                   4
                                                               ) {
                                                                 return `${formatValue(
-                                                                  discount.firstValue
+                                                                  discount.firstValue,
                                                                 )}/Month`;
                                                               }
                                                             }
@@ -567,7 +567,7 @@ const ChoosePlanForPurchase = (props) => {
                                                             // If no discount or not matched types
                                                             return `${formatValue(
                                                               PurchasePlanList?.yearlyValuePlan /
-                                                                12
+                                                                12,
                                                             )}/Month`;
                                                           })()}
                                                           {/* {(() => {
@@ -607,7 +607,7 @@ const ChoosePlanForPurchase = (props) => {
                                                           {discountedMonthsYearly?.find(
                                                             (item) =>
                                                               item.index ===
-                                                              index
+                                                              index,
                                                           ) && (
                                                             <span
                                                               style={{
@@ -620,7 +620,7 @@ const ChoosePlanForPurchase = (props) => {
                                                               }}
                                                             >
                                                               {formatValue(
-                                                                PurchasePlanList?.yearlyValuePlan
+                                                                PurchasePlanList?.yearlyValuePlan,
                                                               )}{" "}
                                                               /Year
                                                             </span>
@@ -635,7 +635,7 @@ const ChoosePlanForPurchase = (props) => {
                                                               discountedMonthsYearly?.find(
                                                                 (item) =>
                                                                   item.index ===
-                                                                  index
+                                                                  index,
                                                               );
 
                                                             if (discount) {
@@ -644,7 +644,7 @@ const ChoosePlanForPurchase = (props) => {
                                                                 1
                                                               ) {
                                                                 return `${formatValue(
-                                                                  PurchasePlanList?.yearlyValuePlan
+                                                                  PurchasePlanList?.yearlyValuePlan,
                                                                 )}/${
                                                                   discount.firstValue
                                                                 } months`;
@@ -655,7 +655,7 @@ const ChoosePlanForPurchase = (props) => {
                                                                 2
                                                               ) {
                                                                 return `${formatValue(
-                                                                  PurchasePlanList?.yearlyValuePlan
+                                                                  PurchasePlanList?.yearlyValuePlan,
                                                                 )}/${
                                                                   discount.firstValue +
                                                                   12
@@ -669,14 +669,14 @@ const ChoosePlanForPurchase = (props) => {
                                                                   4
                                                               ) {
                                                                 return `${formatValue(
-                                                                  discount.firstValue
+                                                                  discount.firstValue,
                                                                 )}/Year`;
                                                               }
                                                             }
 
                                                             // If no discount or not matched types
                                                             return `${formatValue(
-                                                              PurchasePlanList?.yearlyValuePlan
+                                                              PurchasePlanList?.yearlyValuePlan,
                                                             )}/Year`;
                                                           })()}
 
@@ -870,7 +870,7 @@ const ChoosePlanForPurchase = (props) => {
                                                           <>
                                                             :{" "}
                                                             {formatValueWithoutCurrencySymbol(
-                                                              PurchasePlanList?.eSignaturePerMonth
+                                                              PurchasePlanList?.eSignaturePerMonth,
                                                             )}
                                                             /Month
                                                           </>
@@ -928,7 +928,7 @@ const ChoosePlanForPurchase = (props) => {
                                                               menuPosition="auto"
                                                               className="phone-input-country-code selectDropDown Drop-down-width"
                                                               onChange={(
-                                                                selectedOption
+                                                                selectedOption,
                                                               ) =>
                                                                 handleSelectChange(
                                                                   selectedOption,
@@ -936,7 +936,7 @@ const ChoosePlanForPurchase = (props) => {
                                                                   PurchasePlanList.subscriptionPackageKeyID,
                                                                   PurchasePlanList.packageName,
                                                                   PurchasePlanList?.yearlyOffer,
-                                                                  PurchasePlanList?.monthlyOffer
+                                                                  PurchasePlanList?.monthlyOffer,
                                                                 )
                                                               }
                                                               options={[
@@ -956,14 +956,14 @@ const ChoosePlanForPurchase = (props) => {
                                                                       offer.offerName,
                                                                     value:
                                                                       offer.offerID,
-                                                                  })
+                                                                  }),
                                                                 ),
                                                               ]}
                                                               value={
                                                                 selectedOfferID.find(
                                                                   (val) =>
                                                                     val.index ===
-                                                                    index
+                                                                    index,
                                                                 ) || ""
                                                               }
 
@@ -996,7 +996,7 @@ const ChoosePlanForPurchase = (props) => {
                                                       onClick={() =>
                                                         handleButtonClick(
                                                           index,
-                                                          PurchasePlanList.subscriptionPackageKeyID
+                                                          PurchasePlanList.subscriptionPackageKeyID,
                                                         )
                                                       }
                                                       className="btn btn-success create-item-btn add-new "
