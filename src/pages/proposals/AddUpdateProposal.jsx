@@ -16578,17 +16578,6 @@ const ReviewPackagesComponent = (props) => {
                                         props.currencyID,
                                       )}
                                     </td>
-
-                                    // <td className="tr-table-class font-14 text-white text-right">
-                                    //   {" "}
-                                    //   {props.formatValue(
-                                    //     Number(
-                                    //       props.OneOffPricingInfo
-                                    //         .PackageTwoStaticVaTPrice,
-                                    //     ),
-                                    //     props.currencyID,
-                                    //   )}
-                                    // </td>
                                   )}
                                 {props.visibleFieldsCustomTemp.serviceScope && (
                                   <td></td>
@@ -16638,13 +16627,6 @@ const ReviewPackagesComponent = (props) => {
                                         props.currencyID,
                                       )}
                                     </td>
-                                    // <td className="tr-table-class font-14 text-white text-right">
-                                    //   {" "}
-                                    //   {Number(
-                                    //     props.OneOffPricingInfo
-                                    //       .PackageThreeStaticVaTPrice,
-                                    //   )}
-                                    // </td>
                                   )}
                                 {props.visibleFieldsCustomTemp.serviceScope && (
                                   <td></td>
@@ -20512,8 +20494,6 @@ const Add_Update_Proposal = (props) => {
           recArrayWithPrice.forEach((category) => {
             category.servicesList.forEach((service) => {
               // Check if the value is not null before adding
-              console.log("vatPercentage", service.service_vat_percentage);
-              console.log("packageOneValue", service.packageOneValue);
 
               if (service.packageOneValue !== null) {
                 //totalOne += Number(service.packageOneValue);
@@ -21309,7 +21289,6 @@ const Add_Update_Proposal = (props) => {
             PackageTwoGrandTotal: PackageTwoGrandTotal,
             PackageThreeGrandTotal: PackageThreeGrandTotal,
           });
-          debugger;
           let OneOffTotalOne = 0;
           let OneOffTotalTwo = 0;
           let OneOffTotalThree = 0;
@@ -23562,6 +23541,7 @@ const Add_Update_Proposal = (props) => {
             driverValue: null,
             msMapID: service.msMapID || null,
             serviceID: service.serviceID,
+            vatAmount: Number(service.service_vat_amount),
             proposedServiceName: service.serviceName,
             serviceCatID: category.serviceCatID,
             serviceChargeTypeID:

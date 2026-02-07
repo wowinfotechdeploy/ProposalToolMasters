@@ -18699,6 +18699,7 @@ const Add_Update_Engagement_Letter = () => {
             driverValue: null,
             msMapID: service.msMapID || null,
             serviceID: service.serviceID,
+            vatAmount: Number(service.service_vat_amount),
             serviceCatID: category.serviceCatID,
             serviceChargeTypeID:
               service.serviceChargeTypeName === "One Off" ? 2 : 1,
