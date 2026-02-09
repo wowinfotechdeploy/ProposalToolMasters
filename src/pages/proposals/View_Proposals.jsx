@@ -429,8 +429,6 @@ const View_Proposals = () => {
           );
           setAcceptedIndex(packageIndex);
 
-          debugger;
-
           if (packageData.length > 0) {
             const RecurringDetails = finalQuotationAmountList.filter(
               (obj) => obj.serviceChargeTypeID === 1,
@@ -447,8 +445,6 @@ const View_Proposals = () => {
             } else {
               setVATPercentage(OneOffDetails[0]?.vatPercentage);
             }
-
-            debugger;
 
             let totalOne = 0;
             let totalVATOne = 0;
@@ -558,8 +554,6 @@ const View_Proposals = () => {
               PackageTwoGrandTotal: RecurringDetails[1]?.grandTotal,
               PackageThreeGrandTotal: RecurringDetails[2]?.grandTotal,
             });
-
-            debugger;
 
             let OneOffTotalOne = 0;
             let OneOffTotalTwo = 0;
@@ -926,8 +920,6 @@ const View_Proposals = () => {
           setPackageList(packageData);
           setSelectedPackagesList(packageData);
           // setFinalQuotationAmountList(finalQuotationAmountList);
-
-          debugger;
 
           // Service wise VAT
           const recurringVatSum =
@@ -5383,7 +5375,6 @@ const View_Proposals = () => {
                                                                 subService,
                                                                 subIndex,
                                                               ) => {
-                                                                debugger;
                                                                 const driverList =
                                                                   subService.pricingDriverList ||
                                                                   [];

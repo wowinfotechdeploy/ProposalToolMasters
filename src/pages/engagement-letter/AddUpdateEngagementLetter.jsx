@@ -3887,7 +3887,7 @@ const ReviewServicesComponent = (props) => {
                                     </tr>
                                   </>
                                 )}
-                              {props.vatPercentageOneOff !== 0 && (
+                              {props.vatPercentage !== 0 && (
                                 <>
                                   <tr class="head-grey-row">
                                     <td className="tr-table-class font-14 text-white">
@@ -18700,6 +18700,7 @@ const Add_Update_Engagement_Letter = () => {
             msMapID: service.msMapID || null,
             serviceID: service.serviceID,
             vatAmount: Number(service.service_vat_amount),
+            vatPercentage: Number(service.service_vat_percentage),
             serviceCatID: category.serviceCatID,
             serviceChargeTypeID:
               service.serviceChargeTypeName === "One Off" ? 2 : 1,

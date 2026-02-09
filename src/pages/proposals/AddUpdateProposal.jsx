@@ -5989,11 +5989,11 @@ const ReviewServicesComponent = (props) => {
                                       )}
                                 </td>
                               )}
-                              {props.vatPercentageOneOff !== 0 &&
+                              {props.vatPercentage !== 0 &&
                                 props.visibleFieldsCustomTemp.vatRate && (
                                   <td></td>
                                 )}
-                              {props.vatPercentageOneOff !== 0 &&
+                              {props.vatPercentage !== 0 &&
                                 props.visibleFieldsCustomTemp.vat && (
                                   <td className="tr-table-class text-white text-center">
                                     {props.formatValue(
@@ -6005,7 +6005,7 @@ const ReviewServicesComponent = (props) => {
                                     )}
                                   </td>
                                 )}
-                              {props.vatPercentageOneOff !== 0 &&
+                              {props.vatPercentage !== 0 &&
                                 props.visibleFieldsCustomTemp.feesIncVat && (
                                   <td className="tr-table-class text-white text-center">
                                     {Number(
@@ -6068,11 +6068,11 @@ const ReviewServicesComponent = (props) => {
                                           : "-"}
                                       </td>
                                     )}
-                                    {props.vatPercentageOneOff !== 0 &&
+                                    {props.vatPercentage !== 0 &&
                                       props.visibleFieldsCustomTemp.vatRate && (
                                         <td></td>
                                       )}
-                                    {props.vatPercentageOneOff !== 0 &&
+                                    {props.vatPercentage !== 0 &&
                                       props.visibleFieldsCustomTemp.vat && (
                                         <td className="tr-table-class text-white text-center">
                                           (-){"  "}
@@ -6089,7 +6089,7 @@ const ReviewServicesComponent = (props) => {
                                           )}
                                         </td>
                                       )}
-                                    {props.vatPercentageOneOff !== 0 &&
+                                    {props.vatPercentage !== 0 &&
                                       props.visibleFieldsCustomTemp
                                         .feesIncVat && (
                                         <td className="tr-table-class text-white text-center">
@@ -6129,11 +6129,11 @@ const ReviewServicesComponent = (props) => {
                                         )}
                                       </td>
                                     )}
-                                    {props.vatPercentageOneOff !== 0 &&
+                                    {props.vatPercentage !== 0 &&
                                       props.visibleFieldsCustomTemp.vatRate && (
                                         <td></td>
                                       )}
-                                    {props.vatPercentageOneOff !== 0 &&
+                                    {props.vatPercentage !== 0 &&
                                       props.visibleFieldsCustomTemp.vat && (
                                         <td className="tr-table-class text-white text-center">
                                           {props.formatValue(
@@ -6145,7 +6145,7 @@ const ReviewServicesComponent = (props) => {
                                           )}
                                         </td>
                                       )}
-                                    {props.vatPercentageOneOff !== 0 &&
+                                    {props.vatPercentage !== 0 &&
                                       props.visibleFieldsCustomTemp
                                         .feesIncVat && (
                                         <td className="tr-table-class text-white text-center">
@@ -16578,6 +16578,17 @@ const ReviewPackagesComponent = (props) => {
                                         props.currencyID,
                                       )}
                                     </td>
+
+                                    // <td className="tr-table-class font-14 text-white text-right">
+                                    //   {" "}
+                                    //   {props.formatValue(
+                                    //     Number(
+                                    //       props.OneOffPricingInfo
+                                    //         .PackageTwoStaticVaTPrice,
+                                    //     ),
+                                    //     props.currencyID,
+                                    //   )}
+                                    // </td>
                                   )}
                                 {props.visibleFieldsCustomTemp.serviceScope && (
                                   <td></td>
@@ -16627,6 +16638,13 @@ const ReviewPackagesComponent = (props) => {
                                         props.currencyID,
                                       )}
                                     </td>
+                                    // <td className="tr-table-class font-14 text-white text-right">
+                                    //   {" "}
+                                    //   {Number(
+                                    //     props.OneOffPricingInfo
+                                    //       .PackageThreeStaticVaTPrice,
+                                    //   )}
+                                    // </td>
                                   )}
                                 {props.visibleFieldsCustomTemp.serviceScope && (
                                   <td></td>
@@ -20494,6 +20512,8 @@ const Add_Update_Proposal = (props) => {
           recArrayWithPrice.forEach((category) => {
             category.servicesList.forEach((service) => {
               // Check if the value is not null before adding
+              console.log("vatPercentage", service.service_vat_percentage);
+              console.log("packageOneValue", service.packageOneValue);
 
               if (service.packageOneValue !== null) {
                 //totalOne += Number(service.packageOneValue);
@@ -23542,6 +23562,7 @@ const Add_Update_Proposal = (props) => {
             msMapID: service.msMapID || null,
             serviceID: service.serviceID,
             vatAmount: Number(service.service_vat_amount),
+            vatPercentage: Number(service.service_vat_percentage),
             proposedServiceName: service.serviceName,
             serviceCatID: category.serviceCatID,
             serviceChargeTypeID:
