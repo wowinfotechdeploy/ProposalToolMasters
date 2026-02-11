@@ -2281,9 +2281,7 @@ const Engagement_Letter = () => {
                                                           statusID.Sent ? (
                                                           <span>
                                                             Sent on:{" "}
-                                                            {GetOnlyDate(
-                                                              engagement.sentOn,
-                                                            )}
+                                                            {GetOnlyDate(engagement.sentOn ?? engagement.createdOn)}
                                                           </span>
                                                         ) : engagement.statusID ===
                                                           statusID.Draft ? (

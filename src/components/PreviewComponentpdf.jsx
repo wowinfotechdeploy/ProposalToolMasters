@@ -1893,7 +1893,7 @@ export default function PreviewComponentPdf(props) {
 
               if (right) {
                 htmlContentForSignatories += `
-                  <span style="color: white;"><^${right.RowNo}_</span><div style="display: inline-block;">${right.firstName} ${right.lastName}</div><span style="color: white;">^></span>`;
+                  <span style="color: white;"><^${right.RowNo}_</span><div style="display: inline-block;">${right.firstName} ${formatName(right.lastName)}</div><span style="color: white;">^></span>`;
               } else if (!orgSignatureInserted && signatureImageUrl) {
                 const org = props.organisationData.otherInformation[0];
                 htmlContentForSignatories += `

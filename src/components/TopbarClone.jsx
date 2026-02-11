@@ -1184,7 +1184,7 @@ const TopbarClone = () => {
                       </a>
                     </div>
                     <Tooltip
-                      title={isSidebarOpen ? "Close menu" : "Open menu"}
+                      title={isSidebarOpen ? "Close menu" : "Open menu" }
                       disableInteractive
                     >
                       <div

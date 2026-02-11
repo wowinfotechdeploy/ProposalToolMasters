@@ -31,7 +31,7 @@
   flex-direction: column;
   justify-content: space-between;
   /* min-height: 100vh; */
-  height:auto;
+  height: auto;
   /* overflow-y: hidden; */
   position: relative;
 }
@@ -140,93 +140,104 @@ body.modal-open .app-layout-clone .topbar-clone {
 }
 
 .app-layout-clone .main-content .page-info-header1 {
-    position: relative !important;
-    /* top: 0; */
-    left: calc(20% + 20px);        /* 20% for sidebar + 20px main-content padding */
-    width: calc(80% - 40px);
-    min-height: 50px;
-    /* display: flex; */
-    /* align-items: center; */
-    margin: auto;
-    padding: 0 16px;   /* optional */
-    box-sizing: border-box;
-    z-index: 9;
+  position: relative !important;
+  /* top: 0; */
+  left: calc(20% + 20px); /* 20% for sidebar + 20px main-content padding */
+  width: calc(80% - 40px);
+  min-height: 50px;
+  /* display: flex; */
+  /* align-items: center; */
+  margin: auto;
+  padding: 0 16px; /* optional */
+  box-sizing: border-box;
+  z-index: 9;
 }
 .app-layout-clone .main-content .page-info-header {
-    position: relative !important;  /* Stays in document flow */
-    top: 0;
-    width: 100%;
-    /*margin-left: 20px; */
-    /*margin-right: 20px; */
-    min-height: 50px;
-    height: 50px;
-    display: flex !important;
-    align-items: center !important;
-    margin-top: 0;
-    margin-bottom: 0 !important;
-    padding: 0;
-    box-sizing: border-box;
-    z-index: 9;
-    background-color: #fff;
+  position: relative !important; /* Stays in document flow */
+  top: 0;
+  width: 100%;
+  /*margin-left: 20px; */
+  /*margin-right: 20px; */
+  min-height: 50px;
+  height: 50px;
+  display: flex !important;
+  align-items: center !important;
+  margin-top: 0;
+  margin-bottom: 0 !important;
+  padding: 0;
+  box-sizing: border-box;
+  z-index: 9;
+  background-color: #fff;
 }
 .app-layout-clone .main-content .popup-overlay {
-    position: fixed;
-    inset: 0;                 /* replaces top: 0, left: 0, right: 0, bottom: 0 */
-    margin-left: inherit;     /* respects main-content's computed left offset */
-    width: auto;
-    height: auto;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 1000;
-    pointer-events: auto;
+  position: fixed;
+  inset: 0; /* replaces top: 0, left: 0, right: 0, bottom: 0 */
+  margin-left: inherit; /* respects main-content's computed left offset */
+  width: auto;
+  height: auto;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  pointer-events: auto;
 }
 
 @media (min-width: 1040px) {
   .nav-item {
-  position: relative;
-  overflow: visible;
-}
+    position: relative;
+    overflow: visible;
+  }
 
-#scrollbar .navbar-nav,
-#scrollbar ul.nav {
-  overflow: visible;
-}
+  #scrollbar .navbar-nav,
+  #scrollbar ul.nav {
+    overflow: visible;
+  }
   /* Force menu dropdowns to expand vertically downwards */
-.main-content .menu-dropdown,
-.menu_dropdown {
-  width: 90%;
-  font-family: "Gantari, sans-serif";
-  position: relative;
-  top: 100%;
-  left: 0;
-  display: none; /* Hidden by default, NOT flex */
-  flex-direction: column;
-  background: #1e1e2f; 
-  padding: 10px;
-  margin: 0;
-  overflow-y: auto;
-  margin-top: 8px; /* Space below Configure button */
-  list-style: none;
-  z-index: 1000;
-  border-radius: 4px; /* Optional: rounded corners */
-}
+  .main-content .menu-dropdown,
+  .menu_dropdown {
+    width: 90%;
+    font-family: "Gantari, sans-serif";
+    position: static;
+    /* top: 100%; */
+    left: 0;
+    display: none; /* Hidden by default, NOT flex */
+    flex-direction: column;
+    background: #1e1e2f;
+    padding: 10px;
+    margin: 0;
+    overflow-y: auto;
+    margin-top: 8px; /* Space below Configure button */
+    list-style: none;
+    z-index: 1000;
+    border-radius: 4px; /* Optional: rounded corners */
+  }
 
-.menu-dropdown.show,
-.menu_dropdown.show {
-  display: flex !important;
-  animation: dropdownSlide 0.2s ease-out;
-  scroll-margin-top: 20px;
-  overflow-y: auto;
-}
-/* Then in your existing .main-content .menu-dropdown rule, add overflow: visible */
-.main-content .menu-dropdown,
-.menu_dropdown {
-  /* ... your existing styles ... */
-  overflow: visible; /* ADD THIS LINE */
-}
-@keyframes dropdownSlide {
-  from { opacity: 0; transform: translateY(-5px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
+  .menu-dropdown,
+  .menu_dropdown {
+    position: static !important;
+  }
+
+  .menu-dropdown.show,
+  .menu_dropdown.show {
+    display: flex !important;
+    animation: dropdownSlide 0.2s ease-out;
+    scroll-margin-top: 20px;
+    overflow-y: auto;
+  }
+  /* Then in your existing .main-content .menu-dropdown rule, add overflow: visible */
+  .main-content .menu-dropdown,
+  .menu_dropdown {
+    /* ... your existing styles ... */
+    overflow: visible; /* ADD THIS LINE */
+  }
+  @keyframes dropdownSlide {
+    from {
+      opacity: 0;
+      transform: translateY(-5px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 
   /* Ensure items inside stack vertically */
   .menu-dropdown .nav-item,
@@ -234,67 +245,67 @@ body.modal-open .app-layout-clone .topbar-clone {
     display: block;
     width: 100%;
   }
-  
+
   .menu-dropdown .nav-link,
   .menu_dropdown .nav-link {
     display: block;
     padding: 4px 16px;
     font-family: "Gantari, sans-serif";
   }
-.nav-link:hover {
-  color: #438eff !important;
-  /* background: rgba(67, 142, 255, 0.1); */
-}
- .subList {
-  width: 90%;
-  /* min-width: max-content; */
-  max-width: 90%;
-  box-sizing: border-box;
-  /* overflow: hidden; */
-  /* white-space: nowrap; */
-  text-overflow: ellipsis;
-  display: none;
-  transition: all 0.3s ease-in-out;
-  padding-left: 8px; /* indent sublists */
-  margin-left: 5px;
-  margin-top: 5px;
-}
-.subList.d-block {
-  display: block !important;
-  height: auto; /* Critical for wrapped content */
-  min-height: fit-content;
-}
+  .nav-link:hover {
+    color: #438eff !important;
+    /* background: rgba(67, 142, 255, 0.1); */
+  }
+  .subList {
+    width: 90%;
+    /* min-width: max-content; */
+    max-width: 90%;
+    box-sizing: border-box;
+    /* overflow: hidden; */
+    /* white-space: nowrap; */
+    text-overflow: ellipsis;
+    display: none;
+    transition: all 0.3s ease-in-out;
+    padding-left: 8px; /* indent sublists */
+    margin-left: 5px;
+    margin-top: 5px;
+  }
+  .subList.d-block {
+    display: block !important;
+    height: auto; /* Critical for wrapped content */
+    min-height: fit-content;
+  }
 
-.subList.d-none {
-  display: none !important;
-}
-.subList .nav-link {
-  display: block;
-  padding: 4px 16px;
-  font-size: 13px; /* slightly smaller text */
-  color: #b8b8b8; /* lighter text color */
-  white-space: normal;
-  word-break: normal;
-  height: auto;
-  min-height: fit-content;
-  font-family: "Gantari, sans-serif" !important;
-  /* overflow-wrap: normal; */
-}
+  .subList.d-none {
+    display: none !important;
+  }
+  .subList .nav-link {
+    display: block;
+    padding: 4px 16px;
+    font-size: 13px; /* slightly smaller text */
+    color: #b8b8b8; /* lighter text color */
+    white-space: normal;
+    word-break: normal;
+    height: auto;
+    min-height: fit-content;
+    font-family: "Gantari, sans-serif" !important;
+    /* overflow-wrap: normal; */
+  }
 
-.nav-link > a:not(.nav-link) {
-  pointer-events: none;
-}
-.subList .nav-link:hover {
-  color: #438eff;
-  text-decoration: underline;
-  /* background: rgba(67, 142, 255, 0.1); */
-}
+  .nav-link > a:not(.nav-link) {
+    pointer-events: none;
+  }
+  .subList .nav-link:hover {
+    color: #438eff;
+    text-decoration: underline;
+    /* background: rgba(67, 142, 255, 0.1); */
+  }
 
-.subList.show {
-  display: block;
-  height: auto;
-  animation: dropdownSlide 0.2s ease-out;
-}
+  .subList.show {
+    display: block;
+    height: auto;
+    animation: dropdownSlide 0.2s ease-out;
+  }
 
   /* Show sublist when parent is hovered */
   /* .nav-item:hover > .subList {
@@ -303,29 +314,29 @@ body.modal-open .app-layout-clone .topbar-clone {
   } */
 
   /* Sublist links style */
-/* .subList .nav-link {
+  /* .subList .nav-link {
   display: block;
   padding: 6px 16px;
 } */
 
- .nav .nav-item .nav-link[data-bs-toggle="collapse"]::after,
-.menu-dropdown .nav-item > a[href^="#"] {
-  display: flex;
-  align-items: center;
-  justify-content: space-between; /* Spreads content and ::after apart */
-}
-.menu-dropdown .nav-item > a[href^="#"]::after {
-  content: "+";
-  /* float: right; */
-  font-weight: bold;
-  margin-left: auto;
-  margin-right: 2px;
-  transition: transform 0.2s;
-  flex-shrink: 0;
-}
+  .nav .nav-item .nav-link[data-bs-toggle="collapse"]::after,
+  .menu-dropdown .nav-item > a[href^="#"] {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Spreads content and ::after apart */
+  }
+  .menu-dropdown .nav-item > a[href^="#"]::after {
+    content: "+";
+    /* float: right; */
+    font-weight: bold;
+    margin-left: auto;
+    margin-right: 2px;
+    transition: transform 0.2s;
+    flex-shrink: 0;
+  }
 
-/* When sublist is open, show minus */
-.menu-dropdown .nav-item > a[href^="#"][aria-expanded="true"]::after {
-  content: "−";
-}
+  /* When sublist is open, show minus */
+  .menu-dropdown .nav-item > a[href^="#"][aria-expanded="true"]::after {
+    content: "−";
+  }
 }
