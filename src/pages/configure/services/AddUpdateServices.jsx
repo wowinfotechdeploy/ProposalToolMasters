@@ -478,97 +478,99 @@ const BasicInformationComponent = (props) => {
 
             {/* Service wise VAT Parameters */}
 
-            <div className="col-lg-6">
-              <div className="d-flex align-items-center justify-content-between">
-                {/* VATable Toggle (Left) */}
-                <div className="d-flex flex-column align-items-center justify-content-center">
-                  <label className="form-label mb-0 me-2">
-                    VATable <span className="text-danger">*</span>
-                  </label>
-                  <Tooltip title="Change VAT Status">
-                    <FormGroup>
-                      <FormControlLabel
-                        control={
-                          <Android12Switch
-                            // onClick={() =>
-                            //   props.setServicesObj((prev) => ({
-                            //     ...prev,
-                            //     vatStatus: !props.servicesObj.vatStatus,
-                            //   }))
-                            // }
-                            onClick={() =>
-                              props.setModelRequestData({
-                                ...props.modelRequestData,
-                                Action: "vatStatus",
-                              })
-                            }
-                            checked={props.servicesObj.vatStatus === true}
-                            data-bs-toggle="modal"
-                            data-bs-target="#ConfirmModel"
-                            disabled={vatStatus?.isVatRegistered === true}
-                            // vatStatus?.isVatRegistered == true, means the vat status on org level is off, else if it is false then that means it is on
-                          />
-                        }
-                      />
-                    </FormGroup>
-                  </Tooltip>
-                </div>
-
-                {/* VAT Percentage Input (Right) */}
-                {props.servicesObj.vatStatus && (
-                  <div className="ms-4" style={{ width: "250px" }}>
-                    <label className="form-label mb-1">
-                      VAT Percentage <span className="text-danger">*</span>
+            {props.common.organisationKeyID !== null && (
+              <div className="col-lg-6">
+                <div className="d-flex align-items-center justify-content-between">
+                  {/* VATable Toggle (Left) */}
+                  <div className="d-flex flex-column align-items-center justify-content-center">
+                    <label className="form-label mb-0 me-2">
+                      VATable <span className="text-danger">*</span>
                     </label>
-                    <input
-                      type="text"
-                      placeholder="Enter VAT Percentage"
-                      className="input-text"
-                      value={
-                        props.servicesObj.vatPercentage !== undefined &&
-                        props.servicesObj.vatPercentage !== null
-                          ? props.servicesObj.vatPercentage.toString()
-                          : "20"
-                      }
-                      onChange={(e) => {
-                        let value = e.target.value;
-
-                        if (!/^\d*\.?\d{0,2}$/.test(value)) return;
-                        if (/^0\d+/.test(value)) {
-                          value = value.replace(/^0+/, "");
-                          if (value === "") value = "0";
-                        }
-
-                        const numericValue = parseFloat(value);
-                        if (numericValue > 100) value = "100";
-                        if (numericValue < 0) value = "0";
-
-                        props.setServicesObj((prev) => ({
-                          ...prev,
-                          vatPercentage: value,
-                        }));
-                      }}
-                      onBlur={(e) => {
-                        let value = e.target.value;
-                        if (value.endsWith(".")) value = value.slice(0, -1);
-                        if (value === "") value = "0";
-                        props.setServicesObj((prev) => ({
-                          ...prev,
-                          vatPercentage: value,
-                        }));
-                      }}
-                    />
-                    {props.serviceError.basicInformationError &&
-                    (props.servicesObj.vatPercentage === "" ||
-                      props.servicesObj.vatPercentage === undefined) ? (
-                      <label className="validation">{ERROR_MESSAGES}</label>
-                    ) : (
-                      ""
-                    )}
+                    <Tooltip title="Change VAT Status">
+                      <FormGroup>
+                        <FormControlLabel
+                          control={
+                            <Android12Switch
+                              // onClick={() =>
+                              //   props.setServicesObj((prev) => ({
+                              //     ...prev,
+                              //     vatStatus: !props.servicesObj.vatStatus,
+                              //   }))
+                              // }
+                              onClick={() =>
+                                props.setModelRequestData({
+                                  ...props.modelRequestData,
+                                  Action: "vatStatus",
+                                })
+                              }
+                              checked={props.servicesObj.vatStatus === true}
+                              data-bs-toggle="modal"
+                              data-bs-target="#ConfirmModel"
+                              disabled={vatStatus?.isVatRegistered === true}
+                              // vatStatus?.isVatRegistered == true, means the vat status on org level is off, else if it is false then that means it is on
+                            />
+                          }
+                        />
+                      </FormGroup>
+                    </Tooltip>
                   </div>
-                )}
+
+                  {/* VAT Percentage Input (Right) */}
+                  {props.servicesObj.vatStatus && (
+                    <div className="ms-4" style={{ width: "250px" }}>
+                      <label className="form-label mb-1">
+                        VAT Percentage <span className="text-danger">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Enter VAT Percentage"
+                        className="input-text"
+                        value={
+                          props.servicesObj.vatPercentage !== undefined &&
+                          props.servicesObj.vatPercentage !== null
+                            ? props.servicesObj.vatPercentage.toString()
+                            : "20"
+                        }
+                        onChange={(e) => {
+                          let value = e.target.value;
+
+                          if (!/^\d*\.?\d{0,2}$/.test(value)) return;
+                          if (/^0\d+/.test(value)) {
+                            value = value.replace(/^0+/, "");
+                            if (value === "") value = "0";
+                          }
+
+                          const numericValue = parseFloat(value);
+                          if (numericValue > 100) value = "100";
+                          if (numericValue < 0) value = "0";
+
+                          props.setServicesObj((prev) => ({
+                            ...prev,
+                            vatPercentage: value,
+                          }));
+                        }}
+                        onBlur={(e) => {
+                          let value = e.target.value;
+                          if (value.endsWith(".")) value = value.slice(0, -1);
+                          if (value === "") value = "0";
+                          props.setServicesObj((prev) => ({
+                            ...prev,
+                            vatPercentage: value,
+                          }));
+                        }}
+                      />
+                      {props.serviceError.basicInformationError &&
+                      (props.servicesObj.vatPercentage === "" ||
+                        props.servicesObj.vatPercentage === undefined) ? (
+                        <label className="validation">{ERROR_MESSAGES}</label>
+                      ) : (
+                        ""
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
+            )}
 
             <div className="col-lg-6 col-md-6 col-sm-6 col-xsm-12">
               {props.common.organisationKeyID !== null &&
@@ -5081,6 +5083,8 @@ const Add_Update_Service = (props) => {
           } else {
             AddUpdateServiceData(ApiRequest_ParamsObj);
           }
+        } else {
+          AddUpdateServiceData(ApiRequest_ParamsObj);
         }
       } else if (NextTab == "ConfirmedToSave") {
         AddUpdateServiceData(ApiRequest_ParamsObj);

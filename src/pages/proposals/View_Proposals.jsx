@@ -437,12 +437,10 @@ const View_Proposals = () => {
               (obj) => obj.serviceChargeTypeID === 2,
             );
 
-            if (
-              RecurringDetails !== undefined &&
-              RecurringDetails?.length !== 0
-            ) {
+            if (RecurringDetails !== undefined) {
               setVATPercentage(RecurringDetails[0]?.vatPercentage);
-            } else {
+            }
+            if (OneOffDetails !== undefined) {
               setVATPercentage(OneOffDetails[0]?.vatPercentage);
             }
 
