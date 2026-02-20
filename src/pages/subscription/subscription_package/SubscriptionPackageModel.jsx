@@ -278,9 +278,10 @@ function SubscriptionPackageModel(props) {
       setRequireErrorMessage(""); // Clear the error message if there are no errors.
     }
     if (
-      subscriptionPackageObj.pages === undefined ||
-      subscriptionPackageObj.pages === "" ||
-      subscriptionPackageObj.pages === null
+      subscriptionPackageObj.enablePdfToCsv &&
+      (subscriptionPackageObj.pages === undefined ||
+        subscriptionPackageObj.pages === "" ||
+        subscriptionPackageObj.pages === null)
     ) {
       scrollUpDownByElementID("Pages");
       setRequireErrorMessage(true);
@@ -348,7 +349,9 @@ function SubscriptionPackageModel(props) {
       sendQuote: subscriptionPackageObj.sendQuote,
       prepareContract: subscriptionPackageObj.prepareContract,
       enablePdfToCsv: subscriptionPackageObj.enablePdfToCsv,
-      noOfPages: subscriptionPackageObj.pages,
+      noOfPages: subscriptionPackageObj.pages
+        ? subscriptionPackageObj.pages
+        : 0,
       sendContract: subscriptionPackageObj.sendContract,
       signContract: subscriptionPackageObj.sendContract,
       isMailBox: subscriptionPackageObj.isMailBox,

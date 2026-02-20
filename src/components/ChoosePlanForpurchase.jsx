@@ -878,6 +878,44 @@ const ChoosePlanForPurchase = (props) => {
                                                       </span>
                                                     </div>
                                                     <div>
+                                                      {PurchasePlanList?.enablePdfToCsv ===
+                                                        true ||
+                                                      PurchasePlanList?.enablePdfToCsv ===
+                                                        null ? (
+                                                        <span
+                                                          style={{
+                                                            color: "green",
+                                                          }}
+                                                          className="fa fa-check"
+                                                        ></span>
+                                                      ) : (
+                                                        <span
+                                                          style={{
+                                                            color: "red",
+                                                          }}
+                                                          className="fa fa-times"
+                                                        ></span>
+                                                      )}
+                                                      <span
+                                                        style={{
+                                                          marginLeft: "10px",
+                                                        }}
+                                                      >
+                                                        {" "}
+                                                        {PurchasePlanList?.noOfPages ===
+                                                        null
+                                                          ? "PDF To CSV"
+                                                          : "PDF To CSV: "}
+                                                        {PurchasePlanList?.noOfPages ===
+                                                        1
+                                                          ? `${PurchasePlanList?.noOfPages} Page`
+                                                          : PurchasePlanList?.noOfPages >
+                                                              1
+                                                            ? `${PurchasePlanList?.noOfPages} Pages`
+                                                            : ""}
+                                                      </span>
+                                                    </div>
+                                                    <div>
                                                       {PurchasePlanList?.isMailBox ===
                                                         true ||
                                                       PurchasePlanList?.isMailBox ===
