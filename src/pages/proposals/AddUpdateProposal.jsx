@@ -23,6 +23,7 @@ import {
   ProposalHeader,
   ServiceChargeTypeEnum,
   servicePackageTypeID,
+  statusID,
 } from "../../Middleware/enums";
 import EditableCell from "../../components/EditableCell";
 import { AuthContextProvider } from "../../AuthContext/AuthContext";
@@ -4584,24 +4585,16 @@ const ReviewServicesComponent = (props) => {
                                         props.formatValue(
                                           Number(
                                             props.RecurringPricingInfo
-                                              .DiscountedTotal,
-                                          ) +
-                                            Number(
-                                              props.RecurringPricingInfo
-                                                .totalServiceWiseVAT,
-                                            ),
+                                              .GrandTotal,
+                                          ),
                                           props.currencyID,
                                         )
                                       : // If no discount → use original total + VAT
                                         props.formatValue(
                                           Number(
                                             props.RecurringPricingInfo
-                                              .OriginalPrice,
-                                          ) +
-                                            Number(
-                                              props.RecurringPricingInfo
-                                                .totalServiceWiseVAT,
-                                            ),
+                                              .GrandTotal,
+                                          ),
                                           props.currencyID,
                                         )}
                                   </td>
@@ -19574,7 +19567,8 @@ const Add_Update_Proposal = (props) => {
                 const serviceSum = category.servicesList
                   .filter((service) => service.isSelected)
                   .reduce(
-                    (sum, service) => sum + (service.service_vat_amount || 0),
+                    (sum, service) =>
+                      Number(sum) + Number(service.service_vat_amount || 0),
                     0,
                   );
                 return catSum + serviceSum;
@@ -19604,7 +19598,10 @@ const Add_Update_Proposal = (props) => {
               DiscountedPrice: recDefaultPrice,
               MinPrice: recMinPrice,
               VATPrice: recVATPrice,
-              totalServiceWiseVAT: totalVATAmount,
+              totalServiceWiseVAT:
+                Number(RecurringPricingInfo.DefaultDiscount) < 0
+                  ? Number(RecurringPricingInfo.DiscountedPrice) * 0.2
+                  : totalVATAmount,
               staticTotalVAT: totalVATAmount,
               VATPriceWithoutDiscount: recVATPrice,
               Discount: recDiscount,
@@ -22833,12 +22830,18 @@ const Add_Update_Proposal = (props) => {
           );
 
           const ModelData = data?.data?.responseData?.data;
-          const recurringServiceVat = ModelData.quotationFinalAmountList.find(
+          const recurringServiceVat = ModelData?.quotationFinalAmountList?.find(
             (item) => item.serviceChargeTypeID === 1,
-          ).vat;
-          const oneOffServiceVat = ModelData.quotationFinalAmountList.find(
+          )?.vat;
+          const oneOffServiceVat = ModelData?.quotationFinalAmountList?.find(
             (item) => item.serviceChargeTypeID === 2,
-          ).vat;
+          )?.vat;
+          const discountedValueVAT =
+            Number(ModelData?.recurringDiscountedPrice) >
+            Number(ModelData?.recurringOriginalPrice)
+              ? Math.round(Number(ModelData?.recurringDiscountedPrice) * 0.2)
+              : 0;
+
           if (ModelData.servicePackageID !== null) {
             const SelectedPackageDetails = ModelData.servicePackageID.map(
               (PackageID) => {
@@ -22924,7 +22927,11 @@ const Add_Update_Proposal = (props) => {
               ...RecurringPricingInfo,
               OriginalPrice: ModelData.recurringOriginalPrice,
               serviceWiseVATPrice: ModelData.recVATPrice,
-              totalServiceWiseVAT: recurringServiceVat,
+              totalServiceWiseVAT:
+                ModelData.recurringDiscountedPrice >
+                ModelData.recurringOriginalPrice
+                  ? discountedValueVAT
+                  : recurringServiceVat,
               DefaultDiscount: recDefaultDiscount,
               DiscountedPrice: Number(ModelData.recurringDiscountedPrice),
             });
@@ -22934,7 +22941,11 @@ const Add_Update_Proposal = (props) => {
               OriginalPrice: ModelData.recurringOriginalPrice_WithAllDecimal,
               DefaultDiscount: PercentageWithDecimal,
               DiscountedPrice: Number(ModelData.recurringDiscountedPrice),
-              totalServiceWiseVAT: recurringServiceVat,
+              totalServiceWiseVAT:
+                ModelData.recurringDiscountedPrice >
+                ModelData.recurringOriginalPrice
+                  ? discountedValueVAT
+                  : recurringServiceVat,
             });
             setOneOffPricingInfo({
               ...OneOffPricingInfo,
@@ -24199,19 +24210,21 @@ const Add_Update_Proposal = (props) => {
       const data = await AddUpdateQuote(URL, params);
       if (data?.data?.statusCode === 200) {
         // console.log(EmailStausData.data.responseData); //if false then mail is not sent if true then mail is sent.
-        if (!data?.data?.responseData?.isEmailSent[0]?.isMailSent) {
-          const EmailStausData = await GetProspectSendMailStatus(
-            common.userKeyID,
-            common.organisationKeyID,
-            "AddUpdateQuote",
-            "Temp Key Id",
-          );
-          if (!EmailStausData?.data?.responseData) {
-            setEmailCheckModel((prev) => ({
-              ...prev,
-              ModuleName: "PL",
-            }));
-            setOpenEmailFailurePopUp(true);
+        if (statusID === statusID.Sent) {
+          if (!data?.data?.responseData?.isEmailSent[0]?.isMailSent) {
+            const EmailStausData = await GetProspectSendMailStatus(
+              common.userKeyID,
+              common.organisationKeyID,
+              "AddUpdateQuote",
+              "Temp Key Id",
+            );
+            if (!EmailStausData?.data?.responseData) {
+              setEmailCheckModel((prev) => ({
+                ...prev,
+                ModuleName: "PL",
+              }));
+              setOpenEmailFailurePopUp(true);
+            }
           }
         }
         setLoader(false);
@@ -24243,17 +24256,18 @@ const Add_Update_Proposal = (props) => {
 
         setLoader(false);
       }
-
-      if (data.response.data.errorMessage === "Client - Send Mail Failed") {
-        // Call Get prospect send mail status api
-        const EmailStausData = await GetProspectSendMailStatus(
-          common.userKeyID,
-          common.organisationKeyID,
-          "AddUpdateQuote",
-          "Temp Key Id",
-        );
-        if (!EmailStausData.data.responseData) {
-          setOpenEmailFailurePopUp(true);
+      if (statusID === statusID.Sent) {
+        if (data.response.data.errorMessage === "Client - Send Mail Failed") {
+          // Call Get prospect send mail status api
+          const EmailStausData = await GetProspectSendMailStatus(
+            common.userKeyID,
+            common.organisationKeyID,
+            "AddUpdateQuote",
+            "Temp Key Id",
+          );
+          if (!EmailStausData.data.responseData) {
+            setOpenEmailFailurePopUp(true);
+          }
         }
       }
     } catch (error) {

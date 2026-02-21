@@ -14307,14 +14307,86 @@ const Add_Update_Engagement_Letter = () => {
               })),
             }));
 
+            let staticVATChangeFreq = 0;
+
+            if (engagementObj.Payment_Frequency === 4) {
+              recArrayWithPrice.forEach((category) => {
+                category.servicesList.forEach((service) => {
+                  // Half the VAT amount
+                  if (
+                    service.service_vat_amount !== undefined &&
+                    service.service_vat_amount !== null
+                  ) {
+                    const selectedFreqVAT = Number(
+                      service.service_vat_amount / 12,
+                    );
+                    service.service_vat_amount = selectedFreqVAT.toFixed(2);
+
+                    // total VAT
+                    staticVATChangeFreq += selectedFreqVAT;
+                  }
+                });
+              });
+            } else if (engagementObj.Payment_Frequency === 3) {
+              recArrayWithPrice.forEach((category) => {
+                category.servicesList.forEach((service) => {
+                  // Half the VAT amount
+                  if (
+                    service.service_vat_amount !== undefined &&
+                    service.service_vat_amount !== null
+                  ) {
+                    const selectedFreqVAT = Number(
+                      service.service_vat_amount / 4,
+                    );
+                    service.service_vat_amount = selectedFreqVAT.toFixed(2);
+
+                    // total VAT
+                    staticVATChangeFreq += selectedFreqVAT;
+                  }
+                });
+              });
+            } else if (engagementObj.Payment_Frequency === 2) {
+              recArrayWithPrice.forEach((category) => {
+                category.servicesList.forEach((service) => {
+                  // Half the VAT amount
+                  if (
+                    service.service_vat_amount !== undefined &&
+                    service.service_vat_amount !== null
+                  ) {
+                    const selectedFreqVAT = Number(
+                      service.service_vat_amount / 2,
+                    );
+                    service.service_vat_amount = selectedFreqVAT.toFixed(2);
+
+                    // total VAT
+                    staticVATChangeFreq += selectedFreqVAT;
+                  }
+                });
+              });
+            } else if (engagementObj.Payment_Frequency === 1) {
+              recArrayWithPrice.forEach((category) => {
+                category.servicesList.forEach((service) => {
+                  // Half the VAT amount
+                  if (
+                    service.service_vat_amount !== undefined &&
+                    service.service_vat_amount !== null
+                  ) {
+                    const selectedFreqVAT = Number(service.service_vat_amount);
+                    service.service_vat_amount = selectedFreqVAT.toFixed(2);
+
+                    // total VAT
+                    staticVATChangeFreq += selectedFreqVAT;
+                  }
+                });
+              });
+            }
+
             let totalOne = 0;
             let totalVATOne = 0;
             let totalTwo = 0;
             let totalVATTwo = 0;
             let totalThree = 0;
             let totalVATThree = 0;
-
-            debugger;
 
             recArrayWithPrice.forEach((category) => {
               category.servicesList.forEach((service) => {
@@ -14658,7 +14730,8 @@ const Add_Update_Engagement_Letter = () => {
                 const serviceSum = category.servicesList
                   .filter((service) => service.isSelected)
                   .reduce(
-                    (sum, service) => sum + (service.service_vat_amount || 0),
+                    (sum, service) =>
+                      Number(sum) + Number(service.service_vat_amount || 0),
                     0,
                   );
                 return catSum + serviceSum;
@@ -14672,7 +14745,8 @@ const Add_Update_Engagement_Letter = () => {
                 const serviceSum = category.servicesList
                   .filter((service) => service.isSelected)
                   .reduce(
-                    (sum, service) => sum + (service.service_vat_amount || 0),
+                    (sum, service) =>
+                      Number(sum) + Number(service.service_vat_amount || 0),
                     0,
                   );
                 return catSum + serviceSum;
@@ -20100,6 +20174,40 @@ const Add_Update_Engagement_Letter = () => {
                 watermarkImage: item.watermarkImage,
                 orientationID: item.orientationID,
                 showSeparatorLines: Boolean(item.showSeparatorLines),
+                pricingTableColumnIDs: item.pricingTableColumnIDs
+                  ? item.pricingTableColumnIDs
+                  : "",
+                mainHeadingSD: item.mainHeadingSD,
+                recurringOnGoingHeadingSD: item.recurringOnGoingHeadingSD,
+                oneOffAdhocHeadingSD: item.oneOffAdhocHeadingSD,
+                mainHeadingFontSizeSD: item.mainHeadingFontSizeSD,
+                recurringOnGoingHeadingFontSizeSD:
+                  item.recurringOnGoingHeadingFontSizeSD,
+                oneOffAdhocFontSizeSD: item.oneOffAdhocFontSizeSD,
+                mainHeadingIsBoldSD: item.mainHeadingIsBoldSD,
+                mainHeadingIsItalicSD: item.mainHeadingIsItalicSD,
+                recurringOnGoingHeadingIsBoldSD:
+                  item.recurringOnGoingHeadingIsBoldSD,
+                recurringOnGoingHeadingIsItalicSD:
+                  item.recurringOnGoingHeadingIsItalicSD,
+                oneOffAdhocHeadingIsBoldSD: item.oneOffAdhocHeadingIsBoldSD,
+                oneOffAdhocHeadingIsItalicSD: item.oneOffAdhocHeadingIsItalicSD,
+                mainHeadingSOF: item.mainHeadingSOF,
+                recurringOnGoingHeadingSOF: item.recurringOnGoingHeadingSOF,
+                oneOffAdhocHeadingSOF: item.oneOffAdhocHeadingSOF,
+                mainHeadingFontSizeSOF: item.mainHeadingFontSizeSOF,
+                recurringOnGoingHeadingFontSizeSOF:
+                  item.recurringOnGoingHeadingFontSizeSOF,
+                oneOffAdhocFontSizeSOF: item.oneOffAdhocFontSizeSOF,
+                mainHeadingIsBoldSOF: item.mainHeadingIsBoldSOF,
+                mainHeadingIsItalicSOF: item.mainHeadingIsItalicSOF,
+                recurringOnGoingHeadingIsBoldSOF:
+                  item.recurringOnGoingHeadingIsBoldSOF,
+                recurringOnGoingHeadingIsItalicSOF:
+                  item.recurringOnGoingHeadingIsItalicSOF,
+                oneOffAdhocHeadingIsBoldSOF: item.oneOffAdhocHeadingIsBoldSOF,
+                oneOffAdhocHeadingIsItalicSOF:
+                  item.oneOffAdhocHeadingIsItalicSOF,
               }));
               setTemplateLookUpOptions(TemplateOption);
             }
@@ -20129,6 +20237,40 @@ const Add_Update_Engagement_Letter = () => {
                 watermarkImage: item.watermarkImage,
                 orientationID: item.orientationID,
                 showSeparatorLines: Boolean(item.showSeparatorLines),
+                pricingTableColumnIDs: item.pricingTableColumnIDs
+                  ? item.pricingTableColumnIDs
+                  : "",
+                mainHeadingSD: item.mainHeadingSD,
+                recurringOnGoingHeadingSD: item.recurringOnGoingHeadingSD,
+                oneOffAdhocHeadingSD: item.oneOffAdhocHeadingSD,
+                mainHeadingFontSizeSD: item.mainHeadingFontSizeSD,
+                recurringOnGoingHeadingFontSizeSD:
+                  item.recurringOnGoingHeadingFontSizeSD,
+                oneOffAdhocFontSizeSD: item.oneOffAdhocFontSizeSD,
+                mainHeadingIsBoldSD: item.mainHeadingIsBoldSD,
+                mainHeadingIsItalicSD: item.mainHeadingIsItalicSD,
+                recurringOnGoingHeadingIsBoldSD:
+                  item.recurringOnGoingHeadingIsBoldSD,
+                recurringOnGoingHeadingIsItalicSD:
+                  item.recurringOnGoingHeadingIsItalicSD,
+                oneOffAdhocHeadingIsBoldSD: item.oneOffAdhocHeadingIsBoldSD,
+                oneOffAdhocHeadingIsItalicSD: item.oneOffAdhocHeadingIsItalicSD,
+                mainHeadingSOF: item.mainHeadingSOF,
+                recurringOnGoingHeadingSOF: item.recurringOnGoingHeadingSOF,
+                oneOffAdhocHeadingSOF: item.oneOffAdhocHeadingSOF,
+                mainHeadingFontSizeSOF: item.mainHeadingFontSizeSOF,
+                recurringOnGoingHeadingFontSizeSOF:
+                  item.recurringOnGoingHeadingFontSizeSOF,
+                oneOffAdhocFontSizeSOF: item.oneOffAdhocFontSizeSOF,
+                mainHeadingIsBoldSOF: item.mainHeadingIsBoldSOF,
+                mainHeadingIsItalicSOF: item.mainHeadingIsItalicSOF,
+                recurringOnGoingHeadingIsBoldSOF:
+                  item.recurringOnGoingHeadingIsBoldSOF,
+                recurringOnGoingHeadingIsItalicSOF:
+                  item.recurringOnGoingHeadingIsItalicSOF,
+                oneOffAdhocHeadingIsBoldSOF: item.oneOffAdhocHeadingIsBoldSOF,
+                oneOffAdhocHeadingIsItalicSOF:
+                  item.oneOffAdhocHeadingIsItalicSOF,
               }));
               setTemplateLookUpOptions(TemplateOption);
             }
@@ -20178,6 +20320,46 @@ const Add_Update_Engagement_Letter = () => {
             Payment_Frequency: ModelData.paymentFrequencyID,
             paymentGatewayID: ModelData.paymentGatewayID,
           });
+          updateVisibleFieldsFromIds(TemplateValue?.pricingTableColumnIDs);
+          setServiceDescriptionObj((prev) => ({
+            ...prev,
+            mainHeading: TemplateValue?.mainHeadingSD,
+            recurringOnGoingHeading: TemplateValue?.recurringOnGoingHeadingSD,
+            oneOffAdhocHeading: TemplateValue?.oneOffAdhocHeadingSD,
+            mainHeadingFontSize: TemplateValue?.mainHeadingFontSizeSD,
+            recurringOnGoingHeadingFontSize:
+              TemplateValue?.recurringOnGoingHeadingFontSizeSD,
+            oneOffAdhocFontSize: TemplateValue?.oneOffAdhocFontSizeSD,
+            mainHeadingIsBold: TemplateValue?.mainHeadingIsBoldSD,
+            mainHeadingIsItalic: TemplateValue?.mainHeadingIsItalicSD,
+            recurringOnGoingHeadingIsBold:
+              TemplateValue?.recurringOnGoingHeadingIsBoldSD,
+            recurringOnGoingHeadingIsItalic:
+              TemplateValue?.recurringOnGoingHeadingIsItalicSD,
+            oneOffAdhocHeadingIsBold: TemplateValue?.oneOffAdhocHeadingIsBoldSD,
+            oneOffAdhocHeadingIsItalic:
+              TemplateValue?.oneOffAdhocHeadingIsItalicSD,
+          }));
+          setStatementOfFactsObj((prev) => ({
+            ...prev,
+            mainHeading: TemplateValue?.mainHeadingSOF,
+            recurringOnGoingHeading: TemplateValue?.recurringOnGoingHeadingSOF,
+            oneOffAdhocHeading: TemplateValue?.oneOffAdhocHeadingSOF,
+            mainHeadingFontSize: TemplateValue?.mainHeadingFontSizeSOF,
+            recurringOnGoingHeadingFontSize:
+              TemplateValue?.recurringOnGoingHeadingFontSizeSOF,
+            oneOffAdhocFontSize: TemplateValue?.oneOffAdhocFontSizeSOF,
+            mainHeadingIsBold: TemplateValue?.mainHeadingIsBoldSOF,
+            mainHeadingIsItalic: TemplateValue?.mainHeadingIsItalicSOF,
+            recurringOnGoingHeadingIsBold:
+              TemplateValue?.recurringOnGoingHeadingIsBoldSOF,
+            recurringOnGoingHeadingIsItalic:
+              TemplateValue?.recurringOnGoingHeadingIsItalicSOF,
+            oneOffAdhocHeadingIsBold:
+              TemplateValue?.oneOffAdhocHeadingIsBoldSOF,
+            oneOffAdhocHeadingIsItalic:
+              TemplateValue?.oneOffAdhocHeadingIsItalicSOF,
+          }));
 
           // if (ModelData.contractSignatorieList.length === 0) {
           //   setLoader(true);
