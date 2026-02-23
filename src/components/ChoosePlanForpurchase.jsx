@@ -869,9 +869,9 @@ const ChoosePlanForPurchase = (props) => {
                                                           0 && (
                                                           <>
                                                             :{" "}
-                                                            {formatValueWithoutCurrencySymbol(
-                                                              PurchasePlanList?.eSignaturePerMonth,
-                                                            )}
+                                                            {
+                                                              PurchasePlanList?.eSignaturePerMonth
+                                                            }
                                                             /Month
                                                           </>
                                                         )}

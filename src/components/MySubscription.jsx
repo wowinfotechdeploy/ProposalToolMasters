@@ -722,9 +722,9 @@ const MySubscription = () => {
                                                       {"  "}
                                                       Send And Digitally Sign
                                                       The {EngagementName}:{" "}
-                                                      {formatValueWithoutCurrencySymbol(
-                                                        subScriptionActiveList?.eSignaturePerMonth,
-                                                      )}
+                                                      {
+                                                        subScriptionActiveList?.eSignaturePerMonth
+                                                      }
                                                       /Month
                                                     </span>
                                                   </p>
@@ -785,7 +785,17 @@ const MySubscription = () => {
                                                       }}
                                                     >
                                                       {" "}
-                                                      PDF To CSV
+                                                      {subScriptionActiveList?.noOfPages ===
+                                                      null
+                                                        ? "PDF To CSV"
+                                                        : "PDF To CSV: "}
+                                                      {subScriptionActiveList?.noOfPages ===
+                                                      1
+                                                        ? `${subScriptionActiveList?.noOfPages} Page`
+                                                        : subScriptionActiveList?.noOfPages >
+                                                            1
+                                                          ? `${subScriptionActiveList?.noOfPages} Pages`
+                                                          : ""}
                                                     </span>
                                                   </p>
                                                 </div>

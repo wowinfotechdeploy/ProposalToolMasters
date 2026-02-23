@@ -977,7 +977,62 @@ function SubscriptionPackageModel(props) {
                           />
                         </FormGroup>
                       </div>
-                      <div class="col-lg-6 col-md-6 col-sm-6 text-start text-md-end mt-2 p-2">
+                      {/* <div class="col-lg-6 col-md-6 col-sm-6 text-start text-md-end mt-2 p-2">
+                        <TextField
+                          label={<span>Yearly value for the plan </span>}
+                          id="outlined-basic"
+                          variant="outlined"
+                          type="text"
+                          InputLabelProps={{
+                            sx: {
+                              fontWeight: "bold",
+                            },
+                          }}
+                          size="small"
+                          value={
+                            subscriptionPackageObj?.yearlyValuePlan === "" ||
+                            subscriptionPackageObj?.yearlyValuePlan === null
+                              ? 0
+                              : subscriptionPackageObj?.yearlyValuePlan
+                                  ?.toString()
+                                  .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                          }
+                          onChange={(e) => {
+                            setErrorMessage("");
+                            let inputValue = e.target.value;
+                            // Remove leading zeros
+                            inputValue = inputValue.replace(/^0+/, "");
+                            // Remove non-numeric characters except decimal point
+                            inputValue = inputValue.replace(/[^\d.]/g, "");
+                            // Limit to 12 digits before the decimal point
+                            if (inputValue.includes(".")) {
+                              const [integerPart, decimalPart] =
+                                inputValue.split(".");
+                              inputValue = `${integerPart.slice(
+                                0,
+                                7,
+                              )}.${decimalPart.slice(0, 2)}`;
+                            } else {
+                              inputValue = inputValue.slice(0, 7);
+                            }
+                            setDiscountPriceError(false);
+                            // Add commas to the number
+                            inputValue = inputValue;
+                            setSubscriptionPackageObj({
+                              ...subscriptionPackageObj,
+                              yearlyValuePlan: inputValue,
+                            });
+                          }}
+                        />
+                      </div> */}
+                    </div>
+                  </div>
+                  <div className="fieldset-group">
+                    <label htmlFor="" className="fieldset-group-label required">
+                      Fees
+                    </label>
+                    <div class="row">
+                      <div class="col-lg-6 col-md-6 col-sm-6 text-start mt-2 p-2">
                         <TextField
                           label={<span>Yearly value for the plan </span>}
                           id="outlined-basic"
@@ -1025,6 +1080,7 @@ function SubscriptionPackageModel(props) {
                           }}
                         />
                       </div>
+                      <div class="col-lg-6 col-md-6 col-sm-6"></div>
                     </div>
                   </div>
                   {!subscriptionPackageObj.isFreePackage && (
