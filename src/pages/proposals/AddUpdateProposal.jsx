@@ -1,5 +1,7 @@
 /* global $ */
 import React, { useContext, useEffect, useRef, useState } from "react";
+import * as pdfjsLib from "pdfjs-dist/build/pdf";
+import pdfWorker from "pdfjs-dist/build/pdf.worker.entry";
 import { lazy, Suspense } from "react";
 import "../configure/packages/Package.css";
 import "./Proposals.css";
@@ -82,6 +84,7 @@ const PricingTableCustomizationModal = lazy(
 const PricingTableTemplatesModal = lazy(
   () => import("../../components/PricingTableTemplatesModal"),
 );
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
 
 const BasicInformationComponent = (props) => {
   const navigate = useNavigate();
@@ -17217,6 +17220,9 @@ const Add_Update_Proposal = (props) => {
   const [pricingTableColumnIDs, setPricingTableColumnIDs] = useState("");
   const [headerContent, setHeaderContent] = useState(null);
   const [footerContent, setFooterContent] = useState(null);
+  const [flagForTemplatePdf, setFlagForTemplatePdf] = useState(false);
+  const [awsPdfWidth, setAwsPdfWidth] = useState(null);
+  const [awsPdfHeight, setAwsPdfHeight] = useState(null);
   const [fontSize, setFontSize] = useState("");
   const [isDefaultFirstPage, setIsDefaultFirstPage] = useState(null);
   const [CompanyLogo, setCompanyLogo] = useState(null);
@@ -22698,7 +22704,7 @@ const Add_Update_Proposal = (props) => {
               : ModelData.templateElementListWithRequiredData
                   .clientNameOnFirstPage;
           const firstPageHTML = `
-            <div style="margin-top: 300px;>
+            <div data-first-page="true" style="margin-top: 300px;>
   <div style="display: flex; justify-content: center; align-items: center; text-align: center;margin-top:${
     Logo ? `-100px` : "0px"
   }">
@@ -22726,7 +22732,31 @@ const Add_Update_Proposal = (props) => {
             (item) => item.templateElementTypeID === 10,
           );
           let AddFirstPageHtmlContent = [...ModelData.templateElementList];
+          setFlagForTemplatePdf(ModelData.templateElementList.find(
+            (item) => item.templateElementTypeID === 9)
+          );
+          const pdfElement = ModelData.templateElementList.find(
+            (item) => item.templateElementTypeID === 9
+          );
+          const getPdfDimensions = async (pdfUrl) => {
+            setLoader(true);
+            const pdf = await pdfjsLib.getDocument(pdfUrl).promise;
+            setLoader(false);
+            const page = await pdf.getPage(1);
+            const viewport = page.getViewport({ scale: 1 });
+            return {
+              targetWidth: viewport.width,
+              targetHeight: viewport.height
+            };
+          };
+          let targetWidth = 595.28;  // default A4
+          let targetHeight = 841.89; // default A4
 
+          if (pdfElement) {
+            const dimensions = await getPdfDimensions(pdfElement.htmlContent); // htmlContent has the AWS URL
+            setAwsPdfWidth(dimensions.targetWidth);
+            setAwsPdfHeight(dimensions.targetHeight);
+          }
           if (!isAddedFirstPage) {
             const firstPageElement = {
               ttetMapID: null,
@@ -22742,7 +22772,7 @@ const Add_Update_Proposal = (props) => {
             const imgTag = `<img src="${Logo}" alt="Logo" style="display: none; margin: 0 auto 15px;">`;
 
             // Insert the imgTag after the closing </div> tag
-            const updatedHtmlContent = `${imgTag}${firstPage.htmlContent}`;
+            const updatedHtmlContent = `${imgTag}${firstPage?.htmlContent}`;
 
             // Create a new object with the updated htmlContent
             const updatedFirstPage = {
@@ -26601,6 +26631,9 @@ const Add_Update_Proposal = (props) => {
                 <Suspense>
                   <PreviewComponentPdf
                     isDefaultFirstPage={isDefaultFirstPage}
+                    flagForTemplatePdf={flagForTemplatePdf}
+                    awsPdfHeight={awsPdfHeight}
+                    awsPdfWidth={awsPdfWidth}
                     DocumentCode={DocumentCode}
                     setIsAddUpdatePricingActionDone={
                       setIsAddUpdatePricingActionDone

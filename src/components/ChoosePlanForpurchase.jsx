@@ -435,7 +435,7 @@ const ChoosePlanForPurchase = (props) => {
                   <div class="card-body">
                     <div id="customerList">
                       <div class="row g-4 mb-3"></div>
-                      <div class="table-responsive table-card  mb-3 table-padding">
+                      <div class="table-responsive table-card mt-4 mb-3 table-padding">
                         <div class="modal-body">
                           <>
                             <div className="scrollbar" id="style-1">

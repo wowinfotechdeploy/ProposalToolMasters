@@ -87,6 +87,7 @@ const NewDashboard = () => {
     setDashboardCountListLoader,
     setDashboardActivityLogLoader,
     loader,
+    GetOnlyDate
   } = useContext(AuthContextProvider);
   let getActivityLogListApiCallCount = 0;
   let getOrganisationLookupListApiCallCount = 0;
@@ -363,7 +364,7 @@ const NewDashboard = () => {
           const defaultColumns = {
             quotationDraft: `${proposalName} Draft`,
             quotationSent: `${proposalName} Sent`,
-            quotationAwaitingSignature: `${proposalName} Awaiting Response`,
+            // quotationAwaitingSignature: `${proposalName} Awaiting Response`,
             quotationAccepted: `${proposalName} Accepted`,
             quotationDeclined: `${proposalName} Declined`,
           };
@@ -386,7 +387,7 @@ const NewDashboard = () => {
           const baseRows = [];
           for (const [key, value] of Object.entries(DashboardCountsListData)) {
             for (const [subKey, val] of Object.entries(value)) {
-              if (subKey in columnsToShow) {
+              if (subKey in columnsToShow && val > 0) {
                 baseRows.push([columnsToShow[subKey], val]);
               }
             }
@@ -406,7 +407,11 @@ const NewDashboard = () => {
             "One Off Price",
             "Status",
             "Last Updated On",
+            "Drafted On Date",
             "Sent On Date",
+            "Skipped On Date",
+            "Accepted On Date",
+            "Declined On Date"
           ];
           baseRowsProposal.push(proposalHeader);
           baseRowsProposal.push([]);
@@ -428,6 +433,9 @@ const NewDashboard = () => {
             const statusMappings = [
               { id: 1, label: "Draft" },
               { id: 2, label: "Sent" },
+              { id: 3, label: "Skipped" },
+              { id: 6, label: "Accepted" },
+              { id: 7, label: "Declined" },
             ];
 
             // Filter and process data for each status
@@ -445,8 +453,12 @@ const NewDashboard = () => {
                 // new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(item.oneOffPrice || 0),
                 formatValue(item.oneOffPrice, 1),
                 label,
-                item.lastUpdatedOn || "-",
-                item.sentOn || "-",
+                item.lastUpdatedOn || item.acceptDeclineDate || item.sentOn || item.createdOn || "-",
+                item.statusID === 1 ? item.createdOn : "-",
+                item.statusID !== 1 && item.statusID !== 3 ? item.sentOn : "-",
+                item.statusID === 3 ? item.sentOn : "-",
+                item.statusID === 6 ? item.acceptDeclineDate : "-",
+                item.statusID === 7 ? item.acceptDeclineDate : "-",
               ]);
               baseRowsProposal.push(...dataRows);
             });
@@ -465,10 +477,12 @@ const NewDashboard = () => {
               "One Off Price",
               "Status",
               "Last Updated On",
+              "Drafted On Date",
               "Sent On Date",
               "Viewed On Date",
               "Signed On Date",
               "Declined On Date",
+              "Void On Date"
             ];
             baseRowsContract.push(contractHeader);
             baseRowsContract.push([]);
@@ -505,11 +519,16 @@ const NewDashboard = () => {
                   formatValue(item.recurringPrice, 1),
                   formatValue(item.oneOffPrice, 1),
                   label,
-                  item.lastUpdatedOn || "-",
+                  item.lastUpdatedOn ? item.lastUpdatedOn
+                    : item.statusID === 5
+                      ? GetOnlyDate(item.signedOn)
+                        : item.declinedOn ?? item.viewedOn ?? item.sentOn ?? item.createdOn ?? "-",
+                  item.statusID === 1 ? item.createdOn : "-",
                   item.sentOn || "-",
                   item.viewedOn || "-",
-                  item.signedOn || "-",
-                  item.declinedOn || "-",
+                  item.statusID === 5 ? GetOnlyDate(item.signedOn) : "-",
+                  item.statusID === 7 ? item.declinedOn : "-",
+                  item.statusID === 8 ? item.lastUpdatedOn : "-"
                 ]);
                 baseRowsContract.push(...dataRows);
               });

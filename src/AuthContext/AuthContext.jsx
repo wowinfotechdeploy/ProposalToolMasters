@@ -704,6 +704,38 @@ const AuthContext = ({ children }) => {
     }
     return { fromDate: _fromDate, toDate: today };
   };
+  const GetOnlyDate = (value) => {
+    if (!value) return "";
+
+    // Case 1: Format like "May 28 2025  6:03PM" or "May  9 2025  5:55PM"
+    if (/[A-Za-z]{3}\s+\d{1,2}\s+\d{4}/.test(value)) {
+      const [monthStr, day, year] = value.trim().split(/\s+/);
+      const monthMap = {
+        Jan: "01",
+        Feb: "02",
+        Mar: "03",
+        Apr: "04",
+        May: "05",
+        Jun: "06",
+        Jul: "07",
+        Aug: "08",
+        Sep: "09",
+        Oct: "10",
+        Nov: "11",
+        Dec: "12",
+      };
+      const month = monthMap[monthStr];
+      const formattedDay = day.padStart(2, "0");
+      return `${formattedDay}/${month}/${year}`;
+    }
+
+    // Case 2: Format like "6/11/2025 10:21:35 AM"
+    const [datePart] = value.split(" ");
+    const [month, day, year] = datePart.split("/"); // US format mm/dd/yyyy
+    const formattedDay = day.padStart(2, "0");
+    const formattedMonth = month.padStart(2, "0");
+    return `${formattedDay}/${formattedMonth}/${year}`;
+  };
   const hasActionAccess = (moduleId, mActionId) => {
     let userAccess = localStorage.getItem("userAccess");
     userAccess = JSON.parse(userAccess);
@@ -3641,6 +3673,7 @@ const AuthContext = ({ children }) => {
         isValidNumber,
         getFontStylesFromHtml,
         GetActiveDateRange,
+        GetOnlyDate,
         topbar,
         loader,
         listCount,

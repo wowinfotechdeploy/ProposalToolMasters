@@ -309,6 +309,9 @@ export default function PreviewComponentPdf(props) {
   const FooterHeight = props.footerHeight;
   const WatermarkImage = props.watermarkImage;
   const orientationID = props.orientationID;
+  const flagForTemplatePdf = props.flagForTemplatePdf;
+  const awsPdfWidth = props.awsPdfWidth;
+  const awsPdfHeight = props.awsPdfHeight;
   const headerFooterFirstPage = props?.isDefaultFirstPage
     ? props?.headerFooterFirstPage
     : null;
@@ -1421,7 +1424,10 @@ export default function PreviewComponentPdf(props) {
       showSeparatorLines: showSeparatorLines,
       landscapeMode: landscapeMode,
       headerFooterFirstPage: headerFooterFirstPage,
-      headerFooterLastPage: headerFooterLastPage,
+      // headerFooterLastPage: headerFooterLastPage,
+      flagForTemplatePdf: flagForTemplatePdf,
+      awsPdfHeight: awsPdfHeight,
+      awsPdfWidth: awsPdfWidth
     };
 
     try {
@@ -1554,6 +1560,9 @@ export default function PreviewComponentPdf(props) {
             BrandLogo,
             fontFamily,
             landscapeMode,
+            flagForTemplatePdf,
+            awsPdfHeight,
+            awsPdfWidth,
           ),
         );
         await Promise.all(promises);
@@ -7399,6 +7408,7 @@ ${
           style={{ height: isMobile ? "" : "54vh" }}
           className="tab-pane active"
         >
+          {!flagForTemplatePdf &&
           <button
             onClick={toggleLandscape}
             className="btn btn-primary btn-sm mt-2"
@@ -7407,6 +7417,7 @@ ${
             <Landscape />
             {landscapeMode ? "Switch to Portrait" : "Switch to Landscape"}
           </button>
+          }
           {MergePdfUrl &&
             (isMobile ? (
               <Suspense>
