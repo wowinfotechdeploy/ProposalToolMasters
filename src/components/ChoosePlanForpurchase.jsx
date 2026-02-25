@@ -733,32 +733,7 @@ const ChoosePlanForPurchase = (props) => {
                                                     </div>
                                                   </div>
                                                   <div className="pricing-features mt-1 pt-2">
-                                                    <div>
-                                                      {PurchasePlanList?.apiIntegration ==
-                                                      true ? (
-                                                        <span
-                                                          style={{
-                                                            color: "green",
-                                                          }}
-                                                          className="fa fa-check"
-                                                        ></span>
-                                                      ) : (
-                                                        <span
-                                                          style={{
-                                                            color: "red",
-                                                          }}
-                                                          className="fa fa-times"
-                                                        ></span>
-                                                      )}
-                                                      <span
-                                                        style={{
-                                                          marginLeft: "10px",
-                                                        }}
-                                                      >
-                                                        {" "}
-                                                        API Integration
-                                                      </span>
-                                                    </div>
+                                                    {/* Prepare Proposal */}
                                                     <div>
                                                       {PurchasePlanList?.prepareQuote ==
                                                       true ? (
@@ -785,33 +760,7 @@ const ChoosePlanForPurchase = (props) => {
                                                         Prepare {proposalName}
                                                       </span>
                                                     </div>
-                                                    <div>
-                                                      {PurchasePlanList?.prepareContract ===
-                                                      true ? (
-                                                        <span
-                                                          style={{
-                                                            color: "green",
-                                                          }}
-                                                          className="fa fa-check"
-                                                        ></span>
-                                                      ) : (
-                                                        <span
-                                                          style={{
-                                                            color: "red",
-                                                          }}
-                                                          className="fa fa-times"
-                                                        ></span>
-                                                      )}
-                                                      {"  "}
-                                                      <span
-                                                        style={{
-                                                          marginLeft: "10px",
-                                                        }}
-                                                      >
-                                                        {" "}
-                                                        Prepare {EngagementName}
-                                                      </span>
-                                                    </div>
+                                                    {/* Send Proposal */}
                                                     <div>
                                                       {PurchasePlanList?.sendQuote ===
                                                       true ? (
@@ -838,7 +787,38 @@ const ChoosePlanForPurchase = (props) => {
                                                         Send {proposalName}
                                                       </span>
                                                     </div>
-
+                                                    {/* Prepare EL */}
+                                                    <div>
+                                                      {PurchasePlanList?.prepareContract ===
+                                                      true ? (
+                                                        <span
+                                                          style={{
+                                                            color: "green",
+                                                          }}
+                                                          className="fa fa-check"
+                                                        ></span>
+                                                      ) : (
+                                                        <span
+                                                          style={{
+                                                            color: "red",
+                                                          }}
+                                                          className="fa fa-times"
+                                                        ></span>
+                                                      )}
+                                                      {"  "}
+                                                      <span
+                                                        style={{
+                                                          marginLeft: "10px",
+                                                        }}
+                                                      >
+                                                        {" "}
+                                                        Prepare {
+                                                          EngagementName
+                                                        }{" "}
+                                                        (EL)
+                                                      </span>
+                                                    </div>
+                                                    {/* Send and sign EL */}
                                                     <div className="d-flex align-items-start">
                                                       <div>
                                                         {PurchasePlanList?.eSignaturePerMonth >
@@ -860,15 +840,14 @@ const ChoosePlanForPurchase = (props) => {
                                                       </div>
                                                       <span
                                                         style={{
-                                                          marginLeft: "10px",
+                                                          marginLeft: "13px",
                                                         }}
                                                       >
-                                                        Send And Digitally Sign
-                                                        The {EngagementName}
+                                                        Send And E-Sign The EL
                                                         {PurchasePlanList?.eSignaturePerMonth >
                                                           0 && (
                                                           <>
-                                                            :{" "}
+                                                            :
                                                             {
                                                               PurchasePlanList?.eSignaturePerMonth
                                                             }
@@ -877,6 +856,63 @@ const ChoosePlanForPurchase = (props) => {
                                                         )}
                                                       </span>
                                                     </div>
+                                                    {/* Personalized SMTP */}
+                                                    <div>
+                                                      {PurchasePlanList?.isMailBox ===
+                                                        true ||
+                                                      PurchasePlanList?.isMailBox ===
+                                                        null ? (
+                                                        <span
+                                                          style={{
+                                                            color: "green",
+                                                          }}
+                                                          className="fa fa-check"
+                                                        ></span>
+                                                      ) : (
+                                                        <span
+                                                          style={{
+                                                            color: "red",
+                                                          }}
+                                                          className="fa fa-times"
+                                                        ></span>
+                                                      )}
+                                                      <span
+                                                        style={{
+                                                          marginLeft: "10px",
+                                                        }}
+                                                      >
+                                                        {" "}
+                                                        Personalized SMTP
+                                                      </span>
+                                                    </div>
+                                                    {/* Single API */}
+                                                    <div>
+                                                      {PurchasePlanList?.apiIntegration ==
+                                                      true ? (
+                                                        <span
+                                                          style={{
+                                                            color: "green",
+                                                          }}
+                                                          className="fa fa-check"
+                                                        ></span>
+                                                      ) : (
+                                                        <span
+                                                          style={{
+                                                            color: "red",
+                                                          }}
+                                                          className="fa fa-times"
+                                                        ></span>
+                                                      )}
+                                                      <span
+                                                        style={{
+                                                          marginLeft: "10px",
+                                                        }}
+                                                      >
+                                                        {" "}
+                                                        API Integration
+                                                      </span>
+                                                    </div>
+                                                    {/* PDF TO CSV */}
                                                     <div>
                                                       {PurchasePlanList?.enablePdfToCsv ===
                                                         true ||
@@ -915,35 +951,7 @@ const ChoosePlanForPurchase = (props) => {
                                                             : ""}
                                                       </span>
                                                     </div>
-                                                    <div>
-                                                      {PurchasePlanList?.isMailBox ===
-                                                        true ||
-                                                      PurchasePlanList?.isMailBox ===
-                                                        null ? (
-                                                        <span
-                                                          style={{
-                                                            color: "green",
-                                                          }}
-                                                          className="fa fa-check"
-                                                        ></span>
-                                                      ) : (
-                                                        <span
-                                                          style={{
-                                                            color: "red",
-                                                          }}
-                                                          className="fa fa-times"
-                                                        ></span>
-                                                      )}
-                                                      <span
-                                                        style={{
-                                                          marginLeft: "10px",
-                                                        }}
-                                                      >
-                                                        {" "}
-                                                        Personalized Outgoing
-                                                        Mailbox
-                                                      </span>
-                                                    </div>
+
                                                     {PurchasePlanList && (
                                                       <div
                                                         className="d-flex flex-column"
