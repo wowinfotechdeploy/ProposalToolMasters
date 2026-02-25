@@ -176,6 +176,8 @@ const View_Proposals = () => {
 
   const [totalRecServiceVAT, setTotalRecServiceVAT] = useState(null);
   const [totalOneOffServiceVAT, setTotalOneOffServiceVAT] = useState(null);
+  const [serviceDescriptionHTML, setServiceDescriptionHTML] = useState(null);
+  const [statementOfFactsHTML, setStatementOfFactsHTML] = useState(null);
 
   const [RecurringPricingInfo, setRecurringPricingInfo] = useState({
     OriginalPrice: 0,
@@ -329,6 +331,8 @@ const View_Proposals = () => {
 
           setPricingTableColumnIDs(ModelData.pricingTableColumnIDs);
           updateVisibleFieldsFromIds(ModelData.pricingTableColumnIDs);
+          setServiceDescriptionHTML(ModelData.serviceDescription);
+          setStatementOfFactsHTML(ModelData.statementOfFacts);
 
           const finalQuotationAmountList =
             data?.data?.responseData?.finalQuotationAmountList;
@@ -1491,6 +1495,28 @@ const View_Proposals = () => {
                               aria-selected="false"
                             >
                               Selected Services
+                            </a>
+                          </li>
+                          <li class="nav-item">
+                            <a
+                              class="nav-link tab_nav"
+                              data-bs-toggle="tab"
+                              href="#service_description"
+                              role="tab"
+                              aria-selected="false"
+                            >
+                              Service Description
+                            </a>
+                          </li>
+                          <li class="nav-item">
+                            <a
+                              class="nav-link tab_nav"
+                              data-bs-toggle="tab"
+                              href="#sof"
+                              role="tab"
+                              aria-selected="false"
+                            >
+                              Statment Of Facts
                             </a>
                           </li>
                           <li class="nav-item">
@@ -9039,6 +9065,35 @@ const View_Proposals = () => {
                                 )}
                               </>
                             )}
+                          </div>
+                          <div
+                            className="tab-pane fade"
+                            id="service_description"
+                            role="tabpanel"
+                          >
+                            <div className="shadow-sm border-0">
+                              <div
+                                className="card-body"
+                                dangerouslySetInnerHTML={{
+                                  __html: serviceDescriptionHTML,
+                                }}
+                              />
+                            </div>
+                          </div>
+
+                          <div
+                            className="tab-pane fade"
+                            id="sof"
+                            role="tabpanel"
+                          >
+                            <div className="shadow-sm border-0">
+                              <div
+                                className="card-body"
+                                dangerouslySetInnerHTML={{
+                                  __html: statementOfFactsHTML,
+                                }}
+                              />
+                            </div>
                           </div>
                           <div class="tab-pane" id="Officer" role="tabpanel">
                             <div
