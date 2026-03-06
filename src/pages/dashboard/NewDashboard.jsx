@@ -364,6 +364,7 @@ const NewDashboard = () => {
           const defaultColumns = {
             quotationDraft: `${proposalName} Draft`,
             quotationSent: `${proposalName} Sent`,
+            quotationSkipped: `${proposalName} Skipped`,
             // quotationAwaitingSignature: `${proposalName} Awaiting Response`,
             quotationAccepted: `${proposalName} Accepted`,
             quotationDeclined: `${proposalName} Declined`,

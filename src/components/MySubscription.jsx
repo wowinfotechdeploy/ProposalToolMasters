@@ -25,11 +25,13 @@ const MySubscription = () => {
   const [subscriptionPackageObj, setSubscriptionPackageObj] = useState({
     ospKeyID: null,
     remainingESignatures: null,
+    remainingQuotesPerMonth: null,
     apiIntegration: null,
     subscriptionPackageKeyID: null,
     packageName: "",
     prepareQuote: false,
     sendQuote: false,
+    quotesPerMonth: null,
     prepareContract: false,
     sendContract: false,
     signContract: false,
@@ -246,11 +248,13 @@ const MySubscription = () => {
             ...subscriptionPackageObj,
             ospKeyID: ModelData.ospKeyID,
             remainingESignatures: ModelData.remainingESignatures,
+            remainingQuotesPerMonth: ModelData.remainingQuotesPerMonth,
             apiIntegration: ModelData.apiIntegration,
             subscriptionPackageKeyID: ModelData.subscriptionPackageKeyID,
             packageName: ModelData.packageName,
             prepareQuote: ModelData.prepareQuote,
             sendQuote: ModelData.sendQuote,
+            quotesPerMonth: ModelData.quotesPerMonth,
             prepareContract: ModelData.prepareContract,
             sendContract: ModelData.sendContract,
             signContract: ModelData.signContract,
@@ -530,6 +534,16 @@ const MySubscription = () => {
                                                   </p>
                                                   <p className="mt-0 mb-1 text-dark">
                                                     <b>
+                                                      Remaining Proposals
+                                                    </b>
+                                                    :{" "}
+                                                    {subScriptionActiveList.remainingQuotesPerMonth <
+                                                    0
+                                                      ? 0
+                                                      : subScriptionActiveList.remainingQuotesPerMonth}
+                                                  </p>
+                                                  <p className="mt-0 mb-1 text-dark">
+                                                    <b>
                                                       Remaining E-Signatures
                                                     </b>
                                                     :{" "}
@@ -694,7 +708,29 @@ const MySubscription = () => {
                                                       Send {proposalName}
                                                     </span>
                                                   </p>
-
+                                                   <p className="mt-0 mb-1 text-dark">
+                                                      {subScriptionActiveList?.sendQuote === true && subScriptionActiveList?.quotesPerMonth > 0 && 
+                                                        (
+                                                          <>
+                                                          <span
+                                                          style={{
+                                                            color: "green",
+                                                          }}
+                                                          className="fa fa-check"
+                                                        ></span>
+                                                          <span
+                                                            style={{
+                                                            marginLeft: "10px",
+                                                            }}
+                                                          >
+                                                          {" "}
+                                                          Prepare and Send {proposalName}:{" "}
+                                                          {formatValueWithoutCurrencySymbol(subScriptionActiveList?.quotesPerMonth)}
+                                                          /Month
+                                                        </span>
+                                                        </>
+                                                      )}
+                                                    </p>    
                                                   <p className="mt-0 mb-1 text-dark">
                                                     {subScriptionActiveList?.signContract ===
                                                     true ? (

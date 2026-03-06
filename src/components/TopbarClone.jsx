@@ -57,6 +57,9 @@ const TopbarClone = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [showUserModal, setShowUserModal] = useState(false);
   const settingsRef = useRef(null);
+  const configRef = useRef(null);
+  const subscriptionRef = useRef(null);
+  const settingsMenuRef = useRef(null);
   const [isHoveredDashboard, setIsHoveredDashboard] = useState(false);
   const [isHoveredProspect, setIsHoveredProspect] = useState(false);
   const [isHoveredProposal, setIsHoveredProposal] = useState(false);
@@ -116,7 +119,11 @@ const TopbarClone = () => {
     setProspectName,
     setOrgLoaderList,
     setActiveOrganizationSubscriptionPlan,
+    lightenColor
   } = useContext(AuthContextProvider);
+  const listColor = lightenColor(TopbarStyle.backgroundColor,0.35);
+  const subListColor = lightenColor(TopbarStyle.backgroundColor,0.55);
+  console.log(subListColor);
   const common = useSelector((state) => state.Storage);
   const navigate = useNavigate();
   const location = useLocation();
@@ -319,25 +326,31 @@ const TopbarClone = () => {
     setShowModal(false);
   };
 
+  // const toggleSettingDropdown = () => {
+  //   const list = document.getElementById("Subscription");
+  //   setIsSettingDropdownOpen(!isSettingDropdownOpen);
+  //   if (!isSettingDropdownOpen) {
+  //     list.style.display = "block";
+  //     list.scrollIntoView({ behavior: "smooth", block: "start" });
+  //   } else {
+  //     list.style.display = "none";
+  //   }
+  // };
+
   const toggleSettingDropdown = () => {
-    const list = document.getElementById("Subscription");
-    setIsSettingDropdownOpen(!isSettingDropdownOpen);
-    if (!isSettingDropdownOpen) {
-      list.style.display = "block";
-      list.scrollIntoView({ behavior: "smooth", block: "start" });
-    } else {
-      list.style.display = "none";
-    }
+    setIsSettingDropdownOpen(prev => !prev);
   };
 
-  const toggleUserRoleDropdown = () => {
+  const toggleUserRoleDropdown = (e) => {
     const list = document.getElementById("UserRole");
-    setIsUserRoleDropdownOpen(!isUserRoleDropdownOpen);
-    if (!isUserRoleDropdownOpen) {
-      list.style.display = "block";
-      list.scrollIntoView({ behavior: "smooth", block: "start" });
-    } else {
-      list.style.display = "none";
+    if (!list) return;
+
+    list.classList.toggle("show");
+
+    const isOpen = list.classList.contains("show");
+
+    if (settingsMenuRef.current) {
+      settingsMenuRef.current.setAttribute("aria-expanded", String(isOpen));
     }
   };
 
@@ -482,34 +495,55 @@ const TopbarClone = () => {
     }
   };
 
-  const showConfigList = () => {
-    const configs = document.getElementById("config");
-    configs.style.display = "flex";
+ const showConfigList = () => {
+  document.getElementById("config")?.classList.add("show");
+  if (configRef.current) {
+    configRef.current.setAttribute("aria-expanded", "true");
+  }
+};
+
+  const showSubscriptionList = () => {
+    const sub = document.getElementById("Subscription");
+    if (!sub) return;
+
+    sub.classList.add("show");
+
+    if (subscriptionRef.current) {
+      subscriptionRef.current.setAttribute("aria-expanded", "true");
+    }
   };
 
-  const showConfigSubList = (id) => {
-    const list = document.getElementById(id);
-    list.classList.add("d-block");
-    list.classList.remove("d-none");
-  };
-
-  const hideConfigSubList = (id) => {
-    const list = document.getElementById(id);
-    list.classList.remove("d-block");
-    list.classList.add("d-none");
-  };
-  const showSettingSubList = (id) => {
-    const list = document.getElementById(id);
-    list.style.display = "block";
-  };
   const hideSettingList = () => {
-    setIsSettingDropdownOpen(false);
+    const setting = document.getElementById("Setting");
+  if (!setting) return;
+
+  setting.classList.remove("show");
+  if (settingsRef.current) {
+    settingsRef.current.setAttribute("aria-expanded", "false");
+  }
+
+  document.querySelectorAll("#Setting .subList").forEach((el) => {
+    el.classList.remove("show");
+    const link = el.parentElement.querySelector(".nav-link");
+    if (link) link.setAttribute("aria-expanded", "false");
+  });
   };
+
   const hideSettingSubList = (id) => {
     const configs = document.getElementById(id);
     configs.style.display = "none";
   };
 
+  const hideSubscriptionList = () => {
+    const sub = document.getElementById("Subscription");
+    if (!sub) return;
+
+    sub.classList.remove("show");
+
+    if (subscriptionRef.current) {
+      subscriptionRef.current.setAttribute("aria-expanded", "false");
+    }
+  };
   //   const hideConfigList = () => {
   //   const configs = document.getElementById("config");
   //   // Add a small delay to allow clicking on items outside hover area
@@ -517,22 +551,21 @@ const TopbarClone = () => {
   //     configs.style.display = "none";
   //   }, 200); // 200ms delay
   // };
-  const hideConfigList = () => {
-    const configs = document.getElementById("config");
-    const allSubLists = document.querySelectorAll(".subList");
+ const hideConfigList = () => {
+  const config = document.getElementById("config");
+  if (!config) return;
 
-    // Reset all sublists
-    allSubLists.forEach((list) => {
-      list.style.display = "none";
-      // Reset aria-expanded states if using them
-      const trigger = document.querySelector(`a[href="#${list.id}"]`);
-      if (trigger) trigger.setAttribute("aria-expanded", "false");
-    });
+  config.classList.remove("show");
+  if (configRef.current) {
+    configRef.current.setAttribute("aria-expanded", "false");
+  }
 
-    setTimeout(() => {
-      configs.style.display = "none";
-    }, 200);
-  };
+  document.querySelectorAll("#config .subList").forEach((el) => {
+    el.classList.remove("show");
+    const link = el.parentElement.querySelector(".nav-link");
+    if (link) link.setAttribute("aria-expanded", "false");
+  });
+};
   // const hideConfigSubList = (id) => {
   //   const list = document.getElementById(id);
   //   if (list) list.style.display = "none";
@@ -577,79 +610,66 @@ const TopbarClone = () => {
   // };
 
   const toggleConfigSubList = (id) => {
-    const list = document.getElementById(id);
-    if (!list) return;
+  const list = document.getElementById(id);
+  if (!list) return;
 
-    const parent = list.parentElement;
-    const toggleLink = parent.querySelector(".nav-link");
-    const configContainer = document.getElementById("config");
+  const isOpen = list.classList.contains("show");
 
-    // Close all other sublists
-    document.querySelectorAll("#config .subList").forEach((el) => {
-      if (el !== list) {
-        el.classList.remove("d-block");
-        el.classList.add("d-none");
+  document.querySelectorAll("#config .subList").forEach((el) => {
+    el.classList.remove("show");
+    const link = el.parentElement.querySelector(".nav-link");
+    if (link) link.setAttribute("aria-expanded", "false");
+    
+  });
 
-        const link = el.parentElement.querySelector(".nav-link");
-        if (link) link.setAttribute("aria-expanded", "false");
-      }
-    });
-
-    const isOpen = list.classList.contains("d-block");
-
-    if (isOpen) {
-      // Close clicked sublist
-      list.classList.remove("d-block");
-      list.classList.add("d-none");
-      toggleLink.setAttribute("aria-expanded", "false");
-    } else {
-      // Open clicked sublist
-      list.classList.add("d-block");
-      list.classList.remove("d-none");
-      toggleLink.setAttribute("aria-expanded", "true");
-
-      list.scrollIntoView({ behavior: "smooth", block: "nearest" });
-
-      // Bind hover-out close ONCE to config container
-      if (configContainer && !configContainer.dataset.mouseleaveBound) {
-        configContainer.dataset.mouseleaveBound = "true";
-
-        configContainer.addEventListener("mouseleave", (event) => {
-          if (!configContainer.contains(event.relatedTarget)) {
-            document.querySelectorAll("#config .subList").forEach((el) => {
-              el.classList.remove("d-block");
-              el.classList.add("d-none");
-
-              const link = el.parentElement.querySelector(".nav-link");
-              if (link) link.setAttribute("aria-expanded", "false");
-            });
-          }
-        });
-      }
-    }
-  };
+  if (!isOpen) {
+    list.classList.add("show");
+    const link = list.parentElement.querySelector(".nav-link");
+    if (link) link.setAttribute("aria-expanded", "true");
+  }
+};
 
   const showUserSettingList = () => {
-    setIsUserRoleDropdownOpen(true);
+    const list = document.getElementById("UserRole");
+    if (!list) return;
+
+    list.classList.add("show");
+
+    if (settingsMenuRef.current) {
+      settingsMenuRef.current.setAttribute("aria-expanded", "true");
+    }
   };
   //show function for setting
   const showSettingList = () => {
-    setIsSettingDropdownOpen(true);
+    document.getElementById("Setting")?.classList.add("show");
+  if (settingsRef.current) {
+    settingsRef.current.setAttribute("aria-expanded", "true");
+  }
   };
 
   const toggleSettingList = () => {
-    const list = document.getElementById("Setting");
+    const setting = document.getElementById("Setting");
+  if (!setting) return;
 
-    if (list.style.display !== "block") {
-      list.style.display = "block";
-      setTimeout(() => {
-        list.scrollIntoView({
-          behavior: "smooth",
-          block: "end",
-        });
-      }, 100);
-    } else {
-      list.style.display = "none";
+  setting.classList.toggle("show");
+
+  // arrow follows config state
+  const isNowOpen = setting.classList.contains("show");
+  if (settingsRef.current) {
+    settingsRef.current.setAttribute("aria-expanded", String(isNowOpen));
+  }
+  };
+
+  const toggleSubscriptionList = () => {
+    const sub = document.getElementById("Subscription");
+    if (!sub) return;
+
+    sub.classList.toggle("show");
+
+    const isOpen = sub.classList.contains("show");
+
+    if (subscriptionRef.current) {
+      subscriptionRef.current.setAttribute("aria-expanded", String(isOpen));
     }
   };
 
@@ -688,53 +708,41 @@ const TopbarClone = () => {
   // };
   const toggleSettingSubList = (id) => {
     const list = document.getElementById(id);
-    const parent = list.parentElement; // parent <li> (top-level menu item)
-    const toggleLink = parent.querySelector(".nav-link");
-    const allLists = document.querySelectorAll(".subList");
-    const settingsContainer = document.getElementById("Setting");
+  if (!list) return;
 
-    // Close all other sublists
-    allLists.forEach((element) => {
-      if (element.classList.contains("d-block") && element.id !== id) {
-        element.classList.remove("d-block");
-        element.classList.add("d-none");
-        const link = element.parentElement.querySelector(".nav-link");
-        if (link) link.setAttribute("aria-expanded", "false");
-      }
+  const isOpen = list.classList.contains("show");
+
+  document.querySelectorAll("#Setting .subList").forEach((el) => {
+    el.classList.remove("show");
+    const link = el.parentElement.querySelector(".nav-link");
+    if (link) link.setAttribute("aria-expanded", "false");
+    
+  });
+
+  if (!isOpen) {
+    list.classList.add("show");
+    const link = list.parentElement.querySelector(".nav-link");
+    if (link) link.setAttribute("aria-expanded", "true");
+  }
+  };
+
+  const toggleUserRoleSettingSubList = (id) => {
+    const list = document.getElementById(id);
+    if (!list) return;
+
+    const isOpen = list.classList.contains("show");
+
+    document.querySelectorAll("#UserRole .subList").forEach((el) => {
+      el.classList.remove("show");
+      const link = el.parentElement.querySelector(".nav-link");
+      if (link) link.setAttribute("aria-expanded", "false");
+
     });
 
-    const isOpen = list.classList.contains("d-block");
-
-    // Toggle clicked sublist
-    if (isOpen) {
-      list.classList.remove("d-block");
-      list.classList.add("d-none");
-      toggleLink.setAttribute("aria-expanded", "false");
-    } else {
-      // Constrain width to parent
-      const parentWidth = parent.offsetWidth;
-      list.style.maxWidth = parentWidth + "px";
-      list.style.width = "100%";
-      list.style.boxSizing = "border-box";
-
-      list.classList.add("d-block");
-      list.classList.remove("d-none");
-      toggleLink.setAttribute("aria-expanded", "true");
-
-      list.scrollIntoView({ behavior: "smooth", block: "nearest" });
-
-      //  Add hover-out close behavior
-      const handleMouseLeave = (event) => {
-        // Close ONLY if mouse leaves SETTINGS, not sublist
-        if (!settingsContainer.contains(event.relatedTarget)) {
-          list.classList.remove("d-block");
-          list.classList.add("d-none");
-          toggleLink.setAttribute("aria-expanded", "false");
-
-          settingsContainer.removeEventListener("mouseleave", handleMouseLeave);
-        }
-      };
-      settingsContainer.addEventListener("mouseleave", handleMouseLeave);
+    if (!isOpen) {
+      list.classList.add("show");
+      const link = list.parentElement.querySelector(".nav-link");
+      if (link) link.setAttribute("aria-expanded", "true");
     }
   };
 
@@ -754,19 +762,36 @@ const TopbarClone = () => {
   //     list.style.display = "none";
   //   }
   // };
-  const toggleConfigList = () => {
-    const list = document.getElementById("config");
-    const isOpen = list.style.display === "block";
-    if (!isOpen) {
-      list.style.display = "block";
-      list.scrollIntoView({ behavior: "smooth", block: "start" });
-    } else {
-      list.style.display = "none";
-    }
-  };
+const toggleConfigList = () => {
+  const configs = document.getElementById("config");
+  if (!configs) return;
+
+  configs.classList.toggle("show");
+
+  // arrow follows config state
+  const isNowOpen = configs.classList.contains("show");
+  if (configRef.current) {
+    configRef.current.setAttribute("aria-expanded", String(isNowOpen));
+  }
+};
 
   const hideUserRoleList = () => {
-    setIsUserRoleDropdownOpen(false);
+    const list = document.getElementById("UserRole");
+    if (!list) return;
+
+    // Hide main dropdown
+    list.classList.remove("show");
+
+    if (settingsMenuRef.current) {
+      settingsMenuRef.current.setAttribute("aria-expanded", "false");
+    }
+
+    document.querySelectorAll("#UserRole .subList").forEach((el) => {
+      el.classList.remove("show");
+
+      const link = el.parentElement.querySelector(".nav-link");
+      if (link) link.setAttribute("aria-expanded", "false");
+    });
   };
   // logout function
   const Logout = () => {
@@ -1152,11 +1177,11 @@ const TopbarClone = () => {
           }}
         >
           <div id="scrollbar" className="mb-2" style={TopbarStyle}>
-            <div class="container">
+            <div style={{width: "100%" }}>
               <div id="two-column-menu">
                 <div>
                   <div
-                    className="pt-4"
+                    className="pt-4 me-2"
                     style={{
                       display: "flex",
                       justifyContent: "start",
@@ -1283,7 +1308,7 @@ const TopbarClone = () => {
                     style={{ paddingLeft: "0.5rem" }}
                     id="navbar-nav"
                   >
-                    <li class="nav-item edit-dropdown-cls">
+                    <li class="edit-dropdown-cls">
                       {accessCount !== 0 && (
                         <>
                           <div
@@ -1341,7 +1366,8 @@ const TopbarClone = () => {
                             className="d-flex"
                             style={{
                               alignItems: "center", // ensures vertical alignment
-                              marginLeft: "0.5rem",
+                              marginLeft: "0.2rem",
+                              marginRight: "0.4rem",
                               marginTop: "1rem", // same top margin for both
                             }}
                           >
@@ -1400,7 +1426,7 @@ const TopbarClone = () => {
               </button> */}
                   {/* <ul class="navbar-nav" id="navbar-nav"></ul> */}
                   <ul class="d-md-none d-block navbar-nav" id="navbar-nav">
-                    <li class="nav-item edit-dropdown-cls">
+                    <li class="edit-dropdown-cls">
                       {accessCount !== 0 && (
                         <>
                           <div
@@ -1500,7 +1526,7 @@ const TopbarClone = () => {
                     <ul
                       className={`changed-nav navbar-nav ${
                         isDropdownOpen ? " open" : ""
-                      } ms-2 mt-1`}
+                      } mt-1`}
                       // style={{paddingRight: "1rem"}}
                       id="navbar-UL-nav"
                     >
@@ -1536,6 +1562,7 @@ const TopbarClone = () => {
                               />
                               {/* <i class="bi bi-graph-up mr-2"></i> */}
                               <span
+                                className="menu-link"
                                 data-key="t-dashboard"
                                 style={{
                                   color: isHoveredDashboard
@@ -1680,19 +1707,19 @@ const TopbarClone = () => {
                           onMouseEnter={showConfigList}
                         >
                           <a
-                            class="nav-link menu-link"
-                            data-bs-toggle="collapse"
+                            className="nav-link menu-link"
+                            // data-bs-toggle="collapse"
                             role="button"
                             aria-expanded="false"
                             aria-controls="sidebarPages"
                             onClick={() => toggleConfigList()}
                             onMouseOver={() => setIsHoveredConfigure(true)}
                             onMouseOut={() => setIsHoveredConfigure(false)}
-                            ref={settingsRef}
+                            ref={configRef}
                             style={{
-                              color: isHoveredConfigure
-                                ? "#438eff"
-                                : TopTextColor.color,
+                              // color: isHoveredConfigure
+                              //   ? "#438eff"
+                              //   : TopTextColor.color,
                               fontWeight: "bold",
                               cursor: "pointer",
                             }}
@@ -1704,62 +1731,50 @@ const TopbarClone = () => {
                             />
                             <span
                               data-key="t-pages"
-                              style={{
-                                color: isHoveredConfigure ? "#438eff" : "#fff",
-                              }}
+                              // style={{
+                              //   color: isHoveredConfigure ? "#438eff" : "#fff",
+                              // }}
                             >
                               Configure
-                              <span
-                                style={{
-                                  display: "inline-block",
-                                  marginLeft: "4px",
-                                  fontSize: "12px",
-                                  transform:
-                                    isDropdownOpen || isHoveredConfigure
-                                      ? "rotate(180deg)"
-                                      : "rotate(0deg)",
-                                  transition: "transform 0.2s ease",
-                                  lineHeight: 1,
-                                }}
-                              >
-                                ▼
-                              </span>
+                             <span className="menu-arrow" />
                             </span>
                           </a>
                           {/* Main dropdown: normal flow */}
                           <div
                             id="config"
                             // data-bs-parent="#sidebar"
-                            // style={{
-                            //   display: isDropdownOpen ? "block" : "none",
-                            //   border: "none",
-                            //   // background: "#1e1e2f",
-                            // }}
+                            style={{
+                              "--listColor": listColor
+                            }}
                             className="menu-dropdown menu_dropdown Responsive-Config-service-package"
                           >
                             <ul className="nav nav-sm flex-column">
                               {userAccessData.Admin_Config_ServiceCat_CanView && (
                                 <li className="nav-item">
                                   <a
-                                    href="#sidebarProfile"
-                                    className="nav-link collapsed"
+                                    // href="#sidebarProfile"
+                                    className="nav-link"
                                     // data-bs-toggle="collapse"
                                     aria-expanded="false"
                                     // aria-controls="sidebarProfile"
                                     onClick={(e) => {
                                       e.preventDefault();
+                                      e.stopPropagation();
                                       toggleConfigSubList("servicesAndPackage");
                                     }}
-                                    style={{ cursor: "pointer" }}
+                                    style={{ cursor: "pointer"}}
                                   >
                                     Services/Packages
+                                    <span className="sub-arrow"></span>
                                   </a>
-
                                   {/* Sublist in normal flow */}
                                   <div
                                     id="servicesAndPackage"
                                     className="subList Service-package-bgColor"
-                                    data-bs-parent="#config"
+                                    style={{
+                                      "--subListColor": subListColor
+                                    }}
+                                    // data-bs-parent="#config"
                                     // style={{
                                     //   color: style.backgroundColor,
                                     //   // display: "none", // controlled via toggleConfigSubList
@@ -1830,11 +1845,15 @@ const TopbarClone = () => {
                                     data-key="t-profile"
                                   >
                                     Variables
+                                    <span className="sub-arrow"></span>
                                   </a>
 
                                   {/* Sublist: normal flow so it pushes siblings down */}
                                   <div
                                     id="variable"
+                                    style={{
+                                      "--subListColor": subListColor
+                                    }}
                                     className=" subList Service-package-bgColor"
                                   >
                                     <ul className="nav nav-sm flex-column">
@@ -1888,10 +1907,14 @@ const TopbarClone = () => {
                                     data-key="t-profile"
                                   >
                                     Templates
+                                    <span className="sub-arrow"></span>
                                   </a>
 
                                   {/* Sublist: normal flow */}
                                   <div
+                                    style={{
+                                      "--subListColor": subListColor
+                                    }}
                                     id="Template"
                                     className=" subList Service-package-bgColor"
                                   >
@@ -1960,11 +1983,15 @@ const TopbarClone = () => {
                                     data-key="t-profile"
                                   >
                                     Workflows
+                                    <span className="sub-arrow"></span>
                                   </a>
 
                                   {/* Sublist: normal flow */}
                                   <div
                                     id="Reminder"
+                                    style={{
+                                      "--subListColor": subListColor
+                                    }}
                                     className=" subList Service-package-bgColor"
                                     // style={{
                                     //   display: "none",      // toggled via toggleConfigSubList
@@ -2028,23 +2055,23 @@ const TopbarClone = () => {
                           onMouseEnter={() => showSettingList()}
                         >
                           <a
-                            href="#sidebarSignUp1"
-                            data-bs-toggle="collapse"
+                            // href="#sidebarSignUp1"
+                            // data-bs-toggle="collapse"
                             class="nav-link menu-link"
                             role="button"
                             aria-expanded="false"
                             aria-controls="sidebarSignUp1"
-                            data-key="t-signup"
-                            onClick={() => toggleSettingList()}
+                            // data-key="t-signup"
+                            onClick={toggleSettingList}
                             onMouseOver={() => setIsHoveredSetting(true)}
                             onMouseOut={() => setIsHoveredSetting(false)}
                             ref={settingsRef}
-                            style={{
-                              color: isHoveredSetting
-                                ? "#438eff"
-                                : TopTextColor.color,
-                              fontWeight: "bold",
-                            }}
+                            // style={{
+                            //   color: isHoveredSetting
+                            //     ? "#438eff"
+                            //     : TopTextColor.color,
+                            //   fontWeight: "bold",
+                            // }}
                           >
                             <img
                               src={SettingSvg}
@@ -2053,35 +2080,19 @@ const TopbarClone = () => {
                             />
                             <span
                               data-key="t-dashboard"
-                              style={{
-                                color: isHoveredSetting ? "#438eff" : "#fff",
-                              }}
+                              // style={{
+                              //   color: isHoveredSetting ? "#438eff" : "#fff",
+                              // }}
                             >
                               Settings
-                            </span>
-                            <span
-                              style={{
-                                display: "inline-block",
-                                color: isHoveredSetting ? "#438eff" : "#fff",
-                                marginLeft: "4px",
-                                fontSize: "12px",
-                                transform:
-                                  isDropdownOpen || isHoveredSetting
-                                    ? "rotate(180deg)"
-                                    : "rotate(0deg)",
-                                transition: "transform 0.2s ease",
-                                lineHeight: 1,
-                              }}
-                            >
-                              ▼
+                            <span className="menu-arrow"></span>
                             </span>
                           </a>
                           <div
-                            class="collapse menu-dropdown menu_dropdown Responsive-Config-service-package"
+                            class="menu-dropdown menu_dropdown Responsive-Config-service-package"
                             id="Setting"
-                            style={{
-                              ...style,
-                              display: isSettingDropdownOpen ? "block" : "none",
+                             style={{
+                              "--listColor": listColor
                             }}
                           >
                             <ul class="nav nav-sm flex-column">
@@ -2135,20 +2146,24 @@ const TopbarClone = () => {
                                     }
                                   >
                                     <a
-                                      href="#sidebarProfile"
-                                      class="nav-link collapsed"
-                                      data-bs-toggle="collapse"
+                                    //   href="#sidebarProfile"
+                                      class="nav-link"
+                                      // data-bs-toggle="collapse"
                                       role="button"
                                       aria-expanded="false"
-                                      aria-controls="sidebarProfile"
+                                      // aria-controls="sidebarProfile"
                                       data-key="t-profile"
                                     >
                                       API Integration
+                                    <span className="sub-arrow"></span>
                                     </a>
                                     <div
                                       class="subList Service-package-bgColor"
                                       id="WebIntegration"
-                                      style={style}
+                                      style={{
+                                      "--subListColor": subListColor
+                                    }}
+                                      // style={style}
                                     >
                                       <ul class="nav nav-sm flex-column">
                                         <li class="nav-item">
@@ -2165,7 +2180,7 @@ const TopbarClone = () => {
                                               //   whiteSpace: "nowrap"
                                               // }}
                                               class="nav-link"
-                                              data-key="t-basic-3 fw-bold"
+                                              // data-key="t-basic-3 fw-bold"
                                             >
                                               Setting
                                             </a>
@@ -2175,7 +2190,7 @@ const TopbarClone = () => {
                                           <NavLink
                                             to="/AccessKey"
                                             className="nav-link"
-                                            data-key="t-simple page"
+                                            // data-key="t-simple page"
                                             onClick={() => {
                                               toggleSettingList("Setting");
                                               NotificationCountData();
@@ -2219,19 +2234,23 @@ const TopbarClone = () => {
                                   }
                                 >
                                   <a
-                                    href="#sidebarProfile"
-                                    class="nav-link collapsed"
-                                    data-bs-toggle="collapse"
+                                    // href="#sidebarProfile"
+                                    class="nav-link"
+                                    // data-bs-toggle="collapse"
                                     role="button"
                                     aria-expanded="false"
-                                    aria-controls="sidebarProfile"
-                                    data-key="t-profile"
+                                    // aria-controls="sidebarProfile"
+                                    // data-key="t-profile"
                                   >
                                     Practice Config
+                                  <span className="sub-arrow"></span>
                                   </a>
                                   <div
-                                    class="subList collapse Responsive-Config-Variables"
+                                    class="subList Responsive-Config-Variables"
                                     id="PracticeConfig"
+                                    style={{
+                                      "--subListColor": subListColor
+                                    }}
                                     // style={{
                                     //       display: "none",      // toggled via toggleConfigSubList
                                     //       width: "100%",        // full parent width
@@ -2358,7 +2377,8 @@ const TopbarClone = () => {
                       )}
 
                       {/* PDF to CSV section starts */}
-
+                    {userAccessData.Admin_Setting_Practice_Config_CanView &&
+                      activeOrganizationSubscriptionPlan?.enablePdfToCsv && (
                       <li class="nav-item">
                         <NavLink
                           to="/pdf-to-csv"
@@ -2387,15 +2407,16 @@ const TopbarClone = () => {
                           />
                           <span
                             data-key="t-dashboard"
-                            style={{
-                              color: isHoveredPdfToCsv ? "#438eff" : "#fff",
-                            }}
+                            // style={{
+                            //   color: isHoveredPdfToCsv ? "#438eff" : "#fff",
+                            // }}
                             className="fw-bold"
                           >
                             PDF To CSV
                           </span>{" "}
                         </NavLink>
                       </li>
+                      )}
                       {/* PDF to CSV section ends */}
                     </ul>
                   )}
@@ -2405,8 +2426,8 @@ const TopbarClone = () => {
                         <ul
                           className={`changed-nav navbar-nav ${
                             isDropdownOpen ? " open" : ""
-                          } ms-2 mt-1`}
-                          style={{ paddingRight: "2rem" }}
+                          }`}
+                          // style={{ paddingRight: "2rem" }}
                           id="navbar-UL-nav"
                         >
                           <li class="menu-title">
@@ -2431,9 +2452,9 @@ const TopbarClone = () => {
                                 onMouseOver={() => setIsHoveredDashboards(true)}
                                 onMouseOut={() => setIsHoveredDashboards(false)}
                                 style={{
-                                  color: isHoveredDashboards
-                                    ? "#438eff"
-                                    : TopTextColor.color,
+                                  // color: isHoveredDashboards
+                                  //   ? "#438eff"
+                                  //   : TopTextColor.color,
                                   fontWeight: "bold",
                                 }}
                               >
@@ -2448,11 +2469,11 @@ const TopbarClone = () => {
                                 {/* <i class="bi bi-graph-up mr-2"></i> */}
                                 <span
                                   data-key="t-dashboard"
-                                  style={{
-                                    color: isHoveredDashboards
-                                      ? "#438eff"
-                                      : "#fff",
-                                  }}
+                                  // style={{
+                                  //   color: isHoveredDashboards
+                                  //     ? "#438eff"
+                                  //     : "#fff",
+                                  // }}
                                 >
                                   Dashboard
                                 </span>{" "}
@@ -2513,7 +2534,7 @@ const TopbarClone = () => {
                                   togglenav();
                                   NotificationCountData();
                                 }}
-                                activeclassname="active"
+                                // activeclassname="active"
                                 className="nav-link menu-link"
                                 onMouseOver={() => setIsHoveredUser(true)}
                                 onMouseOut={() => setIsHoveredUser(false)}
@@ -2563,12 +2584,12 @@ const TopbarClone = () => {
                                 onClick={toggleConfigList}
                                 onMouseOver={() => setIsHoveredConfigure(true)}
                                 onMouseOut={() => setIsHoveredConfigure(false)}
-                                style={{
-                                  color: isHoveredConfigure
-                                    ? "#438eff"
-                                    : TopTextColor.color,
-                                  fontWeight: "bold",
-                                }}
+                                // style={{
+                                //   color: isHoveredConfigure
+                                //     ? "#438eff"
+                                //     : TopTextColor.color,
+                                //   fontWeight: "bold",
+                                // }}
                               >
                                 <img
                                   src={ConfigSvg}
@@ -2581,28 +2602,14 @@ const TopbarClone = () => {
                                 {/* <i class="bi bi-tools mr-2"></i>{" "} */}
                                 <span
                                   data-key="t-pages"
-                                  style={{
-                                    color: isHoveredConfigure
-                                      ? "#438eff"
-                                      : "#fff",
-                                  }}
+                                  // style={{
+                                  //   color: isHoveredConfigure
+                                  //     ? "#438eff"
+                                  //     : "#fff",
+                                  // }}
                                 >
                                   Configure
-                                  <span
-                                    style={{
-                                      display: "inline-block",
-                                      marginLeft: "4px",
-                                      fontSize: "12px",
-                                      transform:
-                                        isDropdownOpen || isHoveredConfigure
-                                          ? "rotate(180deg)"
-                                          : "rotate(0deg)",
-                                      transition: "transform 0.2s ease",
-                                      lineHeight: 1,
-                                    }}
-                                  >
-                                    ▼
-                                  </span>
+                                  <span className="menu-arrow"></span>
                                 </span>
                               </a>
                               <div
@@ -2612,6 +2619,9 @@ const TopbarClone = () => {
                                 //   display: isDropdownOpen ? "block" : "none",
                                 //   border: "none",
                                 // }}
+                                style={{
+                                  "--listColor": listColor
+                                }}
                                 class="menu-dropdown menu_dropdown Responsive-Config-service-package"
                               >
                                 <ul class="nav nav-sm flex-column">
@@ -2631,8 +2641,8 @@ const TopbarClone = () => {
                                       // }
                                     >
                                       <a
-                                        href="#sidebarProfile"
-                                        class="nav-link collapsed"
+                                        // href="#sidebarProfile"
+                                        class="nav-link"
                                         // data-bs-toggle="collapse"
                                         // role="button"
                                         aria-expanded="false"
@@ -2644,13 +2654,18 @@ const TopbarClone = () => {
                                             "PredefinedServicesAndPackage",
                                           );
                                         }}
+                                        style={{ cursor: "pointer" }}
                                       >
                                         Predefined Services/Packages
+                                      <span className="sub-arrow"></span>
                                       </a>
                                       <div
                                         class="subList Service-package-bgColor"
                                         id="PredefinedServicesAndPackage"
-                                        style={style}
+                                        // style={style}
+                                        style={{  
+                                        "--subListColor": subListColor
+                                    }}
                                       >
                                         <ul class="nav nav-sm flex-column">
                                           {/*  Super Admin Config SubList Of SubList Modal Start */}
@@ -2736,10 +2751,14 @@ const TopbarClone = () => {
                                         }}
                                       >
                                         Predefined Variables
+                                        <span className="sub-arrow"></span>
                                       </a>
                                       <div
-                                        style={style}
-                                        class="subList Service-package-bgColor"
+                                        // style={style}
+                                      style={{
+                                        "--subListColor": subListColor
+                                      }}
+                                        class="subList"
                                         id="PredefinedVariable"
                                       >
                                         <ul class="nav nav-sm flex-column">
@@ -2810,11 +2829,15 @@ const TopbarClone = () => {
                                         }}
                                       >
                                         Predefined Templates
+                                        <span className="sub-arrow"></span>
                                       </a>
                                       <div
-                                        style={style}
+                                        // style={style}
                                         className="subList Service-package-bgColor"
                                         id="PredefinedTemplate"
+                                        style={{
+                                          "--subListColor": subListColor
+                                        }}
                                       >
                                         <ul class="nav nav-sm flex-column">
                                           {/*  Super Admin Config Third SubList of subList Modal start */}
@@ -2896,10 +2919,14 @@ const TopbarClone = () => {
                                         }}
                                       >
                                         Predefined Workflows
+                                        <span className="sub-arrow"></span>
                                       </a>
                                       <div
-                                        style={style}
+                                        // style={style}
                                         class="subList Service-package-bgColor"
+                                        style={{
+                                          "--subListColor": subListColor
+                                        }}
                                         id="PredefinedReminder"
                                       >
                                         <ul class="nav nav-sm flex-column">
@@ -2950,29 +2977,34 @@ const TopbarClone = () => {
                               //   paddingLeft:
                               //     windowWidth <= 767 ? "0px" : "10px",
                               // }}
-                              onMouseLeave={() => hideSettingList()}
-                              onMouseEnter={() => showSettingList()}
+                              onMouseLeave={() => hideSubscriptionList()}
+                              onMouseEnter={() => showSubscriptionList()}
                             >
                               <a
-                                href="#sidebarSignUp2"
+                                // href="#sidebarSignUp2"
+                                ref={subscriptionRef}
                                 class="nav-link menu-link"
-                                role="button"
-                                data-bs-toggle="collapse"
+                                // role="button"
+                                // data-bs-toggle="collapse"
                                 aria-expanded="false"
-                                aria-controls="sidebarSignUp2"
-                                data-key="t-signup"
-                                onClick={toggleSettingDropdown}
-                                // onMouseOver={() =>
-                                //   setIsHoveredSubscription(true)
-                                // }
-                                // onMouseOut={() =>
-                                //   setIsHoveredSubscription(false)
-                                // }
+                                // aria-controls="sidebarSignUp2"
+                                // data-key="t-signup"
+                                onClick={(e) => {
+                                   e.preventDefault();
+                                   toggleSubscriptionList();
+                                 }}
+                                onMouseOver={() =>
+                                  setIsHoveredSubscription(true)
+                                }
+                                onMouseOut={() =>
+                                  setIsHoveredSubscription(false)
+                                }
                                 style={{
                                   color: isHoveredSubscription
                                     ? "#438eff"
                                     : TopTextColor.color,
                                   fontWeight: "bold",
+                                  cursor: "pointer"
                                 }}
                                 // any issue arise ,undo this code
 
@@ -2989,38 +3021,27 @@ const TopbarClone = () => {
                                 ></i>
                                 <span
                                   data-key="t-dashboard"
-                                  style={{
-                                    color: isHoveredSubscription
-                                      ? "#438eff"
-                                      : "#fff",
-                                  }}
+                                  // style={{
+                                  //   color: isHoveredSubscription
+                                  //     ? "#438eff"
+                                  //     : "#fff",
+                                  // }}
                                 >
                                   Subscription
-                                  <span
-                                    style={{
-                                      display: "inline-block",
-                                      marginLeft: "8px",
-                                      fontSize: "12px",
-                                      transform:
-                                        isDropdownOpen || isHoveredSubscription
-                                          ? "rotate(180deg)"
-                                          : "rotate(0deg)",
-                                      transition: "transform 0.2s ease",
-                                      lineHeight: 1,
-                                    }}
-                                  >
-                                    ▼
-                                  </span>
+                                  <span className="menu-arrow"></span>
                                 </span>{" "}
                               </a>
                               <div
+                                // style={{
+                                //   ...style,
+                                //   display: isSettingDropdownOpen
+                                //     ? "block"
+                                //     : "none",
+                                // }}
                                 style={{
-                                  ...style,
-                                  display: isSettingDropdownOpen
-                                    ? "block"
-                                    : "none",
+                                  "--listColor": listColor
                                 }}
-                                class="menu-dropdown menu_dropdown Responsive-Config-service-package"
+                                className="menu-dropdown menu_dropdown Responsive-Config-service-package"
                                 id="Subscription"
                               >
                                 <ul class="nav nav-sm flex-column">
@@ -3101,22 +3122,24 @@ const TopbarClone = () => {
                               onMouseEnter={() => showUserSettingList()}
                             >
                               <a
-                                href="#sidebarSignUp3"
+                                // href="#sidebarSignUp3"
+                                ref={settingsMenuRef}
                                 class="nav-link menu-link"
                                 // role="button"
                                 // data-bs-toggle="collapse"
                                 // aria-expanded="false"
                                 // aria-controls="sidebarSignUp3"
-                                data-key="t-signup"
+                                // data-key="t-signup"
                                 onClick={toggleUserRoleDropdown}
                                 onMouseOver={() => setIsHoveredUserRole(true)}
                                 onMouseOut={() => setIsHoveredUserRole(false)}
-                                style={{
-                                  color: isHoveredUserRole
-                                    ? "#438EFF"
-                                    : TopTextColor.color,
-                                  fontWeight: "bold",
-                                }}
+                                // style={{
+                                //   color: isHoveredUserRole
+                                //     ? "#438EFF"
+                                //     : TopTextColor.color,
+                                //   fontWeight: "bold",
+                                // }}
+                                style={{cursor:"pointer"}}
                               >
                                 <img
                                   src={SettingSvg}
@@ -3128,39 +3151,28 @@ const TopbarClone = () => {
                                 />
                                 <span
                                   data-key="t-dashboard"
-                                  style={{
-                                    color: isHoveredUserRole
-                                      ? "#438eff"
-                                      : "#fff",
-                                  }}
+                                  // style={{
+                                  //   color: isHoveredUserRole
+                                  //     ? "#438eff"
+                                  //     : "#fff",
+                                  // }}
                                 >
                                   Settings
-                                  <span
-                                    style={{
-                                      display: "inline-block",
-                                      marginLeft: "4px",
-                                      fontSize: "12px",
-                                      transform:
-                                        isDropdownOpen || isHoveredUserRole
-                                          ? "rotate(180deg)"
-                                          : "rotate(0deg)",
-                                      transition: "transform 0.2s ease",
-                                      lineHeight: 1,
-                                    }}
-                                  >
-                                    ▼
-                                  </span>
+                                  <span className="menu-arrow"></span>
                                 </span>{" "}
                               </a>
                               <div
+                                // style={{
+                                //   ...style,
+                                //   display: isUserRoleDropdownOpen
+                                //     ? "block"
+                                //     : "none",
+                                //   width: "200px",
+                                // }}
                                 style={{
-                                  ...style,
-                                  display: isUserRoleDropdownOpen
-                                    ? "block"
-                                    : "none",
-                                  width: "200px",
+                                  "--listColor": listColor
                                 }}
-                                class="collapse menu-dropdown menu_dropdown Responsive-Config-service-package"
+                                class="menu-dropdown menu_dropdown"
                                 id="UserRole"
                               >
                                 <ul class="nav nav-sm flex-column">
@@ -3219,24 +3231,29 @@ const TopbarClone = () => {
                                     //   showSettingSubList("WebIntegration")
                                     // }
                                     onClick={() =>
-                                      toggleSettingSubList("WebIntegration")
+                                      toggleUserRoleSettingSubList("WebIntegration")
                                     }
                                   >
                                     <a
-                                      href="#sidebarProfile"
-                                      class="nav-link collapsed"
+                                      // href="#sidebarProfile"
+                                      class="nav-link"
                                       // data-bs-toggle="collapse"
                                       // role="button"
                                       aria-expanded="false"
                                       // aria-controls="sidebarProfile"
                                       data-key="t-profile"
+                                      style={{cursor:"pointer"}}
                                     >
                                       API Integration
+                                      <span className="sub-arrow"></span>
                                     </a>
                                     <div
-                                      class="subList Service-package-bgColor"
+                                      class="subList"
                                       id="WebIntegration"
-                                      style={style}
+                                      style={{
+                                      "--subListColor": subListColor
+                                    }}
+                                      // style={style}
                                     >
                                       <ul class="nav nav-sm flex-column">
                                         <li class="nav-item">
@@ -3246,8 +3263,8 @@ const TopbarClone = () => {
                                           >
                                             <a
                                               onClick={(e) => {
-                                                e.preventDefault();
-                                                // toggleSettingList("Setting");
+                                                // e.preventDefault();
+                                                toggleSettingList("Setting");
                                                 NotificationCountData();
                                               }}
                                               class="nav-link"
@@ -3265,7 +3282,7 @@ const TopbarClone = () => {
                                     <li class="nav-item">
                                       <a
                                         onClick={() => {
-                                          closeDropdown("Setting");
+                                          closeDropdown("UserRole");
                                           NotificationCountData();
                                         }}
                                         class="nav-link"
@@ -3293,24 +3310,29 @@ const TopbarClone = () => {
                                       //   showSettingSubList("Setting")
                                       // }
                                       onClick={() =>
-                                        toggleSettingSubList("Setting")
+                                        toggleUserRoleSettingSubList("Setting")
                                       }
                                     >
                                       <a
-                                        href="#sidebarProfile"
-                                        class="nav-link collapsed"
+                                        // href="#sidebarProfile"
+                                        class="nav-link"
                                         // data-bs-toggle="collapse"
                                         // role="button"
                                         aria-expanded="false"
                                         // aria-controls="sidebarProfile"
                                         data-key="t-profile"
+                                        style={{cursor:"pointer"}}
                                       >
                                         Super Admin Workflows
+                                        <span className="sub-arrow"></span>
                                       </a>
                                       <div
                                         class="subList Service-package-bgColor"
                                         id="Setting"
-                                        style={style}
+                                        style={{
+                                          "--subListColor": subListColor
+                                        }}
+                                        // style={style}
                                       >
                                         <ul class="nav nav-sm flex-column">
                                           <li class="nav-item">
@@ -3351,6 +3373,26 @@ const TopbarClone = () => {
                                               </a>
                                             </Link>
                                           </li>
+                                           {/* <li class="nav-item">
+                                            <Link
+                                              to="/subscription-reminder-list"
+                                              onClick={togglenav}
+                                            >
+                                              <a
+                                                onClick={() => {
+                                                  toggleSettingList("Setting");
+                                                  NotificationCountData();
+                                                }}
+                                                // style={{
+                                                //   whiteSpace: "nowrap",
+                                                // }}
+                                                class="nav-link"
+                                                data-key="t-basic-3"
+                                              >
+                                                Subscription Package Upgrade
+                                              </a>
+                                            </Link>
+                                          </li> */}
                                           <li class="nav-item">
                                             <Link
                                               to="/marketing-reminder"
@@ -3393,7 +3435,7 @@ const TopbarClone = () => {
             className="d-flex sidebar-bottom align-items-center justify-content-start"
             style={{
               zIndex: 9999,
-              padding: "5px 20px",
+              padding: "15px 5px 5px 5px",
             }}
           >
             <Tooltip title={"Notifications"}>

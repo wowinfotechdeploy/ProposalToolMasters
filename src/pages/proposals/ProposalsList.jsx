@@ -79,6 +79,7 @@ const Proposals = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [isAddUpdateActionDone, setIsAddUpdateActionDone] = useState(false);
   const [ProposalList, setProposalList] = useState([]);
+  const [remainingProposalsPerMonth, setRemainingProposalsPerMonth] = useState(null);
   const [SingleProposalList, setSingleProposalList] = useState([]);
   const [oldProposalList, setOldProposalList] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -500,6 +501,7 @@ const Proposals = () => {
           if (data?.data?.responseData?.data) {
             const totalCount = data.data.totalCount;
             const ProposalListData = data.data.responseData.data;
+            const remainingProposals = data.data.responseData.remainingQuotesPerMonth;
             if (pageNoList > 0 && ProposalListData.length === 0) {
               let newPaneNo = Number(pageNoList);
               if (newPaneNo > 1) {
@@ -511,6 +513,8 @@ const Proposals = () => {
             }
             setListCount(totalCount);
             setProposalList(ProposalListData);
+            setRemainingProposalsPerMonth(remainingProposals);
+            console.log(remainingProposals);
             setTotalRecords(ProposalListData.length);
           }
         } else {
@@ -677,7 +681,7 @@ const Proposals = () => {
 
   //Click Add Proposal
   const ProposalAddBtnClicked = () => {
-    if (activeOrganizationSubscriptionPlan?.prepareQuote !== true) {
+    if (activeOrganizationSubscriptionPlan?.prepareQuote !== true || (remainingProposalsPerMonth === undefined || remainingProposalsPerMonth === 0)) {
       setShowModal(true);
       return;
     }

@@ -10,6 +10,7 @@ function SubscriptionView(props) {
     formatValue,
     formatValueWithoutCurrencySymbol,
   } = useContext(AuthContextProvider);
+  console.log(props.subscriptionPackageObj);
   // console.log(props.subscriptionPackageObj, "props.subscriptionPackageObj")
   return (
     <div>
@@ -240,7 +241,29 @@ function SubscriptionView(props) {
                                   Send {proposalName}
                                 </span>
                               </p>
-
+                              <p className="mt-0 mb-1 text-dark">
+                              {props.subscriptionPackageObj?.sendQuote === true && props.subscriptionPackageObj?.quotesPerMonth > 0 && 
+                                (
+                                  <>
+                                  <span
+                                  style={{
+                                    color: "green",
+                                  }}
+                                  className="fa fa-check"
+                                ></span>
+                                  <span
+                                    style={{
+                                    marginLeft: "10px",
+                                    }}
+                                  >
+                                  {" "}
+                                  Prepare and Send {proposalName}:{" "}
+                                  {formatValueWithoutCurrencySymbol(props.subscriptionPackageObj?.quotesPerMonth)}
+                                  /Month
+                                </span>
+                                </>
+                              )}
+                              </p>
                               <p className="mt-0 mb-1 text-dark">
                                 {props.subscriptionPackageObj?.signContract ===
                                 true ? (
