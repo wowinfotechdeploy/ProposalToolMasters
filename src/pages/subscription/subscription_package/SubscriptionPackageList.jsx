@@ -434,7 +434,7 @@ const Subscription_Package = () => {
                                                 control={
                                                   <Android12Switch
                                                     disabled={
-                                                      subscriptionPackage.isFreePackage || subscriptionPackage.isFreeAfterTrial
+                                                      subscriptionPackage.isFreePackage
                                                     }
                                                     onClick={() =>
                                                       setModelRequestData(
@@ -487,7 +487,7 @@ const Subscription_Package = () => {
                                           </Tooltip>
                                         )}
                                         {userAccessData.SuperAdmin_Config_Subscription_Package_CanDelete &&
-                                          !(subscriptionPackage.isFreePackage || subscriptionPackage.isFreeAfterTrial) && (
+                                          !subscriptionPackage.isFreePackage && (
                                             <Tooltip
                                               title={
                                                 "Delete Subscription Package"

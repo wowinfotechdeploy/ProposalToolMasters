@@ -1,4 +1,3 @@
-import { Tooltip } from "@mui/material";
 import { useState } from "react";
 
 export default function EditableCell({ value, displayValue, onSave }) {
@@ -52,7 +51,6 @@ export default function EditableCell({ value, displayValue, onSave }) {
           style={{ width: "100%" }}
         />
       ) : (
-        <Tooltip title={value} arrow placement="top">
         <span style={{display: "flex", alignItems: "center"}}>
           {displayValue || text}
           {isMouseHover && (
@@ -61,7 +59,6 @@ export default function EditableCell({ value, displayValue, onSave }) {
             </span>
           )}
         </span>
-        </Tooltip>
       )}
     </div>
   );

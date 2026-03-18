@@ -40,8 +40,7 @@ export const AdditionalInformation = (props) => {
   }, []);
 
   const moduleNameForSaveAsDraft = "AdditionalInformation";
-  const { isValidEmail, isMobile, formatName } =
-    useContext(AuthContextProvider);
+  const { isValidEmail, isMobile } = useContext(AuthContextProvider);
   const [SignaturePositionValue, setSignaturePositionValue] = useState(
     (props.moduleName == "Contract" &&
       props?.contractSignatoriesList[0]?.signaturePositionID) ||
@@ -1097,7 +1096,7 @@ export const AdditionalInformation = (props) => {
                               type="text"
                               className="input-text"
                               placeholder="Last Name"
-                              value={formatName(signatory?.lastName)}
+                              value={signatory?.lastName}
                               onChange={(e) => {
                                 const inputValue = e.target.value.trim();
                                 const cleanedValue = inputValue.replace(
@@ -1107,7 +1106,7 @@ export const AdditionalInformation = (props) => {
                                 if (/\d/.test(cleanedValue)) return;
                                 const capitalizedValue =
                                   cleanedValue.charAt(0).toUpperCase() +
-                                  cleanedValue.slice(1).toLowerCase();
+                                  cleanedValue.slice(1);
                                 handleSignatoryBlock(
                                   index,
                                   "lastName",

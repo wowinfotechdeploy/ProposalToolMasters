@@ -1,7 +1,5 @@
 /* global $ */
 import React, { useContext, useEffect, useState, useRef } from "react";
-import * as pdfjsLib from "pdfjs-dist/build/pdf";
-import pdfWorker from "pdfjs-dist/build/pdf.worker.entry";
 import { lazy, Suspense } from "react";
 import "../../pages/configure/packages/Package.css";
 import Select from "react-select";
@@ -31,7 +29,6 @@ import {
   GetAdditionalInformationList,
   GetPackageServicesList,
   GetServicePackageLookupList,
-  StatementOfFactModal,
 } from "../../redux/Services/Config/PackageApi";
 import {
   GetClientLookupList,
@@ -89,7 +86,6 @@ const PreviewComponentPdf = lazy(
 const PricingTableTemplatesModal = lazy(
   () => import("../../components/PricingTableTemplatesModal"),
 );
-pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
 
 const BasicInformationComponent = (props) => {
   const navigate = useNavigate();
@@ -1725,7 +1721,7 @@ const ReviewServicesComponent = (props) => {
 
     if (
       props.moduleName === "Quote" &&
-      props?.engagementObj?.quoteTypeID === 2
+      props?.ProposalObject?.selectedProposalTypeValue === 2
     ) {
       return props.StatementOfFact.map(
         (SelectedPackage) => `
@@ -1780,11 +1776,7 @@ const ReviewServicesComponent = (props) => {
                           ? d.slabTypeID === 2
                             ? formatCurrency(d.value)
                             : `${d.slabFrom}-${d.slabTo}`
-                          : d.driverTypeID === 5
-                            ? d.enteredText
-                            : d.driverTypeID === 6
-                              ? d.enteredDate
-                              : ""
+                          : ""
                   }</strong>
                 </li>
               `,
@@ -1841,11 +1833,7 @@ const ReviewServicesComponent = (props) => {
                           ? d.slabTypeID === 2
                             ? formatCurrency(d.value)
                             : `${d.slabFrom}-${d.slabTo}`
-                          : d.driverTypeID === 5
-                            ? d.enteredText
-                            : d.driverTypeID === 6
-                              ? d.enteredDate
-                              : ""
+                          : ""
                   }</strong>
                 </li>
               `,
@@ -1878,11 +1866,7 @@ const ReviewServicesComponent = (props) => {
                              : `${formatCurrency(d.slabFrom)}-${formatCurrency(
                                  d.slabTo,
                                )}`
-                           : d.driverTypeID === 5
-                             ? d.enteredText
-                             : d.driverTypeID === 6
-                               ? d.enteredDate
-                               : ""
+                           : ""
                    }</strong>
                  </p>
                `,
@@ -1960,11 +1944,7 @@ const ReviewServicesComponent = (props) => {
                                 : `${formatCurrency(d.slabFrom)}-${formatCurrency(
                                     d.slabTo,
                                   )}`
-                            : d.driverTypeID === 5
-                              ? d.enteredText
-                              : d.driverTypeID === 6
-                                ? d.enteredDate
-                                : ""
+                            : ""
                     }</strong>
                   </li>
                 `,
@@ -2041,11 +2021,7 @@ const ReviewServicesComponent = (props) => {
                                 : `${formatCurrency(d.slabFrom)}-${formatCurrency(
                                     d.slabTo,
                                   )}`
-                            : d.driverTypeID === 5
-                              ? d.enteredText
-                              : d.driverTypeID === 6
-                                ? d.enteredDate
-                                : ""
+                            : ""
                     }</strong>
                   </li>
                 `,
@@ -2074,26 +2050,12 @@ const ReviewServicesComponent = (props) => {
                    return `<p style="color: black; font-size: ${fontSizeContent};">${
                      d.driverName
                    }: <strong>${formatCurrency(d.driverValue)}</strong></p>`;
-                 }
-
-                 if (d.driverTypeID === 5 && d.enteredText) {
-                   return `<p style="color:black;font-size:${fontSizeContent};">
-      ${d.driverName}: <strong>${d.enteredText}</strong>
-    </p>`;
-                 }
-
-                 // Type 6 – Date
-                 if (d.driverTypeID === 6 && d.enteredDate) {
-                   return `<p style="color:black;font-size:${fontSizeContent};">
-      ${d.driverName}: <strong>${d.enteredDate}</strong>
-    </p>`;
-                 }
-
-                 const source = d.driverTypeID === 4 ? d.slab : d.variation;
-                 return source
-                   ?.filter((item) => item.isDefault)
-                   .map(
-                     (sub) => `
+                 } else {
+                   const source = d.driverTypeID === 4 ? d.slab : d.variation;
+                   return source
+                     ?.filter((item) => item.isDefault)
+                     .map(
+                       (sub) => `
                    <p style="color: black; font-size: ${fontSizeContent};">
                      ${d.driverName}: ${
                        d.driverTypeID === 4
@@ -2106,8 +2068,9 @@ const ReviewServicesComponent = (props) => {
                      }
                    </p>
                  `,
-                   )
-                   .join("");
+                     )
+                     .join("");
+                 }
                })
                .join("")}`
             : ""
@@ -2134,11 +2097,7 @@ const ReviewServicesComponent = (props) => {
                            : `${formatCurrency(d.slabFrom)} - ${formatCurrency(
                                d.slabTo,
                              )}`
-                         : d.driverTypeID === 5
-                           ? d.enteredText
-                           : d.driverTypeID === 6
-                             ? d.enteredDate
-                             : ""
+                         : ""
                  }</strong>
                </p>
              `,
@@ -2898,12 +2857,12 @@ const ReviewServicesComponent = (props) => {
                                   <td className="tr-table-class font-14 text-white">
                                     Grand Total
                                   </td>
-                                  <td className="tr-table-class font-14 text-white text-right">
+                                  {/* <td className="tr-table-class font-14 text-white text-right">
                                     {" "}
                                     {Number(
                                       props.RecurringPricingInfo.Discount,
                                     ) > 0
-                                      ? // If discount is applied → use discounted total + VAT
+                                      ?
                                         props.formatValue(
                                           Number(
                                             props.RecurringPricingInfo
@@ -2915,7 +2874,7 @@ const ReviewServicesComponent = (props) => {
                                             ),
                                           props.currencyID,
                                         )
-                                      : // If no discount → use original total + VAT
+                                      :
                                         props.formatValue(
                                           Number(
                                             props.RecurringPricingInfo
@@ -2927,6 +2886,33 @@ const ReviewServicesComponent = (props) => {
                                             ),
                                           props.currencyID,
                                         )}
+                                  </td> */}
+                                  <td className="tr-table-class font-14 text-white text-right">
+                                    {Number(props.RecurringPricingInfo.Discount) > 0 &&
+    props.engagementObj.DiscountLines
+
+      ? props.formatValue(
+          Number(props.RecurringPricingInfo.DiscountedTotal) +
+            Number(props.RecurringPricingInfo.totalServiceWiseVAT || 0),
+          props.currencyID
+        )
+
+      : Number(props.RecurringPricingInfo.OriginalPrice) <
+        Number(props.RecurringPricingInfo.DiscountedPrice) ||
+        (Number(props.RecurringPricingInfo.Discount) > 0 &&
+          !props.engagementObj.DiscountLines)
+
+      ? props.formatValue(
+          Number(props.RecurringPricingInfo.DiscountedPrice) +
+            Number(props.RecurringPricingInfo.totalServiceWiseVAT || 0),
+          props.currencyID
+        )
+
+      : props.formatValue(
+          Number(props.RecurringPricingInfo.OriginalPrice) +
+            Number(props.RecurringPricingInfo.totalServiceWiseVAT || 0),
+          props.currencyID
+        )}
                                   </td>
                                 </tr>
                               </>
@@ -3962,35 +3948,34 @@ const ReviewServicesComponent = (props) => {
                                       Grand Total
                                     </td>
                                     <td className="tr-table-class font-14 text-white text-right">
-                                      {" "}
-                                      {Number(
-                                        props.OneOffPricingInfo.Discount,
-                                      ) > 0
-                                        ? // If discount is applied → use discounted total + VAT
-                                          props.formatValue(
-                                            Number(
-                                              props.OneOffPricingInfo
-                                                .DiscountedTotal,
-                                            ) +
-                                              Number(
-                                                props.OneOffPricingInfo
-                                                  .totalServiceWiseVATOneOff,
-                                              ),
-                                            props.currencyID,
-                                          )
-                                        : // If no discount → use original total + VAT
-                                          props.formatValue(
-                                            Number(
-                                              props.OneOffPricingInfo
-                                                .OriginalPrice,
-                                            ) +
-                                              Number(
-                                                props.OneOffPricingInfo
-                                                  .totalServiceWiseVATOneOff,
-                                              ),
-                                            props.currencyID,
-                                          )}
-                                    </td>
+
+    {Number(props.OneOffPricingInfo.Discount) > 0 &&
+    props.engagementObj.DiscountLines
+
+      ? props.formatValue(
+          Number(props.OneOffPricingInfo.DiscountedTotal) +
+            Number(props.OneOffPricingInfo.totalServiceWiseVATOneOff || 0),
+          props.currencyID
+        )
+
+      : Number(props.OneOffPricingInfo.OriginalPrice) <
+        Number(props.OneOffPricingInfo.DiscountedPrice) ||
+        (Number(props.OneOffPricingInfo.Discount) > 0 &&
+          !props.engagementObj.DiscountLines)
+
+      ? props.formatValue(
+          Number(props.OneOffPricingInfo.DiscountedPrice) +
+            Number(props.OneOffPricingInfo.totalServiceWiseVATOneOff || 0),
+          props.currencyID
+        )
+
+      : props.formatValue(
+          Number(props.OneOffPricingInfo.OriginalPrice) +
+            Number(props.OneOffPricingInfo.totalServiceWiseVATOneOff || 0),
+          props.currencyID
+        )}
+
+  </td>
                                   </tr>
                                 </>
                               )}
@@ -4928,6 +4913,20 @@ const ReviewPackagesComponent = (props) => {
       JSON.stringify(props.selectedRecurringServiceListCopy),
     );
 
+     let originalVATPackageOne =
+    props.RecurringPricingInfo.PackageOneStaticVaTPriceOriginal ??
+    props.RecurringPricingInfo.PackageOneStaticVaTPrice;
+     let originalVATPackageTwo =
+    props.RecurringPricingInfo.PackageTwoStaticVaTPriceOriginal ??
+    props.RecurringPricingInfo.PackageTwoStaticVaTPrice;
+     let originalVATPackageThree =
+    props.RecurringPricingInfo.PackageThreeStaticVaTPriceOriginal ??
+    props.RecurringPricingInfo.PackageThreeStaticVaTPrice;
+
+  let packageOneVATValue = originalVATPackageOne;
+  let packageTwoVATValue = originalVATPackageTwo;
+  let packageThreeVATValue = originalVATPackageThree;
+
     // Calculate price based on payment frequency
     if (e.value === Payment_Frequency.Yearly) {
       props.setEngagementObj((prevState) => ({
@@ -4959,6 +4958,10 @@ const ReviewPackagesComponent = (props) => {
           );
         });
       });
+
+      packageOneVATValue = originalVATPackageOne;
+      packageTwoVATValue = originalVATPackageTwo;
+      packageThreeVATValue = originalVATPackageThree;
     } else if (e.value === Payment_Frequency.HalfYearly) {
       props.setEngagementObj((prevState) => ({
         ...prevState,
@@ -4986,6 +4989,11 @@ const ReviewPackagesComponent = (props) => {
             Number(service.originalPackageThreeValue) / 2;
         });
       });
+
+      packageOneVATValue = originalVATPackageOne / 2;
+      packageTwoVATValue = originalVATPackageTwo / 2;
+      packageThreeVATValue = originalVATPackageThree / 2;
+
     } else if (e.value === Payment_Frequency.Quarterly) {
       props.setEngagementObj((prevState) => ({
         ...prevState,
@@ -5013,6 +5021,10 @@ const ReviewPackagesComponent = (props) => {
             Number(service.originalPackageThreeValue) / 4;
         });
       });
+
+      packageOneVATValue = originalVATPackageOne / 4;
+     packageTwoVATValue = originalVATPackageTwo / 4;
+     packageThreeVATValue = originalVATPackageThree / 4;
     } else if (e.value === Payment_Frequency.Monthly) {
       props.setEngagementObj((prevState) => ({
         ...prevState,
@@ -5040,7 +5052,21 @@ const ReviewPackagesComponent = (props) => {
             Number(service.originalPackageThreeValue) / 12;
         });
       });
+
+       packageOneVATValue = originalVATPackageOne / 12;
+      packageTwoVATValue = originalVATPackageTwo / 12;
+      packageThreeVATValue = originalVATPackageThree / 12;
     }
+
+    props.setRecurringPricingInfo({
+      ...props.RecurringPricingInfo,
+      PackageOneStaticVaTPrice: packageOneVATValue,
+      PackageOneStaticVaTPriceOriginal: originalVATPackageOne,
+      PackageTwoStaticVaTPrice: packageTwoVATValue,
+      PackageTwoStaticVaTPriceOriginal: originalVATPackageTwo,
+      PackageThreeStaticVaTPrice: packageThreeVATValue,
+      PackageThreeStaticVaTPriceOriginal: originalVATPackageThree,
+    })
 
     props.setSelectedRecurringServiceList(updatedData);
   };
@@ -5455,8 +5481,6 @@ const ReviewPackagesComponent = (props) => {
         //discountedTotalAmount = (Number(netTotal) + Number(addOnValue)) - discountAmount
       }
     }
-
-    debugger;
 
     let currentVatPercentage = 0;
 
@@ -5906,7 +5930,7 @@ const ReviewPackagesComponent = (props) => {
 
     if (
       props.moduleName === "Quote" &&
-      props?.engagementObj?.quoteTypeID === 2
+      props?.ProposalObject?.selectedProposalTypeValue === 2
     ) {
       return props.StatementOfFact.map(
         (SelectedPackage) => `
@@ -5948,11 +5972,7 @@ const ReviewPackagesComponent = (props) => {
                           ? d.slabTypeID === 2
                             ? formatCurrency(d.value)
                             : `${d.slabFrom}-${d.slabTo}`
-                          : d.driverTypeID === 5
-                            ? d.enteredText
-                            : d.driverTypeID === 6
-                              ? d.enteredDate
-                              : ""
+                          : ""
                   }</strong>
                 </li>
               `,
@@ -5997,11 +6017,7 @@ const ReviewPackagesComponent = (props) => {
                           ? d.slabTypeID === 2
                             ? formatCurrency(d.value)
                             : `${d.slabFrom}-${d.slabTo}`
-                          : d.driverTypeID === 5
-                            ? d.enteredText
-                            : d.driverTypeID === 6
-                              ? d.enteredDate
-                              : ""
+                          : ""
                   }</strong>
                 </li>
               `,
@@ -6034,11 +6050,7 @@ const ReviewPackagesComponent = (props) => {
                              : `${formatCurrency(d.slabFrom)}-${formatCurrency(
                                  d.slabTo,
                                )}`
-                           : d.driverTypeID === 5
-                             ? d.enteredText
-                             : d.driverTypeID === 6
-                               ? d.enteredDate
-                               : ""
+                           : ""
                    }</strong>
                  </p>
                `,
@@ -6103,11 +6115,7 @@ const ReviewPackagesComponent = (props) => {
                                 : `${formatCurrency(d.slabFrom)}-${formatCurrency(
                                     d.slabTo,
                                   )}`
-                            : d.driverTypeID === 5
-                              ? d.enteredText
-                              : d.driverTypeID === 6
-                                ? d.enteredDate
-                                : ""
+                            : ""
                     }</strong>
                   </li>
                 `,
@@ -6172,11 +6180,7 @@ const ReviewPackagesComponent = (props) => {
                                 : `${formatCurrency(d.slabFrom)}-${formatCurrency(
                                     d.slabTo,
                                   )}`
-                            : d.driverTypeID === 5
-                              ? d.enteredText
-                              : d.driverTypeID === 6
-                                ? d.enteredDate
-                                : ""
+                            : ""
                     }</strong>
                   </li>
                 `,
@@ -6205,27 +6209,12 @@ const ReviewPackagesComponent = (props) => {
                    return `<p style="color: black; font-size: ${fontSizeContent};">${
                      d.driverName
                    }: <strong>${formatCurrency(d.driverValue)}</strong></p>`;
-                 }
-                 //  else {
-
-                 // Type 5 – Text
-                 if (d.driverTypeID === 5) {
-                   return `<p style="color:black;font-size:${fontSizeContent};">
-      ${d.driverName}: <strong>${d.enteredText}</strong>
-    </p>`;
-                 }
-
-                 // Type 6 – Date
-                 if (d.driverTypeID === 6) {
-                   return `<p style="color:black;font-size:${fontSizeContent};">
-      ${d.driverName}: <strong>${d.enteredDate}</strong>
-    </p>`;
-                 }
-                 const source = d.driverTypeID === 4 ? d.slab : d.variation;
-                 return source
-                   ?.filter((item) => item.isDefault)
-                   .map(
-                     (sub) => `
+                 } else {
+                   const source = d.driverTypeID === 4 ? d.slab : d.variation;
+                   return source
+                     ?.filter((item) => item.isDefault)
+                     .map(
+                       (sub) => `
                    <p style="color: black; font-size: ${fontSizeContent};">
                      ${d.driverName}: ${
                        d.driverTypeID === 4
@@ -6238,9 +6227,9 @@ const ReviewPackagesComponent = (props) => {
                      }
                    </p>
                  `,
-                   )
-                   .join("");
-                 //  }
+                     )
+                     .join("");
+                 }
                })
                .join("")}`
             : ""
@@ -6267,11 +6256,7 @@ const ReviewPackagesComponent = (props) => {
                            : `${formatCurrency(d.slabFrom)} - ${formatCurrency(
                                d.slabTo,
                              )}`
-                         : d.driverTypeID === 5
-                           ? d.enteredText
-                           : d.driverTypeID === 6
-                             ? d.enteredDate
-                             : ""
+                         : ""
                  }</strong>
                </p>
              `,
@@ -7335,10 +7320,10 @@ const ReviewPackagesComponent = (props) => {
                                       pkg.servicePackageName
                                     )}
                                   </td>
-                                  {props.vatPercentage !== 0 &&
+                                  {props.vatPercentage ?
                                     props.visibleFieldsCustomTemp.vat && (
                                       <td></td>
-                                    )}
+                                    ):""}
                                   {props.visibleFieldsCustomTemp
                                     .serviceScope && <td></td>}
 
@@ -7434,7 +7419,7 @@ const ReviewPackagesComponent = (props) => {
                                     Fees ({props.currencySymbol})
                                   </th>
 
-                                  {props.vatPercentage !== null &&
+                                  {props.vatPercentage ?
                                     props.visibleFieldsCustomTemp.vat && (
                                       <th
                                         className="tr-table-class text-white text-right"
@@ -7442,7 +7427,7 @@ const ReviewPackagesComponent = (props) => {
                                       >
                                         {props.taxName} ({props.currencySymbol})
                                       </th>
-                                    )}
+                                    ):""}
 
                                   {props.visibleFieldsCustomTemp
                                     .serviceScope && (
@@ -7471,17 +7456,17 @@ const ReviewPackagesComponent = (props) => {
                                       )}
 
                                       {/* <th></th> */}
-                                      {props.vatPercentage !== null &&
+                                      {props.vatPercentage ?
                                         props.visibleFieldsCustomTemp.vat && (
                                           <th></th>
-                                        )}
+                                        ):""}
                                       {props.visibleFieldsCustomTemp
                                         .serviceScope && <th></th>}
                                       {packageCount >= 2 && (
                                         <>
-                                          {props.vatPercentage !== null &&
+                                          {props.vatPercentage ?
                                             props.visibleFieldsCustomTemp
-                                              .vat && <th></th>}
+                                              .vat && <th></th>:""}
                                           {props.visibleFieldsCustomTemp
                                             .serviceScope && <th></th>}
                                         </>
@@ -7489,9 +7474,9 @@ const ReviewPackagesComponent = (props) => {
 
                                       {packageCount === 3 && (
                                         <>
-                                          {props.vatPercentage !== null &&
+                                          {props.vatPercentage ?
                                             props.visibleFieldsCustomTemp
-                                              .vat && <th></th>}
+                                              .vat && <th></th>:""}
                                           {props.visibleFieldsCustomTemp
                                             .serviceScope && <th></th>}
                                         </>
@@ -7611,7 +7596,7 @@ const ReviewPackagesComponent = (props) => {
 
                                             {/* VAT */}
 
-                                            {props.vatPercentage !== null &&
+                                            {props.vatPercentage ?
                                               props.visibleFieldsCustomTemp
                                                 .vat && (
                                                 <>
@@ -7959,7 +7944,7 @@ const ReviewPackagesComponent = (props) => {
                                                         </>
                                                       )} */}
                                                 </>
-                                              )}
+                                              ):""}
 
                                             {/* Service Scope */}
 
@@ -8086,7 +8071,7 @@ const ReviewPackagesComponent = (props) => {
                                                     )}
                                                   </div>
                                                 </td>
-                                                {props.vatPercentage !== null &&
+                                                {props.vatPercentage ?
                                                   props.visibleFieldsCustomTemp
                                                     .vat && (
                                                     <td className="text-right">
@@ -8163,7 +8148,7 @@ const ReviewPackagesComponent = (props) => {
                                                         )}
                                                       </div>
                                                     </td>
-                                                  )}
+                                                  ):""}
                                                 {props.visibleFieldsCustomTemp
                                                   .serviceScope && (
                                                   <td className="text-right">
@@ -8286,7 +8271,7 @@ const ReviewPackagesComponent = (props) => {
                                                   </div>
                                                 </td>
 
-                                                {props.vatPercentage !== null &&
+                                                {props.vatPercentage ?
                                                   props.visibleFieldsCustomTemp
                                                     .vat && (
                                                     <td className="text-right">
@@ -8363,7 +8348,7 @@ const ReviewPackagesComponent = (props) => {
                                                         )}
                                                       </div>
                                                     </td>
-                                                  )}
+                                                  ):""}
 
                                                 {props.visibleFieldsCustomTemp
                                                   .serviceScope && (
@@ -8476,10 +8461,10 @@ const ReviewPackagesComponent = (props) => {
 
                                 {packageCount >= 2 && (
                                   <>
-                                    {props.vatPercentage !== null &&
+                                    {props.vatPercentage ?
                                       props.visibleFieldsCustomTemp.vat && (
                                         <th></th>
-                                      )}
+                                      ):""}
                                     {props.visibleFieldsCustomTemp
                                       .serviceScope && <th></th>}
                                     <td
@@ -8530,10 +8515,10 @@ const ReviewPackagesComponent = (props) => {
 
                                 {packageCount === 3 && (
                                   <>
-                                    {props.vatPercentage !== null &&
+                                    {props.vatPercentage ?
                                       props.visibleFieldsCustomTemp.vat && (
                                         <th></th>
-                                      )}
+                                      ):""}
                                     {props.visibleFieldsCustomTemp
                                       .serviceScope && <th></th>}
                                     <td
@@ -8618,23 +8603,23 @@ const ReviewPackagesComponent = (props) => {
                                     props.currencyID,
                                   )}
                             </td>
-                            {props.vatPercentage !== null &&
+                            {props.vatPercentage ?
                               props.visibleFieldsCustomTemp.vat && (
                                 <td className="tr-table-class font-14 text-white text-right">
                                   {props.RecurringPricingInfo
-                                    .PackageOneVaTPriceWithoutDiscout
+                                    .PackageOneStaticVaTPrice
                                     ? props.formatValue(
                                         props.RecurringPricingInfo
-                                          .PackageOneVaTPriceWithoutDiscout,
+                                          .PackageOneStaticVaTPrice,
                                         props.currencyID,
                                       )
                                     : props.formatValue(
                                         props.RecurringPricingInfo
-                                          .PackageOneVaTPriceWithoutDiscount,
+                                          .PackageOneStaticVaTPrice,
                                         props.currencyID,
                                       )}
                                 </td>
-                              )}
+                              ):""}
                             {props.visibleFieldsCustomTemp.serviceScope && (
                               <td></td>
                             )}
@@ -8673,7 +8658,7 @@ const ReviewPackagesComponent = (props) => {
                                       )}
                                 </td>
 
-                                {props.vatPercentage !== null &&
+                                {props.vatPercentage ?
                                   props.visibleFieldsCustomTemp.vat && (
                                     <td className="tr-table-class font-14 text-white text-right">
                                       {" "}
@@ -8683,7 +8668,7 @@ const ReviewPackagesComponent = (props) => {
                                         props.currencyID,
                                       )}
                                     </td>
-                                  )}
+                                  ):""}
                                 {props.visibleFieldsCustomTemp.serviceScope && (
                                   <td></td>
                                 )}
@@ -8724,7 +8709,7 @@ const ReviewPackagesComponent = (props) => {
                                       )}
                                 </td>
 
-                                {props.vatPercentage !== null &&
+                                {props.vatPercentage ?
                                   props.visibleFieldsCustomTemp.vat && (
                                     <td className="tr-table-class font-14 text-white text-right">
                                       {" "}
@@ -8734,7 +8719,7 @@ const ReviewPackagesComponent = (props) => {
                                         props.currencyID,
                                       )}
                                     </td>
-                                  )}
+                                  ):""}
                                 {props.visibleFieldsCustomTemp.serviceScope && (
                                   <td></td>
                                 )}
@@ -8786,19 +8771,19 @@ const ReviewPackagesComponent = (props) => {
                                               </td>
                                             )} */}
 
-                                  {props.vatPercentage !== null &&
+                                  {props.vatPercentage ?
                                     props.visibleFieldsCustomTemp.vat && (
                                       <td className="tr-table-class font-14 text-white text-right">
                                         (-){" "}
                                         {props.formatValue(
                                           props.RecurringPricingInfo
-                                            .PackageOneVaTPriceWithoutDiscount -
+                                            .PackageOneStaticVaTPrice -
                                             props.RecurringPricingInfo
                                               .PackageOneVaTPrice,
                                           props.currencyID,
                                         )}
                                       </td>
-                                    )}
+                                    ):""}
 
                                   {props.visibleFieldsCustomTemp
                                     .serviceScope && <td></td>}
@@ -8815,7 +8800,7 @@ const ReviewPackagesComponent = (props) => {
                                         )}
                                       </td>
 
-                                      {props.vatPercentage !== null &&
+                                      {props.vatPercentage ?
                                         props.visibleFieldsCustomTemp.vat && (
                                           <td className="tr-table-class font-14 text-white text-right">
                                             (-){" "}
@@ -8835,7 +8820,7 @@ const ReviewPackagesComponent = (props) => {
                                           //       100
                                           //   )}
                                           // </td>
-                                        )}
+                                        ):""}
                                       {props.visibleFieldsCustomTemp
                                         .serviceScope && <td></td>}
                                     </>
@@ -8851,7 +8836,7 @@ const ReviewPackagesComponent = (props) => {
                                         )}
                                       </td>
 
-                                      {props.vatPercentage !== null &&
+                                      {props.vatPercentage ?
                                         props.visibleFieldsCustomTemp.vat && (
                                           <td className="tr-table-class font-14 text-white text-right">
                                             (-){" "}
@@ -8871,7 +8856,7 @@ const ReviewPackagesComponent = (props) => {
                                           //       100
                                           //   )}
                                           // </td>
-                                        )}
+                                        ):""}
                                       {props.visibleFieldsCustomTemp
                                         .serviceScope && <td></td>}
                                     </>
@@ -8946,7 +8931,9 @@ const ReviewPackagesComponent = (props) => {
                       
                                             {props.visibleFieldsCustomTemp.serviceScope && <td></td>}
                                           </tr> */}
-                                <tr className="head-row">
+                                          {
+                                            props.vatPercentage ? (
+                                              <tr className="head-row">
                                   <td className="tr-table-class font-14 text-white">
                                     {/* Fees inc VAT (£) */}
                                     Grand Total
@@ -8996,7 +8983,7 @@ const ReviewPackagesComponent = (props) => {
                                           props.currencyID,
                                         )}
                                   </td> */}
-                                  {props.vatPercentage !== null &&
+                                  {props.vatPercentage ?
                                     props.visibleFieldsCustomTemp.vat && (
                                       <td className="tr-table-class font-14 text-white text-right">
                                         {props.formatValue(
@@ -9013,7 +9000,7 @@ const ReviewPackagesComponent = (props) => {
                                       //         100
                                       //   )}
                                       // </td>
-                                    )}
+                                    ):""}
                                   {props.visibleFieldsCustomTemp
                                     .serviceScope && <td></td>}
                                   {packageCount >= 2 && (
@@ -9026,7 +9013,7 @@ const ReviewPackagesComponent = (props) => {
                                           props.currencyID,
                                         )}
                                       </td>
-                                      {props.vatPercentage !== null &&
+                                      {props.vatPercentage ?
                                         props.visibleFieldsCustomTemp.vat && (
                                           <td className="tr-table-class font-14 text-white text-right">
                                             {props.formatValue(
@@ -9040,7 +9027,7 @@ const ReviewPackagesComponent = (props) => {
                                               props.currencyID,
                                             )}
                                           </td>
-                                        )}
+                                        ):""}
                                       {props.visibleFieldsCustomTemp
                                         .serviceScope && <td></td>}
                                     </>
@@ -9055,7 +9042,7 @@ const ReviewPackagesComponent = (props) => {
                                           props.currencyID,
                                         )}
                                       </td>
-                                      {props.vatPercentage !== null &&
+                                      {props.vatPercentage ?
                                         props.visibleFieldsCustomTemp.vat && (
                                           <td className="tr-table-class font-14 text-white text-right">
                                             {props.formatValue(
@@ -9069,12 +9056,57 @@ const ReviewPackagesComponent = (props) => {
                                               props.currencyID,
                                             )}
                                           </td>
-                                        )}
+                                        ):""}
                                       {props.visibleFieldsCustomTemp
                                         .serviceScope && <td></td>}
                                     </>
                                   )}
                                 </tr>
+                                            ) : (
+                                               <tr className="head-row">
+                                  <td className="tr-table-class font-14 text-white">
+                                    Discounted Total
+                                  </td>
+                                  <td className="tr-table-class font-14 text-white text-right">
+                                    {" "}
+                                    {props.formatValue(
+                                      props.RecurringPricingInfo
+                                        .packageOneDisCountedTotal,
+                                      props.currencyID,
+                                    )}
+                                  </td>
+                                  {props.visibleFieldsCustomTemp
+                                    .serviceScope && <td></td>}
+
+                                  {packageCount >= 2 && (
+  <>
+    <td className="tr-table-class font-14 text-white text-right">
+      {" "}
+      {props.formatValue(
+        props.RecurringPricingInfo.packageTwoDisCountedTotal,
+        props.currencyID
+      )}
+    </td>
+    {props.visibleFieldsCustomTemp.serviceScope && <td></td>}
+  </>
+)}
+
+{packageCount === 3 && (
+  <>
+    <td className="tr-table-class font-14 text-white text-right">
+      {" "}
+      {props.formatValue(
+        props.RecurringPricingInfo.packageThreeDisCountedTotal,
+        props.currencyID
+      )}
+    </td>
+    {props.visibleFieldsCustomTemp.serviceScope && <td></td>}
+  </>
+)}
+                                </tr>
+                                            )
+                                          }
+                                
                               </>
                             )}
 
@@ -11744,7 +11776,8 @@ const ReviewPackagesComponent = (props) => {
                         
                                               {props.visibleFieldsCustomTemp.serviceScope && <td></td>}
                                             </tr> */}
-                                <tr className="head-row">
+                                            {props.vatPercentageOneOff ? (
+                                              <tr className="head-row">
                                   <td className="tr-table-class font-14 text-white">
                                     {/* Fees inc VAT (£) */}
                                     Grand Total
@@ -11961,6 +11994,52 @@ const ReviewPackagesComponent = (props) => {
                                     </>
                                   )}
                                 </tr>
+                                            ) : (
+                                              <tr className="head-row">
+                                  <td className="tr-table-class font-14 text-white">
+                                    Discounted Total
+                                  </td>
+                                  <td className="tr-table-class font-14 text-white text-right">
+                                    {" "}
+                                    {props.formatValue(
+                                      props.OneOffPricingInfo
+                                        .packageOneDisCountedTotal,
+                                      props.currencyID,
+                                    )}
+                                  </td>
+                                  {props.visibleFieldsCustomTemp
+                                    .serviceScope && <td></td>}
+                                  {packageCount >= 2 && (
+                                    <>
+                                    <td className="tr-table-class font-14 text-white text-right">
+                                      {" "}
+                                      {props.formatValue(
+                                        props.OneOffPricingInfo
+                                        .packageTwoDisCountedTotal,
+                                        props.currencyID,
+                                      )}
+                                    </td>
+                                    {props.visibleFieldsCustomTemp
+                                    .serviceScope && <td></td>}
+                                      </>
+                                  )}
+                                  {packageCount == 3 && (
+                                    <>
+                                    <td className="tr-table-class font-14 text-white text-right">
+                                      {" "}
+                                      {props.formatValue(
+                                        props.OneOffPricingInfo
+                                        .packageThreeDisCountedTotal,
+                                        props.currencyID,
+                                      )}
+                                    </td>
+                                    {props.visibleFieldsCustomTemp
+                                    .serviceScope && <td></td>}
+                                    </>
+                                  )}
+                                </tr>
+                                            )}
+                                
                               </>
                             )}
                         </table>
@@ -12220,7 +12299,7 @@ const Add_Update_Engagement_Letter = () => {
     useState([]);
   const [serviceDescriptionHTML, setServiceDescriptionHTML] = useState("");
   const [statementOfFactsHTML, setStatementOfFactsHTML] = useState("");
-  const [StatementOfFact, setStatementOfFact] = useState([]);
+  const [StatementOfFact, setStatementOfFacts] = useState([]);
   const [
     quoteAdditionalInfoGlobalPricingDriver,
     setQuoteAdditionalInfoGlobalPricingDriver,
@@ -12315,9 +12394,6 @@ const Add_Update_Engagement_Letter = () => {
     isDefault: null,
     PaymentGatewayID: null,
   });
-  const [flagForTemplatePdf, setFlagForTemplatePdf] = useState(false);
-  const [awsPdfWidth, setAwsPdfWidth] = useState(null);
-  const [awsPdfHeight, setAwsPdfHeight] = useState(null);
   const [isAddUpdatePricingActionDone, setIsAddUpdatePricingActionDone] =
     useState(false);
   const [contractSignatoriesList, setContractSignatoriesList] = useState([
@@ -12563,6 +12639,7 @@ const Add_Update_Engagement_Letter = () => {
   }, [common.organisationKeyID]);
 
   useEffect(() => {
+    debugger;
     console.log("Contract Model API", location);
     setModelAction(
       location?.state?.Action === undefined || location?.state?.Action === null
@@ -12730,7 +12807,7 @@ const Add_Update_Engagement_Letter = () => {
               : ModelData.templateElementListWithRequiredData
                   .clientNameOnFirstPage;
           const firstPageHTML = `
-          <div data-first-page="true" style="margin-top: 300px;>
+          <div style="margin-top: 300px;>
     <div style="display: flex; justify-content: center; align-items: center; text-align: center;margin-top:${
       Logo ? `-100px` : "0px"
     }">
@@ -12758,31 +12835,6 @@ const Add_Update_Engagement_Letter = () => {
             (item) => item.templateElementTypeID === 10,
           );
           let AddFirstPageHtmlContent = [...ModelData.templateElementList];
-          setFlagForTemplatePdf(ModelData.templateElementList.find(
-            (item) => item.templateElementTypeID === 9)
-          );
-          const pdfElement = ModelData.templateElementList.find(
-            (item) => item.templateElementTypeID === 9
-          );
-          const getPdfDimensions = async (pdfUrl) => {
-            setLoader(true);
-            const pdf = await pdfjsLib.getDocument(pdfUrl).promise;
-            setLoader(false);
-            const page = await pdf.getPage(1);
-            const viewport = page.getViewport({ scale: 1 });
-            return {
-              targetWidth: viewport.width,
-              targetHeight: viewport.height
-            };
-          };
-          let targetWidth = 595.28;  // default A4
-          let targetHeight = 841.89; // default A4
-
-          if (pdfElement) {
-            const dimensions = await getPdfDimensions(pdfElement.htmlContent); // htmlContent has the AWS URL
-            setAwsPdfWidth(dimensions.targetWidth);
-            setAwsPdfHeight(dimensions.targetHeight);
-          }
 
           if (!isAddedFirstPage) {
             const firstPageElement = {
@@ -14754,43 +14806,74 @@ const Add_Update_Engagement_Letter = () => {
             }
 
             debugger;
+            console.log(engagementObj)
+
+            let totalVATAmount;
+                        let totalVATAmountOneOff;
+                        let ServiceWiseVAT;
+                        let ServiceWiseVATOneOff;
+            
+                        if(engagementObj.statusID !== 1){
+                          totalVATAmount = recArrayWithPrice.reduce(
+                            (catSum, category) => {
+                              const serviceSum = category.servicesList
+                              .filter((service) => service.isSelected)
+                              .reduce(
+                                (sum, service) =>
+                                  Number(sum) + Number(service.service_vat_amount || 0),
+                                0,
+                              );
+                              return catSum + serviceSum;
+                            },
+                            0,
+                          );
+            
+                          ServiceWiseVAT =
+                          (Number(totalVATAmount) / Number(recOriginalPrice)) * 100;
+            
+                         setVATPercentage(ServiceWiseVAT);
+                          
+                          // ✅ Calculate total VAT for all selected services in all categories
+                          
+                        }else{
+                          totalVATAmount = RecurringPricingInfo.totalServiceWiseVAT;
+                          setVATPercentage(RecurringPricingInfo.recurringServiceVatPercentage);
+                        }
 
             // ✅ Calculate total VAT for all selected services in all categories
-            const totalVATAmount = recArrayWithPrice.reduce(
-              (catSum, category) => {
-                const serviceSum = category.servicesList
-                  .filter((service) => service.isSelected)
-                  .reduce(
-                    (sum, service) =>
-                      Number(sum) + Number(service.service_vat_amount || 0),
-                    0,
-                  );
-                return catSum + serviceSum;
-              },
-              0,
-            );
+            // const totalVATAmount = recArrayWithPrice.reduce(
+            //   (catSum, category) => {
+            //     const serviceSum = category.servicesList
+            //       .filter((service) => service.isSelected)
+            //       .reduce(
+            //         (sum, service) =>
+            //           Number(sum) + Number(service.service_vat_amount || 0),
+            //         0,
+            //       );
+            //     return catSum + serviceSum;
+            //   },
+            //   0,
+            // );
 
             // ✅ Calculate total VAT for all selected services in all categories
-            const totalVATAmountOneOff = OneArrayWithPrice.reduce(
-              (catSum, category) => {
-                const serviceSum = category.servicesList
-                  .filter((service) => service.isSelected)
-                  .reduce(
-                    (sum, service) =>
-                      Number(sum) + Number(service.service_vat_amount || 0),
-                    0,
-                  );
-                return catSum + serviceSum;
-              },
-              0,
-            );
+            // const totalVATAmountOneOff = OneArrayWithPrice.reduce(
+            //   (catSum, category) => {
+            //     const serviceSum = category.servicesList
+            //       .filter((service) => service.isSelected)
+            //       .reduce(
+            //         (sum, service) =>
+            //           Number(sum) + Number(service.service_vat_amount || 0),
+            //         0,
+            //       );
+            //     return catSum + serviceSum;
+            //   },
+            //   0,
+            // );
 
-            debugger;
+            // const ServiceWiseVAT =
+            //   (Number(totalVATAmount) / Number(recOriginalPrice)) * 100;
 
-            const ServiceWiseVAT =
-              (Number(totalVATAmount) / Number(recOriginalPrice)) * 100;
-
-            setVATPercentage(ServiceWiseVAT);
+            // setVATPercentage(ServiceWiseVAT);
 
             const packageOneVATPercentage =
               (Number(totalVATOne) / Number(totalOne)) * 100;
@@ -14947,11 +15030,34 @@ const Add_Update_Engagement_Letter = () => {
               oneOffMaxDiscount = OneOffPricingInfo.MaxDiscount;
             }
 
-            const ServiceWiseVATOneOff =
-              (Number(totalVATAmountOneOff) / Number(oneOffOriginalPrice)) *
-              100;
+            if(engagementObj.statusID !== 1){
+                        totalVATAmountOneOff = OneArrayWithPrice.reduce(
+                            (catSum, category) => {
+                              const serviceSum = category.servicesList
+                              .filter((service) => service.isSelected)
+                              .reduce(
+                                (sum, service) =>
+                                  Number(sum) + Number(service.service_vat_amount || 0),
+                                0,
+                              );
+                              return catSum + serviceSum;
+                            },
+                            0,
+                          );
+            
+                           ServiceWiseVATOneOff = (Number(totalVATAmountOneOff) / Number(oneOffOriginalPrice)) * 100;
+            
+                          setVATPercentageOneOff(ServiceWiseVATOneOff);
+                       } else{
+                          totalVATAmountOneOff = OneOffPricingInfo.totalServiceWiseVATOneOff;
+                          setVATPercentageOneOff(RecurringPricingInfo.oneOffServiceVatPercentage);
+                       }
 
-            setVATPercentageOneOff(ServiceWiseVATOneOff);
+            // const ServiceWiseVATOneOff =
+            //   (Number(totalVATAmountOneOff) / Number(oneOffOriginalPrice)) *
+            //   100;
+
+            // setVATPercentageOneOff(ServiceWiseVATOneOff);
 
             const packageOneVATPercentageOneOff =
               (Number(OneOffVATTotalOne) / Number(OneOffTotalOne)) * 100;
@@ -20100,7 +20206,8 @@ const Add_Update_Engagement_Letter = () => {
     if (ContractKeyID == undefined) {
       return;
     }
-
+    
+    debugger;
     const response = await GetContractModel(ContractKeyID);
     const QuoteData = await GetQuoteLookupList(common.organisationKeyID);
     const TnCData = await GetTermsAndConditionsLookupList(
@@ -20119,6 +20226,18 @@ const Add_Update_Engagement_Letter = () => {
           setContractAdditionalServices(
             ModelData.contractAdditionalServicesInPackages,
           );
+          const recurringServiceVat = ModelData?.contractFinalAmountList?.find(
+            (item) => item.serviceChargeTypeID === 1,
+          )?.vat;
+          const oneOffServiceVat = ModelData?.contractFinalAmountList?.find(
+            (item) => item.serviceChargeTypeID === 2,
+          )?.vat;
+          const recurringServiceVatPercentage = ModelData?.contractFinalAmountList?.find(
+            (item) => item.serviceChargeTypeID === 1,
+          )?.vatPercentage;
+          const oneOffServiceVatPercentage = ModelData?.contractFinalAmountList?.find(
+            (item) => item.serviceChargeTypeID === 2,
+          )?.vatPercentage;
           const ClientOption = ClientLookupList.data.responseData.data.map(
             (item) => ({
               value: item.clientID,
@@ -20126,6 +20245,11 @@ const Add_Update_Engagement_Letter = () => {
               clientKeyID: item.clientKeyID,
             }),
           );
+          const discountedValueVAT =
+            Number(ModelData?.recurringDiscountedPrice) >
+            Number(ModelData?.recurringOriginalPrice)
+              ? Math.round(Number(ModelData?.recurringDiscountedPrice) * 0.2)
+              : 0;
           setClientLookUpOptions(ClientOption);
           const ClientValue = ClientOption.find(
             (item) => ModelData.clientID == item.value,
@@ -20350,6 +20474,7 @@ const Add_Update_Engagement_Letter = () => {
             feeTypeId: ModelData.feesInQuoteID,
             Payment_Frequency: ModelData.paymentFrequencyID,
             paymentGatewayID: ModelData.paymentGatewayID,
+            statusID: ModelData.statusID,
           });
           updateVisibleFieldsFromIds(TemplateValue?.pricingTableColumnIDs);
           setServiceDescriptionObj((prev) => ({
@@ -20491,6 +20616,13 @@ const Add_Update_Engagement_Letter = () => {
             ServicePrice: 0,
             Discount: recDefaultDecrease,
             DiscountedTotal: recDefault,
+            recurringServiceVatPercentage:recurringServiceVatPercentage,
+            oneOffServiceVatPercentage:oneOffServiceVatPercentage,
+            totalServiceWiseVAT:
+                ModelData.recurringDiscountedPrice >
+                ModelData.recurringOriginalPrice
+                  ? discountedValueVAT
+                  : recurringServiceVat,
           });
           setRecurringFrequencyPricingInfo({
             ...RecurringFrequencyPricingInfo,
@@ -20502,6 +20634,11 @@ const Add_Update_Engagement_Letter = () => {
             ServicePrice: 0,
             Discount: recDefaultDecrease,
             DiscountedTotal: recDefault,
+            totalServiceWiseVAT:
+                ModelData.recurringDiscountedPrice >
+                ModelData.recurringOriginalPrice
+                  ? discountedValueVAT
+                  : recurringServiceVat,
           });
           const OneOffOg = ModelData.oneOffOriginalPrice;
           const OneDefault = ModelData.oneOffDiscountedPrice;
@@ -20518,6 +20655,7 @@ const Add_Update_Engagement_Letter = () => {
             ServicePrice: 0,
             Discount: OneDefaultDecrease,
             DiscountedTotal: OneDefault,
+            totalServiceWiseVATOneOff: oneOffServiceVat,
           });
           setOneOffPricingInfoCopy({
             ...OneOffPricingInfoCopy,
@@ -20529,6 +20667,7 @@ const Add_Update_Engagement_Letter = () => {
             ServicePrice: 0,
             Discount: OneDefaultDecrease,
             DiscountedTotal: OneDefault,
+            totalServiceWiseVATOneOff: oneOffServiceVat,
           });
           setLoader(false);
         } else {
@@ -20583,22 +20722,6 @@ const Add_Update_Engagement_Letter = () => {
       }
 
       debugger;
-
-      const matchedServicePackageKeyID = getServicePackageLookupList.find(
-        (packages) =>
-          packages.servicePackageKeyID === engagementObj.servicePackageKeyID,
-      )?.servicePackageKeyID;
-      const matchedServicePackageKeyIDs = matchedServicePackageKeyID
-        ? [matchedServicePackageKeyID]
-        : [];
-      setLoader(true);
-      const StatementOfFacts = await StatementOfFactModal(
-        matchedServicePackageKeyIDs,
-      );
-
-      const StatementOfFactsForStandardProposal =
-        StatementOfFacts.data.responseData.data;
-      setStatementOfFact(StatementOfFactsForStandardProposal);
 
       if (isTypeChange) {
         if (recurringService.selectedServices.length !== 0) {
@@ -22067,9 +22190,6 @@ const Add_Update_Engagement_Letter = () => {
                 <Suspense>
                   <PreviewComponentPdf
                     isDefaultFirstPage={isDefaultFirstPage}
-                    flagForTemplatePdf={flagForTemplatePdf}
-                    awsPdfHeight={awsPdfHeight}
-                    awsPdfWidth={awsPdfWidth}
                     common={common}
                     setRequireMessage={setRequireMessage}
                     DocumentCode={DocumentCode}

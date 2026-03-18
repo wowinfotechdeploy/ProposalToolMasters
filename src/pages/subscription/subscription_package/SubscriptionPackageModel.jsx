@@ -34,7 +34,6 @@ function SubscriptionPackageModel(props) {
     packageName: "",
     prepareQuote: true,
     sendQuote: true,
-    quotesPerMonth: "",
     prepareContract: true,
     sendContract: true,
     signContract: true,
@@ -177,7 +176,6 @@ function SubscriptionPackageModel(props) {
             packageName: ModelData.packageName,
             prepareQuote: ModelData.prepareQuote,
             sendQuote: ModelData.sendQuote,
-            quotesPerMonth: ModelData.quotesPerMonth,
             prepareContract: ModelData.prepareContract,
             sendContract: ModelData.sendContract,
             signContract: ModelData.signContract,
@@ -280,10 +278,9 @@ function SubscriptionPackageModel(props) {
       setRequireErrorMessage(""); // Clear the error message if there are no errors.
     }
     if (
-      subscriptionPackageObj.enablePdfToCsv &&
-      (subscriptionPackageObj.pages === undefined ||
-        subscriptionPackageObj.pages === "" ||
-        subscriptionPackageObj.pages === null)
+      subscriptionPackageObj.pages === undefined ||
+      subscriptionPackageObj.pages === "" ||
+      subscriptionPackageObj.pages === null
     ) {
       scrollUpDownByElementID("Pages");
       setRequireErrorMessage(true);
@@ -349,15 +346,9 @@ function SubscriptionPackageModel(props) {
       packageName: subscriptionPackageObj.packageName,
       prepareQuote: subscriptionPackageObj.prepareQuote,
       sendQuote: subscriptionPackageObj.sendQuote,
-      quotesPerMonth: 
-        subscriptionPackageObj.quotesPerMonth === ""
-          ? null
-          : subscriptionPackageObj.quotesPerMonth,
       prepareContract: subscriptionPackageObj.prepareContract,
       enablePdfToCsv: subscriptionPackageObj.enablePdfToCsv,
-      noOfPages: subscriptionPackageObj.pages
-        ? subscriptionPackageObj.pages
-        : 0,
+      noOfPages: subscriptionPackageObj.pages,
       sendContract: subscriptionPackageObj.sendContract,
       signContract: subscriptionPackageObj.sendContract,
       isMailBox: subscriptionPackageObj.isMailBox,
@@ -690,57 +681,6 @@ function SubscriptionPackageModel(props) {
                             />
                           </FormGroup>
                         </div>
-                        <div className=" col-6 p-2">
-                        <TextField
-                          InputLabelProps={{
-                            sx: {
-                              fontWeight: "bold",
-                            },
-                          }}
-                          label="Proposals per month"
-                          id="outlined-basic"
-                          variant="outlined"
-                          type="text"
-                          size="small"
-                          value={
-                            subscriptionPackageObj?.quotesPerMonth === "" ||
-                            subscriptionPackageObj?.quotesPerMonth === null
-                              ? ""
-                              : subscriptionPackageObj?.quotesPerMonth
-                                  ?.toString()
-                                  .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                          }
-                          onChange={(e) => {
-                            let inputValue = e.target.value;
-                            // Remove leading zeros
-                            inputValue = inputValue.replace(/^0+/, "");
-                            // Remove non-numeric characters except decimal point
-                            inputValue = inputValue.replace(/[^\d]/g, "");
-                            // Limit to 12 digits before the decimal point
-                            if (inputValue.includes(".")) {
-                              const [integerPart, decimalPart] =
-                                inputValue.split(".");
-                              inputValue = `${integerPart.slice(
-                                0,
-                                7
-                              )}.${decimalPart.slice(0, 2)}`;
-                            } else {
-                              inputValue = inputValue.slice(0, 7);
-                            }
-
-                            setSubscriptionPackageObj({
-                              ...subscriptionPackageObj,
-                              quotesPerMonth: inputValue,
-                            });
-                          }}
-                          disabled={
-                            !(
-                              subscriptionPackageObj.sendQuote &&
-                              subscriptionPackageObj.prepareQuote
-                            )
-                          }
-                        />
-                      </div>
                       </div>
                     </div>
                   </div>
@@ -1034,62 +974,7 @@ function SubscriptionPackageModel(props) {
                           />
                         </FormGroup>
                       </div>
-                      {/* <div class="col-lg-6 col-md-6 col-sm-6 text-start text-md-end mt-2 p-2">
-                        <TextField
-                          label={<span>Yearly value for the plan </span>}
-                          id="outlined-basic"
-                          variant="outlined"
-                          type="text"
-                          InputLabelProps={{
-                            sx: {
-                              fontWeight: "bold",
-                            },
-                          }}
-                          size="small"
-                          value={
-                            subscriptionPackageObj?.yearlyValuePlan === "" ||
-                            subscriptionPackageObj?.yearlyValuePlan === null
-                              ? 0
-                              : subscriptionPackageObj?.yearlyValuePlan
-                                  ?.toString()
-                                  .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                          }
-                          onChange={(e) => {
-                            setErrorMessage("");
-                            let inputValue = e.target.value;
-                            // Remove leading zeros
-                            inputValue = inputValue.replace(/^0+/, "");
-                            // Remove non-numeric characters except decimal point
-                            inputValue = inputValue.replace(/[^\d.]/g, "");
-                            // Limit to 12 digits before the decimal point
-                            if (inputValue.includes(".")) {
-                              const [integerPart, decimalPart] =
-                                inputValue.split(".");
-                              inputValue = `${integerPart.slice(
-                                0,
-                                7,
-                              )}.${decimalPart.slice(0, 2)}`;
-                            } else {
-                              inputValue = inputValue.slice(0, 7);
-                            }
-                            setDiscountPriceError(false);
-                            // Add commas to the number
-                            inputValue = inputValue;
-                            setSubscriptionPackageObj({
-                              ...subscriptionPackageObj,
-                              yearlyValuePlan: inputValue,
-                            });
-                          }}
-                        />
-                      </div> */}
-                    </div>
-                  </div>
-                  <div className="fieldset-group">
-                    <label htmlFor="" className="fieldset-group-label required">
-                      Fees
-                    </label>
-                    <div class="row">
-                      <div class="col-lg-6 col-md-6 col-sm-6 text-start mt-2 p-2">
+                      <div class="col-lg-6 col-md-6 col-sm-6 text-start text-md-end mt-2 p-2">
                         <TextField
                           label={<span>Yearly value for the plan </span>}
                           id="outlined-basic"
@@ -1137,7 +1022,6 @@ function SubscriptionPackageModel(props) {
                           }}
                         />
                       </div>
-                      <div class="col-lg-6 col-md-6 col-sm-6"></div>
                     </div>
                   </div>
                   {!subscriptionPackageObj.isFreePackage && (

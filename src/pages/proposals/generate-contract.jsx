@@ -24,7 +24,6 @@ function AcceptInvitation() {
     formatValueWithoutCurrencySymbol,
     formatValueWithoutCurrencySymbol_v1,
     formatValue,
-    formatName,
     getFontStylesFromHtml,
     replaceTemplatePricingVariables,
     replaceUrlInHtml,
@@ -635,10 +634,10 @@ function AcceptInvitation() {
 
               if (left) {
                 htmlContentForSignatories += `
-                  <span style="color: white;"><^${left.RowNo}_</span><div style="display: inline-block;">${left.firstName} ${formatName(left.lastName)}</div><span style="color: white;">^></span>`;
+                  <span style="color: white;"><^${left.RowNo}_</span><div style="display: inline-block;">${left.firstName} ${left.lastName}</div><span style="color: white;">^></span>`;
               } else if (!orgSignatureInserted && signatureImageUrl) {
                 const org = organisationData.otherInformation[0];
-                htmlContentForSignatories += `  
+                htmlContentForSignatories += `
                     <div style="margin-left: 60px;">
                       <div style="height:40px; width:130px"><img src="${
                         org.signatureImageUrl
@@ -660,7 +659,7 @@ function AcceptInvitation() {
 
               if (right) {
                 htmlContentForSignatories += `
-                  <span style="color: white;"><^${right.RowNo}_</span><div style="display: inline-block;">${right.firstName} ${formatName(right.lastName)}</div><span style="color: white;">^></span>`;
+                  <span style="color: white;"><^${right.RowNo}_</span><div style="display: inline-block;">${right.firstName} ${right.lastName}</div><span style="color: white;">^></span>`;
               } else if (!orgSignatureInserted && signatureImageUrl) {
                 const org = organisationData.otherInformation[0];
                 htmlContentForSignatories += `
@@ -711,13 +710,13 @@ function AcceptInvitation() {
                 prevElementType !== ElementType.AWS_PDF_LINK
               ) {
                 currentArray.push({
-                  textbox: `<div data-first-page="true" style="padding-left: 40px; padding-right: 40px; font-family: ${fontFamily};">${coloredHtmlContent}</div>`,
+                  textbox: `<div style="padding-left: 40px; padding-right: 40px; font-family: ${fontFamily};">${coloredHtmlContent}</div>`,
                 });
               } else {
                 pdfDataArray.push(currentArray);
                 currentArray = [
                   {
-                    textbox: `<div data-first-page="true" style="padding-left: 40px; padding-right: 40px; font-family: ${fontFamily};">${coloredHtmlContent}</div>`,
+                    textbox: `<div style="padding-left: 40px; padding-right: 40px; font-family: ${fontFamily};">${coloredHtmlContent}</div>`,
                   },
                 ];
               }
@@ -1112,7 +1111,7 @@ function AcceptInvitation() {
                             <table style="font-family:${fontFamily}; border-collapse: collapse; width: 100%; margin-top: -15px;">
                               <tr style="background-color: ${BrandColor};">
                                 <th style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white; font-size: 18px;">Services</th>
-                                <th style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; font-size: 18px;">Fees (${currencySymbol})</th>
+                                <th style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; font-size: 18px;">Fees (£)</th>
                               </tr>
                               ${recurringServiceCatList
                                 .map(
@@ -1236,7 +1235,7 @@ function AcceptInvitation() {
                                   <table style="font-family:${fontFamily}; border-collapse: collapse; width: 100%; margin-top: -15px;">
                                     <tr style="background-color: ${BrandColor};">
                                       <th style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white; font-size: 18px;">Services</th>
-                                      <th style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; font-size: 18px;">Fees (${currencySymbol})</th>
+                                      <th style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; font-size: 18px;">Fees ()</th>
                                     </tr>
                                     ${oneOffServiceCatList
                                       .map(
@@ -1606,7 +1605,7 @@ function AcceptInvitation() {
 
                 if (left) {
                   htmlContentForSignatories += `
-                      <span style="color: white;"><^${left.RowNo}_</span><div style="display: inline-block;">${left.firstName} ${formatName(left.lastName)}</div><span style="color: white;">^></span>`;
+                      <span style="color: white;"><^${left.RowNo}_</span><div style="display: inline-block;">${left.firstName} ${left.lastName}</div><span style="color: white;">^></span>`;
                 } else if (!orgSignatureInserted && signatureImageUrl) {
                   const org = organisationData.otherInformation[0];
                   htmlContentForSignatories += `
@@ -1631,7 +1630,7 @@ function AcceptInvitation() {
 
                 if (right) {
                   htmlContentForSignatories += `
-                      <span style="color: white;"><^${right.RowNo}_</span><div style="display: inline-block;">${right.firstName} ${formatName(right.lastName)}</div><span style="color: white;">^></span>`;
+                      <span style="color: white;"><^${right.RowNo}_</span><div style="display: inline-block;">${right.firstName} ${right.lastName}</div><span style="color: white;">^></span>`;
                 } else if (!orgSignatureInserted && signatureImageUrl) {
                   const org = organisationData.otherInformation[0];
                   htmlContentForSignatories += `
@@ -2055,16 +2054,16 @@ function AcceptInvitation() {
           );
           let AddFirstPageHtmlContent = [...updatedTemplateElementList];
           if (!isAddedFirstPage) {
-            const firstPageElement = {
-              ttetMapID: null,
-              templateElementTypeID: 10,
-              templateElementTypeName: "First Page",
-              serialNo: null,
-              headings: "",
-              shortDesc: "",
-              htmlContent: setDefaultFontFamily(firstPageHTML, fontFamily),
-            };
-            AddFirstPageHtmlContent.splice(0, 0, firstPageElement);
+            // const firstPageElement = {
+            //   "ttetMapID": null,
+            //   "templateElementTypeID": 10,
+            //   "templateElementTypeName": "First Page",
+            //   "serialNo": null,
+            //   "headings": "",
+            //   "shortDesc": "",
+            //   "htmlContent": setDefaultFontFamily(firstPageHTML, fontFamily)
+            // };
+            // AddFirstPageHtmlContent.splice(0, 0, firstPageElement);
           }
           // const GetCommonFontFamily = AddFirstPageHtmlContent.find(item => item.templateElementTypeName === "Text Block").htmlContent
           // const { uniqueFontFamilies, // Unique font families

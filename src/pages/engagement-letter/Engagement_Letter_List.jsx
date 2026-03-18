@@ -2282,8 +2282,7 @@ const Engagement_Letter = () => {
                                                           <span>
                                                             Sent on:{" "}
                                                             {GetOnlyDate(
-                                                              engagement.sentOn ??
-                                                                engagement.createdOn,
+                                                              engagement.sentOn,
                                                             )}
                                                           </span>
                                                         ) : engagement.statusID ===
