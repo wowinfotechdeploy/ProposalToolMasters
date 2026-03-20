@@ -3914,7 +3914,7 @@ const ReviewServicesComponent = (props) => {
                                     </tr>
                                   </>
                                 )}
-                              {props.vatPercentage !== 0 && (
+                              {props.vatPercentageOneOff ? (
                                 <>
                                   <tr class="head-grey-row">
                                     <td className="tr-table-class font-14 text-white">
@@ -3978,7 +3978,7 @@ const ReviewServicesComponent = (props) => {
   </td>
                                   </tr>
                                 </>
-                              )}
+                              ):""}
                             </tbody>
                           </table>
                         </>
@@ -4030,7 +4030,7 @@ const ReviewServicesComponent = (props) => {
                                     Fees ({props.currencySymbol})
                                   </th>
                                 )}
-                                {props.vatPercentageOneOff !== 0 &&
+                                {props.vatPercentageOneOff ?
                                   props.visibleFieldsCustomTemp.vatRate && (
                                     <th
                                       className="tr-table-class text-white text-center"
@@ -4038,8 +4038,8 @@ const ReviewServicesComponent = (props) => {
                                     >
                                       {props.taxName} Rate
                                     </th>
-                                  )}
-                                {props.vatPercentageOneOff !== 0 &&
+                                  ):""}
+                                {props.vatPercentageOneOff ?
                                   props.visibleFieldsCustomTemp.vat && (
                                     <th
                                       className="tr-table-class text-white text-center"
@@ -4047,8 +4047,8 @@ const ReviewServicesComponent = (props) => {
                                     >
                                       {props.taxName} ({props.currencySymbol})
                                     </th>
-                                  )}
-                                {props.vatPercentageOneOff !== 0 &&
+                                  ):""}
+                                {props.vatPercentageOneOff ?
                                   props.visibleFieldsCustomTemp.feesIncVat && (
                                     <th
                                       className="tr-table-class text-white text-center"
@@ -4057,7 +4057,7 @@ const ReviewServicesComponent = (props) => {
                                       Fees inc {props.taxName} (
                                       {props.currencySymbol})
                                     </th>
-                                  )}
+                                  ):""}
                               </tr>
                             </thead>
 
@@ -4173,7 +4173,7 @@ const ReviewServicesComponent = (props) => {
                                               </td>
                                             )}
 
-                                            {props.vatPercentageOneOff !== 0 &&
+                                            {props.vatPercentageOneOff ?
                                               props.visibleFieldsCustomTemp
                                                 .vatRate && (
                                                 <td className="text-center">
@@ -4182,9 +4182,9 @@ const ReviewServicesComponent = (props) => {
                                                   }
                                                   %
                                                 </td>
-                                              )}
+                                              ):""}
 
-                                            {props.vatPercentageOneOff !== 0 &&
+                                            {props.vatPercentageOneOff ?
                                               props.visibleFieldsCustomTemp
                                                 .vat && (
                                                 <td className="text-center">
@@ -4199,9 +4199,9 @@ const ReviewServicesComponent = (props) => {
                                                     <span className="fa fa-check"></span>
                                                   )}
                                                 </td>
-                                              )}
+                                              ):""}
 
-                                            {props.vatPercentageOneOff !== 0 &&
+                                            {props.vatPercentageOneOff ?
                                               props.visibleFieldsCustomTemp
                                                 .feesIncVat && (
                                                 <td className="text-center">
@@ -4216,7 +4216,7 @@ const ReviewServicesComponent = (props) => {
                                                     <span className="fa fa-check"></span>
                                                   )}
                                                 </td>
-                                              )}
+                                              ):""}
                                           </tr>
                                         );
                                       },
@@ -4262,11 +4262,11 @@ const ReviewServicesComponent = (props) => {
                                         )}
                                   </td>
                                 )}
-                                {props.vatPercentageOneOff !== 0 &&
+                                {props.vatPercentageOneOff ?
                                   props.visibleFieldsCustomTemp.vatRate && (
                                     <td></td>
-                                  )}
-                                {props.vatPercentageOneOff !== 0 &&
+                                  ):""}
+                                {props.vatPercentageOneOff ?
                                   props.visibleFieldsCustomTemp.vat && (
                                     <td className="tr-table-class text-white text-center">
                                       {props.formatValue(
@@ -4277,8 +4277,8 @@ const ReviewServicesComponent = (props) => {
                                         props.currencyID,
                                       )}
                                     </td>
-                                  )}
-                                {props.vatPercentageOneOff !== 0 &&
+                                  ):""}
+                                {props.vatPercentageOneOff ?
                                   props.visibleFieldsCustomTemp.feesIncVat && (
                                     <td className="tr-table-class text-white text-center">
                                       {Number(
@@ -4315,7 +4315,7 @@ const ReviewServicesComponent = (props) => {
                                             props.currencyID,
                                           )}
                                     </td>
-                                  )}
+                                  ):""}
                               </tr>
 
                               {Number(props.OneOffPricingInfo.Discount) > 0 &&
@@ -4343,10 +4343,10 @@ const ReviewServicesComponent = (props) => {
                                             : "-"}
                                         </td>
                                       )}
-                                      {props.vatPercentageOneOff !== 0 &&
+                                      {props.vatPercentageOneOff ?
                                         props.visibleFieldsCustomTemp
-                                          .vatRate && <td></td>}
-                                      {props.vatPercentageOneOff !== 0 &&
+                                          .vatRate && <td></td>:""}
+                                      {props.vatPercentageOneOff ?
                                         props.visibleFieldsCustomTemp.vat && (
                                           <td className="tr-table-class text-white text-center">
                                             (-){"  "}
@@ -4362,8 +4362,8 @@ const ReviewServicesComponent = (props) => {
                                               props.currencyID,
                                             )}
                                           </td>
-                                        )}
-                                      {props.vatPercentageOneOff !== 0 &&
+                                        ):""}
+                                      {props.vatPercentageOneOff ?
                                         props.visibleFieldsCustomTemp
                                           .feesIncVat && (
                                           <td className="tr-table-class text-white text-center">
@@ -4384,7 +4384,7 @@ const ReviewServicesComponent = (props) => {
                                               props.currencyID,
                                             )}
                                           </td>
-                                        )}
+                                        ):""}
                                     </tr>
                                     <tr className="head-row">
                                       <td className="tr-table-class font-14 text-white">
@@ -4404,10 +4404,10 @@ const ReviewServicesComponent = (props) => {
                                           )}
                                         </td>
                                       )}
-                                      {props.vatPercentageOneOff !== 0 &&
+                                      {props.vatPercentageOneOff ?
                                         props.visibleFieldsCustomTemp
-                                          .vatRate && <td></td>}
-                                      {props.vatPercentageOneOff !== 0 &&
+                                          .vatRate && <td></td>:""}
+                                      {props.vatPercentageOneOff ?
                                         props.visibleFieldsCustomTemp.vat && (
                                           <td className="tr-table-class text-white text-center">
                                             {props.formatValue(
@@ -4418,8 +4418,8 @@ const ReviewServicesComponent = (props) => {
                                               props.currencyID,
                                             )}
                                           </td>
-                                        )}
-                                      {props.vatPercentageOneOff !== 0 &&
+                                        ):""}
+                                      {props.vatPercentageOneOff ?
                                         props.visibleFieldsCustomTemp
                                           .feesIncVat && (
                                           <td className="tr-table-class text-white text-center">
@@ -4435,12 +4435,12 @@ const ReviewServicesComponent = (props) => {
                                               props.currencyID,
                                             )}
                                           </td>
-                                        )}
+                                        ):""}
                                     </tr>
                                   </>
                                 )}
 
-                              {props.vatPercentageOneOff !== 0 && (
+                              {props.vatPercentageOneOff ? (
                                 <>
                                   {/* <tr class="head-grey-row">
                                   <td className="tr-table-class font-14 text-white">
@@ -4469,7 +4469,7 @@ const ReviewServicesComponent = (props) => {
                                   <td></td>
                                 </tr> */}
                                 </>
-                              )}
+                              ):""}
                             </tbody>
                           </table>
                           {/* <div
@@ -7484,6 +7484,30 @@ const ReviewPackagesComponent = (props) => {
                                     </tr>
                                     {service.servicesList.map(
                                       (subService, subIndex) => {
+                                        const packageOnePrice =
+                                          subService.packageOneValue || 0;
+                                        const packageTwoPrice =
+                                          subService.packageTwoValue || 0;
+                                        const packageThreePrice =
+                                          subService.packageThreeValue || 0;
+                                        const vatOne =
+                                          (packageOnePrice *
+                                            subService.service_vat_percentage) /
+                                          100;
+                                        const vatTwo =
+                                          (packageTwoPrice *
+                                            subService.service_vat_percentage) /
+                                          100;
+                                        const vatThree =
+                                          (packageThreePrice *
+                                            subService.service_vat_percentage) /
+                                          100;
+                                        const totalOne =
+                                          packageOnePrice + vatOne;
+                                        const totalTwo =
+                                          packageTwoPrice + vatTwo;
+                                        const totalThree =
+                                          packageThreePrice + vatThree;
                                         const driverList =
                                           subService.pricingDriverList || [];
                                         return (
@@ -7623,9 +7647,7 @@ const ReviewPackagesComponent = (props) => {
                                                           <span className="fa fa-times"></span>
                                                         ) : (
                                                           ` ${props.formatValue(
-                                                            (subService.packageOneValue *
-                                                              20) /
-                                                              100,
+                                                            vatOne,
                                                             props.currencyID,
                                                           )}`
                                                         )
@@ -8096,9 +8118,7 @@ const ReviewPackagesComponent = (props) => {
                                                             <span className="fa fa-times"></span>
                                                           ) : (
                                                             ` ${props.formatValue(
-                                                              (subService.packageTwoValue *
-                                                                20) /
-                                                                100,
+                                                              vatTwo,
                                                               props.currencyID,
                                                             )}`
                                                           )
@@ -8296,9 +8316,7 @@ const ReviewPackagesComponent = (props) => {
                                                             <span className="fa fa-times"></span>
                                                           ) : (
                                                             ` ${props.formatValue(
-                                                              (subService.packageThreeValue *
-                                                                20) /
-                                                                100,
+                                                              vatThree,
                                                               props.currencyID,
                                                             )}`
                                                           )
@@ -15176,6 +15194,7 @@ const Add_Update_Engagement_Letter = () => {
           const PricingData = data?.data?.responseData?.data;
           const vatPercentage = data?.data?.responseData?.vatPercentage;
           setVATPercentage(vatPercentage);
+          setVATPercentageOneOff(vatPercentage);
           GetVariableValuesForTnCTemplateData();
           setSelectedPackagesList(data?.data?.responseData?.packageList);
           const PackageList = data?.data?.responseData?.packageList;
@@ -15453,6 +15472,8 @@ const Add_Update_Engagement_Letter = () => {
                     packageTwoID,
                     packageThreeID,
                     isAdditionalService,
+                    service_vat_percentage,
+                    service_vat_amount
                   } = servicePriceData;
 
                   // Fetch recurring service data
@@ -15555,6 +15576,8 @@ const Add_Update_Engagement_Letter = () => {
                     packageTwoID,
                     packageThreeID,
                     isAdditionalService,
+                    service_vat_amount,
+                    service_vat_percentage,
                   };
                 }),
               ),

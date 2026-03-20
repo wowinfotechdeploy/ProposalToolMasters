@@ -4298,7 +4298,7 @@ export default function PreviewComponentPdf(props) {
           props.visibleFieldsCustomTemp.vat
             && `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
                 ${props.formatValue(
-                  props.RecurringPricingInfo.PackageTwoVaTPriceWithoutDiscout,
+                  props.RecurringPricingInfo.PackageTwoStaticVaTPrice,
                   props.currencyID,
                 )}
               </td>`
@@ -4334,7 +4334,7 @@ export default function PreviewComponentPdf(props) {
           props.visibleFieldsCustomTemp.vat
             && `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
                 ${props.formatValue(
-                  props.RecurringPricingInfo.PackageThreeVaTPriceWithoutDiscout,
+                  props.RecurringPricingInfo.PackageThreeStaticVaTPrice,
                   props.currencyID,
                 )}
               </td>`
@@ -4392,13 +4392,16 @@ ${
                 props.visibleFieldsCustomTemp.vat
                   && `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:black;">
                       (-) ${props.formatValue(
-                        (props.RecurringPricingInfo
-                          .PackageTwoVaTPriceWithoutDiscout *
-                          props.RecurringPricingInfo
-                            .DiscountPercentagePackageTwo) /
-                          100,
-                        props.currencyID,
-                      )}
+                                              Number(
+                                                props.RecurringPricingInfo
+                                                  .PackageTwoStaticVaTPrice,
+                                              ) -
+                                                Number(
+                                                  props.RecurringPricingInfo
+                                                    .PackageTwoVaTPrice,
+                                                ),
+                                              props.currencyID,
+                                            )}
                     </td>`
                   : ""
               }
@@ -4424,13 +4427,16 @@ ${
                 props.visibleFieldsCustomTemp.vat
                   && `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:black;">
                       (-) ${props.formatValue(
-                        (props.RecurringPricingInfo
-                          .PackageThreeVaTPriceWithoutDiscout *
-                          props.RecurringPricingInfo
-                            .DiscountPercentagePackageThree) /
-                          100,
-                        props.currencyID,
-                      )}
+                                              Number(
+                                                props.RecurringPricingInfo
+                                                  .PackageThreeStaticVaTPrice,
+                                              ) -
+                                                Number(
+                                                  props.RecurringPricingInfo
+                                                    .PackageThreeVaTPrice,
+                                                ),
+                                              props.currencyID,
+                                            )}
                     </td>`
                   : ""
               }
@@ -4490,10 +4496,7 @@ ${
     props.visibleFieldsCustomTemp.vat
       ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
           ${props.formatValue(
-            props.RecurringPricingInfo.PackageTwoVaTPriceWithoutDiscout -
-              (props.RecurringPricingInfo.PackageTwoVaTPriceWithoutDiscout *
-                props.RecurringPricingInfo.DiscountPercentagePackageTwo) /
-                100,
+            Number(props.RecurringPricingInfo.PackageTwoVaTPrice),
             props.currencyID
           )}
         </td>`
@@ -4521,12 +4524,10 @@ ${
 
   ${
     props.visibleFieldsCustomTemp.vat
+    
       ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
           ${props.formatValue(
-            props.RecurringPricingInfo.PackageThreeVaTPriceWithoutDiscout -
-              (props.RecurringPricingInfo.PackageThreeVaTPriceWithoutDiscout *
-                props.RecurringPricingInfo.DiscountPercentagePackageThree) /
-                100,
+            Number(props.RecurringPricingInfo.PackageThreeVaTPrice),
             props.currencyID
           )}
         </td>`

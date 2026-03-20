@@ -12352,8 +12352,8 @@ const ReviewPackagesComponent = (props) => {
   };
 
   console.log(
-    "selectedRecurringServiceList",
-    props.selectedRecurringServiceList,
+    "vatPercentageOneOff",
+    props.vatPercentageOneOff,
   );
   return (
     <>
@@ -14673,7 +14673,7 @@ const ReviewPackagesComponent = (props) => {
                                         props.visibleFieldsCustomTemp.vat && (
                                           <td className="tr-table-class font-14 text-white text-right">
                                             (-){" "}
-                                            {props.formatValue(
+                                              {props.formatValue(
                                               Number(
                                                 props.RecurringPricingInfo
                                                   .PackageThreeStaticVaTPrice,
@@ -21599,33 +21599,63 @@ const Add_Update_Proposal = (props) => {
             recMaxDiscountCopy = RecurringPricingInfo.MaxDiscount;
           }
 
-          // ✅ Calculate total VAT for all selected services in all categories
-          const totalVATAmount = recArrayWithPrice.reduce(
-            (catSum, category) => {
-              const serviceSum = category.servicesList
-                .filter((service) => service.isSelected)
-                .reduce(
-                  (sum, service) => sum + (service.service_vat_amount || 0),
-                  0,
-                );
-              return catSum + serviceSum;
-            },
-            0,
-          );
+            let totalVATAmount;
+            let totalVATAmountOneOff;
+            let ServiceWiseVAT;
+            let ServiceWiseVATOneOff;
 
-          // ✅ Calculate total VAT for all selected services in all categories
-          const totalVATAmountOneOff = OneArrayWithPrice.reduce(
-            (catSum, category) => {
-              const serviceSum = category.servicesList
-                .filter((service) => service.isSelected)
-                .reduce(
-                  (sum, service) => sum + (service.service_vat_amount || 0),
-                  0,
-                );
-              return catSum + serviceSum;
-            },
-            0,
-          );
+            if(proposalModelObj.statusID !== 1){
+              totalVATAmount = recArrayWithPrice.reduce(
+                (catSum, category) => {
+                  const serviceSum = category.servicesList
+                  .filter((service) => service.isSelected)
+                  .reduce(
+                    (sum, service) =>
+                      Number(sum) + Number(service.service_vat_amount || 0),
+                    0,
+                  );
+                  return catSum + serviceSum;
+                },
+                0,
+              );
+
+              ServiceWiseVAT =
+              (Number(totalVATAmount) / Number(recOriginalPrice)) * 100;
+
+             setVATPercentage(ServiceWiseVAT);
+              
+              // ✅ Calculate total VAT for all selected services in all categories
+              
+            }else{
+              totalVATAmount = RecurringPricingInfo.totalServiceWiseVAT;
+              setVATPercentage(RecurringPricingInfo.recurringServiceVatPercentage);
+            }
+
+          // const totalVATAmount = recArrayWithPrice.reduce(
+          //   (catSum, category) => {
+          //     const serviceSum = category.servicesList
+          //       .filter((service) => service.isSelected)
+          //       .reduce(
+          //         (sum, service) => sum + (service.service_vat_amount || 0),
+          //         0,
+          //       );
+          //     return catSum + serviceSum;
+          //   },
+          //   0,
+          // );
+
+          // const totalVATAmountOneOff = OneArrayWithPrice.reduce(
+          //   (catSum, category) => {
+          //     const serviceSum = category.servicesList
+          //       .filter((service) => service.isSelected)
+          //       .reduce(
+          //         (sum, service) => sum + (service.service_vat_amount || 0),
+          //         0,
+          //       );
+          //     return catSum + serviceSum;
+          //   },
+          //   0,
+          // );
 
           // from add package
 
@@ -21635,7 +21665,11 @@ const Add_Update_Proposal = (props) => {
             DiscountedPrice: recDefaultPrice,
             MinPrice: recMinPrice,
             VATPrice: recVATPrice,
-            totalServiceWiseVAT: totalVATAmount,
+            totalServiceWiseVAT:
+                Number(RecurringPricingInfo.DefaultDiscount) < 0
+                  ? Number(RecurringPricingInfo.DiscountedPrice) * 0.2
+                  : totalVATAmount,
+            staticTotalVAT: totalVATAmount,
             VATPriceWithoutDiscount: recVATPrice,
             Discount: recDiscount,
             DefaultDiscount:
@@ -21906,6 +21940,29 @@ const Add_Update_Proposal = (props) => {
             oneOffDefaultDiscountCopy = OneOffPricingInfoCopy.DefaultDiscount;
             oneOffMaxDiscount = OneOffPricingInfo.MaxDiscount;
           }
+          
+           if(proposalModelObj.statusID !== 1){
+            totalVATAmountOneOff = OneArrayWithPrice.reduce(
+                (catSum, category) => {
+                  const serviceSum = category.servicesList
+                  .filter((service) => service.isSelected)
+                  .reduce(
+                    (sum, service) =>
+                      Number(sum) + Number(service.service_vat_amount || 0),
+                    0,
+                  );
+                  return catSum + serviceSum;
+                },
+                0,
+              );
+
+               ServiceWiseVATOneOff = (Number(totalVATAmountOneOff) / Number(oneOffOriginalPrice)) * 100;
+
+              setVATPercentageOneOff(ServiceWiseVATOneOff);
+           } else{
+              totalVATAmountOneOff = OneOffPricingInfo.totalServiceWiseVATOneOff;
+              setVATPercentageOneOff(RecurringPricingInfo.oneOffServiceVatPercentage);
+           }
 
           const packageOneVATPercentageOneOff =
             (Number(OneOffVATTotalOne) / Number(OneOffTotalOne)) * 100;
