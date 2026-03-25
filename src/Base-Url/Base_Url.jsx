@@ -66,3 +66,6 @@ export const OldOutbooksBaseUrl = "https://proposal.outbooks.com/api";
 
 export const AccessKeyBaseUrl =
   "https://api.api.master.proposal.ust.outbooks.com";
+
+
+export const XeroBaseUrl = `https://outbooks-node-staging-api.caelum.ai/api/v1/xero/`

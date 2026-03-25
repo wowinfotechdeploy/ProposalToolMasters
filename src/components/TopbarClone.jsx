@@ -30,6 +30,7 @@ import SuccessModal from "./SuccessModal";
 import SetTimeoutComponent from "./SetTimeoutComponent";
 import UserModelNew from "./UserModelNew";
 import ViewPlan from "./ViewPlan";
+import AuthButton from "./Sidebar/AuthenticationButton";
 
 const TopbarClone = () => {
   // A] States Declaration
@@ -1184,7 +1185,7 @@ const TopbarClone = () => {
                       </a>
                     </div>
                     <Tooltip
-                      title={isSidebarOpen ? "Close menu" : "Open menu" }
+                      title={isSidebarOpen ? "Close menu" : "Open menu"}
                       disableInteractive
                     >
                       <div
@@ -1277,7 +1278,7 @@ const TopbarClone = () => {
                     <div className="row"></div>
                   </div>
                 </div>
-                <div className="sidebar-menu-scroll">
+                <div className="sidebar-menu-scroll ">
                   <ul
                     class="navbar-nav d-none d-md-block pt-4"
                     style={{ paddingLeft: "0.5rem" }}
@@ -1498,9 +1499,8 @@ const TopbarClone = () => {
                   </ul>
                   {common.organisationKeyID !== null && (
                     <ul
-                      className={`changed-nav navbar-nav ${
-                        isDropdownOpen ? " open" : ""
-                      } ms-2 mt-1`}
+                      className={`changed-nav navbar-nav ${isDropdownOpen ? " open" : ""
+                        } ms-2 mt-1`}
                       // style={{paddingRight: "1rem"}}
                       id="navbar-UL-nav"
                     >
@@ -1760,12 +1760,12 @@ const TopbarClone = () => {
                                     id="servicesAndPackage"
                                     className="subList Service-package-bgColor"
                                     data-bs-parent="#config"
-                                    // style={{
-                                    //   color: style.backgroundColor,
-                                    //   // display: "none", // controlled via toggleConfigSubList
-                                    //   width: "100%",
-                                    //   paddingLeft: "16px", // optional: visual indentation
-                                    // }}
+                                  // style={{
+                                  //   color: style.backgroundColor,
+                                  //   // display: "none", // controlled via toggleConfigSubList
+                                  //   width: "100%",
+                                  //   paddingLeft: "16px", // optional: visual indentation
+                                  // }}
                                   >
                                     <ul className="nav nav-sm flex-column">
                                       <li className="nav-item">
@@ -1966,14 +1966,14 @@ const TopbarClone = () => {
                                   <div
                                     id="Reminder"
                                     className=" subList Service-package-bgColor"
-                                    // style={{
-                                    //   display: "none",      // toggled via toggleConfigSubList
-                                    //   width: "100%",        // full parent width
-                                    //   paddingLeft: "16px",  // optional indentation
-                                    //   background: "#f8f9fa",
-                                    //   borderRadius: "4px",
-                                    //   marginTop: "4px",
-                                    // }}
+                                  // style={{
+                                  //   display: "none",      // toggled via toggleConfigSubList
+                                  //   width: "100%",        // full parent width
+                                  //   paddingLeft: "16px",  // optional indentation
+                                  //   background: "#f8f9fa",
+                                  //   borderRadius: "4px",
+                                  //   marginTop: "4px",
+                                  // }}
                                   >
                                     <ul className="nav nav-sm flex-column">
                                       <li className="nav-item">
@@ -2232,14 +2232,14 @@ const TopbarClone = () => {
                                   <div
                                     class="subList collapse Responsive-Config-Variables"
                                     id="PracticeConfig"
-                                    // style={{
-                                    //       display: "none",      // toggled via toggleConfigSubList
-                                    //       width: "100%",        // full parent width
-                                    //       paddingLeft: "16px",  // optional indentation
-                                    //       background: "#f8f9fa",
-                                    //       borderRadius: "4px",
-                                    //       marginTop: "4px",
-                                    //     }}
+                                  // style={{
+                                  //       display: "none",      // toggled via toggleConfigSubList
+                                  //       width: "100%",        // full parent width
+                                  //       paddingLeft: "16px",  // optional indentation
+                                  //       background: "#f8f9fa",
+                                  //       borderRadius: "4px",
+                                  //       marginTop: "4px",
+                                  //     }}
                                   >
                                     <ul class="nav nav-sm flex-column">
                                       <li class="nav-item">
@@ -2403,9 +2403,8 @@ const TopbarClone = () => {
                     common.organisationKeyID === null && (
                       <>
                         <ul
-                          className={`changed-nav navbar-nav ${
-                            isDropdownOpen ? " open" : ""
-                          } ms-2 mt-1`}
+                          className={`changed-nav navbar-nav ${isDropdownOpen ? " open" : ""
+                            } ms-2 mt-1`}
                           style={{ paddingRight: "2rem" }}
                           id="navbar-UL-nav"
                         >
@@ -2619,16 +2618,16 @@ const TopbarClone = () => {
                                   {userAccessData.SuperAdmin_Config_ServicePackage_CanView && (
                                     <li
                                       class="nav-item"
-                                      // onMouseLeave={() =>
-                                      //   hideConfigSubList(
-                                      //     "PredefinedServicesAndPackage"
-                                      //   )
-                                      // }
-                                      // onMouseEnter={() =>
-                                      //   showConfigSubList(
-                                      //     "PredefinedServicesAndPackage"
-                                      //   )
-                                      // }
+                                    // onMouseLeave={() =>
+                                    //   hideConfigSubList(
+                                    //     "PredefinedServicesAndPackage"
+                                    //   )
+                                    // }
+                                    // onMouseEnter={() =>
+                                    //   showConfigSubList(
+                                    //     "PredefinedServicesAndPackage"
+                                    //   )
+                                    // }
                                     >
                                       <a
                                         href="#sidebarProfile"
@@ -2709,16 +2708,16 @@ const TopbarClone = () => {
                                   {userAccessData.SuperAdmin_Config_Global_Constant_CanView && (
                                     <li
                                       class="nav-item"
-                                      // onMouseLeave={() =>
-                                      //   hideConfigSubList(
-                                      //     "PredefinedVariable"
-                                      //   )
-                                      // }
-                                      // onMouseEnter={() =>
-                                      //   showConfigSubList(
-                                      //     "PredefinedVariable"
-                                      //   )
-                                      // }
+                                    // onMouseLeave={() =>
+                                    //   hideConfigSubList(
+                                    //     "PredefinedVariable"
+                                    //   )
+                                    // }
+                                    // onMouseEnter={() =>
+                                    //   showConfigSubList(
+                                    //     "PredefinedVariable"
+                                    //   )
+                                    // }
                                     >
                                       <a
                                         href="#sidebarProfile"
@@ -2783,16 +2782,16 @@ const TopbarClone = () => {
                                   {userAccessData.SuperAdmin_Config_Template_CanView && (
                                     <li
                                       class="nav-item"
-                                      // onMouseLeave={() =>
-                                      //   hideConfigSubList(
-                                      //     "PredefinedTemplate"
-                                      //   )
-                                      // }
-                                      // onMouseEnter={() =>
-                                      //   showConfigSubList(
-                                      //     "PredefinedTemplate"
-                                      //   )
-                                      // }
+                                    // onMouseLeave={() =>
+                                    //   hideConfigSubList(
+                                    //     "PredefinedTemplate"
+                                    //   )
+                                    // }
+                                    // onMouseEnter={() =>
+                                    //   showConfigSubList(
+                                    //     "PredefinedTemplate"
+                                    //   )
+                                    // }
                                     >
                                       <a
                                         href="#sidebarProfile"
@@ -2869,16 +2868,16 @@ const TopbarClone = () => {
                                   {userAccessData.SuperAdmin_Config_Template_CanView && (
                                     <li
                                       class="nav-item"
-                                      // onMouseLeave={() =>
-                                      //   hideConfigSubList(
-                                      //     "PredefinedReminder"
-                                      //   )
-                                      // }
-                                      // onMouseEnter={() =>
-                                      //   showConfigSubList(
-                                      //     "PredefinedReminder"
-                                      //   )
-                                      // }
+                                    // onMouseLeave={() =>
+                                    //   hideConfigSubList(
+                                    //     "PredefinedReminder"
+                                    //   )
+                                    // }
+                                    // onMouseEnter={() =>
+                                    //   showConfigSubList(
+                                    //     "PredefinedReminder"
+                                    //   )
+                                    // }
                                     >
                                       <a
                                         href="#sidebarProfile"
@@ -2974,14 +2973,14 @@ const TopbarClone = () => {
                                     : TopTextColor.color,
                                   fontWeight: "bold",
                                 }}
-                                // any issue arise ,undo this code
+                              // any issue arise ,undo this code
 
-                                // onMouseOver={() =>
-                                //   setIsHoveredSubscription(true)
-                                // }
-                                // onMouseOut={() =>
-                                //   setIsHoveredSubscription(false)
-                                // }
+                              // onMouseOver={() =>
+                              //   setIsHoveredSubscription(true)
+                              // }
+                              // onMouseOut={() =>
+                              //   setIsHoveredSubscription(false)
+                              // }
                               >
                                 <i
                                   class="bi bi-credit-card"
@@ -3386,9 +3385,15 @@ const TopbarClone = () => {
                   {/* </div> */}
                   {/* </div> */}
                 </div>
+
+
+
               </div>
             </div>
           </div>
+
+          <  AuthButton />
+
           <div
             className="d-flex sidebar-bottom align-items-center justify-content-start"
             style={{
@@ -3483,7 +3488,7 @@ const TopbarClone = () => {
                   data-bs-toggle="modal"
                   data-bs-target="#TopbarUserProfileEdit"
                   style={{ cursor: "pointer" }}
-                  // onClick={ResetPasswordClicked}
+                // onClick={ResetPasswordClicked}
                 >
                   <span class="align-middle" data-key="t-logout">
                     Hello{" "}
@@ -3536,7 +3541,7 @@ const TopbarClone = () => {
                   data-bs-toggle="modal"
                   data-bs-target="#ResetPasswordModal"
                   style={{ cursor: "pointer" }}
-                  // onClick={ResetPasswordClicked}
+                // onClick={ResetPasswordClicked}
                 >
                   {/* <i class="mdi mdi-logout text-muted fs-16 align-middle me-1"></i>{" "} */}
                   <i class=" mdi mdi-key-star text-muted fs-16 align-middle me-1"></i>{" "}
@@ -3695,15 +3700,15 @@ const TopbarClone = () => {
                 <div className="text-center">
                   {" "}
                   {RequireErrorMessage &&
-                  (updatedEngagementName === "" ||
-                    updatedEngagementName === null ||
-                    updatedEngagementName === undefined) &&
-                  (updatedProposalName === "" ||
-                    updatedProposalName === null ||
-                    updatedProposalName === undefined) &&
-                  (updatedProspectName === "" ||
-                    updatedProspectName === null ||
-                    updatedProspectName === undefined) ? (
+                    (updatedEngagementName === "" ||
+                      updatedEngagementName === null ||
+                      updatedEngagementName === undefined) &&
+                    (updatedProposalName === "" ||
+                      updatedProposalName === null ||
+                      updatedProposalName === undefined) &&
+                    (updatedProspectName === "" ||
+                      updatedProspectName === null ||
+                      updatedProspectName === undefined) ? (
                     <label className="validation">
                       Please make sure to fill out at least one field.
                     </label>
@@ -3723,8 +3728,8 @@ const TopbarClone = () => {
                         updatedProspectName !== null &&
                         updatedProspectName !== undefined)) &&
                     (updatedEngagementName === updatedProposalName ||
-                    updatedProposalName === updatedProspectName ||
-                    updatedEngagementName === updatedProspectName ? (
+                      updatedProposalName === updatedProspectName ||
+                      updatedEngagementName === updatedProspectName ? (
                       <label className="validation">
                         Variable name should be unique. Please set unique
                         variable name.
@@ -3739,16 +3744,16 @@ const TopbarClone = () => {
                   userAccessData.Admin_Personalize_SettingCanEdit) ||
                   (userAccessData.SuperAdmin_Personalize_SettingCanView &&
                     userAccessData.SuperAdmin_Personalize_SettingCanEdit)) && (
-                  <button
-                    type="button"
-                    onClick={async () => {
-                      await updateVariableFun();
-                    }}
-                    class="btn btn-md btn-success create-item-btn"
-                  >
-                    <span> Apply Changes</span>
-                  </button>
-                )}
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        await updateVariableFun();
+                      }}
+                      class="btn btn-md btn-success create-item-btn"
+                    >
+                      <span> Apply Changes</span>
+                    </button>
+                  )}
               </div>
             </div>
 
