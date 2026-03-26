@@ -37,28 +37,38 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 
 // ------------------------------------Pages with loader--------------------------------------------
 export const Topbar = Loadable(lazy(() => import("../components/Topbar")));
-export const TopbarClone = Loadable(lazy(() => import("../components/TopbarClone")));
+export const TopbarClone = Loadable(
+  lazy(() => import("../components/TopbarClone"))
+);
 export const AddUpdateReminderTemplate = Loadable(
   lazy(() =>
-    import("../pages/configure/Reminder/ReminderEmailTemplate/AddReminderTemplateModel")
+    import(
+      "../pages/configure/Reminder/ReminderEmailTemplate/AddReminderTemplateModel"
+    )
   )
 );
 
 export const SuperAdminReminderTemplateList = Loadable(
   lazy(() =>
-    import("../pages/Settings/SuperAdminReminder/SuperAdminReminderEmailTemplate/SuperAdminReminderTemplateList")
+    import(
+      "../pages/Settings/SuperAdminReminder/SuperAdminReminderEmailTemplate/SuperAdminReminderTemplateList"
+    )
   )
 );
 
 export const AddUpdateSuperAdminReminderTemplate = Loadable(
   lazy(() =>
-    import("../pages/Settings/SuperAdminReminder/SuperAdminReminderEmailTemplate/AddUpdateSuperAdminReminderTemplate")
+    import(
+      "../pages/Settings/SuperAdminReminder/SuperAdminReminderEmailTemplate/AddUpdateSuperAdminReminderTemplate"
+    )
   )
 );
 
 export const UpdateUnPaidAccount = Loadable(
   lazy(() =>
-    import("../pages/Settings/SuperAdminReminder/LoginToOutbooks/UpdateLoginToOutbooksReminder")
+    import(
+      "../pages/Settings/SuperAdminReminder/LoginToOutbooks/UpdateLoginToOutbooksReminder"
+    )
   )
 );
 
@@ -68,13 +78,17 @@ export const UpdateUnPaidAccount = Loadable(
 
 export const SuperAdminMarketingReminderList = Loadable(
   lazy(() =>
-    import("../pages/Settings/SuperAdminReminder/SuperAdminMarketingReminder/SuperAdminMarketingReminderList")
+    import(
+      "../pages/Settings/SuperAdminReminder/SuperAdminMarketingReminder/SuperAdminMarketingReminderList"
+    )
   )
 );
 
 export const SuperAdminMarketingReminderAddUpdate = Loadable(
   lazy(() =>
-    import("../pages/Settings/SuperAdminReminder/SuperAdminMarketingReminder/SuperAdminMarketingReminderAddUpdate")
+    import(
+      "../pages/Settings/SuperAdminReminder/SuperAdminMarketingReminder/SuperAdminMarketingReminderAddUpdate"
+    )
   )
 );
 const Logout = Loadable(lazy(() => import("../components/Logout")));
@@ -163,7 +177,9 @@ const Access_Keys = Loadable(
 const Services = Loadable(
   lazy(() => import("../pages/configure/services/ServicesList"))
 );
-const Dashboard = Loadable(lazy(() => import("../pages/dashboard/NewDashboard")));
+const Dashboard = Loadable(
+  lazy(() => import("../pages/dashboard/NewDashboard"))
+);
 const DashboardClone = Loadable(
   lazy(() => import("../pages/dashboard/DashbordClone"))
 );
@@ -251,6 +267,10 @@ const Users = Loadable(lazy(() => import("../pages/Settings/users/UsersList")));
 const Payment_Gateway = Loadable(
   lazy(() => import("../pages/Settings/payment-gateway/PaymentGateway"))
 );
+
+const Xero = Loadable(lazy(() => import("../pages/Settings/xero")));
+const QuickBook = Loadable(lazy(() => import("../pages/Settings/quick-book")));
+
 const Activity_Logs = Loadable(
   lazy(() => import("../pages/Settings/Activity-logs/Activity_Logs"))
 );
@@ -653,6 +673,12 @@ function AppContent() {
     case "/payment-gateway":
       title = `Payment Gateway | ` + title;
       break;
+    case "/xero":
+      title = `Xero | ` + title;
+      break;
+    case "/quick-book":
+      title = `Quick Book | ` + title;
+      break;
     case "/pricing-setting":
       title = `Pricing | ` + title;
       break;
@@ -1046,285 +1072,308 @@ function Index() {
               {common.token &&
                 (common.organisationCount > 0 || common.roleTypeId === 1) && (
                   <ColorProvider>
-                  <div className={window.innerWidth > 1040 ? "app-layout app-layout-clone" : "app-layout"}>
-                  {window.innerWidth > 1040 ? (
-                  <TopbarClone
-                      Email={common.email}
-                      moduleName={"DashBoardClone"}
-                    />
-                  ) : 
-                  <Topbar
-                      Email={common.email}
-                      moduleName={"DashBoardClone"}
-                    />
-                  }
-                    <div className= {(window.innerWidth <= 1040) ? "page-content" : "main-content"}>
-                    <Routes>
-                      <Route
-                        path="/marketing-reminder"
-                        element={<SuperAdminMarketingReminderList />}
-                      />
-                      <Route path="/WebSetting" element={<Setting />} />
-                      <Route path="/AccessKey" element={<Access_Key />} />
-                      <Route path="/coupon" element={<CouponsList />} />
-                      <Route
-                        path="/add-update-marketing-reminder"
-                        element={<SuperAdminMarketingReminderAddUpdate />}
-                      />
-                      <Route path="*" element={<Dashboard />} />
-                      <Route path="/" element={<Dashboard />} />
-                      <Route path="/logout" element={<Logout />} />
-                      <Route
-                        path="/StripePaymentSuccess"
-                        element={<SuccessPage />}
-                      />
-                      <Route
-                        path="/StripePaymentCanceled"
-                        element={<StripePaymentCanceledPage />}
-                      />
-                      <Route
-                        path="/service-category"
-                        element={<Service_categories />}
-                      />
-                      <Route path="/services" element={<Services />} />
-                      <Route
-                        path="/add-update-service"
-                        element={<Add_Category />}
-                      />
-                      <Route
-                        path="/packages"
-                        element={<Predefined_Package />}
-                      />
-                      <Route
-                        path="/add-update-package"
-                        element={<Add_New_Predefined_Package />}
-                      />
-                      <Route
-                        path="/global-constant"
-                        element={<Predefined_Global_Constant />}
-                      />
-                      <Route
-                        path="/global-pricing-driver"
-                        element={<Add_New_Pricing_Drivers />}
-                      />
-                      <Route
-                        path="/organisations"
-                        element={<Organisations />}
-                      />
-                      <Route
-                        path="/view-organisations-details"
-                        element={<ViewOrganisationsDetails />}
-                      />
+                    <div
+                      className={
+                        window.innerWidth > 1040
+                          ? "app-layout app-layout-clone"
+                          : "app-layout"
+                      }
+                    >
+                      {window.innerWidth > 1040 ? (
+                        <TopbarClone
+                          Email={common.email}
+                          moduleName={"DashBoardClone"}
+                        />
+                      ) : (
+                        <Topbar
+                          Email={common.email}
+                          moduleName={"DashBoardClone"}
+                        />
+                      )}
+                      <div
+                        className={
+                          window.innerWidth <= 1040
+                            ? "page-content"
+                            : "main-content"
+                        }
+                      >
+                        <Routes>
+                          <Route
+                            path="/marketing-reminder"
+                            element={<SuperAdminMarketingReminderList />}
+                          />
+                          <Route path="/WebSetting" element={<Setting />} />
+                          <Route path="/AccessKey" element={<Access_Key />} />
+                          <Route path="/coupon" element={<CouponsList />} />
+                          <Route
+                            path="/add-update-marketing-reminder"
+                            element={<SuperAdminMarketingReminderAddUpdate />}
+                          />
+                          <Route path="*" element={<Dashboard />} />
+                          <Route path="/" element={<Dashboard />} />
+                          <Route path="/logout" element={<Logout />} />
+                          <Route
+                            path="/StripePaymentSuccess"
+                            element={<SuccessPage />}
+                          />
+                          <Route
+                            path="/StripePaymentCanceled"
+                            element={<StripePaymentCanceledPage />}
+                          />
+                          <Route
+                            path="/service-category"
+                            element={<Service_categories />}
+                          />
+                          <Route path="/services" element={<Services />} />
+                          <Route
+                            path="/add-update-service"
+                            element={<Add_Category />}
+                          />
+                          <Route
+                            path="/packages"
+                            element={<Predefined_Package />}
+                          />
+                          <Route
+                            path="/add-update-package"
+                            element={<Add_New_Predefined_Package />}
+                          />
+                          <Route
+                            path="/global-constant"
+                            element={<Predefined_Global_Constant />}
+                          />
+                          <Route
+                            path="/global-pricing-driver"
+                            element={<Add_New_Pricing_Drivers />}
+                          />
+                          <Route
+                            path="/organisations"
+                            element={<Organisations />}
+                          />
+                          <Route
+                            path="/view-organisations-details"
+                            element={<ViewOrganisationsDetails />}
+                          />
 
-                      <Route
-                        path="/update-practice-details"
-                        element={<Update_Practice_Details />}
-                      />
-                      <Route
-                        path="/create-new-practice"
-                        element={<Create_new_practice />}
-                      />
-                      <Route
-                        path="/templates"
-                        element={<Predefined_templates />}
-                      />
+                          <Route
+                            path="/update-practice-details"
+                            element={<Update_Practice_Details />}
+                          />
+                          <Route
+                            path="/create-new-practice"
+                            element={<Create_new_practice />}
+                          />
+                          <Route
+                            path="/templates"
+                            element={<Predefined_templates />}
+                          />
 
-                      <Route
-                        path="/add-template-pdf"
-                        element={<Add_New_Templates_Pdf />}
-                      />
-                      <Route
-                        path="/add-template"
-                        element={<Add_New_Templates />}
-                      />
-                      <Route
-                        path="/add-template-header-footer"
-                        element={<Add_New_Templates_HeaderFooter />}
-                      />
-                      <Route
-                        path="/email-template"
-                        element={<Predefined_Email_templates />}
-                      />
-                      <Route
-                        path="/add-email-template"
-                        element={<Add_New_Email_Templates />}
-                      />
+                          <Route
+                            path="/add-template-pdf"
+                            element={<Add_New_Templates_Pdf />}
+                          />
+                          <Route
+                            path="/add-template"
+                            element={<Add_New_Templates />}
+                          />
+                          <Route
+                            path="/add-template-header-footer"
+                            element={<Add_New_Templates_HeaderFooter />}
+                          />
+                          <Route
+                            path="/email-template"
+                            element={<Predefined_Email_templates />}
+                          />
+                          <Route
+                            path="/add-email-template"
+                            element={<Add_New_Email_Templates />}
+                          />
 
-                      <Route
-                        path="/terms-and-conditions"
-                        element={<Predefined_Term_And_Condition />}
-                      />
-                      <Route
-                        path="/add-terms-and-conditions"
-                        element={<Add_New_Term_And_Condition />}
-                      />
-                      <Route path="/users" element={<Users />} />
-                      <Route
-                        path="/payment-gateway"
-                        element={<Payment_Gateway />}
-                      />
-                      <Route
-                        path="/activity-logs"
-                        element={<Activity_Logs />}
-                      />
-                      <Route
-                        path="/pricing-setting"
-                        element={<Pricing_Settings />}
-                      />
-                      <Route path="/access-key" element={<Access_Keys />} />
-                      <Route path="/prospects" element={<Prospects />} />
-                      <Route
-                        path="/create-new-client"
-                        element={<AddClient />}
-                      />
-                      <Route
-                        path="/view-prospects"
-                        element={<ViewProspects />}
-                      />
-                      <Route path="/email-config" element={<Email_Config />} />
-                      <Route
-                        path="/reminder-Email-Config"
-                        element={<SuperAdminEmail_Config />}
-                      />
-                      <Route
-                        path="/add-proposal"
-                        element={<Add_New_Proposals />}
-                      />
-                      <Route path="/proposals" element={<Proposals />} />
-                      <Route path="/notification" element={<Notification />} />
-                      <Route path="/user" element={<User />} />
-                      <Route path="/reminder" element={<ReminderList />} />
-                      <Route
-                        path="/subscriptionModal"
-                        element={<SubscriptionModal />}
-                      />
-                      <Route
-                        path="/pdf-csv-subscriptionModal"
-                        element={<PdfToCsvSubscriptionPackageModel />}
-                      />
-                      <Route
-                        path="/pdf-to-csv"
-                        element={<PdfToCsvConvertorModel />}
-                      />
-                      <Route
-                        path="/UserSubscriptionTab"
-                        element={<UserSubscriptionTab />}
-                      />
-                      <Route
-                        path="/super-admin-reminder-template-list"
-                        element={<SuperAdminReminderTemplateList />}
-                      />
-                      {/* <Route
+                          <Route
+                            path="/terms-and-conditions"
+                            element={<Predefined_Term_And_Condition />}
+                          />
+                          <Route
+                            path="/add-terms-and-conditions"
+                            element={<Add_New_Term_And_Condition />}
+                          />
+                          <Route path="/users" element={<Users />} />
+                          <Route
+                            path="/payment-gateway"
+                            element={<Payment_Gateway />}
+                          />
+                          <Route path="/xero" element={<Xero />} />
+                          <Route path="/quickbooks" element={<QuickBook />} />
+                          <Route
+                            path="/activity-logs"
+                            element={<Activity_Logs />}
+                          />
+                          <Route
+                            path="/pricing-setting"
+                            element={<Pricing_Settings />}
+                          />
+                          <Route path="/access-key" element={<Access_Keys />} />
+                          <Route path="/prospects" element={<Prospects />} />
+                          <Route
+                            path="/create-new-client"
+                            element={<AddClient />}
+                          />
+                          <Route
+                            path="/view-prospects"
+                            element={<ViewProspects />}
+                          />
+                          <Route
+                            path="/email-config"
+                            element={<Email_Config />}
+                          />
+                          <Route
+                            path="/reminder-Email-Config"
+                            element={<SuperAdminEmail_Config />}
+                          />
+                          <Route
+                            path="/add-proposal"
+                            element={<Add_New_Proposals />}
+                          />
+                          <Route path="/proposals" element={<Proposals />} />
+                          <Route
+                            path="/notification"
+                            element={<Notification />}
+                          />
+                          <Route path="/user" element={<User />} />
+                          <Route path="/reminder" element={<ReminderList />} />
+                          <Route
+                            path="/subscriptionModal"
+                            element={<SubscriptionModal />}
+                          />
+                          <Route
+                            path="/pdf-csv-subscriptionModal"
+                            element={<PdfToCsvSubscriptionPackageModel />}
+                          />
+                          <Route
+                            path="/pdf-to-csv"
+                            element={<PdfToCsvConvertorModel />}
+                          />
+                          <Route
+                            path="/UserSubscriptionTab"
+                            element={<UserSubscriptionTab />}
+                          />
+                          <Route
+                            path="/super-admin-reminder-template-list"
+                            element={<SuperAdminReminderTemplateList />}
+                          />
+                          {/* <Route
                         path="/super-admin-reminder-template-list"
                         element={<UserSubscriptionPackageTab />}
                       /> */}
 
-                      <Route
-                        path="/add-reminder"
-                        element={<AddUpdateReminder />}
-                      />
+                          <Route
+                            path="/add-reminder"
+                            element={<AddUpdateReminder />}
+                          />
 
-                      <Route
-                        path="/update-paid-unpaid-account"
-                        element={<UpdateUnPaidAccount />}
-                      />
+                          <Route
+                            path="/update-paid-unpaid-account"
+                            element={<UpdateUnPaidAccount />}
+                          />
 
-                      <Route
-                        path="/AddUpdateSuperAdminReminder"
-                        element={<AddUpdateReminder />}
-                      />
-                      <Route
-                        path="/reminder-email-template"
-                        element={<ReminderTemplateList />}
-                      />
-                      <Route
-                        path="/add-reminder-template"
-                        element={<AddUpdateReminderTemplate />}
-                      />
+                          <Route
+                            path="/AddUpdateSuperAdminReminder"
+                            element={<AddUpdateReminder />}
+                          />
+                          <Route
+                            path="/reminder-email-template"
+                            element={<ReminderTemplateList />}
+                          />
+                          <Route
+                            path="/add-reminder-template"
+                            element={<AddUpdateReminderTemplate />}
+                          />
 
-                      <Route
-                        path="/add-update-super-admin-reminder-template"
-                        element={<AddUpdateSuperAdminReminderTemplate />}
-                      />
+                          <Route
+                            path="/add-update-super-admin-reminder-template"
+                            element={<AddUpdateSuperAdminReminderTemplate />}
+                          />
 
-                      <Route
-                        path="/ChoosePlan"
-                        element={<ChoosePlanForPurchase />}
-                      />
-                      <Route
-                        path="/sub-package"
-                        element={<Subscription_package />}
-                      />
-                      <Route
-                        path="/pdf-csv-sub-package"
-                        element={<PdfToCsvSubscription_Package />}
-                      />
-                      <Route
-                        path="/edit_sub_package"
-                        element={<Edit_Sub_package />}
-                      />
-                      <Route path="/invoices" element={<Invoices />} />
-                      <Route
-                        path="/engagement-letters"
-                        element={<Engagement_Letter />}
-                      />
-                      <Route
-                        path="/add-engagement-letter"
-                        element={<New_Engagement_Model />}
-                      />
-                      <Route path="/view-letter" element={<ViewLetter />} />
-                      <Route
-                        path="/view-proposal"
-                        element={<View_Proposals />}
-                      />
-                      <Route
-                        path="/invite-user"
-                        element={<SuperAdminUserList />}
-                      />
-                      <Route path="/activate" element={<CreateNewPassWord />} />
-                      {/* <Route path="/user-role" element={<UserRoleList />} /> */}
-                      <Route path="/user-role" element={<UserRoleList />} />
-                      <Route path="/security" element={<SecurityList />} />
-                      <Route
-                        path="/security-model"
-                        element={<SecurityModel />}
-                      />
+                          <Route
+                            path="/ChoosePlan"
+                            element={<ChoosePlanForPurchase />}
+                          />
+                          <Route
+                            path="/sub-package"
+                            element={<Subscription_package />}
+                          />
+                          <Route
+                            path="/pdf-csv-sub-package"
+                            element={<PdfToCsvSubscription_Package />}
+                          />
+                          <Route
+                            path="/edit_sub_package"
+                            element={<Edit_Sub_package />}
+                          />
+                          <Route path="/invoices" element={<Invoices />} />
+                          <Route
+                            path="/engagement-letters"
+                            element={<Engagement_Letter />}
+                          />
+                          <Route
+                            path="/add-engagement-letter"
+                            element={<New_Engagement_Model />}
+                          />
+                          <Route path="/view-letter" element={<ViewLetter />} />
+                          <Route
+                            path="/view-proposal"
+                            element={<View_Proposals />}
+                          />
+                          <Route
+                            path="/invite-user"
+                            element={<SuperAdminUserList />}
+                          />
+                          <Route
+                            path="/activate"
+                            element={<CreateNewPassWord />}
+                          />
+                          {/* <Route path="/user-role" element={<UserRoleList />} /> */}
+                          <Route path="/user-role" element={<UserRoleList />} />
+                          <Route path="/security" element={<SecurityList />} />
+                          <Route
+                            path="/security-model"
+                            element={<SecurityModel />}
+                          />
 
-                      <Route
-                        path="/super-admin-email-template-model"
-                        element={<SuperAdminEmailTemplateModel />}
-                      />
-                      <Route
-                        path="/super-admin-email-template-list"
-                        element={<SuperAdminEmailTemplateList />}
-                      />
-                      <Route
-                        path="/security-landing-page"
-                        element={<SecurityLandingPage />}
-                      />
+                          <Route
+                            path="/super-admin-email-template-model"
+                            element={<SuperAdminEmailTemplateModel />}
+                          />
+                          <Route
+                            path="/super-admin-email-template-list"
+                            element={<SuperAdminEmailTemplateList />}
+                          />
+                          <Route
+                            path="/security-landing-page"
+                            element={<SecurityLandingPage />}
+                          />
 
-                      <Route
-                        path="/accept-decline-proposal"
-                        element={<AcceptProposal />}
-                      />
-                      <Route
-                        path="/generate-contract"
-                        element={<GenerateContract />}
-                      />
+                          <Route
+                            path="/accept-decline-proposal"
+                            element={<AcceptProposal />}
+                          />
+                          <Route
+                            path="/generate-contract"
+                            element={<GenerateContract />}
+                          />
 
-                      <Route
-                        path="/paid-unpaid-list"
-                        element={<DeletionReminder />}
-                      />
-                      {/* <Route path="/view-pdf/:quoteKeyID" element={<ViewPdf />} /> */}
-                      <Route path="/view-pdf" element={<ViewPdf />} />
-                      <Route
-                        path="/mySubscription"
-                        element={<MySubscription />}
-                      />
-                    </Routes>
-                    </div>
-                    <AppContent />
+                          <Route
+                            path="/paid-unpaid-list"
+                            element={<DeletionReminder />}
+                          />
+                          {/* <Route path="/view-pdf/:quoteKeyID" element={<ViewPdf />} /> */}
+                          <Route path="/view-pdf" element={<ViewPdf />} />
+                          <Route
+                            path="/mySubscription"
+                            element={<MySubscription />}
+                          />
+                        </Routes>
+                      </div>
+                      <AppContent />
                     </div>
                   </ColorProvider>
                 )}

@@ -691,7 +691,8 @@ const TopbarClone = () => {
     const list = document.getElementById(id);
     const parent = list.parentElement; // parent <li> (top-level menu item)
     const toggleLink = parent.querySelector(".nav-link");
-    const allLists = document.querySelectorAll(".subList");
+    // const allLists = document.querySelectorAll(".subList");
+    const allLists = parent.parentElement.querySelectorAll(":scope > .nav-item > .subList");
     const settingsContainer = document.getElementById("Setting");
 
     // Close all other sublists
@@ -2232,14 +2233,7 @@ const TopbarClone = () => {
                                   <div
                                     class="subList collapse Responsive-Config-Variables"
                                     id="PracticeConfig"
-                                  // style={{
-                                  //       display: "none",      // toggled via toggleConfigSubList
-                                  //       width: "100%",        // full parent width
-                                  //       paddingLeft: "16px",  // optional indentation
-                                  //       background: "#f8f9fa",
-                                  //       borderRadius: "4px",
-                                  //       marginTop: "4px",
-                                  //     }}
+
                                   >
                                     <ul class="nav nav-sm flex-column">
                                       <li class="nav-item">
@@ -2260,6 +2254,57 @@ const TopbarClone = () => {
                                           </a>
                                         </Link>
                                       </li>
+
+                                      <li
+                                        className="nav-item"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          toggleSettingSubList("BookKeepingConfig");
+                                        }}
+                                      >
+                                        <a
+                                          href="#BookKeepingConfig"
+                                          className="nav-link collapsed d-flex justify-content-between align-items-center"
+                                          aria-expanded="false"
+                                          onClick={(e) => {
+                                            e.preventDefault();
+                                          }}
+                                          style={{ textDecoration: 'none' }}
+                                        >
+                                          <span>Book Keeping Gateway</span>
+
+                                        </a>
+
+                                        <div
+                                          className="subList collapse d-none"
+                                          id="BookKeepingConfig"
+                                        >
+                                          <ul className="nav nav-sm flex-column ms-3">
+
+                                            <li className="nav-item">
+                                              <Link
+                                                to="/xero"
+                                                onClick={togglenav}
+                                                className="nav-link"
+                                              >
+                                                Xero
+                                              </Link>
+                                            </li>
+
+                                            <li className="nav-item">
+                                              <Link
+                                                to="/quickbooks"
+                                                onClick={togglenav}
+                                                className="nav-link"
+                                              >
+                                                QuickBooks
+                                              </Link>
+                                            </li>
+
+                                          </ul>
+                                        </div>
+                                      </li>
+
                                       <li class="nav-item">
                                         <Link
                                           to="/pricing-setting"
