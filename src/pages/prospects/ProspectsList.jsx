@@ -1,5 +1,5 @@
 /* global $ */
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import CommonButtonComponent from "../../components/CommonButtonComponent";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -10,6 +10,8 @@ import {
   DeleteClient,
   ClientChangeStatus,
   DeleteSingleApiClient,
+  ProspectConnectionAuthentication,
+  CreateXeroContactFromOutbooks,
 } from "../../redux/Services/client/clientAPI";
 import SuccessModal from "../../components/SuccessModal";
 import ErrorModel from "../../components/ErrorModel";
@@ -24,7 +26,11 @@ import Tooltip from "@mui/material/Tooltip";
 import RecordsAvailablePopupModel from "../../components/RecordsAvailablePopupModel";
 import DeleteDriverModal from "../../components/DeleteDriverModel";
 const Prospects = () => {
+  const lastClickRef = useRef(0);
   let getClientsListApiCallCount = 0;
+  const raw = JSON.parse(localStorage.getItem("persist:Proposal Tool"));
+  const organisationKeyID = JSON.parse(raw.organisationKeyID);
+
 
   const [activeTab, setActiveTab] = useState("Prospect");
   const [errorMessage, setErrorMessage] = useState("");
@@ -82,6 +88,8 @@ const Prospects = () => {
     message: null,
     tabName: null,
   });
+
+  const [authLoadingRow, setAuthLoadingRow] = useState(null);
   const pageSize = isMobile ? isMobileRecords : desktopRecords;
   const formattedErrorMessage = handleErrorMessage(errorMessage);
   const [shouldFetch, setShouldFetch] = useState(false);
@@ -387,6 +395,67 @@ const Prospects = () => {
       } catch (error) {
         console.log(error);
       }
+    } else if (modelRequestData.Action === "Redirect") {
+
+      const now = Date.now();
+
+      // Throttle (1.5 sec)
+      if (now - lastClickRef.current < 1500) return;
+      lastClickRef.current = now;
+
+      try {
+        setAuthLoadingRow(modelRequestData.clientKeyID);
+        const res = await ProspectConnectionAuthentication(organisationKeyID, modelRequestData.clientKeyID);
+
+        if (res?.status === 200) {
+          const url = res.data.connectionUrl;
+          window.open(url, "_blank", "noopener,noreferrer");
+          setOpenSuccessModal(true);
+        } else {
+          debugger
+          console.log("res", res);
+          setOpenErrorModal(true)
+          setErrorMessage(res.response.data.message)
+        }
+      } catch (err) {
+        console.error("Error:", err);
+      } finally {
+        setAuthLoadingRow(null);
+
+        setLoader(false);
+      }
+
+    }
+    else if (modelRequestData.Action === "Add Contact") {
+
+      const now = Date.now();
+
+      // Throttle (1.5 sec)
+      if (now - lastClickRef.current < 1500) return;
+      lastClickRef.current = now;
+
+      try {
+        setAuthLoadingRow(modelRequestData.clientKeyID);
+        const res = await CreateXeroContactFromOutbooks(organisationKeyID,);
+        debugger
+        if (res?.status === 200) {
+          // const url = res.data.connectionUrl;
+          // window.open(url, "_blank", "noopener,noreferrer");
+          setOpenSuccessModal(true);
+        } else {
+
+          console.log("res", res);
+          setOpenErrorModal(true)
+          setErrorMessage(res.response.data.message)
+        }
+      } catch (err) {
+        console.error("Error:", err);
+      } finally {
+        setAuthLoadingRow(null);
+
+        setLoader(false);
+      }
+
     }
   };
 
@@ -515,6 +584,7 @@ const Prospects = () => {
     setOpenDeleteDriverModel(false);
   };
 
+
   return (
     <>
       <div className="container-fluid">
@@ -534,9 +604,8 @@ const Prospects = () => {
                             <ul className="nav nav-tabs" role="tablist">
                               <li className="nav-item">
                                 <a
-                                  className={`nav-link tab_nav ${
-                                    activeTab === "Prospect" ? "active" : ""
-                                  }`}
+                                  className={`nav-link tab_nav ${activeTab === "Prospect" ? "active" : ""
+                                    }`}
                                   data-bs-toggle="tab"
                                   href="#Prospect"
                                   role="tab"
@@ -552,11 +621,10 @@ const Prospects = () => {
                               {singleclientList?.length > 0 && (
                                 <li className="nav-item">
                                   <a
-                                    className={`nav-link tab_nav ${
-                                      activeTab === "Web Prospect"
-                                        ? "active"
-                                        : ""
-                                    }`}
+                                    className={`nav-link tab_nav ${activeTab === "Web Prospect"
+                                      ? "active"
+                                      : ""
+                                      }`}
                                     data-bs-toggle="tab"
                                     href="#Web Prospect"
                                     role="tab"
@@ -595,9 +663,9 @@ const Prospects = () => {
                                       isMobile
                                         ? "Search"
                                         : getPlaceholderTextName(
-                                            "Search",
-                                            moduleName,
-                                          )
+                                          "Search",
+                                          moduleName,
+                                        )
                                     }
                                   />
                                 </div>
@@ -661,9 +729,9 @@ const Prospects = () => {
                                       isMobile
                                         ? "Search"
                                         : getPlaceholderTextName(
-                                            "Search",
-                                            moduleName,
-                                          )
+                                          "Search",
+                                          moduleName,
+                                        )
                                     }
                                   />
                                 </div>
@@ -762,9 +830,8 @@ const Prospects = () => {
 
                         {/* Table Of Template and Template Pdf */}
                         <div
-                          className={`tab-pane ${
-                            activeTab === "Web Prospect" ? "active" : ""
-                          }`}
+                          className={`tab-pane ${activeTab === "Web Prospect" ? "active" : ""
+                            }`}
                           id="base-justified-home"
                         >
                           {activeTab === "Web Prospect" && (
@@ -790,34 +857,34 @@ const Prospects = () => {
                                     {prospectName} Name{" "}
                                     {primarySortDirectionObj.ProspectNameSort ===
                                       "desc" && (
-                                      <i
-                                        onClick={() => {
-                                          setSortType("ClientName");
-                                          handleSort("asc", "ClientName");
-                                        }}
-                                        style={{ cursor: "pointer" }}
-                                        class="fas fa-sort-alpha-up ml-1"
-                                      ></i>
-                                    )}
+                                        <i
+                                          onClick={() => {
+                                            setSortType("ClientName");
+                                            handleSort("asc", "ClientName");
+                                          }}
+                                          style={{ cursor: "pointer" }}
+                                          class="fas fa-sort-alpha-up ml-1"
+                                        ></i>
+                                      )}
                                     {(primarySortDirectionObj.ProspectNameSort ===
                                       null ||
                                       primarySortDirectionObj.ProspectNameSort ===
-                                        "asc") && (
-                                      <i
-                                        onClick={() => {
-                                          setSortType("ClientName");
-                                          handleSort(
-                                            primarySortDirectionObj.ProspectNameSort ===
-                                              null
-                                              ? "asc"
-                                              : "desc",
-                                            "ClientName",
-                                          );
-                                        }}
-                                        style={{ cursor: "pointer" }}
-                                        class="fas fa-sort-alpha-down ml-1"
-                                      ></i>
-                                    )}
+                                      "asc") && (
+                                        <i
+                                          onClick={() => {
+                                            setSortType("ClientName");
+                                            handleSort(
+                                              primarySortDirectionObj.ProspectNameSort ===
+                                                null
+                                                ? "asc"
+                                                : "desc",
+                                              "ClientName",
+                                            );
+                                          }}
+                                          style={{ cursor: "pointer" }}
+                                          class="fas fa-sort-alpha-down ml-1"
+                                        ></i>
+                                      )}
                                   </td>
                                   <td className="tr-table-class text-white">
                                     Email
@@ -826,34 +893,34 @@ const Prospects = () => {
                                     {prospectName} Type{" "}
                                     {primarySortDirectionObj.ProspectTypeSort ===
                                       "desc" && (
-                                      <i
-                                        onClick={() => {
-                                          setSortType("ClientType");
-                                          handleSort("asc", "ClientType");
-                                        }}
-                                        style={{ cursor: "pointer" }}
-                                        class="fas fa-sort-alpha-up ml-1"
-                                      ></i>
-                                    )}
+                                        <i
+                                          onClick={() => {
+                                            setSortType("ClientType");
+                                            handleSort("asc", "ClientType");
+                                          }}
+                                          style={{ cursor: "pointer" }}
+                                          class="fas fa-sort-alpha-up ml-1"
+                                        ></i>
+                                      )}
                                     {(primarySortDirectionObj.ProspectTypeSort ===
                                       null ||
                                       primarySortDirectionObj.ProspectTypeSort ===
-                                        "asc") && (
-                                      <i
-                                        onClick={() => {
-                                          setSortType("ClientType");
-                                          handleSort(
-                                            primarySortDirectionObj.ProspectTypeSort ===
-                                              null
-                                              ? "asc"
-                                              : "desc",
-                                            "ClientType",
-                                          );
-                                        }}
-                                        style={{ cursor: "pointer" }}
-                                        class="fas fa-sort-alpha-down ml-1"
-                                      ></i>
-                                    )}
+                                      "asc") && (
+                                        <i
+                                          onClick={() => {
+                                            setSortType("ClientType");
+                                            handleSort(
+                                              primarySortDirectionObj.ProspectTypeSort ===
+                                                null
+                                                ? "asc"
+                                                : "desc",
+                                              "ClientType",
+                                            );
+                                          }}
+                                          style={{ cursor: "pointer" }}
+                                          class="fas fa-sort-alpha-down ml-1"
+                                        ></i>
+                                      )}
                                   </td>
                                   <td className="tr-table-class text-white">
                                     Status
@@ -1067,9 +1134,8 @@ const Prospects = () => {
                           )}
                         </div>
                         <div
-                          className={`tab-pane ${
-                            activeTab === "Prospect" ? "active" : ""
-                          }`}
+                          className={`tab-pane ${activeTab === "Prospect" ? "active" : ""
+                            }`}
                           id="base-justified-home"
                         >
                           {activeTab === "Prospect" && (
@@ -1086,34 +1152,34 @@ const Prospects = () => {
                                     {prospectName} Name{" "}
                                     {primarySortDirectionObj.ProspectNameSort ===
                                       "desc" && (
-                                      <i
-                                        onClick={() => {
-                                          setSortType("ClientName");
-                                          handleSort("asc", "ClientName");
-                                        }}
-                                        style={{ cursor: "pointer" }}
-                                        class="fas fa-sort-alpha-up ml-1"
-                                      ></i>
-                                    )}
+                                        <i
+                                          onClick={() => {
+                                            setSortType("ClientName");
+                                            handleSort("asc", "ClientName");
+                                          }}
+                                          style={{ cursor: "pointer" }}
+                                          class="fas fa-sort-alpha-up ml-1"
+                                        ></i>
+                                      )}
                                     {(primarySortDirectionObj.ProspectNameSort ===
                                       null ||
                                       primarySortDirectionObj.ProspectNameSort ===
-                                        "asc") && (
-                                      <i
-                                        onClick={() => {
-                                          setSortType("ClientName");
-                                          handleSort(
-                                            primarySortDirectionObj.ProspectNameSort ===
-                                              null
-                                              ? "asc"
-                                              : "desc",
-                                            "ClientName",
-                                          );
-                                        }}
-                                        style={{ cursor: "pointer" }}
-                                        class="fas fa-sort-alpha-down ml-1"
-                                      ></i>
-                                    )}
+                                      "asc") && (
+                                        <i
+                                          onClick={() => {
+                                            setSortType("ClientName");
+                                            handleSort(
+                                              primarySortDirectionObj.ProspectNameSort ===
+                                                null
+                                                ? "asc"
+                                                : "desc",
+                                              "ClientName",
+                                            );
+                                          }}
+                                          style={{ cursor: "pointer" }}
+                                          class="fas fa-sort-alpha-down ml-1"
+                                        ></i>
+                                      )}
                                   </td>
                                   <td className="tr-table-class text-white">
                                     Email
@@ -1122,34 +1188,34 @@ const Prospects = () => {
                                     {prospectName} Type{" "}
                                     {primarySortDirectionObj.ProspectTypeSort ===
                                       "desc" && (
-                                      <i
-                                        onClick={() => {
-                                          setSortType("ClientType");
-                                          handleSort("asc", "ClientType");
-                                        }}
-                                        style={{ cursor: "pointer" }}
-                                        class="fas fa-sort-alpha-up ml-1"
-                                      ></i>
-                                    )}
+                                        <i
+                                          onClick={() => {
+                                            setSortType("ClientType");
+                                            handleSort("asc", "ClientType");
+                                          }}
+                                          style={{ cursor: "pointer" }}
+                                          class="fas fa-sort-alpha-up ml-1"
+                                        ></i>
+                                      )}
                                     {(primarySortDirectionObj.ProspectTypeSort ===
                                       null ||
                                       primarySortDirectionObj.ProspectTypeSort ===
-                                        "asc") && (
-                                      <i
-                                        onClick={() => {
-                                          setSortType("ClientType");
-                                          handleSort(
-                                            primarySortDirectionObj.ProspectTypeSort ===
-                                              null
-                                              ? "asc"
-                                              : "desc",
-                                            "ClientType",
-                                          );
-                                        }}
-                                        style={{ cursor: "pointer" }}
-                                        class="fas fa-sort-alpha-down ml-1"
-                                      ></i>
-                                    )}
+                                      "asc") && (
+                                        <i
+                                          onClick={() => {
+                                            setSortType("ClientType");
+                                            handleSort(
+                                              primarySortDirectionObj.ProspectTypeSort ===
+                                                null
+                                                ? "asc"
+                                                : "desc",
+                                              "ClientType",
+                                            );
+                                          }}
+                                          style={{ cursor: "pointer" }}
+                                          class="fas fa-sort-alpha-down ml-1"
+                                        ></i>
+                                      )}
                                   </td>
                                   <td className="tr-table-class text-white">
                                     Status
@@ -1335,6 +1401,61 @@ const Prospects = () => {
                                                   </div>
                                                 </Tooltip>
                                               )}
+
+                                              <Tooltip
+                                                title={getCrudButtonToolTipName(`Authenticate with Xero`)}
+                                              >
+                                                <div className="remove">
+                                                  <button
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#ConfirmModel"
+                                                    className="btn btn-sm btn-success edit-item-btn actionButtonsStyle d-flex align-items-center justify-content-center"
+                                                    onClick={() => {
+                                                      setModelRequestData({
+                                                        ...modelRequestData,
+                                                        Action: "Redirect",
+                                                        clientKeyID: Prospect.clientKeyID
+                                                      })
+                                                      // handleAuthenticateXero(Prospect)
+                                                    }}
+                                                    disabled={authLoadingRow === Prospect.clientKeyID}
+                                                  >
+                                                    {authLoadingRow === Prospect.clientKeyID ? (
+                                                      <span className="spinner-border spinner-border-sm"></span>
+                                                    ) : (
+                                                      <i className="ri-links-line"></i>
+                                                    )}
+                                                  </button>
+                                                </div>
+                                              </Tooltip>
+
+                                              <Tooltip
+                                                title={getCrudButtonToolTipName(`Migrate with Xero`)}
+                                              >
+                                                <div className="add">
+                                                  <button
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#ConfirmModel"
+                                                    className="btn btn-sm btn-success edit-item-btn actionButtonsStyle d-flex align-items-center justify-content-center"
+                                                    onClick={() => {
+                                                      setModelRequestData({
+                                                        ...modelRequestData,
+                                                        Action: "Add Contact",
+                                                        clientKeyID: Prospect.clientKeyID
+                                                      })
+
+                                                    }}
+                                                    disabled={authLoadingRow === Prospect.clientKeyID}
+                                                  >
+                                                    {authLoadingRow === Prospect.clientKeyID ? (
+                                                      <span className="spinner-border spinner-border-sm"></span>
+                                                    ) : (
+                                                      <i className="ri-file-transfer-line"></i>
+                                                    )}
+                                                  </button>
+                                                </div>
+                                              </Tooltip>
+
                                             </div>
                                           </td>
                                         </tr>
@@ -1418,13 +1539,12 @@ const Prospects = () => {
           setOpenSuccessModal={setOpenSuccessModal}
           openSuccessModal={openSuccessModal}
           modelAction={modelRequestData.Action}
-          message={`${
-            modelRequestData.Action === "Delete"
-              ? selectedRows.length !== 0
-                ? prospectName
-                : `${moduleName} ${modelRequestData.clientName}`
-              : "Status has been changed successfully!"
-          }`}
+          message={`${modelRequestData.Action === "Delete"
+            ? selectedRows.length !== 0
+              ? prospectName
+              : `${moduleName} ${modelRequestData.clientName}`
+            : "Status has been changed successfully!"
+            }`}
         />
 
         <FilterModel

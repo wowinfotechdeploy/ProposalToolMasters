@@ -43,27 +43,43 @@ function ConfirmModel({
             ></button>
           </div>
           <div
-            className={`custom-style modal-body ${
-              modelRequestData.Action === "PaymentStatus"
-                ? "payment-status"
-                : ""
-            }`}
+            className={`custom-style modal-body ${modelRequestData.Action === "PaymentStatus"
+              ? "payment-status"
+              : ""
+              }`}
           >
             <div class="  text-center">
               {(modelRequestData.Action === "Status" ||
                 modelRequestData.Action === "EnableApiIntegration") && (
-                <img
-                  src={editGif}
-                  trigger="loop"
-                  colors="primary:#f7b84b,secondary:#f06548"
-                  style={{ width: "85px", height: "50px" }}
-                />
-              )}
+                  <img
+                    src={editGif}
+                    trigger="loop"
+                    colors="primary:#f7b84b,secondary:#f06548"
+                    style={{ width: "85px", height: "50px" }}
+                  />
+                )}
               {modelRequestData.Action === "Delete" && (
                 <lord-icon
                   src="https://cdn.lordicon.com/gsqxdxog.json"
                   trigger="loop"
                   colors="primary:#f7b84b,secondary:#f06548"
+                  style={{ width: "75px", height: "60px" }}
+                ></lord-icon>
+              )}
+              {modelRequestData.Action === "Redirect" && (
+                <lord-icon
+                  src="https://cdn.lordicon.com/gsqxdxog.json"
+                  trigger="loop"
+                  colors="primary:#f7b84b,secondary:#f06548"
+                  style={{ width: "75px", height: "60px" }}
+                ></lord-icon>
+              )}
+
+              {modelRequestData.Action === "Add Contact" && (
+                <lord-icon
+                  src="https://cdn.lordicon.com/mecwbjnp.json"
+                  trigger="loop"
+                  colors="primary:#22c55e,secondary:#16a34a"
                   style={{ width: "75px", height: "60px" }}
                 ></lord-icon>
               )}
@@ -160,6 +176,17 @@ function ConfirmModel({
                     Are you sure you want to delete this record?
                   </span>
                 )}
+
+                {modelRequestData.Action === "Redirect" && (
+                  <span class="text-muted mb-0">
+                    You are about to connect your account securely.
+                  </span>
+                )}
+                {modelRequestData.Action === "Add Contact" && (
+                  <span class="text-muted mb-0">
+                    Are you sure you want to add this record into Xero?
+                  </span>
+                )}
                 {modelRequestData.Action === "DeleteContract" && (
                   <span class="text-muted mb-0">
                     Are you sure you want to delete this record?
@@ -172,10 +199,10 @@ function ConfirmModel({
                 )}
                 {modelRequestData.Action ===
                   "ResetEmailConfigurationChange" && (
-                  <span class="text-muted mb-0">
-                    Are you sure you want to reset email configuration?
-                  </span>
-                )}
+                    <span class="text-muted mb-0">
+                      Are you sure you want to reset email configuration?
+                    </span>
+                  )}
                 {modelRequestData.Action === "ResetPaymentGatewayChange" && (
                   <span class="text-muted mb-0">
                     {`Are you sure you want to reset ${modelRequestData.moduleName}?`}
@@ -411,12 +438,12 @@ function ConfirmModel({
                 type="button"
                 class="btn btn-md btn-light cancel-item-btn"
                 data-bs-dismiss="modal"
-                // onClick={() => modelRequestData.Action === "PaymentStatus" ? handleClose() : null}
+              // onClick={() => modelRequestData.Action === "PaymentStatus" ? handleClose() : null}
               >
                 {modelRequestData.Action === "Warning" ||
-                modelRequestData.Action === "PracticeWarning" ||
-                modelRequestData.Action === "Upload" ||
-                modelRequestData.Action === "PaymentStatus" ? (
+                  modelRequestData.Action === "PracticeWarning" ||
+                  modelRequestData.Action === "Upload" ||
+                  modelRequestData.Action === "PaymentStatus" ? (
                   <span>No</span>
                 ) : (
                   <span>Cancel</span>
@@ -444,62 +471,70 @@ function ConfirmModel({
                 modelRequestData.Action === "ClearCcBcc" ||
                 modelRequestData.Action === "Copy" ||
                 modelRequestData.Action === "emailStatusChange" ||
+                modelRequestData.Action === "Redirect" ||
+                modelRequestData.Action === "Add Contact" ||
                 modelRequestData.Action === "ResetPaymentGatewayChange") && (
-                <button
-                  onClick={() => {
-                    UpdatedStatus();
-                  }}
-                  type="button"
-                  class="btn btn-md btn-success create-item-btn"
-                >
-                  {(modelRequestData.Action === "Status" ||
-                    modelRequestData.Action === "vatStatus" ||
-                    modelRequestData.Action === "UnpaidUser" ||
-                    modelRequestData.Action === "EnableApiIntegration" ||
-                    modelRequestData.Action === "ReminderStatus" ||
-                    modelRequestData.Action === "PaidUser" ||
-                    modelRequestData.Action === "2FaStatusChange" ||
-                    modelRequestData.Action === "ELStatusChange" ||
-                    modelRequestData.Action === "emailStatusChange") && (
-                    <span>Yes, Change It!</span>
-                  )}
+                  <button
+                    onClick={() => {
+                      UpdatedStatus();
+                    }}
+                    type="button"
+                    class="btn btn-md btn-success create-item-btn"
+                  >
+                    {(modelRequestData.Action === "Status" ||
+                      modelRequestData.Action === "vatStatus" ||
+                      modelRequestData.Action === "UnpaidUser" ||
+                      modelRequestData.Action === "EnableApiIntegration" ||
+                      modelRequestData.Action === "ReminderStatus" ||
+                      modelRequestData.Action === "PaidUser" ||
+                      modelRequestData.Action === "2FaStatusChange" ||
+                      modelRequestData.Action === "ELStatusChange" ||
+                      modelRequestData.Action === "emailStatusChange") && (
+                        <span>Yes, Change It!</span>
+                      )}
 
-                  {modelRequestData.Action === "Delete" && (
-                    <span>Yes, Delete It!</span>
-                  )}
-                  {modelRequestData.Action === "DeleteContract" && (
-                    <span>Yes, Delete It!</span>
-                  )}
-                  {modelRequestData.Action === "Void" && (
-                    <span>Yes, Void It!</span>
-                  )}
-                  {(modelRequestData.Action ===
-                    "ResetEmailConfigurationChange" ||
-                    modelRequestData.Action ===
+                    {modelRequestData.Action === "Delete" && (
+                      <span>Yes, Delete It!</span>
+                    )}
+                    {modelRequestData.Action === "Redirect" && (
+                      <span>Yes, Please!</span>
+                    )}
+                    {modelRequestData.Action === "Add Contact" && (
+                      <span>Yes, Please Add!</span>
+                    )}
+                    {modelRequestData.Action === "DeleteContract" && (
+                      <span>Yes, Delete It!</span>
+                    )}
+                    {modelRequestData.Action === "Void" && (
+                      <span>Yes, Void It!</span>
+                    )}
+                    {(modelRequestData.Action ===
+                      "ResetEmailConfigurationChange" ||
+                      modelRequestData.Action ===
                       "ResetPaymentGatewayChange") && (
-                    <span>Yes, Reset It!</span>
-                  )}
-                  {modelRequestData.Action === "ClearCcBcc" && (
-                    <span>Yes, Reset It!</span>
-                  )}
-                  {modelRequestData.Action === "Resend" && (
-                    <span>Yes, Re-send It!</span>
-                  )}
-                  {modelRequestData.Action === "Warning" && <span>Yes</span>}
-                  {modelRequestData.Action === "ServiceWarning" && (
-                    <span>Yes</span>
-                  )}
-                  {modelRequestData.Action === "ServiceWarningEL" && (
-                    <span>Yes</span>
-                  )}
-                  {modelRequestData.Action === "Copy" && <span>Yes! Copy</span>}
-                  {(modelRequestData.Action == "PracticeWarning" ||
-                    modelRequestData.Action === "Upload" ||
-                    modelRequestData.Action === "PaymentStatus") && (
-                    <span>Yes</span>
-                  )}
-                </button>
-              )}
+                        <span>Yes, Reset It!</span>
+                      )}
+                    {modelRequestData.Action === "ClearCcBcc" && (
+                      <span>Yes, Reset It!</span>
+                    )}
+                    {modelRequestData.Action === "Resend" && (
+                      <span>Yes, Re-send It!</span>
+                    )}
+                    {modelRequestData.Action === "Warning" && <span>Yes</span>}
+                    {modelRequestData.Action === "ServiceWarning" && (
+                      <span>Yes</span>
+                    )}
+                    {modelRequestData.Action === "ServiceWarningEL" && (
+                      <span>Yes</span>
+                    )}
+                    {modelRequestData.Action === "Copy" && <span>Yes! Copy</span>}
+                    {(modelRequestData.Action == "PracticeWarning" ||
+                      modelRequestData.Action === "Upload" ||
+                      modelRequestData.Action === "PaymentStatus") && (
+                        <span>Yes</span>
+                      )}
+                  </button>
+                )}
             </div>
           </div>
         </div>

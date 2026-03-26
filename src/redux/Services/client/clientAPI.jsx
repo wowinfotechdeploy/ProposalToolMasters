@@ -1,4 +1,4 @@
-import { Base_Url } from "../../../Base-Url/Base_Url";
+import { Base_Url, XeroBaseUrl } from "../../../Base-Url/Base_Url";
 import {
   postApiWithAuthenticated,
   getListWithAuthenticated,
@@ -92,6 +92,23 @@ export const DeleteSingleApiClient = async (params) => {
   const res = await postApiWithAuthenticated(
     // `${TemplateBaseUrl}/GetMasterTemplateDetailsWithVariableValues?TemplateKeyID=${params.TemplateKeyID}&ClientKeyID=${params.clientID}`
     `${clientsListUrl}/DeleteSingleApiClient`, params
+  );
+  return res;
+};
+
+
+
+export const ProspectConnectionAuthentication = async (organisationKeyId, clientKeyId) => {
+  const res = await getListWithAuthenticated(
+    `${XeroBaseUrl}client/connection-url/${organisationKeyId}/${clientKeyId}`
+  );
+  return res;
+};
+
+
+export const CreateXeroContactFromOutbooks = async (organisationKeyId,) => {
+  const res = await getListWithAuthenticated(
+    `${XeroBaseUrl}contacts/create-from-client/${organisationKeyId}`
   );
   return res;
 };
