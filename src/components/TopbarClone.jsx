@@ -3437,7 +3437,7 @@ const TopbarClone = () => {
             </div>
           </div>
 
-          <  AuthButton />
+          {/* <  AuthButton /> */}
 
           <div
             className="d-flex sidebar-bottom align-items-center justify-content-start"

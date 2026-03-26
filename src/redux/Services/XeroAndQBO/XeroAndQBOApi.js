@@ -3,7 +3,7 @@ import { getListWithAuthenticated } from "../../reducer/reduxService";
 
 export const ConnectionAuthentication = async (id) => {
   const res = await getListWithAuthenticated(
-    `${XeroBaseUrl}connection-url/${id}`
+    `${XeroBaseUrl}connection-urlss/${id}`
   );
   return res;
 };

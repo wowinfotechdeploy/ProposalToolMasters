@@ -1,10 +1,12 @@
 /* global $ */
 import React, { useContext, useEffect, useRef, useState } from "react";
-import CommonButtonComponent from "../../components/CommonButtonComponent";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+
 import { AuthContextProvider } from "../../AuthContext/AuthContext";
 import FilterModel from "../../components/FilterModel";
+import CommonButtonComponent from "../../components/CommonButtonComponent";
 import {
   GetClientList,
   DeleteClient,
@@ -150,6 +152,11 @@ const Prospects = () => {
       }
     }
   }, [modelRequestData]);
+
+
+  const handleView = (item) => {
+
+  };
 
   const getClientsListData = async (
     i,
@@ -505,6 +512,7 @@ const Prospects = () => {
     setOpenSuccessModal(false);
     setOpenErrorModal(false);
   };
+
   const handleSearch = (e, tab) => {
     const searchKeywordValue = e.target.value;
     if (tab === "Prospect") {
@@ -1322,7 +1330,7 @@ const Prospects = () => {
                                               )}
                                             </div>
                                           </td>
-                                          <td>
+                                          {/* <td>
                                             <div class="d-flex gap-2">
                                               <Tooltip
                                                 title={getCrudButtonToolTipName(
@@ -1457,7 +1465,113 @@ const Prospects = () => {
                                               </Tooltip>
 
                                             </div>
+                                          </td> */}
+
+                                          <td className="table-content-font">
+                                            <div className="d-flex gap-2">
+                                              <div className="dropdown">
+                                                <button
+                                                  className="btn btn-md btn-success create-item-btn"
+                                                  type="button"
+                                                  data-bs-toggle="dropdown"
+                                                  aria-expanded="false"
+                                                >
+                                                  <span>
+                                                    Actions <ExpandMoreIcon />
+                                                  </span>
+                                                </button>
+
+                                                <ul className="dropdown-menu">
+
+                                                  {/* View */}
+                                                  <li >
+                                                    <a
+                                                      className="dropdown-item"
+                                                      onClick={() => handleViewProspectDetails(Prospect)}
+                                                    >
+                                                      <i className="bi bi-eye me-2"></i>
+                                                      View
+                                                    </a>
+                                                  </li>
+
+                                                  {/* Edit */}
+                                                  {userAccessData.Admin_Prospect_CanEdit && (
+                                                    <li>
+                                                      <a
+                                                        className="dropdown-item"
+                                                        onClick={() => ClientEditBtnClicked(Prospect)}
+                                                      >
+                                                        <span className="d-flex">  <i className="ri-pencil-fill me-2"></i>
+                                                          Edit</span>
+                                                      </a>
+                                                    </li>
+                                                  )}
+
+                                                  {/* Delete */}
+                                                  {userAccessData.Admin_Prospect_CanDelete && (
+                                                    <li>
+                                                      <a
+                                                        className="dropdown-item"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#ConfirmModel"
+                                                        onClick={() =>
+                                                          setModelRequestData({
+                                                            ...modelRequestData,
+                                                            clientKeyID: Prospect.clientKeyID,
+                                                            clientName: Prospect.clientName,
+                                                            userKeyID: common.userKeyID,
+                                                            Action: "Delete",
+                                                          })
+                                                        }
+                                                      >
+                                                        <span className="d-flex">     <i className="ri-delete-bin-5-fill me-2"></i>
+                                                          Delete</span>
+                                                      </a>
+                                                    </li>
+                                                  )}
+
+                                                  {/* Authenticate Xero */}
+                                                  <li>
+                                                    <a
+                                                      className="dropdown-item"
+                                                      data-bs-toggle="modal"
+                                                      data-bs-target="#ConfirmModel"
+                                                      onClick={() =>
+                                                        setModelRequestData({
+                                                          ...modelRequestData,
+                                                          Action: "Redirect",
+                                                          clientKeyID: Prospect.clientKeyID,
+                                                        })
+                                                      }
+                                                    >
+                                                      <span className="d-flex">     <i className="ri-links-line me-2"></i>
+                                                        Authenticate with Xero</span>
+                                                    </a>
+                                                  </li>
+
+                                                  {/* Migrate Xero */}
+                                                  <li>
+                                                    <a
+                                                      className="dropdown-item"
+                                                      data-bs-toggle="modal"
+                                                      data-bs-target="#ConfirmModel"
+                                                      onClick={() =>
+                                                        setModelRequestData({
+                                                          ...modelRequestData,
+                                                          Action: "Add Contact",
+                                                          clientKeyID: Prospect.clientKeyID,
+                                                        })
+                                                      }
+                                                    >
+                                                      <span className="d-flex">     <i className="ri-file-transfer-line me-2"></i>
+                                                        Migrate with Xero</span>
+                                                    </a>
+                                                  </li>
+                                                </ul>
+                                              </div>
+                                            </div>
                                           </td>
+
                                         </tr>
                                       </>
                                     );

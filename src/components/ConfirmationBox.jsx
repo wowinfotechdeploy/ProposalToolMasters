@@ -10,6 +10,7 @@ function ConfirmModel({
   openSuccessModal,
   modelAction,
 }) {
+  console.log("model render ==>>", modelRequestData)
   return (
     <div
       style={{ display: (openSuccessModal || openErrorModal) && "none" }}
