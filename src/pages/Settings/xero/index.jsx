@@ -1,7 +1,7 @@
 import { useContext, useState } from "react";
 import ErrorModel from "../../../components/ErrorModel";
 import AuthButton from "../../../components/Sidebar/AuthenticationButton";
-import { ConnectionAuthentication } from "../../../redux/Services/XeroAndQBO/XeroAndQBOApi";
+import { ConnectionAuthentication } from "../../../redux/Services//Xero/XeroApi"
 import { AuthContextProvider } from "../../../AuthContext/AuthContext";
 
 

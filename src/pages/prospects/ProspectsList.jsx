@@ -26,7 +26,7 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import Tooltip from "@mui/material/Tooltip";
 import RecordsAvailablePopupModel from "../../components/RecordsAvailablePopupModel";
 import DeleteDriverModal from "../../components/DeleteDriverModel";
-import { CreateXeroContactFromOutbooks, GetAllClientLookupList, ProspectConnectionAuthentication } from "../../redux/Services/XeroAndQBO/XeroAndQBOApi";
+import { CreateXeroContactFromOutbooks, GetAllClientLookupList, ProspectConnectionAuthentication } from "../../redux/Services//Xero/XeroApi"
 
 
 const Prospects = () => {

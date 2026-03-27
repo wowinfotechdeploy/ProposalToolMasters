@@ -36,6 +36,18 @@ export default function AuthButton({ onConfirm }) {
                 Authenticate
             </button>
 
+            <button
+                // onClick={() => setOpenSuccessModal(true)}
+                disabled={loading}
+                className={`btn btn-md btn-success create-item-btn${loading ? "opacity-60" : ""}`}
+                data-bs-toggle="modal"
+                data-bs-target="#ConfirmModel"
+            >
+                {loading && (
+                    <span className="spinner-border spinner-border-sm me-2"></span>
+                )}
+                Authenticate
+            </button>
             <ConfirmModel
                 openSuccessModal={true}
                 handleClose={handleClose}

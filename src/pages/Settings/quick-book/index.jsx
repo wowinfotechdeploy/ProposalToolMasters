@@ -1,8 +1,8 @@
 import { useContext, useState } from "react";
 import ErrorModel from "../../../components/ErrorModel";
 import AuthButton from "../../../components/Sidebar/AuthenticationButton";
-import { OrganisationToQuickBookAuthentication } from "../../../redux/Services/XeroAndQBO/XeroAndQBOApi";
 import { AuthContextProvider } from "../../../AuthContext/AuthContext";
+import { OrganisationToQuickBookAuthentication } from "../../../redux/Services/Xero/XeroApi";
 
 function QuickBookAuthentication() {
     const { handleErrorMessage } = useContext(AuthContextProvider);
