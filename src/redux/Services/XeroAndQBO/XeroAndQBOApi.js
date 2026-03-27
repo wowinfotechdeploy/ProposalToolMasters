@@ -1,5 +1,8 @@
 import { XeroBaseUrl } from "../../../Base-Url/Base_Url";
-import { getListWithAuthenticated } from "../../reducer/reduxService";
+import {
+  getListWithAuthenticated,
+  postApiWithAuthenticated,
+} from "../../reducer/reduxService";
 
 export const ConnectionAuthentication = async (id) => {
   //with xero
@@ -11,5 +14,33 @@ export const ConnectionAuthentication = async (id) => {
 
 export const OrganisationToQuickBookAuthentication = async (id) => {
   const res = await getListWithAuthenticated(`${XeroBaseUrl}`);
+  return res;
+};
+
+export const GetAllClientLookupList = async (organisationKeyID) => {
+  const res = await getListWithAuthenticated(
+    `${XeroBaseUrl}mappings/${organisationKeyID}`
+  );
+  return res;
+};
+
+export const ProspectConnectionAuthentication = async (
+  organisationKeyId,
+  clientKeyId
+) => {
+  const res = await getListWithAuthenticated(
+    `${XeroBaseUrl}client/connection-url/${organisationKeyId}/${clientKeyId}`
+  );
+  return res;
+};
+
+export const CreateXeroContactFromOutbooks = async (
+  param,
+  organisationKeyId
+) => {
+  const res = await postApiWithAuthenticated(
+    `${XeroBaseUrl}contacts/create-from-client/${organisationKeyId}`,
+    param
+  );
   return res;
 };

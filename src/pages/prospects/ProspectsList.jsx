@@ -3,6 +3,7 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import Select from "react-select"
 
 import { AuthContextProvider } from "../../AuthContext/AuthContext";
 import FilterModel from "../../components/FilterModel";
@@ -12,8 +13,6 @@ import {
   DeleteClient,
   ClientChangeStatus,
   DeleteSingleApiClient,
-  ProspectConnectionAuthentication,
-  CreateXeroContactFromOutbooks,
 } from "../../redux/Services/client/clientAPI";
 import SuccessModal from "../../components/SuccessModal";
 import ErrorModel from "../../components/ErrorModel";
@@ -27,6 +26,9 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import Tooltip from "@mui/material/Tooltip";
 import RecordsAvailablePopupModel from "../../components/RecordsAvailablePopupModel";
 import DeleteDriverModal from "../../components/DeleteDriverModel";
+import { CreateXeroContactFromOutbooks, GetAllClientLookupList, ProspectConnectionAuthentication } from "../../redux/Services/XeroAndQBO/XeroAndQBOApi";
+
+
 const Prospects = () => {
   const lastClickRef = useRef(0);
   let getClientsListApiCallCount = 0;
@@ -95,10 +97,14 @@ const Prospects = () => {
   const pageSize = isMobile ? isMobileRecords : desktopRecords;
   const formattedErrorMessage = handleErrorMessage(errorMessage);
   const [shouldFetch, setShouldFetch] = useState(false);
+  const [contactsLookupList, setContactsLookupList] = useState([]);
+  const [contactDetails, setContactDetails] = useState()
+
   useEffect(() => {
     setTopbar("block");
     getClientsListData(1, null, null, null);
     getClientsListSingleApiData(1, null, null, null);
+    GetAllClientList()
   }, []);
 
   useEffect(() => {
@@ -153,6 +159,27 @@ const Prospects = () => {
     }
   }, [modelRequestData]);
 
+
+
+  const GetAllClientList = async () => {
+    try {
+
+      const data = await GetAllClientLookupList(organisationKeyID);
+      if (data?.status === 200) {
+        let ContactLookupListData = data?.data?.mappings;
+        ContactLookupListData = ContactLookupListData.map((key) => ({
+          value: key.xeroContactId,
+          label: key.contactName,
+          clientKeyId: key.clientKeyId
+        }));
+
+        setContactsLookupList(ContactLookupListData);
+      }
+
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const handleView = (item) => {
 
@@ -443,8 +470,8 @@ const Prospects = () => {
 
       try {
         setAuthLoadingRow(modelRequestData.clientKeyID);
-        const res = await CreateXeroContactFromOutbooks(organisationKeyID,);
-        debugger
+        const res = await CreateXeroContactFromOutbooks({ clientKeyId: modelRequestData.clientKeyID }, organisationKeyID,);
+
         if (res?.status === 200) {
           // const url = res.data.connectionUrl;
           // window.open(url, "_blank", "noopener,noreferrer");
@@ -818,20 +845,34 @@ const Prospects = () => {
                           )}
                           {/* </div> */}
                           {activeTab === "Prospect" && (
-                            <div class="col-lg-9 col-md-9 col-3 text-nowrap mb-2">
-                              {userAccessData.Admin_Prospect_CanAdd && (
-                                <CommonButtonComponent
-                                  title={getCrudButtonToolTipName(
-                                    "Add",
-                                    moduleName,
+                            <div className="col-lg-9 col-md-9 col-3 text-nowrap mb-2">
+                              <div className="d-flex justify-content-end align-items-center gap-2">
+
+                                <div style={{ minWidth: "200px" }}>
+                                  <Select
+                                    className="user-role-select"
+                                    options={contactsLookupList}
+                                    value={contactDetails}
+                                    onChange={(selectedOption) => {
+                                      setContactDetails(selectedOption)
+                                    }}
+
+                                  />
+
+
+                                </div>
+
+                                <div>
+                                  {userAccessData.Admin_Prospect_CanAdd && (
+                                    <CommonButtonComponent
+                                      title={getCrudButtonToolTipName("Add", moduleName)}
+                                      AddBtn={() => AddClientBtn()}
+                                      name={getCrudButtonTextName("Add", moduleName)}
+                                    />
                                   )}
-                                  AddBtn={() => AddClientBtn()}
-                                  name={getCrudButtonTextName(
-                                    "Add",
-                                    moduleName,
-                                  )}
-                                />
-                              )}{" "}
+                                </div>
+
+                              </div>
                             </div>
                           )}
                         </div>
@@ -1564,7 +1605,7 @@ const Prospects = () => {
                                                       }
                                                     >
                                                       <span className="d-flex">     <i className="ri-file-transfer-line me-2"></i>
-                                                        Migrate with Xero</span>
+                                                        Add To Xero</span>
                                                     </a>
                                                   </li>
                                                 </ul>

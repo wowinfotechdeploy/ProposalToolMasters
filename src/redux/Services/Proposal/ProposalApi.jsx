@@ -1,4 +1,4 @@
-import { Base_Url } from "../../../Base-Url/Base_Url";
+import { Base_Url, XeroBaseUrl } from "../../../Base-Url/Base_Url";
 import { SelectServiceData } from "../../../Database/ProposalToolDatabase";
 import {
   getList,
@@ -141,7 +141,7 @@ export const GetAcceptedQuotationServiceDetails = async (params) => {
 export const GetQuoteLookupList = async (organisationKeyId) => {
   const res = await getListWithAuthenticated(
     ProposalBaseUrlQuote +
-      `/GetQuoteLookupList?OrganisationKeyID=${organisationKeyId}`,
+    `/GetQuoteLookupList?OrganisationKeyID=${organisationKeyId}`,
   );
   return res;
 };
@@ -205,3 +205,5 @@ export const DeleteSingleApiQuote = async (params) => {
   );
   return res;
 };
+
+

@@ -97,18 +97,3 @@ export const DeleteSingleApiClient = async (params) => {
 };
 
 
-
-export const ProspectConnectionAuthentication = async (organisationKeyId, clientKeyId) => {
-  const res = await getListWithAuthenticated(
-    `${XeroBaseUrl}client/connection-url/${organisationKeyId}/${clientKeyId}`
-  );
-  return res;
-};
-
-
-export const CreateXeroContactFromOutbooks = async (organisationKeyId,) => {
-  const res = await getListWithAuthenticated(
-    `${XeroBaseUrl}contacts/create-from-client/${organisationKeyId}`
-  );
-  return res;
-};
