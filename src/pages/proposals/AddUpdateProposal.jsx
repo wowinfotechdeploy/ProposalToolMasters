@@ -2318,7 +2318,7 @@ const ReviewServicesComponent = (props) => {
     }
   };
   //Handle Payment Frequency
-  const handlePaymentFrequencyChange = (e) => {
+   const handlePaymentFrequencyChange = (e) => {
     props.DisableTabOnChange();
     setLastPaymentFrequencyAndDiscountedPrice({
       ...lastPaymentFrequencyAndDiscountedPrice,
@@ -2335,11 +2335,9 @@ const ReviewServicesComponent = (props) => {
     let VATPrice = props.RecurringFrequencyPricingInfo.VATPrice;
     let GrandTotal = props.RecurringFrequencyPricingInfo.GrandTotal;
 
-    let staticVATChangeFreq = 0; //  VARIABLE to store total VAT
     const updatedData = JSON.parse(JSON.stringify(props.RecurringServiceCopy));
     // Store original price
     let OriginalPrice = props.RecurringFrequencyPricingInfo.OriginalPrice;
-    let netStaticVatAmount = 0;
 
     // Calculate price based on payment frequency
 
@@ -2357,7 +2355,7 @@ const ReviewServicesComponent = (props) => {
             service.originalServicePrice === undefined
               ? (service.quotationPrice = Number(service.quotationPrice))
               : (service.originalServicePrice = Number(
-                  service.originalServicePrice,
+                  service.originalServicePrice
                 ));
 
           let currentServicePriceWithToFixed =
@@ -2365,20 +2363,8 @@ const ReviewServicesComponent = (props) => {
           service.price = currentServicePriceWithToFixed;
           calculatedOriginalPriceFromServices = Number(
             Number(calculatedOriginalPriceFromServices) +
-              Number(currentServicePriceWithToFixed),
+              Number(currentServicePriceWithToFixed)
           )?.toFixed(2);
-
-          // yearly VAT amount
-          if (
-            service.service_vat_amount !== undefined &&
-            service.service_vat_amount !== null
-          ) {
-            const selectedFreqVAT = Number(service.service_vat_amount);
-            service.service_vat_amount = selectedFreqVAT.toFixed(2);
-
-            // total VAT
-            staticVATChangeFreq += selectedFreqVAT;
-          }
 
           // service.price === undefined
           //   ? (service.quotationPrice = Number(service.quotationPrice))
@@ -2390,8 +2376,6 @@ const ReviewServicesComponent = (props) => {
         DiscountedPrice =
           lastPaymentFrequencyAndDiscountedPrice.ChangeableYearlyPrice;
       }
-
-      // netStaticVatAmount = props.RecurringPricingInfo.staticTotalVAT;
       //lastPaymentFrequencyAndDiscountedPrice.ChangeableYearlyPrice; //DiscountedPrice / 2; // Divide yearly price by 2 for half-yearly
       //OriginalPrice = OriginalPrice;
       OriginalPrice = calculatedOriginalPriceFromServices;
@@ -2400,29 +2384,6 @@ const ReviewServicesComponent = (props) => {
         ...prevState,
         Payment_Frequency: e.value,
       }));
-      // updatedData.forEach((category) => {
-      //   category.servicesList.forEach((service) => {
-      //     // Perform the percentage calculation for each value
-
-      //     let currentServicePrice =
-      //       service.originalServicePrice === undefined
-      //         ? (service.quotationPrice = Number(service.quotationPrice) / 2)
-      //         : (service.originalServicePrice =
-      //             Number(service.originalServicePrice) / 2);
-
-      //     let currentServicePriceWithToFixed =
-      //       Number(currentServicePrice)?.toFixed(2);
-      //     service.price = currentServicePriceWithToFixed;
-      //     calculatedOriginalPriceFromServices = Number(
-      //       Number(calculatedOriginalPriceFromServices) +
-      //         Number(currentServicePriceWithToFixed)
-      //     )?.toFixed(2);
-
-      //     // service.price === undefined
-      //     //   ? (service.quotationPrice = Number(service.quotationPrice) / 2)
-      //     //   : (service.price = Number(service.price) / 2);
-      //   });
-      // });
       updatedData.forEach((category) => {
         category.servicesList.forEach((service) => {
           // Perform the percentage calculation for each value
@@ -2438,33 +2399,19 @@ const ReviewServicesComponent = (props) => {
           service.price = currentServicePriceWithToFixed;
           calculatedOriginalPriceFromServices = Number(
             Number(calculatedOriginalPriceFromServices) +
-              Number(currentServicePriceWithToFixed),
+              Number(currentServicePriceWithToFixed)
           )?.toFixed(2);
 
-          // Half the VAT amount
-          if (
-            service.service_vat_amount !== undefined &&
-            service.service_vat_amount !== null
-          ) {
-            const selectedFreqVAT = Number(service.service_vat_amount / 2);
-            service.service_vat_amount = selectedFreqVAT.toFixed(2);
-
-            // total VAT
-            staticVATChangeFreq += selectedFreqVAT;
-          }
+          // service.price === undefined
+          //   ? (service.quotationPrice = Number(service.quotationPrice) / 2)
+          //   : (service.price = Number(service.price) / 2);
         });
       });
-
       DiscountedPrice = calculatedOriginalPriceFromServices;
       if (props.RecurringPricingInfo.DefaultDiscount > 0) {
         DiscountedPrice =
           lastPaymentFrequencyAndDiscountedPrice.ChangeableYearlyPrice / 2;
       }
-      // props.setRecurringPricingInfo({
-      //   ...props.RecurringPricingInfo,
-      //   staticTotalVAT: props.RecurringPricingInfo.staticTotalVAT / 2,
-      // });
-      // netStaticVatAmount = props.RecurringPricingInfo.staticTotalVAT / 2;
       //lastPaymentFrequencyAndDiscountedPrice.ChangeableYearlyPrice / 2; //DiscountedPrice / 2; // Divide yearly price by 2 for half-yearly
       //OriginalPrice = OriginalPrice / 2;
       OriginalPrice = calculatedOriginalPriceFromServices;
@@ -2487,20 +2434,8 @@ const ReviewServicesComponent = (props) => {
           service.price = currentServicePriceWithToFixed;
           calculatedOriginalPriceFromServices = Number(
             Number(calculatedOriginalPriceFromServices) +
-              Number(currentServicePriceWithToFixed),
+              Number(currentServicePriceWithToFixed)
           )?.toFixed(2);
-
-          // quarterly VAT amount
-          if (
-            service.service_vat_amount !== undefined &&
-            service.service_vat_amount !== null
-          ) {
-            const selectedFreqVAT = Number(service.service_vat_amount / 4);
-            service.service_vat_amount = selectedFreqVAT.toFixed(2);
-
-            // ⭐ NEW: Add to total VAT accumulator
-            staticVATChangeFreq += selectedFreqVAT;
-          }
 
           // service.price === undefined
           //   ? (service.quotationPrice = Number(service.quotationPrice) / 4)
@@ -2512,11 +2447,6 @@ const ReviewServicesComponent = (props) => {
         DiscountedPrice =
           lastPaymentFrequencyAndDiscountedPrice.ChangeableYearlyPrice / 4;
       }
-      // props.setRecurringPricingInfo({
-      //   ...props.RecurringPricingInfo,
-      //   staticTotalVAT: props.RecurringPricingInfo.staticTotalVAT / 4,
-      // });
-      // netStaticVatAmount = props.RecurringPricingInfo.staticTotalVAT / 4;
       //lastPaymentFrequencyAndDiscountedPrice.ChangeableYearlyPrice / 4; //DiscountedPrice / 4; // Divide yearly price by 4 for quarterly
       //OriginalPrice = OriginalPrice / 4; //Divide month
       OriginalPrice = calculatedOriginalPriceFromServices;
@@ -2539,20 +2469,8 @@ const ReviewServicesComponent = (props) => {
           service.price = currentServicePriceWithToFixed;
           calculatedOriginalPriceFromServices = Number(
             Number(calculatedOriginalPriceFromServices) +
-              Number(currentServicePriceWithToFixed),
+              Number(currentServicePriceWithToFixed)
           )?.toFixed(2);
-
-          // monthly VAT amount
-          if (
-            service.service_vat_amount !== undefined &&
-            service.service_vat_amount !== null
-          ) {
-            const selectedFreqVAT = Number(service.service_vat_amount / 12);
-            service.service_vat_amount = selectedFreqVAT.toFixed(2);
-
-            // ⭐ NEW: Add to total VAT accumulator
-            staticVATChangeFreq += selectedFreqVAT;
-          }
 
           // service.price === undefined
           //   ? (service.quotationPrice = Number(service.quotationPrice) / 12)
@@ -2564,11 +2482,6 @@ const ReviewServicesComponent = (props) => {
         DiscountedPrice =
           lastPaymentFrequencyAndDiscountedPrice.ChangeableYearlyPrice / 12;
       }
-      // props.setRecurringPricingInfo({
-      //   ...props.RecurringPricingInfo,
-      //   staticTotalVAT: props.RecurringPricingInfo.staticTotalVAT / 12,
-      // });
-      // netStaticVatAmount = props.RecurringPricingInfo.staticTotalVAT / 12;
       //lastPaymentFrequencyAndDiscountedPrice.ChangeableYearlyPrice / 12; //DiscountedPrice / 12; // Divide yearly price by 12 for monthly
       //OriginalPrice = OriginalPrice / 12; //Divide month
       OriginalPrice = calculatedOriginalPriceFromServices;
@@ -2595,12 +2508,8 @@ const ReviewServicesComponent = (props) => {
       DefaultDiscount: Number(DefaultDiscount).toFixed(2),
       Discount: Discount,
       DiscountedTotal: DiscountedTotal,
-      staticTotalVAT: staticVATChangeFreq,
       VATPrice: VATPrice,
-      totalServiceWiseVAT: VATPrice,
-      VATPriceWithoutDiscount: VATPrice,
       GrandTotal: GrandTotal,
-      FeesIncVAT: GrandTotal,
     });
     props.setSelectedRecurringServiceList(updatedData);
   };
@@ -4296,11 +4205,11 @@ const ReviewServicesComponent = (props) => {
                         display: "flex",
                         justifyContent: "flex-end",
                         alignItems: "center",
-                        gap: "10px", // space between icons
-                        width: "100%", // ensure it fills parent for right alignment
+                        gap: "10px",
+                        width: "100%",
                       }}
                     >
-                      <div className="viewTemp">
+                      {/* <div className="viewTemp">
                         <Tooltip title="Select Template">
                           <div
                             onClick={() => {
@@ -4314,7 +4223,7 @@ const ReviewServicesComponent = (props) => {
                             <ViewModuleIcon />
                           </div>
                         </Tooltip>
-                      </div>
+                      </div> */}
 
                       {/* <div className="customizeTemp">
                         <Tooltip title="Customize your own">
@@ -4435,172 +4344,120 @@ const ReviewServicesComponent = (props) => {
                             )}
 
                             <tr className="head-row">
-                              <td className="tr-table-class text-white">
-                                Net Total
-                              </td>
-                              <td className="tr-table-class text-white text-right">
-                                {" "}
-                                {Number(
-                                  props.RecurringPricingInfo.OriginalPrice,
+                            <td className="tr-table-class text-white">
+                              Net Total
+                            </td>
+                            <td className="tr-table-class text-white text-right">
+                              {" "}
+                              {
+                                Number(
+                                  props.RecurringPricingInfo.OriginalPrice
                                 ) <
                                   Number(
-                                    props.RecurringPricingInfo.DiscountedPrice,
+                                    props.RecurringPricingInfo.DiscountedPrice
                                   ) ||
                                 (Number(props.RecurringPricingInfo.Discount) >
                                   0 &&
                                   !props.ProposalObject.DiscountLines)
                                   ? props.formatValue(
-                                      props.RecurringPricingInfo
-                                        .DiscountedPrice,
-                                      props.currencyID,
+                                      props.RecurringPricingInfo.DiscountedPrice,props.currencyID
                                     )
-                                  : props.formatValue(
-                                      props.RecurringPricingInfo.OriginalPrice,
-                                      props.currencyID,
-                                    )}
-                              </td>
-                            </tr>
-                            {Number(props.RecurringPricingInfo.Discount) > 0 &&
-                              props.ProposalObject.DiscountLines && (
-                                <>
-                                  <tr class="head-grey-row">
-                                    <td className="tr-table-class font-14 text-white">
-                                      Discount
-                                    </td>
-                                    <td className="tr-table-class font-14 text-white text-right">
-                                      (-){"  "}
-                                      {"  "}
-                                      {props.formatValue(
-                                        props.RecurringPricingInfo.Discount,
-                                        props.currencyID,
-                                      )}
-                                    </td>
-                                  </tr>
-                                  <tr class="head-row">
-                                    <td className="tr-table-class font-14 text-white">
-                                      Discounted Total
-                                    </td>
-                                    <td className="tr-table-class font-14 text-white text-right">
-                                      {" "}
-                                      {props.formatValue(
-                                        props.RecurringPricingInfo
-                                          .DiscountedTotal,
-                                        props.currencyID,
-                                      )}
-                                    </td>
-                                  </tr>
-                                </>
-                              )}
-
-                            {props.vatPercentage !== 0 && ( 
+                                  : // Number(props.RecurringPricingInfo.DiscountedPrice)
+                                    //     .toFixed(2)
+                                    //     .toString()
+                                    //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                    props.formatValue(
+                                      props.RecurringPricingInfo.OriginalPrice,props.currencyID
+                                    )
+                                // Number(props.RecurringPricingInfo.OriginalPrice)
+                                //     .toFixed(2)
+                                //     .toString()
+                                //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                              }
+                            </td>
+                          </tr>
+                          {Number(props.RecurringPricingInfo.Discount) > 0 &&
+                            props.ProposalObject.DiscountLines && (
                               <>
                                 <tr class="head-grey-row">
                                   <td className="tr-table-class font-14 text-white">
-                                    {props.taxName}
+                                    Discount
                                   </td>
                                   <td className="tr-table-class font-14 text-white text-right">
-                                    {" "}
-                                    {props.formatValue(
-                                      props.RecurringPricingInfo
-                                        .totalServiceWiseVAT,
-                                      props.currencyID,
-                                    )}
-                                    {/* {props.formatValue(
-                                      props.RecurringPricingInfo.VATPrice,
-                                      props.currencyID
-                                    )} */}
+                                    (-){"  "}
+                                    {"  "}
+                                    {
+                                      props.formatValue(
+                                        props.RecurringPricingInfo.Discount,props.currencyID
+                                      )
+                                      // Number(props.RecurringPricingInfo.Discount)
+                                      //   .toFixed(2)
+                                      //   .toString()
+                                      //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                    }
                                   </td>
                                 </tr>
-                                {/* <tr className="head-row">
+                                <tr class="head-row">
                                   <td className="tr-table-class font-14 text-white">
-                                    Grand Total
+                                    Discounted Total
                                   </td>
-                                  <td className="tr-table-class text-white text-right">
-                                    {" "}
-                                    {Number(
-                                      props.RecurringPricingInfo.OriginalPrice
-                                    ) <
-                                      Number(
-                                        props.RecurringPricingInfo
-                                          .DiscountedPrice
-                                      ) ||
-                                    (Number(
-                                      props.RecurringPricingInfo.Discount
-                                    ) > 0 &&
-                                      !props.ProposalObject.DiscountLines)
-                                      ? props.formatValue(
-                                          props.RecurringPricingInfo
-                                            .DiscountedPrice +
-                                            props.RecurringPricingInfo
-                                              .totalServiceWiseVAT,
-                                          props.currencyID
-                                        )
-                                      : props.formatValue(
-                                          props.RecurringPricingInfo
-                                            .OriginalPrice +
-                                            props.RecurringPricingInfo
-                                              .totalServiceWiseVAT,
-                                          props.currencyID
-                                        )}
-                                  </td>
-                                </tr> */}
-
-                                <tr className="head-row">
-                                  <td className="tr-table-class font-14 text-white">
-                                    Grand Total
-                                  </td>
-                                  {/* <td className="tr-table-class font-14 text-white text-right">
-                                    {" "}
-                                    {Number(
-                                      props.RecurringPricingInfo.Discount,
-                                    ) > 0
-                                      ? // If discount is applied → use discounted total + VAT
-                                        props.formatValue(
-                                          Number(
-                                            props.RecurringPricingInfo
-                                              .GrandTotal,
-                                          ),
-                                          props.currencyID,
-                                        )
-                                      : // If no discount → use original total + VAT
-                                        props.formatValue(
-                                          Number(
-                                            props.RecurringPricingInfo
-                                              .GrandTotal,
-                                          ),
-                                          props.currencyID,
-                                        )}
-                                  </td> */}
                                   <td className="tr-table-class font-14 text-white text-right">
-                                    {Number(props.RecurringPricingInfo.Discount) > 0 &&
-    props.ProposalObject.DiscountLines
-
-      ? props.formatValue(
-          Number(props.RecurringPricingInfo.DiscountedTotal) +
-            Number(props.RecurringPricingInfo.totalServiceWiseVAT || 0),
-          props.currencyID
-        )
-
-      : Number(props.RecurringPricingInfo.OriginalPrice) <
-        Number(props.RecurringPricingInfo.DiscountedPrice) ||
-        (Number(props.RecurringPricingInfo.Discount) > 0 &&
-          !props.ProposalObject.DiscountLines)
-
-      ? props.formatValue(
-          Number(props.RecurringPricingInfo.DiscountedPrice) +
-            Number(props.RecurringPricingInfo.totalServiceWiseVAT || 0),
-          props.currencyID
-        )
-
-      : props.formatValue(
-          Number(props.RecurringPricingInfo.OriginalPrice) +
-            Number(props.RecurringPricingInfo.totalServiceWiseVAT || 0),
-          props.currencyID
-        )}
+                                    {" "}
+                                    {
+                                      props.formatValue(
+                                        props.RecurringPricingInfo
+                                          .DiscountedTotal,props.currencyID
+                                      )
+                                      // Number(
+                                      //   props.RecurringPricingInfo.DiscountedTotal
+                                      // )
+                                      //   .toFixed(2)
+                                      //   .toString()
+                                      //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                    }
                                   </td>
                                 </tr>
                               </>
                             )}
+
+                          {props.vatPercentage && (
+                            <>
+                              <tr class="head-grey-row">
+                                <td className="tr-table-class font-14 text-white">
+                                  {props.taxName}
+                                </td>
+                                <td className="tr-table-class font-14 text-white text-right">
+                                  {" "}
+                                  {
+                                    props.formatValue(
+                                      props.RecurringPricingInfo.VATPrice,props.currencyID
+                                    )
+                                    // Number(props.RecurringPricingInfo.VATPrice)
+                                    //   .toFixed(2)
+                                    //   .toString()
+                                    //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                  }
+                                </td>
+                              </tr>
+                              <tr className="head-row">
+                                <td className="tr-table-class font-14 text-white">
+                                  Grand Total
+                                </td>
+                                <td className="tr-table-class font-14 text-white text-right">
+                                  {" "}
+                                  {
+                                    props.formatValue(
+                                      props.RecurringPricingInfo.GrandTotal,props.currencyID
+                                    )
+                                    // Number(props.RecurringPricingInfo.GrandTotal)
+                                    //   .toFixed(2)
+                                    //   .toString()
+                                    //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                  }
+                                </td>
+                              </tr>
+                            </>
+                          )}
                           </tbody>
                         </table>
                         {/* <div
@@ -5584,7 +5441,7 @@ const ReviewServicesComponent = (props) => {
                         width: "100%", // ensure it fills parent for right alignment
                       }}
                     >
-                      <div className="viewTemp">
+                      {/* <div className="viewTemp">
                         <Tooltip title="Select Template">
                           <div
                             onClick={() => {
@@ -5598,7 +5455,7 @@ const ReviewServicesComponent = (props) => {
                             <ViewModuleIcon />
                           </div>
                         </Tooltip>
-                      </div>
+                      </div> */}
 
                       {/* <div className="customizeTemp">
                         <Tooltip title="Customize your own">
@@ -5724,177 +5581,109 @@ const ReviewServicesComponent = (props) => {
                               },
                             )}
                             <tr className="head-row">
-                              <td className="tr-table-class font-14 text-white">
-                                Net Total
-                              </td>
-                              <td className="tr-table-class font-14 text-white text-right">
-                                {" "}
-                                {Number(props.OneOffPricingInfo.OriginalPrice) <
+                            <td className="tr-table-class font-14 text-white">
+                              Net Total
+                            </td>
+                            <td className="tr-table-class font-14 text-white text-right">
+                              {" "}
+                              {
+                                Number(props.OneOffPricingInfo.OriginalPrice) <
                                   Number(
-                                    props.OneOffPricingInfo.DiscountedPrice,
+                                    props.OneOffPricingInfo.DiscountedPrice
                                   ) ||
                                 (Number(props.OneOffPricingInfo.Discount) > 0 &&
                                   !props.ProposalObject.DiscountLines)
                                   ? props.formatValue(
-                                      props.OneOffPricingInfo.DiscountedPrice,
-                                      props.currencyID,
+                                      props.OneOffPricingInfo.DiscountedPrice,props.currencyID
                                     )
-                                  : props.formatValue(
-                                      props.OneOffPricingInfo.OriginalPrice,
-                                      props.currencyID,
-                                    )}
-                              </td>
-                            </tr>
-                            {Number(props.OneOffPricingInfo.Discount) > 0 &&
-                              props.ProposalObject.DiscountLines && (
-                                <>
-                                  {" "}
-                                  <tr class="head-grey-row">
-                                    <td className="tr-table-class font-14 text-white">
-                                      Discount
-                                    </td>
-                                    <td className="tr-table-class font-14 text-white text-right">
-                                      (-){"  "}
-                                      {"  "}
-                                      {props.formatValue(
-                                        props.OneOffPricingInfo.Discount,
-                                        props.currencyID,
-                                      )}
-                                    </td>
-                                  </tr>
-                                  <tr class="head-row">
-                                    <td className="tr-table-class font-14 text-white">
-                                      Discounted Total
-                                    </td>
-                                    <td className="tr-table-class font-14 text-white text-right">
-                                      {"  "}
-                                      {props.formatValue(
-                                        props.OneOffPricingInfo.DiscountedTotal,
-                                        props.currencyID,
-                                      )}
-                                    </td>
-                                  </tr>
-                                </>
-                              )}
-                            {props.vatPercentageOneOff !== 0 && (
+                                  : // Number(props.OneOffPricingInfo.DiscountedPrice)
+                                    //     .toFixed(2)
+                                    //     .toString()
+                                    //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                    props.formatValue(
+                                      props.OneOffPricingInfo.OriginalPrice,props.currencyID
+                                    )
+                                //  Number(props.OneOffPricingInfo.OriginalPrice)
+                                //     .toFixed(2)
+                                //     .toString()
+                                //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                              }
+                            </td>
+                          </tr>
+                          {Number(props.OneOffPricingInfo.Discount) > 0 &&
+                            props.ProposalObject.DiscountLines && (
                               <>
+                                {" "}
                                 <tr class="head-grey-row">
                                   <td className="tr-table-class font-14 text-white">
-                                    {props.taxName}
+                                    Discount
                                   </td>
                                   <td className="tr-table-class font-14 text-white text-right">
-                                    {" "}
+                                    (-){"  "}
+                                    {"  "}
                                     {props.formatValue(
-                                      props.OneOffPricingInfo
-                                        .totalServiceWiseVATOneOff,
-                                      props.currencyID,
+                                      props.OneOffPricingInfo.Discount,props.currencyID
                                     )}
-                                    {/* {props.formatValue(
-                                      props.OneOffPricingInfo.VATPrice,
-                                      props.currencyID
-                                    )} */}
+                                    {/* {props.OneOffPricingInfo.Discount.toFixed(2)
+                                  .toString()
+                                  .replace(/\B(?=(\d{3})+(?!\d))/g, ",")} */}
                                   </td>
                                 </tr>
-                                {/* <tr className="head-row">
+                                <tr class="head-row">
                                   <td className="tr-table-class font-14 text-white">
-                                    Grand Total
+                                    Discounted Total
                                   </td>
                                   <td className="tr-table-class font-14 text-white text-right">
-                                    {" "}
-                                    {Number(props.OneOffPricingInfo.Discount) >
-                                      0 && !props.ProposalObject.DiscountLines
-                                      ?
-                                        props.formatValue(
-                                          Number(
-                                            props.OneOffPricingInfo
-                                              .DiscountedTotal
-                                          ) +
-                                            Number(
-                                              props.OneOffPricingInfo
-                                                .totalServiceWiseVATOneOff
-                                            ),
-                                          props.currencyID
-                                        )
-                                      :
-                                        props.formatValue(
-                                          Number(
-                                            props.OneOffPricingInfo
-                                              .OriginalPrice
-                                          ) +
-                                            Number(
-                                              props.OneOffPricingInfo
-                                                .totalServiceWiseVATOneOff
-                                            ),
-                                          props.currencyID
-                                        )}
+                                    {"  "}
+                                    {props.formatValue(
+                                      props.OneOffPricingInfo.DiscountedTotal,props.currencyID
+                                    )}
+                                    {/* {Number(props.OneOffPricingInfo.DiscountedTotal)
+                                  .toFixed(2)
+                                  .toString()
+                                  .replace(/\B(?=(\d{3})+(?!\d))/g, ",")} */}
                                   </td>
-                                </tr> */}
-
-                                <tr className="head-row">
-                                  <td className="tr-table-class font-14 text-white">
-                                    Grand Total
-                                  </td>
-                                   <td className="tr-table-class font-14 text-white text-right">
-
-    {Number(props.OneOffPricingInfo.Discount) > 0 &&
-    props.ProposalObject.DiscountLines
-
-      ? props.formatValue(
-          Number(props.OneOffPricingInfo.DiscountedTotal) +
-            Number(props.OneOffPricingInfo.totalServiceWiseVATOneOff || 0),
-          props.currencyID
-        )
-
-      : Number(props.OneOffPricingInfo.OriginalPrice) <
-        Number(props.OneOffPricingInfo.DiscountedPrice) ||
-        (Number(props.OneOffPricingInfo.Discount) > 0 &&
-          !props.ProposalObject.DiscountLines)
-
-      ? props.formatValue(
-          Number(props.OneOffPricingInfo.DiscountedPrice) +
-            Number(props.OneOffPricingInfo.totalServiceWiseVATOneOff || 0),
-          props.currencyID
-        )
-
-      : props.formatValue(
-          Number(props.OneOffPricingInfo.OriginalPrice) +
-            Number(props.OneOffPricingInfo.totalServiceWiseVATOneOff || 0),
-          props.currencyID
-        )}
-
-  </td>
-                                  {/* <td className="tr-table-class font-14 text-white text-right">
-                                    {" "}
-                                    {Number(props.OneOffPricingInfo.Discount) >
-                                    0
-                                      ?
-                                        props.formatValue(
-                                          Number(
-                                            props.OneOffPricingInfo
-                                              .DiscountedTotal,
-                                          ) +
-                                            Number(
-                                              props.OneOffPricingInfo
-                                                .totalServiceWiseVATOneOff,
-                                            ),
-                                          props.currencyID,
-                                        )
-                                      :
-                                        props.formatValue(
-                                          Number(
-                                            props.OneOffPricingInfo
-                                              .OriginalPrice,
-                                          ) +
-                                            Number(
-                                              props.OneOffPricingInfo
-                                                .totalServiceWiseVATOneOff,
-                                            ),
-                                          props.currencyID,
-                                        )}
-                                  </td> */}
                                 </tr>
                               </>
                             )}
+                          {props.vatPercentage && (
+                            <>
+                              <tr class="head-grey-row">
+                                <td className="tr-table-class font-14 text-white">
+                                  {props.taxName}
+                                </td>
+                                <td className="tr-table-class font-14 text-white text-right">
+                                  {" "}
+                                  {
+                                    props.formatValue(
+                                      props.OneOffPricingInfo.VATPrice,props.currencyID
+                                    )
+                                    // Number(props.OneOffPricingInfo.VATPrice)
+                                    //   .toFixed(2)
+                                    //   .toString()
+                                    //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                  }
+                                </td>
+                              </tr>
+                              <tr className="head-row">
+                                <td className="tr-table-class font-14 text-white">
+                                  Grand Total
+                                </td>
+                                <td className="tr-table-class font-14 text-white text-right">
+                                  {" "}
+                                  {
+                                    props.formatValue(
+                                      props.OneOffPricingInfo.GrandTotal,props.currencyID
+                                    )
+                                    // Number(props.OneOffPricingInfo.GrandTotal)
+                                    //   .toFixed(2)
+                                    //   .toString()
+                                    //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                  }
+                                </td>
+                              </tr>
+                            </>
+                          )}
                           </tbody>
                         </table>
                       </div>
@@ -10412,21 +10201,6 @@ const ReviewPackagesComponent = (props) => {
     let UpdatedServiceMappingWithPackagesList =
       props.ServiceMappingWithPackagesListCopy;
     // Calculate price based on payment frequency
-
-     let originalVATPackageOne =
-    props.RecurringPricingInfo.PackageOneStaticVaTPriceOriginal ??
-    props.RecurringPricingInfo.PackageOneStaticVaTPrice;
-     let originalVATPackageTwo =
-    props.RecurringPricingInfo.PackageTwoStaticVaTPriceOriginal ??
-    props.RecurringPricingInfo.PackageTwoStaticVaTPrice;
-     let originalVATPackageThree =
-    props.RecurringPricingInfo.PackageThreeStaticVaTPriceOriginal ??
-    props.RecurringPricingInfo.PackageThreeStaticVaTPrice;
-
-  let packageOneVATValue = originalVATPackageOne;
-  let packageTwoVATValue = originalVATPackageTwo;
-  let packageThreeVATValue = originalVATPackageThree;
-
     if (e.value === Payment_Frequency.Yearly) {
       props.setProposalObject((prevState) => ({
         ...prevState,
@@ -10455,30 +10229,25 @@ const ReviewPackagesComponent = (props) => {
           service.price = Number(service.price);
           service.originalServicePrice = Number(service.originalServicePrice);
           service.packageOneValue = Number(
-            Number(service.originalPackageOneValue),
+            Number(service.originalPackageOneValue)
           ).toFixed(2);
           service.packageTwoValue = Number(
-            Number(service.originalPackageTwoValue),
+            Number(service.originalPackageTwoValue)
           ).toFixed(2);
           service.packageThreeValue = Number(
-            Number(service.originalPackageThreeValue),
+            Number(service.originalPackageThreeValue)
           ).toFixed(2);
           service.originalPackageOneValue = Number(
-            service.originalPackageOneValue,
+            service.originalPackageOneValue
           );
           service.originalPackageTwoValue = Number(
-            service.originalPackageTwoValue,
+            service.originalPackageTwoValue
           );
           service.originalPackageThreeValue = Number(
-            service.originalPackageThreeValue,
+            service.originalPackageThreeValue
           );
         });
       });
-
-      packageOneVATValue = originalVATPackageOne;
-      packageTwoVATValue = originalVATPackageTwo;
-      packageThreeVATValue = originalVATPackageThree;
-
     } else if (e.value === Payment_Frequency.HalfYearly) {
       props.setProposalObject((prevState) => ({
         ...prevState,
@@ -10510,13 +10279,13 @@ const ReviewPackagesComponent = (props) => {
           service.originalServicePrice =
             Number(service.originalServicePrice) / 2;
           service.packageOneValue = Number(
-            Number(service.originalPackageOneValue) / 2,
+            Number(service.originalPackageOneValue) / 2
           ).toFixed(2);
           service.packageTwoValue = Number(
-            Number(service.originalPackageTwoValue) / 2,
+            Number(service.originalPackageTwoValue) / 2
           ).toFixed(2);
           service.packageThreeValue = Number(
-            Number(service.originalPackageThreeValue) / 2,
+            Number(service.originalPackageThreeValue) / 2
           ).toFixed(2);
           service.originalPackageOneValue =
             Number(service.originalPackageOneValue) / 2;
@@ -10526,10 +10295,6 @@ const ReviewPackagesComponent = (props) => {
             Number(service.originalPackageThreeValue) / 2;
         });
       });
-
-      packageOneVATValue = originalVATPackageOne / 2;
-      packageTwoVATValue = originalVATPackageTwo / 2;
-      packageThreeVATValue = originalVATPackageThree / 2;
     } else if (e.value === Payment_Frequency.Quarterly) {
       props.setProposalObject((prevState) => ({
         ...prevState,
@@ -10561,13 +10326,13 @@ const ReviewPackagesComponent = (props) => {
           service.originalServicePrice =
             Number(service.originalServicePrice) / 4;
           service.packageOneValue = Number(
-            Number(service.originalPackageOneValue) / 4,
+            Number(service.originalPackageOneValue) / 4
           ).toFixed(2);
           service.packageTwoValue = Number(
-            Number(service.originalPackageTwoValue) / 4,
+            Number(service.originalPackageTwoValue) / 4
           ).toFixed(2);
           service.packageThreeValue = Number(
-            Number(service.originalPackageThreeValue) / 4,
+            Number(service.originalPackageThreeValue) / 4
           ).toFixed(2);
           service.originalPackageOneValue =
             Number(service.originalPackageOneValue) / 4;
@@ -10577,9 +10342,6 @@ const ReviewPackagesComponent = (props) => {
             Number(service.originalPackageThreeValue) / 4;
         });
       });
-     packageOneVATValue = originalVATPackageOne / 4;
-     packageTwoVATValue = originalVATPackageTwo / 4;
-     packageThreeVATValue = originalVATPackageThree / 4;
     } else if (e.value === Payment_Frequency.Monthly) {
       props.setProposalObject((prevState) => ({
         ...prevState,
@@ -10611,13 +10373,13 @@ const ReviewPackagesComponent = (props) => {
           service.originalServicePrice =
             Number(service.originalServicePrice) / 12;
           service.packageOneValue = Number(
-            Number(service.originalPackageOneValue) / 12,
+            Number(service.originalPackageOneValue) / 12
           ).toFixed(2);
           service.packageTwoValue = Number(
-            Number(service.originalPackageTwoValue) / 12,
+            Number(service.originalPackageTwoValue) / 12
           ).toFixed(2);
           service.packageThreeValue = Number(
-            Number(service.originalPackageThreeValue) / 12,
+            Number(service.originalPackageThreeValue) / 12
           ).toFixed(2);
           service.originalPackageOneValue =
             Number(service.originalPackageOneValue) / 12;
@@ -10627,21 +10389,7 @@ const ReviewPackagesComponent = (props) => {
             Number(service.originalPackageThreeValue) / 12;
         });
       });
-      packageOneVATValue = originalVATPackageOne / 12;
-      packageTwoVATValue = originalVATPackageTwo / 12;
-      packageThreeVATValue = originalVATPackageThree / 12;
     }
-
-    props.setRecurringPricingInfo({
-      ...props.RecurringPricingInfo,
-      PackageOneStaticVaTPrice: packageOneVATValue,
-      PackageOneStaticVaTPriceOriginal: originalVATPackageOne,
-      PackageTwoStaticVaTPrice: packageTwoVATValue,
-      PackageTwoStaticVaTPriceOriginal: originalVATPackageTwo,
-      PackageThreeStaticVaTPrice: packageThreeVATValue,
-      PackageThreeStaticVaTPriceOriginal: originalVATPackageThree,
-    })
-
     // props.setRecurringPricingInfo({
     //   ...props.RecurringPricingInfo,
     //   packageOneDisCount: packageOneDisCount,
@@ -10661,7 +10409,7 @@ const ReviewPackagesComponent = (props) => {
     // setTotalTwoPackageValue(TotalTwoPackageValue);
     // setTotalThreePackageValue(TotalThreePackageValue);
     props.setServiceMappingWithPackagesList(
-      UpdatedServiceMappingWithPackagesList,
+      UpdatedServiceMappingWithPackagesList
     );
     props.setSelectedRecurringServiceList(updatedData);
   };
@@ -12496,7 +12244,7 @@ const ReviewPackagesComponent = (props) => {
                         width: "100%", // ensure it fills parent for right alignment
                       }}
                     >
-                      <div className="viewTemp">
+                      {/* <div className="viewTemp">
                         <Tooltip title="Select Template">
                           <div
                             onClick={() => {
@@ -12510,7 +12258,7 @@ const ReviewPackagesComponent = (props) => {
                             <ViewModuleIcon />
                           </div>
                         </Tooltip>
-                      </div>
+                      </div> */}
 
                       {/* <div className="customizeTemp">
                         <Tooltip title="Customize your own">
@@ -14941,7 +14689,7 @@ const ReviewPackagesComponent = (props) => {
                         width: "100%", // ensure it fills parent for right alignment
                       }}
                     >
-                      <div className="viewTemp">
+                      {/* <div className="viewTemp">
                         <Tooltip title="Select Template">
                           <div
                             onClick={() => {
@@ -14955,7 +14703,7 @@ const ReviewPackagesComponent = (props) => {
                             <ViewModuleIcon />
                           </div>
                         </Tooltip>
-                      </div>
+                      </div> */}
 
                       {/* <div className="customizeTemp">
                         <Tooltip title="Customize your own">
@@ -18500,7 +18248,7 @@ const Add_Update_Proposal = (props) => {
     obj,
     tab,
     recurringServiceListData,
-    oneOffServiceListData,
+    oneOffServiceListData
   ) => {
     setLoader(true);
 
@@ -18517,22 +18265,19 @@ const Add_Update_Proposal = (props) => {
           const PricingData = data?.data?.responseData?.data;
 
           setSelectedServices(PricingData);
-          console.log(RecurringPricingInfo);
 
           const vatPercentage = data?.data?.responseData?.vatPercentage;
-          // setVATPercentage(vatPercentage);
+          setVATPercentage(vatPercentage);
           setSelectedPackagesList(data?.data?.responseData?.packageList);
           const PackageList = data?.data?.responseData?.packageList;
           const serviceMappingWithPackagesList =
             data?.data?.responseData?.serviceMappingWithPackagesList;
           let recurringServices = serviceMappingWithPackagesList.filter(
-            (item) => item.serviceChargeTypeID === 1,
+            (item) => item.serviceChargeTypeID === 1
           );
           let OneOffServices = serviceMappingWithPackagesList.filter(
-            (item) => item.serviceChargeTypeID === 2,
+            (item) => item.serviceChargeTypeID === 2
           );
-
-          debugger;
 
           if (
             ProposalObject.selectedProposalTypeValue === 1 ||
@@ -18549,7 +18294,7 @@ const Add_Update_Proposal = (props) => {
             const RecurringService = [];
             // Populate the RecurringServicePrices object
             PricingData.filter(
-              (item) => item.serviceChargeTypeID === 1,
+              (item) => item.serviceChargeTypeID === 1
             ).forEach((service) => {
               // Initialize the category object if it doesn't exist
               if (!RecurringServicePrices[service.serviceCatID]) {
@@ -18569,23 +18314,20 @@ const Add_Update_Proposal = (props) => {
                 hasError = true;
                 RecurringService.push(service);
               }
-
               RecurringServicePrices[service.serviceCatID][service.serviceID] =
                 {
                   serviceCatID: service.serviceCatID,
                   price: roundUpToSixDecimals(Number(service.price)),
-                  service_vat_amount: service.vatAmount,
-                  service_vat_percentage: service.vatPercentage,
                   originalServicePrice: Number(service.price),
                   serviceDescription: service.serviceDescription,
                   packageOneValue: roundUpToSixDecimals(
-                    Number(service.packageOneValue),
+                    Number(service.packageOneValue)
                   ),
                   packageTwoValue: roundUpToSixDecimals(
-                    Number(service.packageTwoValue),
+                    Number(service.packageTwoValue)
                   ),
                   packageThreeValue: roundUpToSixDecimals(
-                    Number(service.packageThreeValue),
+                    Number(service.packageThreeValue)
                   ),
                   originalPackageOneValue: service.packageOneValue,
                   originalPackageTwoValue: service.packageTwoValue,
@@ -18600,7 +18342,7 @@ const Add_Update_Proposal = (props) => {
 
             // Populate the OneOffServicePrices object
             PricingData.filter(
-              (item) => item.serviceChargeTypeID === 2,
+              (item) => item.serviceChargeTypeID === 2
             ).forEach((service) => {
               // Initialize the category object if it doesn't exist
               if (!OneOffServicePrices[service.serviceCatID]) {
@@ -18623,18 +18365,16 @@ const Add_Update_Proposal = (props) => {
               OneOffServicePrices[service.serviceCatID][service.serviceID] = {
                 serviceCatID: service.serviceCatID,
                 price: roundUpToSixDecimals(Number(service.price)),
-                service_vat_amount: service.vatAmount,
-                service_vat_percentage: service.vatPercentage,
                 originalServicePrice: Number(service.price),
                 serviceDescription: service.serviceDescription,
                 packageOneValue: roundUpToSixDecimals(
-                  Number(service.packageOneValue),
+                  Number(service.packageOneValue)
                 ),
                 packageTwoValue: roundUpToSixDecimals(
-                  Number(service.packageTwoValue),
+                  Number(service.packageTwoValue)
                 ),
                 packageThreeValue: roundUpToSixDecimals(
-                  Number(service.packageThreeValue),
+                  Number(service.packageThreeValue)
                 ),
                 originalPackageOneValue: service.packageOneValue,
                 originalPackageTwoValue: service.packageTwoValue,
@@ -18649,7 +18389,7 @@ const Add_Update_Proposal = (props) => {
             if (hasError) {
               showModalRecordsAvailable(
                 `The result of this operation is too large to be processed. Please check the following services.`,
-                [...RecurringService, ...oneOffService],
+                [...RecurringService, ...oneOffService]
               );
               return;
             } else {
@@ -18667,47 +18407,47 @@ const Add_Update_Proposal = (props) => {
             ) {
               recArray = recurringServiceList
                 .filter((category) =>
-                  category.servicesList.some((service) => service.isSelected),
+                  category.servicesList.some((service) => service.isSelected)
                 )
                 .map((category) => ({
                   serviceCatID: category.serviceCatID,
                   serviceCatName: category.serviceCatName,
                   servicesList: category.servicesList.filter(
-                    (service) => service.isSelected,
+                    (service) => service.isSelected
                   ),
                 }));
               OneArray = oneOffServiceList
                 .filter((category) =>
-                  category.servicesList.some((service) => service.isSelected),
+                  category.servicesList.some((service) => service.isSelected)
                 )
                 .map((category) => ({
                   serviceCatID: category.serviceCatID,
                   serviceCatName: category.serviceCatName,
                   servicesList: category.servicesList.filter(
-                    (service) => service.isSelected,
+                    (service) => service.isSelected
                   ),
                 }));
             } else {
               recArray = recurringServiceListData
                 .filter((category) =>
-                  category.servicesList.some((service) => service.isSelected),
+                  category.servicesList.some((service) => service.isSelected)
                 )
                 .map((category) => ({
                   serviceCatID: category.serviceCatID,
                   serviceCatName: category.serviceCatName,
                   servicesList: category.servicesList.filter(
-                    (service) => service.isSelected,
+                    (service) => service.isSelected
                   ),
                 }));
               OneArray = oneOffServiceListData
                 .filter((category) =>
-                  category.servicesList.some((service) => service.isSelected),
+                  category.servicesList.some((service) => service.isSelected)
                 )
                 .map((category) => ({
                   serviceCatID: category.serviceCatID,
                   serviceCatName: category.serviceCatName,
                   servicesList: category.servicesList.filter(
-                    (service) => service.isSelected,
+                    (service) => service.isSelected
                   ),
                 }));
             }
@@ -18732,12 +18472,6 @@ const Add_Update_Proposal = (props) => {
                   ...service,
                   serviceDescription: servicePriceData.serviceDescription,
                   price: isMatchingCategory ? servicePriceData.price : null,
-                  service_vat_percentage: isMatchingCategory
-                    ? servicePriceData.service_vat_percentage
-                    : null,
-                  service_vat_amount: isMatchingCategory
-                    ? servicePriceData.service_vat_amount
-                    : null,
                   originalServicePrice: servicePriceData.originalServicePrice,
                   packageOneValue: isMatchingCategory
                     ? Number(servicePriceData.packageOneValue)
@@ -18787,8 +18521,6 @@ const Add_Update_Proposal = (props) => {
                 let {
                   serviceDescription,
                   price,
-                  service_vat_percentage,
-                  service_vat_amount,
                   packageOneValue,
                   packageTwoValue,
                   packageThreeValue,
@@ -18859,8 +18591,6 @@ const Add_Update_Proposal = (props) => {
                   packageTwoID,
                   packageThreeID,
                   isAdditionalService,
-                  service_vat_percentage,
-                  service_vat_amount,
                 };
               }),
             }));
@@ -18871,8 +18601,6 @@ const Add_Update_Proposal = (props) => {
               servicesList: category.servicesList.map((service) => {
                 const {
                   serviceDescription,
-                  service_vat_percentage,
-                  service_vat_amount,
                   price,
                   packageOneValue,
                   packageTwoValue,
@@ -18910,10 +18638,6 @@ const Add_Update_Proposal = (props) => {
                 return {
                   ...service,
                   price: originalServicePrice * multiplier, // Multiplied price (if needed)
-                  // vatAmount: originalServicePrice.vatAmount,
-                  // vatPercentage: originalServicePrice.vatPercentage,
-                  service_vat_amount: service_vat_amount,
-                  service_vat_percentage: service_vat_percentage,
                   originalServicePrice: originalServicePrice * multiplier, // Multiplied original price
                   serviceDescription,
                   packageOneValue: originalPackageOneValue * multiplier, // Multiplied values
@@ -18956,80 +18680,6 @@ const Add_Update_Proposal = (props) => {
               });
             });
 
-            let staticVATChangeFreq = 0;
-
-            if (ProposalObject.Payment_Frequency === 4) {
-              recArrayWithPrice.forEach((category) => {
-                category.servicesList.forEach((service) => {
-                  // Half the VAT amount
-                  if (
-                    service.service_vat_amount !== undefined &&
-                    service.service_vat_amount !== null
-                  ) {
-                    const selectedFreqVAT = Number(
-                      service.service_vat_amount / 12,
-                    );
-                    service.service_vat_amount = selectedFreqVAT.toFixed(2);
-
-                    // total VAT
-                    staticVATChangeFreq += selectedFreqVAT;
-                  }
-                });
-              });
-            } else if (ProposalObject.Payment_Frequency === 3) {
-              recArrayWithPrice.forEach((category) => {
-                category.servicesList.forEach((service) => {
-                  // Half the VAT amount
-                  if (
-                    service.service_vat_amount !== undefined &&
-                    service.service_vat_amount !== null
-                  ) {
-                    const selectedFreqVAT = Number(
-                      service.service_vat_amount / 4,
-                    );
-                    service.service_vat_amount = selectedFreqVAT.toFixed(2);
-
-                    // total VAT
-                    staticVATChangeFreq += selectedFreqVAT;
-                  }
-                });
-              });
-            } else if (ProposalObject.Payment_Frequency === 2) {
-              recArrayWithPrice.forEach((category) => {
-                category.servicesList.forEach((service) => {
-                  // Half the VAT amount
-                  if (
-                    service.service_vat_amount !== undefined &&
-                    service.service_vat_amount !== null
-                  ) {
-                    const selectedFreqVAT = Number(
-                      service.service_vat_amount / 2,
-                    );
-                    service.service_vat_amount = selectedFreqVAT.toFixed(2);
-
-                    // total VAT
-                    staticVATChangeFreq += selectedFreqVAT;
-                  }
-                });
-              });
-            } else if (ProposalObject.Payment_Frequency === 1) {
-              recArrayWithPrice.forEach((category) => {
-                category.servicesList.forEach((service) => {
-                  // Half the VAT amount
-                  if (
-                    service.service_vat_amount !== undefined &&
-                    service.service_vat_amount !== null
-                  ) {
-                    const selectedFreqVAT = Number(service.service_vat_amount);
-                    service.service_vat_amount = selectedFreqVAT.toFixed(2);
-
-                    // total VAT
-                    staticVATChangeFreq += selectedFreqVAT;
-                  }
-                });
-              });
-            }
-
             recArrayWithPrice.forEach((category) => {
               category.servicesList.forEach((service) => {
                 // Initialize servicePackageIDs if it's not already an array
@@ -19063,7 +18713,7 @@ const Add_Update_Proposal = (props) => {
                     QuotationAdditionalServices.find(
                       (item) =>
                         item.serviceChargeTypeID === 1 &&
-                        item.serviceID === service.serviceID,
+                        item.serviceID === service.serviceID
                     );
 
                   // Update servicePackageIDs only if additional service is found and has package IDs
@@ -19089,7 +18739,7 @@ const Add_Update_Proposal = (props) => {
                     QuotationAdditionalServices.find(
                       (item) =>
                         item.serviceChargeTypeID === 1 &&
-                        item.serviceID === service.serviceID,
+                        item.serviceID === service.serviceID
                     );
 
                   // Update servicePackageIDs only if additional service is found and has package IDs
@@ -19139,7 +18789,7 @@ const Add_Update_Proposal = (props) => {
                     QuotationAdditionalServices.find(
                       (item) =>
                         item.serviceChargeTypeID === 2 &&
-                        item.serviceID === service.serviceID,
+                        item.serviceID === service.serviceID
                     );
 
                   // Update servicePackageIDs only if additional service is found and has package IDs
@@ -19164,7 +18814,6 @@ const Add_Update_Proposal = (props) => {
             setSelectedOneOffServiceList(OneArrayWithPrice);
 
             let RecTotal = 0;
-            let RecVATTotal = 0;
             let OneOffTotal = 0;
             recArrayWithPrice.forEach((category) => {
               category.servicesList.forEach((service) => {
@@ -19173,25 +18822,14 @@ const Add_Update_Proposal = (props) => {
                   service.originalServicePrice === undefined
                     ? (service.quotationPrice = Number(service.quotationPrice))
                     : (service.originalServicePrice = Number(
-                        service.originalServicePrice,
+                        service.originalServicePrice
                       ));
-                let currentVATServicePrice =
-                  service.vatAmount === undefined
-                    ? (service.quotationPrice = Number(service.quotationPrice))
-                    : (service.vatAmount = Number(service.vatAmount));
 
                 let currentServicePriceWithToFixed =
                   Number(currentServicePrice)?.toFixed(2);
-                let currentVATServicePriceWithToFixed = Number(
-                  currentVATServicePrice,
-                )?.toFixed(2);
                 //service.price = currentServicePriceWithToFixed
                 RecTotal = Number(
-                  Number(RecTotal) + Number(currentServicePriceWithToFixed),
-                )?.toFixed(2);
-                RecVATTotal = Number(
-                  Number(RecVATTotal) +
-                    Number(currentVATServicePriceWithToFixed),
+                  Number(RecTotal) + Number(currentServicePriceWithToFixed)
                 )?.toFixed(2);
 
                 // service.price === undefined
@@ -19206,14 +18844,14 @@ const Add_Update_Proposal = (props) => {
                   service.originalServicePrice === undefined
                     ? (service.quotationPrice = Number(service.quotationPrice))
                     : (service.originalServicePrice = Number(
-                        service.originalServicePrice,
+                        service.originalServicePrice
                       ));
 
                 let currentServicePriceWithToFixed =
                   Number(currentServicePrice)?.toFixed(2);
                 //service.price = currentServicePriceWithToFixed
                 OneOffTotal = Number(
-                  Number(OneOffTotal) + Number(currentServicePriceWithToFixed),
+                  Number(OneOffTotal) + Number(currentServicePriceWithToFixed)
                 )?.toFixed(2);
 
                 // service.price === undefined
@@ -19239,11 +18877,8 @@ const Add_Update_Proposal = (props) => {
             // }, 0);
 
             let totalOne = 0;
-            let totalVATOne = 0;
             let totalTwo = 0;
-            let totalVATTwo = 0;
             let totalThree = 0;
-            let totalVATThree = 0;
 
             recArrayWithPrice.forEach((category) => {
               category.servicesList.forEach((service) => {
@@ -19252,68 +18887,29 @@ const Add_Update_Proposal = (props) => {
                 if (service.packageOneValue !== null) {
                   //totalOne += Number(service.packageOneValue);
                   let currentServicePriceWithToFixed = Number(
-                    service.originalPackageOneValue,
+                    service.originalPackageOneValue
                   )?.toFixed(2);
                   totalOne = Number(
-                    Number(totalOne) + Number(currentServicePriceWithToFixed),
+                    Number(totalOne) + Number(currentServicePriceWithToFixed)
                   )?.toFixed(2);
-                }
-                if (
-                  service.service_vat_percentage != null &&
-                  service.packageOneValue != null
-                ) {
-                  const vatAmount =
-                    (Number(service.packageOneValue) *
-                      Number(service.service_vat_percentage)) /
-                    100;
-
-                  totalVATOne = (Number(totalVATOne || 0) + vatAmount).toFixed(
-                    2,
-                  );
                 }
                 if (service.packageTwoValue !== null) {
                   //totalTwo += Number(service.packageTwoValue);
                   let currentServicePriceWithToFixed = Number(
-                    service.originalPackageTwoValue,
+                    service.originalPackageTwoValue
                   )?.toFixed(2);
                   totalTwo = Number(
-                    Number(totalTwo) + Number(currentServicePriceWithToFixed),
+                    Number(totalTwo) + Number(currentServicePriceWithToFixed)
                   )?.toFixed(2);
-                }
-                if (
-                  service.service_vat_percentage != null &&
-                  service.packageTwoValue != null
-                ) {
-                  const vatAmount =
-                    (Number(service.packageTwoValue) *
-                      Number(service.service_vat_percentage)) /
-                    100;
-
-                  totalVATTwo = (Number(totalVATTwo || 0) + vatAmount).toFixed(
-                    2,
-                  );
                 }
                 if (service.packageThreeValue !== null) {
                   //totalThree += Number(service.packageThreeValue);
                   let currentServicePriceWithToFixed = Number(
-                    service.originalPackageThreeValue,
+                    service.originalPackageThreeValue
                   )?.toFixed(2);
                   totalThree = Number(
-                    Number(totalThree) + Number(currentServicePriceWithToFixed),
+                    Number(totalThree) + Number(currentServicePriceWithToFixed)
                   )?.toFixed(2);
-                }
-                if (
-                  service.service_vat_percentage != null &&
-                  service.packageThreeValue != null
-                ) {
-                  const vatAmount =
-                    (Number(service.packageThreeValue) *
-                      Number(service.service_vat_percentage)) /
-                    100;
-
-                  totalVATThree = (
-                    Number(totalVATThree || 0) + vatAmount
-                  ).toFixed(2);
                 }
               });
             });
@@ -19354,10 +18950,7 @@ const Add_Update_Proposal = (props) => {
                 break;
             }
 
-            debugger;
-
             let recOriginalPrice = 0.0;
-            let recOriginalVATPrice = 0.0;
             let recDefaultPrice = 0.0;
             let recMinPrice = 0.0;
             let recVATPrice = 0.0;
@@ -19386,10 +18979,9 @@ const Add_Update_Proposal = (props) => {
             let packageOneOffOriginalPrice = 0;
             let packageOneOffDefaultPrice = 0;
             recOriginalPriceCopy = Number(
-              Number(RecTotal) * Number(multiplicationFactor),
+              Number(RecTotal) * Number(multiplicationFactor)
             ).toFixed(12);
             recOriginalPrice = Number(RecTotal);
-            recOriginalVATPrice = Number(RecVATTotal);
             // recOriginalPrice = Number(RecTotal) / pricingSettingPaymentFrequency;
 
             let DiscountPercentagePackageOne = null;
@@ -19429,7 +19021,7 @@ const Add_Update_Proposal = (props) => {
                     undefined
                 ) {
                   DiscountPercentagePackageOne = Number(
-                    packageDiscountPercentage,
+                    packageDiscountPercentage
                   ).toFixed(2);
                   DiscountPercentagePackageOneWithAllDecimal =
                     packageDiscountPercentage;
@@ -19439,14 +19031,14 @@ const Add_Update_Proposal = (props) => {
                         (quotationFinalPackage) =>
                           quotationFinalPackage.servicePackageID ===
                             PackageList[0].servicePackageID &&
-                          quotationFinalPackage.serviceChargeTypeID == 1,
+                          quotationFinalPackage.serviceChargeTypeID == 1
                       );
                     if (
                       packageOneQuotationFinalPackageAmountObj !== undefined &&
                       packageOneQuotationFinalPackageAmountObj !== null
                     ) {
                       DiscountPercentagePackageOne = Number(
-                        packageOneQuotationFinalPackageAmountObj?.discountPercentageWithAllDecimal,
+                        packageOneQuotationFinalPackageAmountObj?.discountPercentageWithAllDecimal
                       ).toFixed(2);
                       DiscountPercentagePackageOneWithAllDecimal =
                         packageOneQuotationFinalPackageAmountObj?.discountPercentageWithAllDecimal;
@@ -19454,12 +19046,12 @@ const Add_Update_Proposal = (props) => {
                   }
                 } else {
                   DiscountPercentagePackageOne = isNaN(
-                    RecurringPricingInfo.DiscountPercentagePackageOne,
+                    RecurringPricingInfo.DiscountPercentagePackageOne
                   )
                     ? 0
                     : RecurringPricingInfo.DiscountPercentagePackageOne;
                   DiscountPercentagePackageOneWithAllDecimal = isNaN(
-                    RecurringFrequencyPricingInfo.DiscountPercentagePackageOne,
+                    RecurringFrequencyPricingInfo.DiscountPercentagePackageOne
                   )
                     ? 0
                     : RecurringFrequencyPricingInfo.DiscountPercentagePackageOne;
@@ -19485,7 +19077,7 @@ const Add_Update_Proposal = (props) => {
                   OneOffPricingInfo.DiscountPercentagePackageOne === undefined
                 ) {
                   OneOffDiscountPercentagePackageOne = Number(
-                    OneOffPackageDiscountPercentage,
+                    OneOffPackageDiscountPercentage
                   ).toFixed(2);
                   OneOffDiscountPercentagePackageOneWithAllDecimal =
                     OneOffPackageDiscountPercentage;
@@ -19496,7 +19088,7 @@ const Add_Update_Proposal = (props) => {
                         (quotationFinalPackage) =>
                           quotationFinalPackage.servicePackageID ===
                             PackageList[0].servicePackageID &&
-                          quotationFinalPackage.serviceChargeTypeID == 2,
+                          quotationFinalPackage.serviceChargeTypeID == 2
                       );
                     if (
                       OneOffPackageOneQuotationFinalPackageAmountObj !==
@@ -19504,7 +19096,7 @@ const Add_Update_Proposal = (props) => {
                       OneOffPackageOneQuotationFinalPackageAmountObj !== null
                     ) {
                       OneOffDiscountPercentagePackageOne = Number(
-                        OneOffPackageOneQuotationFinalPackageAmountObj?.discountPercentageWithAllDecimal,
+                        OneOffPackageOneQuotationFinalPackageAmountObj?.discountPercentageWithAllDecimal
                       ).toFixed(2);
                       OneOffDiscountPercentagePackageOneWithAllDecimal =
                         OneOffPackageOneQuotationFinalPackageAmountObj?.discountPercentageWithAllDecimal;
@@ -19512,12 +19104,12 @@ const Add_Update_Proposal = (props) => {
                   }
                 } else {
                   OneOffDiscountPercentagePackageOne = isNaN(
-                    OneOffPricingInfo.DiscountPercentagePackageOne,
+                    OneOffPricingInfo.DiscountPercentagePackageOne
                   )
                     ? 0
                     : OneOffPricingInfo.DiscountPercentagePackageOne;
                   OneOffDiscountPercentagePackageOneWithAllDecimal = isNaN(
-                    OneOffPricingInfoCopy.DiscountPercentagePackageOne,
+                    OneOffPricingInfoCopy.DiscountPercentagePackageOne
                   )
                     ? 0
                     : OneOffPricingInfoCopy.DiscountPercentagePackageOne;
@@ -19548,7 +19140,7 @@ const Add_Update_Proposal = (props) => {
                     undefined
                 ) {
                   DiscountPercentagePackageTwo = Number(
-                    packageDiscountPercentage,
+                    packageDiscountPercentage
                   ).toFixed(2);
                   DiscountPercentagePackageTwoWithAllDecimal =
                     packageDiscountPercentage;
@@ -19559,7 +19151,7 @@ const Add_Update_Proposal = (props) => {
                         (quotationFinalPackage) =>
                           quotationFinalPackage.servicePackageID ===
                             PackageList[1].servicePackageID &&
-                          quotationFinalPackage.serviceChargeTypeID == 1,
+                          quotationFinalPackage.serviceChargeTypeID == 1
                       );
 
                     if (
@@ -19567,7 +19159,7 @@ const Add_Update_Proposal = (props) => {
                       packageTwoQuotationFinalPackageAmountObj !== null
                     ) {
                       DiscountPercentagePackageTwo = Number(
-                        packageTwoQuotationFinalPackageAmountObj?.discountPercentageWithAllDecimal,
+                        packageTwoQuotationFinalPackageAmountObj?.discountPercentageWithAllDecimal
                       ).toFixed(2);
                       DiscountPercentagePackageTwoWithAllDecimal =
                         packageTwoQuotationFinalPackageAmountObj?.discountPercentageWithAllDecimal;
@@ -19575,12 +19167,12 @@ const Add_Update_Proposal = (props) => {
                   }
                 } else {
                   DiscountPercentagePackageTwo = isNaN(
-                    RecurringPricingInfo.DiscountPercentagePackageTwo,
+                    RecurringPricingInfo.DiscountPercentagePackageTwo
                   )
                     ? 0
                     : RecurringPricingInfo.DiscountPercentagePackageTwo;
                   DiscountPercentagePackageTwoWithAllDecimal = isNaN(
-                    RecurringFrequencyPricingInfo.DiscountPercentagePackageTwo,
+                    RecurringFrequencyPricingInfo.DiscountPercentagePackageTwo
                   )
                     ? 0
                     : RecurringFrequencyPricingInfo.DiscountPercentagePackageTwo;
@@ -19606,7 +19198,7 @@ const Add_Update_Proposal = (props) => {
                   OneOffPricingInfo.DiscountPercentagePackageTwo === undefined
                 ) {
                   OneOffDiscountPercentagePackageTwo = Number(
-                    OneOffPackageDiscountPercentage,
+                    OneOffPackageDiscountPercentage
                   ).toFixed(2);
                   OneOffDiscountPercentagePackageTwoWithAllDecimal =
                     OneOffPackageDiscountPercentage;
@@ -19617,7 +19209,7 @@ const Add_Update_Proposal = (props) => {
                         (quotationFinalPackage) =>
                           quotationFinalPackage.servicePackageID ===
                             PackageList[1].servicePackageID &&
-                          quotationFinalPackage.serviceChargeTypeID == 2,
+                          quotationFinalPackage.serviceChargeTypeID == 2
                       );
                     if (
                       OneOffPackageTwoQuotationFinalPackageAmountObj !==
@@ -19625,7 +19217,7 @@ const Add_Update_Proposal = (props) => {
                       OneOffPackageTwoQuotationFinalPackageAmountObj !== null
                     ) {
                       OneOffDiscountPercentagePackageTwo = Number(
-                        OneOffPackageTwoQuotationFinalPackageAmountObj?.discountPercentageWithAllDecimal,
+                        OneOffPackageTwoQuotationFinalPackageAmountObj?.discountPercentageWithAllDecimal
                       ).toFixed(2);
                       OneOffDiscountPercentagePackageTwoWithAllDecimal =
                         OneOffPackageTwoQuotationFinalPackageAmountObj?.discountPercentageWithAllDecimal;
@@ -19633,12 +19225,12 @@ const Add_Update_Proposal = (props) => {
                   }
                 } else {
                   OneOffDiscountPercentagePackageTwo = isNaN(
-                    OneOffPricingInfo.DiscountPercentagePackageTwo,
+                    OneOffPricingInfo.DiscountPercentagePackageTwo
                   )
                     ? 0
                     : OneOffPricingInfo.DiscountPercentagePackageTwo;
                   OneOffDiscountPercentagePackageTwoWithAllDecimal = isNaN(
-                    OneOffPricingInfoCopy.DiscountPercentagePackageTwo,
+                    OneOffPricingInfoCopy.DiscountPercentagePackageTwo
                   )
                     ? 0
                     : OneOffPricingInfoCopy.DiscountPercentagePackageTwo;
@@ -19670,7 +19262,7 @@ const Add_Update_Proposal = (props) => {
                     undefined
                 ) {
                   DiscountPercentagePackageThree = Number(
-                    packageDiscountPercentage,
+                    packageDiscountPercentage
                   ).toFixed(2);
                   DiscountPercentagePackageThreeWithAllDecimal =
                     packageDiscountPercentage;
@@ -19681,7 +19273,7 @@ const Add_Update_Proposal = (props) => {
                         (quotationFinalPackage) =>
                           quotationFinalPackage.servicePackageID ===
                             PackageList[2].servicePackageID &&
-                          quotationFinalPackage.serviceChargeTypeID == 1,
+                          quotationFinalPackage.serviceChargeTypeID == 1
                       );
                     if (
                       packageThreeQuotationFinalPackageAmountObj !==
@@ -19689,7 +19281,7 @@ const Add_Update_Proposal = (props) => {
                       packageThreeQuotationFinalPackageAmountObj !== null
                     ) {
                       DiscountPercentagePackageThree = Number(
-                        packageThreeQuotationFinalPackageAmountObj?.discountPercentageWithAllDecimal,
+                        packageThreeQuotationFinalPackageAmountObj?.discountPercentageWithAllDecimal
                       ).toFixed(2);
                       DiscountPercentagePackageThreeWithAllDecimal =
                         packageThreeQuotationFinalPackageAmountObj?.discountPercentageWithAllDecimal;
@@ -19697,13 +19289,13 @@ const Add_Update_Proposal = (props) => {
                   }
                 } else {
                   DiscountPercentagePackageThree = isNaN(
-                    RecurringPricingInfo.DiscountPercentagePackageThree,
+                    RecurringPricingInfo.DiscountPercentagePackageThree
                   )
                     ? 0
                     : RecurringPricingInfo.DiscountPercentagePackageThree;
 
                   DiscountPercentagePackageThreeWithAllDecimal = isNaN(
-                    RecurringFrequencyPricingInfo.DiscountPercentagePackageThree,
+                    RecurringFrequencyPricingInfo.DiscountPercentagePackageThree
                   )
                     ? 0
                     : RecurringFrequencyPricingInfo.DiscountPercentagePackageThree;
@@ -19729,7 +19321,7 @@ const Add_Update_Proposal = (props) => {
                   OneOffPricingInfo.DiscountPercentagePackageThree === undefined
                 ) {
                   OneOffDiscountPercentagePackageThree = Number(
-                    OneOffPackageDiscountPercentage,
+                    OneOffPackageDiscountPercentage
                   ).toFixed(2);
                   OneOffDiscountPercentagePackageThreeWithAllDecimal =
                     OneOffPackageDiscountPercentage;
@@ -19740,7 +19332,7 @@ const Add_Update_Proposal = (props) => {
                         (quotationFinalPackage) =>
                           quotationFinalPackage.servicePackageID ===
                             PackageList[2].servicePackageID &&
-                          quotationFinalPackage.serviceChargeTypeID == 2,
+                          quotationFinalPackage.serviceChargeTypeID == 2
                       );
                     if (
                       OneOffPackageThreeQuotationFinalPackageAmountObj !==
@@ -19748,7 +19340,7 @@ const Add_Update_Proposal = (props) => {
                       OneOffPackageThreeQuotationFinalPackageAmountObj !== null
                     ) {
                       OneOffDiscountPercentagePackageThree = Number(
-                        OneOffPackageThreeQuotationFinalPackageAmountObj?.discountPercentageWithAllDecimal,
+                        OneOffPackageThreeQuotationFinalPackageAmountObj?.discountPercentageWithAllDecimal
                       ).toFixed(2);
                       OneOffDiscountPercentagePackageThreeWithAllDecimal =
                         OneOffPackageThreeQuotationFinalPackageAmountObj?.discountPercentageWithAllDecimal;
@@ -19756,12 +19348,12 @@ const Add_Update_Proposal = (props) => {
                   }
                 } else {
                   OneOffDiscountPercentagePackageThree = isNaN(
-                    OneOffPricingInfo.DiscountPercentagePackageThree,
+                    OneOffPricingInfo.DiscountPercentagePackageThree
                   )
                     ? 0
                     : OneOffPricingInfo.DiscountPercentagePackageThree;
                   OneOffDiscountPercentagePackageThreeWithAllDecimal = isNaN(
-                    OneOffPricingInfoCopy.DiscountPercentagePackageThree,
+                    OneOffPricingInfoCopy.DiscountPercentagePackageThree
                   )
                     ? 0
                     : OneOffPricingInfoCopy.DiscountPercentagePackageThree;
@@ -19779,7 +19371,7 @@ const Add_Update_Proposal = (props) => {
                   : DiscountPercentagePackageTwo,
                 isNaN(DiscountPercentagePackageThree)
                   ? 0
-                  : DiscountPercentagePackageThree,
+                  : DiscountPercentagePackageThree
               );
             recDefaultDiscount = GetSingleDefaultDiscountPercentageOfPackages(
               isNaN(DiscountPercentagePackageOne)
@@ -19790,7 +19382,7 @@ const Add_Update_Proposal = (props) => {
                 : DiscountPercentagePackageTwo,
               isNaN(DiscountPercentagePackageThree)
                 ? 0
-                : DiscountPercentagePackageThree,
+                : DiscountPercentagePackageThree
             );
 
             if (
@@ -19858,61 +19450,10 @@ const Add_Update_Proposal = (props) => {
               recVATPriceCopy = Number(recDefaultPrice) * (vatPercentage / 100);
               recGrandTotalCopy = Number(recVATPrice) + Number(recDefaultPrice);
               recDiscountCopy =
-                Number(recOriginalPriceCopy) - Number(recDefaultPriceCopy); 
-                //RecurringPricingInfo.Discount;
+                Number(recOriginalPriceCopy) - Number(recDefaultPriceCopy); //RecurringPricingInfo.Discount;
 
               recMaxDiscountCopy = RecurringPricingInfo.MaxDiscount;
             }
-
-            // ✅ Calculate total VAT for all selected services in all categories
-
-            debugger;
-            console.log(proposalModelObj)
-
-            let totalVATAmount;
-            let totalVATAmountOneOff;
-            let ServiceWiseVAT;
-            let ServiceWiseVATOneOff;
-
-            if(proposalModelObj.statusID !== 1){
-              totalVATAmount = recArrayWithPrice.reduce(
-                (catSum, category) => {
-                  const serviceSum = category.servicesList
-                  .filter((service) => service.isSelected)
-                  .reduce(
-                    (sum, service) =>
-                      Number(sum) + Number(service.service_vat_amount || 0),
-                    0,
-                  );
-                  return catSum + serviceSum;
-                },
-                0,
-              );
-
-              ServiceWiseVAT =
-              (Number(totalVATAmount) / Number(recOriginalPrice)) * 100;
-
-             setVATPercentage(ServiceWiseVAT);
-              
-              // ✅ Calculate total VAT for all selected services in all categories
-              
-            }else{
-              totalVATAmount = RecurringPricingInfo.totalServiceWiseVAT;
-              setVATPercentage(RecurringPricingInfo.recurringServiceVatPercentage);
-            }
-
-            
-
-            const packageOneVATPercentage =
-              (Number(totalVATOne) / Number(totalOne)) * 100;
-            const packageTwoVATPercentage =
-              (Number(totalVATTwo) / Number(totalTwo)) * 100;
-            const packageThreeVATPercentage =
-              (Number(totalVATThree) / Number(totalThree)) * 100;
-
-            setPackageOneVat(packageOneVATPercentage);
-            setPackageTwoVat(packageTwoVATPercentage);
-            setPackageThreeVat(packageThreeVATPercentage);
 
             setRecurringPricingInfo({
               ...RecurringPricingInfo,
@@ -19920,12 +19461,6 @@ const Add_Update_Proposal = (props) => {
               DiscountedPrice: recDefaultPrice,
               MinPrice: recMinPrice,
               VATPrice: recVATPrice,
-              totalServiceWiseVAT:
-                Number(RecurringPricingInfo.DefaultDiscount) < 0
-                  ? Number(RecurringPricingInfo.DiscountedPrice) * 0.2
-                  : totalVATAmount,
-              staticTotalVAT: totalVATAmount,
-              VATPriceWithoutDiscount: recVATPrice,
               Discount: recDiscount,
               DefaultDiscount:
                 recDefaultDiscount == null
@@ -19939,29 +19474,17 @@ const Add_Update_Proposal = (props) => {
                 ? 0
                 : DiscountPercentagePackageTwo,
               DiscountPercentagePackageThree: isNaN(
-                DiscountPercentagePackageThree,
+                DiscountPercentagePackageThree
               )
                 ? 0
                 : DiscountPercentagePackageThree,
               GrandTotal: recGrandTotal,
-              FeesIncVAT: recGrandTotal,
               packageOneDisCountedTotal: recDefaultPrice,
               packageTwoDisCountedTotal: recDefaultPrice,
               packageThreeDisCountedTotal: recDefaultPrice,
-              // PackageOneVaTPrice: PackageOneVaTPrice,
-              // PackageTwoVaTPrice: PackageTwoVaTPrice,
-              // PackageThreeVaTPrice: PackageThreeVaTPrice,
-              PackageOneVaTPrice: totalVATOne,
-              PackageOneStaticVaTPrice: totalVATOne,
-              // PackageTwoVaTPrice: PackageTwoVaTPrice,
-              PackageTwoVaTPrice: totalVATTwo,
-              PackageTwoStaticVaTPrice: totalVATTwo,
-              // PackageThreeVaTPrice: PackageThreeVaTPrice,
-              PackageThreeVaTPrice: totalVATThree,
-              PackageThreeStaticVaTPrice: totalVATThree,
-              PackageOneVaTPriceWithoutDiscout: PackageOneVaTPrice,
-              PackageTwoVaTPriceWithoutDiscout: PackageTwoVaTPrice,
-              PackageThreeVaTPriceWithoutDiscout: PackageThreeVaTPrice,
+              PackageOneVaTPrice: PackageOneVaTPrice,
+              PackageTwoVaTPrice: PackageTwoVaTPrice,
+              PackageThreeVaTPrice: PackageThreeVaTPrice,
               PackageOneGrandTotal: PackageOneGrandTotal,
               PackageTwoGrandTotal: PackageTwoGrandTotal,
               PackageThreeGrandTotal: PackageThreeGrandTotal,
@@ -19977,17 +19500,17 @@ const Add_Update_Proposal = (props) => {
               DefaultDiscount:
                 recDefaultDiscountCopy == null ? null : recDefaultDiscountCopy,
               DiscountPercentagePackageOne: isNaN(
-                DiscountPercentagePackageOneWithAllDecimal,
+                DiscountPercentagePackageOneWithAllDecimal
               )
                 ? 0
                 : DiscountPercentagePackageOneWithAllDecimal,
               DiscountPercentagePackageTwo: isNaN(
-                DiscountPercentagePackageTwoWithAllDecimal,
+                DiscountPercentagePackageTwoWithAllDecimal
               )
                 ? 0
                 : DiscountPercentagePackageTwoWithAllDecimal,
               DiscountPercentagePackageThree: isNaN(
-                DiscountPercentagePackageThreeWithAllDecimal,
+                DiscountPercentagePackageThreeWithAllDecimal
               )
                 ? 0
                 : DiscountPercentagePackageThreeWithAllDecimal,
@@ -20008,62 +19531,19 @@ const Add_Update_Proposal = (props) => {
               PackageTwoGrandTotal: PackageTwoGrandTotal,
               PackageThreeGrandTotal: PackageThreeGrandTotal,
             });
-
             let OneOffTotalOne = 0;
             let OneOffTotalTwo = 0;
             let OneOffTotalThree = 0;
-            let OneOffVATTotalOne = 0;
-            let OneOffVATTotalTwo = 0;
-            let OneOffVATTotalThree = 0;
 
             OneArrayWithPrice.forEach((category) => {
               category.servicesList.forEach((service) => {
                 // Check if the value is not null before adding
                 if (service.packageOneValue !== null)
                   OneOffTotalOne += service.packageOneValue;
-                if (
-                  service.service_vat_percentage != null &&
-                  service.packageOneValue != null
-                ) {
-                  const vatAmount =
-                    (Number(service.packageOneValue) *
-                      Number(service.service_vat_percentage)) /
-                    100;
-
-                  OneOffVATTotalOne = (
-                    Number(OneOffVATTotalOne || 0) + vatAmount
-                  ).toFixed(2);
-                }
                 if (service.packageTwoValue !== null)
                   OneOffTotalTwo += service.packageTwoValue;
-                if (
-                  service.service_vat_percentage != null &&
-                  service.packageTwoValue != null
-                ) {
-                  const vatAmount =
-                    (Number(service.packageTwoValue) *
-                      Number(service.service_vat_percentage)) /
-                    100;
-
-                  OneOffVATTotalTwo = (
-                    Number(OneOffVATTotalTwo || 0) + vatAmount
-                  ).toFixed(2);
-                }
                 if (service.packageThreeValue !== null)
                   OneOffTotalThree += service.packageThreeValue;
-                if (
-                  service.service_vat_percentage != null &&
-                  service.packageThreeValue != null
-                ) {
-                  const vatAmount =
-                    (Number(service.packageThreeValue) *
-                      Number(service.service_vat_percentage)) /
-                    100;
-
-                  OneOffVATTotalThree = (
-                    Number(OneOffVATTotalThree || 0) + vatAmount
-                  ).toFixed(2);
-                }
               });
             });
             let oneOffOriginalPrice = 0.0;
@@ -20149,83 +19629,37 @@ const Add_Update_Proposal = (props) => {
               oneOffMaxDiscount = OneOffPricingInfo.MaxDiscount;
             }
 
-            debugger;
-
-           if(proposalModelObj.statusID !== 1){
-            totalVATAmountOneOff = OneArrayWithPrice.reduce(
-                (catSum, category) => {
-                  const serviceSum = category.servicesList
-                  .filter((service) => service.isSelected)
-                  .reduce(
-                    (sum, service) =>
-                      Number(sum) + Number(service.service_vat_amount || 0),
-                    0,
-                  );
-                  return catSum + serviceSum;
-                },
-                0,
-              );
-
-               ServiceWiseVATOneOff = (Number(totalVATAmountOneOff) / Number(oneOffOriginalPrice)) * 100;
-
-              setVATPercentageOneOff(ServiceWiseVATOneOff);
-           } else{
-              totalVATAmountOneOff = OneOffPricingInfo.totalServiceWiseVATOneOff;
-              setVATPercentageOneOff(RecurringPricingInfo.oneOffServiceVatPercentage);
-           }
-
-            const packageOneVATPercentageOneOff =
-              (Number(OneOffVATTotalOne) / Number(OneOffTotalOne)) * 100;
-            const packageTwoVATPercentageOneOff =
-              (Number(OneOffVATTotalTwo) / Number(OneOffTotalTwo)) * 100;
-            const packageThreeVATPercentageOneOff =
-              (Number(OneOffVATTotalThree) / Number(OneOffTotalThree)) * 100;
-
-            setPackageOneVatOneOff(packageOneVATPercentageOneOff);
-            setPackageTwoVatOneOff(packageTwoVATPercentageOneOff);
-            setPackageThreeVatOneOff(packageThreeVATPercentageOneOff);
-
             setOneOffPricingInfo({
               ...OneOffPricingInfo,
               OriginalPrice: oneOffOriginalPrice,
-              totalServiceWiseVATOneOff: totalVATAmountOneOff,
-              staticTotalVATOneOff: totalVATAmountOneOff,
               DiscountedPrice: oneOffDefaultPrice,
 
               VATPrice: oneOffVATPrice,
-              VATPriceWithoutDiscount: oneOffVATPrice,
               Discount: oneOffDiscount,
               DefaultDiscount:
                 oneOffDefaultDiscount == null ? null : oneOffDefaultDiscount,
               DiscountPercentagePackageOne: isNaN(
-                OneOffDiscountPercentagePackageOne,
+                OneOffDiscountPercentagePackageOne
               )
                 ? 0
                 : OneOffDiscountPercentagePackageOne,
               DiscountPercentagePackageTwo: isNaN(
-                OneOffDiscountPercentagePackageTwo,
+                OneOffDiscountPercentagePackageTwo
               )
                 ? 0
                 : OneOffDiscountPercentagePackageTwo,
               DiscountPercentagePackageThree: isNaN(
-                OneOffDiscountPercentagePackageThree,
+                OneOffDiscountPercentagePackageThree
               )
                 ? 0
                 : OneOffDiscountPercentagePackageThree,
               GrandTotal: oneOffGrandTotal,
-              FeesIncVAT: oneOffGrandTotal,
               packageOneDisCountedTotal: oneOffDefaultPrice,
               packageTwoDisCountedTotal: oneOffDefaultPrice,
               packageThreeDisCountedTotal: oneOffDefaultPrice,
               PackageOneVaTPrice: OneOffPackageOneVaTPrice,
               PackageTwoVaTPrice: OneOffPackageTwoVaTPrice,
               PackageThreeVaTPrice: OneOffPackageThreeVaTPrice,
-              PackageOneStaticVaTPrice: OneOffPackageOneVaTPrice,
-              PackageTwoStaticVaTPrice: OneOffPackageTwoVaTPrice,
-              PackageThreeStaticVaTPrice: OneOffPackageThreeVaTPrice,
-              PackageOneVaTPriceWithoutDiscout: OneOffPackageOneVaTPrice,
-              PackageTwoVaTPriceWithoutDiscout: OneOffPackageTwoVaTPrice,
-              PackageThreeVaTPriceWithoutDiscout: OneOffPackageThreeVaTPrice,
               PackageOneGrandTotal: OneOffPackageOneGrandTotal,
               PackageTwoGrandTotal: OneOffPackageTwoGrandTotal,
               PackageThreeGrandTotal: OneOffPackageThreeGrandTotal,
@@ -20238,17 +19672,17 @@ const Add_Update_Proposal = (props) => {
                   ? null
                   : Number(oneOffDefaultDiscountCopy),
               DiscountPercentagePackageOne: isNaN(
-                OneOffDiscountPercentagePackageOneWithAllDecimal,
+                OneOffDiscountPercentagePackageOneWithAllDecimal
               )
                 ? 0
                 : OneOffDiscountPercentagePackageOneWithAllDecimal,
               DiscountPercentagePackageTwo: isNaN(
-                OneOffDiscountPercentagePackageTwoWithAllDecimal,
+                OneOffDiscountPercentagePackageTwoWithAllDecimal
               )
                 ? 0
                 : OneOffDiscountPercentagePackageTwoWithAllDecimal,
               DiscountPercentagePackageThree: isNaN(
-                OneOffDiscountPercentagePackageThreeWithAllDecimal,
+                OneOffDiscountPercentagePackageThreeWithAllDecimal
               )
                 ? 0
                 : OneOffDiscountPercentagePackageThreeWithAllDecimal,
@@ -20285,7 +19719,7 @@ const Add_Update_Proposal = (props) => {
         setLoader(false);
         setActiveTab(activeTab);
         setErrorMessage(
-          "The result of this operation is too large to be processed. Please check the input values and try again.",
+          "The result of this operation is too large to be processed. Please check the input values and try again."
         );
         setOpenErrorModal(true);
         return;
@@ -20306,7 +19740,7 @@ const Add_Update_Proposal = (props) => {
     obj,
     tab,
     recurringServiceListData,
-    oneOffServiceListData,
+    oneOffServiceListData
   ) => {
     setLoader(true);
 
@@ -20333,32 +19767,29 @@ const Add_Update_Proposal = (props) => {
           // setServiceMappingWithPackagesList(serviceMappingWithPackagesList)
 
           let recurringServices = serviceMappingWithPackagesList.filter(
-            (item) => item.serviceChargeTypeID === 1,
+            (item) => item.serviceChargeTypeID === 1
           );
           let OneOffServices = serviceMappingWithPackagesList.filter(
-            (item) => item.serviceChargeTypeID === 2,
+            (item) => item.serviceChargeTypeID === 2
           );
           const RecurringServicePrices = {};
           const OneOffServicePrices = {};
           let recArray = [];
           let OneArray = [];
           const servicePrices = {};
-
           PricingData.forEach((service) => {
             servicePrices[service.serviceID] = {
               price: roundUpToSixDecimals(Number(service.price)),
-              service_vat_amount: service.vatAmount,
-              service_vat_percentage: service.vatPercentage,
               originalServicePrice: Number(service.price),
               serviceDescription: service.serviceDescription,
               packageOneValue: roundUpToSixDecimals(
-                Number(service.packageOneValue),
+                Number(service.packageOneValue)
               ),
               packageTwoValue: roundUpToSixDecimals(
-                Number(service.packageTwoValue),
+                Number(service.packageTwoValue)
               ),
               packageThreeValue: roundUpToSixDecimals(
-                Number(service.packageThreeValue),
+                Number(service.packageThreeValue)
               ),
               originalPackageOneValue: service.packageOneValue,
               originalPackageTwoValue: service.packageTwoValue,
@@ -20371,32 +19802,28 @@ const Add_Update_Proposal = (props) => {
             };
           });
 
-          debugger;
-
           recArray = recurringServiceListData
             .filter((category) =>
-              category.servicesList.some((service) => service.isSelected),
+              category.servicesList.some((service) => service.isSelected)
             )
             .map((category) => ({
               serviceCatID: category.serviceCatID,
               serviceCatName: category.serviceCatName,
               servicesList: category.servicesList.filter(
-                (service) => service.isSelected,
+                (service) => service.isSelected
               ),
             }));
           OneArray = oneOffServiceListData
             .filter((category) =>
-              category.servicesList.some((service) => service.isSelected),
+              category.servicesList.some((service) => service.isSelected)
             )
             .map((category) => ({
               serviceCatID: category.serviceCatID,
               serviceCatName: category.serviceCatName,
               servicesList: category.servicesList.filter(
-                (service) => service.isSelected,
+                (service) => service.isSelected
               ),
             }));
-
-          debugger;
 
           let recArrayWithPrice = await Promise.all(
             recArray.map(async (category) => ({
@@ -20411,29 +19838,26 @@ const Add_Update_Proposal = (props) => {
                     (item) =>
                       item.servicePackageID === servicePriceData.packageOneID &&
                       service.serviceID === item.serviceID &&
-                      item.serviceCatID === category.serviceCatID,
+                      item.serviceCatID === category.serviceCatID
                   );
                   const packageTwoData = recurringServices.find(
                     (item) =>
                       item.servicePackageID === servicePriceData.packageTwoID &&
                       service.serviceID === item.serviceID &&
-                      item.serviceCatID === category.serviceCatID,
+                      item.serviceCatID === category.serviceCatID
                   );
                   const packageThreeData = recurringServices.find(
                     (item) =>
                       item.servicePackageID ===
                         servicePriceData.packageThreeID &&
                       service.serviceID === item.serviceID &&
-                      item.serviceCatID === category.serviceCatID,
+                      item.serviceCatID === category.serviceCatID
                   );
 
                   return {
                     ...service,
                     serviceDescription: servicePriceData.serviceDescription,
                     price: servicePriceData.price,
-                    service_vat_amount: servicePriceData.service_vat_amount,
-                    service_vat_percentage:
-                      servicePriceData.service_vat_percentage,
                     originalServicePrice: servicePriceData.originalServicePrice,
                     packageOneValue: packageOneData
                       ? Number(packageOneData.price)
@@ -20459,9 +19883,9 @@ const Add_Update_Proposal = (props) => {
                     packageThreeID: servicePriceData.packageThreeID,
                     isAdditionalService: servicePriceData.isAdditionalService,
                   };
-                }),
+                })
               ),
-            })),
+            }))
           );
 
           let recArrayWithPriceCopy = await Promise.all(
@@ -20484,8 +19908,6 @@ const Add_Update_Proposal = (props) => {
                     packageTwoID,
                     packageThreeID,
                     isAdditionalService,
-                    service_vat_amount,
-                    service_vat_percentage,
                   } = servicePriceData;
 
                   // Fetch recurring service data
@@ -20493,19 +19915,19 @@ const Add_Update_Proposal = (props) => {
                     (item) =>
                       item.servicePackageID === packageOneID &&
                       service.serviceID === item.serviceID &&
-                      item.serviceCatID === category.serviceCatID,
+                      item.serviceCatID === category.serviceCatID
                   );
                   const packageTwoData = recurringServices.find(
                     (item) =>
                       item.servicePackageID === packageTwoID &&
                       service.serviceID === item.serviceID &&
-                      item.serviceCatID === category.serviceCatID,
+                      item.serviceCatID === category.serviceCatID
                   );
                   const packageThreeData = recurringServices.find(
                     (item) =>
                       item.servicePackageID === packageThreeID &&
                       service.serviceID === item.serviceID &&
-                      item.serviceCatID === category.serviceCatID,
+                      item.serviceCatID === category.serviceCatID
                   );
 
                   // Override package values if data is found in recurringServices
@@ -20571,8 +19993,6 @@ const Add_Update_Proposal = (props) => {
                   return {
                     ...service,
                     price,
-                    service_vat_amount,
-                    service_vat_percentage,
                     originalServicePrice,
                     serviceDescription,
                     packageOneValue,
@@ -20587,9 +20007,9 @@ const Add_Update_Proposal = (props) => {
                     packageThreeID,
                     isAdditionalService,
                   };
-                }),
+                })
               ),
-            })),
+            }))
           );
 
           let OneArrayWithPrice = await Promise.all(
@@ -20606,8 +20026,6 @@ const Add_Update_Proposal = (props) => {
                   let {
                     serviceDescription,
                     price,
-                    service_vat_amount,
-                    service_vat_percentage,
                     originalServicePrice,
                     servicePackageIDs,
                     packageOneID,
@@ -20621,19 +20039,19 @@ const Add_Update_Proposal = (props) => {
                     (item) =>
                       item.servicePackageID === packageOneID &&
                       service.serviceID === item.serviceID &&
-                      item.serviceCatID === category.serviceCatID,
+                      item.serviceCatID === category.serviceCatID
                   );
                   const packageTwoData = OneOffServices.find(
                     (item) =>
                       item.servicePackageID === packageTwoID &&
                       service.serviceID === item.serviceID &&
-                      item.serviceCatID === category.serviceCatID,
+                      item.serviceCatID === category.serviceCatID
                   );
                   const packageThreeData = OneOffServices.find(
                     (item) =>
                       item.servicePackageID === packageThreeID &&
                       service.serviceID === item.serviceID &&
-                      item.serviceCatID === category.serviceCatID,
+                      item.serviceCatID === category.serviceCatID
                   );
 
                   // Override package values if data is found in OneOffServices
@@ -20644,7 +20062,7 @@ const Add_Update_Proposal = (props) => {
                   let originalPackageOneValue = Number(packageOneData?.price);
                   let originalPackageTwoValue = Number(packageTwoData?.price);
                   let originalPackageThreeValue = Number(
-                    packageThreeData?.price,
+                    packageThreeData?.price
                   );
 
                   let updatedServicePackageIDs = []; // Assuming you'll add logic to update this
@@ -20689,8 +20107,6 @@ const Add_Update_Proposal = (props) => {
                   return {
                     ...service,
                     price,
-                    service_vat_amount,
-                    service_vat_percentage,
                     originalServicePrice,
                     serviceDescription,
                     packageOneValue,
@@ -20705,9 +20121,9 @@ const Add_Update_Proposal = (props) => {
                     packageThreeID,
                     isAdditionalService,
                   };
-                }),
+                })
               ),
-            })),
+            }))
           );
 
           recArrayWithPriceCopy.forEach((category) => {
@@ -20767,7 +20183,7 @@ const Add_Update_Proposal = (props) => {
                   QuotationAdditionalServices.find(
                     (item) =>
                       item.serviceChargeTypeID === 1 &&
-                      item.serviceID === service.serviceID,
+                      item.serviceID === service.serviceID
                   );
 
                 // Update servicePackageIDs only if additional service is found and has package IDs
@@ -20793,7 +20209,7 @@ const Add_Update_Proposal = (props) => {
                   QuotationAdditionalServices.find(
                     (item) =>
                       item.serviceChargeTypeID === 1 &&
-                      item.serviceID === service.serviceID,
+                      item.serviceID === service.serviceID
                   );
 
                 // Update servicePackageIDs only if additional service is found and has package IDs
@@ -20843,7 +20259,7 @@ const Add_Update_Proposal = (props) => {
                   QuotationAdditionalServices.find(
                     (item) =>
                       item.serviceChargeTypeID === 2 &&
-                      item.serviceID === service.serviceID,
+                      item.serviceID === service.serviceID
                   );
 
                 // Update servicePackageIDs only if additional service is found and has package IDs
@@ -20876,14 +20292,14 @@ const Add_Update_Proposal = (props) => {
                 service.originalServicePrice === undefined
                   ? (service.quotationPrice = Number(service.quotationPrice))
                   : (service.originalServicePrice = Number(
-                      service.originalServicePrice,
+                      service.originalServicePrice
                     ));
 
               let currentServicePriceWithToFixed =
                 Number(currentServicePrice)?.toFixed(2);
               //service.price = currentServicePriceWithToFixed
               RecTotal = Number(
-                Number(RecTotal) + Number(currentServicePriceWithToFixed),
+                Number(RecTotal) + Number(currentServicePriceWithToFixed)
               )?.toFixed(2);
 
               // service.price === undefined
@@ -20898,14 +20314,14 @@ const Add_Update_Proposal = (props) => {
                 service.originalServicePrice === undefined
                   ? (service.quotationPrice = Number(service.quotationPrice))
                   : (service.originalServicePrice = Number(
-                      service.originalServicePrice,
+                      service.originalServicePrice
                     ));
 
               let currentServicePriceWithToFixed =
                 Number(currentServicePrice)?.toFixed(2);
               //service.price = currentServicePriceWithToFixed
               OneOffTotal = Number(
-                Number(OneOffTotal) + Number(currentServicePriceWithToFixed),
+                Number(OneOffTotal) + Number(currentServicePriceWithToFixed)
               )?.toFixed(2);
 
               // service.price === undefined
@@ -20914,84 +20330,40 @@ const Add_Update_Proposal = (props) => {
             });
           });
 
-          debugger;
-
           let totalOne = 0;
-          let totalVATOne = 0;
           let totalTwo = 0;
-          let totalVATTwo = 0;
           let totalThree = 0;
-          let totalVATThree = 0;
 
           recArrayWithPrice.forEach((category) => {
             category.servicesList.forEach((service) => {
               // Check if the value is not null before adding
-              console.log("vatPercentage", service.service_vat_percentage);
-              console.log("packageOneValue", service.packageOneValue);
 
               if (service.packageOneValue !== null) {
                 //totalOne += Number(service.packageOneValue);
                 let currentServicePriceWithToFixed = Number(
-                  service.originalPackageOneValue,
+                  service.originalPackageOneValue
                 )?.toFixed(2);
                 totalOne = Number(
-                  Number(totalOne) + Number(currentServicePriceWithToFixed),
+                  Number(totalOne) + Number(currentServicePriceWithToFixed)
                 )?.toFixed(2);
               }
-              if (
-                service.service_vat_percentage != null &&
-                service.packageOneValue != null
-              ) {
-                const vatAmount =
-                  (Number(service.packageOneValue) *
-                    Number(service.service_vat_percentage)) /
-                  100;
-
-                totalVATOne = (Number(totalVATOne || 0) + vatAmount).toFixed(2);
-              }
-
               if (service.packageTwoValue !== null) {
                 //totalTwo += Number(service.packageTwoValue);
                 let currentServicePriceWithToFixed = Number(
-                  service.originalPackageTwoValue,
+                  service.originalPackageTwoValue
                 )?.toFixed(2);
                 totalTwo = Number(
-                  Number(totalTwo) + Number(currentServicePriceWithToFixed),
+                  Number(totalTwo) + Number(currentServicePriceWithToFixed)
                 )?.toFixed(2);
               }
-              if (
-                service.service_vat_percentage != null &&
-                service.packageTwoValue != null
-              ) {
-                const vatAmount =
-                  (Number(service.packageTwoValue) *
-                    Number(service.service_vat_percentage)) /
-                  100;
-
-                totalVATTwo = (Number(totalVATTwo || 0) + vatAmount).toFixed(2);
-              }
-
               if (service.packageThreeValue !== null) {
                 //totalThree += Number(service.packageThreeValue);
                 let currentServicePriceWithToFixed = Number(
-                  service.originalPackageThreeValue,
+                  service.originalPackageThreeValue
                 )?.toFixed(2);
                 totalThree = Number(
-                  Number(totalThree) + Number(currentServicePriceWithToFixed),
+                  Number(totalThree) + Number(currentServicePriceWithToFixed)
                 )?.toFixed(2);
-              }
-              if (
-                service.service_vat_percentage != null &&
-                service.packageThreeValue != null
-              ) {
-                const vatAmount =
-                  (Number(service.packageThreeValue) *
-                    Number(service.service_vat_percentage)) /
-                  100;
-
-                totalVATThree = (
-                  Number(totalVATThree || 0) + vatAmount
-                ).toFixed(2);
               }
             });
           });
@@ -21050,10 +20422,10 @@ const Add_Update_Proposal = (props) => {
               };
             });
           setServiceMappingWithPackagesList(
-            UpdatedServiceMappingWithPackagesListCopy,
+            UpdatedServiceMappingWithPackagesListCopy
           );
           setServiceMappingWithPackagesListCopy(
-            UpdatedServiceMappingWithPackagesList,
+            UpdatedServiceMappingWithPackagesList
           );
           // setServiceMappingWithPackagesList(UpdatedServiceMappingWithPackagesList)
           let pricingSettingPaymentFrequency = 1;
@@ -21091,19 +20463,6 @@ const Add_Update_Proposal = (props) => {
           let recMaxDiscountCopy = 0.0;
           let recGrandTotalCopy = 0.0;
 
-          debugger;
-
-          const packageOneVATPercentage =
-            (Number(totalVATOne) / Number(totalOne)) * 100;
-          const packageTwoVATPercentage =
-            (Number(totalVATTwo) / Number(totalTwo)) * 100;
-          const packageThreeVATPercentage =
-            (Number(totalVATThree) / Number(totalThree)) * 100;
-
-          setPackageOneVat(packageOneVATPercentage);
-          setPackageTwoVat(packageTwoVATPercentage);
-          setPackageThreeVat(packageThreeVATPercentage);
-
           let PackageOneVaTPrice = totalOne * (vatPercentage / 100);
           let PackageTwoVaTPrice = totalTwo * (vatPercentage / 100);
           let PackageThreeVaTPrice = totalThree * (vatPercentage / 100);
@@ -21115,7 +20474,7 @@ const Add_Update_Proposal = (props) => {
           let packageOneOffOriginalPrice = 0;
           let packageOneOffDefaultPrice = 0;
           recOriginalPriceCopy = Number(
-            Number(RecTotal) * Number(multiplicationFactor),
+            Number(RecTotal) * Number(multiplicationFactor)
           ).toFixed(12);
           recOriginalPrice = Number(RecTotal);
           // recOriginalPrice = Number(RecTotal) / pricingSettingPaymentFrequency;
@@ -21156,7 +20515,7 @@ const Add_Update_Proposal = (props) => {
                 RecurringPricingInfo.DiscountPercentagePackageOne === undefined
               ) {
                 DiscountPercentagePackageOne = Number(
-                  packageDiscountPercentage,
+                  packageDiscountPercentage
                 ).toFixed(2);
                 DiscountPercentagePackageOneWithAllDecimal =
                   packageDiscountPercentage;
@@ -21166,14 +20525,14 @@ const Add_Update_Proposal = (props) => {
                       (quotationFinalPackage) =>
                         quotationFinalPackage.servicePackageID ===
                           PackageList[0].servicePackageID &&
-                        quotationFinalPackage.serviceChargeTypeID == 1,
+                        quotationFinalPackage.serviceChargeTypeID == 1
                     );
                   if (
                     packageOneQuotationFinalPackageAmountObj !== undefined &&
                     packageOneQuotationFinalPackageAmountObj !== null
                   ) {
                     DiscountPercentagePackageOne = Number(
-                      packageOneQuotationFinalPackageAmountObj?.discountPercentageWithAllDecimal,
+                      packageOneQuotationFinalPackageAmountObj?.discountPercentageWithAllDecimal
                     ).toFixed(2);
                     DiscountPercentagePackageOneWithAllDecimal =
                       packageOneQuotationFinalPackageAmountObj?.discountPercentageWithAllDecimal;
@@ -21181,12 +20540,12 @@ const Add_Update_Proposal = (props) => {
                 }
               } else {
                 DiscountPercentagePackageOne = isNaN(
-                  RecurringPricingInfo.DiscountPercentagePackageOne,
+                  RecurringPricingInfo.DiscountPercentagePackageOne
                 )
                   ? 0
                   : RecurringPricingInfo.DiscountPercentagePackageOne;
                 DiscountPercentagePackageOneWithAllDecimal = isNaN(
-                  RecurringFrequencyPricingInfo.DiscountPercentagePackageOne,
+                  RecurringFrequencyPricingInfo.DiscountPercentagePackageOne
                 )
                   ? 0
                   : RecurringFrequencyPricingInfo.DiscountPercentagePackageOne;
@@ -21214,7 +20573,7 @@ const Add_Update_Proposal = (props) => {
                 OneOffPricingInfo.DiscountPercentagePackageOne === undefined
               ) {
                 OneOffDiscountPercentagePackageOne = Number(
-                  OneOffPackageDiscountPercentage,
+                  OneOffPackageDiscountPercentage
                 ).toFixed(2);
                 OneOffDiscountPercentagePackageOneWithAllDecimal =
                   OneOffPackageDiscountPercentage;
@@ -21225,7 +20584,7 @@ const Add_Update_Proposal = (props) => {
                       (quotationFinalPackage) =>
                         quotationFinalPackage.servicePackageID ===
                           PackageList[0].servicePackageID &&
-                        quotationFinalPackage.serviceChargeTypeID == 2,
+                        quotationFinalPackage.serviceChargeTypeID == 2
                     );
                   if (
                     OneOffPackageOneQuotationFinalPackageAmountObj !==
@@ -21233,7 +20592,7 @@ const Add_Update_Proposal = (props) => {
                     OneOffPackageOneQuotationFinalPackageAmountObj !== null
                   ) {
                     OneOffDiscountPercentagePackageOne = Number(
-                      OneOffPackageOneQuotationFinalPackageAmountObj?.discountPercentageWithAllDecimal,
+                      OneOffPackageOneQuotationFinalPackageAmountObj?.discountPercentageWithAllDecimal
                     ).toFixed(2);
                     OneOffDiscountPercentagePackageOneWithAllDecimal =
                       OneOffPackageOneQuotationFinalPackageAmountObj?.discountPercentageWithAllDecimal;
@@ -21241,12 +20600,12 @@ const Add_Update_Proposal = (props) => {
                 }
               } else {
                 OneOffDiscountPercentagePackageOne = isNaN(
-                  OneOffPricingInfo.DiscountPercentagePackageOne,
+                  OneOffPricingInfo.DiscountPercentagePackageOne
                 )
                   ? 0
                   : OneOffPricingInfo.DiscountPercentagePackageOne;
                 OneOffDiscountPercentagePackageOneWithAllDecimal = isNaN(
-                  OneOffPricingInfoCopy.DiscountPercentagePackageOne,
+                  OneOffPricingInfoCopy.DiscountPercentagePackageOne
                 )
                   ? 0
                   : OneOffPricingInfoCopy.DiscountPercentagePackageOne;
@@ -21279,7 +20638,7 @@ const Add_Update_Proposal = (props) => {
                 RecurringPricingInfo.DiscountPercentagePackageTwo === undefined
               ) {
                 DiscountPercentagePackageTwo = Number(
-                  packageDiscountPercentage,
+                  packageDiscountPercentage
                 ).toFixed(2);
                 DiscountPercentagePackageTwoWithAllDecimal =
                   packageDiscountPercentage;
@@ -21290,7 +20649,7 @@ const Add_Update_Proposal = (props) => {
                       (quotationFinalPackage) =>
                         quotationFinalPackage.servicePackageID ===
                           PackageList[1].servicePackageID &&
-                        quotationFinalPackage.serviceChargeTypeID == 1,
+                        quotationFinalPackage.serviceChargeTypeID == 1
                     );
 
                   if (
@@ -21298,7 +20657,7 @@ const Add_Update_Proposal = (props) => {
                     packageTwoQuotationFinalPackageAmountObj !== null
                   ) {
                     DiscountPercentagePackageTwo = Number(
-                      packageTwoQuotationFinalPackageAmountObj?.discountPercentageWithAllDecimal,
+                      packageTwoQuotationFinalPackageAmountObj?.discountPercentageWithAllDecimal
                     ).toFixed(2);
                     DiscountPercentagePackageTwoWithAllDecimal =
                       packageTwoQuotationFinalPackageAmountObj?.discountPercentageWithAllDecimal;
@@ -21306,12 +20665,12 @@ const Add_Update_Proposal = (props) => {
                 }
               } else {
                 DiscountPercentagePackageTwo = isNaN(
-                  RecurringPricingInfo.DiscountPercentagePackageTwo,
+                  RecurringPricingInfo.DiscountPercentagePackageTwo
                 )
                   ? 0
                   : RecurringPricingInfo.DiscountPercentagePackageTwo;
                 DiscountPercentagePackageTwoWithAllDecimal = isNaN(
-                  RecurringFrequencyPricingInfo.DiscountPercentagePackageTwo,
+                  RecurringFrequencyPricingInfo.DiscountPercentagePackageTwo
                 )
                   ? 0
                   : RecurringFrequencyPricingInfo.DiscountPercentagePackageTwo;
@@ -21339,7 +20698,7 @@ const Add_Update_Proposal = (props) => {
                 OneOffPricingInfo.DiscountPercentagePackageTwo === undefined
               ) {
                 OneOffDiscountPercentagePackageTwo = Number(
-                  OneOffPackageDiscountPercentage,
+                  OneOffPackageDiscountPercentage
                 ).toFixed(2);
                 OneOffDiscountPercentagePackageTwoWithAllDecimal =
                   OneOffPackageDiscountPercentage;
@@ -21350,7 +20709,7 @@ const Add_Update_Proposal = (props) => {
                       (quotationFinalPackage) =>
                         quotationFinalPackage.servicePackageID ===
                           PackageList[1].servicePackageID &&
-                        quotationFinalPackage.serviceChargeTypeID == 2,
+                        quotationFinalPackage.serviceChargeTypeID == 2
                     );
                   if (
                     OneOffPackageTwoQuotationFinalPackageAmountObj !==
@@ -21358,7 +20717,7 @@ const Add_Update_Proposal = (props) => {
                     OneOffPackageTwoQuotationFinalPackageAmountObj !== null
                   ) {
                     OneOffDiscountPercentagePackageTwo = Number(
-                      OneOffPackageTwoQuotationFinalPackageAmountObj?.discountPercentageWithAllDecimal,
+                      OneOffPackageTwoQuotationFinalPackageAmountObj?.discountPercentageWithAllDecimal
                     ).toFixed(2);
                     OneOffDiscountPercentagePackageTwoWithAllDecimal =
                       OneOffPackageTwoQuotationFinalPackageAmountObj?.discountPercentageWithAllDecimal;
@@ -21366,12 +20725,12 @@ const Add_Update_Proposal = (props) => {
                 }
               } else {
                 OneOffDiscountPercentagePackageTwo = isNaN(
-                  OneOffPricingInfo.DiscountPercentagePackageTwo,
+                  OneOffPricingInfo.DiscountPercentagePackageTwo
                 )
                   ? 0
                   : OneOffPricingInfo.DiscountPercentagePackageTwo;
                 OneOffDiscountPercentagePackageTwoWithAllDecimal = isNaN(
-                  OneOffPricingInfoCopy.DiscountPercentagePackageTwo,
+                  OneOffPricingInfoCopy.DiscountPercentagePackageTwo
                 )
                   ? 0
                   : OneOffPricingInfoCopy.DiscountPercentagePackageTwo;
@@ -21405,7 +20764,7 @@ const Add_Update_Proposal = (props) => {
                   undefined
               ) {
                 DiscountPercentagePackageThree = Number(
-                  packageDiscountPercentage,
+                  packageDiscountPercentage
                 ).toFixed(2);
                 DiscountPercentagePackageThreeWithAllDecimal =
                   packageDiscountPercentage;
@@ -21416,14 +20775,14 @@ const Add_Update_Proposal = (props) => {
                       (quotationFinalPackage) =>
                         quotationFinalPackage.servicePackageID ===
                           PackageList[2].servicePackageID &&
-                        quotationFinalPackage.serviceChargeTypeID == 1,
+                        quotationFinalPackage.serviceChargeTypeID == 1
                     );
                   if (
                     packageThreeQuotationFinalPackageAmountObj !== undefined &&
                     packageThreeQuotationFinalPackageAmountObj !== null
                   ) {
                     DiscountPercentagePackageThree = Number(
-                      packageThreeQuotationFinalPackageAmountObj?.discountPercentageWithAllDecimal,
+                      packageThreeQuotationFinalPackageAmountObj?.discountPercentageWithAllDecimal
                     ).toFixed(2);
                     DiscountPercentagePackageThreeWithAllDecimal =
                       packageThreeQuotationFinalPackageAmountObj?.discountPercentageWithAllDecimal;
@@ -21431,13 +20790,13 @@ const Add_Update_Proposal = (props) => {
                 }
               } else {
                 DiscountPercentagePackageThree = isNaN(
-                  RecurringPricingInfo.DiscountPercentagePackageThree,
+                  RecurringPricingInfo.DiscountPercentagePackageThree
                 )
                   ? 0
                   : RecurringPricingInfo.DiscountPercentagePackageThree;
 
                 DiscountPercentagePackageThreeWithAllDecimal = isNaN(
-                  RecurringFrequencyPricingInfo.DiscountPercentagePackageThree,
+                  RecurringFrequencyPricingInfo.DiscountPercentagePackageThree
                 )
                   ? 0
                   : RecurringFrequencyPricingInfo.DiscountPercentagePackageThree;
@@ -21465,7 +20824,7 @@ const Add_Update_Proposal = (props) => {
                 OneOffPricingInfo.DiscountPercentagePackageThree === undefined
               ) {
                 OneOffDiscountPercentagePackageThree = Number(
-                  OneOffPackageDiscountPercentage,
+                  OneOffPackageDiscountPercentage
                 ).toFixed(2);
                 OneOffDiscountPercentagePackageThreeWithAllDecimal =
                   OneOffPackageDiscountPercentage;
@@ -21476,7 +20835,7 @@ const Add_Update_Proposal = (props) => {
                       (quotationFinalPackage) =>
                         quotationFinalPackage.servicePackageID ===
                           PackageList[2].servicePackageID &&
-                        quotationFinalPackage.serviceChargeTypeID == 2,
+                        quotationFinalPackage.serviceChargeTypeID == 2
                     );
                   if (
                     OneOffPackageThreeQuotationFinalPackageAmountObj !==
@@ -21484,7 +20843,7 @@ const Add_Update_Proposal = (props) => {
                     OneOffPackageThreeQuotationFinalPackageAmountObj !== null
                   ) {
                     OneOffDiscountPercentagePackageThree = Number(
-                      OneOffPackageThreeQuotationFinalPackageAmountObj?.discountPercentageWithAllDecimal,
+                      OneOffPackageThreeQuotationFinalPackageAmountObj?.discountPercentageWithAllDecimal
                     ).toFixed(2);
                     OneOffDiscountPercentagePackageThreeWithAllDecimal =
                       OneOffPackageThreeQuotationFinalPackageAmountObj?.discountPercentageWithAllDecimal;
@@ -21492,12 +20851,12 @@ const Add_Update_Proposal = (props) => {
                 }
               } else {
                 OneOffDiscountPercentagePackageThree = isNaN(
-                  OneOffPricingInfo.DiscountPercentagePackageThree,
+                  OneOffPricingInfo.DiscountPercentagePackageThree
                 )
                   ? 0
                   : OneOffPricingInfo.DiscountPercentagePackageThree;
                 OneOffDiscountPercentagePackageThreeWithAllDecimal = isNaN(
-                  OneOffPricingInfoCopy.DiscountPercentagePackageThree,
+                  OneOffPricingInfoCopy.DiscountPercentagePackageThree
                 )
                   ? 0
                   : OneOffPricingInfoCopy.DiscountPercentagePackageThree;
@@ -21517,7 +20876,7 @@ const Add_Update_Proposal = (props) => {
               : DiscountPercentagePackageTwo,
             isNaN(DiscountPercentagePackageThree)
               ? 0
-              : DiscountPercentagePackageThree,
+              : DiscountPercentagePackageThree
           );
           recDefaultDiscount = GetSingleDefaultDiscountPercentageOfPackages(
             isNaN(DiscountPercentagePackageOne)
@@ -21528,7 +20887,7 @@ const Add_Update_Proposal = (props) => {
               : DiscountPercentagePackageTwo,
             isNaN(DiscountPercentagePackageThree)
               ? 0
-              : DiscountPercentagePackageThree,
+              : DiscountPercentagePackageThree
           );
 
           if (
@@ -21599,78 +20958,12 @@ const Add_Update_Proposal = (props) => {
             recMaxDiscountCopy = RecurringPricingInfo.MaxDiscount;
           }
 
-            let totalVATAmount;
-            let totalVATAmountOneOff;
-            let ServiceWiseVAT;
-            let ServiceWiseVATOneOff;
-
-            if(proposalModelObj.statusID !== 1){
-              totalVATAmount = recArrayWithPrice.reduce(
-                (catSum, category) => {
-                  const serviceSum = category.servicesList
-                  .filter((service) => service.isSelected)
-                  .reduce(
-                    (sum, service) =>
-                      Number(sum) + Number(service.service_vat_amount || 0),
-                    0,
-                  );
-                  return catSum + serviceSum;
-                },
-                0,
-              );
-
-              ServiceWiseVAT =
-              (Number(totalVATAmount) / Number(recOriginalPrice)) * 100;
-
-             setVATPercentage(ServiceWiseVAT);
-              
-              // ✅ Calculate total VAT for all selected services in all categories
-              
-            }else{
-              totalVATAmount = RecurringPricingInfo.totalServiceWiseVAT;
-              setVATPercentage(RecurringPricingInfo.recurringServiceVatPercentage);
-            }
-
-          // const totalVATAmount = recArrayWithPrice.reduce(
-          //   (catSum, category) => {
-          //     const serviceSum = category.servicesList
-          //       .filter((service) => service.isSelected)
-          //       .reduce(
-          //         (sum, service) => sum + (service.service_vat_amount || 0),
-          //         0,
-          //       );
-          //     return catSum + serviceSum;
-          //   },
-          //   0,
-          // );
-
-          // const totalVATAmountOneOff = OneArrayWithPrice.reduce(
-          //   (catSum, category) => {
-          //     const serviceSum = category.servicesList
-          //       .filter((service) => service.isSelected)
-          //       .reduce(
-          //         (sum, service) => sum + (service.service_vat_amount || 0),
-          //         0,
-          //       );
-          //     return catSum + serviceSum;
-          //   },
-          //   0,
-          // );
-
-          // from add package
-
           setRecurringPricingInfo({
             ...RecurringPricingInfo,
             OriginalPrice: recOriginalPrice,
             DiscountedPrice: recDefaultPrice,
             MinPrice: recMinPrice,
             VATPrice: recVATPrice,
-            totalServiceWiseVAT:
-                Number(RecurringPricingInfo.DefaultDiscount) < 0
-                  ? Number(RecurringPricingInfo.DiscountedPrice) * 0.2
-                  : totalVATAmount,
-            staticTotalVAT: totalVATAmount,
-            VATPriceWithoutDiscount: recVATPrice,
             Discount: recDiscount,
             DefaultDiscount:
               recDefaultDiscount == null
@@ -21684,30 +20977,17 @@ const Add_Update_Proposal = (props) => {
               ? 0
               : DiscountPercentagePackageTwo,
             DiscountPercentagePackageThree: isNaN(
-              DiscountPercentagePackageThree,
+              DiscountPercentagePackageThree
             )
               ? 0
               : DiscountPercentagePackageThree,
             GrandTotal: recGrandTotal,
-            FeesIncVAT: recGrandTotal,
             packageOneDisCountedTotal: recDefaultPrice,
             packageTwoDisCountedTotal: recDefaultPrice,
             packageThreeDisCountedTotal: recDefaultPrice,
-            packageOneVatAmount: totalVATOne,
-            packageTwoVatAmount: totalVATTwo,
-            packageThreeVatAmount: totalVATThree,
-            // PackageOneVaTPrice: PackageOneVaTPrice,
-            PackageOneVaTPrice: totalVATOne,
-            PackageOneStaticVaTPrice: totalVATOne,
-            // PackageTwoVaTPrice: PackageTwoVaTPrice,
-            PackageTwoVaTPrice: totalVATTwo,
-            PackageTwoStaticVaTPrice: totalVATTwo,
-            // PackageThreeVaTPrice: PackageThreeVaTPrice,
-            PackageThreeVaTPrice: totalVATThree,
-            PackageThreeStaticVaTPrice: totalVATThree,
-            PackageOneVaTPriceWithoutDiscout: PackageOneVaTPrice,
-            PackageTwoVaTPriceWithoutDiscout: PackageTwoVaTPrice,
-            PackageThreeVaTPriceWithoutDiscout: PackageThreeVaTPrice,
+            PackageOneVaTPrice: PackageOneVaTPrice,
+            PackageTwoVaTPrice: PackageTwoVaTPrice,
+            PackageThreeVaTPrice: PackageThreeVaTPrice,
             PackageOneGrandTotal: PackageOneGrandTotal,
             PackageTwoGrandTotal: PackageTwoGrandTotal,
             PackageThreeGrandTotal: PackageThreeGrandTotal,
@@ -21723,17 +21003,17 @@ const Add_Update_Proposal = (props) => {
             DefaultDiscount:
               recDefaultDiscountCopy == null ? null : recDefaultDiscountCopy,
             DiscountPercentagePackageOne: isNaN(
-              DiscountPercentagePackageOneWithAllDecimal,
+              DiscountPercentagePackageOneWithAllDecimal
             )
               ? 0
               : DiscountPercentagePackageOneWithAllDecimal,
             DiscountPercentagePackageTwo: isNaN(
-              DiscountPercentagePackageTwoWithAllDecimal,
+              DiscountPercentagePackageTwoWithAllDecimal
             )
               ? 0
               : DiscountPercentagePackageTwoWithAllDecimal,
             DiscountPercentagePackageThree: isNaN(
-              DiscountPercentagePackageThreeWithAllDecimal,
+              DiscountPercentagePackageThreeWithAllDecimal
             )
               ? 0
               : DiscountPercentagePackageThreeWithAllDecimal,
@@ -21747,118 +21027,26 @@ const Add_Update_Proposal = (props) => {
             packageOneDisCountedTotal: recDefaultPrice,
             packageTwoDisCountedTotal: recDefaultPrice,
             packageThreeDisCountedTotal: recDefaultPrice,
-            // PackageOneVaTPrice: PackageOneVaTPrice,
-            PackageOneVaTPrice: totalVATOne,
-            // PackageTwoVaTPrice: PackageTwoVaTPrice,
-            PackageTwoVaTPrice: totalVATTwo,
-            // PackageThreeVaTPrice: PackageThreeVaTPrice,
-            PackageThreeVaTPrice: totalVATThree,
+            PackageOneVaTPrice: PackageOneVaTPrice,
+            PackageTwoVaTPrice: PackageTwoVaTPrice,
+            PackageThreeVaTPrice: PackageThreeVaTPrice,
             PackageOneGrandTotal: PackageOneGrandTotal,
             PackageTwoGrandTotal: PackageTwoGrandTotal,
             PackageThreeGrandTotal: PackageThreeGrandTotal,
           });
-          debugger;
           let OneOffTotalOne = 0;
           let OneOffTotalTwo = 0;
           let OneOffTotalThree = 0;
-          let OneOffVATTotalOne = 0;
-          let OneOffVATTotalTwo = 0;
-          let OneOffVATTotalThree = 0;
 
           OneArrayWithPrice.forEach((category) => {
             category.servicesList.forEach((service) => {
               // Check if the value is not null before adding
-              if (Number.isFinite(service.packageOneValue)) {
+              if (service.packageOneValue !== null)
                 OneOffTotalOne += service.packageOneValue;
-
-                if (
-                  service.service_vat_percentage != null &&
-                  service.packageOneValue != null
-                ) {
-                  const vatAmount =
-                    (Number(service.packageOneValue) *
-                      Number(service.service_vat_percentage)) /
-                    100;
-
-                  OneOffVATTotalOne = (
-                    Number(OneOffVATTotalOne || 0) + vatAmount
-                  ).toFixed(2);
-                }
-              }
-
-              // if (
-              //   service.service_vat_percentage != null &&
-              //   service.packageOneValue != null
-              // ) {
-              //   const vatAmount =
-              //     (Number(service.packageOneValue) *
-              //       Number(service.service_vat_percentage)) /
-              //     100;
-
-              //   OneOffVATTotalOne = (
-              //     Number(OneOffVATTotalOne || 0) + vatAmount
-              //   ).toFixed(2);
-              // }
-              if (Number.isFinite(service.packageTwoValue)) {
+              if (service.packageTwoValue !== null)
                 OneOffTotalTwo += service.packageTwoValue;
-
-                if (
-                  service.service_vat_percentage != null &&
-                  service.packageTwoValue != null
-                ) {
-                  const vatAmount =
-                    (Number(service.packageTwoValue) *
-                      Number(service.service_vat_percentage)) /
-                    100;
-
-                  OneOffVATTotalTwo = (
-                    Number(OneOffVATTotalTwo || 0) + vatAmount
-                  ).toFixed(2);
-                }
-              }
-              // if (
-              //   service.service_vat_percentage != null &&
-              //   service.packageTwoValue != null
-              // ) {
-              //   const vatAmount =
-              //     (Number(service.packageTwoValue) *
-              //       Number(service.service_vat_percentage)) /
-              //     100;
-
-              //   OneOffVATTotalTwo = (
-              //     Number(OneOffVATTotalTwo || 0) + vatAmount
-              //   ).toFixed(2);
-              // }
-              if (Number.isFinite(service.packageThreeValue)) {
+              if (service.packageThreeValue !== null)
                 OneOffTotalThree += service.packageThreeValue;
-
-                if (
-                  service.service_vat_percentage != null &&
-                  service.packageThreeValue != null
-                ) {
-                  const vatAmount =
-                    (Number(service.packageThreeValue) *
-                      Number(service.service_vat_percentage)) /
-                    100;
-
-                  OneOffVATTotalThree = (
-                    Number(OneOffVATTotalThree || 0) + vatAmount
-                  ).toFixed(2);
-                }
-              }
-              // if (
-              //   service.service_vat_percentage != null &&
-              //   service.packageThreeValue != null
-              // ) {
-              //   const vatAmount =
-              //     (Number(service.packageThreeValue) *
-              //       Number(service.service_vat_percentage)) /
-              //     100;
-
-              //   OneOffVATTotalThree = (
-              //     Number(OneOffVATTotalThree || 0) + vatAmount
-              //   ).toFixed(2);
-              // }
             });
           });
           let oneOffOriginalPrice = 0.0;
@@ -21882,7 +21070,6 @@ const Add_Update_Proposal = (props) => {
               // oneOffDefaultDiscount = Number(packageDiscountPercentage).toFixed(2)
             }
           }
-          debugger;
           let OneOffPackageOneVaTPrice = OneOffTotalOne * (vatPercentage / 100);
           let OneOffPackageTwoVaTPrice = OneOffTotalTwo * (vatPercentage / 100);
           let OneOffPackageThreeVaTPrice =
@@ -21940,40 +21127,6 @@ const Add_Update_Proposal = (props) => {
             oneOffDefaultDiscountCopy = OneOffPricingInfoCopy.DefaultDiscount;
             oneOffMaxDiscount = OneOffPricingInfo.MaxDiscount;
           }
-          
-           if(proposalModelObj.statusID !== 1){
-            totalVATAmountOneOff = OneArrayWithPrice.reduce(
-                (catSum, category) => {
-                  const serviceSum = category.servicesList
-                  .filter((service) => service.isSelected)
-                  .reduce(
-                    (sum, service) =>
-                      Number(sum) + Number(service.service_vat_amount || 0),
-                    0,
-                  );
-                  return catSum + serviceSum;
-                },
-                0,
-              );
-
-               ServiceWiseVATOneOff = (Number(totalVATAmountOneOff) / Number(oneOffOriginalPrice)) * 100;
-
-              setVATPercentageOneOff(ServiceWiseVATOneOff);
-           } else{
-              totalVATAmountOneOff = OneOffPricingInfo.totalServiceWiseVATOneOff;
-              setVATPercentageOneOff(RecurringPricingInfo.oneOffServiceVatPercentage);
-           }
-
-          const packageOneVATPercentageOneOff =
-            (Number(OneOffVATTotalOne) / Number(OneOffTotalOne)) * 100;
-          const packageTwoVATPercentageOneOff =
-            (Number(OneOffVATTotalTwo) / Number(OneOffTotalTwo)) * 100;
-          const packageThreeVATPercentageOneOff =
-            (Number(OneOffVATTotalThree) / Number(OneOffTotalThree)) * 100;
-
-          setPackageOneVatOneOff(packageOneVATPercentageOneOff);
-          setPackageTwoVatOneOff(packageTwoVATPercentageOneOff);
-          setPackageThreeVatOneOff(packageThreeVATPercentageOneOff);
 
           setOneOffPricingInfo({
             ...OneOffPricingInfo,
@@ -21981,52 +21134,31 @@ const Add_Update_Proposal = (props) => {
             DiscountedPrice: oneOffDefaultPrice,
 
             VATPrice: oneOffVATPrice,
-            totalServiceWiseVATOneOff: totalVATAmountOneOff,
-            VATPriceWithoutDiscount: oneOffVATPrice,
             Discount: oneOffDiscount,
             DefaultDiscount:
               oneOffDefaultDiscount == null ? null : oneOffDefaultDiscount,
             DiscountPercentagePackageOne: isNaN(
-              OneOffDiscountPercentagePackageOne,
+              OneOffDiscountPercentagePackageOne
             )
               ? 0
               : OneOffDiscountPercentagePackageOne,
             DiscountPercentagePackageTwo: isNaN(
-              OneOffDiscountPercentagePackageTwo,
+              OneOffDiscountPercentagePackageTwo
             )
               ? 0
               : OneOffDiscountPercentagePackageTwo,
             DiscountPercentagePackageThree: isNaN(
-              OneOffDiscountPercentagePackageThree,
+              OneOffDiscountPercentagePackageThree
             )
               ? 0
               : OneOffDiscountPercentagePackageThree,
             GrandTotal: oneOffGrandTotal,
-            FeesIncVAT: oneOffGrandTotal,
             packageOneDisCountedTotal: oneOffDefaultPrice,
             packageTwoDisCountedTotal: oneOffDefaultPrice,
             packageThreeDisCountedTotal: oneOffDefaultPrice,
-            packageOneVatAmount: OneOffVATTotalOne,
-            packageTwoVatAmount: OneOffVATTotalTwo,
-            packageThreeVatAmount: OneOffVATTotalThree,
-            // PackageOneVaTPrice: OneOffPackageOneVaTPrice,
-            // PackageOneVaTPrice: OneOffVATTotalOne,
-            // PackageOneStaticVaTPrice: OneOffVATTotalOne,
-            // // PackageTwoVaTPrice: OneOffPackageTwoVaTPrice,
-            // PackageTwoVaTPrice: OneOffVATTotalTwo,
-            // PackageTwoStaticVaTPrice: OneOffVATTotalTwo,
-            // // PackageThreeVaTPrice: OneOffPackageThreeVaTPrice,
-            // PackageThreeVaTPrice: OneOffVATTotalThree,
-            // PackageThreeStaticVaTPrice: OneOffVATTotalThree,
             PackageOneVaTPrice: OneOffPackageOneVaTPrice,
             PackageTwoVaTPrice: OneOffPackageTwoVaTPrice,
             PackageThreeVaTPrice: OneOffPackageThreeVaTPrice,
-            PackageOneStaticVaTPrice: OneOffPackageOneVaTPrice,
-            PackageTwoStaticVaTPrice: OneOffPackageTwoVaTPrice,
-            PackageThreeStaticVaTPrice: OneOffPackageThreeVaTPrice,
-            PackageOneVaTPriceWithoutDiscout: OneOffPackageOneVaTPrice,
-            PackageTwoVaTPriceWithoutDiscout: OneOffPackageTwoVaTPrice,
-            PackageThreeVaTPriceWithoutDiscout: OneOffPackageThreeVaTPrice,
             PackageOneGrandTotal: OneOffPackageOneGrandTotal,
             PackageTwoGrandTotal: OneOffPackageTwoGrandTotal,
             PackageThreeGrandTotal: OneOffPackageThreeGrandTotal,
@@ -22039,17 +21171,17 @@ const Add_Update_Proposal = (props) => {
                 ? null
                 : Number(oneOffDefaultDiscountCopy),
             DiscountPercentagePackageOne: isNaN(
-              OneOffDiscountPercentagePackageOneWithAllDecimal,
+              OneOffDiscountPercentagePackageOneWithAllDecimal
             )
               ? 0
               : OneOffDiscountPercentagePackageOneWithAllDecimal,
             DiscountPercentagePackageTwo: isNaN(
-              OneOffDiscountPercentagePackageTwoWithAllDecimal,
+              OneOffDiscountPercentagePackageTwoWithAllDecimal
             )
               ? 0
               : OneOffDiscountPercentagePackageTwoWithAllDecimal,
             DiscountPercentagePackageThree: isNaN(
-              OneOffDiscountPercentagePackageThreeWithAllDecimal,
+              OneOffDiscountPercentagePackageThreeWithAllDecimal
             )
               ? 0
               : OneOffDiscountPercentagePackageThreeWithAllDecimal,
@@ -22084,7 +21216,7 @@ const Add_Update_Proposal = (props) => {
         setTabHide(true);
         setLoader(false);
         setErrorMessage(
-          "The result of this operation is too large to be processed. Please check the input values and try again.",
+          "The result of this operation is too large to be processed. Please check the input values and try again."
         );
         setOpenErrorModal(true);
         setActiveTab(activeTab);

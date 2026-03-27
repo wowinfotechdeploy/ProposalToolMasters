@@ -482,7 +482,7 @@ const BasicInformationComponent = (props) => {
               <div className="col-lg-6">
                 <div className="d-flex align-items-center justify-content-between">
                   {/* VATable Toggle (Left) */}
-                  <div className="d-flex flex-column align-items-center justify-content-center">
+                  {/* <div className="d-flex flex-column align-items-center justify-content-center">
                     <label className="form-label mb-0 me-2">
                       VATable <span className="text-danger">*</span>
                     </label>
@@ -513,10 +513,10 @@ const BasicInformationComponent = (props) => {
                         />
                       </FormGroup>
                     </Tooltip>
-                  </div>
+                  </div> */}
 
                   {/* VAT Percentage Input (Right) */}
-                  {props.servicesObj.vatStatus && (
+                  {/* {props.servicesObj.vatStatus && (
                     <div className="ms-4" style={{ width: "250px" }}>
                       <label className="form-label mb-1">
                         VAT Percentage <span className="text-danger">*</span>
@@ -567,7 +567,7 @@ const BasicInformationComponent = (props) => {
                         ""
                       )}
                     </div>
-                  )}
+                  )} */}
                 </div>
               </div>
             )}
