@@ -26,15 +26,15 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import Tooltip from "@mui/material/Tooltip";
 import RecordsAvailablePopupModel from "../../components/RecordsAvailablePopupModel";
 import DeleteDriverModal from "../../components/DeleteDriverModel";
-import { CreateXeroContactFromOutbooks, GetAllClientLookupList, ProspectConnectionAuthentication } from "../../redux/Services//Xero/XeroApi"
-
+import { CreateXeroContactFromOutbooks, GetAllCachedXeroContacts, GetAllClientLookupList, ProspectConnectionAuthentication } from "../../redux/Services//Xero/XeroApi"
+import IntegrationDialog from "./IntegrationDialog";
 
 const Prospects = () => {
   const lastClickRef = useRef(0);
   let getClientsListApiCallCount = 0;
-  const raw = JSON.parse(localStorage.getItem("persist:Proposal Tool"));
-  const organisationKeyID = JSON.parse(raw.organisationKeyID);
-
+  //const raw = JSON.parse(localStorage.getItem("persist:Proposal Tool"));
+  // const organisationKeyID = JSON.parse(raw.organisationKeyID);
+  const organisationKeyID = useSelector((state) => state.Storage)?.organisationKeyID;
 
   const [activeTab, setActiveTab] = useState("Prospect");
   const [errorMessage, setErrorMessage] = useState("");
@@ -55,6 +55,8 @@ const Prospects = () => {
   const [totalRecords, setTotalRecords] = useState(-1);
   const {
     prospectName,
+    bookKeepingGateway,
+    setBookKeepingGateway,
     setLoader,
     setTopbar,
     maxCountToRecallApi,
@@ -99,12 +101,15 @@ const Prospects = () => {
   const [shouldFetch, setShouldFetch] = useState(false);
   const [contactsLookupList, setContactsLookupList] = useState([]);
   const [contactDetails, setContactDetails] = useState()
+  const [openIntegrationDialog, setOpenIntegrationDialog] = useState(false);
+
 
   useEffect(() => {
     setTopbar("block");
     getClientsListData(1, null, null, null);
     getClientsListSingleApiData(1, null, null, null);
-    GetAllClientList()
+    GetAllClientList();
+    setBookKeepingGateway("QBO")
   }, []);
 
   useEffect(() => {
@@ -163,8 +168,7 @@ const Prospects = () => {
 
   const GetAllClientList = async () => {
     try {
-
-      const data = await GetAllClientLookupList(organisationKeyID);
+      const data = await GetAllCachedXeroContacts(data?.organisationKeyID);
       if (data?.status === 200) {
         let ContactLookupListData = data?.data?.mappings;
         ContactLookupListData = ContactLookupListData.map((key) => ({
@@ -1586,26 +1590,39 @@ const Prospects = () => {
                                                       }
                                                     >
                                                       <span className="d-flex">     <i className="ri-links-line me-2"></i>
-                                                        Authenticate with Xero</span>
+                                                        Connect To {bookKeepingGateway}</span>
                                                     </a>
                                                   </li>
 
                                                   {/* Migrate Xero */}
+                                                  {!contactsLookupList.some(x => x.clientKeyId.toLowerCase() == Prospect.clientKeyID) && (
+                                                    <li>
+                                                      <a
+                                                        className="dropdown-item"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#ConfirmModel"
+                                                        onClick={() =>
+                                                          setModelRequestData({
+                                                            ...modelRequestData,
+                                                            Action: "Add Contact",
+                                                            clientKeyID: Prospect.clientKeyID,
+                                                          })
+                                                        }
+                                                      >
+                                                        <span className="d-flex">     <i className="ri-file-transfer-line me-2"></i>
+                                                          Add To Xero</span>
+                                                      </a>
+                                                    </li>
+                                                  )}
                                                   <li>
                                                     <a
                                                       className="dropdown-item"
-                                                      data-bs-toggle="modal"
-                                                      data-bs-target="#ConfirmModel"
-                                                      onClick={() =>
-                                                        setModelRequestData({
-                                                          ...modelRequestData,
-                                                          Action: "Add Contact",
-                                                          clientKeyID: Prospect.clientKeyID,
-                                                        })
-                                                      }
+                                                      onClick={() => setOpenIntegrationDialog(true)}
                                                     >
-                                                      <span className="d-flex">     <i className="ri-file-transfer-line me-2"></i>
-                                                        Add To Xero</span>
+                                                      <span className="d-flex">
+                                                        <i className="ri-links-line me-2"></i>
+                                                        Bookkeeping
+                                                      </span>
                                                     </a>
                                                   </li>
                                                 </ul>
@@ -1718,6 +1735,11 @@ const Prospects = () => {
           setBusinessNatureID={setBusinessNatureID}
           prospectType={prospectType}
           setProspectType={setProspectType}
+        />
+
+        <IntegrationDialog
+          open={openIntegrationDialog}
+          onClose={() => setOpenIntegrationDialog(false)}
         />
       </div>
       <Footer />

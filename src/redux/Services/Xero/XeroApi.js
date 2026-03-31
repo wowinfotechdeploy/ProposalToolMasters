@@ -24,6 +24,13 @@ export const GetAllClientLookupList = async (organisationKeyID) => {
   return res;
 };
 
+export const GetAllCachedXeroContacts = async (organisationKeyID) => {
+  const res = await getListWithAuthenticated(
+    `${XeroBaseUrl}contacts/${organisationKeyID}`
+  );
+  return res;
+};
+
 export const ProspectConnectionAuthentication = async (
   organisationKeyId,
   clientKeyId

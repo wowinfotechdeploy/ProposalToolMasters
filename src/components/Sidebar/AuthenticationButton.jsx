@@ -23,31 +23,32 @@ export default function AuthButton({ onConfirm }) {
 
     return (
         <>
-            <button
-                // onClick={() => setOpenSuccessModal(true)}
-                disabled={loading}
-                className={`btn btn-md btn-success create-item-btn${loading ? "opacity-60" : ""}`}
-                data-bs-toggle="modal"
-                data-bs-target="#ConfirmModel"
-            >
-                {loading && (
-                    <span className="spinner-border spinner-border-sm me-2"></span>
-                )}
-                Authenticate
-            </button>
+            <div className="d-flex gap-2">
+                <button
+                    // onClick={() => setOpenSuccessModal(true)}
+                    disabled={loading}
+                    className={`btn btn-md btn-success create-item-btn${loading ? "opacity-60" : ""}`}
+                    data-bs-toggle="modal"
+                    data-bs-target="#ConfirmModel"
+                >
+                    {loading && (
+                        <span className="spinner-border spinner-border-sm me-2"></span>
+                    )}
+                    Authenticate
+                </button>
 
-            <button
-                // onClick={() => setOpenSuccessModal(true)}
-                disabled={loading}
-                className={`btn btn-md btn-success create-item-btn${loading ? "opacity-60" : ""}`}
-                data-bs-toggle="modal"
-                data-bs-target="#ConfirmModel"
-            >
-                {loading && (
-                    <span className="spinner-border spinner-border-sm me-2"></span>
-                )}
-                Authenticate
-            </button>
+                {/* <button
+                    disabled={loading}
+                    className={`btn btn-md create-item-btn${loading ? "opacity-60" : ""}`}
+                    data-bs-toggle="modal"
+                    data-bs-target="#ConfirmModel"
+                >
+                    {loading && (
+                        <span className="spinner-border spinner-border-sm me-2"></span>
+                    )}
+                    Disconnect
+                </button> */}
+            </div>
             <ConfirmModel
                 openSuccessModal={true}
                 handleClose={handleClose}

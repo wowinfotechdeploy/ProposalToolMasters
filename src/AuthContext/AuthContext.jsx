@@ -41,6 +41,7 @@ const AuthContext = ({ children }) => {
   const [loginLoader, setLoginLoader] = useState(false);
   const [professionTypeListData, setProfessionTypeList] = useState([]);
   const [prospectName, setProspectName] = useState("");
+  const [bookKeepingGateway, setBookKeepingGateway] = useState("");
   const [updatedProspectName, setUpdatedProspectName] = useState("");
   const [proposalName, setProposalName] = useState("");
   const [updatedProposalName, setUpdatedProposalName] = useState("");
@@ -993,6 +994,7 @@ const AuthContext = ({ children }) => {
     setUpdatedProspectName("");
   };
 
+
   const handleInputChangeProposal = (e) => {
     e.preventDefault();
     const inputValue = e.target.value;
@@ -1436,11 +1438,10 @@ const AuthContext = ({ children }) => {
       <table style="border-collapse: collapse; width: 100%; page-break-inside: avoid; break-inside: avoid;">
         <tr>
           <td style="border: 1px solid black; padding: 8px; width: 50%;">${Type}</td>
-          <td style="border: 1px solid black; padding: 8px; width: 50%;text-align: right;">${
-            RecurringValue === null
-              ? formatValue(0)
-              : formatValue(RecurringValue)
-          }</td>
+          <td style="border: 1px solid black; padding: 8px; width: 50%;text-align: right;">${RecurringValue === null
+        ? formatValue(0)
+        : formatValue(RecurringValue)
+      }</td>
         </tr>
       </table>
       <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
@@ -1449,9 +1450,8 @@ const AuthContext = ({ children }) => {
       <table style="border-collapse: collapse; width: 100%; page-break-inside: avoid; break-inside: avoid;">
         <tr>
           <td style="border: 1px solid black; padding: 8px; width: 50%;">${Type}</td>
-          <td style="border: 1px solid black; padding: 8px; width: 50%;text-align: right;">${
-            OneOffValue === null ? formatValue(0) : formatValue(OneOffValue)
-          }</td>
+          <td style="border: 1px solid black; padding: 8px; width: 50%;text-align: right;">${OneOffValue === null ? formatValue(0) : formatValue(OneOffValue)
+      }</td>
         </tr>
       </table>
     `;
@@ -1469,19 +1469,19 @@ const AuthContext = ({ children }) => {
     if (Type === "Net Total") {
       PackageOneValue = Number(
         RecurringPricingInfo.packageOneNetTotal >
-          Number(RecurringPricingInfo.packageOneDisCountedTotal)
+        Number(RecurringPricingInfo.packageOneDisCountedTotal)
       )
         ? RecurringPricingInfo.packageOneNetTotal
         : RecurringPricingInfo.packageOneDisCountedTotal;
       PackageTwoValue = Number(
         RecurringPricingInfo.packageTwoNetTotal >
-          Number(RecurringPricingInfo.packageTwoDisCountedTotal)
+        Number(RecurringPricingInfo.packageTwoDisCountedTotal)
       )
         ? RecurringPricingInfo.packageTwoNetTotal
         : RecurringPricingInfo.packageTwoDisCountedTotal;
       PackageThreeValue = Number(
         RecurringPricingInfo.packageThreeNetTotal >
-          Number(RecurringPricingInfo.packageThreeDisCountedTotal)
+        Number(RecurringPricingInfo.packageThreeDisCountedTotal)
       )
         ? RecurringPricingInfo.packageThreeNetTotal
         : RecurringPricingInfo.packageThreeDisCountedTotal;
@@ -1530,23 +1530,23 @@ const AuthContext = ({ children }) => {
     } else if (servicePackageList.length === 2) {
       rowValues = `
         <td style="border: 1px solid black; padding: 8px;text-align:right;width: 25%;">${formatValue(
-          PackageOneValue
-        )}</td>
+        PackageOneValue
+      )}</td>
         <td style="border: 1px solid black; padding: 8px;text-align:right;width: 25%;">${formatValue(
-          PackageTwoValue
-        )}</td>
+        PackageTwoValue
+      )}</td>
       `;
     } else if (servicePackageList.length === 3) {
       rowValues = `
         <td style="border: 1px solid black; padding: 8px;text-align: right;width: 25%;">${formatValue(
-          PackageOneValue
-        )}</td>
+        PackageOneValue
+      )}</td>
         <td style="border: 1px solid black; padding: 8px;text-align: right;width: 25%;">${formatValue(
-          PackageTwoValue
-        )}</td>
+        PackageTwoValue
+      )}</td>
         <td style="border: 1px solid black; padding: 8px;text-align: right;width: 25%;">${formatValue(
-          PackageThreeValue
-        )}</td>
+        PackageThreeValue
+      )}</td>
       `;
     }
     return `
@@ -1579,37 +1579,37 @@ const AuthContext = ({ children }) => {
     if (Type === "Net Total") {
       PackageOneValue =
         Number(RecurringPricingInfo.packageOneNetTotal) >
-        Number(RecurringPricingInfo.packageOneDisCountedTotal)
+          Number(RecurringPricingInfo.packageOneDisCountedTotal)
           ? RecurringPricingInfo.packageOneNetTotal
           : RecurringPricingInfo.packageOneDisCountedTotal;
 
       PackageTwoValue =
         Number(RecurringPricingInfo.packageTwoNetTotal) >
-        Number(RecurringPricingInfo.packageTwoDisCountedTotal)
+          Number(RecurringPricingInfo.packageTwoDisCountedTotal)
           ? RecurringPricingInfo.packageTwoNetTotal
           : RecurringPricingInfo.packageTwoDisCountedTotal;
 
       PackageThreeValue =
         Number(RecurringPricingInfo.packageThreeNetTotal) >
-        Number(RecurringPricingInfo.packageThreeDisCountedTotal)
+          Number(RecurringPricingInfo.packageThreeDisCountedTotal)
           ? RecurringPricingInfo.packageThreeNetTotal
           : RecurringPricingInfo.packageThreeDisCountedTotal;
 
       PackageOneOneOffValue =
         Number(OneOffPricingInfo.packageOneNetTotal) >
-        Number(OneOffPricingInfo.packageOneDisCountedTotal)
+          Number(OneOffPricingInfo.packageOneDisCountedTotal)
           ? OneOffPricingInfo.packageOneNetTotal
           : OneOffPricingInfo.packageOneDisCountedTotal;
 
       PackageTwoOneOffValue =
         Number(OneOffPricingInfo.packageTwoNetTotal) >
-        Number(OneOffPricingInfo.packageTwoDisCountedTotal)
+          Number(OneOffPricingInfo.packageTwoDisCountedTotal)
           ? OneOffPricingInfo.packageTwoNetTotal
           : OneOffPricingInfo.packageTwoDisCountedTotal;
 
       PackageThreeOneOffValue =
         Number(OneOffPricingInfo.packageThreeNetTotal) >
-        Number(OneOffPricingInfo.packageThreeDisCountedTotal)
+          Number(OneOffPricingInfo.packageThreeDisCountedTotal)
           ? OneOffPricingInfo.packageThreeNetTotal
           : RecurringPricingInfo.packageThreeDisCountedTotal;
     } else if (Type === "Discount") {
@@ -1746,38 +1746,38 @@ const AuthContext = ({ children }) => {
       if (Type === "Net Total") {
         PackageOneValue = Number(
           RecurringValue.packageOneNetTotal >
-            Number(RecurringValue.packageOneDisCountedTotal)
+          Number(RecurringValue.packageOneDisCountedTotal)
         )
           ? RecurringValue.packageOneNetTotal
           : RecurringValue.packageOneDisCountedTotal;
         PackageTwoValue = Number(
           RecurringValue.packageTwoNetTotal >
-            Number(RecurringValue.packageTwoDisCountedTotal)
+          Number(RecurringValue.packageTwoDisCountedTotal)
         )
           ? RecurringValue.packageTwoNetTotal
           : RecurringValue.packageTwoDisCountedTotal;
         PackageThreeValue = Number(
           RecurringValue.packageThreeNetTotal >
-            Number(RecurringValue.packageThreeDisCountedTotal)
+          Number(RecurringValue.packageThreeDisCountedTotal)
         )
           ? RecurringValue.packageThreeNetTotal
           : RecurringValue.packageThreeDisCountedTotal;
 
         PackageOneOneOffValue = Number(
           OneOffValue.packageOneNetTotal >
-            Number(OneOffValue.packageOneDisCountedTotal)
+          Number(OneOffValue.packageOneDisCountedTotal)
         )
           ? OneOffValue.packageOneNetTotal
           : OneOffValue.packageOneDisCountedTotal;
         PackageTwoOneOffValue = Number(
           OneOffValue.packageTwoNetTotal >
-            Number(OneOffValue.packageTwoDisCountedTotal)
+          Number(OneOffValue.packageTwoDisCountedTotal)
         )
           ? OneOffValue.packageTwoNetTotal
           : OneOffValue.packageTwoDisCountedTotal;
         PackageThreeOneOffValue = Number(
           OneOffValue.packageThreeNetTotal >
-            Number(OneOffValue.packageThreeDisCountedTotal)
+          Number(OneOffValue.packageThreeDisCountedTotal)
         )
           ? OneOffValue.packageThreeNetTotal
           : OneOffValue.packageThreeDisCountedTotal;
@@ -1842,8 +1842,7 @@ const AuthContext = ({ children }) => {
       return servicePackageList
         .map(
           (item, index) =>
-            `<b>${
-              item.servicePackageName
+            `<b>${item.servicePackageName
             }</b>: Recurring Services: ${formatValue(
               [PackageOneValue, PackageTwoValue, PackageThreeValue][index]
             )}, One-Off Services: ${formatValue(
@@ -1882,38 +1881,38 @@ const AuthContext = ({ children }) => {
       if (Type === "Net Total") {
         PackageOneValue = Number(
           RecurringValue.packageOneNetTotal >
-            Number(RecurringValue.packageOneDisCountedTotal)
+          Number(RecurringValue.packageOneDisCountedTotal)
         )
           ? RecurringValue.packageOneNetTotal
           : RecurringValue.packageOneDisCountedTotal;
         PackageTwoValue = Number(
           RecurringValue.packageTwoNetTotal >
-            Number(RecurringValue.packageTwoDisCountedTotal)
+          Number(RecurringValue.packageTwoDisCountedTotal)
         )
           ? RecurringValue.packageTwoNetTotal
           : RecurringValue.packageTwoDisCountedTotal;
         PackageThreeValue = Number(
           RecurringValue.packageThreeNetTotal >
-            Number(RecurringValue.packageThreeDisCountedTotal)
+          Number(RecurringValue.packageThreeDisCountedTotal)
         )
           ? RecurringValue.packageThreeNetTotal
           : RecurringValue.packageThreeDisCountedTotal;
 
         PackageOneOneOffValue = Number(
           OneOffValue.packageOneNetTotal >
-            Number(OneOffValue.packageOneDisCountedTotal)
+          Number(OneOffValue.packageOneDisCountedTotal)
         )
           ? OneOffValue.packageOneNetTotal
           : OneOffValue.packageOneDisCountedTotal;
         PackageTwoOneOffValue = Number(
           OneOffValue.packageTwoNetTotal >
-            Number(OneOffValue.packageTwoDisCountedTotal)
+          Number(OneOffValue.packageTwoDisCountedTotal)
         )
           ? OneOffValue.packageTwoNetTotal
           : OneOffValue.packageTwoDisCountedTotal;
         PackageThreeOneOffValue = Number(
           OneOffValue.packageThreeNetTotal >
-            Number(OneOffValue.packageThreeDisCountedTotal)
+          Number(OneOffValue.packageThreeDisCountedTotal)
         )
           ? OneOffValue.packageThreeNetTotal
           : OneOffValue.packageThreeDisCountedTotal;
@@ -1977,20 +1976,20 @@ const AuthContext = ({ children }) => {
       return `
         <ul>
           ${servicePackageList
-            .map(
-              (item, index) => `
+          .map(
+            (item, index) => `
             <li>${item.servicePackageName}: Recurring Services: ${formatValue(
-                [PackageOneValue, PackageTwoValue, PackageThreeValue][index]
-              )}, One-Off Services: ${formatValue(
-                [
-                  PackageOneOneOffValue,
-                  PackageTwoOneOffValue,
-                  PackageThreeOneOffValue,
-                ][index]
-              )}</li>
+              [PackageOneValue, PackageTwoValue, PackageThreeValue][index]
+            )}, One-Off Services: ${formatValue(
+              [
+                PackageOneOneOffValue,
+                PackageTwoOneOffValue,
+                PackageThreeOneOffValue,
+              ][index]
+            )}</li>
           `
-            )
-            .join("")}
+          )
+          .join("")}
         </ul>
       `;
     }
@@ -2044,8 +2043,8 @@ const AuthContext = ({ children }) => {
       return `
             <table style="border-collapse: collapse; width: 100%; margin-bottom: 16px; page-break-inside: avoid; break-inside: avoid;">
               ${rows
-                .map(
-                  ({ label, value }) => `
+          .map(
+            ({ label, value }) => `
                     <tr>
                       <td style="font-weight: 600; border: 1px solid rgb(10, 10, 10); padding: 8px; font-size: 16px; text-align: left; width: 60%;">
                         ${label}
@@ -2055,8 +2054,8 @@ const AuthContext = ({ children }) => {
                       </td>
                     </tr>
                   `
-                )
-                .join("")}
+          )
+          .join("")}
             </table>
           `;
     } else {
@@ -2098,9 +2097,8 @@ const AuthContext = ({ children }) => {
       return `
   <table style="border-collapse: collapse; width: 100%; margin-bottom: 16px; page-break-inside: avoid; break-inside: avoid;">
     <!-- Package Names Row -->
-    ${
-      Type !== "WithOutName"
-        ? `
+    ${Type !== "WithOutName"
+          ? `
         <tr>
           <th style="border: 1px solid rgb(10, 10, 10); padding: 8px; text-align: left; width: 25%;">Package Name</th>
           ${SelectedPackageList.map(
@@ -2112,60 +2110,60 @@ const AuthContext = ({ children }) => {
           ).join("")}
         </tr>
       `
-        : ""
-    }
+          : ""
+        }
 
     <!-- Data Rows -->
    
           <tr>
             <td style="border: 1px solid rgb(10, 10, 10); padding: 8px; text-align: left; width: 25%;">Net Total</td>
             ${SelectedPackageList.map(
-              (pkg, index) => `
+          (pkg, index) => `
               <td style="border: 1px solid rgb(10, 10, 10); padding: 8px; text-align: right; width: 25%;">
                 ${formatValue(packageData[index]?.netTotal || 0)}
               </td>
             `
-            ).join("")}
+        ).join("")}
           </tr>
           <tr>
             <td style="border: 1px solid rgb(10, 10, 10); padding: 8px; text-align: left; width: 25%;">Discount</td>
             ${SelectedPackageList.map(
-              (pkg, index) => `
+          (pkg, index) => `
               <td style="border: 1px solid rgb(10, 10, 10); padding: 8px; text-align: right; width: 25%;">
                 ${formatValue(packageData[index]?.discount || 0)}
               </td>
             `
-            ).join("")}
+        ).join("")}
           </tr>
           <tr>
             <td style="border: 1px solid rgb(10, 10, 10); padding: 8px; text-align: left; width: 25%;">Discounted Price</td>
             ${SelectedPackageList.map(
-              (pkg, index) => `
+          (pkg, index) => `
               <td style="border: 1px solid rgb(10, 10, 10); padding: 8px; text-align: right; width: 25%;">
                 ${formatValue(packageData[index]?.discountedTotal || 0)}
               </td>
             `
-            ).join("")}
+        ).join("")}
           </tr>
           <tr>
             <td style="border: 1px solid rgb(10, 10, 10); padding: 8px; text-align: left; width: 25%;">VAT</td>
             ${SelectedPackageList.map(
-              (pkg, index) => `
+          (pkg, index) => `
               <td style="border: 1px solid rgb(10, 10, 10); padding: 8px; text-align: right; width: 25%;">
                 ${formatValue(packageData[index]?.vatPrice || 0)}
               </td>
             `
-            ).join("")}
+        ).join("")}
           </tr>
           <tr>
             <td style="border: 1px solid rgb(10, 10, 10); padding: 8px; text-align: left; width: 25%;">Grand Total</td>
             ${SelectedPackageList.map(
-              (pkg, index) => `
+          (pkg, index) => `
               <td style="border: 1px solid rgb(10, 10, 10); padding: 8px; text-align: right; width: 25%;">
                 ${formatValue(packageData[index]?.grandTotal || 0)}
               </td>
             `
-            ).join("")}
+        ).join("")}
           </tr>
         
         
@@ -2191,10 +2189,10 @@ const AuthContext = ({ children }) => {
 </td>     
                     </tr>
            ${serviceList
-             .map((item) =>
-               item.servicesList
-                 .map(
-                   (subService) => `
+            .map((item) =>
+              item.servicesList
+                .map(
+                  (subService) => `
                  
                     <tr>
                       <td style="border: 1px solid rgb(10, 10, 10); padding: 8px; font-size: 16px; text-align: left; width: 60%;">
@@ -2204,10 +2202,10 @@ const AuthContext = ({ children }) => {
                     </tr>
                     
                   `
-                 )
-                 .join("")
-             )
-             .join("")}
+                )
+                .join("")
+            )
+            .join("")}
             </table>
         `;
       } else {
@@ -2215,35 +2213,35 @@ const AuthContext = ({ children }) => {
         if (!serviceList || serviceList?.length === 0) return "";
         return `
         ${servicePackageList
-          .slice(0, 3) // Limit to maximum of 3 packages
-          .map((servicePackage, packageIndex) => {
-            // Filter services for the current package
-            const validServices = serviceList.flatMap((serviceCat) =>
-              serviceCat.servicesList.filter((subService) => {
-                return (
-                  (packageIndex === 0 &&
-                    subService?.servicePackageIDs.includes(
-                      subService.packageOneID
-                    ) &&
-                    subService.packageOneValue !== null) ||
-                  (packageIndex === 1 &&
-                    subService?.servicePackageIDs.includes(
-                      subService.packageTwoID
-                    ) &&
-                    subService.packageTwoValue !== null) ||
-                  (packageIndex === 2 &&
-                    subService?.servicePackageIDs.includes(
-                      subService.packageThreeID
-                    ) &&
-                    subService.packageThreeValue !== null)
-                );
-              })
-            );
+            .slice(0, 3) // Limit to maximum of 3 packages
+            .map((servicePackage, packageIndex) => {
+              // Filter services for the current package
+              const validServices = serviceList.flatMap((serviceCat) =>
+                serviceCat.servicesList.filter((subService) => {
+                  return (
+                    (packageIndex === 0 &&
+                      subService?.servicePackageIDs.includes(
+                        subService.packageOneID
+                      ) &&
+                      subService.packageOneValue !== null) ||
+                    (packageIndex === 1 &&
+                      subService?.servicePackageIDs.includes(
+                        subService.packageTwoID
+                      ) &&
+                      subService.packageTwoValue !== null) ||
+                    (packageIndex === 2 &&
+                      subService?.servicePackageIDs.includes(
+                        subService.packageThreeID
+                      ) &&
+                      subService.packageThreeValue !== null)
+                  );
+                })
+              );
 
-            // Skip rendering the package if no services are available
-            if (validServices?.length === 0) return "";
+              // Skip rendering the package if no services are available
+              if (validServices?.length === 0) return "";
 
-            return `
+              return `
               <table style="border-collapse: collapse; width: 100%; margin-bottom: 16px;page-break-inside: avoid; break-inside: avoid;">
     
               <tr>
@@ -2272,8 +2270,8 @@ const AuthContext = ({ children }) => {
                   .join("")}
               </table>
             `;
-          })
-          .join("")}
+            })
+            .join("")}
       `;
       }
     };
@@ -2283,24 +2281,22 @@ const AuthContext = ({ children }) => {
 
     return `
     <div>
-  ${
-    selectedRecurringServiceList?.length !== 0
-      ? `<p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
+  ${selectedRecurringServiceList?.length !== 0
+        ? `<p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
         Recurring Services
       </p>`
-      : ""
-  }
+        : ""
+      }
 
    
       ${recurringServices}
 
-       ${
-         selectedOneOffServiceList?.length !== 0
-           ? ` <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
+       ${selectedOneOffServiceList?.length !== 0
+        ? ` <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
               One-Off Services
             </p>`
-           : ""
-       }
+        : ""
+      }
       ${oneOffServices}
     </div>
   `;
@@ -2338,11 +2334,10 @@ const AuthContext = ({ children }) => {
                         ${subService.serviceName}
                       </td>
                       <td style="border: 1px solid rgb(10, 10, 10); padding: 8px; font-size: 16px; text-align: right; width: 30%;">
-                          ${
-                            subService.price == undefined
-                              ? formatValue(subService.quotationPrice)
-                              : formatValue(subService.price)
-                          }
+                          ${subService.price == undefined
+                      ? formatValue(subService.quotationPrice)
+                      : formatValue(subService.price)
+                    }
                         </td>
                     </tr>
                   
@@ -2358,35 +2353,35 @@ const AuthContext = ({ children }) => {
         if (!serviceList || serviceList?.length === 0) return "";
         return `
         ${servicePackageList
-          .slice(0, 3) // Limit to maximum of 3 packages
-          .map((servicePackage, packageIndex) => {
-            // Filter services for the current package
-            const validServices = serviceList.flatMap((serviceCat) =>
-              serviceCat.servicesList.filter((subService) => {
-                return (
-                  (packageIndex === 0 &&
-                    subService?.servicePackageIDs.includes(
-                      subService.packageOneID
-                    ) &&
-                    subService.packageOneValue !== null) ||
-                  (packageIndex === 1 &&
-                    subService?.servicePackageIDs.includes(
-                      subService.packageTwoID
-                    ) &&
-                    subService.packageTwoValue !== null) ||
-                  (packageIndex === 2 &&
-                    subService?.servicePackageIDs.includes(
-                      subService.packageThreeID
-                    ) &&
-                    subService.packageThreeValue !== null)
-                );
-              })
-            );
+            .slice(0, 3) // Limit to maximum of 3 packages
+            .map((servicePackage, packageIndex) => {
+              // Filter services for the current package
+              const validServices = serviceList.flatMap((serviceCat) =>
+                serviceCat.servicesList.filter((subService) => {
+                  return (
+                    (packageIndex === 0 &&
+                      subService?.servicePackageIDs.includes(
+                        subService.packageOneID
+                      ) &&
+                      subService.packageOneValue !== null) ||
+                    (packageIndex === 1 &&
+                      subService?.servicePackageIDs.includes(
+                        subService.packageTwoID
+                      ) &&
+                      subService.packageTwoValue !== null) ||
+                    (packageIndex === 2 &&
+                      subService?.servicePackageIDs.includes(
+                        subService.packageThreeID
+                      ) &&
+                      subService.packageThreeValue !== null)
+                  );
+                })
+              );
 
-            // Skip rendering the package if no services are available
-            if (validServices?.length === 0) return "";
+              // Skip rendering the package if no services are available
+              if (validServices?.length === 0) return "";
 
-            return `
+              return `
               <table style="border-collapse: collapse; width: 100%; margin-bottom: 16px;page-break-inside: avoid; break-inside: avoid;">
                 <tr>
                   <th colspan="2" style="border: 1px solid rgb(10, 10, 10); padding: 8px; font-size: 18px; text-align: center;">
@@ -2409,8 +2404,8 @@ const AuthContext = ({ children }) => {
                       packageIndex === 0
                         ? subService.packageOneValue
                         : packageIndex === 1
-                        ? subService.packageTwoValue
-                        : subService.packageThreeValue;
+                          ? subService.packageTwoValue
+                          : subService.packageThreeValue;
 
                     return `
      
@@ -2427,8 +2422,8 @@ const AuthContext = ({ children }) => {
                   .join("")}
               </table>
             `;
-          })
-          .join("")}
+            })
+            .join("")}
       `;
       }
     };
@@ -2438,22 +2433,20 @@ const AuthContext = ({ children }) => {
 
     return `
     <div>
-     ${
-       selectedRecurringServiceList?.length !== 0
-         ? `<p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
+     ${selectedRecurringServiceList?.length !== 0
+        ? `<p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
         Recurring Services
       </p>`
-         : ""
-     }
+        : ""
+      }
       ${recurringServices}   
 
-       ${
-         selectedOneOffServiceList?.length !== 0
-           ? `    <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
+       ${selectedOneOffServiceList?.length !== 0
+        ? `    <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
               One-Off Services
             </p>`
-           : ""
-       }
+        : ""
+      }
 
       ${oneOffServices}
     </div>
@@ -2485,35 +2478,35 @@ const AuthContext = ({ children }) => {
         if (!serviceList || serviceList?.length === 0) return "";
         return `
         ${servicePackageList
-          .slice(0, 3) // Limit to a maximum of 3 packages
-          .map((servicePackage, packageIndex) => {
-            // Filter services for the current package
-            const validServices = serviceList.flatMap((serviceCat) =>
-              serviceCat.servicesList.filter((subService) => {
-                return (
-                  (packageIndex === 0 &&
-                    subService?.servicePackageIDs.includes(
-                      subService.packageOneID
-                    ) &&
-                    subService.packageOneValue !== null) ||
-                  (packageIndex === 1 &&
-                    subService?.servicePackageIDs.includes(
-                      subService.packageTwoID
-                    ) &&
-                    subService.packageTwoValue !== null) ||
-                  (packageIndex === 2 &&
-                    subService?.servicePackageIDs.includes(
-                      subService.packageThreeID
-                    ) &&
-                    subService.packageThreeValue !== null)
-                );
-              })
-            );
+            .slice(0, 3) // Limit to a maximum of 3 packages
+            .map((servicePackage, packageIndex) => {
+              // Filter services for the current package
+              const validServices = serviceList.flatMap((serviceCat) =>
+                serviceCat.servicesList.filter((subService) => {
+                  return (
+                    (packageIndex === 0 &&
+                      subService?.servicePackageIDs.includes(
+                        subService.packageOneID
+                      ) &&
+                      subService.packageOneValue !== null) ||
+                    (packageIndex === 1 &&
+                      subService?.servicePackageIDs.includes(
+                        subService.packageTwoID
+                      ) &&
+                      subService.packageTwoValue !== null) ||
+                    (packageIndex === 2 &&
+                      subService?.servicePackageIDs.includes(
+                        subService.packageThreeID
+                      ) &&
+                      subService.packageThreeValue !== null)
+                  );
+                })
+              );
 
-            // Skip rendering the package if no services are available
-            if (validServices?.length === 0) return "";
+              // Skip rendering the package if no services are available
+              if (validServices?.length === 0) return "";
 
-            return `
+              return `
               <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
                  ${servicePackage.servicePackageName}
               </p>
@@ -2523,8 +2516,8 @@ const AuthContext = ({ children }) => {
                   .join(", ")}
               </p>
             `;
-          })
-          .join("")}
+            })
+            .join("")}
       `;
       }
     };
@@ -2534,21 +2527,19 @@ const AuthContext = ({ children }) => {
 
     return `
     <div>
-     ${
-       selectedRecurringServiceList?.length !== 0
-         ? `<p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
+     ${selectedRecurringServiceList?.length !== 0
+        ? `<p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
               Recurring Services
             </p>`
-         : ""
-     }
+        : ""
+      }
 
       ${recurringServices}   
-      ${
-        selectedOneOffServiceList?.length !== 0
-          ? ` <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
+      ${selectedOneOffServiceList?.length !== 0
+        ? ` <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
               One-Off Services
             </p>`
-          : ""
+        : ""
       }
    
       ${oneOffServices}
@@ -2572,10 +2563,9 @@ const AuthContext = ({ children }) => {
               item.servicesList
                 .map(
                   (subService) =>
-                    `${subService.serviceName}: ${
-                      subService.price == undefined
-                        ? formatValue(subService.quotationPrice)
-                        : formatValue(subService.price)
+                    `${subService.serviceName}: ${subService.price == undefined
+                      ? formatValue(subService.quotationPrice)
+                      : formatValue(subService.price)
                     }`
                 )
                 .join(", ")
@@ -2588,54 +2578,54 @@ const AuthContext = ({ children }) => {
         if (!serviceList || serviceList?.length === 0) return "";
         return `
         ${servicePackageList
-          .slice(0, 3) // Limit to a maximum of 3 packages
-          .map((servicePackage, packageIndex) => {
-            // Filter services for the current package
-            const validServices = serviceList.flatMap((serviceCat) =>
-              serviceCat.servicesList.filter((subService) => {
-                return (
-                  (packageIndex === 0 &&
-                    subService?.servicePackageIDs.includes(
-                      subService.packageOneID
-                    ) &&
-                    subService.packageOneValue !== null) ||
-                  (packageIndex === 1 &&
-                    subService?.servicePackageIDs.includes(
-                      subService.packageTwoID
-                    ) &&
-                    subService.packageTwoValue !== null) ||
-                  (packageIndex === 2 &&
-                    subService?.servicePackageIDs.includes(
-                      subService.packageThreeID
-                    ) &&
-                    subService.packageThreeValue !== null)
-                );
-              })
-            );
+            .slice(0, 3) // Limit to a maximum of 3 packages
+            .map((servicePackage, packageIndex) => {
+              // Filter services for the current package
+              const validServices = serviceList.flatMap((serviceCat) =>
+                serviceCat.servicesList.filter((subService) => {
+                  return (
+                    (packageIndex === 0 &&
+                      subService?.servicePackageIDs.includes(
+                        subService.packageOneID
+                      ) &&
+                      subService.packageOneValue !== null) ||
+                    (packageIndex === 1 &&
+                      subService?.servicePackageIDs.includes(
+                        subService.packageTwoID
+                      ) &&
+                      subService.packageTwoValue !== null) ||
+                    (packageIndex === 2 &&
+                      subService?.servicePackageIDs.includes(
+                        subService.packageThreeID
+                      ) &&
+                      subService.packageThreeValue !== null)
+                  );
+                })
+              );
 
-            // Skip rendering the package if no services are available
-            if (validServices?.length === 0) return "";
+              // Skip rendering the package if no services are available
+              if (validServices?.length === 0) return "";
 
-            return `
+              return `
   <p style="margin: 8px 0; line-height: 1.5;">
    <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
     ${servicePackage.servicePackageName}:
   </p>  ${validServices
-    .map((subService) => {
-      const packageValue =
-        packageIndex === 0
-          ? subService.packageOneValue
-          : packageIndex === 1
-          ? subService.packageTwoValue
-          : subService.packageThreeValue;
+                  .map((subService) => {
+                    const packageValue =
+                      packageIndex === 0
+                        ? subService.packageOneValue
+                        : packageIndex === 1
+                          ? subService.packageTwoValue
+                          : subService.packageThreeValue;
 
-      return `${subService.serviceName}: ${formatValue(packageValue)}`;
-    })
-    .join(", ")}
+                    return `${subService.serviceName}: ${formatValue(packageValue)}`;
+                  })
+                  .join(", ")}
   </p>
 `;
-          })
-          .join("")}
+            })
+            .join("")}
       `;
       }
     };
@@ -2645,23 +2635,21 @@ const AuthContext = ({ children }) => {
 
     return `
       <div>
-      ${
-        selectedRecurringServiceList?.length !== 0
-          ? `<p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
+      ${selectedRecurringServiceList?.length !== 0
+        ? `<p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
                 Recurring Services
               </p>`
-          : ""
+        : ""
       }
       
         ${recurringServices}
 
-        ${
-          selectedOneOffServiceList?.length !== 0
-            ? `<p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
+        ${selectedOneOffServiceList?.length !== 0
+        ? `<p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
                 One-Off Services
               </p>`
-            : ""
-        }
+        : ""
+      }
       
         ${oneOffServices}
       </div>
@@ -2680,12 +2668,12 @@ const AuthContext = ({ children }) => {
         return `
   <ul style="margin: 8px 0; font-size: 16px; line-height: 1.5;">
     ${serviceList
-      .map((item) =>
-        item.servicesList
-          .map((subService) => `<li>${subService.serviceName}</li>`)
-          .join("")
-      )
-      .join("")}
+            .map((item) =>
+              item.servicesList
+                .map((subService) => `<li>${subService.serviceName}</li>`)
+                .join("")
+            )
+            .join("")}
   </ul>
 `;
       } else {
@@ -2693,50 +2681,50 @@ const AuthContext = ({ children }) => {
         if (!serviceList || serviceList?.length === 0) return "";
         return `
         ${servicePackageList
-          .slice(0, 3) // Limit to a maximum of 3 packages
-          .map((servicePackage, packageIndex) => {
-            // Filter services for the current package
-            const validServices = serviceList.flatMap((serviceCat) =>
-              serviceCat.servicesList.filter((subService) => {
-                return (
-                  (packageIndex === 0 &&
-                    subService?.servicePackageIDs.includes(
-                      subService.packageOneID
-                    ) &&
-                    subService.packageOneValue !== null) ||
-                  (packageIndex === 1 &&
-                    subService?.servicePackageIDs.includes(
-                      subService.packageTwoID
-                    ) &&
-                    subService.packageTwoValue !== null) ||
-                  (packageIndex === 2 &&
-                    subService?.servicePackageIDs.includes(
-                      subService.packageThreeID
-                    ) &&
-                    subService.packageThreeValue !== null)
-                );
-              })
-            );
+            .slice(0, 3) // Limit to a maximum of 3 packages
+            .map((servicePackage, packageIndex) => {
+              // Filter services for the current package
+              const validServices = serviceList.flatMap((serviceCat) =>
+                serviceCat.servicesList.filter((subService) => {
+                  return (
+                    (packageIndex === 0 &&
+                      subService?.servicePackageIDs.includes(
+                        subService.packageOneID
+                      ) &&
+                      subService.packageOneValue !== null) ||
+                    (packageIndex === 1 &&
+                      subService?.servicePackageIDs.includes(
+                        subService.packageTwoID
+                      ) &&
+                      subService.packageTwoValue !== null) ||
+                    (packageIndex === 2 &&
+                      subService?.servicePackageIDs.includes(
+                        subService.packageThreeID
+                      ) &&
+                      subService.packageThreeValue !== null)
+                  );
+                })
+              );
 
-            // Skip rendering the package if no services are available
-            if (validServices?.length === 0) return "";
+              // Skip rendering the package if no services are available
+              if (validServices?.length === 0) return "";
 
-            return `
+              return `
               <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
                  ${servicePackage.servicePackageName}
               </p>
               <ul style="margin: 8px 0; font-size: 16px; line-height: 1.5;">
     ${serviceList
-      .map((item) =>
-        item.servicesList
-          .map((subService) => `<li>${subService.serviceName}</li>`)
-          .join("")
-      )
-      .join("")}
+                  .map((item) =>
+                    item.servicesList
+                      .map((subService) => `<li>${subService.serviceName}</li>`)
+                      .join("")
+                  )
+                  .join("")}
   </ul>
             `;
-          })
-          .join("")}
+            })
+            .join("")}
       `;
       }
     };
@@ -2746,20 +2734,18 @@ const AuthContext = ({ children }) => {
 
     return `
     <div>
-    ${
-      selectedRecurringServiceList?.length !== 0
+    ${selectedRecurringServiceList?.length !== 0
         ? ` <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
               Recurring Services
             </p>`
         : ""
-    }
+      }
       ${recurringServices}   
-      ${
-        selectedOneOffServiceList?.length !== 0
-          ? ` <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
+      ${selectedOneOffServiceList?.length !== 0
+        ? ` <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
               One-Off Services
             </p>`
-          : ""
+        : ""
       }
     
       ${oneOffServices}
@@ -2783,10 +2769,9 @@ const AuthContext = ({ children }) => {
               item.servicesList
                 .map(
                   (subService) =>
-                    `<li>${subService.serviceName}: ${
-                      subService.price == undefined
-                        ? formatValue(subService.quotationPrice)
-                        : formatValue(subService.price)
+                    `<li>${subService.serviceName}: ${subService.price == undefined
+                      ? formatValue(subService.quotationPrice)
+                      : formatValue(subService.price)
                     }</li>`
                 )
                 .join("")
@@ -2799,57 +2784,57 @@ const AuthContext = ({ children }) => {
         if (!serviceList || serviceList?.length === 0) return "";
         return `
         ${servicePackageList
-          .slice(0, 3) // Limit to a maximum of 3 packages
-          .map((servicePackage, packageIndex) => {
-            // Filter services for the current package
-            const validServices = serviceList.flatMap((serviceCat) =>
-              serviceCat.servicesList.filter((subService) => {
-                return (
-                  (packageIndex === 0 &&
-                    subService?.servicePackageIDs.includes(
-                      subService.packageOneID
-                    ) &&
-                    subService.packageOneValue !== null) ||
-                  (packageIndex === 1 &&
-                    subService?.servicePackageIDs.includes(
-                      subService.packageTwoID
-                    ) &&
-                    subService.packageTwoValue !== null) ||
-                  (packageIndex === 2 &&
-                    subService?.servicePackageIDs.includes(
-                      subService.packageThreeID
-                    ) &&
-                    subService.packageThreeValue !== null)
-                );
-              })
-            );
+            .slice(0, 3) // Limit to a maximum of 3 packages
+            .map((servicePackage, packageIndex) => {
+              // Filter services for the current package
+              const validServices = serviceList.flatMap((serviceCat) =>
+                serviceCat.servicesList.filter((subService) => {
+                  return (
+                    (packageIndex === 0 &&
+                      subService?.servicePackageIDs.includes(
+                        subService.packageOneID
+                      ) &&
+                      subService.packageOneValue !== null) ||
+                    (packageIndex === 1 &&
+                      subService?.servicePackageIDs.includes(
+                        subService.packageTwoID
+                      ) &&
+                      subService.packageTwoValue !== null) ||
+                    (packageIndex === 2 &&
+                      subService?.servicePackageIDs.includes(
+                        subService.packageThreeID
+                      ) &&
+                      subService.packageThreeValue !== null)
+                  );
+                })
+              );
 
-            // Skip rendering the package if no services are available
-            if (validServices?.length === 0) return "";
+              // Skip rendering the package if no services are available
+              if (validServices?.length === 0) return "";
 
-            return `
+              return `
  
    <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
     ${servicePackage.servicePackageName}:
   </p>
    <ul style="margin: 8px 0; font-size: 16px; line-height: 1.5;">
   ${validServices
-    .map((subService) => {
-      const packageValue =
-        packageIndex === 0
-          ? subService.packageOneValue
-          : packageIndex === 1
-          ? subService.packageTwoValue
-          : subService.packageThreeValue;
+                  .map((subService) => {
+                    const packageValue =
+                      packageIndex === 0
+                        ? subService.packageOneValue
+                        : packageIndex === 1
+                          ? subService.packageTwoValue
+                          : subService.packageThreeValue;
 
-      return `<li>${subService.serviceName}: ${formatValue(packageValue)}</li>`;
-    })
-    .join(", ")}
+                    return `<li>${subService.serviceName}: ${formatValue(packageValue)}</li>`;
+                  })
+                  .join(", ")}
                    </ul>
  
 `;
-          })
-          .join("")}
+            })
+            .join("")}
       `;
       }
     };
@@ -2859,22 +2844,20 @@ const AuthContext = ({ children }) => {
 
     return `
       <div>
-        ${
-          selectedRecurringServiceList?.length !== 0
-            ? `  <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
+        ${selectedRecurringServiceList?.length !== 0
+        ? `  <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
                 Recurring Services
               </p>`
-            : ""
-        }
+        : ""
+      }
      
         ${recurringServices}   
-         ${
-           selectedOneOffServiceList?.length !== 0
-             ? `  <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
+         ${selectedOneOffServiceList?.length !== 0
+        ? `  <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
                 One-Off Services
               </p>`
-             : ""
-         }
+        : ""
+      }
       
         ${oneOffServices}
       </div>
@@ -2893,12 +2876,12 @@ const AuthContext = ({ children }) => {
     let ResultTotalVariablesWithValues = {};
     const conditionalRecurringNetTotal =
       Number(RecurringPricingInfo.OriginalPrice) <
-      Number(RecurringPricingInfo.DiscountedPrice)
+        Number(RecurringPricingInfo.DiscountedPrice)
         ? RecurringPricingInfo.DiscountedPrice
         : RecurringPricingInfo.OriginalPrice;
     const conditionalOneOffNetTotal =
       Number(OneOffPricingInfo.OriginalPrice) <
-      Number(OneOffPricingInfo.DiscountedPrice)
+        Number(OneOffPricingInfo.DiscountedPrice)
         ? OneOffPricingInfo.DiscountedPrice
         : OneOffPricingInfo.OriginalPrice;
     //selectProposalTypeValue 3= single(Custumized)
@@ -3639,6 +3622,7 @@ const AuthContext = ({ children }) => {
         setTopbar,
         isPopupOpen,
         prospectName,
+        bookKeepingGateway,
         setIsPopupOpen,
         proposalName,
         EngagementName,
@@ -3668,6 +3652,7 @@ const AuthContext = ({ children }) => {
         DefaultVariables,
         HtmlToPlainText,
         setProspectName,
+        setBookKeepingGateway,
         setOrgLoaderList,
         handleInputChange,
         setEngagementName,

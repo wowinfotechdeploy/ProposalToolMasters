@@ -2271,7 +2271,7 @@ const TopbarClone = () => {
                                           }}
                                           style={{ textDecoration: 'none' }}
                                         >
-                                          <span>Book Keeping Gateway</span>
+                                          <span>Bookkeeping Gateway</span>
 
                                         </a>
 
