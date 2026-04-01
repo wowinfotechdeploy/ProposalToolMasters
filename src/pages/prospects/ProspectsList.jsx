@@ -1,7 +1,7 @@
 /* global $ */
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import Select from "react-select"
 
@@ -28,17 +28,21 @@ import RecordsAvailablePopupModel from "../../components/RecordsAvailablePopupMo
 import DeleteDriverModal from "../../components/DeleteDriverModel";
 import { CreateXeroContactFromOutbooks, GetAllCachedXeroContacts, GetAllClientLookupList, ProspectConnectionAuthentication } from "../../redux/Services/Xero/XeroApi"
 import IntegrationDialog from "./IntegrationDialog";
+import { addContactMapping, fetchContactsLookup } from "../../redux/reducer/quickBookSlice";
 
 const Prospects = () => {
   const lastClickRef = useRef(0);
+  const dispatch = useDispatch()
   let getClientsListApiCallCount = 0;
   //const raw = JSON.parse(localStorage.getItem("persist:Proposal Tool"));
   // const organisationKeyID = JSON.parse(raw.organisationKeyID);
   const organisationKeyID = useSelector((state) => state.Storage)?.organisationKeyID;
+
   const status = useSelector((state) => state.auth.bookkeeping);
   const activePlatform = Object.keys(status || {}).find(
     (key) => status[key]
   );
+  const contactsLookup = useSelector((state) => state.quickBook.contactsLookup);
 
   const [activeTab, setActiveTab] = useState("Prospect");
   const [errorMessage, setErrorMessage] = useState("");
@@ -171,22 +175,24 @@ const Prospects = () => {
 
 
   const GetAllClientList = async () => {
-    try {
-      const data = await GetAllCachedXeroContacts(organisationKeyID);
-      if (data?.status === 200) {
-        let ContactLookupListData = data?.data?.mappings;
-        ContactLookupListData = ContactLookupListData.map((key) => ({
-          value: key.xeroContactId,
-          label: key.contactName,
-          clientKeyId: key.clientKeyId
-        }));
 
-        setContactsLookupList(ContactLookupListData);
-      }
+    dispatch(fetchContactsLookup(organisationKeyID))
+    // try {
+    //   const data = await GetAllCachedXeroContacts(organisationKeyID);
+    //   if (data?.status === 200) {
+    //     let ContactLookupListData = data?.data?.mappings;
+    //     ContactLookupListData = ContactLookupListData.map((key) => ({
+    //       value: key.xeroContactId,
+    //       label: key.contactName,
+    //       clientKeyId: key.clientKeyId
+    //     }));
 
-    } catch (error) {
-      console.log(error);
-    }
+    //     setContactsLookupList(ContactLookupListData);
+    //   }
+
+    // } catch (error) {
+    //   console.log(error);
+    // }
   };
 
   const handleView = (item) => {
@@ -498,6 +504,23 @@ const Prospects = () => {
         setLoader(false);
       }
 
+    } else if (modelRequestData.Action === "Add Contact Mapping") {
+      dispatch(addContactMapping({
+        xeroContactId: contactDetails?.value || null,
+        clientId: modelRequestData?.clientID || null,
+        // userId: 
+        organisationKeyId: organisationKeyID
+      }))
+        .unwrap()
+        .then((res) => {
+          setOpenSuccessModal(true);
+        })
+        .catch((err) => {
+          setErrorMessage(err?.error || "Something went wrong");
+          setOpenErrorModal(true);
+        }).finally(() => {
+          setLoader(false);
+        });
     }
   };
 
@@ -855,19 +878,16 @@ const Prospects = () => {
                           {activeTab === "Prospect" && (
                             <div className="col-lg-9 col-md-9 col-3 text-nowrap mb-2">
                               <div className="d-flex justify-content-end align-items-center gap-2">
-
-                                <div style={{ minWidth: "200px" }}>
+                                <div style={{ minWidth: "200px" }} >
                                   <Select
                                     className="user-role-select"
-                                    options={contactsLookupList}
-                                    value={contactDetails}
+                                    options={contactsLookup}
+                                    getOptionLabel={(e) => e.label}
+                                    getOptionValue={(e) => e.value}
                                     onChange={(selectedOption) => {
-                                      setContactDetails(selectedOption)
+                                      setContactDetails(selectedOption);
                                     }}
-
                                   />
-
-
                                 </div>
 
                                 <div>
@@ -1600,26 +1620,26 @@ const Prospects = () => {
                                                   </li>
 
                                                   {/* Migrate Xero */}
-                                                  {!contactsLookupList.some(x => x.clientKeyId.toLowerCase() == Prospect.clientKeyID) && (
-                                                    <li>
-                                                      <a
-                                                        className="dropdown-item"
-                                                        data-bs-toggle="modal"
-                                                        data-bs-target="#ConfirmModel"
-                                                        onClick={() =>
-                                                          setModelRequestData({
-                                                            ...modelRequestData,
-                                                            Action: "Add Contact",
-                                                            clientKeyID: Prospect.clientKeyID,
-                                                          })
-                                                        }
-                                                      >
-                                                        <span className="d-flex">     <i className="ri-file-transfer-line me-2"></i>
-                                                          {`Add To ${activePlatform || ""}`}
-                                                        </span>
-                                                      </a>
-                                                    </li>
-                                                  )}
+                                                  {/* {!contactsLookup.some(x => x.ClientKeyId.toLowerCase() == Prospect.clientKeyID) && ( */}
+                                                  <li>
+                                                    <a
+                                                      className="dropdown-item"
+                                                      data-bs-toggle="modal"
+                                                      data-bs-target="#ConfirmModel"
+                                                      onClick={() =>
+                                                        setModelRequestData({
+                                                          ...modelRequestData,
+                                                          Action: "Add Contact",
+                                                          clientKeyID: Prospect.clientKeyID,
+                                                        })
+                                                      }
+                                                    >
+                                                      <span className="d-flex">     <i className="ri-file-transfer-line me-2"></i>
+                                                        {`Add To ${activePlatform || ""}`}
+                                                      </span>
+                                                    </a>
+                                                  </li>
+                                                  {/* )} */}
                                                   <li>
                                                     <a
                                                       className="dropdown-item"
@@ -1631,6 +1651,29 @@ const Prospects = () => {
                                                       </span>
                                                     </a>
                                                   </li>
+
+                                                  <li>
+                                                    <a
+                                                      className="dropdown-item"
+                                                      data-bs-toggle="modal"
+                                                      data-bs-target="#ConfirmModel"
+                                                      onClick={() => {
+
+                                                        setModelRequestData({
+                                                          ...modelRequestData,
+                                                          Action: "Add Contact Mapping",
+                                                          clientID: Prospect.clientID,
+                                                          // xeroContactId: contactDetails.value
+                                                        })
+                                                      }}
+                                                    >
+                                                      <span className="d-flex">
+                                                        <i className="ri-links-line me-2"></i>
+                                                        Map  Contact & Client  {/* mappings/{organisationKeyId} */}
+                                                      </span>
+                                                    </a>
+                                                  </li>
+
                                                 </ul>
                                               </div>
                                             </div>

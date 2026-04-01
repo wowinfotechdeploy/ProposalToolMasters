@@ -3,6 +3,7 @@ import storage from "redux-persist/lib/storage";
 import storageSliceReducer from "../Persist";
 import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "../reducer/authSlice"
+import quickBookReducer from "../reducer/quickBookSlice"
 
 const persistConfig = { key: "Proposal Tool", version: 1, storage };
 const authPersistConfig = {
@@ -17,5 +18,6 @@ export const store = configureStore({
   reducer: {
     Storage: persistReducerBlock,
     auth: persistedAuthReducer,
+    quickBook: quickBookReducer
   }
 });

@@ -83,6 +83,14 @@ function ConfirmModel({
                   style={{ width: "75px", height: "60px" }}
                 ></lord-icon>
               )}
+              {modelRequestData.Action === "Add Contact Mapping" && (
+                <lord-icon
+                  src="https://cdn.lordicon.com/mecwbjnp.json"
+                  trigger="loop"
+                  colors="primary:#22c55e,secondary:#16a34a"
+                  style={{ width: "75px", height: "60px" }}
+                ></lord-icon>
+              )}
               {modelRequestData.Action === "DeleteContract" && (
                 <lord-icon
                   src="https://cdn.lordicon.com/gsqxdxog.json"
@@ -183,6 +191,11 @@ function ConfirmModel({
                   </span>
                 )}
                 {modelRequestData.Action === "Add Contact" && (
+                  <span class="text-muted mb-0">
+                    Are you sure you want to add this record into Xero?
+                  </span>
+                )}
+                {modelRequestData.Action === "Add Contact Mapping" && (
                   <span class="text-muted mb-0">
                     Are you sure you want to add this record into Xero?
                   </span>
@@ -473,6 +486,7 @@ function ConfirmModel({
                 modelRequestData.Action === "emailStatusChange" ||
                 modelRequestData.Action === "Redirect" ||
                 modelRequestData.Action === "Add Contact" ||
+                modelRequestData.Action === "Add Contact Mapping" ||
                 modelRequestData.Action === "ResetPaymentGatewayChange") && (
                   <button
                     onClick={() => {
@@ -500,6 +514,9 @@ function ConfirmModel({
                       <span>Yes, Please!</span>
                     )}
                     {modelRequestData.Action === "Add Contact" && (
+                      <span>Yes, Please Add!</span>
+                    )}
+                    {modelRequestData.Action === "Add Contact Mapping" && (
                       <span>Yes, Please Add!</span>
                     )}
                     {modelRequestData.Action === "DeleteContract" && (

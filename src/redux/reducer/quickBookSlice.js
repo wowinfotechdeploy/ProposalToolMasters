@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { QuickBookUrl } from "../../Base-Url/Base_Url";
+import { QuickBookUrl, XeroBaseUrl } from "../../Base-Url/Base_Url";
 import apiClient from "../Services/axiosInterceptor";
 
 // GET connection URL
@@ -18,13 +18,62 @@ export const fetchQuickBookConnectionUrl = createAsyncThunk(
   }
 );
 
+export const fetchContactsLookup = createAsyncThunk(
+  "xero/fetchContactsLookup",
+  async (organisationKeyID, thunkAPI) => {
+    try {
+      const res = await apiClient.get(
+        `${XeroBaseUrl}contacts/${organisationKeyID}`,
+        {}
+      );
+
+      // Transform data HERE (not in component)
+      const mappings = res.data?.contacts || [];
+
+      const formatted = mappings.map((item) => ({
+        value: item.XeroContactID,
+        label: item.ContactName,
+        ClientKeyID: item.ClientKeyID,
+      }));
+
+      return formatted; // final usable data
+    } catch (err) {
+      return thunkAPI.rejectWithValue(err.response?.data);
+    }
+  }
+);
+
+export const addContactMapping = createAsyncThunk(
+  "contact/addContactMapping",
+  async (payload, thunkAPI) => {
+    const { organisationKeyId, ...body } = payload;
+    try {
+      const response = await apiClient.post(
+        `${XeroBaseUrl}mappings/${organisationKeyId}`,
+        body
+      );
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response?.data || "Error");
+    }
+  }
+);
+
 const quickBookSlice = createSlice({
   name: "quickbook",
   initialState: {
     connectionUrl: null,
+    contactsLookup: [],
     message: "",
-    loading: false,
-    error: null,
+    loading: {
+      connectionUrl: false,
+      contactsLookup: false,
+    },
+
+    error: {
+      connectionUrl: null,
+      contactsLookup: null,
+    },
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -39,7 +88,20 @@ const quickBookSlice = createSlice({
       .addCase(fetchQuickBookConnectionUrl.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+      //contacts
+      .addCase(fetchContactsLookup.pending, (state) => {
+        state.loading.contactsLookup = true;
+      })
+      .addCase(fetchContactsLookup.fulfilled, (state, action) => {
+        state.loading.contactsLookup = false;
+        state.contactsLookup = action.payload; //  FIXED
+      })
+      .addCase(fetchContactsLookup.rejected, (state, action) => {
+        state.loading.contactsLookup = false;
+        state.error.contactsLookup = action.payload;
       });
+    // });
   },
 });
 
