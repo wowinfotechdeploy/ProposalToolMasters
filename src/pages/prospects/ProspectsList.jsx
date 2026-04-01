@@ -26,7 +26,7 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import Tooltip from "@mui/material/Tooltip";
 import RecordsAvailablePopupModel from "../../components/RecordsAvailablePopupModel";
 import DeleteDriverModal from "../../components/DeleteDriverModel";
-import { CreateXeroContactFromOutbooks, GetAllCachedXeroContacts, GetAllClientLookupList, ProspectConnectionAuthentication } from "../../redux/Services//Xero/XeroApi"
+import { CreateXeroContactFromOutbooks, GetAllCachedXeroContacts, GetAllClientLookupList, ProspectConnectionAuthentication } from "../../redux/Services/Xero/XeroApi"
 import IntegrationDialog from "./IntegrationDialog";
 
 const Prospects = () => {
@@ -35,6 +35,10 @@ const Prospects = () => {
   //const raw = JSON.parse(localStorage.getItem("persist:Proposal Tool"));
   // const organisationKeyID = JSON.parse(raw.organisationKeyID);
   const organisationKeyID = useSelector((state) => state.Storage)?.organisationKeyID;
+  const status = useSelector((state) => state.auth.bookkeeping);
+  const activePlatform = Object.keys(status || {}).find(
+    (key) => status[key]
+  );
 
   const [activeTab, setActiveTab] = useState("Prospect");
   const [errorMessage, setErrorMessage] = useState("");
@@ -109,7 +113,7 @@ const Prospects = () => {
     getClientsListData(1, null, null, null);
     getClientsListSingleApiData(1, null, null, null);
     GetAllClientList();
-    setBookKeepingGateway("QBO")
+
   }, []);
 
   useEffect(() => {
@@ -1590,7 +1594,8 @@ const Prospects = () => {
                                                       }
                                                     >
                                                       <span className="d-flex">     <i className="ri-links-line me-2"></i>
-                                                        Connect To {bookKeepingGateway}</span>
+                                                        Connect To {activePlatform || ""}
+                                                      </span>
                                                     </a>
                                                   </li>
 
@@ -1610,7 +1615,8 @@ const Prospects = () => {
                                                         }
                                                       >
                                                         <span className="d-flex">     <i className="ri-file-transfer-line me-2"></i>
-                                                          Add To Xero</span>
+                                                          {`Add To ${activePlatform || ""}`}
+                                                        </span>
                                                       </a>
                                                     </li>
                                                   )}
