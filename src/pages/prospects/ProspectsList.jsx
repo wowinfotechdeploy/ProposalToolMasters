@@ -172,7 +172,7 @@ const Prospects = () => {
 
   const GetAllClientList = async () => {
     try {
-      const data = await GetAllCachedXeroContacts(data?.organisationKeyID);
+      const data = await GetAllCachedXeroContacts(organisationKeyID);
       if (data?.status === 200) {
         let ContactLookupListData = data?.data?.mappings;
         ContactLookupListData = ContactLookupListData.map((key) => ({

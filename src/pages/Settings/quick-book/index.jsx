@@ -1,37 +1,57 @@
+import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import { useContext, useState } from "react";
 import ErrorModel from "../../../components/ErrorModel";
 import AuthButton from "../../../components/Sidebar/AuthenticationButton";
 import { AuthContextProvider } from "../../../AuthContext/AuthContext";
 import { OrganisationToQuickBookAuthentication } from "../../../redux/Services/Xero/XeroApi";
-
+import { fetchQuickBookConnectionUrl } from "../../../redux/reducer/quickBookSlice";
 function QuickBookAuthentication() {
     const { handleErrorMessage } = useContext(AuthContextProvider);
+    const organisationKeyID = useSelector(
+        (state) => state.Storage?.organisationKeyID
+    );
+    const dispatch = useDispatch();
+    //=====================state===============================
     const [errorMessage, setErrorMessage] = useState("");
     const formattedErrorMessage = handleErrorMessage(errorMessage);
     const [openErrorModal, setOpenErrorModal] = useState(false);
 
-
+    //================functions=====================
     const handleAuthenticate = async () => {
 
         try {
-            const raw = JSON.parse(localStorage.getItem("persist:Proposal Tool"));
-            const organisationKeyID = JSON.parse(raw.organisationKeyID);
+            const res = await dispatch(
+                fetchQuickBookConnectionUrl(organisationKeyID)
+            ).unwrap();
 
-            const res = await OrganisationToQuickBookAuthentication(organisationKeyID);
-
-            if (res?.status === 200) {
-                const url = res.data.connectionUrl;
-                window.open(url, "_blank", "noopener,noreferrer");
-            } else {
-                setOpenErrorModal(true)
-                setErrorMessage(res.response.data.message)
-                throw new Error("Something went wrong");
+            if (res?.connectionUrl) {
+                // Open in new tab
+                window.open(res.connectionUrl, "_blank");
             }
-        } catch (err) {
-            console.error(err);
-            throw new Error("Something went wrong");
+        } catch (error) {
+            console.log("Error:", error);
         }
     };
+
+
+    // const handleAuthenticate = async () => {
+    //     try {
+    //         const res = await OrganisationToQuickBookAuthentication(organisationKeyID);
+
+    //         if (res?.status === 200) {
+    //             const url = res.data.connectionUrl;
+    //             window.open(url, "_blank", "noopener,noreferrer");
+    //         } else {
+    //             setOpenErrorModal(true)
+    //             setErrorMessage(res.response.data.message)
+    //             throw new Error("Something went wrong");
+    //         }
+    //     } catch (err) {
+    //         console.error(err);
+    //         throw new Error("Something went wrong");
+    //     }
+    // };
 
     const handleClose = () => {
         setOpenErrorModal(false)

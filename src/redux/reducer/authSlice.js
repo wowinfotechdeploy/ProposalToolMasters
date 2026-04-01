@@ -1,29 +1,40 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { XeroBaseUrl } from "../../Base-Url/Base_Url";
+import { QuickBookUrl, XeroBaseUrl } from "../../Base-Url/Base_Url";
+import apiClient from "../Services/axiosInterceptor";
 
-// API function
-export const fetchAuthData = createAsyncThunk(
-  "auth/fetchAuthData",
+export const xeroConnectionStatus = createAsyncThunk(
+  "auth/xeroConnectionStatus",
   async (organisationKeyID, thunkAPI) => {
     try {
-      const state = thunkAPI.getState();
-      const token = state.Storage?.token;
-      //   const organisationKeyID = state.Storage?.organisationKeyID;
-      const res = await fetch(
+      const res = await apiClient.get(
         `${XeroBaseUrl}connection-status/${organisationKeyID}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        {}
       );
-      const data = await res.json();
+
       return {
-        Xero: data?.connected === true,
+        key: "Xero",
+        value: res.data?.connected === true,
       };
-      //await res.json();
     } catch (err) {
-      return thunkAPI.rejectWithValue(err);
+      return thunkAPI.rejectWithValue(err.response?.data);
+    }
+  }
+);
+
+export const quickBooksConnectionStatus = createAsyncThunk(
+  "auth/quickBooksConnectionStatus",
+  async (organisationKeyID, thunkAPI) => {
+    try {
+      const res = await apiClient.get(
+        `${QuickBookUrl}connection-status/${organisationKeyID}`
+      );
+
+      return {
+        key: "QuickBooks",
+        value: res.data?.connected === true,
+      };
+    } catch (err) {
+      return thunkAPI.rejectWithValue(err.response?.data);
     }
   }
 );
@@ -40,14 +51,40 @@ const authSlice = createSlice({
   },
   reducers: {},
   extraReducers: (builder) => {
-    builder.addCase(fetchAuthData.fulfilled, (state, action) => {
-      state.loading = false;
-      state.bookkeeping.Xero = action.payload.Xero;
-    });
-    builder.addCase(fetchAuthData.rejected, (state, action) => {
-      state.loading = false;
-      state.error = action.payload;
-    });
+    builder
+      //Pending
+      .addMatcher(
+        (action) =>
+          action.type.startsWith("auth/") && action.type.endsWith("/pending"),
+        (state) => {
+          state.loading = true;
+        }
+      )
+
+      // Fulfilled (COMMON HANDLER)
+      .addMatcher(
+        (action) =>
+          action.type.startsWith("auth/") && action.type.endsWith("/fulfilled"),
+        (state, action) => {
+          state.loading = false;
+
+          const { key, value } = action.payload || {};
+
+          if (key) {
+            state.bookkeeping[key] = value; // only update specific key
+          }
+        }
+      )
+
+      // Rejected
+      .addMatcher(
+        (action) =>
+          action.type.startsWith("auth/") && action.type.endsWith("/rejected"),
+        (state, action) => {
+          state.loading = false;
+          state.error = action.payload;
+        }
+      );
   },
 });
 

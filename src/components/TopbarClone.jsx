@@ -31,7 +31,8 @@ import SetTimeoutComponent from "./SetTimeoutComponent";
 import UserModelNew from "./UserModelNew";
 import ViewPlan from "./ViewPlan";
 import AuthButton from "./Sidebar/AuthenticationButton";
-import { fetchAuthData } from "../redux/reducer/authSlice";
+import { quickBooksConnectionStatus, xeroConnectionStatus } from "../redux/reducer/authSlice";
+
 
 const TopbarClone = () => {
   // A] States Declaration
@@ -1305,10 +1306,11 @@ const TopbarClone = () => {
                               onChange={(e) => {
 
                                 OnOrganisationsChange(e)
-                                // fetchAuthData(e.target.value)
+                                // xeroConnectionStatus(e.target.value)
                                 try {
                                   const orgId = e.target.value.split(",")[0];
-                                  dispatch(fetchAuthData(orgId));
+                                  dispatch(xeroConnectionStatus(orgId));
+                                  dispatch(quickBooksConnectionStatus(orgId));
                                 } catch (error) {
                                   console.log("error==>>", error)
                                 }
@@ -1430,10 +1432,12 @@ const TopbarClone = () => {
                               onChange={(e) => {
 
                                 OnOrganisationsChange(e)
-                                // fetchAuthData(e.target.value)
+                                // xeroConnectionStatus(e.target.value)
                                 try {
 
-                                  dispatch(fetchAuthData(e.target.value));
+                                  dispatch(xeroConnectionStatus(e.target.value));
+                                  dispatch(quickBooksConnectionStatus(e.target.value));
+
                                 } catch (error) {
                                   console.log("error==>>", error)
                                 }
