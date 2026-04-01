@@ -8,7 +8,7 @@ export const fetchQuickBookConnectionUrl = createAsyncThunk(
   async (organisationKeyID, thunkAPI) => {
     try {
       const res = await apiClient.get(
-        `${QuickBookUrl}/connection-url/${organisationKeyID}`
+        `${QuickBookUrl}connection-url/${organisationKeyID}`
       );
 
       return res.data; //  this is your promise resolve data
@@ -79,15 +79,15 @@ const quickBookSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(fetchQuickBookConnectionUrl.pending, (state) => {
-        state.loading = true;
+        state.loading.connectionUrl = true;
       })
       .addCase(fetchQuickBookConnectionUrl.fulfilled, (state, action) => {
-        state.loading = false;
-        state.connectionUrl = action.payload; //  store response
+        state.loading.connectionUrl = false;
+        state.connectionUrl = action.payload;
       })
       .addCase(fetchQuickBookConnectionUrl.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
+        state.loading.connectionUrl = false;
+        state.error.connectionUrl = action.payload;
       })
       //contacts
       .addCase(fetchContactsLookup.pending, (state) => {
@@ -98,7 +98,7 @@ const quickBookSlice = createSlice({
         state.contactsLookup = action.payload; //  FIXED
       })
       .addCase(fetchContactsLookup.rejected, (state, action) => {
-        state.loading.contactsLookup = false;
+        state.loading.contactsLookup = [];
         state.error.contactsLookup = action.payload;
       });
     // });
