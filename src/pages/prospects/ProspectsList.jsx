@@ -43,6 +43,7 @@ const Prospects = () => {
     (key) => status[key]
   );
   const contactsLookup = useSelector((state) => state.quickBook.contactsLookup);
+  const bookkeeping = useSelector((state) => state.auth.bookkeeping);
 
   const [activeTab, setActiveTab] = useState("Prospect");
   const [errorMessage, setErrorMessage] = useState("");
@@ -1600,46 +1601,50 @@ const Prospects = () => {
                                                   )}
 
                                                   {/* Authenticate Xero */}
-                                                  <li>
-                                                    <a
-                                                      className="dropdown-item"
-                                                      data-bs-toggle="modal"
-                                                      data-bs-target="#ConfirmModel"
-                                                      onClick={() =>
-                                                        setModelRequestData({
-                                                          ...modelRequestData,
-                                                          Action: "Redirect",
-                                                          clientKeyID: Prospect.clientKeyID,
-                                                        })
-                                                      }
-                                                    >
-                                                      <span className="d-flex">     <i className="ri-links-line me-2"></i>
-                                                        Connect To {activePlatform || ""}
-                                                      </span>
-                                                    </a>
-                                                  </li>
+                                                  {bookkeeping && Object.values(bookkeeping).some(val => val) && (
+                                                    <li>
+                                                      <a
+                                                        className="dropdown-item"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#ConfirmModel"
+                                                        onClick={() =>
+                                                          setModelRequestData({
+                                                            ...modelRequestData,
+                                                            Action: "Redirect",
+                                                            clientKeyID: Prospect.clientKeyID,
+                                                          })
+                                                        }
+                                                      >
+                                                        <span className="d-flex">     <i className="ri-links-line me-2"></i>
+                                                          Connect To {activePlatform || ""}
+                                                        </span>
+                                                      </a>
+                                                    </li>
+                                                  )}
 
                                                   {/* Migrate Xero */}
-                                                  {/* {!contactsLookup.some(x => x.ClientKeyId.toLowerCase() == Prospect.clientKeyID) && ( */}
-                                                  <li>
-                                                    <a
-                                                      className="dropdown-item"
-                                                      data-bs-toggle="modal"
-                                                      data-bs-target="#ConfirmModel"
-                                                      onClick={() =>
-                                                        setModelRequestData({
-                                                          ...modelRequestData,
-                                                          Action: "Add Contact",
-                                                          clientKeyID: Prospect.clientKeyID,
-                                                        })
-                                                      }
-                                                    >
-                                                      <span className="d-flex">     <i className="ri-file-transfer-line me-2"></i>
-                                                        {`Add To ${activePlatform || ""}`}
-                                                      </span>
-                                                    </a>
-                                                  </li>
-                                                  {/* )} */}
+
+                                                  {bookkeeping && Object.values(bookkeeping).some(val => val) && (
+                                                    <li>
+                                                      <a
+                                                        className="dropdown-item"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#ConfirmModel"
+                                                        onClick={() =>
+                                                          setModelRequestData({
+                                                            ...modelRequestData,
+                                                            Action: "Add Contact",
+                                                            clientKeyID: Prospect.clientKeyID,
+                                                          })
+                                                        }
+                                                      >
+                                                        <span className="d-flex">     <i className="ri-file-transfer-line me-2"></i>
+                                                          {`Add To ${activePlatform || ""}`}
+                                                        </span>
+                                                      </a>
+                                                    </li>
+                                                  )}
+
                                                   <li>
                                                     <a
                                                       className="dropdown-item"
@@ -1652,28 +1657,29 @@ const Prospects = () => {
                                                     </a>
                                                   </li>
 
-                                                  <li>
-                                                    <a
-                                                      className="dropdown-item"
-                                                      data-bs-toggle="modal"
-                                                      data-bs-target="#ConfirmModel"
-                                                      onClick={() => {
+                                                  {bookkeeping && Object.values(bookkeeping).some(val => val) && (
+                                                    <li>
+                                                      <a
+                                                        className="dropdown-item"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#ConfirmModel"
+                                                        onClick={() => {
 
-                                                        setModelRequestData({
-                                                          ...modelRequestData,
-                                                          Action: "Add Contact Mapping",
-                                                          clientID: Prospect.clientID,
-                                                          // xeroContactId: contactDetails.value
-                                                        })
-                                                      }}
-                                                    >
-                                                      <span className="d-flex">
-                                                        <i className="ri-links-line me-2"></i>
-                                                        Map  Contact & Client  {/* mappings/{organisationKeyId} */}
-                                                      </span>
-                                                    </a>
-                                                  </li>
-
+                                                          setModelRequestData({
+                                                            ...modelRequestData,
+                                                            Action: "Add Contact Mapping",
+                                                            clientID: Prospect.clientID,
+                                                            // xeroContactId: contactDetails.value
+                                                          })
+                                                        }}
+                                                      >
+                                                        <span className="d-flex">
+                                                          <i className="ri-links-line me-2"></i>
+                                                          Map  Contact & Client  {/* mappings/{organisationKeyId} */}
+                                                        </span>
+                                                      </a>
+                                                    </li>
+                                                  )}
                                                 </ul>
                                               </div>
                                             </div>
