@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { QuickBookUrl, XeroBaseUrl } from "../../Base-Url/Base_Url";
+import { Base_Url, QuickBookUrl, XeroBaseUrl } from "../../Base-Url/Base_Url";
 import apiClient from "../Services/axiosInterceptor";
 
 // GET connection URL
@@ -43,6 +43,33 @@ export const fetchContactsLookup = createAsyncThunk(
   }
 );
 
+export const GetAllDrivers = createAsyncThunk(
+  "xero/getAllDrivers",
+  async (organisationKeyID, thunkAPI) => {
+    try {
+      const res = await apiClient.get(
+        `${Base_Url}/XEROAndQBO/GetLocalAndGlobalPricingDriverListWithServices?OrganisationKeyID=${organisationKeyID}`
+      );
+
+      const drivers = res.data?.responseData?.data || [];
+
+      // Transform data here (VERY IMPORTANT)
+      const formatted = drivers.map((d) => ({
+        id: d.globalPricingDriverID,
+        name: d.driverName,
+        services: d._ServiceList.map((s) => ({
+          serviceID: s.serviceID,
+          serviceName: s.serviceName,
+        })),
+      }));
+
+      return formatted; // clean data for UI
+    } catch (err) {
+      return thunkAPI.rejectWithValue(err.response?.data);
+    }
+  }
+);
+
 export const addContactMapping = createAsyncThunk(
   "contact/addContactMapping",
   async (payload, thunkAPI) => {
@@ -64,6 +91,7 @@ const quickBookSlice = createSlice({
   initialState: {
     connectionUrl: null,
     contactsLookup: [],
+    drivers: [],
     message: "",
     loading: {
       connectionUrl: false,
@@ -73,6 +101,7 @@ const quickBookSlice = createSlice({
     error: {
       connectionUrl: null,
       contactsLookup: null,
+      drivers: null,
     },
   },
   reducers: {},
@@ -100,7 +129,19 @@ const quickBookSlice = createSlice({
       .addCase(fetchContactsLookup.rejected, (state, action) => {
         state.loading.contactsLookup = [];
         state.error.contactsLookup = action.payload;
+      })
+      .addCase(GetAllDrivers.pending, (state) => {
+        state.loading.drivers = true;
+      })
+      .addCase(GetAllDrivers.fulfilled, (state, action) => {
+        state.loading.drivers = false;
+        state.drivers = action.payload;
+      })
+      .addCase(GetAllDrivers.rejected, (state, action) => {
+        state.loading.drivers = false;
+        state.error.drivers = action.payload;
       });
+
     // });
   },
 });
