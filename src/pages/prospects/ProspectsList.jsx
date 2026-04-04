@@ -1551,7 +1551,10 @@ const Prospects = () => {
                                                   </span>
                                                 </button>
 
-                                                <ul className="dropdown-menu">
+                                                <ul className="dropdown-menu"
+                                                  aria-labelledby="dropdownMenuButton"
+                                                  style={{ fontSize: "12px" }}
+                                                >
 
                                                   {/* View */}
                                                   <li >
