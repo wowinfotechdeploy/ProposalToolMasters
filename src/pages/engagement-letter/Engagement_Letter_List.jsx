@@ -2640,9 +2640,9 @@ const Engagement_Letter = () => {
 
                                                               {/* invoice button  */}
                                                               {engagement.statusName == 'Signed' &&
-                                                                true //check prospect synced or not
+                                                                //check prospect synced or not
                                                                 //check organisation sync with xerO/qbo
-                                                                && (
+                                                                (
                                                                   <li>
                                                                     {/* <Tooltip title={`Delete ${proposalName}`} placement="right"> */}
                                                                     <a
