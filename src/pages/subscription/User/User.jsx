@@ -212,33 +212,26 @@ const User = () => {
   };
 
   return (
-    <div className="container-fluid">
-      {/* <div class="main-content"> */}
-        <div class="services page-background">
-          <div class="">
-            <div class="row">
-              <div class="col-lg-12">
-                <div class="card">
-                  {/* end card header  */}
-                  <div class="card-body mb-2">
-                    <div id="customerList" style={{ marginTop: "3rem" }}>
-                      <div class="bg-light border-bottom px-2">
-                        <div className="container">
-                          <div className="row">
+    <div>
+      <div className="main-content">
+        <div className="services page-background">
+          <div className="page-info-header page-info-strip">
+            <div class="container">
+              <div className="row">
                 <div className="col-md-6 col-6">
                   <div class="page-title-cls"> {moduleName}</div>
                 </div>
               </div>
             </div>
           </div>
-          <div className="">
+          <div className="container">
             <div className="row">
               <div className="col-lg-12">
                 <div className="card">
                   <div className="card-body">
                     <div id="customerList">
                       <div class="row g-4 mb-3"></div>
-                      <div class="table-responsive table-card mt-2 mb-3 table-padding">
+                      <div class="table-responsive table-card mb-3 table-padding">
                         <div className="search-box col-md-3 col-8 width-searchbox mb-2">
                           <i class="ri-search-line search-icon"></i>
                           <input
@@ -639,11 +632,7 @@ const User = () => {
           {/* container-fluid  */}
         </div>
         {/* End Page-content */}
-        </div>
-        </div>
-        </div>
-        </div>
-        </div>
+
         <Footer />
       </div>
 

@@ -277,23 +277,16 @@ const Subscription_Package = () => {
   };
 
   return (
-    <div className="container-fluid">
-      {/* <div class="main-content"> */}
+    <div>
+      <div class="main-content">
         <div class="services page-background">
-          <div class="">
-            <div class="row">
-              <div class="col-lg-12">
-                <div class="card">
-                  {/* end card header  */}
-                  <div class="card-body mb-2">
-                    <div id="customerList" style={{ marginTop: "3rem" }}>
-                      <div class="bg-light border-bottom px-2">
-                        <div className="container">
-                          <div className="row">
-                            <div className="col-md-6 p-0 ">
+          <div class="page-info-header page-info-strip">
+            <div class="container">
+              <div className="row">
+                <div className="col-md-6 col-6">
                   <div class="page-title-cls">Subscription Packages</div>
                 </div>
-                <div class="col-auto ms-auto">
+                <div class="col-md-6 col-6">
                   <div className="d-flex justify-content-sm-end add-new-btn">
                     {userAccessData.SuperAdmin_Config_Subscription_Package_CanAdd && (
                       <CommonButtonComponent
@@ -309,14 +302,14 @@ const Subscription_Package = () => {
               </div>
             </div>
           </div>
-          <div class="">
+          <div class="container margin-bottom">
             <div class="row">
               <div class="col-lg-12">
                 <div class="card ">
                   <div class="card-body">
                     <div id="customerList">
                       <div class="row g-4 mb-3"></div>
-                      <div class="table-responsive table-card mt-2 mb-3 table-padding">
+                      <div class="table-responsive table-card  mb-3 table-padding">
                         <div class="search-box col-md-3 col-8 width-searchbox mb-2">
                           <i class="ri-search-line search-icon"></i>
                           <input
@@ -531,7 +524,9 @@ const Subscription_Package = () => {
                             totalRecords={totalRecords}
                           />
                         )}
-                        {listCount > 6 && (
+                      </div>
+
+                      {listCount > 6 && (
                         <PaginationComponent
                           totalCount={listCount}
                           totalPages={totalPage}
@@ -540,9 +535,6 @@ const Subscription_Package = () => {
                           onPageChange={handlePageChange}
                         />
                       )}
-                      </div>
-
-
                     </div>
                   </div>
                 </div>
@@ -588,11 +580,6 @@ const Subscription_Package = () => {
           </div>
         </div>
         <Footer />
-      </div>
-      </div>
-      </div>
-      </div>
-      </div>
       </div>
 
       {/* start back-to-top */}

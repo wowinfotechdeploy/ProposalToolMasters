@@ -12,6 +12,12 @@ export const CLIENT_TYPES = {
   Company: 5,
 };
 
+export const PDFToCSVToggle = {
+  Convertor: 1,
+  Upgrade: 2,
+  MySubscription: 3,
+};
+
 export const ServiceHeader = {
   BasicInformation: 1,
   Description: 2,
@@ -60,12 +66,6 @@ export const Template_Type = {
 export const VAT_Reg = {
   Yes: 1,
   No: 0,
-};
-
-export const PDFToCSVToggle = {
-  Convertor: 1,
-  Upgrade: 2,
-  MySubscription: 3,
 };
 
 export const PackageHeader = {
@@ -220,13 +220,6 @@ export const MarketingEmailAddressIdType = {
 export const AppSettingType = {
   UnpaidUser: "Unpaid_Users_Login_To_Outbooks_Warning_Mail",
   paidUser: "Paid_Users_Login_To_Outbooks_Warning_Mail",
-};
-
-export const servicePackageTypeID = {
-  RecurringServiceTypeID: 1,
-  OneOffServiceTypeID: 2,
-  RecurringPackageTypeID: 3,
-  OneOffPackageTypeID: 4,
 };
 
 export const fieldToIdMap = {

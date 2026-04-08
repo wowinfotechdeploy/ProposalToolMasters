@@ -52,7 +52,7 @@ function Add_New_Term_And_Condition(props) {
     getCrudPopUpTitleName,
     scrollUpDownByElementID,
     HtmlToPlainText,
-    hasActionAccess,
+    hasActionAccess
   } = useContext(AuthContextProvider);
   const navigate = useNavigate();
   const common = useSelector((state) => state.Storage); //Getting Logged Users Details From Persist Storage of redux hooks
@@ -70,7 +70,7 @@ function Add_New_Term_And_Condition(props) {
       htmlContent: null,
     },
   ]);
-  // console.log(templateElementList, 'templateElementList')
+  console.log(templateElementList, 'templateElementList')
   const [professionTypeLookupList, setProfessionTypeLookupList] = useState([]);
 
   const [TemplateTypeLookupList, setTemplateTypeLookupList] = useState([]);
@@ -103,31 +103,20 @@ function Add_New_Term_And_Condition(props) {
   useEffect(() => {
     const Admin_Config_Template_CanAdd = hasActionAccess(21, 81);
     const SuperAdmin_Config_Template_CanAdd = hasActionAccess(16, 61);
-    if (
-      (location?.state?.Action === undefined ||
-        location?.state?.Action === null) &&
-      !(Admin_Config_Template_CanAdd || SuperAdmin_Config_Template_CanAdd)
-    ) {
-      navigate(-1);
+    if ((location?.state?.Action === undefined || location?.state?.Action === null) && !(Admin_Config_Template_CanAdd || SuperAdmin_Config_Template_CanAdd)) {
+      navigate(-1)
     }
-  }, []);
+  }, [])
 
   useEffect(() => {
-    setModelAction(
-      location?.state?.Action === undefined || location?.state?.Action === null
-        ? "Add"
-        : "Update",
-    ); //Do not change this naming convention
+    setModelAction((location?.state?.Action === undefined || location?.state?.Action === null) ? "Add" : "Update"); //Do not change this naming convention
     GetProfessionTypeLookupListData();
     GetBusinessTypeLookupListData();
     GetTemplateTypeLookupListData();
     setTopbar("none");
 
     if (location.state?.templateKeyID !== null) {
-      GetTermsAndConditionsModelData(
-        location.state?.templateKeyID,
-        location.state?.Type,
-      );
+      GetTermsAndConditionsModelData(location.state?.templateKeyID, location.state?.Type);
     }
   }, [location.state]);
 
@@ -165,7 +154,7 @@ function Add_New_Term_And_Condition(props) {
     (ptype) => ({
       value: ptype.professionTypeId,
       label: ptype.professionTypeName,
-    }),
+    })
   );
   const professionTypeValue = TemplateObj?.professionTypeList?.map((item) => ({
     value: item.professionTypeId,
@@ -206,24 +195,24 @@ function Add_New_Term_And_Condition(props) {
 
   const handleClose = async () => {
     if (isCheck) {
-      setLoader(true);
+      setLoader(true)
       const Notification = await NotifySuperAdminPredefinedChangesToAdmin({
         userKeyID: common.userKeyID,
         moduleKeyID: TemplateObj.templateKeyID,
-        moduleName: "Predefined-TnC-Template",
-      });
+        moduleName: "Predefined-TnC-Template"
+      })
       if (Notification?.data?.statusCode === 200) {
-        setLoader(false);
-        setModelAction("NotificationSend");
-        setOpenSuccessModal(true);
-        setIsCheck(false);
-        setOpenErrorModal(false);
+        setLoader(false)
+        setModelAction("NotificationSend")
+        setOpenSuccessModal(true)
+        setIsCheck(false)
+        setOpenErrorModal(false)
       }
     } else {
       $("#" + props.id).modal("hide");
       $("#" + "ConfirmSAChangesModel").modal("hide");
       setOpenSuccessModal(false);
-      setOpenErrorModal(false);
+      setOpenErrorModal(false)
       navigate("/terms-and-conditions");
     }
   };
@@ -265,10 +254,7 @@ function Add_New_Term_And_Condition(props) {
 
           // Update editor state
           setEditorState(htmlContent);
-          if (
-            ModelData.templateElementList !== null &&
-            ModelData.templateElementList?.length === 1
-          ) {
+          if (ModelData.templateElementList !== null && ModelData.templateElementList?.length === 1) {
             setTemplateElementList([
               {
                 TTETMapID: ModelData.templateElementList[0].ttetMapID, //Template's Template Element Type Mapping Id.
@@ -279,6 +265,7 @@ function Add_New_Term_And_Condition(props) {
               },
             ]);
           }
+
         }
         setLoader(false);
       } else {
@@ -296,8 +283,8 @@ function Add_New_Term_And_Condition(props) {
     if (Accept === "Accept") {
       $("#" + "ConfirmSAChangesModel").modal("show");
 
-      setStatus(true);
-      return;
+      setStatus(true)
+      return
     }
     // Check Validations will be done here
     if (
@@ -354,7 +341,7 @@ function Add_New_Term_And_Condition(props) {
       TemplateObj.templateTypeID === 4
     ) {
       scrollUpDownByElementID(
-        `EditorDiv_${templateElementList[0].htmlContent}`,
+        `EditorDiv_${templateElementList[0].htmlContent}`
       );
       setRequireErrorMessage(true);
       return false;
@@ -406,15 +393,15 @@ function Add_New_Term_And_Condition(props) {
         TemplateObj.templateTypeID == 3 ? null : templateElementList,
       professionTypeList:
         common.professionTypeLists?.length > 1 ||
-        common.organisationKeyID === null
+          common.organisationKeyID === null
           ? TemplateObj.professionTypeList
           : [
-              {
-                professionTypeId: professionTypeInputValue[0]?.professionTypeId,
-                professionTypeName:
-                  professionTypeInputValue[0]?.professionTypeName,
-              },
-            ],
+            {
+              professionTypeId: professionTypeInputValue[0]?.professionTypeId,
+              professionTypeName:
+                professionTypeInputValue[0]?.professionTypeName,
+            },
+          ],
     };
     AddUpdateTermAndConditionData(ApiRequest_ParamsObj);
   };
@@ -433,19 +420,18 @@ function Add_New_Term_And_Condition(props) {
       ) {
         const response = await AddUpdateTermAndCondition(url, apiRequestParams);
         if (response) {
+
           if (response?.data?.statusCode === 200) {
             const ModuleKeyID = response.data.responseData.data;
             const formData = new FormData();
             // Instead, you should append the entire file
-            const isBinary =
-              selectedFile.fileName instanceof Blob ||
-              selectedFile.fileName instanceof File;
+            const isBinary = selectedFile.fileName instanceof Blob || selectedFile.fileName instanceof File;
             if (isBinary) {
               formData.set("file", selectedFile.fileName); // Append the file itself
               const uploadResponse = await AddUpdateTemplateDataWithPdf(
                 selectedFile.size,
                 ModuleKeyID,
-                formData,
+                formData
               );
 
               if (uploadResponse) {
@@ -657,25 +643,26 @@ function Add_New_Term_And_Condition(props) {
   };
 
   const templateTypeFilter = TemplateTypeLookupList?.filter(
-    (template) => template.value == TemplateObj.templateTypeID,
+    (template) => template.value == TemplateObj.templateTypeID
   );
   const orgBusinessTypeFilter = BusinessTypeLookupList?.filter(
-    (businessType) => businessType.value == TemplateObj.orgBusinessTypeID,
+    (businessType) => businessType.value == TemplateObj.orgBusinessTypeID
   );
   const IsActiveFilter = Utils.IS_default.find(
-    (item) => TemplateObj.isDefault == item.value,
+    (item) => TemplateObj.isDefault == item.value
   );
   const professionTypeInputValue = professionTypeLookupList.filter(
-    (item) => common.professionTypeLists[0] === item.professionTypeId,
+    (item) => common.professionTypeLists[0] === item.professionTypeId
   );
 
   const DeclineSuperAdminChangesData = async (Decline) => {
+
     if (Decline === "Decline") {
       // $('#' + props.id).modal('hide')
 
-      setStatus(false);
+      setStatus(false)
       $("#" + "ConfirmSAChangesModel").modal("show");
-      return;
+      return
     }
     setLoader(true);
     try {
@@ -683,26 +670,26 @@ function Add_New_Term_And_Condition(props) {
         organisationKeyID: common.organisationKeyID,
         userKeyID: common.userKeyID,
         moduleKeyID: location.state?.templateKeyID,
-        moduleName: "Predefined-TnC-Template",
+        moduleName: "Predefined-TnC-Template"
         //Predefined-ServiceCategory, Predefined-GlobalConstant, Predefined-GlobalPricingDriver,
         //Predefined-PL-EL-Template, Predefined-TnC-Template, Predefined-Email-Template,
         //Predefined-Service, Predefined-ServicePackage
-      };
+      }
       const response = await DeclineSuperAdminChanges(apiRequestParams);
       if (response) {
         setLoader(false);
         if (response?.data?.statusCode === 200) {
           if (apiRequestParams.Action === null) {
             $("#" + "ConfirmSAChangesModel").modal("hide");
-            navigate("/terms-and-conditions");
+            navigate("/terms-and-conditions")
             props.setIsAddUpdateActionDone(true);
           } else {
             $("#" + "ConfirmSAChangesModel").modal("hide");
-            navigate("/terms-and-conditions");
+            navigate("/terms-and-conditions")
             props.setIsAddUpdateActionDone(true);
           }
         } else {
-          setOpenErrorModal(true);
+          setOpenErrorModal(true)
           $("#" + "ConfirmSAChangesModel").modal("hide");
           setErrorMessage(response?.response?.data?.errorMessage);
         }
@@ -710,15 +697,15 @@ function Add_New_Term_And_Condition(props) {
     } catch (error) {
       console.error(error);
     }
-  };
+  }
   const handleConfirmButton = () => {
     $("#" + "ConfirmSAChangesModel").modal("hide");
     if (Status) {
-      TemplateAddUpdateBtnClicked(true);
+      TemplateAddUpdateBtnClicked(true)
     } else {
-      DeclineSuperAdminChangesData();
+      DeclineSuperAdminChangesData()
     }
-  };
+  }
 
   return (
     <div className="container-fluid new-item-page-container">
@@ -737,62 +724,57 @@ function Add_New_Term_And_Condition(props) {
               <div class="tab-content">
                 <>
                   <div className="row fieldset" id="ProfessionTypeDiv">
-                    <SAPredefinedChangesNotifyMessageModel
-                      Params={{
-                        moduleName: moduleName,
-                        SAChanges: location.state?.Type,
-                      }}
-                    />
+                    <SAPredefinedChangesNotifyMessageModel Params={{ moduleName: moduleName, SAChanges: location.state?.Type }} />
                     {(common.professionTypeLists?.length > 1 ||
                       common.organisationKeyID === null) && (
-                      <>
-                        <div className="col-lg-3 template-label text-left">
-                          <div className="mb-1">
-                            <label htmlFor="useremail" className="form-label">
-                              Profession Type
-                              <span className="text-danger">*</span>
-                            </label>
+                        <>
+                          <div className="col-lg-3 template-label text-left">
+                            <div className="mb-1">
+                              <label htmlFor="useremail" className="form-label">
+                                Profession Type
+                                <span className="text-danger">*</span>
+                              </label>
+                            </div>
                           </div>
-                        </div>
-                        <div className="col-lg-9">
-                          <div className="">
-                            <div className="input-group user-role-select">
-                              {common.professionTypeLists?.length > 1 ||
-                              common.organisationKeyID === null ? (
-                                <Select
-                                  isMulti
-                                  className="user-role-select"
-                                  options={ProfessionalTypeLookeupListOptions}
-                                  value={professionTypeValue}
-                                  onChange={OnChangeSelectProfessionType}
-                                />
+                          <div className="col-lg-9">
+                            <div className="">
+                              <div className="input-group user-role-select">
+                                {common.professionTypeLists?.length > 1 ||
+                                  common.organisationKeyID === null ? (
+                                  <Select
+                                    isMulti
+                                    className="user-role-select"
+                                    options={ProfessionalTypeLookeupListOptions}
+                                    value={professionTypeValue}
+                                    onChange={OnChangeSelectProfessionType}
+                                  />
+                                ) : (
+                                  ""
+                                  // <input
+                                  //   disabled
+                                  //   type="text"
+                                  //   class="input-text"
+                                  //   placeholder=" Profession Type"
+                                  //   value={
+                                  //     professionTypeInputValue[0]?.professionTypeName
+                                  //   }
+                                  // />
+                                )}
+                              </div>
+                              {requireErrorMessage &&
+                                (common.professionTypeLists?.length > 1 ||
+                                  common.organisationKeyID === null) &&
+                                professionTypeValue?.length === 0 ? (
+                                <label className="validation">
+                                  {ERROR_MESSAGES}
+                                </label>
                               ) : (
                                 ""
-                                // <input
-                                //   disabled
-                                //   type="text"
-                                //   class="input-text"
-                                //   placeholder=" Profession Type"
-                                //   value={
-                                //     professionTypeInputValue[0]?.professionTypeName
-                                //   }
-                                // />
                               )}
                             </div>
-                            {requireErrorMessage &&
-                            (common.professionTypeLists?.length > 1 ||
-                              common.organisationKeyID === null) &&
-                            professionTypeValue?.length === 0 ? (
-                              <label className="validation">
-                                {ERROR_MESSAGES}
-                              </label>
-                            ) : (
-                              ""
-                            )}
                           </div>
-                        </div>
-                      </>
-                    )}
+                        </>
+                      )}
                   </div>
                 </>
                 {common.roleTypeId === USER_ROLE_TYPE.SuperAdmin &&
@@ -824,8 +806,8 @@ function Add_New_Term_And_Condition(props) {
                               }}
                             />
                             {requireErrorMessage &&
-                            (TemplateObj.orgBusinessTypeID === "" ||
-                              TemplateObj.orgBusinessTypeID === null) ? (
+                              (TemplateObj.orgBusinessTypeID === "" ||
+                                TemplateObj.orgBusinessTypeID === null) ? (
                               <label className="validation">
                                 {ERROR_MESSAGES}
                               </label>
@@ -858,7 +840,7 @@ function Add_New_Term_And_Condition(props) {
                             const inputValue = e.target.value;
                             const trimmedValue = inputValue.replace(
                               /^\s+/g,
-                              "",
+                              ""
                             );
                             const capitalizedValue =
                               trimmedValue.charAt(0).toUpperCase() +
@@ -873,8 +855,8 @@ function Add_New_Term_And_Condition(props) {
                         />
                       </div>
                       {requireErrorMessage &&
-                      (TemplateObj.templateName === "" ||
-                        TemplateObj.templateName === undefined) ? (
+                        (TemplateObj.templateName === "" ||
+                          TemplateObj.templateName === undefined) ? (
                         <label className="validation">{ERROR_MESSAGES}</label>
                       ) : (
                         ""
@@ -905,8 +887,8 @@ function Add_New_Term_And_Condition(props) {
                         />
                       </div>
                       {requireErrorMessage &&
-                      (TemplateObj.templateTypeID == "" ||
-                        TemplateObj.templateTypeID == null) ? (
+                        (TemplateObj.templateTypeID == "" ||
+                          TemplateObj.templateTypeID == null) ? (
                         <label className="validation">{ERROR_MESSAGES}</label>
                       ) : (
                         ""
@@ -943,46 +925,57 @@ function Add_New_Term_And_Condition(props) {
                         />
                       </div>
                       {requireErrorMessage &&
-                      (TemplateObj.status === "" ||
-                        TemplateObj.status === null) ? (
+                        (TemplateObj.status === "" ||
+                          TemplateObj.status === null) ? (
                         <label className="validation">{ERROR_MESSAGES}</label>
                       ) : (
                         ""
                       )}
                     </div>
-                    {modelAction === "Update" ? (
-                      <></>
-                    ) : (
+                    {modelAction === "Update" ? <></> :
                       <div
                         style={{ fontSize: "12px" }}
                         className="text-muted helpMessage"
                       >
                         If you set this template as the default, any other
-                        template with the same template type will automatically
-                        be marked as non-default.
+                        template with the same template type will automatically be
+                        marked as non-default.
                       </div>
-                    )}
+                    }
                   </div>
                 </div>
                 {(TemplateObj.templateTypeID === 3 ||
                   TemplateObj.templateTypeID === "3") && (
-                  <>
-                    <div className="row">
-                      <div className="col-lg-3 template-label text-left">
-                        <div className="mb-1">
-                          <label className="form-label">
-                            PDF Template
-                            <span className="text-danger">*</span>
-                          </label>
+                    <>
+                      <div className="row">
+                        <div className="col-lg-3 template-label text-left">
+                          <div className="mb-1">
+                            <label className="form-label">
+                              PDF Template
+                              <span className="text-danger">*</span>
+                            </label>
+                          </div>
                         </div>
-                      </div>
 
-                      <div className="col-lg-9">
-                        <div className="mb-3">
-                          <div>
-                            <div className="col-lg-9">
-                              {TemplateObj.pdf === null ? (
-                                selectedFile.fileName && (
+                        <div className="col-lg-9">
+                          <div className="mb-3">
+                            <div>
+                              <div className="col-lg-9">
+                                {TemplateObj.pdf === null ? (
+                                  selectedFile.fileName && (
+                                    <button
+                                      onClick={handlePdfDelete}
+                                      style={{
+                                        marginBottom: "5px",
+                                        fontSize: "75%",
+                                      }}
+                                      className="btn btn-sm btn-danger remove-item-btn "
+                                    >
+                                      <i class="bi bi-trash3 margin-right"></i>{" "}
+                                      Delete
+                                    </button>
+                                  )
+                                ) : (
                                   <button
                                     onClick={handlePdfDelete}
                                     style={{
@@ -994,99 +987,87 @@ function Add_New_Term_And_Condition(props) {
                                     <i class="bi bi-trash3 margin-right"></i>{" "}
                                     Delete
                                   </button>
-                                )
-                              ) : (
-                                <button
-                                  onClick={handlePdfDelete}
-                                  style={{
-                                    marginBottom: "5px",
-                                    fontSize: "75%",
-                                  }}
-                                  className="btn btn-sm btn-danger remove-item-btn "
-                                >
-                                  <i class="bi bi-trash3 margin-right"></i>{" "}
-                                  Delete
-                                </button>
-                              )}
+                                )}
+                              </div>
                             </div>
-                          </div>
-                          {TemplateObj.pdf === null ? (
-                            <>
-                              {selectedFile.fileName ? (
-                                <>
-                                  <div className="input-group">
-                                    {/* Create a temporary URL for the file */}
-                                    {/* Assuming selectedFile is the file object */}
+                            {TemplateObj.pdf === null ? (
+                              <>
+                                {selectedFile.fileName ? (
+                                  <>
+                                    <div className="input-group">
+                                      {/* Create a temporary URL for the file */}
+                                      {/* Assuming selectedFile is the file object */}
 
-                                    {/* Embed the PDF using an iframe */}
-                                    {/* <iframe
+                                      {/* Embed the PDF using an iframe */}
+                                      {/* <iframe
                                         title="PDF Viewer"
                                         src={pdfUrl}
                                         width="100%"
                                         height="600px"
                                       ></iframe> */}
-                                    <object
-                                      title="PDF Viewer"
-                                      data={pdfUrl}
-                                      width="100%"
-                                      height="500px"
-                                    >
-                                      {/* // <p>PDF cannot be displayed. <a href={TemplateObj.pdf}>Download</a> it instead.</p> */}
-                                    </object>
-                                  </div>
-                                </>
-                              ) : (
-                                <>
-                                  <div className="input-group">
-                                    <input
-                                      type="file"
-                                      accept=".pdf"
-                                      onChange={(e) => {
-                                        e.preventDefault(); // Prevent the default form submission behavior
-                                        handleFileUpload(e);
-                                      }}
-                                    />
-                                  </div>
-                                  <div className="text-muted helpMessage">
-                                    Supported file types are .PDF up to a file
-                                    size of 10MB.
-                                  </div>
-                                  {requireErrorMessage &&
-                                  !selectedFile.fileName &&
-                                  TemplateObj.templateTypeID === 3 ? (
-                                    <label className="validation">
-                                      {ERROR_MESSAGES}
-                                    </label>
-                                  ) : (
-                                    ""
-                                  )}
-                                </>
-                              )}
-                            </>
-                          ) : (
-                            <>
-                              <div className="input-group">
-                                {/* Embed the PDF using an iframe */}
-                                <object
-                                  title="PDF Viewer"
-                                  data={`https://docs.google.com/viewer?url=${encodeURIComponent(TemplateObj.pdf)}&embedded=true`}
-                                  width="100%"
-                                  height="500px"
-                                >
-                                  {/* // <p>PDF cannot be displayed. <a href={TemplateObj.pdf}>Download</a> it instead.</p> */}
-                                </object>
-                              </div>
-                            </>
-                          )}
+                                      <object
+                                        title="PDF Viewer"
+                                        data={pdfUrl}
+                                        width="100%"
+                                        height="500px"
+                                      >
+                                        {/* // <p>PDF cannot be displayed. <a href={TemplateObj.pdf}>Download</a> it instead.</p> */}
+                                      </object>
+                                    </div>
+                                  </>
+                                ) : (
+                                  <>
+                                    <div className="input-group">
+                                      <input
+                                        type="file"
+                                        accept=".pdf"
+                                        onChange={(e) => {
+                                          e.preventDefault(); // Prevent the default form submission behavior
+                                          handleFileUpload(e);
+                                        }}
+                                      />
+                                    </div>
+                                    <div className="text-muted helpMessage">
+                                      Supported file types are .PDF up to a file
+                                      size of 10MB.
+                                    </div>
+                                    {requireErrorMessage &&
+                                      !selectedFile.fileName &&
+                                      TemplateObj.templateTypeID === 3 ? (
+                                      <label className="validation">
+                                        {ERROR_MESSAGES}
+                                      </label>
+                                    ) : (
+                                      ""
+                                    )}
+                                  </>
+                                )}
+                              </>
+                            ) : (
+                              <>
+                                <div className="input-group">
+                                  {/* Embed the PDF using an iframe */}
+                                  <object
+                                    title="PDF Viewer"
+                                    data={`https://docs.google.com/viewer?url=${encodeURIComponent(TemplateObj.pdf)}&embedded=true`}
+                                    width="100%"
+                                    height="500px"
+                                  >
+                                    {/* // <p>PDF cannot be displayed. <a href={TemplateObj.pdf}>Download</a> it instead.</p> */}
+                                  </object>
+
+                                </div>
+                              </>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </>
-                )}
+                    </>
+                  )}
                 {(TemplateObj.templateTypeID === 3 ||
                   TemplateObj.templateTypeID === "3") && (
-                  <>
-                    {/* <div className="row">
+                    <>
+                      {/* <div className="row">
                         <div className="col-lg-3"></div>
                         <div className="col-lg-9">
                           <div className="mb-3">
@@ -1112,43 +1093,43 @@ function Add_New_Term_And_Condition(props) {
                           </div>
                         </div>
                       </div> */}
-                  </>
-                )}
+                    </>
+                  )}
 
                 {(TemplateObj.templateTypeID === 4 ||
                   TemplateObj.templateTypeID === "4") && (
-                  <div>
-                    <h6 className="mt-2">Template Content</h6>
-                    <div className="separator mb-3" />
-                    <div className="fieldset-group helper-variables-div">
-                      <label className="fieldset-group-label">Variables</label>
-                      <AccountantVariables
-                        ModuleName="TnCTemplate"
-                        ClintType={null}
-                        businessTypeId={
-                          common.organisationKeyID === null
-                            ? TemplateObj.orgBusinessTypeID
-                            : common.businessTypeID
-                        }
-                      />
+                    <div>
+                      <h6 className="mt-2">Template Content</h6>
+                      <div className="separator mb-3" />
+                      <div className="fieldset-group helper-variables-div">
+                        <label className="fieldset-group-label">Variables</label>
+                        <AccountantVariables
+                          ModuleName="TnCTemplate"
+                          ClintType={null}
+                          businessTypeId={
+                            common.organisationKeyID === null
+                              ? TemplateObj.orgBusinessTypeID
+                              : common.businessTypeID
+                          }
+                        />
+                      </div>
+                      <div id={`EditorDiv_${templateElementList[0].htmlContent}`}>
+                        <Text_Editor
+                          editorState={editorState}
+                          handleContentChange={handleContentChange}
+                          modelAction={modelAction}
+                        />
+                      </div>
                     </div>
-                    <div id={`EditorDiv_${templateElementList[0].htmlContent}`}>
-                      <Text_Editor
-                        editorState={editorState}
-                        handleContentChange={handleContentChange}
-                        modelAction={modelAction}
-                      />
-                    </div>
-                  </div>
-                )}
+                  )}
                 {requireErrorMessage &&
-                (templateElementList[0].htmlContent === null ||
-                  templateElementList[0].htmlContent === "" ||
-                  templateElementList[0].htmlContent === undefined ||
-                  templateElementList[0].htmlContent === "<p></p>\n" ||
-                  templateElementList[0].htmlContent === "<p></p>" ||
-                  templateElementList[0].htmlContent === "<p><br></p>") &&
-                TemplateObj.templateTypeID === 4 ? (
+                  (templateElementList[0].htmlContent === null ||
+                    templateElementList[0].htmlContent === "" ||
+                    templateElementList[0].htmlContent === undefined ||
+                    templateElementList[0].htmlContent === "<p></p>\n" ||
+                    templateElementList[0].htmlContent === "<p></p>" ||
+                    templateElementList[0].htmlContent === "<p><br></p>") &&
+                  TemplateObj.templateTypeID === 4 ? (
                   <label className="validation">{ERROR_MESSAGES}</label>
                 ) : (
                   ""
@@ -1165,9 +1146,9 @@ function Add_New_Term_And_Condition(props) {
               >
                 {/* {errorMessage} */}
                 {common.professionTypeLists?.length <= 1 &&
-                errorMessage?.includes(
-                  `Please don't choose this profession type`,
-                )
+                  errorMessage?.includes(
+                    `Please don't choose this profession type`
+                  )
                   ? errorMessage.split(".")[0]
                   : errorMessage}
               </label>
@@ -1179,48 +1160,49 @@ function Add_New_Term_And_Condition(props) {
                 style={{ paddingTop: "14px" }}
                 className="hstack gap-2 justify-content-end"
               >
-                {location.state?.Type ? (
-                  <>
-                    <button
-                      type="submit"
-                      class="btn btn-md btn-success accept-item-btn"
-                      onClick={() => {
-                        TemplateAddUpdateBtnClicked("Accept");
-                      }}
-                    >
-                      <span>Accept</span>
-                    </button>
-                    <button
-                      type="submit"
-                      class="btn btn-md btn-success declined-item-btn"
-                      // data-bs-dismiss="modal"
-                      onClick={() => DeclineSuperAdminChangesData("Decline")}
-                    >
-                      <span>Decline</span>
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <button
-                      onClick={handleSubmit}
-                      style={{ float: "right", paddingTop: "5px" }}
-                      className="btn btn-md btn-light"
-                    >
-                      <span>{getCrudButtonTextName("Cancel")}</span>
-                    </button>
-                    <button
-                      onClick={(e) => TemplateAddUpdateBtnClicked()}
-                      style={{ float: "right", paddingTop: "5px" }}
-                      className="btn btn-md btn-success create-item-btn"
-                    >
-                      <span>
-                        {modelAction === "Add"
-                          ? getCrudButtonTextName("Add", moduleName)
-                          : getCrudButtonTextName("Update", moduleName)}
-                      </span>
-                    </button>
-                  </>
-                )}
+                {location.state?.Type ? (<>
+                  <button
+                    type="submit"
+                    class="btn btn-md btn-success accept-item-btn"
+                    onClick={() => {
+                      TemplateAddUpdateBtnClicked("Accept");
+                    }}
+                  >
+                    <span>
+                      Accept
+                    </span>
+                  </button>
+                  <button
+                    type="submit"
+                    class="btn btn-md btn-success declined-item-btn"
+                    // data-bs-dismiss="modal"
+                    onClick={() => DeclineSuperAdminChangesData("Decline")}
+                  >
+                    <span>
+                      Decline
+                    </span>
+                  </button>
+                </>) : (<>
+                  <button
+                    onClick={handleSubmit}
+                    style={{ float: "right", paddingTop: "5px" }}
+                    className="btn btn-md btn-light"
+                  >
+                    <span>{getCrudButtonTextName("Cancel")}</span>
+                  </button>
+                  <button
+                    onClick={(e) => TemplateAddUpdateBtnClicked()}
+                    style={{ float: "right", paddingTop: "5px" }}
+                    className="btn btn-md btn-success create-item-btn"
+                  >
+                    <span>
+                      {modelAction === "Add"
+                        ? getCrudButtonTextName("Add", moduleName)
+                        : getCrudButtonTextName("Update", moduleName)}
+                    </span>
+                  </button>
+                </>)
+                }
               </Col>
             </Row>
             {/* <!-- end tab content --> */}

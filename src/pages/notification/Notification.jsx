@@ -94,24 +94,15 @@ const Notification = () => {
   };
 
   return (
-    <div className="container-fluid">
-      {/* <div class="main-content"> */}
-        <div class="services page-background">
-          <div class="">
-            <div class="row">
-              <div class="col-lg-12">
-                <div class="card">
-                  {/* end card header  */}
-                  <div class="card-body mb-2">
-                    <div id="customerList" style={{marginTop: "3rem"}}>
-                      <div class="bg-light border-bottom px-2">
-                        <div class="">
-                          <div className="row">
-                <div className="col-md-4 col-4">
-              <h4 class="page-display-title fw-bold">Notifications</h4>
+    <div>
+      <div class="main-content">
+        <div class="page-content page-background">
+          <div class="page-info-header page-info-strip">
+            <div class="container">
+              <div class="page-display-title">Notifications</div>
             </div>
           </div>
-          <div class="">
+          <div class="container-fluid margin-bottom">
             <div class="row">
               <div class="col-12 mt-3">
                 <div class="card cus-card">
@@ -225,13 +216,6 @@ const Notification = () => {
               </div>
             </div>
           </div>
-        </div>
-        </div>
-        </div>
-        </div>
-        </div>
-        </div>
-        </div>
         </div>
         <Footer />
       </div>

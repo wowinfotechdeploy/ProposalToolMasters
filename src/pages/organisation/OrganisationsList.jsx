@@ -463,21 +463,13 @@ const Organisation = () => {
       // console.log(fromDate,toDate);
     };
   return (
-    <>
-    <div className="container-fluid">
-      {/* <div class="main-content"> */}
+    <div>
+      <div class="main-content">
         <div class="services page-background">
-          <div class="">
-            <div class="row">
-              <div class="col-lg-12">
-                <div class="card">
-                  {/* end card header  */}
-                  <div class="card-body mb-2">
-                    <div id="customerList" style={{ marginTop: "3rem" }}>
-                      <div class="bg-light border-bottom px-2">
-                        <div className="container">
-                          <div className="row">
-                            <div className="col-md-6 p-0 ">
+          <div class="page-info-header page-info-strip">
+            <div class="container">
+              <div className="row">
+                <div className="col-md-3 col-6">
                   <div class="page-title-cls">Organisation/Practice</div>
                 </div>
                 <div className="col d-flex align-items-center justify-content-end ms-auto">
@@ -491,8 +483,8 @@ const Organisation = () => {
                 </div>
               </div>
             </div>
-          {/* </div> */}
-          <div class="">
+          </div>
+          <div class="container">
             <div class="row">
               <div class="col-lg-12">
                 <div class="card">
@@ -501,7 +493,7 @@ const Organisation = () => {
                     <div id="customerList">
                       <div class="row g-4 mb-3"></div>
 
-                      <div class="table-responsive table-card mt-2 mb-3 table-padding">
+                      <div class="table-responsive table-card  mb-3 table-padding">
                       <div className="row align-items-center justify-content">
                       <div className="search-box col-md-3 col-sm-4 width-searchbox mb-2">
                           <div>
@@ -914,6 +906,7 @@ const Organisation = () => {
                     </div>
 
                     {/* end card  */}
+                  </div>
                   {listCount > pageSize && (
                     <PaginationComponent
                       totalCount={listCount}
@@ -922,7 +915,6 @@ const Organisation = () => {
                       onPageChange={handlePageChange}
                     />
                   )}
-                  </div>
                 </div>
                 {/* end col */}
               </div>
@@ -968,15 +960,8 @@ const Organisation = () => {
         </div>
         {/* End Page-content */}
       </div>
+      <Footer />
     </div>
-    </div>
-    </div>
-    </div>
-    </div>
-    </div>
-    </div>
-    <Footer />
-    </>
   );
 };
 

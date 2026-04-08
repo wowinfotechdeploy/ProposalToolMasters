@@ -205,7 +205,7 @@ function AddUpdateSuperAdminReminderTemplate(props) {
       templateElementList[0].htmlContent === "<p><br></p>"
     ) {
       scrollUpDownByElementID(
-        `EditorDiv_${templateElementList[0].htmlContent}`,
+        `EditorDiv_${templateElementList[0].htmlContent}`
       );
       setRequireErrorMessage(true);
       return false;
@@ -222,7 +222,7 @@ function AddUpdateSuperAdminReminderTemplate(props) {
         };
         setTemplateElementList(updatedTemplateElementList);
         scrollUpDownByElementID(
-          `EditorDiv_${templateElementList[0].htmlContent}`,
+          `EditorDiv_${templateElementList[0].htmlContent}`
         );
         setRequireErrorMessage(true);
         return false;
@@ -360,11 +360,11 @@ function AddUpdateSuperAdminReminderTemplate(props) {
     }
   };
   const templateTypeFilter = TemplateTypeLookupList?.filter(
-    (template) => template.value == TemplateObj.templateTypeID,
+    (template) => template.value == TemplateObj.templateTypeID
   );
 
   const IsActiveFilter = Utils.IS_default.find(
-    (item) => TemplateObj.isDefault == item.value,
+    (item) => TemplateObj.isDefault == item.value
   );
 
   return (
@@ -404,7 +404,7 @@ function AddUpdateSuperAdminReminderTemplate(props) {
                             const inputValue = e.target.value;
                             const trimmedValue = inputValue.replace(
                               /^\s+/g,
-                              "",
+                              ""
                             );
                             const capitalizedValue =
                               trimmedValue.charAt(0).toUpperCase() +
@@ -485,7 +485,7 @@ function AddUpdateSuperAdminReminderTemplate(props) {
                             const inputValue = e.target.value;
                             const trimmedValue = inputValue.replace(
                               /^\s+/g,
-                              "",
+                              ""
                             );
                             const capitalizedValue =
                               trimmedValue.charAt(0).toUpperCase() +
@@ -605,7 +605,7 @@ function AddUpdateSuperAdminReminderTemplate(props) {
                 {" "}
                 {common.professionTypeLists?.length <= 1 &&
                 errorMessage?.includes(
-                  `Please don't choose this profession type`,
+                  `Please don't choose this profession type`
                 )
                   ? errorMessage.split(".")[0]
                   : errorMessage}

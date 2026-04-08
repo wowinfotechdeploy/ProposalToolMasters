@@ -37,7 +37,7 @@ const SuccessModal = (props) => {
         >
           <div class="modal-content">
             <div class="modal-header" style={{ paddingBottom: "10px" }}></div>
-            {/* <div class="modal-body"> */}
+            <div class="modal-body">
               <div class="mt-2 text-center">
                 <div className="modallogo">
                   <div className="modallogo1"></div>
@@ -135,12 +135,6 @@ const SuccessModal = (props) => {
                       : null}
                     {props.modelAction === "Send"
                       ? `${props.message} with ${props.refIdStore} successfully sent!`
-                      : null}
-                    {props.modelAction === "ResendAddUpdateQuote"
-                      ? `${props.message} sent successfully!`
-                      : null}
-                    {props.modelAction === "ResendAddUpdateContract"
-                      ? `${props.message} sent successfully!`
                       : null}
                     {props.modelAction === "Resend"
                       ? `${props.message} with ${props.refIdStore} successfully re-sent!`
@@ -250,7 +244,7 @@ const SuccessModal = (props) => {
                   </div>
                 </p>
               </div>
-            {/* </div> */}
+            </div>
           </div>
         </div>
       </Modal>

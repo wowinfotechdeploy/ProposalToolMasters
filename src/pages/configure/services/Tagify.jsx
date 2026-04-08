@@ -1,5 +1,4 @@
 import Tags from "@yaireo/tagify/dist/react.tagify";
-// import Tags from "@yaireo/tagify/react";
 import React, { useContext, useEffect, useState } from "react";
 import "@yaireo/tagify/dist/tagify.css";
 import {

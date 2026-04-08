@@ -490,15 +490,15 @@ const Payment_Gateway = () => {
     <div>
       <div class="main-content">
         <div class="services page-background">
-          {/* <div class="page-info-header  page-info-strip"> */}
+          <div class="page-info-header  page-info-strip">
             <div class="container">
               <div class="page-title-cls">Payment Gateways</div>
             </div>
-          {/* </div> */}
+          </div>
 
           <div class="container ">
             <div class="row">
-              <div class="col-12 mt-2 paymentgateway">
+              <div class="col-12 paymentgateway">
                 <div class="card" style={{ maxHeight: "70vh" }}>
                   <div class="card-body">
                     <div className="row">

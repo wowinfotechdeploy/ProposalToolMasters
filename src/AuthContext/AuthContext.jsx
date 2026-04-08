@@ -15,26 +15,15 @@ const initialState = {
 export const AuthContextProvider = createContext(initialState);
 
 const AuthContext = ({ children }) => {
-  const common = useSelector((state) => state.Storage);
-
   /* -------------------------------------------------------------------------- */
   /*                                State Declare                               */
   /* -------------------------------------------------------------------------- */
   const dispatch = useDispatch();
   const [activeOrganization, setActiveOrganization] = useState([]);
-  // const [activeOrganizationSubscriptionPlan, setActiveOrganizationSubscriptionPlan] = useState(() => {
-  //   const storedData = JSON.parse(localStorage.getItem("OrganisationLocalList"));
-  //   if (!storedData || !Array.isArray(storedData)) return null;
-  //   const match = storedData.find(
-  //     org => org.organisationKeyID === common.organisationKeyID
-  //   );
-  //   return match ? match.subscriptionPlan : null;
-  // });
   const [
     activeOrganizationSubscriptionPlan,
     setActiveOrganizationSubscriptionPlan,
-  ] = useState(null);
-  const [isSubscriptionLoading, setIsSubscriptionLoading] = useState(true);
+  ] = useState(JSON.parse(localStorage.getItem("subscriptionPlan")));
   const [topbar, setTopbar] = useState("block");
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [loader, setLoader] = useState(false);
@@ -82,6 +71,7 @@ const AuthContext = ({ children }) => {
     ? Math.ceil(listCount / isMobileRecords)
     : Math.ceil(listCount / desktopRecords);
 
+  const common = useSelector((state) => state.Storage);
   // User Access Permission
   const [userAccessData, setUserAccessData] = useState({
     Dashboard_CanView: true,
@@ -297,9 +287,9 @@ const AuthContext = ({ children }) => {
     const handleResize = () => {
       const width = window.innerWidth;
       const height = window.innerHeight;
-      if (width <= 1040) {
+      if (width <= 768) {
         setIsMobile(true);
-      } else if (width > 1040) {
+      } else if (width > 768) {
         setIsMobile(false);
       }
       // Set isMobile based on width
@@ -349,26 +339,6 @@ const AuthContext = ({ children }) => {
     window.addEventListener("resize", handleResize); // Listen for viewport changes
     return () => window.removeEventListener("resize", handleResize); // Clean up on unmount
   }, []);
-
-  useEffect(() => {
-    const storedData = JSON.parse(
-      localStorage.getItem("OrganisationLocalList")
-    );
-    if (!storedData || !Array.isArray(storedData)) {
-      setActiveOrganizationSubscriptionPlan(null);
-      setIsSubscriptionLoading(false);
-      return;
-    }
-
-    const match = storedData.find(
-      (org) => org.organisationKeyID === common.organisationKeyID
-    );
-
-    setActiveOrganizationSubscriptionPlan(
-      match ? match.subscriptionPlan : null
-    );
-    setIsSubscriptionLoading(false);
-  }, [common.organisationKeyID]);
 
   useEffect(() => {
     if (
@@ -435,89 +405,89 @@ const AuthContext = ({ children }) => {
     setMenuVisible(!isMenuVisible);
   };
 
-  const updateImageUrlsInHtml = async (htmlContent) => {
-    // Regular expression to match base64 images
-    const base64ImageRegex =
-      /<img[^>]+src="data:image\/(png|jpeg|jpg);base64,([^"]*)"/g;
-    const matches = [...htmlContent.matchAll(base64ImageRegex)];
-    setLoader(true);
+  // const updateImageUrlsInHtml = async (htmlContent) => {
+  //   // Regular expression to match base64 images
+  //   const base64ImageRegex =
+  //     /<img[^>]+src="data:image\/(png|jpeg|jpg);base64,([^"]*)"/g;
+  //   const matches = [...htmlContent.matchAll(base64ImageRegex)];
+  //   setLoader(true);
 
-    const urlMap = new Map();
+  //   const urlMap = new Map();
 
-    for (const [index, match] of matches.entries()) {
-      const base64Data = match[2];
-      const contentType = `image/${match[1]}`;
-      const filename = `image-${index}.${match[1]}`;
+  //   for (const [index, match] of matches.entries()) {
+  //     const base64Data = match[2];
+  //     const contentType = `image/${match[1]}`;
+  //     const filename = `image-${index}.${match[1]}`;
 
-      const userKeyID = common.userKeyID; // Ensure this is defined or passed in
-      const ApiObject_param = { base64Data, contentType, filename, userKeyID };
+  //     const userKeyID = common.userKeyID; // Ensure this is defined or passed in
+  //     const ApiObject_param = { base64Data, contentType, filename, userKeyID };
 
-      try {
-        const response = await GetSaveImage(ApiObject_param);
-        if (response.data.statusCode === 200) {
-          const imgUrl = response.data.imageUrl;
+  //     try {
+  //       const response = await GetSaveImage(ApiObject_param);
+  //       if (response.data.statusCode === 200) {
+  //         const imgUrl = response.data.imageUrl;
 
-          urlMap.set(base64Data, imgUrl);
-        } else {
-          console.error("Server response not successful:", response.data);
-        }
-      } catch (error) {
-        console.error("Error saving image:", error);
-      }
-    }
+  //         urlMap.set(base64Data, imgUrl);
+  //       } else {
+  //         console.error("Server response not successful:", response.data);
+  //       }
+  //     } catch (error) {
+  //       console.error("Error saving image:", error);
+  //     }
+  //   }
 
-    let updatedHtml = htmlContent;
+  //   let updatedHtml = htmlContent;
 
-    // Iterate over URL map and replace base64 data with URLs
-    urlMap.forEach((newUrl, base64Data) => {
-      try {
-        // Use a more generic approach to split and replace
-        updatedHtml = updatedHtml
-          .split(`data:image/png;base64,${base64Data}`)
-          .join(newUrl);
-        updatedHtml = updatedHtml
-          .split(`data:image/jpeg;base64,${base64Data}`)
-          .join(newUrl);
-        updatedHtml = updatedHtml
-          .split(`data:image/jpg;base64,${base64Data}`)
-          .join(newUrl);
-      } catch (error) {
-        console.error("Error replacing base64 data:", error);
-      }
-    });
+  //   // Iterate over URL map and replace base64 data with URLs
+  //   urlMap.forEach((newUrl, base64Data) => {
+  //     try {
+  //       // Use a more generic approach to split and replace
+  //       updatedHtml = updatedHtml
+  //         .split(`data:image/png;base64,${base64Data}`)
+  //         .join(newUrl);
+  //       updatedHtml = updatedHtml
+  //         .split(`data:image/jpeg;base64,${base64Data}`)
+  //         .join(newUrl);
+  //       updatedHtml = updatedHtml
+  //         .split(`data:image/jpg;base64,${base64Data}`)
+  //         .join(newUrl);
+  //     } catch (error) {
+  //       console.error("Error replacing base64 data:", error);
+  //     }
+  //   });
 
-    setLoader(false);
-    return updatedHtml;
-  };
+  //   setLoader(false);
+  //   return updatedHtml;
+  // };
 
-  const updateTemplateList = async (ListArray, ModuleName) => {
-    if (
-      ModuleName === "Email_Template" ||
-      ModuleName === "Super_Admin_Email_Template"
-    ) {
-      try {
-        const updatedTemplate = await Promise.all(
-          ListArray.map(async (item) => {
-            return {
-              ...item,
-              htmlContent: await updateImageUrlsInHtml(item.htmlContent),
-            };
-          })
-        );
-        return updatedTemplate;
-      } catch (error) {
-        console.error("Error updating template list:", error);
-      }
-    }
-    if (ModuleName === "CustomizeTemplate") {
-      try {
-        const updatedTemplate = await updateImageUrlsInHtml(ListArray);
-        return updatedTemplate;
-      } catch (error) {
-        console.error("Error updating template list:", error);
-      }
-    }
-  };
+  // const updateTemplateList = async (ListArray, ModuleName) => {
+  //   if (
+  //     ModuleName === "Email_Template" ||
+  //     ModuleName === "Super_Admin_Email_Template"
+  //   ) {
+  //     try {
+  //       const updatedTemplate = await Promise.all(
+  //         ListArray.map(async (item) => {
+  //           return {
+  //             ...item,
+  //             htmlContent: await updateImageUrlsInHtml(item.htmlContent),
+  //           };
+  //         })
+  //       );
+  //       return updatedTemplate;
+  //     } catch (error) {
+  //       console.error("Error updating template list:", error);
+  //     }
+  //   }
+  //   if (ModuleName === "CustomizeTemplate") {
+  //     try {
+  //       const updatedTemplate = await updateImageUrlsInHtml(ListArray);
+  //       return updatedTemplate;
+  //     } catch (error) {
+  //       console.error("Error updating template list:", error);
+  //     }
+  //   }
+  // };
 
   const CheckUsersIdleStateAfterSessionTimeoutPopUpOpen = () => {
     if (logoutTimeUpModal.isPopupOpen) {
@@ -2241,7 +2211,7 @@ const AuthContext = ({ children }) => {
             );
 
             // Skip rendering the package if no services are available
-            if (validServices?.length === 0) return "";
+            if (validServices.length === 0) return "";
 
             return `
               <table style="border-collapse: collapse; width: 100%; margin-bottom: 16px;page-break-inside: avoid; break-inside: avoid;">
@@ -2283,24 +2253,13 @@ const AuthContext = ({ children }) => {
 
     return `
     <div>
-  ${
-    selectedRecurringServiceList?.length !== 0
-      ? `<p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
-        Recurring Services
-      </p>`
-      : ""
-  }
-
-   
-      ${recurringServices}
-
-       ${
-         selectedOneOffServiceList?.length !== 0
-           ? ` <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
+    <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
+              Recurring Services
+            </p>
+      ${recurringServices}   
+    <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
               One-Off Services
-            </p>`
-           : ""
-       }
+            </p>
       ${oneOffServices}
     </div>
   `;
@@ -2384,7 +2343,7 @@ const AuthContext = ({ children }) => {
             );
 
             // Skip rendering the package if no services are available
-            if (validServices?.length === 0) return "";
+            if (validServices.length === 0) return "";
 
             return `
               <table style="border-collapse: collapse; width: 100%; margin-bottom: 16px;page-break-inside: avoid; break-inside: avoid;">
@@ -2438,23 +2397,13 @@ const AuthContext = ({ children }) => {
 
     return `
     <div>
-     ${
-       selectedRecurringServiceList?.length !== 0
-         ? `<p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
-        Recurring Services
-      </p>`
-         : ""
-     }
+    <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
+              Recurring Services
+            </p>
       ${recurringServices}   
-
-       ${
-         selectedOneOffServiceList?.length !== 0
-           ? `    <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
+    <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
               One-Off Services
-            </p>`
-           : ""
-       }
-
+            </p>
       ${oneOffServices}
     </div>
   `;
@@ -2511,7 +2460,7 @@ const AuthContext = ({ children }) => {
             );
 
             // Skip rendering the package if no services are available
-            if (validServices?.length === 0) return "";
+            if (validServices.length === 0) return "";
 
             return `
               <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
@@ -2534,23 +2483,13 @@ const AuthContext = ({ children }) => {
 
     return `
     <div>
-     ${
-       selectedRecurringServiceList?.length !== 0
-         ? `<p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
+    <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
               Recurring Services
-            </p>`
-         : ""
-     }
-
+            </p>
       ${recurringServices}   
-      ${
-        selectedOneOffServiceList?.length !== 0
-          ? ` <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
+    <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
               One-Off Services
-            </p>`
-          : ""
-      }
-   
+            </p>
       ${oneOffServices}
     </div>
   `;
@@ -2614,7 +2553,7 @@ const AuthContext = ({ children }) => {
             );
 
             // Skip rendering the package if no services are available
-            if (validServices?.length === 0) return "";
+            if (validServices.length === 0) return "";
 
             return `
   <p style="margin: 8px 0; line-height: 1.5;">
@@ -2645,24 +2584,13 @@ const AuthContext = ({ children }) => {
 
     return `
       <div>
-      ${
-        selectedRecurringServiceList?.length !== 0
-          ? `<p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
+      <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
                 Recurring Services
-              </p>`
-          : ""
-      }
-      
-        ${recurringServices}
-
-        ${
-          selectedOneOffServiceList?.length !== 0
-            ? `<p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
+              </p>
+        ${recurringServices}   
+      <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
                 One-Off Services
-              </p>`
-            : ""
-        }
-      
+              </p>
         ${oneOffServices}
       </div>
     `;
@@ -2719,7 +2647,7 @@ const AuthContext = ({ children }) => {
             );
 
             // Skip rendering the package if no services are available
-            if (validServices?.length === 0) return "";
+            if (validServices.length === 0) return "";
 
             return `
               <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
@@ -2746,22 +2674,13 @@ const AuthContext = ({ children }) => {
 
     return `
     <div>
-    ${
-      selectedRecurringServiceList?.length !== 0
-        ? ` <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
+    <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
               Recurring Services
-            </p>`
-        : ""
-    }
+            </p>
       ${recurringServices}   
-      ${
-        selectedOneOffServiceList?.length !== 0
-          ? ` <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
+    <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
               One-Off Services
-            </p>`
-          : ""
-      }
-    
+            </p>
       ${oneOffServices}
     </div>
   `;
@@ -2825,7 +2744,7 @@ const AuthContext = ({ children }) => {
             );
 
             // Skip rendering the package if no services are available
-            if (validServices?.length === 0) return "";
+            if (validServices.length === 0) return "";
 
             return `
  
@@ -2859,23 +2778,13 @@ const AuthContext = ({ children }) => {
 
     return `
       <div>
-        ${
-          selectedRecurringServiceList?.length !== 0
-            ? `  <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
+      <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
                 Recurring Services
-              </p>`
-            : ""
-        }
-     
+              </p>
         ${recurringServices}   
-         ${
-           selectedOneOffServiceList?.length !== 0
-             ? `  <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
+      <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
                 One-Off Services
-              </p>`
-             : ""
-         }
-      
+              </p>
         ${oneOffServices}
       </div>
     `;
@@ -3486,59 +3395,15 @@ const AuthContext = ({ children }) => {
     return replacedArray;
   }
 
-  // const replaceUrlInHtml = (htmlContent) => {
-  //   // Regex to match URLs outside of <img> tags
-  //   const urlRegex = /(?<!<img[^>]*src=["'])\bhttps?:\/\/[^\s<>"']+[\w/]/g;
-
-  //   // Replace URLs with styled spans
-  //   return htmlContent.replace(urlRegex, (url) => {
-  //     return `<span style="display: block; word-wrap: break-word; word-break: break-word; overflow-wrap: break-word; overflow-x: auto; white-space: pre-wrap;">${url}</span>`;
-  //   });
-  // };
   const replaceUrlInHtml = (htmlContent) => {
-    const urlRegex = /\bhttps?:\/\/[^\s<>"']+[\w/]/g;
+    // Regex to match URLs outside of <img> tags
+    const urlRegex = /(?<!<img[^>]*src=["'])\bhttps?:\/\/[^\s<>"']+[\w/]/g;
 
-    return htmlContent.replace(urlRegex, (url, offset) => {
-      const before = htmlContent.substring(Math.max(0, offset - 100), offset);
-
-      // Don't replace if URL is inside src=, href=, or url()
-      if (/(?:src|href|url)\s*=\s*["']?$/.test(before)) {
-        return url;
-      }
-
-      // Don't replace if inside CSS url() function
-      if (/url\s*\(\s*["']?$/.test(before)) {
-        return url;
-      }
-
-      // Don't replace if inside any HTML attribute
-      const lastQuote = Math.max(
-        before.lastIndexOf('"'),
-        before.lastIndexOf("'")
-      );
-      const lastEquals = before.lastIndexOf("=");
-      const lastCloseBracket = before.lastIndexOf(">");
-
-      if (
-        lastQuote > lastCloseBracket &&
-        lastEquals > lastCloseBracket &&
-        lastEquals < lastQuote
-      ) {
-        return url;
-      }
-
-      // Safe to replace
+    // Replace URLs with styled spans
+    return htmlContent.replace(urlRegex, (url) => {
       return `<span style="display: block; word-wrap: break-word; word-break: break-word; overflow-wrap: break-word; overflow-x: auto; white-space: pre-wrap;">${url}</span>`;
     });
   };
-  //   const replaceUrlInHtml = (htmlContent) => {
-  //   // Match URLs not inside <img> or CSS url()
-  //   const urlRegex = /(?<!<img[^>]*src=["'])(?<!url\()["']?\bhttps?:\/\/[^\s<>"')]+/g;
-
-  //   return htmlContent.replace(urlRegex, (url) => {
-  //     return `<span style="display: block; word-wrap: break-word; word-break: break-word; overflow-wrap: break-word; overflow-x: auto; white-space: pre-wrap;">${url}</span>`;
-  //   });
-  // };
 
   const isValueGreaterThan20000 = (
     RecurringPricingInfo,
@@ -3703,8 +3568,6 @@ const AuthContext = ({ children }) => {
         setDashboardActivityLogLoader,
         activeOrganizationSubscriptionPlan,
         setActiveOrganizationSubscriptionPlan,
-        isSubscriptionLoading,
-        setIsSubscriptionLoading,
         isAddUpdatePurchaseDone,
         setIsAddUpdatePurchaseDone,
         handleErrorMessage,
@@ -3714,8 +3577,8 @@ const AuthContext = ({ children }) => {
         logoutTimeUpModal,
         setLogoutTimeUpModal,
         handleReloadClick,
-        updateImageUrlsInHtml,
-        updateTemplateList,
+        // updateImageUrlsInHtml,
+        // updateTemplateList,
         isMenuVisible,
         setMenuVisible,
         toggleMenuVisibility,

@@ -587,33 +587,6 @@ const MySubscription = () => {
                                                 </div>
                                                 <div className="pricing-features">
                                                   <p className="mt-0 mb-1 text-dark">
-                                                    {subScriptionActiveList?.apiIntegration ==
-                                                    true ? (
-                                                      <span
-                                                        style={{
-                                                          color: "green",
-                                                        }}
-                                                        className="fa fa-check"
-                                                      ></span>
-                                                    ) : (
-                                                      <span
-                                                        style={{
-                                                          color: "red",
-                                                          marginRight: "2px",
-                                                        }}
-                                                        className="fa fa-times"
-                                                      ></span>
-                                                    )}
-                                                    <span
-                                                      style={{
-                                                        marginLeft: "10px",
-                                                      }}
-                                                    >
-                                                      {" "}
-                                                      API Integration
-                                                    </span>
-                                                  </p>
-                                                  <p className="mt-0 mb-1 text-dark">
                                                     {subScriptionActiveList?.prepareQuote ==
                                                     true ? (
                                                       <span
@@ -638,6 +611,33 @@ const MySubscription = () => {
                                                     >
                                                       {" "}
                                                       Prepare {proposalName}
+                                                    </span>
+                                                  </p>
+                                                    <p className="mt-0 mb-1 text-dark">
+                                                    {subScriptionActiveList?.sendQuote ===
+                                                    true ? (
+                                                      <span
+                                                        style={{
+                                                          color: "green",
+                                                        }}
+                                                        className="fa fa-check"
+                                                      ></span>
+                                                    ) : (
+                                                      <span
+                                                        style={{
+                                                          color: "red",
+                                                          marginRight: "2px",
+                                                        }}
+                                                        className="fa fa-times"
+                                                      ></span>
+                                                    )}
+                                                    <span
+                                                      style={{
+                                                        marginLeft: "10px",
+                                                      }}
+                                                    >
+                                                      {" "}
+                                                      Send {proposalName}
                                                     </span>
                                                   </p>
                                                   <p className="mt-0 mb-1 text-dark">
@@ -665,33 +665,6 @@ const MySubscription = () => {
                                                     >
                                                       {" "}
                                                       Prepare {EngagementName}
-                                                    </span>
-                                                  </p>
-                                                  <p className="mt-0 mb-1 text-dark">
-                                                    {subScriptionActiveList?.sendQuote ===
-                                                    true ? (
-                                                      <span
-                                                        style={{
-                                                          color: "green",
-                                                        }}
-                                                        className="fa fa-check"
-                                                      ></span>
-                                                    ) : (
-                                                      <span
-                                                        style={{
-                                                          color: "red",
-                                                          marginRight: "2px",
-                                                        }}
-                                                        className="fa fa-times"
-                                                      ></span>
-                                                    )}
-                                                    <span
-                                                      style={{
-                                                        marginLeft: "10px",
-                                                      }}
-                                                    >
-                                                      {" "}
-                                                      Send {proposalName}
                                                     </span>
                                                   </p>
 
@@ -722,9 +695,7 @@ const MySubscription = () => {
                                                       {"  "}
                                                       Send And Digitally Sign
                                                       The {EngagementName}:{" "}
-                                                      {formatValueWithoutCurrencySymbol(
-                                                        subScriptionActiveList?.eSignaturePerMonth,
-                                                      )}
+                                                      {subScriptionActiveList?.eSignaturePerMonth}
                                                       /Month
                                                     </span>
                                                   </p>
@@ -757,6 +728,33 @@ const MySubscription = () => {
                                                       {" "}
                                                       Personalized Outgoing
                                                       Mailbox
+                                                    </span>
+                                                  </p>
+                                                  <p className="mt-0 mb-1 text-dark">
+                                                    {subScriptionActiveList?.apiIntegration ==
+                                                    true ? (
+                                                      <span
+                                                        style={{
+                                                          color: "green",
+                                                        }}
+                                                        className="fa fa-check"
+                                                      ></span>
+                                                    ) : (
+                                                      <span
+                                                        style={{
+                                                          color: "red",
+                                                          marginRight: "2px",
+                                                        }}
+                                                        className="fa fa-times"
+                                                      ></span>
+                                                    )}
+                                                    <span
+                                                      style={{
+                                                        marginLeft: "10px",
+                                                      }}
+                                                    >
+                                                      {" "}
+                                                      API Integration
                                                     </span>
                                                   </p>
                                                   <p className="mt-0 mb-1 text-dark">

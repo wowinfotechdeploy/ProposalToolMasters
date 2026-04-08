@@ -279,9 +279,9 @@ const ProspectViewDetails = () => {
 
   return (
     <div className="container">
-      {/* <div class="main-content"> */}
+      <div class="main-content">
         <div class="page-content page-background prospect-bg">
-          {/* <div class="page-info-header page-info-strip"> */}
+          <div class="page-info-header page-info-strip">
             <div class="container">
               <div className="row">
                 <div className="col-md-6 col-sm-6 col-6">
@@ -305,11 +305,11 @@ const ProspectViewDetails = () => {
                 </div>
               </div>
             </div>
-          {/* </div> */}
+          </div>
           <div class="container-fluid ">
             <div class="row">
               <div className="col-lg-12">
-                <div class="card mt-4">
+                <div class="card" style={{ marginTop: "75px" }}>
                   <div class="card-body">
                     <div id="customerList">
                       <div class="row g-4 mb-3"></div>
@@ -790,7 +790,7 @@ const ProspectViewDetails = () => {
         {/* End Page-content */}
 
         <Footer />
-      {/* </div> */}
+      </div>
 
       {/* start back-to-top */}
       <button

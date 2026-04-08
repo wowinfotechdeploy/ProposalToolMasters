@@ -24,18 +24,13 @@ const ChoosePlanForPurchase = (props) => {
     formatValueWithoutCurrencySymbol,
     setTopbar,
   } = useContext(AuthContextProvider);
-  const [selectedOfferID, setSelectedOfferID] = useState([]);
-
-  // const [selectedOfferID, setSelectedOfferID] = useState([
-  //   {
-  //     value: null,
-  //     label: null,
-  //     index: null,
-  //     subscriptionPackageKeyID: null,
-  //     packageName: null,
-  //   },
-  // ]);
-
+  const [selectedOfferID, setSelectedOfferID] = useState({
+    value: null,
+    label: null,
+    index: null,
+    subscriptionPackageKeyID: null,
+    packageName: null,
+  });
   const [openSuccessModal, setOpenSuccessModal] = React.useState(false);
   const [discountedRateYearly, setDiscountedRateYearly] = useState(null);
   const [discountedRateMonthly, setDiscountedRateMonthly] = useState(null);
@@ -76,9 +71,13 @@ const ChoosePlanForPurchase = (props) => {
     // Additional logic if needed
     // setDiscountedMonthsMonthly(null);
     // setDiscountedMonthsYearly(null);
-    setSelectedOfferID([]);
-    setDiscountedMonthsMonthly([]);
-    setDiscountedMonthsYearly([]);
+    setSelectedOfferID({
+      value: null,
+      label: null,
+      index: null,
+      subscriptionPackageKeyID: null,
+      packageName: null,
+    });
   };
   const handleButtonClick = async (i, subscriptionPackageKeyID) => {
     // Pass the value of 'i' and 'searchKeywordValue' into the BuyPlanData function
@@ -91,12 +90,12 @@ const ChoosePlanForPurchase = (props) => {
     try {
       const subscriptionPackageData =
         subscriptionPackageKeyIDForPurchase ===
-        selectedOfferID?.subscriptionPackageKeyID
+          selectedOfferID?.subscriptionPackageKeyID
           ? selectedOfferID.subscriptionPackageKeyID
           : subscriptionPackageKeyIDForPurchase;
       const offerData =
         subscriptionPackageKeyIDForPurchase ===
-        selectedOfferID?.subscriptionPackageKeyID
+          selectedOfferID?.subscriptionPackageKeyID
           ? selectedOfferID.value
           : null;
       const data = await BuyPlan({
@@ -115,7 +114,7 @@ const ChoosePlanForPurchase = (props) => {
         if (finalBillingAmount !== null) {
           CreateStripeCheckoutSessionRedirection(
             common.userKeyID,
-            invoiceKeyID,
+            invoiceKeyID
           );
         } else {
           navigate("/mySubscription");
@@ -134,14 +133,14 @@ const ChoosePlanForPurchase = (props) => {
   };
   const CreateStripeCheckoutSessionRedirection = async (
     userKeyID,
-    InvoiceKeyID,
+    InvoiceKeyID
   ) => {
     setLoader(true);
 
     try {
       const response = await CreateStripeCheckoutSession(
         userKeyID,
-        InvoiceKeyID,
+        InvoiceKeyID
       );
       const data = response.data;
 
@@ -176,7 +175,7 @@ const ChoosePlanForPurchase = (props) => {
     subscriptionPackageKeyIDNew,
     packageNameNew,
     yearlyOffer,
-    monthlyOffer,
+    monthlyOffer
   ) => {
     // Extract the offerID and label from the selected option
     const selectedOfferID = selectedOption.value;
@@ -184,41 +183,13 @@ const ChoosePlanForPurchase = (props) => {
     const subscriptionPackageKeyID = subscriptionPackageKeyIDNew;
 
     // Store the selected offerID, label, and index in state
-    // setSelectedOfferID({
-    //   value: selectedOfferID,
-    //   label: selectedName,
-    //   index,
-    //   subscriptionPackageKeyID: subscriptionPackageKeyID,
-    //   packageName: packageNameNew,
-    // });
-
-    setSelectedOfferID((prev) => {
-      const existing = prev.findIndex((obj) => obj.index === index);
-
-      if (existing !== -1) {
-        const updated = [...prev];
-        updated[existing] = {
-          value: selectedOfferID,
-          label: selectedName,
-          index,
-          subscriptionPackageKeyID: subscriptionPackageKeyID,
-          packageName: packageNameNew,
-        };
-        return updated;
-      } else {
-        return [
-          ...prev,
-          {
-            value: selectedOfferID,
-            label: selectedName,
-            index,
-            subscriptionPackageKeyID: subscriptionPackageKeyID,
-            packageName: packageNameNew,
-          },
-        ];
-      }
+    setSelectedOfferID({
+      value: selectedOfferID,
+      label: selectedName,
+      index,
+      subscriptionPackageKeyID: subscriptionPackageKeyID,
+      packageName: packageNameNew,
     });
-
     // setSelectedIndex(index);
 
     // const GetMonths = 1;
@@ -232,7 +203,7 @@ const ChoosePlanForPurchase = (props) => {
       if (selectedOfferID === "GetMonths") {
         offerType = 1;
         const offer = yearlyOffer.find(
-          (item) => item.offerID === selectedOfferID,
+          (item) => item.offerID === selectedOfferID
         );
         const [firstValue, secondValue] = offer.value.split(",").map(Number);
 
@@ -250,7 +221,7 @@ const ChoosePlanForPurchase = (props) => {
       } else if (selectedOfferID === "MonthFree") {
         offerType = 2;
         const offer = yearlyOffer.find(
-          (item) => item.offerID === selectedOfferID,
+          (item) => item.offerID === selectedOfferID
         );
         const firstValue = Number(offer.value); // Rename to match
 
@@ -268,7 +239,7 @@ const ChoosePlanForPurchase = (props) => {
       } else if (selectedOfferID === "DiscountPrice") {
         offerType = 3;
         const offer = yearlyOffer.find(
-          (item) => item.offerID === selectedOfferID,
+          (item) => item.offerID === selectedOfferID
         );
         const firstValue = Number(offer.finalBillingAmount); // Rename to match
 
@@ -286,7 +257,7 @@ const ChoosePlanForPurchase = (props) => {
       } else if (selectedOfferID === "DiscountPercentage") {
         offerType = 4;
         const offer = yearlyOffer.find(
-          (item) => item.offerID === selectedOfferID,
+          (item) => item.offerID === selectedOfferID
         );
         const firstValue = Number(offer.finalBillingAmount); // Rename to match
 
@@ -304,14 +275,14 @@ const ChoosePlanForPurchase = (props) => {
       } else {
         // Remove the object with matching index if it exists
         setDiscountedMonthsYearly((prev) =>
-          prev.filter((obj) => obj.index !== index),
+          prev.filter((obj) => obj.index !== index)
         );
       }
     } else if (!isYearly) {
       if (selectedOfferID === "GetMonths") {
         offerType = 1;
         const offer = monthlyOffer.find(
-          (item) => item.offerID === selectedOfferID,
+          (item) => item.offerID === selectedOfferID
         );
         const [firstValue, secondValue] = offer.value.split(",").map(Number);
 
@@ -329,7 +300,7 @@ const ChoosePlanForPurchase = (props) => {
       } else if (selectedOfferID === "MonthFree") {
         offerType = 2;
         const offer = monthlyOffer.find(
-          (item) => item.offerID === selectedOfferID,
+          (item) => item.offerID === selectedOfferID
         );
         const firstValue = Number(offer.value); // Rename to match
 
@@ -347,7 +318,7 @@ const ChoosePlanForPurchase = (props) => {
       } else if (selectedOfferID === "DiscountPrice") {
         offerType = 3;
         const offer = monthlyOffer.find(
-          (item) => item.offerID === selectedOfferID,
+          (item) => item.offerID === selectedOfferID
         );
         const firstValue = Number(offer.finalBillingAmount); // Rename to match
 
@@ -365,7 +336,7 @@ const ChoosePlanForPurchase = (props) => {
       } else if (selectedOfferID === "DiscountPercentage") {
         offerType = 4;
         const offer = monthlyOffer.find(
-          (item) => item.offerID === selectedOfferID,
+          (item) => item.offerID === selectedOfferID
         );
         const firstValue = Number(offer.finalBillingAmount); // Rename to match
 
@@ -383,7 +354,7 @@ const ChoosePlanForPurchase = (props) => {
       } else {
         // Remove the object with matching index if it exists
         setDiscountedMonthsMonthly((prev) =>
-          prev.filter((obj) => obj.index !== index),
+          prev.filter((obj) => obj.index !== index)
         );
       }
     }
@@ -398,7 +369,7 @@ const ChoosePlanForPurchase = (props) => {
     // 4. Get x months for free   -----> MonthFree
   };
 
-  // console.log(chooseApiData);
+  console.log(chooseApiData);
 
   return (
     <div>
@@ -494,25 +465,25 @@ const ChoosePlanForPurchase = (props) => {
                                                           {discountedMonthsMonthly?.find(
                                                             (item) =>
                                                               item.index ===
-                                                              index,
+                                                              index
                                                           ) && (
-                                                            <span
-                                                              style={{
-                                                                color:
-                                                                  "#6c757d",
-                                                                textDecoration:
-                                                                  "line-through",
-                                                                display:
-                                                                  "block",
-                                                              }}
-                                                            >
-                                                              {formatValue(
-                                                                PurchasePlanList?.yearlyValuePlan /
-                                                                  12,
-                                                              )}{" "}
-                                                              /Month
-                                                            </span>
-                                                          )}
+                                                              <span
+                                                                style={{
+                                                                  color:
+                                                                    "#6c757d",
+                                                                  textDecoration:
+                                                                    "line-through",
+                                                                  display:
+                                                                    "block",
+                                                                }}
+                                                              >
+                                                                {formatValue(
+                                                                  PurchasePlanList?.yearlyValuePlan /
+                                                                  12
+                                                                )}{" "}
+                                                                /Month
+                                                              </span>
+                                                            )}
 
                                                           {/* {formatValue(
                                                             PurchasePlanList?.yearlyValuePlan /
@@ -523,7 +494,7 @@ const ChoosePlanForPurchase = (props) => {
                                                               discountedMonthsMonthly?.find(
                                                                 (item) =>
                                                                   item.index ===
-                                                                  index,
+                                                                  index
                                                               );
 
                                                             if (discount) {
@@ -533,10 +504,9 @@ const ChoosePlanForPurchase = (props) => {
                                                               ) {
                                                                 return `${formatValue(
                                                                   PurchasePlanList?.yearlyValuePlan /
-                                                                    12,
-                                                                )}/${
-                                                                  discount.firstValue
-                                                                } months`;
+                                                                  12
+                                                                )}/${discount.firstValue
+                                                                  } months`;
                                                               }
 
                                                               if (
@@ -545,21 +515,20 @@ const ChoosePlanForPurchase = (props) => {
                                                               ) {
                                                                 return `${formatValue(
                                                                   PurchasePlanList?.yearlyValuePlan /
-                                                                    12,
-                                                                )}/${
-                                                                  discount.firstValue +
+                                                                  12
+                                                                )}/${discount.firstValue +
                                                                   1
-                                                                } months`;
+                                                                  } months`;
                                                               }
 
                                                               if (
                                                                 discount.offerType ===
-                                                                  3 ||
+                                                                3 ||
                                                                 discount.offerType ===
-                                                                  4
+                                                                4
                                                               ) {
                                                                 return `${formatValue(
-                                                                  discount.firstValue,
+                                                                  discount.firstValue
                                                                 )}/Month`;
                                                               }
                                                             }
@@ -567,7 +536,7 @@ const ChoosePlanForPurchase = (props) => {
                                                             // If no discount or not matched types
                                                             return `${formatValue(
                                                               PurchasePlanList?.yearlyValuePlan /
-                                                                12,
+                                                              12
                                                             )}/Month`;
                                                           })()}
                                                           {/* {(() => {
@@ -607,24 +576,24 @@ const ChoosePlanForPurchase = (props) => {
                                                           {discountedMonthsYearly?.find(
                                                             (item) =>
                                                               item.index ===
-                                                              index,
+                                                              index
                                                           ) && (
-                                                            <span
-                                                              style={{
-                                                                color:
-                                                                  "#6c757d",
-                                                                textDecoration:
-                                                                  "line-through",
-                                                                display:
-                                                                  "block",
-                                                              }}
-                                                            >
-                                                              {formatValue(
-                                                                PurchasePlanList?.yearlyValuePlan,
-                                                              )}{" "}
-                                                              /Year
-                                                            </span>
-                                                          )}
+                                                              <span
+                                                                style={{
+                                                                  color:
+                                                                    "#6c757d",
+                                                                  textDecoration:
+                                                                    "line-through",
+                                                                  display:
+                                                                    "block",
+                                                                }}
+                                                              >
+                                                                {formatValue(
+                                                                  PurchasePlanList?.yearlyValuePlan
+                                                                )}{" "}
+                                                                /Year
+                                                              </span>
+                                                            )}
 
                                                           {/* {formatValue(
                                                             PurchasePlanList?.yearlyValuePlan
@@ -635,7 +604,7 @@ const ChoosePlanForPurchase = (props) => {
                                                               discountedMonthsYearly?.find(
                                                                 (item) =>
                                                                   item.index ===
-                                                                  index,
+                                                                  index
                                                               );
 
                                                             if (discount) {
@@ -644,10 +613,9 @@ const ChoosePlanForPurchase = (props) => {
                                                                 1
                                                               ) {
                                                                 return `${formatValue(
-                                                                  PurchasePlanList?.yearlyValuePlan,
-                                                                )}/${
-                                                                  discount.firstValue
-                                                                } months`;
+                                                                  PurchasePlanList?.yearlyValuePlan
+                                                                )}/${discount.firstValue
+                                                                  } months`;
                                                               }
 
                                                               if (
@@ -655,28 +623,27 @@ const ChoosePlanForPurchase = (props) => {
                                                                 2
                                                               ) {
                                                                 return `${formatValue(
-                                                                  PurchasePlanList?.yearlyValuePlan,
-                                                                )}/${
-                                                                  discount.firstValue +
+                                                                  PurchasePlanList?.yearlyValuePlan
+                                                                )}/${discount.firstValue +
                                                                   12
-                                                                } months`;
+                                                                  } months`;
                                                               }
 
                                                               if (
                                                                 discount.offerType ===
-                                                                  3 ||
+                                                                3 ||
                                                                 discount.offerType ===
-                                                                  4
+                                                                4
                                                               ) {
                                                                 return `${formatValue(
-                                                                  discount.firstValue,
+                                                                  discount.firstValue
                                                                 )}/Year`;
                                                               }
                                                             }
 
                                                             // If no discount or not matched types
                                                             return `${formatValue(
-                                                              PurchasePlanList?.yearlyValuePlan,
+                                                              PurchasePlanList?.yearlyValuePlan
                                                             )}/Year`;
                                                           })()}
 
@@ -735,7 +702,7 @@ const ChoosePlanForPurchase = (props) => {
                                                   <div className="pricing-features mt-1 pt-2">
                                                     <div>
                                                       {PurchasePlanList?.apiIntegration ==
-                                                      true ? (
+                                                        true ? (
                                                         <span
                                                           style={{
                                                             color: "green",
@@ -761,7 +728,7 @@ const ChoosePlanForPurchase = (props) => {
                                                     </div>
                                                     <div>
                                                       {PurchasePlanList?.prepareQuote ==
-                                                      true ? (
+                                                        true ? (
                                                         <span
                                                           style={{
                                                             color: "green",
@@ -787,7 +754,7 @@ const ChoosePlanForPurchase = (props) => {
                                                     </div>
                                                     <div>
                                                       {PurchasePlanList?.prepareContract ===
-                                                      true ? (
+                                                        true ? (
                                                         <span
                                                           style={{
                                                             color: "green",
@@ -814,7 +781,7 @@ const ChoosePlanForPurchase = (props) => {
                                                     </div>
                                                     <div>
                                                       {PurchasePlanList?.sendQuote ===
-                                                      true ? (
+                                                        true ? (
                                                         <span
                                                           style={{
                                                             color: "green",
@@ -842,7 +809,7 @@ const ChoosePlanForPurchase = (props) => {
                                                     <div className="d-flex align-items-start">
                                                       <div>
                                                         {PurchasePlanList?.eSignaturePerMonth >
-                                                        0 ? (
+                                                          0 ? (
                                                           <span
                                                             style={{
                                                               color: "green",
@@ -867,20 +834,20 @@ const ChoosePlanForPurchase = (props) => {
                                                         The {EngagementName}
                                                         {PurchasePlanList?.eSignaturePerMonth >
                                                           0 && (
-                                                          <>
-                                                            :{" "}
-                                                            {formatValueWithoutCurrencySymbol(
-                                                              PurchasePlanList?.eSignaturePerMonth,
-                                                            )}
-                                                            /Month
-                                                          </>
-                                                        )}
+                                                            <>
+                                                              :{" "}
+                                                              {formatValueWithoutCurrencySymbol(
+                                                                PurchasePlanList?.eSignaturePerMonth
+                                                              )}
+                                                              /Month
+                                                            </>
+                                                          )}
                                                       </span>
                                                     </div>
                                                     <div>
                                                       {PurchasePlanList?.isMailBox ===
                                                         true ||
-                                                      PurchasePlanList?.isMailBox ===
+                                                        PurchasePlanList?.isMailBox ===
                                                         null ? (
                                                         <span
                                                           style={{
@@ -917,10 +884,10 @@ const ChoosePlanForPurchase = (props) => {
                                                           PurchasePlanList
                                                             .yearlyOffer
                                                             ?.length > 0) ||
-                                                        (!isYearly &&
-                                                          PurchasePlanList
-                                                            .monthlyOffer
-                                                            ?.length > 0) ? (
+                                                          (!isYearly &&
+                                                            PurchasePlanList
+                                                              .monthlyOffer
+                                                              ?.length > 0) ? (
                                                           <div className="w-100">
                                                             <label></label>
                                                             <Select
@@ -928,7 +895,7 @@ const ChoosePlanForPurchase = (props) => {
                                                               menuPosition="auto"
                                                               className="phone-input-country-code selectDropDown Drop-down-width"
                                                               onChange={(
-                                                                selectedOption,
+                                                                selectedOption
                                                               ) =>
                                                                 handleSelectChange(
                                                                   selectedOption,
@@ -936,7 +903,7 @@ const ChoosePlanForPurchase = (props) => {
                                                                   PurchasePlanList.subscriptionPackageKeyID,
                                                                   PurchasePlanList.packageName,
                                                                   PurchasePlanList?.yearlyOffer,
-                                                                  PurchasePlanList?.monthlyOffer,
+                                                                  PurchasePlanList?.monthlyOffer
                                                                 )
                                                               }
                                                               options={[
@@ -956,24 +923,16 @@ const ChoosePlanForPurchase = (props) => {
                                                                       offer.offerName,
                                                                     value:
                                                                       offer.offerID,
-                                                                  }),
+                                                                  })
                                                                 ),
                                                               ]}
                                                               value={
-                                                                selectedOfferID.find(
-                                                                  (val) =>
-                                                                    val.index ===
-                                                                    index,
-                                                                ) || ""
+                                                                selectedOfferID &&
+                                                                  selectedOfferID.index ===
+                                                                  index
+                                                                  ? selectedOfferID
+                                                                  : null
                                                               }
-
-                                                              // value={
-                                                              //   selectedOfferID &&
-                                                              //   selectedOfferID.index ===
-                                                              //     index
-                                                              //     ? selectedOfferID
-                                                              //     : null
-                                                              // }
                                                             />
                                                           </div>
                                                         ) : (
@@ -996,7 +955,7 @@ const ChoosePlanForPurchase = (props) => {
                                                       onClick={() =>
                                                         handleButtonClick(
                                                           index,
-                                                          PurchasePlanList.subscriptionPackageKeyID,
+                                                          PurchasePlanList.subscriptionPackageKeyID
                                                         )
                                                       }
                                                       className="btn btn-success create-item-btn add-new "

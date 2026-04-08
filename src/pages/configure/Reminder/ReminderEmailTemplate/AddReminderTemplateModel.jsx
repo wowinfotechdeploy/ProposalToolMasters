@@ -539,7 +539,7 @@ function AddUpdateReminderTemplate(props) {
                 <SAPredefinedChangesNotifyMessageModel
                   Params={{
                     moduleName: moduleName,
-                    SAChanges: location.state?.Type,
+                    SAChanges: location.state.Type,
                   }}
                 />
                 <>

@@ -228,10 +228,10 @@ function SuperAdminEmailTemplateModel(props) {
       setRequireErrorMessage(false); // Clear the error message if there are no errors.
     }
     // Await the result of updateTemplateList
-    // const updatedTemplateList = await updateTemplateList(
-    //   templateElementList,
-    //   "Super_Admin_Email_Template"
-    // );
+    const updatedTemplateList = await updateTemplateList(
+      templateElementList,
+      "Super_Admin_Email_Template"
+    );
     // Prepare Object For Add Update
     const ApiRequest_ParamsObj = {
       // Global level params: fixed
@@ -246,8 +246,7 @@ function SuperAdminEmailTemplateModel(props) {
       templateName: TemplateObj.templateName,
       subject: TemplateObj.subject,
       isDefault: TemplateObj.isDefault,
-      // templateElementList: updatedTemplateList, // Use the result of updateTemplateList
-      templateElementList: templateElementList,
+      templateElementList: updatedTemplateList, // Use the result of updateTemplateList
     };
 
     // Call the API

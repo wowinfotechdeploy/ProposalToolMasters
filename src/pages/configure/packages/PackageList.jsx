@@ -393,40 +393,33 @@ const Predefined_Package = () => {
   };
 
   return (
-    <>
-    <div className="container-fluid">
-      {/* <div class="main-content"> */}
+    <div>
+      <div class="main-content">
         <div class="services page-background">
-          <div class="">
-            <div class="row">
-              <div class="col-lg-12">
-                <div class="card">
-                  {/* end card header  */}
-                  <div class="card-body mb-2">
-                    <div id="customerList" style={{ marginTop: "3rem" }}>
-                      <div class="bg-light border-bottom px-2">
-                          <div className="row">
-                            <div className="col-md-6 p-0 ">
+          <div class="page-info-header page-info-strip">
+            <div class="container">
+              <div className="row">
+                <div className="col-md-6 col-6">
                   <div class="page-title-cls">Package</div>
-                  </div>
-                  <div className="col-auto ms-auto">
-                                  <div className="d-flex justify-content-sm-end add-new-btn">
-                                    {((userAccessData.Admin_Config_ServicePackage_CanAdd &&
-                                      common.organisationKeyID !== null) ||
-                                      (userAccessData.SuperAdmin_Config_ServicePackage_CanAdd &&
-                                        common.organisationKeyID === null)) && (
-                                        <CommonButtonComponent
-                                          title={getCrudButtonToolTipName("Add", moduleName)}
-                                          name={getCrudButtonTextName("Add", moduleName)}
-                                          AddBtn={() => PackageAddBtnClicked()}
-                                        />
-                                      )}
-                                  </div>
-                                </div>
+                </div>
+                <div className="col-md-6 col-6">
+                  <div className="d-flex justify-content-sm-end add-new-btn">
+                    {((userAccessData.Admin_Config_ServicePackage_CanAdd &&
+                      common.organisationKeyID !== null) ||
+                      (userAccessData.SuperAdmin_Config_ServicePackage_CanAdd &&
+                        common.organisationKeyID === null)) && (
+                        <CommonButtonComponent
+                          title={getCrudButtonToolTipName("Add", moduleName)}
+                          name={getCrudButtonTextName("Add", moduleName)}
+                          AddBtn={() => PackageAddBtnClicked()}
+                        />
+                      )}
                   </div>
                 </div>
               </div>
-          <div class="" id="tablesections">
+            </div>
+          </div>
+          <div class="container" id="tablesections">
             <div class="row">
               <div class="col-lg-12">
                 <div class="card">
@@ -434,13 +427,13 @@ const Predefined_Package = () => {
                   <div class="card-body">
                     <div id="customerList">
                       <div class="row g-4 mb-3"></div>
-                      <div class="table-responsive table-card mt-2 mb-3 table-padding">
+                      <div class="table-responsive table-card  mb-3 table-padding">
                         <div class="search-box ms-2 width-searchbox">
                           <div className="row">
                             <div className="col-lg-12 col-md-12 col-sm-12 ">
                               <div className="row align-items-center">
                                 <div className="col-3 mb-2">
-                                  <div class="search-box w-100 width-searchbox">
+                                  <div class="search-box w-100 width-searchbox mb-2">
                                     <i class="ri-search-line search-icon"></i>
                                     <input
                                       type="text"
@@ -460,7 +453,7 @@ const Predefined_Package = () => {
                                     />
                                   </div>
                                 </div>
-                                <div className="col-6 d-flex align-items-start justify-content-start">
+                                <div className="col-6 d-flex align-items-start justify-content-start mb-3">
                                   <Tooltip
                                     title={getCrudButtonToolTipName(
                                       "Filter",
@@ -852,7 +845,6 @@ const Predefined_Package = () => {
               </div>
               {/* end col  */}
             </div>
-            
             {/* end row */}
           </div>
           {/* container-fluid  */}
@@ -906,10 +898,7 @@ const Predefined_Package = () => {
           prospectType={prospectType}
           setProspectType={setProspectType}
         />
-      </div>
-      </div>
-      </div>
-      </div>
+        <Footer />
       </div>
 
       {/* start back-to-top */}
@@ -922,8 +911,6 @@ const Predefined_Package = () => {
       </button>
       {/* end back-to-top */}
     </div>
-    <Footer />
-    </>
   );
 };
 

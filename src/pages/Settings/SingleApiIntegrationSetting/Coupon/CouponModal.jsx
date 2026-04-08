@@ -2,17 +2,14 @@
 import React, { useEffect, useState, useRef, useContext } from "react";
 import { useSelector } from "react-redux";
 import { ERROR_MESSAGES } from "../../../../components/GlobalMessage";
-import {
-  AddUpdateCouponCode,
-  GetCouponCodeModel,
-} from "../../../../redux/Services/Setting/CouponApi";
+import { AddUpdateCouponCode, GetCouponCodeModel } from "../../../../redux/Services/Setting/CouponApi";
 import SuccessModal from "../../../../components/SuccessModal";
 import { AuthContextProvider } from "../../../../AuthContext/AuthContext";
 import dayjs from "dayjs";
 import DatePicker from "react-date-picker";
 import "react-date-picker/dist/DatePicker.css";
 import "react-calendar/dist/Calendar.css";
-import "./CouponCode.css";
+import "./CouponCode.css"
 import Select from "react-select";
 import Utils from "../../../../Middleware/Utils";
 const AccesskeyModal = (props) => {
@@ -31,7 +28,7 @@ const AccesskeyModal = (props) => {
     validityCount: null,
     description: null,
     startDate: null,
-    endDate: null,
+    endDate: null
   });
   const [errorMessage, setErrorMessage] = useState("");
   const [RequireErrorMessage, setRequireErrorMessage] = useState(false);
@@ -46,13 +43,9 @@ const AccesskeyModal = (props) => {
   // B] Initial useEffect : Will call when Add/Update button click from list page
   useEffect(() => {
     setModelAction(props.modelRequestData.Action === null ? "Add" : "Update"); //Do not change this naming convention
-    SetInitialModelData();
-    if (
-      props.modelRequestData.couponKeyID !== undefined &&
-      props.modelRequestData.couponKeyID !== null &&
-      props.modelRequestData.Action === "Update"
-    ) {
-      GetCouponCodeModelData(props.modelRequestData.couponKeyID);
+    SetInitialModelData()
+    if (props.modelRequestData.couponKeyID !== undefined && props.modelRequestData.couponKeyID !== null && props.modelRequestData.Action === "Update") {
+      GetCouponCodeModelData(props.modelRequestData.couponKeyID)
     }
   }, [props.modelRequestData]);
 
@@ -62,14 +55,14 @@ const AccesskeyModal = (props) => {
       ...couponObj,
       userKeyID: "",
       couponKeyID: null,
-      couponCode: "",
+      couponCode: '',
       couponAmt: "",
       minELValue: "",
       couponTypeID: "",
       validityCount: "",
       description: "",
       startDate: null,
-      endDate: null,
+      endDate: null
     });
     setErrorMessage("");
     setRequireErrorMessage(false);
@@ -80,9 +73,8 @@ const AccesskeyModal = (props) => {
   // 2) Add Update Button Click Function
   const CouponAddUpdateBtnClicked = () => {
     //Check Validations will be done here
-    // debugger
-    if (
-      couponObj.couponCode === "" ||
+    debugger
+    if (couponObj.couponCode === "" ||
       couponObj.couponCode === undefined ||
       couponObj.couponCode === null ||
       couponObj.couponAmt === "" ||
@@ -106,8 +98,7 @@ const AccesskeyModal = (props) => {
       couponObj.description === "" ||
       couponObj.description === undefined ||
       couponObj.description === null ||
-      (couponObj.couponTypeID == 1 &&
-        Number(couponObj.minELValue) < Number(couponObj.couponAmt)) ||
+      (couponObj.couponTypeID == 1 && Number(couponObj.minELValue) < Number(couponObj.couponAmt)) ||
       (couponObj.couponTypeID == 2 && Number(couponObj.couponAmt) > 100)
     ) {
       setRequireErrorMessage(true);
@@ -129,7 +120,7 @@ const AccesskeyModal = (props) => {
       validityCount: Number(couponObj.validityCount),
       fromDate: couponObj.startDate,
       toDate: couponObj.endDate,
-      description: couponObj.description,
+      description: couponObj.description
     };
     AddUpdateCouponData(ApiRequest_ParamsObj);
   };
@@ -153,13 +144,9 @@ const AccesskeyModal = (props) => {
     }
   };
   const GetCouponCodeModelData = async (couponKeyID) => {
-    const data = await GetCouponCodeModel(
-      couponKeyID,
-      common.userKeyID,
-      common.organisationKeyID,
-    );
+    const data = await GetCouponCodeModel(couponKeyID, common.userKeyID, common.organisationKeyID)
     if (data.data.statusCode === 200) {
-      const ModalData = data.data.responseData.data;
+      const ModalData = data.data.responseData.data
 
       setCouponObj({
         ...couponObj,
@@ -171,10 +158,10 @@ const AccesskeyModal = (props) => {
         validityCount: ModalData.validityCount,
         description: ModalData.description,
         startDate: ModalData.fromDate,
-        endDate: ModalData.toDate,
-      });
+        endDate: ModalData.toDate
+      })
     }
-  };
+  }
   const handleFromDateChange = (newValue) => {
     if (newValue) {
       const formattedDate = dayjs(newValue).format("YYYY-MM-DD");
@@ -201,9 +188,7 @@ const AccesskeyModal = (props) => {
     setOpenSuccessModal(false);
   };
 
-  const CouponTypeValue = Utils.CouponTypeIDs.find(
-    (item) => item.value == couponObj.couponTypeID,
-  );
+  const CouponTypeValue = Utils.CouponTypeIDs.find(item => item.value == couponObj.couponTypeID)
   //Design part :
   return (
     <div
@@ -263,7 +248,8 @@ const AccesskeyModal = (props) => {
                       if (/^\d/.test(trimmedValue)) {
                         return;
                       }
-                      const capitalizedValue = trimmedValue.toUpperCase();
+                      const capitalizedValue =
+                        trimmedValue.toUpperCase()
                       setCouponObj({
                         ...couponObj,
                         couponCode: capitalizedValue,
@@ -271,10 +257,7 @@ const AccesskeyModal = (props) => {
                     }}
                     maxLength={50}
                   />
-                  {RequireErrorMessage &&
-                  (couponObj.couponCode === "" ||
-                    couponObj.couponCode === undefined ||
-                    couponObj.couponCode === null) ? (
+                  {RequireErrorMessage && (couponObj.couponCode === "" || couponObj.couponCode === undefined || couponObj.couponCode === null) ? (
                     <label className="validation">{ERROR_MESSAGES}</label>
                   ) : (
                     ""
@@ -294,6 +277,7 @@ const AccesskeyModal = (props) => {
                       className=" selectDropDown Drop-down-width"
                       value={CouponTypeValue}
                       onChange={(e) => {
+
                         setCouponObj({
                           ...couponObj,
                           couponTypeID: e.value,
@@ -302,10 +286,7 @@ const AccesskeyModal = (props) => {
                       options={Utils.CouponTypeIDs}
                       aria-label="Select Payment Gateway"
                     />
-                    {RequireErrorMessage &&
-                    (couponObj.couponTypeID === "" ||
-                      couponObj.couponTypeID === undefined ||
-                      couponObj.couponTypeID === null) ? (
+                    {RequireErrorMessage && (couponObj.couponTypeID === "" || couponObj.couponTypeID === undefined || couponObj.couponTypeID === null) ? (
                       <label className="validation">{ERROR_MESSAGES}</label>
                     ) : (
                       ""
@@ -326,8 +307,7 @@ const AccesskeyModal = (props) => {
                     id="customerName-field"
                     class="input-text"
                     placeholder={`Min. ${EngagementName} Value`}
-                    value={couponObj.minELValue
-                      ?.toString()
+                    value={couponObj.minELValue?.toString()
                       ?.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
                     onChange={(e) => {
                       const sanitizedInput = e.target.value
@@ -342,9 +322,9 @@ const AccesskeyModal = (props) => {
                       const formattedInput =
                         decimalPart !== undefined
                           ? `${integerPart.slice(
-                              0,
-                              12,
-                            )}.${decimalPart.slice(0, 2)}`
+                            0,
+                            12
+                          )}.${decimalPart.slice(0, 2)}`
                           : integerPart.slice(0, 12);
                       setCouponObj({
                         ...couponObj,
@@ -353,10 +333,7 @@ const AccesskeyModal = (props) => {
                     }}
                     maxLength={50}
                   />
-                  {RequireErrorMessage &&
-                  (couponObj.minELValue === "" ||
-                    couponObj.minELValue === undefined ||
-                    couponObj.minELValue === null) ? (
+                  {RequireErrorMessage && (couponObj.minELValue === "" || couponObj.minELValue === undefined || couponObj.minELValue === null) ? (
                     <label className="validation">{ERROR_MESSAGES}</label>
                   ) : (
                     ""
@@ -376,8 +353,7 @@ const AccesskeyModal = (props) => {
                     id="customerName-field"
                     class="input-text"
                     placeholder="Coupon Amount"
-                    value={couponObj.couponAmt
-                      ?.toString()
+                    value={couponObj.couponAmt?.toString()
                       ?.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
                     onChange={(e) => {
                       setErrorMessage("");
@@ -393,9 +369,9 @@ const AccesskeyModal = (props) => {
                       const formattedInput =
                         decimalPart !== undefined
                           ? `${integerPart.slice(
-                              0,
-                              12,
-                            )}.${decimalPart.slice(0, 2)}`
+                            0,
+                            12
+                          )}.${decimalPart.slice(0, 2)}`
                           : integerPart.slice(0, 12);
                       setCouponObj({
                         ...couponObj,
@@ -404,26 +380,12 @@ const AccesskeyModal = (props) => {
                     }}
                     maxLength={50}
                   />
-                  {RequireErrorMessage &&
-                  (couponObj.couponAmt === "" ||
-                    couponObj.couponAmt === undefined ||
-                    couponObj.couponAmt === null) ? (
+                  {RequireErrorMessage && (couponObj.couponAmt === "" || couponObj.couponAmt === undefined || couponObj.couponAmt === null) ? (
                     <label className="validation">{ERROR_MESSAGES}</label>
-                  ) : RequireErrorMessage &&
-                    couponObj.couponTypeID == 2 &&
-                    Number(couponObj.couponAmt) > 100 ? (
-                    <label className="validation">
-                      Please set the coupon amount between 1% and 100%.
-                    </label>
-                  ) : couponObj.couponTypeID == 1 &&
-                    Number(couponObj.minELValue) <
-                      Number(couponObj.couponAmt) ? (
-                    <label className="validation">
-                      Please set the coupon amount less than Min.{" "}
-                      {EngagementName} Value({couponObj.minELValue})
-                    </label>
                   ) : (
-                    ""
+                    (RequireErrorMessage && couponObj.couponTypeID == 2 && Number(couponObj.couponAmt) > 100) ?
+                      <label className="validation">Please set the coupon amount between 1% and 100%.</label> :
+                      (couponObj.couponTypeID == 1 && Number(couponObj.minELValue) < Number(couponObj.couponAmt)) ? <label className="validation">Please set the coupon amount less than Min. {EngagementName} Value({couponObj.minELValue})</label> : ""
                   )}
                 </div>
               </div>
@@ -441,8 +403,7 @@ const AccesskeyModal = (props) => {
                     id="customerName-field"
                     class="input-text"
                     placeholder="Validity Count"
-                    value={couponObj.validityCount
-                      ?.toString()
+                    value={couponObj.validityCount?.toString()
                       ?.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
                     onChange={(e) => {
                       setErrorMessage("");
@@ -458,9 +419,9 @@ const AccesskeyModal = (props) => {
                       const formattedInput =
                         decimalPart !== undefined
                           ? `${integerPart.slice(
-                              0,
-                              7,
-                            )}.${decimalPart.slice(0, 2)}`
+                            0,
+                            7
+                          )}.${decimalPart.slice(0, 2)}`
                           : integerPart.slice(0, 7);
                       setCouponObj({
                         ...couponObj,
@@ -469,10 +430,7 @@ const AccesskeyModal = (props) => {
                     }}
                     maxLength={50}
                   />
-                  {RequireErrorMessage &&
-                  (couponObj.validityCount === "" ||
-                    couponObj.validityCount === undefined ||
-                    couponObj.validityCount === null) ? (
+                  {RequireErrorMessage && (couponObj.validityCount === "" || couponObj.validityCount === undefined || couponObj.validityCount === null) ? (
                     <label className="validation">{ERROR_MESSAGES}</label>
                   ) : (
                     ""
@@ -494,17 +452,9 @@ const AccesskeyModal = (props) => {
                     yearPlaceholder="yyyy"
                     className="engagementCalender"
                     label="From Date"
-                    value={
-                      couponObj.startDate
-                        ? dayjs(couponObj.startDate).toDate()
-                        : null
-                    }
+                    value={couponObj.startDate ? dayjs(couponObj.startDate).toDate() : null}
                     minDate={new Date()} // Prevent past date selection
-                    maxDate={
-                      couponObj.endDate
-                        ? dayjs(couponObj.endDate).toDate()
-                        : null
-                    } // Set maxDate based on endDate
+                    maxDate={couponObj.endDate ? dayjs(couponObj.endDate).toDate() : null} // Set maxDate based on endDate
                     onChange={handleFromDateChange}
                     renderInput={(params) => <input {...params.inputProps} />}
                     popperPlacement="bottom-start"
@@ -531,16 +481,8 @@ const AccesskeyModal = (props) => {
                     yearPlaceholder="yyyy"
                     className="engagementCalender"
                     label="To Date"
-                    value={
-                      couponObj.endDate
-                        ? dayjs(couponObj.endDate).toDate()
-                        : null
-                    }
-                    minDate={
-                      couponObj.startDate
-                        ? dayjs(couponObj.startDate).toDate()
-                        : new Date()
-                    } // Set minDate based on startDate
+                    value={couponObj.endDate ? dayjs(couponObj.endDate).toDate() : null}
+                    minDate={couponObj.startDate ? dayjs(couponObj.startDate).toDate() : new Date()} // Set minDate based on startDate
                     maxDate={null} // Allow any future date
                     onChange={handleToDateChange}
                     renderInput={(params) => <input {...params.inputProps} />}
@@ -578,10 +520,7 @@ const AccesskeyModal = (props) => {
                     maxLength={250}
                   ></textarea>
 
-                  {RequireErrorMessage &&
-                  (couponObj.description === "" ||
-                    couponObj.description === undefined ||
-                    couponObj.description === null) ? (
+                  {RequireErrorMessage && (couponObj.description === "" || couponObj.description === undefined || couponObj.description === null) ? (
                     <label className="validation">{ERROR_MESSAGES}</label>
                   ) : (
                     ""

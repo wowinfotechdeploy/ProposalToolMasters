@@ -232,19 +232,12 @@ const Invoices = () => {
   const selectedStatusValue = Utils.paymentStatus.find((item) => item.value === selectedStatus)
   const className = "phone-input-country-code selectDropDown Drop-down-width";
   return (
-   <div className="container-fluid">
-      {/* <div class="main-content"> */}
+    <div>
+      <div class="main-content">
         <div class="services page-background">
-          <div class="">
-            <div class="row">
-              <div class="col-lg-12">
-                <div class="card">
-                  {/* end card header  */}
-                  <div class="card-body mb-2">
-                    <div id="customerList" style={{ marginTop: "3rem" }}>
-                      <div class="bg-light border-bottom px-2">
-                        <div className="container">
-                          <div className="row align-items-center">
+          <div class="page-info-header page-info-strip">
+            <div className="container">
+              <div className="row align-items-center">
                 {/* Invoice Name */}
                 <div className="col-sm-12 col-md-4 col-lg-4"> {/* Invoice Title: 4 columns on desktop, full-width on mobile */}
                   <div className="page-title-cls">
@@ -291,7 +284,7 @@ const Invoices = () => {
             </div>
 
           </div>
-          <div class="">
+          <div class="container">
             <div class="row">
               <div class="col-lg-12">
                 <div class="card">
@@ -299,7 +292,7 @@ const Invoices = () => {
                     <div id="customerList">
                       <div class="row g-4 mb-3"></div>
                       <div
-                        class="table-responsive table-card mt-2 mb-3 table-padding invoice-margin"
+                        class="table-responsive table-card  mb-3 table-padding invoice-margin"
                       >
                         <div className="row align-items-center mb-2 "></div>
 
@@ -616,11 +609,6 @@ const Invoices = () => {
           {/* container-fluid  */}
         </div>
         {/* End Page-content */}
-      </div>
-      </div>
-      </div>
-      </div>
-      </div>
       </div>
 
       <Footer />

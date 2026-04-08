@@ -284,6 +284,41 @@ function Add_New_Templates(props) {
       isPredefined: null,
       fontFamilyID: null,
       professionTypeList: [],
+        // Service description main heading
+    serviceDescriptionMainHeading: "Service Description",
+    serviceDescriptionMainHeadingFontSize: null,
+    serviceDescriptionMainHeadingFontWeight: null,
+    serviceDescriptionMainHeadingFontItalic: null,
+    // Service description Recurring/On-going Heading
+    serviceDescriptionRecurringHeading: "Ongoing/Recurring Services",
+    serviceDescriptionRecurringHeadingFontSize: null,
+    serviceDescriptionRecurringHeadingFontWeight: null,
+    serviceDescriptionRecurringHeadingFontItalic: null,
+    // Service description One-Off/Ad hoc Heading
+    serviceDescriptionOneOffHeading: "One-Off/Ad hoc Services",
+    serviceDescriptionOneOffHeadingFontSize: null,
+    serviceDescriptionOneOffHeadingFontWeight: null,
+    serviceDescriptionOneOffHeadingFontItalic: null,
+    // Service description Service Category Heading
+    serviceDescriptionServiceCatHeading: "",
+    serviceDescriptionServiceCatHeadingFontSize: null,
+    serviceDescriptionServiceCatHeadingFontWeight: null,
+    serviceDescriptionServiceCatHeadingFontItalic: null,
+    // Statement Of Facts main heading
+    statementOfFactsMainHeading: "Statement Of Facts",
+    statementOfFactsMainHeadingFontSize: null,
+    statementOfFactsMainHeadingFontWeight: null,
+    statementOfFactsMainHeadingFontItalic: null,
+    // Statement Of Facts Recurring/On-going Heading
+    statementOfFactsRecurringHeading: "Ongoing/Recurring Services",
+    statementOfFactsRecurringHeadingFontSize: null,
+    statementOfFactsRecurringHeadingFontWeight: null,
+    statementOfFactsRecurringHeadingFontItalic: null,
+    // Statement Of Facts One-Off/Ad hoc Heading
+    statementOfFactsOneOffHeading: "One-Off/Ad hoc Services",
+    statementOfFactsOneOffHeadingFontSize: null,
+    statementOfFactsOneOffHeadingFontWeight: null,
+    statementOfFactsOneOffHeadingFontItalic: null,
     });
 
     setErrorMessage("");
@@ -729,7 +764,7 @@ function Add_New_Templates(props) {
   };
 
   // 2) Add Update Button Click Function
-  const TemplateAddUpdateBtnClicked = (Accept) => {
+  const TemplateAddUpdateBtnClicked = (Accept) => { 
     if (Accept === "Accept") {
       $("#" + "ConfirmSAChangesModel").modal("show");
 
@@ -1135,7 +1170,7 @@ function Add_New_Templates(props) {
           oneOffAdhocHeadingIsItalic:
             TemplateObj.statementOfFactsOneOffHeadingFontItalic || null,
         }),
-      }),
+      }), 
     );
 
     const ApiRequest_ParamsObj = {
@@ -1158,7 +1193,6 @@ function Add_New_Templates(props) {
       isDefault: TemplateObj.isDefault,
       //form level params : will change according to module
       templateName: TemplateObj.templateName,
-      // templateElementList: templateElementList,
       templateElementList: ModifiedUpdatedTemplateElementList,
       fontFamilyID: TemplateObj.fontFamilyID,
       professionTypeList:
@@ -2532,106 +2566,7 @@ function Add_New_Templates(props) {
                   case 3:
                   case "3":
                     // Pricing table
-                    componentToRender = (
-                      <div className="m-3">
-                        {/* === Row with Both Labels === */}
-                        <div className="d-flex align-items-start flex-wrap">
-                          {/* === Template 0 === */}
-                          <div className="d-flex align-items-start me-4">
-                            <input
-                              type="radio"
-                              id={`template-${templates[0].id}`}
-                              value={templates[0].id}
-                              checked={selectedTemplateType === templates[0].id}
-                              onChange={() =>
-                                setSelectedTemplateType(templates[0].id)
-                              }
-                              className="me-2 mt-1"
-                            />
-                            <label
-                              className="form-check-label fs-6"
-                              htmlFor={`template-${templates[0].id}`}
-                              style={{ cursor: "pointer", fontSize: "15px" }}
-                            >
-                              <strong>{templates[0].label}</strong>
-                            </label>
-                          </div>
-
-                          {/* === Template 6 === */}
-                          <div className="d-flex align-items-start">
-                            <input
-                              type="radio"
-                              id={`template-${templates[6].id}`}
-                              value={templates[6].id}
-                              checked={selectedTemplateType === templates[6].id}
-                              onChange={() =>
-                                setSelectedTemplateType(templates[6].id)
-                              }
-                              className="me-2 mt-1"
-                            />
-                            <label
-                              htmlFor={`template-${templates[6].id}`}
-                              className="form-check-label fs-6"
-                              style={{ fontSize: "15px", cursor: "pointer" }}
-                            >
-                              {templates[6].label}
-                            </label>
-                          </div>
-                        </div>
-
-                        {/* === Template 0 Content === */}
-                        {selectedTemplateType === templates[0].id && (
-                          <div className="mt-2">{templates[0].content}</div>
-                        )}
-
-                        {/* === Template 6 Content === */}
-                        {selectedTemplateType === templates[6].id && (
-                          <div
-                            className="mt-2"
-                            style={{
-                              display: "flex",
-                              flexDirection: "column",
-                              gap: "10px",
-                            }}
-                          >
-                            {/* Checkboxes */}
-                            <div
-                              className="mb-1 d-flex flex-wrap gap-3"
-                              style={{ marginTop: "25px" }}
-                            >
-                              {Object.keys(visibleFieldsCustomTemp).map(
-                                (field) => (
-                                  <div key={field} className="form-check">
-                                    <input
-                                      type="checkbox"
-                                      className="form-check-input"
-                                      id={field}
-                                      checked={visibleFieldsCustomTemp[field]}
-                                      disabled={
-                                        field === "serviceName" ||
-                                        field === "feesIncVat"
-                                      }
-                                      onChange={() =>
-                                        handleCheckboxChange(field)
-                                      }
-                                    />
-                                    <label
-                                      htmlFor={field}
-                                      className="form-check-label"
-                                    >
-                                      {formatFieldLabel(field)}
-                                    </label>
-                                  </div>
-                                ),
-                              )}
-                            </div>
-
-                            {/* Table */}
-                            <div className="mt-1">{templates[6].content}</div>
-                          </div>
-                        )}
-                      </div>
-                    );
+                   componentToRender = null;
                     break;
                   case 4:
                   case "4":
@@ -3100,7 +3035,7 @@ function Add_New_Templates(props) {
                   case 8:
                   case "8":
                     // Statment of facts
-                    componentToRender = (
+                   componentToRender = (
                       <div>
                         <div className="row fieldset">
                           <div className="col-2 fieldset-label">

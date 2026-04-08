@@ -218,8 +218,8 @@ function ResetPasswordModal(props) {
     const patternError = isFieldEmpty
       ? ""
       : /^(?=.*\d)(?=.*[-@$!%*#?&])[A-Za-z\d\-@$!%*#?&]{8,}$/.test(password)
-      ? ""
-      : "Password should be minimum 8 characters long. It must contain at least 1 letter, at least 1 number and at least one special character, and only from the following set (others not allowed): - @ $ ! % * # ? &";
+        ? ""
+        : "Password should be minimum 8 characters long. It must contain at least 1 letter, at least 1 number and at least one special character, and only from the following set (others not allowed): - @ $ ! % * # ? &";
 
     setValidationErrors({
       ...validationErrors,
@@ -311,15 +311,15 @@ function ResetPasswordModal(props) {
                             CurrentPassword: trimmedValue,
                           });
                         }}
-                        // onCopy={(e) => e.preventDefault()} // Prevent default copy behavior
-                        // onCut={(e) => e.preventDefault()} // Prevent default cut behavior
-                        // onDrag={(e) => e.preventDefault()} // Prevent default drag behavior
-                        // onDrop={(e) => e.preventDefault()} // Prevent default drop behavior
+                      // onCopy={(e) => e.preventDefault()} // Prevent default copy behavior
+                      // onCut={(e) => e.preventDefault()} // Prevent default cut behavior
+                      // onDrag={(e) => e.preventDefault()} // Prevent default drag behavior
+                      // onDrop={(e) => e.preventDefault()} // Prevent default drop behavior
                       />
                     </div>
                     {RequireErrorMessage &&
-                    (CreateNewPassword.CurrentPassword === undefined ||
-                      CreateNewPassword.CurrentPassword === "") ? (
+                      (CreateNewPassword.CurrentPassword === undefined ||
+                        CreateNewPassword.CurrentPassword === "") ? (
                       <label className="validation">{ERROR_MESSAGES}</label>
                     ) : (
                       ""
@@ -356,8 +356,8 @@ function ResetPasswordModal(props) {
                     />
                   </div>
                   {RequireErrorMessage &&
-                  (CreateNewPassword.Password === undefined ||
-                    CreateNewPassword.Password === "") ? (
+                    (CreateNewPassword.Password === undefined ||
+                      CreateNewPassword.Password === "") ? (
                     <label className="validation">{ERROR_MESSAGES}</label>
                   ) : (
                     ""
@@ -395,15 +395,15 @@ function ResetPasswordModal(props) {
                       required
                       placeholder="Confirm Password"
                       maxLength={20}
-                      // onCopy={(e) => e.preventDefault()} // Prevent default copy behavior
-                      // onCut={(e) => e.preventDefault()} // Prevent default cut behavior
-                      // onDrag={(e) => e.preventDefault()} // Prevent default drag behavior
-                      // onDrop={(e) => e.preventDefault()} // Prevent default drop behavior
+                    // onCopy={(e) => e.preventDefault()} // Prevent default copy behavior
+                    // onCut={(e) => e.preventDefault()} // Prevent default cut behavior
+                    // onDrag={(e) => e.preventDefault()} // Prevent default drag behavior
+                    // onDrop={(e) => e.preventDefault()} // Prevent default drop behavior
                     />
                   </div>
                   {RequireErrorMessage &&
-                  (CreateNewPassword.ConfirmPassword === undefined ||
-                    CreateNewPassword.ConfirmPassword === "") ? (
+                    (CreateNewPassword.ConfirmPassword === undefined ||
+                      CreateNewPassword.ConfirmPassword === "") ? (
                     <label className="validation">{ERROR_MESSAGES}</label>
                   ) : (
                     ""

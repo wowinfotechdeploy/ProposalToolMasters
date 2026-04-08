@@ -137,7 +137,6 @@ function Modal(props) {
   const [driverTypeValue1, setDriverTypeValue1] = useState("");
   const [count, setCount] = useState(0);
   const [isCheck, setIsCheck] = useState(false);
-  const [slabDecimalPlaces, setSlabDecimalPlaces] = useState(2);
   const [globalPricingDriverObj, setGlobalPricingDriverObj] = useState({
     globalPricingDriverKeyID: null,
     keyID: null,
@@ -178,7 +177,7 @@ function Modal(props) {
     ) {
       GetServiceCategoryModelData(
         props.modelRequestData.globalPricingDriverKeyID,
-        props.modelRequestData.Type,
+        props.modelRequestData.Type
       );
     } else {
       SetInitialModelData();
@@ -259,9 +258,9 @@ function Modal(props) {
     const newSlabs = {
       slabTypeID: "",
       slabValue: "",
-      slabFrom: (0).toFixed(slabDecimalPlaces),
-      slabTo: (0).toFixed(slabDecimalPlaces),
-      decimalPlaces: slabDecimalPlaces,
+      slabFrom: 0,
+      slabTo: 0,
+      decimalPlaces: 2,
       isDefault: true,
     };
     slabs.push(newSlabs);
@@ -300,7 +299,7 @@ function Modal(props) {
 
     if (field === "decimalPlaces") {
       // Update decimalPlaces for ALL slabs
-      updatedSlabs = updatedSlabs.map((slab, index) => {
+      updatedSlabs = updatedSlabs.map((slab) => {
         const decimalPlaces = value;
         const updatedSlab = {
           ...slab,
@@ -310,7 +309,7 @@ function Modal(props) {
         // Format slabFrom and slabTo to match the new decimal places
         if (slab.slabFrom !== "") {
           updatedSlab.slabFrom = parseFloat(slab.slabFrom).toFixed(
-            decimalPlaces,
+            decimalPlaces
           );
         }
 
@@ -318,15 +317,6 @@ function Modal(props) {
           updatedSlab.slabTo = parseFloat(slab.slabTo).toFixed(decimalPlaces);
         }
 
-        if (index > 0 && updatedSlabs[index - 1].slabTo !== "") {
-          const prevTo = parseFloat(updatedSlabs[index - 1].slabTo);
-          let increment = 0;
-          if (decimalPlaces === 2) increment = 0.01;
-          else if (decimalPlaces === 1) increment = 0.1;
-          else if (decimalPlaces === 0) increment = 1;
-
-          updatedSlab.slabFrom = (prevTo + increment).toFixed(decimalPlaces);
-        }
         return updatedSlab;
       });
 
@@ -371,19 +361,10 @@ function Modal(props) {
   //Add Slab
   const OnAddSlab = (i) => {
     setCount(count + 1);
-    var existingDecimalPlaces = slabDecimalPlaces;
-    var increment = 1 / Math.pow(10, existingDecimalPlaces);
-    let fromValueForNewSlab;
-
-    // Check if this is the first slab or if adding another slab
-    if (slabs.length === 0 || slabs[slabs.length - 1].slabTo === "") {
-      // First slab or previous slabTo is empty, start from 0
-      fromValueForNewSlab = (0).toFixed(existingDecimalPlaces);
-    } else {
-      // Calculate from previous slabTo
-      var calculatedValue = Number(slabs[slabs.length - 1].slabTo) + increment;
-      fromValueForNewSlab = calculatedValue.toFixed(existingDecimalPlaces);
-    }
+    var fromValueForNewSlab = Number(slabs[slabs.length - 1].slabTo) + 0.01;
+    var existingDecimalPlaces =
+      Number(slabs[slabs.length - 1].decimalPlaces) ?? 2;
+    fromValueForNewSlab = Math.round(fromValueForNewSlab * 100) / 100;
     const newSlabs = {
       slabKeyID: null,
       slabTypeID: "",
@@ -423,7 +404,7 @@ function Modal(props) {
         common.userKeyID,
         null,
         null,
-        slabsCopy[index].slabKeyID,
+        slabsCopy[index].slabKeyID
       );
       setLoader(false);
       if (pricingDriverDelete?.data?.statusCode === 200) {
@@ -496,12 +477,12 @@ function Modal(props) {
     for (let i = 1; i < blocks.length; i++) {
       const prevToDate = parseStoredDate(
         blocks[i - 1].toDate,
-        updatedDates[dateIndex].dateFormat,
+        updatedDates[dateIndex].dateFormat
       );
       blocks[i].fromDate = prevToDate
         ? formatToDisplay(
             addDays(prevToDate, 1),
-            updatedDates[dateIndex].dateFormat,
+            updatedDates[dateIndex].dateFormat
           )
         : "";
     }
@@ -529,7 +510,7 @@ function Modal(props) {
         common.userKeyID,
         null,
         variationsCopy[index].variationKeyID,
-        null,
+        null
       );
       setLoader(false);
       if (pricingDriverDelete?.data?.statusCode === 200) {
@@ -690,7 +671,7 @@ function Modal(props) {
     setErrorMessage("");
 
     const dateFormat = dates[0]?.dateFormat || dateFormats?.[3]?.value;
-    // console.log(dateFormat);
+    console.log(dateFormat);
     const blocks = dates[0]?.blocks || [];
     const lastBlock = blocks[blocks.length - 1];
 
@@ -730,7 +711,7 @@ function Modal(props) {
       const parsedToDate = parseStoredDate(lastBlock.toDate, dateFormat);
       const nextFromDate = addDays(parsedToDate, 1);
       const formattedFromDate = formatToDisplay(nextFromDate, dateFormat);
-      // console.log(formattedFromDate);
+      console.log(formattedFromDate);
       const newBlock = {
         fromDate: formattedFromDate,
         toDate: "",
@@ -747,7 +728,7 @@ function Modal(props) {
 
       setTimeout(() => {
         scrollUpDownByElementID(
-          `Period_Block_${updatedDates[0].blocks.length - 1}`,
+          `Period_Block_${updatedDates[0].blocks.length - 1}`
         );
       }, 200);
     } else {
@@ -777,8 +758,8 @@ function Modal(props) {
   };
 
   const formatToDisplay = (date, formatStr) => {
-    // console.log("date", date);
-    // console.log("formatStr", formatStr);
+    console.log("date", date);
+    console.log("formatStr", formatStr);
 
     if (!isValid(date) || typeof formatStr !== "string") return "";
     return format(date, formatStr);
@@ -908,7 +889,7 @@ function Modal(props) {
       dates.map((date) => ({
         ...date,
         defaultDateValue: cleanValue === "" ? null : parseInt(cleanValue, 10),
-      })),
+      }))
     );
 
     setDateError({ date: false, dateValue: false });
@@ -937,7 +918,7 @@ function Modal(props) {
     (ptype) => ({
       value: ptype.professionTypeId,
       label: ptype.professionTypeName,
-    }),
+    })
   );
   // Select Profession type
   const OnChangeSelectProfessionType = (ptype) => {
@@ -958,7 +939,7 @@ function Modal(props) {
     (item) => ({
       value: item.professionTypeId,
       label: item.professionTypeName,
-    }),
+    })
   );
 
   //2] On Change Select Driver Type
@@ -1005,7 +986,7 @@ function Modal(props) {
         common.userKeyID,
         null,
         variationKeyIDs,
-        slabKeyIDs,
+        slabKeyIDs
       );
 
       if (pricingDriverDelete?.data?.statusCode === 200) {
@@ -1133,8 +1114,7 @@ function Modal(props) {
           if (response?.data?.responseData?.data) {
             const ModelData = response?.data?.responseData?.data;
             const driverTypeValueNew = driverType?.filter(
-              (DriverType) =>
-                DriverType.driverTypeId === ModelData.driverTypeID,
+              (DriverType) => DriverType.driverTypeId === ModelData.driverTypeID
             );
             const driverTypeConvert = driverTypeValueNew.map((i) => ({
               value: i.driverTypeId,
@@ -1306,7 +1286,7 @@ function Modal(props) {
       quantity: quantityData,
       isDefault: globalPricingDriverObj.isDefault,
     };
-    // console.log(ApiRequest_ParamsObj);
+    console.log(ApiRequest_ParamsObj);
     //Check Validations if any
     //Return false if validation fails
     if (
@@ -1324,7 +1304,7 @@ function Modal(props) {
       setGdriverError(true);
     } else if (globalPricingDriverObj.driverTypeID === 2) {
       if (quantityData.length === 0) {
-        // console.log("empty");
+        console.log("empty");
         scrollUpDownByElementID("Quantity");
         setQtyError({ quantityError: true });
         hasError = true;
@@ -1337,7 +1317,7 @@ function Modal(props) {
           Number(quantityData[0].quantityFrom) >=
             Number(quantityData[0].quantityTo)
         ) {
-          // console.log("Err");
+          console.log("Err");
           setQtyError({ quantityError: true });
           hasError = true;
         } else {
@@ -1386,22 +1366,22 @@ function Modal(props) {
                 return variations
                   .slice(0, index)
                   .some(
-                    (prevItem) => prevItem.variationName === item.variationName,
+                    (prevItem) => prevItem.variationName === item.variationName
                   );
-              },
+              }
             );
 
             if (duplicateVariationFound.length > 0) {
               // Remove duplicates from the array
               const uniqueVariations = Array.from(
                 new Set(
-                  duplicateVariationFound.map((item) => item.variationName),
-                ),
+                  duplicateVariationFound.map((item) => item.variationName)
+                )
               );
               // Construct the error message
               const duplicateNames = uniqueVariations.join(", ");
               setErrorMessageTitle(
-                `Variation ${duplicateNames} already exist. Please choose different name.`,
+                `Variation ${duplicateNames} already exist. Please choose different name.`
               );
               setOpenErrorModal(true);
               hasError = true;
@@ -1465,7 +1445,7 @@ function Modal(props) {
         }
       }
     } else if (globalPricingDriverObj.driverTypeID === 6) {
-      // console.log(dates);
+      console.log(dates);
 
       let isValidDates = true;
       const errors = [];
@@ -1544,7 +1524,7 @@ function Modal(props) {
 
       const response = await AddUpdateGlobalPricingDriver(
         URL,
-        ApiRequest_ParamsObj,
+        ApiRequest_ParamsObj
       );
       if (response) {
         setLoader(false);
@@ -1654,7 +1634,7 @@ function Modal(props) {
   };
 
   const professionTypeInputValue = professionTypeLookupList?.filter(
-    (item) => common.professionTypeLists[0] === item.professionTypeId,
+    (item) => common.professionTypeLists[0] === item.professionTypeId
   );
 
   const DriverValue = (e, index, Type) => {
@@ -1665,9 +1645,7 @@ function Modal(props) {
     const currentDecimalPlaces = slabs[index]?.decimalPlaces ?? 2;
     // Split the input into integer and decimal parts
     const [integerPart, decimalPart] = sanitizedInput.split(".");
-    // if (decimalPart !== undefined) {
-    //   decimalPart = decimalPart.slice(0, currentDecimalPlaces);
-    // }
+
     // Combine integer and decimal parts with appropriate precision
     let formattedInput;
     if (decimalPart !== undefined) {
@@ -1675,13 +1653,13 @@ function Modal(props) {
         // For negative values, ensure 5 digits after the negative sign
         formattedInput = `-${integerPart.slice(1, 13)}.${decimalPart.slice(
           0,
-          currentDecimalPlaces,
+          2
         )}`;
       } else {
         // For positive values, limit to 5 digits before the decimal point
         formattedInput = `${integerPart.slice(0, 12)}.${decimalPart.slice(
           0,
-          currentDecimalPlaces,
+          2
         )}`;
       }
     } else {
@@ -1695,43 +1673,35 @@ function Modal(props) {
         index,
         "variationValue",
         formattedInput.replace(/-/g, (match, index) =>
-          index === 0 ? match : "",
-        ),
+          index === 0 ? match : ""
+        )
       );
     } else if (Type === "slabValue") {
       OnSlabChange(
         index,
         "slabValue",
         formattedInput.replace(/-/g, (match, index) =>
-          index === 0 ? match : "",
-        ),
+          index === 0 ? match : ""
+        )
       );
     } else if (Type === "slabFrom") {
       OnSlabChange(
         index,
         "slabFrom",
         formattedInput.replace(/-/g, (match, index) =>
-          index === 0 ? match : "",
-        ),
+          index === 0 ? match : ""
+        )
       );
     } else if (Type === "slabTo") {
       const updatedSlabs = [...slabs];
-      var decimalPlaces = slabDecimalPlaces;
       updatedSlabs[index].slabTo = formattedInput.replace(
         /-/g,
-        (match, index) => (index === 0 ? match : ""),
+        (match, index) => (index === 0 ? match : "")
       );
       // Update the next slab's slabFrom based on the current slab's slabTo
       const nextSlabIndex = index + 1;
       if (nextSlabIndex < slabs.length) {
-        if (decimalPlaces === 0) {
-          var fromValueForNewSlab = Math.floor(Number(formattedInput)) + 1;
-        } else if (decimalPlaces === 1) {
-          fromValueForNewSlab =
-            Math.round((Number(formattedInput) + 0.1) * 100) / 100;
-        } else {
-          var fromValueForNewSlab = Number(formattedInput) + 0.01;
-        }
+        var fromValueForNewSlab = Number(formattedInput) + 0.01;
         fromValueForNewSlab = Math.round(fromValueForNewSlab * 100) / 100;
         updatedSlabs[nextSlabIndex].slabFrom = fromValueForNewSlab; //Number(formattedInput) + 0.01;
       }
@@ -1900,12 +1870,12 @@ function Modal(props) {
                           // Handle consecutive spaces
                           const singleSpaceValue = trimmedValue.replace(
                             /\s{2,}/g,
-                            " ",
+                            " "
                           );
                           // Remove dot if it follows a space
                           const sanitizedValue = singleSpaceValue.replace(
                             / \./g,
-                            " ",
+                            " "
                           );
                           const capitalizedValue =
                             sanitizedValue.charAt(0).toUpperCase() +
@@ -1981,12 +1951,12 @@ function Modal(props) {
                               const variationsList = [...variations];
                               const [draggedItem] = variationsList.splice(
                                 sourceIndex,
-                                1,
+                                1
                               );
                               variationsList.splice(
                                 targetIndex,
                                 0,
-                                draggedItem,
+                                draggedItem
                               );
                               setVariations(variationsList);
                             }
@@ -2048,7 +2018,7 @@ function Modal(props) {
                                       const inputValue = e.target.value;
                                       const trimmedValue = inputValue.replace(
                                         /^\s+/g,
-                                        "",
+                                        ""
                                       ); // Remove leading spaces
                                       if (/^\d/.test(trimmedValue)) {
                                         // setErrorMessage("Driver name cannot start with a number");
@@ -2060,7 +2030,7 @@ function Modal(props) {
                                       OnVariationChange(
                                         index,
                                         "variationName",
-                                        capitalizedValue,
+                                        capitalizedValue
                                       );
                                     }}
                                     maxLength={200}
@@ -2209,15 +2179,16 @@ function Modal(props) {
                           <Select
                             className="user-role-select"
                             value={{
-                              value: slabDecimalPlaces,
-                              label:
-                                Utils.getDecimalPlaceLabel(slabDecimalPlaces),
+                              value: slabs[0]?.decimalPlaces ?? 2,
+                              label: Utils.getDecimalPlaceLabel(
+                                slabs[0]?.decimalPlaces ?? 2
+                              ),
                             }}
                             onChange={(selectedOption) =>
                               OnSlabChange(
                                 0,
                                 "decimalPlaces",
-                                selectedOption.value,
+                                selectedOption.value
                               )
                             }
                             options={Utils.DECIMAL_PLACE_OPTIONS}
@@ -2272,14 +2243,14 @@ function Modal(props) {
                                         OnSlabChange(
                                           index,
                                           "slabTypeID",
-                                          selectedOption.value,
+                                          selectedOption.value
                                         );
                                       }}
                                       value={slabType
                                         ?.filter(
                                           (item) =>
                                             item.slabTypeId ===
-                                            slabs[index].slabTypeID,
+                                            slabs[index].slabTypeID
                                         )
                                         .map((i) => ({
                                           value: i.slabTypeId,
@@ -2322,7 +2293,7 @@ function Modal(props) {
                                                   .toString()
                                                   .replace(
                                                     /\B(?=(\d{3})+(?!\d))/g,
-                                                    ",",
+                                                    ","
                                                   )
                                           }
                                           onChange={(e) => {
@@ -2368,7 +2339,7 @@ function Modal(props) {
                                                   .toString()
                                                   .replace(
                                                     /\B(?=(\d{3})+(?!\d))/g,
-                                                    ",",
+                                                    ","
                                                   )
                                           }
                                           // onChange={(e) => OnSlabChange(index, 'slabFrom', e.target.value)}
@@ -2388,7 +2359,7 @@ function Modal(props) {
                                             if (!isNaN(numberValue)) {
                                               const roundedValue =
                                                 numberValue.toFixed(
-                                                  decimalPlaces,
+                                                  decimalPlaces
                                                 );
                                               updatedSlabs[index].slabFrom =
                                                 roundedValue;
@@ -2429,7 +2400,7 @@ function Modal(props) {
                                                   .toString()
                                                   .replace(
                                                     /\B(?=(\d{3})+(?!\d))/g,
-                                                    ",",
+                                                    ","
                                                   )
                                           }
                                           onChange={(e) => {
@@ -2448,7 +2419,7 @@ function Modal(props) {
                                             if (!isNaN(numberValue)) {
                                               const roundedValue =
                                                 numberValue.toFixed(
-                                                  decimalPlaces,
+                                                  decimalPlaces
                                                 );
                                               updatedSlabs[index].slabTo =
                                                 roundedValue;
@@ -2533,7 +2504,7 @@ function Modal(props) {
                                                   .toString()
                                                   .replace(
                                                     /\B(?=(\d{3})+(?!\d))/g,
-                                                    ",",
+                                                    ","
                                                   )
                                           }
                                           onChange={(e) => {
@@ -2578,7 +2549,7 @@ function Modal(props) {
                                                   .toString()
                                                   .replace(
                                                     /\B(?=(\d{3})+(?!\d))/g,
-                                                    ",",
+                                                    ","
                                                   )
                                           }
                                           onChange={(e) => {
@@ -2619,7 +2590,7 @@ function Modal(props) {
                                                   .toString()
                                                   .replace(
                                                     /\B(?=(\d{3})+(?!\d))/g,
-                                                    ",",
+                                                    ","
                                                   )
                                           }
                                           // onChange={(e) => OnSlabChange(index, 'slabTo', e.target.value)}
@@ -2703,7 +2674,7 @@ function Modal(props) {
                           onChange={(e) => {
                             const cleanValue = e.target.value.replace(
                               /[^\d.]/g,
-                              "",
+                              ""
                             );
                             setTextDriver({
                               ...textDriver,
@@ -2755,7 +2726,7 @@ function Modal(props) {
                           value={specialCharOptions.filter((opt) =>
                             (textDriver.allowedSpecialCharacters || "")
                               .split(",")
-                              .includes(opt.value),
+                              .includes(opt.value)
                           )}
                           onChange={handleSpecialCharChange}
                           placeholder="Select special characters..."
@@ -2780,7 +2751,7 @@ function Modal(props) {
                           classNamePrefix="select"
                           value={
                             dateFormats.find(
-                              (f) => f.value === dates[0]?.dateFormat,
+                              (f) => f.value === dates[0]?.dateFormat
                             ) || dateFormats[3]
                           }
                           onChange={handleDateFormatChange}
@@ -2857,7 +2828,7 @@ function Modal(props) {
                                       className="input-text"
                                       selected={parseStoredDate(
                                         block.fromDate,
-                                        date?.dateFormat,
+                                        date?.dateFormat
                                       )}
                                       placeholder="From Date"
                                       disabled={
@@ -2870,9 +2841,9 @@ function Modal(props) {
                                           ? subDays(
                                               parseStoredDate(
                                                 block.toDate,
-                                                date.dateFormat,
+                                                date.dateFormat
                                               ),
-                                              1,
+                                              1
                                             )
                                           : null
                                       }
@@ -2882,9 +2853,9 @@ function Modal(props) {
                                           "fromDate",
                                           formatToDisplay(
                                             selectedDate,
-                                            date.dateFormat,
+                                            date.dateFormat
                                           ),
-                                          blockIndex,
+                                          blockIndex
                                         )
                                       }
                                       dateFormat={date.dateFormat}
@@ -2909,7 +2880,7 @@ function Modal(props) {
                                       className="input-text"
                                       selected={parseStoredDate(
                                         block.toDate,
-                                        date?.dateFormat,
+                                        date?.dateFormat
                                       )}
                                       placeholder="To Date"
                                       onChange={(selectedDate) =>
@@ -2918,9 +2889,9 @@ function Modal(props) {
                                           "toDate",
                                           formatToDisplay(
                                             selectedDate,
-                                            date.dateFormat,
+                                            date.dateFormat
                                           ),
-                                          blockIndex,
+                                          blockIndex
                                         )
                                       }
                                       minDate={
@@ -2928,9 +2899,9 @@ function Modal(props) {
                                           ? addDays(
                                               parseStoredDate(
                                                 block.fromDate,
-                                                date.dateFormat,
+                                                date.dateFormat
                                               ),
-                                              1,
+                                              1
                                             )
                                           : null
                                       }
@@ -2947,9 +2918,9 @@ function Modal(props) {
                                                 ]?.fromDate ||
                                                   dates[dateIndex + 1]
                                                     ?.blocks[0]?.fromDate,
-                                                date.dateFormat,
+                                                date.dateFormat
                                               ),
-                                              1,
+                                              1
                                             )
                                           : null
                                       }
@@ -2960,11 +2931,11 @@ function Modal(props) {
                                     block.toDate &&
                                     parseStoredDate(
                                       block.toDate,
-                                      date.dateFormat,
+                                      date.dateFormat
                                     ) <
                                       parseStoredDate(
                                         block.fromDate,
-                                        date.dateFormat,
+                                        date.dateFormat
                                       ) && (
                                       <div className="text-danger mt-1">
                                         To Date cannot be earlier than From
@@ -3011,7 +2982,7 @@ function Modal(props) {
                                         dateIndex,
                                         "dateValue",
                                         e.target.value,
-                                        blockIndex,
+                                        blockIndex
                                       )
                                     }
                                   />
@@ -3028,7 +2999,7 @@ function Modal(props) {
                               </div>
                             </div>
                           </div>
-                        )),
+                        ))
                       )}
                     </div>
                   </div>
@@ -3057,13 +3028,13 @@ function Modal(props) {
                                 updatedDrivers[0].quantityFrom !== ""
                               ) {
                                 const numValue = parseFloat(
-                                  updatedDrivers[0].quantityFrom,
+                                  updatedDrivers[0].quantityFrom
                                 );
                                 if (!isNaN(numValue)) {
                                   updatedDrivers[0].quantityFrom =
                                     formatDisplayValue(
                                       numValue.toString(),
-                                      selectedOption.value,
+                                      selectedOption.value
                                     );
                                 }
                               }
@@ -3074,13 +3045,13 @@ function Modal(props) {
                                 updatedDrivers[0].quantityTo !== ""
                               ) {
                                 const numValue = parseFloat(
-                                  updatedDrivers[0].quantityTo,
+                                  updatedDrivers[0].quantityTo
                                 );
                                 if (!isNaN(numValue)) {
                                   updatedDrivers[0].quantityTo =
                                     formatDisplayValue(
                                       numValue.toString(),
-                                      selectedOption.value,
+                                      selectedOption.value
                                     );
                                 }
                               }
@@ -3125,7 +3096,7 @@ function Modal(props) {
                                 quantity[0]?.quantityDecimalPlaces ?? 0;
                               const sanitized = handleQuantityInput(
                                 e.target.value,
-                                decimalPlaces,
+                                decimalPlaces
                               );
 
                               const updatedDrivers = [...quantity];
@@ -3148,7 +3119,7 @@ function Modal(props) {
                               ) {
                                 const formattedValue = formatDisplayValue(
                                   currentValue,
-                                  decimalPlaces,
+                                  decimalPlaces
                                 );
 
                                 const updatedDrivers = [...quantity];
@@ -3187,7 +3158,7 @@ function Modal(props) {
                                 quantity[0]?.quantityDecimalPlaces ?? 0;
                               const sanitized = handleQuantityInput(
                                 e.target.value,
-                                decimalPlaces,
+                                decimalPlaces
                               );
 
                               const updatedDrivers = [...quantity];
@@ -3210,7 +3181,7 @@ function Modal(props) {
                               ) {
                                 const formattedValue = formatDisplayValue(
                                   currentValue,
-                                  decimalPlaces,
+                                  decimalPlaces
                                 );
 
                                 const updatedDrivers = [...quantity];
@@ -3259,7 +3230,7 @@ function Modal(props) {
               >
                 {common.professionTypeLists?.length <= 1 &&
                 errorMessage?.includes(
-                  `Please dont choose this profession type`,
+                  `Please dont choose this profession type`
                 )
                   ? errorMessage.split(".")[0]
                   : errorMessage}

@@ -331,10 +331,10 @@ function AddUpdateEmailTemplate(props) {
       setRequireErrorMessage(false); // Clear the error message if there are no errors.
     }
     // Await the result of updateTemplateList
-    // const updatedTemplateList = await updateTemplateList(
-    //   templateElementList,
-    //   "Email_Template"
-    // );
+    const updatedTemplateList = await updateTemplateList(
+      templateElementList,
+      "Email_Template"
+    );
     // Preparing Object For Add Update and if any modification then it will done here
     const ApiRequest_ParamsObj = {
       acceptSAChanges: Accept,
@@ -350,8 +350,7 @@ function AddUpdateEmailTemplate(props) {
       subject: TemplateObj.subject,
       templateName: TemplateObj.templateName,
       isDefault: TemplateObj.isDefault,
-      // templateElementList: updatedTemplateList,
-      templateElementList: templateElementList,
+      templateElementList: updatedTemplateList,
       professionTypeList:
         common.professionTypeLists?.length > 1 ||
         common.organisationKeyID === null

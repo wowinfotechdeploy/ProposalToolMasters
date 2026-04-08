@@ -270,7 +270,7 @@ const Activity_Logs = () => {
           <div class="container-fluid  ">
             {/* .............new code.............. */}
             <div
-              class="row left-margin table-padding"
+              class="row left-margin activity_logs table-padding"
               style={{ justifyContent: "initial" }}
             >
               {/* <div className="col-1"></div> */}

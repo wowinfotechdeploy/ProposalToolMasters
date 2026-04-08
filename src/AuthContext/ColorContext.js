@@ -7,7 +7,6 @@ import {
 import { useSelector } from "react-redux";
 import { AuthContextProvider } from "./AuthContext";
 import SuccessModal from "../components/SuccessModal";
-import { set } from "date-fns";
 
 const initialState = {
   loading: false,
@@ -19,13 +18,12 @@ export const ColorProvider = ({ children }) => {
   /* -------------------------------------------------------------------------- */
   /*                                State Declare                               */
   /* -------------------------------------------------------------------------- */
-
+  
   let getUserPersonalizeSettingApiCallCount = 0;
-  const [currentCardColor, setCurrentCardColor] = useState("#fff");
-  const [currentTopbarColor, setCurrentTopbarColor] = useState("#5a2eca");
-  const [cardBgColor, setCardBgColor] = useState("#5a2eca");
+  const [currentCardColor, setCurrentCardColor] = useState("#626ed4");
+  const [currentTopbarColor, setCurrentTopbarColor] = useState("#333547");
   const [currentTopbarTextColor, setCurrentTopbarTextColor] =
-    useState("#ffc058");
+    useState("#8d8d8d");
   const [CloseModal, setCloseModal] = useState(false);
   const [isAddUpdateDone, setIsAddUpdateDone] = useState(false);
   const [dismissModal, setDismissModal] = useState(null);
@@ -51,7 +49,7 @@ export const ColorProvider = ({ children }) => {
   useEffect(() => {
     if (common.token) {
       let userThemeSettingLocalStorage = localStorage.getItem(
-        "userThemeSettingLocalStorage",
+        "userThemeSettingLocalStorage"
       );
       if (
         userThemeSettingLocalStorage === undefined ||
@@ -59,7 +57,7 @@ export const ColorProvider = ({ children }) => {
       ) {
         GetUserPersonalizeSettingData(
           common.userKeyID,
-          common.organisationKeyID,
+          common.organisationKeyID
         );
       } else {
         GetUserPersonalizeSettingDataFromLocalStorage();
@@ -70,7 +68,7 @@ export const ColorProvider = ({ children }) => {
   const GetUserPersonalizeSettingDataFromLocalStorage = () => {
     // Get the JSON-formatted string from localStorage
     let userThemeSettingLocalStorage = localStorage.getItem(
-      "userThemeSettingLocalStorage",
+      "userThemeSettingLocalStorage"
     );
 
     if (userThemeSettingLocalStorage) {
@@ -79,31 +77,30 @@ export const ColorProvider = ({ children }) => {
 
       // Check if userThemeSettings is not null or undefined
       if (userThemeSettings) {
-        // Now, userThemeSettings is a JavaScript object containing the parsed JSON data
+        // Now, userThemeSettings is a JavaScript object containing the parsed JSON data     
 
         // Assuming the properties in ModelData match the setting names
         const AppearanceHeaderBgColorSetting = userThemeSettings.find(
-          (item) => item.settingName === "AppearanceHeaderBgColor",
+          (item) => item.settingName === "AppearanceHeaderBgColor"
         );
         const AppearanceNavbarMenuListColorSetting = userThemeSettings.find(
-          (item) => item.settingName === "AppearanceNavbarMenuListColor",
+          (item) => item.settingName === "AppearanceNavbarMenuListColor"
         );
         const AppearanceDashboardCardBgColorSetting = userThemeSettings.find(
-          (item) => item.settingName === "AppearanceDashboardCardBgColor",
+          (item) => item.settingName === "AppearanceDashboardCardBgColor"
         );
         // Set values based on the found settings
         setCurrentCardColor(
-          AppearanceDashboardCardBgColorSetting?.settingValue,
+          AppearanceDashboardCardBgColorSetting?.settingValue
         );
         setCurrentTopbarTextColor(
-          AppearanceNavbarMenuListColorSetting?.settingValue,
+          AppearanceNavbarMenuListColorSetting?.settingValue
         );
         setCurrentTopbarColor(AppearanceHeaderBgColorSetting?.settingValue);
 
         setCardColor(AppearanceDashboardCardBgColorSetting?.settingValue);
         setTopbarTextColor(AppearanceNavbarMenuListColorSetting?.settingValue);
         setTopbarColor(AppearanceHeaderBgColorSetting?.settingValue);
-        setCardBgColor(AppearanceDashboardCardBgColorSetting?.settingValue);
       }
     }
   };
@@ -123,31 +120,31 @@ export const ColorProvider = ({ children }) => {
           localStorage.removeItem("userThemeSettingLocalStorage");
           localStorage.setItem(
             "userThemeSettingLocalStorage",
-            JSON.stringify(modelData),
+            JSON.stringify(modelData)
           );
 
           // Assuming the properties in ModelData match the setting names
           const AppearanceHeaderBgColorSetting = modelData.find(
-            (item) => item.settingName === "AppearanceHeaderBgColor",
+            (item) => item.settingName === "AppearanceHeaderBgColor"
           );
           const AppearanceNavbarMenuListColorSetting = modelData.find(
-            (item) => item.settingName === "AppearanceNavbarMenuListColor",
+            (item) => item.settingName === "AppearanceNavbarMenuListColor"
           );
           const AppearanceDashboardCardBgColorSetting = modelData.find(
-            (item) => item.settingName === "AppearanceDashboardCardBgColor",
+            (item) => item.settingName === "AppearanceDashboardCardBgColor"
           );
           // Set values based on the found settings
           setCurrentCardColor(
-            AppearanceDashboardCardBgColorSetting?.settingValue,
+            AppearanceDashboardCardBgColorSetting?.settingValue
           );
           setCurrentTopbarTextColor(
-            AppearanceNavbarMenuListColorSetting?.settingValue,
+            AppearanceNavbarMenuListColorSetting?.settingValue
           );
           setCurrentTopbarColor(AppearanceHeaderBgColorSetting?.settingValue);
-          setCardBgColor(AppearanceDashboardCardBgColorSetting?.settingValue);
+
           setCardColor(AppearanceDashboardCardBgColorSetting?.settingValue);
           setTopbarTextColor(
-            AppearanceNavbarMenuListColorSetting?.settingValue,
+            AppearanceNavbarMenuListColorSetting?.settingValue
           );
           setTopbarColor(AppearanceHeaderBgColorSetting?.settingValue);
         } else {
@@ -161,7 +158,7 @@ export const ColorProvider = ({ children }) => {
     }
   };
 
-  // if api call failed somehow , this function call 5 times
+  // if api call failed somehow , this function call 5 times 
   const RecallGetUserPersonalizeSettingData = (id) => {
     if (getUserPersonalizeSettingApiCallCount < maxCountToRecallApi) {
       getUserPersonalizeSettingApiCallCount += 1;
@@ -190,7 +187,7 @@ export const ColorProvider = ({ children }) => {
         },
         {
           settingName: "AppearanceDashboardCardBgColor",
-          settingValue: cardBgColor,
+          settingValue: currentCardColor,
         },
       ];
     } else {
@@ -223,7 +220,7 @@ export const ColorProvider = ({ children }) => {
         common.userKeyID,
         common.organisationKeyID,
         SettingType,
-        ApiRequest_ParamsObj,
+        ApiRequest_ParamsObj
       );
       if (response?.data?.statusCode === 200) {
         localStorage.removeItem("userThemeSettingLocalStorage");
@@ -274,16 +271,14 @@ export const ColorProvider = ({ children }) => {
   };
 
   const handleSetDefault = () => {
-    setCurrentCardColor("#fff");
-    setCurrentTopbarColor("#5a2eca");
-    setCardBgColor("#5a2eca");
-    setCurrentTopbarTextColor("#ffc058");
+    setCurrentCardColor("#626ed4");
+    setCurrentTopbarColor("#333547");
+    setCurrentTopbarTextColor("#8d8d8d");
   };
 
   const handleOnChangeCard = (event) => {
     const newColor = event.target.value;
     setCurrentCardColor(newColor);
-    setCardBgColor(newColor);
   };
   const handleClose = () => {
     $("#" + "SetPersonalizeSettingModal").modal("hide");
@@ -295,14 +290,13 @@ export const ColorProvider = ({ children }) => {
     <ColorContext.Provider
       value={{
         cardStyle,
-        cardBgColor,
         CloseModal,
         TopbarStyle,
         TopTextColor,
         setCloseModal,
         isAddUpdateDone,
         currentCardColor,
-        UserDefaultTheme,
+        UserDefaultTheme,        
         handleSetDefault,
         currentTopbarColor,
         setIsAddUpdateDone,
@@ -314,7 +308,7 @@ export const ColorProvider = ({ children }) => {
         OnChangeTopbarTextColor,
         UpdateThemeSettingsData,
         setCurrentTopbarTextColor,
-      }}
+        }}
     >
       <SuccessModal
         handleClose={handleClose}

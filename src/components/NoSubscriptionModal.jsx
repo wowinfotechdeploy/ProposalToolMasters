@@ -48,17 +48,10 @@ const NoSubscriptionModal = (props) => {
                   <div className="modallogo6"></div>
                 </div> */}
                 <div class="mt-4 pt-2 fs-15 mx-4 mx-sm-5">
-                  {props.pdfToCSVSubscriptionStatus === true ? (
-                    <p class="text-muted  mb-0 " style={{ overflow: "auto" }}>
-                      You have exausted your current limit of conversion, please
-                      upgrade to proceed.
-                    </p>
-                  ) : (
-                    <p class="text-muted  mb-0 " style={{ overflow: "auto" }}>
-                      You don't have required subscription to access this
-                      feature, please purchase to proceed.
-                    </p>
-                  )}
+                  <p class="text-muted  mb-0 " style={{ overflow: "auto" }}>
+                    You don't have required subscription to access this feature,
+                    please purchase to proceed.
+                  </p>
                 </div>
               </div>
               <div class="d-flex gap-2 justify-content-center mt-4 mb-2">

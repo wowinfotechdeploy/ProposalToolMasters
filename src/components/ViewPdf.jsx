@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useContext, lazy, Suspense } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useLocation } from "react-router-dom";
 import { GetQuoteContractViewPDFurl } from "../redux/Services/Proposal/ProposalApi";
 import { AuthContextProvider } from "../AuthContext/AuthContext";
 import { useSelector } from "react-redux";
-// import PdfViewer from "./PdfViewers";
-const PdfViewer = lazy(() => import("./PdfViewers"));
+import PdfViewer from "./PdfViewers";
 
 const ViewPdf = () => {
   const location = useLocation();
@@ -71,16 +70,13 @@ const ViewPdf = () => {
     <>
       {MergePdfUrl && (
         isMobile ?
-        <Suspense>
           <PdfViewer isVisible={true} pdfFile={MergePdfUrl} />
-        </Suspense>
           :
           <iframe
             title="PDF Viewer"
             src={MergePdfUrl}
             // width="100%"
             // height="700px"
-            loading="lazy"
             style={{ width: '100%', height: '100vh', border: 'none' }}
           ></iframe>
       )}
