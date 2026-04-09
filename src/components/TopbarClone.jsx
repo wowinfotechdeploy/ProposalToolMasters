@@ -2222,7 +2222,7 @@ const TopbarClone = () => {
                                               NotificationCountData();
                                             }}
                                           >
-                                            Access Key
+                                            Access Key sdas
                                           </NavLink>
                                         </li>
                                         <li class="nav-item">
@@ -2249,12 +2249,6 @@ const TopbarClone = () => {
                               {userAccessData.Admin_Setting_Practice_Config_CanView && (
                                 <li
                                   class="nav-item"
-                                  // onMouseLeave={() =>
-                                  //   hideSettingSubList("PracticeConfig")
-                                  // }
-                                  // onMouseEnter={() =>
-                                  //   showSettingSubList("PracticeConfig")
-                                  // }
                                   onClick={() =>
                                     toggleSettingSubList("PracticeConfig")
                                   }
@@ -2271,9 +2265,9 @@ const TopbarClone = () => {
                                     Practice Config
                                   </a>
                                   <div
-                                    class="subList collapse Responsive-Config-Variables"
+                                    class="subList Service-package-bgColor"
                                     id="PracticeConfig"
-
+                                    style={style}
                                   >
                                     <ul class="nav nav-sm flex-column">
                                       <li class="nav-item">
@@ -2316,7 +2310,7 @@ const TopbarClone = () => {
                                         </a>
 
                                         <div
-                                          className="subList collapse d-none"
+                                          className="subList Service-package-bgColor"
                                           id="BookKeepingConfig"
                                         >
                                           <ul className="nav nav-sm flex-column ms-3">
