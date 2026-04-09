@@ -8,11 +8,13 @@ import AuthButton from "../../../components/Sidebar/AuthenticationButton";
 import { ConnectionAuthentication } from "../../../redux/Services//Xero/XeroApi"
 import { AuthContextProvider } from "../../../AuthContext/AuthContext";
 import { GetAllDrivers } from "../../../redux/reducer/quickBookSlice";
+import { OrganisationToQuickBookAuthentication } from "../../../redux/Services/QuickBook/QuickBookApi";
 
 
 function QuickBookAuthentication() {
     const dispatch = useDispatch()
     const auth = useSelector((state) => state?.Storage);
+    const isXero = useSelector((state) => state?.auth?.bookkeeping);
     const drivers = useSelector((state) => state.quickBook.drivers);
 
     //==================state=====================
@@ -29,9 +31,11 @@ function QuickBookAuthentication() {
     //==================functions=====================
     const handleAuthenticate = async () => {
         try {
+
             const raw = JSON.parse(localStorage.getItem("persist:Proposal Tool"));
             const organisationKeyID = JSON.parse(raw.organisationKeyID);
-            const res = await ConnectionAuthentication(organisationKeyID);
+
+            const res = await OrganisationToQuickBookAuthentication(organisationKeyID, isXero);
 
             if (res?.status === 200) {
                 const url = res.data.connectionUrl;
