@@ -83,6 +83,14 @@ const PricingTableTemplatesModal = lazy(
   () => import("../../components/PricingTableTemplatesModal"),
 );
 
+// Numeric hardening: avoid NaN (undefined/"1,234.56"/"") in tables
+const toFiniteNumber = (val) => {
+  if (val === null || val === undefined || val === "") return 0;
+  const n =
+    typeof val === "number" ? val : Number(String(val).replace(/,/g, ""));
+  return Number.isFinite(n) ? n : 0;
+};
+
 const BasicInformationComponent = (props) => {
   const navigate = useNavigate();
   const isEnabledMasterProposalType = props?.isEnabledMasterProposal;
@@ -971,28 +979,23 @@ const ReviewServicesComponent = (props) => {
             }}
           >
             {" "}
-            {
-              Number(props.OneOffPricingInfo.OriginalPrice) <
-                Number(props.OneOffPricingInfo.DiscountedPrice) ||
-              (Number(props.OneOffPricingInfo.Discount) > 0 &&
-                !props.ProposalObject.DiscountLines)
-                ? props.formatValue(
-                    props.OneOffPricingInfo.DiscountedPrice,
-                    props.currencyID,
-                  )
-                : // Number(props.OneOffPricingInfo.DiscountedPrice)
-                  //   // .toFixed(2)
-                  //   .toString()
-                  //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                  props.formatValue(
-                    props.OneOffPricingInfo.OriginalPrice,
-                    props.currencyID,
-                  )
+            {(toFiniteNumber(props.OneOffPricingInfo.OriginalPrice) <
+              toFiniteNumber(props.OneOffPricingInfo.DiscountedPrice) ||
+            (toFiniteNumber(props.OneOffPricingInfo.Discount) > 0 &&
+              !props.ProposalObject.DiscountLines)
+              ? props.formatValue(
+                  toFiniteNumber(props.OneOffPricingInfo.DiscountedPrice),
+                  props.currencyID,
+                )
+              : props.formatValue(
+                  toFiniteNumber(props.OneOffPricingInfo.OriginalPrice),
+                  props.currencyID,
+                )
               // Number(props.OneOffPricingInfo.OriginalPrice)
               //   // .toFixed(2)
               //   .toString()
               //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-            }
+            )}
           </td>
         </tr>
         {Number(props.OneOffPricingInfo.Discount) > 0 &&
@@ -1076,7 +1079,7 @@ const ReviewServicesComponent = (props) => {
               >
                 {" "}
                 {props.formatValue(
-                  Number(props.OneOffPricingInfo.totalServiceWiseVATOneOff),
+                  toFiniteNumber(props.OneOffPricingInfo.totalServiceWiseVATOneOff),
                   props.currencyID,
                 )}
               </td>
@@ -1105,19 +1108,19 @@ const ReviewServicesComponent = (props) => {
                   props.OneOffPricingInfo.GrandTotal,
                   props.currencyID
                 )} */}
-                {Number(props.OneOffPricingInfo.Discount) > 0
+                {toFiniteNumber(props.OneOffPricingInfo.Discount) > 0
                   ? // If discount is applied → use discounted total + VAT
                     props.formatValue(
-                      Number(props.OneOffPricingInfo.DiscountedTotal) +
-                        Number(
+                      toFiniteNumber(props.OneOffPricingInfo.DiscountedTotal) +
+                        toFiniteNumber(
                           props.OneOffPricingInfo.totalServiceWiseVATOneOff,
                         ),
                       props.currencyID,
                     )
                   : // If no discount → use original total + VAT
                     props.formatValue(
-                      Number(props.OneOffPricingInfo.OriginalPrice) +
-                        Number(
+                      toFiniteNumber(props.OneOffPricingInfo.OriginalPrice) +
+                        toFiniteNumber(
                           props.OneOffPricingInfo.totalServiceWiseVATOneOff,
                         ),
                       props.currencyID,
@@ -1945,7 +1948,15 @@ const ReviewServicesComponent = (props) => {
 
     // Call the function when component mounts
     updateOneOffHtmlContentForReviewService();
-  }, [props]);
+  }, [
+    props.selectedRecurringServiceList,
+    props.selectedOneOffServiceList,
+    props.ProposalObject?.feeTypeId,
+    props.ProposalObject?.selectedProposalTypeValue,
+    props.ProposalObject?.Payment_Frequency,
+    props.currencySymbol,
+    props.common?.enableEL,
+  ]);
   useEffect(() => {
     const isRecurringDiscounted =
       Number(props.RecurringPricingInfo.DiscountedPrice) >
@@ -2029,7 +2040,12 @@ const ReviewServicesComponent = (props) => {
       oneOffHtmlContent:
         props.selectedOneOffServiceList.length > 0 ? oneOffTableString : null,
     }));
-  }, [oneOffTableString, RecurringTableString, props]);
+  }, [
+    oneOffTableString,
+    RecurringTableString,
+    props.selectedRecurringServiceList.length,
+    props.selectedOneOffServiceList.length,
+  ]);
 
   const feeTypeValue = modifiedFeesType.find(
     (item) => props.ProposalObject.feeTypeId == item.value,
@@ -2038,7 +2054,16 @@ const ReviewServicesComponent = (props) => {
   useEffect(() => {
     CalculateRecurringPackageNetTotal();
     CalculateOneOffPackageNetTotal();
-  }, [props]);
+  }, [
+    props.selectedRecurringServiceList,
+    props.selectedOneOffServiceList,
+    props.RecurringFrequencyPricingInfo?.DefaultDiscount,
+    props.RecurringPricingInfo?.DiscountedPrice,
+    props.OneOffPricingInfoCopy?.DefaultDiscount,
+    props.OneOffPricingInfo?.DiscountedPrice,
+    props.vatPercentage,
+    props.vatPercentageOneOff,
+  ]);
 
   useEffect(() => {
     const htmlContent = generateTableHTMLOnOff();
@@ -6703,7 +6728,18 @@ const ReviewPackagesComponent = (props) => {
   useEffect(() => {
     CalculateRecurringPackageNetTotal();
     CalculateOneOffPackageNetTotal();
-  }, [props]);
+  }, [
+    props.selectedRecurringServiceList,
+    props.selectedOneOffServiceList,
+    props.RecurringFrequencyPricingInfo?.DiscountPercentagePackageOne,
+    props.RecurringFrequencyPricingInfo?.DiscountPercentagePackageTwo,
+    props.RecurringFrequencyPricingInfo?.DiscountPercentagePackageThree,
+    props.OneOffPricingInfoCopy?.DiscountPercentagePackageOne,
+    props.OneOffPricingInfoCopy?.DiscountPercentagePackageTwo,
+    props.OneOffPricingInfoCopy?.DiscountPercentagePackageThree,
+    props.vatPercentage,
+    props.vatPercentageOneOff,
+  ]);
 
   useEffect(() => {
     if (hasMounted.current) {
@@ -8507,7 +8543,13 @@ const ReviewPackagesComponent = (props) => {
 
     // Call the function when component mounts
     computeOneOffTotalPackageValues();
-  }, [props]);
+  }, [
+    props.selectedRecurringServiceList,
+    props.selectedOneOffServiceList,
+    props.selectedPackagesList,
+    props.selectedPackagesDetails,
+    props.ProposalObject?.Payment_Frequency,
+  ]);
 
   const computeRecurringTotalPackageValues = () => {
     let totalOne = 0;
@@ -8555,32 +8597,63 @@ const ReviewPackagesComponent = (props) => {
         }
       });
     });
-    setLastPaymentFrequencyAndDiscountedPrice({
-      PaymentFrequencyID: 1,
-      PackageOneNetValue: totalOne,
-      PackageTwoNetValue: totalTwo,
-      PackageThreeNetValue: totalThree,
+    setLastPaymentFrequencyAndDiscountedPrice((prev) => {
+      if (
+        prev?.PaymentFrequencyID === 1 &&
+        prev?.PackageOneNetValue === totalOne &&
+        prev?.PackageTwoNetValue === totalTwo &&
+        prev?.PackageThreeNetValue === totalThree
+      ) {
+        return prev;
+      }
+      return {
+        PaymentFrequencyID: 1,
+        PackageOneNetValue: totalOne,
+        PackageTwoNetValue: totalTwo,
+        PackageThreeNetValue: totalThree,
+      };
     });
 
-    props.setLastPaymentFrequencyAndDiscountedPriceForPreview({
-      PaymentFrequencyID: 1,
-      PackageOneNetValue: {
-        totalOne: totalOne,
-        servicePackageID: props.selectedPackagesDetails[0]?.servicePackageID,
-      },
-      PackageTwoNetValue: {
-        totalTwo: totalTwo,
-        servicePackageID: props.selectedPackagesDetails[1]?.servicePackageID,
-      },
-      PackageThreeNetValue: {
-        totalThree: totalThree,
-        servicePackageID: props.selectedPackagesDetails[2]?.servicePackageID,
-      },
+    props.setLastPaymentFrequencyAndDiscountedPriceForPreview((prev) => {
+      const next = {
+        PaymentFrequencyID: 1,
+        PackageOneNetValue: {
+          totalOne: totalOne,
+          servicePackageID: props.selectedPackagesDetails?.[0]?.servicePackageID,
+        },
+        PackageTwoNetValue: {
+          totalTwo: totalTwo,
+          servicePackageID: props.selectedPackagesDetails?.[1]?.servicePackageID,
+        },
+        PackageThreeNetValue: {
+          totalThree: totalThree,
+          servicePackageID: props.selectedPackagesDetails?.[2]?.servicePackageID,
+        },
+      };
+
+      if (
+        prev?.PaymentFrequencyID === next.PaymentFrequencyID &&
+        prev?.PackageOneNetValue?.totalOne === next.PackageOneNetValue.totalOne &&
+        prev?.PackageOneNetValue?.servicePackageID ===
+          next.PackageOneNetValue.servicePackageID &&
+        prev?.PackageTwoNetValue?.totalTwo === next.PackageTwoNetValue.totalTwo &&
+        prev?.PackageTwoNetValue?.servicePackageID ===
+          next.PackageTwoNetValue.servicePackageID &&
+        prev?.PackageThreeNetValue?.totalThree ===
+          next.PackageThreeNetValue.totalThree &&
+        prev?.PackageThreeNetValue?.servicePackageID ===
+          next.PackageThreeNetValue.servicePackageID
+      ) {
+        return prev;
+      }
+      return next;
     });
     // Update state with the computed totals
-    setTotalOnePackageValue(totalOne);
-    setTotalTwoPackageValue(totalTwo);
-    setTotalThreePackageValue(totalThree);
+    setTotalOnePackageValue((prev) => (prev === totalOne ? prev : totalOne));
+    setTotalTwoPackageValue((prev) => (prev === totalTwo ? prev : totalTwo));
+    setTotalThreePackageValue((prev) =>
+      prev === totalThree ? prev : totalThree,
+    );
 
     updateRecurringHtmlContent();
   };
@@ -9496,16 +9569,34 @@ const ReviewPackagesComponent = (props) => {
         }
       });
     });
-    props.setLastPaymentFrequencyAndDiscountedPriceForPreviewForoneoff({
-      PaymentFrequencyID: 1,
-      PackageOneNetValue: totalOne,
-      PackageTwoNetValue: totalTwo,
-      PackageThreeNetValue: totalThree,
-    });
+    props.setLastPaymentFrequencyAndDiscountedPriceForPreviewForoneoff(
+      (prev) => {
+        if (
+          prev?.PaymentFrequencyID === 1 &&
+          prev?.PackageOneNetValue === totalOne &&
+          prev?.PackageTwoNetValue === totalTwo &&
+          prev?.PackageThreeNetValue === totalThree
+        ) {
+          return prev;
+        }
+        return {
+          PaymentFrequencyID: 1,
+          PackageOneNetValue: totalOne,
+          PackageTwoNetValue: totalTwo,
+          PackageThreeNetValue: totalThree,
+        };
+      },
+    );
     // Update state with the computed totals
-    setTotalOnePackageValueOneOff(totalOne);
-    setTotalTwoPackageValueOneOff(totalTwo);
-    setTotalThreePackageValueOneOff(totalThree);
+    setTotalOnePackageValueOneOff((prev) =>
+      prev === totalOne ? prev : totalOne,
+    );
+    setTotalTwoPackageValueOneOff((prev) =>
+      prev === totalTwo ? prev : totalTwo,
+    );
+    setTotalThreePackageValueOneOff((prev) =>
+      prev === totalThree ? prev : totalThree,
+    );
 
     updateOneOffHtmlContent();
   };
@@ -10454,15 +10545,21 @@ const ReviewPackagesComponent = (props) => {
           // Perform the percentage calculation for each value
           service.price = Number(service.price);
           service.originalServicePrice = Number(service.originalServicePrice);
-          service.packageOneValue = Number(
+          service.packageOneValue = Number.isFinite(
             Number(service.originalPackageOneValue),
-          ).toFixed(2);
-          service.packageTwoValue = Number(
+          )
+            ? Number(Number(service.originalPackageOneValue)).toFixed(2)
+            : "0.00";
+          service.packageTwoValue = Number.isFinite(
             Number(service.originalPackageTwoValue),
-          ).toFixed(2);
-          service.packageThreeValue = Number(
+          )
+            ? Number(Number(service.originalPackageTwoValue)).toFixed(2)
+            : "0.00";
+          service.packageThreeValue = Number.isFinite(
             Number(service.originalPackageThreeValue),
-          ).toFixed(2);
+          )
+            ? Number(Number(service.originalPackageThreeValue)).toFixed(2)
+            : "0.00";
           service.originalPackageOneValue = Number(
             service.originalPackageOneValue,
           );
@@ -10509,15 +10606,21 @@ const ReviewPackagesComponent = (props) => {
           service.price = Number(service.price) / 2;
           service.originalServicePrice =
             Number(service.originalServicePrice) / 2;
-          service.packageOneValue = Number(
-            Number(service.originalPackageOneValue) / 2,
-          ).toFixed(2);
-          service.packageTwoValue = Number(
-            Number(service.originalPackageTwoValue) / 2,
-          ).toFixed(2);
-          service.packageThreeValue = Number(
-            Number(service.originalPackageThreeValue) / 2,
-          ).toFixed(2);
+          service.packageOneValue = Number.isFinite(
+            Number(service.originalPackageOneValue),
+          )
+            ? Number(Number(service.originalPackageOneValue) / 2).toFixed(2)
+            : "0.00";
+          service.packageTwoValue = Number.isFinite(
+            Number(service.originalPackageTwoValue),
+          )
+            ? Number(Number(service.originalPackageTwoValue) / 2).toFixed(2)
+            : "0.00";
+          service.packageThreeValue = Number.isFinite(
+            Number(service.originalPackageThreeValue),
+          )
+            ? Number(Number(service.originalPackageThreeValue) / 2).toFixed(2)
+            : "0.00";
           service.originalPackageOneValue =
             Number(service.originalPackageOneValue) / 2;
           service.originalPackageTwoValue =
@@ -10560,15 +10663,21 @@ const ReviewPackagesComponent = (props) => {
           service.price = Number(service.price) / 4;
           service.originalServicePrice =
             Number(service.originalServicePrice) / 4;
-          service.packageOneValue = Number(
-            Number(service.originalPackageOneValue) / 4,
-          ).toFixed(2);
-          service.packageTwoValue = Number(
-            Number(service.originalPackageTwoValue) / 4,
-          ).toFixed(2);
-          service.packageThreeValue = Number(
-            Number(service.originalPackageThreeValue) / 4,
-          ).toFixed(2);
+          service.packageOneValue = Number.isFinite(
+            Number(service.originalPackageOneValue),
+          )
+            ? Number(Number(service.originalPackageOneValue) / 4).toFixed(2)
+            : "0.00";
+          service.packageTwoValue = Number.isFinite(
+            Number(service.originalPackageTwoValue),
+          )
+            ? Number(Number(service.originalPackageTwoValue) / 4).toFixed(2)
+            : "0.00";
+          service.packageThreeValue = Number.isFinite(
+            Number(service.originalPackageThreeValue),
+          )
+            ? Number(Number(service.originalPackageThreeValue) / 4).toFixed(2)
+            : "0.00";
           service.originalPackageOneValue =
             Number(service.originalPackageOneValue) / 4;
           service.originalPackageTwoValue =
@@ -10610,15 +10719,21 @@ const ReviewPackagesComponent = (props) => {
           service.price = Number(service.price) / 12;
           service.originalServicePrice =
             Number(service.originalServicePrice) / 12;
-          service.packageOneValue = Number(
-            Number(service.originalPackageOneValue) / 12,
-          ).toFixed(2);
-          service.packageTwoValue = Number(
-            Number(service.originalPackageTwoValue) / 12,
-          ).toFixed(2);
-          service.packageThreeValue = Number(
-            Number(service.originalPackageThreeValue) / 12,
-          ).toFixed(2);
+          service.packageOneValue = Number.isFinite(
+            Number(service.originalPackageOneValue),
+          )
+            ? Number(Number(service.originalPackageOneValue) / 12).toFixed(2)
+            : "0.00";
+          service.packageTwoValue = Number.isFinite(
+            Number(service.originalPackageTwoValue),
+          )
+            ? Number(Number(service.originalPackageTwoValue) / 12).toFixed(2)
+            : "0.00";
+          service.packageThreeValue = Number.isFinite(
+            Number(service.originalPackageThreeValue),
+          )
+            ? Number(Number(service.originalPackageThreeValue) / 12).toFixed(2)
+            : "0.00";
           service.originalPackageOneValue =
             Number(service.originalPackageOneValue) / 12;
           service.originalPackageTwoValue =
@@ -13030,35 +13145,37 @@ const ReviewPackagesComponent = (props) => {
                             <td className="tr-table-class font-14 text-white">
                               Net Total
                             </td>
-                            <td className="tr-table-class font-14 text-white text-right">
-                              {" "}
-                              {totalOnePackageValue >
-                                Number(
-                                  props.RecurringPricingInfo.packageOneNetTotal,
-                                ) ||
-                              (Number(
-                                props.RecurringPricingInfo.packageOneDisCount,
-                              ) > 0 &&
-                                !props.ProposalObject.DiscountLines)
-                                ? Number(
-                                    props.RecurringPricingInfo
-                                      .packageOneDisCount,
-                                  ) > 0 && !props.ProposalObject.DiscountLines
-                                  ? props.formatValue(
+                            {props.visibleFieldsCustomTemp.fees && (
+                              <td className="tr-table-class font-14 text-white text-right">
+                                {" "}
+                                {totalOnePackageValue >
+                                  Number(
+                                    props.RecurringPricingInfo.packageOneNetTotal,
+                                  ) ||
+                                (Number(
+                                  props.RecurringPricingInfo.packageOneDisCount,
+                                ) > 0 &&
+                                  !props.ProposalObject.DiscountLines)
+                                  ? Number(
                                       props.RecurringPricingInfo
-                                        .packageOneDisCountedTotal,
-                                      props.currencyID,
-                                    )
+                                        .packageOneDisCount,
+                                    ) > 0 && !props.ProposalObject.DiscountLines
+                                    ? props.formatValue(
+                                        props.RecurringPricingInfo
+                                          .packageOneDisCountedTotal,
+                                        props.currencyID,
+                                      )
+                                    : props.formatValue(
+                                        totalOnePackageValue,
+                                        props.currencyID,
+                                      )
                                   : props.formatValue(
-                                      totalOnePackageValue,
+                                      props.RecurringPricingInfo
+                                        .packageOneNetTotal,
                                       props.currencyID,
-                                    )
-                                : props.formatValue(
-                                    props.RecurringPricingInfo
-                                      .packageOneNetTotal,
-                                    props.currencyID,
-                                  )}
-                            </td>
+                                    )}
+                              </td>
+                            )}
                             {packageCount >= 2 && (
                               <td className="tr-table-class font-14 text-white text-right">
                                 {" "}
@@ -13418,10 +13535,19 @@ const ReviewPackagesComponent = (props) => {
                                       pkg.servicePackageName
                                     )}
                                   </td>
-                                  {props.vatPercentage ?
+                                  {props.visibleFieldsCustomTemp.fees && <td></td>}
+                                  {props.vatPercentage !== 0 &&
+                                    props.visibleFieldsCustomTemp.vatRate && (
+                                      <td></td>
+                                    )}
+                                  {props.vatPercentage !== 0 &&
                                     props.visibleFieldsCustomTemp.vat && (
                                       <td></td>
-                                    ):""}
+                                    )}
+                                  {props.vatPercentage !== 0 &&
+                                    props.visibleFieldsCustomTemp.feesIncVat && (
+                                      <td></td>
+                                    )}
                                   {props.visibleFieldsCustomTemp
                                     .serviceScope && <td></td>}
                                 </>
@@ -13435,14 +13561,26 @@ const ReviewPackagesComponent = (props) => {
                               )}
                               {props.selectedPackagesList.map((pkg, index) => (
                                 <>
-                                  <th
-                                    className="tr-table-class text-white text-right"
-                                    style={{ width: "16.66%" }}
-                                  >
-                                    Fees ({props.currencySymbol})
-                                  </th>
+                                  {props.visibleFieldsCustomTemp.fees && (
+                                    <th
+                                      className="tr-table-class text-white text-right"
+                                      style={{ width: "16.66%" }}
+                                    >
+                                      Fees ({props.currencySymbol})
+                                    </th>
+                                  )}
 
-                                  {props.vatPercentage ?
+                                  {props.vatPercentage !== 0 &&
+                                    props.visibleFieldsCustomTemp.vatRate && (
+                                      <th
+                                        className="tr-table-class text-white text-right"
+                                        style={{ width: "16.66%" }}
+                                      >
+                                        {props.taxName} Rate
+                                      </th>
+                                    )}
+
+                                  {props.vatPercentage !== 0 &&
                                     props.visibleFieldsCustomTemp.vat && (
                                       <th
                                         className="tr-table-class text-white text-right"
@@ -13450,7 +13588,18 @@ const ReviewPackagesComponent = (props) => {
                                       >
                                         {props.taxName} ({props.currencySymbol})
                                       </th>
-                                    ):""}
+                                    )}
+
+                                  {props.vatPercentage !== 0 &&
+                                    props.visibleFieldsCustomTemp.feesIncVat && (
+                                      <th
+                                        className="tr-table-class text-white text-right"
+                                        style={{ width: "16.66%" }}
+                                      >
+                                        Fees inc {props.taxName} (
+                                        {props.currencySymbol})
+                                      </th>
+                                    )}
 
                                   {props.visibleFieldsCustomTemp
                                     .serviceScope && (
@@ -13473,46 +13622,40 @@ const ReviewPackagesComponent = (props) => {
                                     <tr className="a-la-carte-services-review-head-row">
                                       {props.visibleFieldsCustomTemp
                                         .serviceName && (
-                                        <th colSpan={1 + packageCount}>
+                                        <th colSpan={
+                                          (props.visibleFieldsCustomTemp.serviceName ? 1 : 0) +
+                                          packageCount * (
+                                            (props.visibleFieldsCustomTemp.fees ? 1 : 0) +
+                                            (props.vatPercentage !== 0 && props.visibleFieldsCustomTemp.vatRate ? 1 : 0) +
+                                            (props.vatPercentage !== 0 && props.visibleFieldsCustomTemp.vat ? 1 : 0) +
+                                            (props.vatPercentage !== 0 && props.visibleFieldsCustomTemp.feesIncVat ? 1 : 0) +
+                                            (props.visibleFieldsCustomTemp.serviceScope ? 1 : 0)
+                                          )
+                                        }>
                                           {service.serviceCatName}
                                         </th>
-                                      )}
-
-                                      {/* <th></th> */}
-                                      {props.vatPercentage ?
-                                        props.visibleFieldsCustomTemp.vat && (
-                                          <th></th>
-                                        ):""}
-                                      {props.visibleFieldsCustomTemp
-                                        .serviceScope && <th></th>}
-                                      {packageCount >= 2 && (
-                                        <>
-                                          {props.vatPercentage ?
-                                            props.visibleFieldsCustomTemp
-                                              .vat && <th></th>:""}
-                                          {props.visibleFieldsCustomTemp
-                                            .serviceScope && <th></th>}
-                                        </>
-                                      )}
-
-                                      {packageCount === 3 && (
-                                        <>
-                                          {props.vatPercentage ?
-                                            props.visibleFieldsCustomTemp
-                                              .vat && <th></th>:""}
-                                          {props.visibleFieldsCustomTemp
-                                            .serviceScope && <th></th>}
-                                        </>
                                       )}
                                     </tr>
                                     {service.servicesList.map(
                                       (subService, subIndex) => {
                                         const packageOnePrice =
-                                          subService.packageOneValue || 0;
+                                          Number(
+                                            String(
+                                              subService.packageOneValue ?? "",
+                                            ).replace(/,/g, ""),
+                                          ) || 0;
                                         const packageTwoPrice =
-                                          subService.packageTwoValue || 0;
+                                          Number(
+                                            String(
+                                              subService.packageTwoValue ?? "",
+                                            ).replace(/,/g, ""),
+                                          ) || 0;
                                         const packageThreePrice =
-                                          subService.packageThreeValue || 0;
+                                          Number(
+                                            String(
+                                              subService.packageThreeValue ?? "",
+                                            ).replace(/,/g, ""),
+                                          ) || 0;
                                         const vatOne =
                                           (packageOnePrice *
                                             subService.service_vat_percentage) /
@@ -13568,82 +13711,108 @@ const ReviewPackagesComponent = (props) => {
                                                 <div className="package-variables"></div>
                                               </td>
                                             )}
-
-                                            <td className="text-right">
-                                              <div className="flex-end-item">
-                                                {props.ProposalObject
-                                                  .feeTypeId === 1 ? (
-                                                  <div>
-                                                    {(subService.packageOneValue ===
-                                                      0 ||
-                                                      subService.packageOneValue ===
-                                                        null) &&
-                                                    !subService.servicePackageIDs.some(
-                                                      (item) =>
-                                                        item ==
-                                                        props
-                                                          .selectedPackagesList[0]
-                                                          .servicePackageID,
-                                                    ) ? (
-                                                      <span className="fa fa-times"></span>
-                                                    ) : !subService?.servicePackageIDs.includes(
-                                                        subService.packageOneID,
+                                            {props.visibleFieldsCustomTemp.fees && (
+                                              <td className="text-right">
+                                                <div className="flex-end-item">
+                                                  {props.ProposalObject
+                                                    .feeTypeId === 1 ? (
+                                                    <div>
+                                                      {(subService.packageOneValue ===
+                                                        0 ||
+                                                        subService.packageOneValue ===
+                                                          null) &&
+                                                      !subService.servicePackageIDs.some(
+                                                        (item) =>
+                                                          item ==
+                                                          props
+                                                            .selectedPackagesList[0]
+                                                            .servicePackageID,
                                                       ) ? (
-                                                      <span className="fa fa-times"></span>
-                                                    ) : (
-                                                      ` ${props.formatValue(
-                                                        subService.packageOneValue,
-                                                        props.currencyID,
-                                                      )}`
-                                                    )}
-                                                  </div>
-                                                ) : Number(
-                                                    subService.packageOneValue,
-                                                  ) !== null &&
-                                                  subService?.servicePackageIDs.includes(
-                                                    subService.packageOneID,
-                                                  ) ? (
-                                                  <span className="fa fa-check"></span>
-                                                ) : (
-                                                  <span className="fa fa-times"></span>
-                                                )}
-                                                {subService?.isAdditionalService !==
-                                                null ? (
-                                                  <input
-                                                    style={{
-                                                      marginLeft: "5px",
-                                                    }}
-                                                    disabled={
-                                                      subService?.servicePackageIDs.includes(
-                                                        subService.packageOneID,
-                                                      ) &&
-                                                      subService
-                                                        ?.servicePackageIDs
-                                                        .length === 1
-                                                    }
-                                                    type="checkbox"
-                                                    checked={subService?.servicePackageIDs.includes(
+                                                        <span className="fa fa-times"></span>
+                                                      ) : !subService?.servicePackageIDs.includes(
+                                                          subService.packageOneID,
+                                                        ) ? (
+                                                        <span className="fa fa-times"></span>
+                                                      ) : (
+                                                        ` ${props.formatValue(
+                                                          subService.packageOneValue,
+                                                          props.currencyID,
+                                                        )}`
+                                                      )}
+                                                    </div>
+                                                  ) : Number(
+                                                      subService.packageOneValue,
+                                                    ) !== null &&
+                                                    subService?.servicePackageIDs.includes(
                                                       subService.packageOneID,
-                                                    )}
-                                                    onChange={(e) =>
-                                                      handleAddAndRemoveAdditionalServices(
-                                                        1,
-                                                        service.serviceCatID,
-                                                        subService.serviceID,
+                                                    ) ? (
+                                                    <span className="fa fa-check"></span>
+                                                  ) : (
+                                                    <span className="fa fa-times"></span>
+                                                  )}
+                                                  {subService?.isAdditionalService !==
+                                                  null ? (
+                                                    <input
+                                                      style={{
+                                                        marginLeft: "5px",
+                                                      }}
+                                                      disabled={
+                                                        subService?.servicePackageIDs.includes(
+                                                          subService.packageOneID,
+                                                        ) &&
+                                                        subService
+                                                          ?.servicePackageIDs
+                                                          .length === 1
+                                                      }
+                                                      type="checkbox"
+                                                      checked={subService?.servicePackageIDs.includes(
                                                         subService.packageOneID,
-                                                        e.target.checked,
-                                                      )
-                                                    }
-                                                  />
-                                                ) : (
-                                                  <div>&nbsp;&nbsp;</div>
-                                                )}
-                                              </div>
-                                            </td>
+                                                      )}
+                                                      onChange={(e) =>
+                                                        handleAddAndRemoveAdditionalServices(
+                                                          1,
+                                                          service.serviceCatID,
+                                                          subService.serviceID,
+                                                          subService.packageOneID,
+                                                          e.target.checked,
+                                                        )
+                                                      }
+                                                    />
+                                                  ) : (
+                                                    <div>&nbsp;&nbsp;</div>
+                                                  )}
+                                                </div>
+                                              </td>
+                                            )}
+
+                                            {props.vatPercentage !== 0 &&
+                                              props.visibleFieldsCustomTemp
+                                                .vatRate && (
+                                                <td className="text-right">
+                                                  {(subService.packageOneValue ===
+                                                    0 ||
+                                                    subService.packageOneValue ===
+                                                      null) &&
+                                                  !subService.servicePackageIDs.some(
+                                                    (item) =>
+                                                      item ==
+                                                      props.selectedPackagesList[0]
+                                                        .servicePackageID,
+                                                  ) ? (
+                                                    <span className="fa fa-times"></span>
+                                                  ) : !subService?.servicePackageIDs.includes(
+                                                      subService.packageOneID,
+                                                    ) ? (
+                                                    <span className="fa fa-times"></span>
+                                                  ) : (
+                                                    `${subService.service_vat_percentage ?? 0}%`
+                                                  )}
+                                                </td>
+                                              )}
 
                                             {/* VAT */}
 
-                                            {props.vatPercentage ?
+                                            {props.vatPercentage !== 0 ?
                                               props.visibleFieldsCustomTemp
                                                 .vat && (
                                                 <>
@@ -13720,6 +13889,47 @@ const ReviewPackagesComponent = (props) => {
                                                   </td>
                                                 </>
                                               ):""}
+                                            {/* Fees inc Vat */}
+                                            {props.vatPercentage !== 0 &&
+                                              props.visibleFieldsCustomTemp
+                                                .feesIncVat && (
+                                                <td className="text-right">
+                                                  {props.ProposalObject.feeTypeId ===
+                                                  1 ? (
+                                                    (subService.packageOneValue ===
+                                                      0 ||
+                                                      subService.packageOneValue ===
+                                                        null) &&
+                                                    !subService.servicePackageIDs.some(
+                                                      (item) =>
+                                                        item ===
+                                                        props
+                                                          .selectedPackagesList[0]
+                                                          .servicePackageID,
+                                                    ) ? (
+                                                      <span className="fa fa-times"></span>
+                                                    ) : !subService?.servicePackageIDs.includes(
+                                                        subService.packageOneID,
+                                                      ) ? (
+                                                      <span className="fa fa-times"></span>
+                                                    ) : (
+                                                      ` ${props.formatValue(
+                                                        totalOne,
+                                                        props.currencyID,
+                                                      )}`
+                                                    )
+                                                  ) : Number(
+                                                      subService.packageOneValue,
+                                                    ) !== null &&
+                                                    subService?.servicePackageIDs.includes(
+                                                      subService.packageOneID,
+                                                    ) ? (
+                                                    <span className="fa fa-check"></span>
+                                                  ) : (
+                                                    <span className="fa fa-times"></span>
+                                                  )}
+                                                </td>
+                                              )}
 
                                             {/* Service Scope */}
 
@@ -13798,78 +14008,107 @@ const ReviewPackagesComponent = (props) => {
                                             {/* Package Two */}
                                             {packageCount >= 2 && (
                                               <>
-                                                <td className="text-right">
-                                                  <div className="flex-end-item">
-                                                    {props.ProposalObject
-                                                      .feeTypeId === 1 ? (
-                                                      <div>
-                                                        {(subService.packageTwoValue ===
-                                                          0 ||
-                                                          subService.packageTwoValue ===
-                                                            null) &&
-                                                        !subService.servicePackageIDs.some(
-                                                          (item) =>
-                                                            item ==
-                                                            props
-                                                              .selectedPackagesList[0]
-                                                              .servicePackageID,
-                                                        ) ? (
-                                                          <span className="fa fa-times"></span>
-                                                        ) : !subService?.servicePackageIDs.includes(
-                                                            subService.packageTwoID,
+                                                {props.visibleFieldsCustomTemp.fees && (
+                                                  <td className="text-right">
+                                                    <div className="flex-end-item">
+                                                      {props.ProposalObject
+                                                        .feeTypeId === 1 ? (
+                                                        <div>
+                                                          {(subService.packageTwoValue ===
+                                                            0 ||
+                                                            subService.packageTwoValue ===
+                                                              null) &&
+                                                          !subService.servicePackageIDs.some(
+                                                            (item) =>
+                                                              item ==
+                                                              props
+                                                                .selectedPackagesList[0]
+                                                                .servicePackageID,
                                                           ) ? (
-                                                          <span className="fa fa-times"></span>
-                                                        ) : (
-                                                          ` ${props.formatValue(
-                                                            subService.packageTwoValue,
-                                                            props.currencyID,
-                                                          )}`
-                                                        )}
-                                                      </div>
-                                                    ) : Number(
-                                                        subService.packageTwoValue,
-                                                      ) !== null &&
-                                                      subService?.servicePackageIDs.includes(
-                                                        subService.packageTwoID,
-                                                      ) ? (
-                                                      <span className="fa fa-check"></span>
-                                                    ) : (
-                                                      <span className="fa fa-times"></span>
-                                                    )}
-                                                    {subService?.isAdditionalService !==
-                                                    null ? (
-                                                      <input
-                                                        style={{
-                                                          marginLeft: "5px",
-                                                        }}
-                                                        disabled={
-                                                          subService?.servicePackageIDs.includes(
-                                                            subService.packageTwoID,
-                                                          ) &&
-                                                          subService
-                                                            ?.servicePackageIDs
-                                                            .length === 1
-                                                        }
-                                                        type="checkbox"
-                                                        checked={subService?.servicePackageIDs.includes(
+                                                            <span className="fa fa-times"></span>
+                                                          ) : !subService?.servicePackageIDs.includes(
+                                                              subService.packageTwoID,
+                                                            ) ? (
+                                                            <span className="fa fa-times"></span>
+                                                          ) : (
+                                                            ` ${props.formatValue(
+                                                              subService.packageTwoValue,
+                                                              props.currencyID,
+                                                            )}`
+                                                          )}
+                                                        </div>
+                                                      ) : Number(
+                                                          subService.packageTwoValue,
+                                                        ) !== null &&
+                                                        subService?.servicePackageIDs.includes(
                                                           subService.packageTwoID,
-                                                        )}
-                                                        onChange={(e) =>
-                                                          handleAddAndRemoveAdditionalServices(
-                                                            1,
-                                                            service.serviceCatID,
-                                                            subService.serviceID,
-                                                            subService.packageOneID,
-                                                            e.target.checked,
-                                                          )
-                                                        }
-                                                      />
-                                                    ) : (
-                                                      <div>&nbsp;&nbsp;</div>
-                                                    )}
-                                                  </div>
-                                                </td>
-                                                {props.vatPercentage ?
+                                                        ) ? (
+                                                        <span className="fa fa-check"></span>
+                                                      ) : (
+                                                        <span className="fa fa-times"></span>
+                                                      )}
+                                                      {subService?.isAdditionalService !==
+                                                      null ? (
+                                                        <input
+                                                          style={{
+                                                            marginLeft: "5px",
+                                                          }}
+                                                          disabled={
+                                                            subService?.servicePackageIDs.includes(
+                                                              subService.packageTwoID,
+                                                            ) &&
+                                                            subService
+                                                              ?.servicePackageIDs
+                                                              .length === 1
+                                                          }
+                                                          type="checkbox"
+                                                          checked={subService?.servicePackageIDs.includes(
+                                                            subService.packageTwoID,
+                                                          )}
+                                                          onChange={(e) =>
+                                                            handleAddAndRemoveAdditionalServices(
+                                                              1,
+                                                              service.serviceCatID,
+                                                              subService.serviceID,
+                                                              subService.packageOneID,
+                                                              e.target.checked,
+                                                            )
+                                                          }
+                                                        />
+                                                      ) : (
+                                                        <div>&nbsp;&nbsp;</div>
+                                                      )}
+                                                    </div>
+                                                  </td>
+                                                )}
+
+                                                {props.vatPercentage !== 0 &&
+                                                  props.visibleFieldsCustomTemp
+                                                    .vatRate && (
+                                                    <td className="text-right">
+                                                      {(subService.packageTwoValue ===
+                                                        0 ||
+                                                        subService.packageTwoValue ===
+                                                          null) &&
+                                                      !subService.servicePackageIDs.some(
+                                                        (item) =>
+                                                          item ==
+                                                          props
+                                                            .selectedPackagesList[0]
+                                                            .servicePackageID,
+                                                      ) ? (
+                                                        <span className="fa fa-times"></span>
+                                                      ) : !subService?.servicePackageIDs.includes(
+                                                          subService.packageTwoID,
+                                                        ) ? (
+                                                        <span className="fa fa-times"></span>
+                                                      ) : (
+                                                        `${subService.service_vat_percentage ?? 0}%`
+                                                      )}
+                                                    </td>
+                                                  )}
+
+                                                {props.vatPercentage !== 0 ?
                                                   props.visibleFieldsCustomTemp
                                                     .vat && (
                                                     <td className="text-right">
@@ -13946,6 +14185,47 @@ const ReviewPackagesComponent = (props) => {
                                                       </div>
                                                     </td>
                                                   ):""}
+
+                                                {props.vatPercentage !== 0 &&
+                                                  props.visibleFieldsCustomTemp
+                                                    .feesIncVat && (
+                                                    <td className="text-right">
+                                                      {props.ProposalObject
+                                                        .feeTypeId === 1 ? (
+                                                        (subService.packageTwoValue ===
+                                                          0 ||
+                                                          subService.packageTwoValue ===
+                                                            null) &&
+                                                        !subService.servicePackageIDs.some(
+                                                          (item) =>
+                                                            item ===
+                                                            props
+                                                              .selectedPackagesList[0]
+                                                              .servicePackageID,
+                                                        ) ? (
+                                                          <span className="fa fa-times"></span>
+                                                        ) : !subService?.servicePackageIDs.includes(
+                                                            subService.packageTwoID,
+                                                          ) ? (
+                                                          <span className="fa fa-times"></span>
+                                                        ) : (
+                                                          ` ${props.formatValue(
+                                                            totalTwo,
+                                                            props.currencyID,
+                                                          )}`
+                                                        )
+                                                      ) : Number(
+                                                          subService.packageTwoValue,
+                                                        ) !== null &&
+                                                        subService?.servicePackageIDs.includes(
+                                                          subService.packageTwoID,
+                                                        ) ? (
+                                                        <span className="fa fa-check"></span>
+                                                      ) : (
+                                                        <span className="fa fa-times"></span>
+                                                      )}
+                                                    </td>
+                                                  )}
                                                 {props.visibleFieldsCustomTemp
                                                   .serviceScope && (
                                                   <td className="text-right">
@@ -14025,79 +14305,107 @@ const ReviewPackagesComponent = (props) => {
                                             {/* Package Three */}
                                             {packageCount === 3 && (
                                               <>
-                                                <td className="text-right">
-                                                  <div className="flex-end-item">
-                                                    {props.ProposalObject
-                                                      .feeTypeId === 1 ? (
-                                                      <div>
-                                                        {(subService.packageThreeValue ===
-                                                          0 ||
-                                                          subService.packageThreeValue ===
-                                                            null) &&
-                                                        !subService.servicePackageIDs.some(
-                                                          (item) =>
-                                                            item ==
-                                                            props
-                                                              .selectedPackagesList[0]
-                                                              .servicePackageID,
-                                                        ) ? (
-                                                          <span className="fa fa-times"></span>
-                                                        ) : !subService?.servicePackageIDs.includes(
-                                                            subService.packageThreeID,
+                                                {props.visibleFieldsCustomTemp.fees && (
+                                                  <td className="text-right">
+                                                    <div className="flex-end-item">
+                                                      {props.ProposalObject
+                                                        .feeTypeId === 1 ? (
+                                                        <div>
+                                                          {(subService.packageThreeValue ===
+                                                            0 ||
+                                                            subService.packageThreeValue ===
+                                                              null) &&
+                                                          !subService.servicePackageIDs.some(
+                                                            (item) =>
+                                                              item ==
+                                                              props
+                                                                .selectedPackagesList[0]
+                                                                .servicePackageID,
                                                           ) ? (
-                                                          <span className="fa fa-times"></span>
-                                                        ) : (
-                                                          ` ${props.formatValue(
-                                                            subService.packageThreeValue,
-                                                            props.currencyID,
-                                                          )}`
-                                                        )}
-                                                      </div>
-                                                    ) : Number(
-                                                        subService.packageThreeValue,
-                                                      ) !== null &&
-                                                      subService?.servicePackageIDs.includes(
-                                                        subService.packageThreeID,
-                                                      ) ? (
-                                                      <span className="fa fa-check"></span>
-                                                    ) : (
-                                                      <span className="fa fa-times"></span>
-                                                    )}
-                                                    {subService?.isAdditionalService !==
-                                                    null ? (
-                                                      <input
-                                                        style={{
-                                                          marginLeft: "5px",
-                                                        }}
-                                                        disabled={
-                                                          subService?.servicePackageIDs.includes(
-                                                            subService.packageThreeID,
-                                                          ) &&
-                                                          subService
-                                                            ?.servicePackageIDs
-                                                            .length === 1
-                                                        }
-                                                        type="checkbox"
-                                                        checked={subService?.servicePackageIDs.includes(
+                                                            <span className="fa fa-times"></span>
+                                                          ) : !subService?.servicePackageIDs.includes(
+                                                              subService.packageThreeID,
+                                                            ) ? (
+                                                            <span className="fa fa-times"></span>
+                                                          ) : (
+                                                            ` ${props.formatValue(
+                                                              subService.packageThreeValue,
+                                                              props.currencyID,
+                                                            )}`
+                                                          )}
+                                                        </div>
+                                                      ) : Number(
+                                                          subService.packageThreeValue,
+                                                        ) !== null &&
+                                                        subService?.servicePackageIDs.includes(
                                                           subService.packageThreeID,
-                                                        )}
-                                                        onChange={(e) =>
-                                                          handleAddAndRemoveAdditionalServices(
-                                                            1,
-                                                            service.serviceCatID,
-                                                            subService.serviceID,
-                                                            subService.packageOneID,
-                                                            e.target.checked,
-                                                          )
-                                                        }
-                                                      />
-                                                    ) : (
-                                                      <div>&nbsp;&nbsp;</div>
-                                                    )}
-                                                  </div>
-                                                </td>
+                                                        ) ? (
+                                                        <span className="fa fa-check"></span>
+                                                      ) : (
+                                                        <span className="fa fa-times"></span>
+                                                      )}
+                                                      {subService?.isAdditionalService !==
+                                                      null ? (
+                                                        <input
+                                                          style={{
+                                                            marginLeft: "5px",
+                                                          }}
+                                                          disabled={
+                                                            subService?.servicePackageIDs.includes(
+                                                              subService.packageThreeID,
+                                                            ) &&
+                                                            subService
+                                                              ?.servicePackageIDs
+                                                              .length === 1
+                                                          }
+                                                          type="checkbox"
+                                                          checked={subService?.servicePackageIDs.includes(
+                                                            subService.packageThreeID,
+                                                          )}
+                                                          onChange={(e) =>
+                                                            handleAddAndRemoveAdditionalServices(
+                                                              1,
+                                                              service.serviceCatID,
+                                                              subService.serviceID,
+                                                              subService.packageOneID,
+                                                              e.target.checked,
+                                                            )
+                                                          }
+                                                        />
+                                                      ) : (
+                                                        <div>&nbsp;&nbsp;</div>
+                                                      )}
+                                                    </div>
+                                                  </td>
+                                                )}
 
-                                                {props.vatPercentage ?
+                                                {props.vatPercentage !== 0 &&
+                                                  props.visibleFieldsCustomTemp
+                                                    .vatRate && (
+                                                    <td className="text-right">
+                                                      {(subService.packageThreeValue ===
+                                                        0 ||
+                                                        subService.packageThreeValue ===
+                                                          null) &&
+                                                      !subService.servicePackageIDs.some(
+                                                        (item) =>
+                                                          item ==
+                                                          props
+                                                            .selectedPackagesList[0]
+                                                            .servicePackageID,
+                                                      ) ? (
+                                                        <span className="fa fa-times"></span>
+                                                      ) : !subService?.servicePackageIDs.includes(
+                                                          subService.packageThreeID,
+                                                        ) ? (
+                                                        <span className="fa fa-times"></span>
+                                                      ) : (
+                                                        `${subService.service_vat_percentage ?? 0}%`
+                                                      )}
+                                                    </td>
+                                                  )}
+
+                                                {props.vatPercentage !== 0 ?
                                                   props.visibleFieldsCustomTemp
                                                     .vat && (
                                                     <td className="text-right">
@@ -14174,6 +14482,47 @@ const ReviewPackagesComponent = (props) => {
                                                       </div>
                                                     </td>
                                                   ):""}
+
+                                                {props.vatPercentage !== 0 &&
+                                                  props.visibleFieldsCustomTemp
+                                                    .feesIncVat && (
+                                                    <td className="text-right">
+                                                      {props.ProposalObject
+                                                        .feeTypeId === 1 ? (
+                                                        (subService.packageThreeValue ===
+                                                          0 ||
+                                                          subService.packageThreeValue ===
+                                                            null) &&
+                                                        !subService.servicePackageIDs.some(
+                                                          (item) =>
+                                                            item ===
+                                                            props
+                                                              .selectedPackagesList[0]
+                                                              .servicePackageID,
+                                                        ) ? (
+                                                          <span className="fa fa-times"></span>
+                                                        ) : !subService?.servicePackageIDs.includes(
+                                                            subService.packageThreeID,
+                                                          ) ? (
+                                                          <span className="fa fa-times"></span>
+                                                        ) : (
+                                                          ` ${props.formatValue(
+                                                            totalThree,
+                                                            props.currencyID,
+                                                          )}`
+                                                        )
+                                                      ) : Number(
+                                                          subService.packageThreeValue,
+                                                        ) !== null &&
+                                                        subService?.servicePackageIDs.includes(
+                                                          subService.packageThreeID,
+                                                        ) ? (
+                                                        <span className="fa fa-check"></span>
+                                                      ) : (
+                                                        <span className="fa fa-times"></span>
+                                                      )}
+                                                    </td>
+                                                  )}
 
                                                 {props.visibleFieldsCustomTemp
                                                   .serviceScope && (
@@ -14315,10 +14664,14 @@ const ReviewPackagesComponent = (props) => {
 
                                 {packageCount >= 2 && (
                                   <>
+                                    {props.vatPercentage !== 0 &&
+                                      props.visibleFieldsCustomTemp.vatRate && <th></th>}
                                     {props.vatPercentage ?
                                       props.visibleFieldsCustomTemp.vat && (
                                         <th></th>
                                       ):""}
+                                    {props.vatPercentage !== 0 &&
+                                      props.visibleFieldsCustomTemp.feesIncVat && <th></th>}
                                     {props.visibleFieldsCustomTemp
                                       .serviceScope && <th></th>}
                                     <td
@@ -14369,10 +14722,14 @@ const ReviewPackagesComponent = (props) => {
 
                                 {packageCount === 3 && (
                                   <>
+                                    {props.vatPercentage !== 0 &&
+                                      props.visibleFieldsCustomTemp.vatRate && <th></th>}
                                     {props.vatPercentage ?
                                       props.visibleFieldsCustomTemp.vat && (
                                         <th></th>
                                       ):""}
+                                    {props.vatPercentage !== 0 &&
+                                      props.visibleFieldsCustomTemp.feesIncVat && <th></th>}
                                     {props.visibleFieldsCustomTemp
                                       .serviceScope && <th></th>}
                                     <td
@@ -14457,6 +14814,8 @@ const ReviewPackagesComponent = (props) => {
                                     props.currencyID,
                                   )}
                             </td>
+                            {props.vatPercentage !== 0 &&
+                              props.visibleFieldsCustomTemp.vatRate && <td className="tr-table-class font-14 text-white"></td>}
                             {props.vatPercentage ?
                               props.visibleFieldsCustomTemp.vat && (
                                 <td className="tr-table-class font-14 text-white text-right">
@@ -14464,49 +14823,67 @@ const ReviewPackagesComponent = (props) => {
                                     props.RecurringPricingInfo
                                       .PackageOneStaticVaTPrice,
                                     props.currencyID,
-                                    // props.RecurringPricingInfo
-                                    //   .PackageOneVaTPriceWithoutDiscout
                                   )}
                                 </td>
                               ):""}
+                            {props.vatPercentage !== 0 &&
+                              props.visibleFieldsCustomTemp.feesIncVat && (
+                                <td className="tr-table-class font-14 text-white text-right">
+                                  {props.formatValue(
+                                    Number(props.RecurringPricingInfo.PackageOneStaticVaTPrice || 0) +
+                                    (totalOnePackageValue >
+                                      Number(props.RecurringPricingInfo.packageOneNetTotal) ||
+                                    (Number(props.RecurringPricingInfo.packageOneDisCount) > 0 &&
+                                      !props.ProposalObject.DiscountLines)
+                                      ? Number(props.RecurringPricingInfo.packageOneDisCount) > 0 && !props.ProposalObject.DiscountLines
+                                        ? Number(props.RecurringPricingInfo.packageOneDisCountedTotal)
+                                        : totalOnePackageValue
+                                      : Number(props.RecurringPricingInfo.packageOneNetTotal)),
+                                    props.currencyID,
+                                  )}
+                                </td>
+                              )}
                             {props.visibleFieldsCustomTemp.serviceScope && (
                               <td></td>
                             )}
                             {packageCount >= 2 && (
                               <>
-                                <td className="tr-table-class font-14 text-white text-right">
-                                  {" "}
-                                  {totalTwoPackageValue >
-                                    Number(
-                                      props.RecurringPricingInfo
-                                        .packageTwoNetTotal,
-                                    ) ||
-                                  (Number(
-                                    props.RecurringPricingInfo
-                                      .packageTwoDisCount,
-                                  ) > 0 &&
-                                    !props.ProposalObject.DiscountLines)
-                                    ? Number(
-                                        props.RecurringPricingInfo
-                                          .packageTwoDisCount,
-                                      ) > 0 &&
-                                      !props.ProposalObject.DiscountLines
-                                      ? props.formatValue(
-                                          props.RecurringPricingInfo
-                                            .packageTwoDisCountedTotal,
-                                          props.currencyID,
-                                        )
-                                      : props.formatValue(
-                                          totalTwoPackageValue,
-                                          props.currencyID,
-                                        )
-                                    : props.formatValue(
+                                {props.visibleFieldsCustomTemp.fees && (
+                                  <td className="tr-table-class font-14 text-white text-right">
+                                    {" "}
+                                    {totalTwoPackageValue >
+                                      Number(
                                         props.RecurringPricingInfo
                                           .packageTwoNetTotal,
-                                        props.currencyID,
-                                      )}
-                                </td>
-
+                                      ) ||
+                                    (Number(
+                                      props.RecurringPricingInfo
+                                        .packageTwoDisCount,
+                                    ) > 0 &&
+                                      !props.ProposalObject.DiscountLines)
+                                      ? Number(
+                                          props.RecurringPricingInfo
+                                            .packageTwoDisCount,
+                                        ) > 0 &&
+                                        !props.ProposalObject.DiscountLines
+                                        ? props.formatValue(
+                                            props.RecurringPricingInfo
+                                              .packageTwoDisCountedTotal,
+                                            props.currencyID,
+                                          )
+                                        : props.formatValue(
+                                            totalTwoPackageValue,
+                                            props.currencyID,
+                                          )
+                                      : props.formatValue(
+                                          props.RecurringPricingInfo
+                                            .packageTwoNetTotal,
+                                          props.currencyID,
+                                        )}
+                                  </td>
+                                )}
+                                {props.vatPercentage !== 0 &&
+                                  props.visibleFieldsCustomTemp.vatRate && <td className="tr-table-class font-14 text-white"></td>}
                                 {props.vatPercentage ?
                                   props.visibleFieldsCustomTemp.vat && (
                                     <td className="tr-table-class font-14 text-white text-right">
@@ -14515,11 +14892,26 @@ const ReviewPackagesComponent = (props) => {
                                         props.RecurringPricingInfo
                                           .PackageTwoStaticVaTPrice,
                                         props.currencyID,
-                                        // props.RecurringPricingInfo
-                                        //   .PackageTwoVaTPriceWithoutDiscout
                                       )}
                                     </td>
                                   ):""}
+                                {props.vatPercentage !== 0 &&
+                                  props.visibleFieldsCustomTemp.feesIncVat && (
+                                    <td className="tr-table-class font-14 text-white text-right">
+                                      {props.formatValue(
+                                        Number(props.RecurringPricingInfo.PackageTwoStaticVaTPrice || 0) +
+                                        (totalTwoPackageValue >
+                                          Number(props.RecurringPricingInfo.packageTwoNetTotal) ||
+                                        (Number(props.RecurringPricingInfo.packageTwoDisCount) > 0 &&
+                                          !props.ProposalObject.DiscountLines)
+                                          ? Number(props.RecurringPricingInfo.packageTwoDisCount) > 0 && !props.ProposalObject.DiscountLines
+                                            ? Number(props.RecurringPricingInfo.packageTwoDisCountedTotal)
+                                            : totalTwoPackageValue
+                                          : Number(props.RecurringPricingInfo.packageTwoNetTotal)),
+                                        props.currencyID,
+                                      )}
+                                    </td>
+                                  )}
                                 {props.visibleFieldsCustomTemp.serviceScope && (
                                   <td></td>
                                 )}
@@ -14527,39 +14919,42 @@ const ReviewPackagesComponent = (props) => {
                             )}{" "}
                             {packageCount === 3 && (
                               <>
-                                <td className="tr-table-class font-14 text-white text-right">
-                                  {" "}
-                                  {totalThreePackageValue >
-                                    Number(
-                                      props.RecurringPricingInfo
-                                        .packageThreeNetTotal,
-                                    ) ||
-                                  (Number(
-                                    props.RecurringPricingInfo
-                                      .packageThreeDisCount,
-                                  ) > 0 &&
-                                    !props.ProposalObject.DiscountLines)
-                                    ? Number(
-                                        props.RecurringPricingInfo
-                                          .packageThreeDisCount,
-                                      ) > 0 &&
-                                      !props.ProposalObject.DiscountLines
-                                      ? props.formatValue(
-                                          props.RecurringPricingInfo
-                                            .packageThreeDisCountedTotal,
-                                          props.currencyID,
-                                        )
-                                      : props.formatValue(
-                                          totalThreePackageValue,
-                                          props.currencyID,
-                                        )
-                                    : props.formatValue(
+                                {props.visibleFieldsCustomTemp.fees && (
+                                  <td className="tr-table-class font-14 text-white text-right">
+                                    {" "}
+                                    {totalThreePackageValue >
+                                      Number(
                                         props.RecurringPricingInfo
                                           .packageThreeNetTotal,
-                                        props.currencyID,
-                                      )}
-                                </td>
-
+                                      ) ||
+                                    (Number(
+                                      props.RecurringPricingInfo
+                                        .packageThreeDisCount,
+                                    ) > 0 &&
+                                      !props.ProposalObject.DiscountLines)
+                                      ? Number(
+                                          props.RecurringPricingInfo
+                                            .packageThreeDisCount,
+                                        ) > 0 &&
+                                        !props.ProposalObject.DiscountLines
+                                        ? props.formatValue(
+                                            props.RecurringPricingInfo
+                                              .packageThreeDisCountedTotal,
+                                            props.currencyID,
+                                          )
+                                        : props.formatValue(
+                                            totalThreePackageValue,
+                                            props.currencyID,
+                                          )
+                                      : props.formatValue(
+                                          props.RecurringPricingInfo
+                                            .packageThreeNetTotal,
+                                          props.currencyID,
+                                        )}
+                                  </td>
+                                )}
+                                {props.vatPercentage !== 0 &&
+                                  props.visibleFieldsCustomTemp.vatRate && <td className="tr-table-class font-14 text-white"></td>}
                                 {props.vatPercentage ?
                                   props.visibleFieldsCustomTemp.vat && (
                                     <td className="tr-table-class font-14 text-white text-right">
@@ -14568,11 +14963,26 @@ const ReviewPackagesComponent = (props) => {
                                         props.RecurringPricingInfo
                                           .PackageThreeStaticVaTPrice,
                                         props.currencyID,
-                                        // props.RecurringPricingInfo
-                                        //   .PackageThreeVaTPriceWithoutDiscout
                                       )}
                                     </td>
                                   ):""}
+                                {props.vatPercentage !== 0 &&
+                                  props.visibleFieldsCustomTemp.feesIncVat && (
+                                    <td className="tr-table-class font-14 text-white text-right">
+                                      {props.formatValue(
+                                        Number(props.RecurringPricingInfo.PackageThreeStaticVaTPrice || 0) +
+                                        (totalThreePackageValue >
+                                          Number(props.RecurringPricingInfo.packageThreeNetTotal) ||
+                                        (Number(props.RecurringPricingInfo.packageThreeDisCount) > 0 &&
+                                          !props.ProposalObject.DiscountLines)
+                                          ? Number(props.RecurringPricingInfo.packageThreeDisCount) > 0 && !props.ProposalObject.DiscountLines
+                                            ? Number(props.RecurringPricingInfo.packageThreeDisCountedTotal)
+                                            : totalThreePackageValue
+                                          : Number(props.RecurringPricingInfo.packageThreeNetTotal)),
+                                        props.currencyID,
+                                      )}
+                                    </td>
+                                  )}
                                 {props.visibleFieldsCustomTemp.serviceScope && (
                                   <td></td>
                                 )}
@@ -14595,16 +15005,18 @@ const ReviewPackagesComponent = (props) => {
                                   <td className="tr-table-class font-14 text-white">
                                     Discount
                                   </td>
-                                  <td className="tr-table-class font-14 text-white text-right">
-                                    (-){" "}
-                                    {props.formatValue(
-                                      props.RecurringPricingInfo
-                                        .packageOneDisCount,
-                                      props.currencyID,
-                                    )}
-                                  </td>
-                                  {/* Discounted VAT */}
-
+                                  {props.visibleFieldsCustomTemp.fees && (
+                                    <td className="tr-table-class font-14 text-white text-right">
+                                      (-){" "}
+                                      {props.formatValue(
+                                        props.RecurringPricingInfo
+                                          .packageOneDisCount,
+                                        props.currencyID,
+                                      )}
+                                    </td>
+                                  )}
+                                  {props.vatPercentage !== 0 &&
+                                    props.visibleFieldsCustomTemp.vatRate && <td className="tr-table-class font-14 text-white"></td>}
                                   {props.vatPercentage ?
                                     props.visibleFieldsCustomTemp.vat && (
                                       <td className="tr-table-class font-14 text-white text-right">
@@ -14622,21 +15034,25 @@ const ReviewPackagesComponent = (props) => {
                                         )}
                                       </td>
                                     ):""}
+                                  {props.vatPercentage !== 0 &&
+                                    props.visibleFieldsCustomTemp.feesIncVat && <td className="tr-table-class font-14 text-white"></td>}
                                   {props.visibleFieldsCustomTemp
                                     .serviceScope && <td></td>}
 
-                                  {/* <td className="tr-table-class font-14 text-white text-right"></td> */}
                                   {packageCount >= 2 && (
                                     <>
-                                      <td className="tr-table-class font-14 text-white text-right">
-                                        (-){" "}
-                                        {props.formatValue(
-                                          props.RecurringPricingInfo
-                                            .packageTwoDisCount,
-                                          props.currencyID,
-                                        )}
-                                      </td>
-
+                                      {props.visibleFieldsCustomTemp.fees && (
+                                        <td className="tr-table-class font-14 text-white text-right">
+                                          (-){" "}
+                                          {props.formatValue(
+                                            props.RecurringPricingInfo
+                                              .packageTwoDisCount,
+                                            props.currencyID,
+                                          )}
+                                        </td>
+                                      )}
+                                      {props.vatPercentage !== 0 &&
+                                        props.visibleFieldsCustomTemp.vatRate && <td className="tr-table-class font-14 text-white"></td>}
                                       {props.vatPercentage ?
                                         props.visibleFieldsCustomTemp.vat && (
                                           <td className="tr-table-class font-14 text-white text-right">
@@ -14654,21 +15070,26 @@ const ReviewPackagesComponent = (props) => {
                                             )}
                                           </td>
                                         ):""}
+                                      {props.vatPercentage !== 0 &&
+                                        props.visibleFieldsCustomTemp.feesIncVat && <td className="tr-table-class font-14 text-white"></td>}
                                       {props.visibleFieldsCustomTemp
                                         .serviceScope && <td></td>}
                                     </>
                                   )}
                                   {packageCount === 3 && (
                                     <>
-                                      <td className="tr-table-class font-14 text-white text-right">
-                                        (-){" "}
-                                        {props.formatValue(
-                                          props.RecurringPricingInfo
-                                            .packageThreeDisCount,
-                                          props.currencyID,
-                                        )}
-                                      </td>
-
+                                      {props.visibleFieldsCustomTemp.fees && (
+                                        <td className="tr-table-class font-14 text-white text-right">
+                                          (-){" "}
+                                          {props.formatValue(
+                                            props.RecurringPricingInfo
+                                              .packageThreeDisCount,
+                                            props.currencyID,
+                                          )}
+                                        </td>
+                                      )}
+                                      {props.vatPercentage !== 0 &&
+                                        props.visibleFieldsCustomTemp.vatRate && <td className="tr-table-class font-14 text-white"></td>}
                                       {props.vatPercentage ?
                                         props.visibleFieldsCustomTemp.vat && (
                                           <td className="tr-table-class font-14 text-white text-right">
@@ -14686,6 +15107,8 @@ const ReviewPackagesComponent = (props) => {
                                             )}
                                           </td>
                                         ):""}
+                                      {props.vatPercentage !== 0 &&
+                                        props.visibleFieldsCustomTemp.feesIncVat && <td className="tr-table-class font-14 text-white"></td>}
                                       {props.visibleFieldsCustomTemp
                                         .serviceScope && <td></td>}
                                     </>
@@ -14695,55 +15118,20 @@ const ReviewPackagesComponent = (props) => {
                                   props.vatPercentage ? (
                                      <tr className="head-row">
                                   <td className="tr-table-class font-14 text-white">
-                                    {/* Fees inc VAT (£) */}
                                     Grand Total
                                   </td>
-                                  {/* <td className="tr-table-class font-14 text-white text-right">
-                                    {" "}
-                                    {totalOnePackageValue >
-                                      Number(
-                                        props.RecurringPricingInfo
-                                          .packageOneNetTotal,
-                                      ) ||
-                                    (Number(
-                                      props.RecurringPricingInfo
-                                        .packageOneDisCount,
-                                    ) > 0 &&
-                                      !props.ProposalObject.DiscountLines)
-                                      ? Number(
-                                          props.RecurringPricingInfo
-                                            .packageOneDisCount,
-                                        ) > 0 &&
-                                        !props.ProposalObject.DiscountLines
-                                        ? props.formatValue(
-                                            props.RecurringPricingInfo
-                                              .packageOneDisCountedTotal -
-                                              props.RecurringPricingInfo
-                                                .packageOneDisCount,
-                                            props.currencyID,
-                                          )
-                                        : props.formatValue(
-                                            totalOnePackageValue -
-                                              props.RecurringPricingInfo
-                                                .packageOneDisCount,
-                                            props.currencyID,
-                                          )
-                                      : props.formatValue(
-                                          props.RecurringPricingInfo
-                                            .packageOneNetTotal -
-                                            props.RecurringPricingInfo
-                                              .packageOneDisCount,
-                                          props.currencyID,
-                                        )}
-                                  </td> */}
-                                  <td className="tr-table-class font-14 text-white text-right">
-                                    {" "}
-                                    {props.formatValue(
-                                      props.RecurringPricingInfo
-                                        .PackageOneGrandTotal,
-                                      props.currencyID,
-                                    )}
-                                  </td>
+                                  {props.visibleFieldsCustomTemp.fees && (
+                                    <td className="tr-table-class font-14 text-white text-right">
+                                      {" "}
+                                      {props.formatValue(
+                                        Number(props.RecurringPricingInfo.PackageOneGrandTotal || 0) -
+                                          Number(props.RecurringPricingInfo.PackageOneVaTPrice || 0),
+                                        props.currencyID,
+                                      )}
+                                    </td>
+                                  )}
+                                  {props.vatPercentage !== 0 &&
+                                    props.visibleFieldsCustomTemp.vatRate && <td className="tr-table-class font-14 text-white"></td>}
                                   {props.vatPercentage ?
                                     props.visibleFieldsCustomTemp.vat && (
                                       <td className="tr-table-class font-14 text-white text-right">
@@ -14756,18 +15144,31 @@ const ReviewPackagesComponent = (props) => {
                                         )}
                                       </td>
                                     ):""}
+                                  {props.vatPercentage !== 0 &&
+                                    props.visibleFieldsCustomTemp.feesIncVat && (
+                                      <td className="tr-table-class font-14 text-white text-right">
+                                        {props.formatValue(
+                                          Number(props.RecurringPricingInfo.PackageOneGrandTotal || 0),
+                                          props.currencyID,
+                                        )}
+                                      </td>
+                                    )}
                                   {props.visibleFieldsCustomTemp
                                     .serviceScope && <td></td>}
                                   {packageCount >= 2 && (
                                     <>
-                                      <td className="tr-table-class font-14 text-white text-right">
-                                        {" "}
-                                        {props.formatValue(
-                                          props.RecurringPricingInfo
-                                            .PackageTwoGrandTotal,
-                                          props.currencyID,
-                                        )}
-                                      </td>
+                                      {props.visibleFieldsCustomTemp.fees && (
+                                        <td className="tr-table-class font-14 text-white text-right">
+                                          {" "}
+                                          {props.formatValue(
+                                            Number(props.RecurringPricingInfo.PackageTwoGrandTotal || 0) -
+                                              Number(props.RecurringPricingInfo.PackageTwoVaTPrice || 0),
+                                            props.currencyID,
+                                          )}
+                                        </td>
+                                      )}
+                                      {props.vatPercentage !== 0 &&
+                                        props.visibleFieldsCustomTemp.vatRate && <td className="tr-table-class font-14 text-white"></td>}
                                       {props.vatPercentage ?
                                         props.visibleFieldsCustomTemp.vat && (
                                           <td className="tr-table-class font-14 text-white text-right">
@@ -14780,20 +15181,33 @@ const ReviewPackagesComponent = (props) => {
                                             )}
                                           </td>
                                         ):""}
+                                      {props.vatPercentage !== 0 &&
+                                        props.visibleFieldsCustomTemp.feesIncVat && (
+                                          <td className="tr-table-class font-14 text-white text-right">
+                                            {props.formatValue(
+                                              Number(props.RecurringPricingInfo.PackageTwoGrandTotal || 0),
+                                              props.currencyID,
+                                            )}
+                                          </td>
+                                        )}
                                       {props.visibleFieldsCustomTemp
                                         .serviceScope && <td></td>}
                                     </>
                                   )}
                                   {packageCount == 3 && (
                                     <>
-                                      <td className="tr-table-class font-14 text-white text-right">
-                                        {" "}
-                                        {props.formatValue(
-                                          props.RecurringPricingInfo
-                                            .PackageThreeGrandTotal,
-                                          props.currencyID,
-                                        )}
-                                      </td>
+                                      {props.visibleFieldsCustomTemp.fees && (
+                                        <td className="tr-table-class font-14 text-white text-right">
+                                          {" "}
+                                          {props.formatValue(
+                                            Number(props.RecurringPricingInfo.PackageThreeGrandTotal || 0) -
+                                              Number(props.RecurringPricingInfo.PackageThreeVaTPrice || 0),
+                                            props.currencyID,
+                                          )}
+                                        </td>
+                                      )}
+                                      {props.vatPercentage !== 0 &&
+                                        props.visibleFieldsCustomTemp.vatRate && <td className="tr-table-class font-14 text-white"></td>}
                                       {props.vatPercentage ?
                                         props.visibleFieldsCustomTemp.vat && (
                                           <td className="tr-table-class font-14 text-white text-right">
@@ -14806,6 +15220,15 @@ const ReviewPackagesComponent = (props) => {
                                             )}
                                           </td>
                                         ):""}
+                                      {props.vatPercentage !== 0 &&
+                                        props.visibleFieldsCustomTemp.feesIncVat && (
+                                          <td className="tr-table-class font-14 text-white text-right">
+                                            {props.formatValue(
+                                              Number(props.RecurringPricingInfo.PackageThreeGrandTotal || 0),
+                                              props.currencyID,
+                                            )}
+                                          </td>
+                                        )}
                                       {props.visibleFieldsCustomTemp
                                         .serviceScope && <td></td>}
                                     </>
@@ -14858,6 +15281,126 @@ const ReviewPackagesComponent = (props) => {
                                
                               </>
                             )}
+
+                          {props.vatPercentage !== 0 && !(
+                            (Number(props.RecurringPricingInfo.packageThreeDisCount) > 0 ||
+                             Number(props.RecurringPricingInfo.packageOneDisCount) > 0 ||
+                             Number(props.RecurringPricingInfo.packageTwoDisCount) > 0) &&
+                            props.ProposalObject.DiscountLines
+                          ) && (
+                            <tr className="head-row">
+                              <td className="tr-table-class font-14 text-white">
+                                Grand Total
+                              </td>
+                              {props.visibleFieldsCustomTemp.fees && (
+                                <td className="tr-table-class font-14 text-white text-right">
+                                  {props.formatValue(
+                                    totalOnePackageValue >
+                                      Number(props.RecurringPricingInfo.packageOneNetTotal)
+                                      ? totalOnePackageValue
+                                      : Number(props.RecurringPricingInfo.packageOneNetTotal),
+                                    props.currencyID,
+                                  )}
+                                </td>
+                              )}
+                              {props.visibleFieldsCustomTemp.vatRate && <td className="tr-table-class font-14 text-white"></td>}
+                              {props.visibleFieldsCustomTemp.vat && (
+                                <td className="tr-table-class font-14 text-white text-right">
+                                  {props.formatValue(
+                                    props.RecurringPricingInfo.PackageOneStaticVaTPrice,
+                                    props.currencyID,
+                                  )}
+                                </td>
+                              )}
+                              {props.visibleFieldsCustomTemp.feesIncVat && (
+                                <td className="tr-table-class font-14 text-white text-right">
+                                  {props.formatValue(
+                                    Number(props.RecurringPricingInfo.PackageOneStaticVaTPrice || 0) +
+                                    (totalOnePackageValue >
+                                      Number(props.RecurringPricingInfo.packageOneNetTotal)
+                                      ? totalOnePackageValue
+                                      : Number(props.RecurringPricingInfo.packageOneNetTotal)),
+                                    props.currencyID,
+                                  )}
+                                </td>
+                              )}
+                              {props.visibleFieldsCustomTemp.serviceScope && <td></td>}
+                              {packageCount >= 2 && (
+                                <>
+                                  {props.visibleFieldsCustomTemp.fees && (
+                                    <td className="tr-table-class font-14 text-white text-right">
+                                      {props.formatValue(
+                                        totalTwoPackageValue >
+                                          Number(props.RecurringPricingInfo.packageTwoNetTotal)
+                                          ? totalTwoPackageValue
+                                          : Number(props.RecurringPricingInfo.packageTwoNetTotal),
+                                        props.currencyID,
+                                      )}
+                                    </td>
+                                  )}
+                                  {props.visibleFieldsCustomTemp.vatRate && <td className="tr-table-class font-14 text-white"></td>}
+                                  {props.visibleFieldsCustomTemp.vat && (
+                                    <td className="tr-table-class font-14 text-white text-right">
+                                      {props.formatValue(
+                                        props.RecurringPricingInfo.PackageTwoStaticVaTPrice,
+                                        props.currencyID,
+                                      )}
+                                    </td>
+                                  )}
+                                  {props.visibleFieldsCustomTemp.feesIncVat && (
+                                    <td className="tr-table-class font-14 text-white text-right">
+                                      {props.formatValue(
+                                        Number(props.RecurringPricingInfo.PackageTwoStaticVaTPrice || 0) +
+                                        (totalTwoPackageValue >
+                                          Number(props.RecurringPricingInfo.packageTwoNetTotal)
+                                          ? totalTwoPackageValue
+                                          : Number(props.RecurringPricingInfo.packageTwoNetTotal)),
+                                        props.currencyID,
+                                      )}
+                                    </td>
+                                  )}
+                                  {props.visibleFieldsCustomTemp.serviceScope && <td></td>}
+                                </>
+                              )}
+                              {packageCount === 3 && (
+                                <>
+                                  {props.visibleFieldsCustomTemp.fees && (
+                                    <td className="tr-table-class font-14 text-white text-right">
+                                      {props.formatValue(
+                                        totalThreePackageValue >
+                                          Number(props.RecurringPricingInfo.packageThreeNetTotal)
+                                          ? totalThreePackageValue
+                                          : Number(props.RecurringPricingInfo.packageThreeNetTotal),
+                                        props.currencyID,
+                                      )}
+                                    </td>
+                                  )}
+                                  {props.visibleFieldsCustomTemp.vatRate && <td className="tr-table-class font-14 text-white"></td>}
+                                  {props.visibleFieldsCustomTemp.vat && (
+                                    <td className="tr-table-class font-14 text-white text-right">
+                                      {props.formatValue(
+                                        props.RecurringPricingInfo.PackageThreeStaticVaTPrice,
+                                        props.currencyID,
+                                      )}
+                                    </td>
+                                  )}
+                                  {props.visibleFieldsCustomTemp.feesIncVat && (
+                                    <td className="tr-table-class font-14 text-white text-right">
+                                      {props.formatValue(
+                                        Number(props.RecurringPricingInfo.PackageThreeStaticVaTPrice || 0) +
+                                        (totalThreePackageValue >
+                                          Number(props.RecurringPricingInfo.packageThreeNetTotal)
+                                          ? totalThreePackageValue
+                                          : Number(props.RecurringPricingInfo.packageThreeNetTotal)),
+                                        props.currencyID,
+                                      )}
+                                    </td>
+                                  )}
+                                  {props.visibleFieldsCustomTemp.serviceScope && <td></td>}
+                                </>
+                              )}
+                            </tr>
+                          )}
                         </table>
                       </div>
                     ) : (
@@ -15484,27 +16027,29 @@ const ReviewPackagesComponent = (props) => {
                             <td className="tr-table-class font-14 text-white">
                               Net Total
                             </td>
-                            <td className="tr-table-class font-14 text-white text-right">
-                              {" "}
-                              {totalOnePackageValueOneOff <
-                                Number(
-                                  props.OneOffPricingInfo
-                                    .packageOneDisCountedTotal,
-                                ) ||
-                              (Number(
-                                props.OneOffPricingInfo.packageOneDisCount,
-                              ) > 0 &&
-                                !props.ProposalObject.DiscountLines)
-                                ? props.formatValue(
+                            {props.visibleFieldsCustomTemp.fees && (
+                              <td className="tr-table-class font-14 text-white text-right">
+                                {" "}
+                                {totalOnePackageValueOneOff <
+                                  Number(
                                     props.OneOffPricingInfo
                                       .packageOneDisCountedTotal,
-                                    props.currencyID,
-                                  )
-                                : props.formatValue(
-                                    totalOnePackageValueOneOff,
-                                    props.currencyID,
-                                  )}
-                            </td>
+                                  ) ||
+                                (Number(
+                                  props.OneOffPricingInfo.packageOneDisCount,
+                                ) > 0 &&
+                                  !props.ProposalObject.DiscountLines)
+                                  ? props.formatValue(
+                                      props.OneOffPricingInfo
+                                        .packageOneDisCountedTotal,
+                                      props.currencyID,
+                                    )
+                                  : props.formatValue(
+                                      totalOnePackageValueOneOff,
+                                      props.currencyID,
+                                    )}
+                              </td>
+                            )}
                             {packageCount >= 2 && (
                               <td className="tr-table-class font-14 text-white text-right">
                                 {" "}
@@ -15889,10 +16434,19 @@ const ReviewPackagesComponent = (props) => {
                                       pkg.servicePackageName
                                     )}
                                   </td>
+                                  {props.visibleFieldsCustomTemp.fees && <td></td>}
+                                  {props.vatPercentageOneOff !== 0 &&
+                                    props.visibleFieldsCustomTemp.vatRate && (
+                                      <td></td>
+                                    )}
                                   {props.vatPercentageOneOff ?
                                     props.visibleFieldsCustomTemp.vat && (
                                       <td></td>
                                     ):""}
+                                  {props.vatPercentageOneOff !== 0 &&
+                                    props.visibleFieldsCustomTemp.feesIncVat && (
+                                      <td></td>
+                                    )}
                                   {props.visibleFieldsCustomTemp
                                     .serviceScope && <td></td>}
                                 </>
@@ -15906,32 +16460,25 @@ const ReviewPackagesComponent = (props) => {
                               )}
                               {props.selectedPackagesList.map((pkg, index) => (
                                 <>
-                                  {/* <td
-                                               key={index}
-                                               className="tr-table-class font-14 text-white text-right"
-                                             >
-                                               {pkg.servicePackageName.length > 10 ? (
-                                                 <Tooltip title={pkg.servicePackageName}>
-                                                   {pkg.servicePackageName
-                                                     .substring(0, 10)
-                                                     .toLowerCase()
-                                                     .replace(/\b\w/g, (l) => l.toUpperCase()) + "..."}
-                                                 </Tooltip>
-                                               ) : pkg.servicePackageName.length > 10 ? (
-                                                 <Tooltip title={pkg.servicePackageName}>
-                                                   {pkg.servicePackageName.substring(0, 10) + "..."}
-                                                 </Tooltip>
-                                               ) : (
-                                                 pkg.servicePackageName
-                                               )}
-                                             </td> */}
+                                  {props.visibleFieldsCustomTemp.fees && (
+                                    <th
+                                      className="tr-table-class text-white text-right"
+                                      style={{ width: "16.66%" }}
+                                    >
+                                      Fees ({props.currencySymbol})
+                                    </th>
+                                  )}
 
-                                  <th
-                                    className="tr-table-class text-white text-right"
-                                    style={{ width: "16.66%" }}
-                                  >
-                                    Fees ({props.currencySymbol})
-                                  </th>
+                                  {props.vatPercentageOneOff !== 0 &&
+                                    props.visibleFieldsCustomTemp.vatRate && (
+                                      <th
+                                        className="tr-table-class text-white text-right"
+                                        style={{ width: "16.66%" }}
+                                      >
+                                        {props.taxName} Rate
+                                      </th>
+                                    )}
+
                                   {props.vatPercentageOneOff ?
                                     props.visibleFieldsCustomTemp.vat && (
                                       <th
@@ -15941,6 +16488,17 @@ const ReviewPackagesComponent = (props) => {
                                         {props.taxName} ({props.currencySymbol})
                                       </th>
                                     ):""}
+
+                                  {props.vatPercentageOneOff !== 0 &&
+                                    props.visibleFieldsCustomTemp.feesIncVat && (
+                                      <th
+                                        className="tr-table-class text-white text-right"
+                                        style={{ width: "16.66%" }}
+                                      >
+                                        Fees inc {props.taxName} (
+                                        {props.currencySymbol})
+                                      </th>
+                                    )}
 
                                   {props.visibleFieldsCustomTemp
                                     .serviceScope && (
@@ -15963,46 +16521,40 @@ const ReviewPackagesComponent = (props) => {
                                     <tr className="a-la-carte-services-review-head-row">
                                       {props.visibleFieldsCustomTemp
                                         .serviceName && (
-                                        <th colSpan={1 + packageCount}>
+                                        <th colSpan={
+                                          (props.visibleFieldsCustomTemp.serviceName ? 1 : 0) +
+                                          packageCount * (
+                                            (props.visibleFieldsCustomTemp.fees ? 1 : 0) +
+                                            (props.vatPercentageOneOff !== 0 && props.visibleFieldsCustomTemp.vatRate ? 1 : 0) +
+                                            (props.vatPercentageOneOff !== 0 && props.visibleFieldsCustomTemp.vat ? 1 : 0) +
+                                            (props.vatPercentageOneOff !== 0 && props.visibleFieldsCustomTemp.feesIncVat ? 1 : 0) +
+                                            (props.visibleFieldsCustomTemp.serviceScope ? 1 : 0)
+                                          )
+                                        }>
                                           {service.serviceCatName}
                                         </th>
-                                      )}
-
-                                      {/* <th></th> */}
-                                      {props.vatPercentageOneOff ?
-                                        props.visibleFieldsCustomTemp.vat && (
-                                          <th></th>
-                                        ):""}
-                                      {props.visibleFieldsCustomTemp
-                                        .serviceScope && <th></th>}
-                                      {packageCount >= 2 && (
-                                        <>
-                                          {props.vatPercentageOneOff ?
-                                            props.visibleFieldsCustomTemp
-                                              .vat && <th></th>:""}
-                                          {props.visibleFieldsCustomTemp
-                                            .serviceScope && <th></th>}
-                                        </>
-                                      )}
-
-                                      {packageCount === 3 && (
-                                        <>
-                                          {props.vatPercentageOneOff ?
-                                            props.visibleFieldsCustomTemp
-                                              .vat && <th></th>:""}
-                                          {props.visibleFieldsCustomTemp
-                                            .serviceScope && <th></th>}
-                                        </>
                                       )}
                                     </tr>
                                     {service.servicesList.map(
                                       (subService, subIndex) => {
                                         const packageOnePrice =
-                                          subService.packageOneValue || 0;
+                                          Number(
+                                            String(
+                                              subService.packageOneValue ?? "",
+                                            ).replace(/,/g, ""),
+                                          ) || 0;
                                         const packageTwoPrice =
-                                          subService.packageTwoValue || 0;
+                                          Number(
+                                            String(
+                                              subService.packageTwoValue ?? "",
+                                            ).replace(/,/g, ""),
+                                          ) || 0;
                                         const packageThreePrice =
-                                          subService.packageThreeValue || 0;
+                                          Number(
+                                            String(
+                                              subService.packageThreeValue ?? "",
+                                            ).replace(/,/g, ""),
+                                          ) || 0;
                                         const vatOne =
                                           (packageOnePrice *
                                             subService.service_vat_percentage) /
@@ -16059,77 +16611,104 @@ const ReviewPackagesComponent = (props) => {
                                               </td>
                                             )}
 
-                                            <td className="text-right">
-                                              <div className="flex-end-item">
-                                                {props.ProposalObject
-                                                  .feeTypeId === 1 ? (
-                                                  <div>
-                                                    {(subService.packageOneValue ===
-                                                      0 ||
-                                                      subService.packageOneValue ===
-                                                        null) &&
-                                                    !subService.servicePackageIDs.some(
-                                                      (item) =>
-                                                        item ==
-                                                        props
-                                                          .selectedPackagesList[0]
-                                                          .servicePackageID,
-                                                    ) ? (
-                                                      <span className="fa fa-times"></span>
-                                                    ) : !subService?.servicePackageIDs.includes(
-                                                        subService.packageOneID,
+                                            {props.visibleFieldsCustomTemp.fees && (
+                                              <td className="text-right">
+                                                <div className="flex-end-item">
+                                                  {props.ProposalObject
+                                                    .feeTypeId === 1 ? (
+                                                    <div>
+                                                      {(subService.packageOneValue ===
+                                                        0 ||
+                                                        subService.packageOneValue ===
+                                                          null) &&
+                                                      !subService.servicePackageIDs.some(
+                                                        (item) =>
+                                                          item ==
+                                                          props
+                                                            .selectedPackagesList[0]
+                                                            .servicePackageID,
                                                       ) ? (
-                                                      <span className="fa fa-times"></span>
-                                                    ) : (
-                                                      ` ${props.formatValue(
-                                                        subService.packageOneValue,
-                                                        props.currencyID,
-                                                      )}`
-                                                    )}
-                                                  </div>
-                                                ) : Number(
-                                                    subService.packageOneValue,
-                                                  ) !== null &&
-                                                  subService?.servicePackageIDs.includes(
-                                                    subService.packageOneID,
-                                                  ) ? (
-                                                  <span className="fa fa-check"></span>
-                                                ) : (
-                                                  <span className="fa fa-times"></span>
-                                                )}
-                                                {subService?.isAdditionalService !==
-                                                null ? (
-                                                  <input
-                                                    style={{
-                                                      marginLeft: "5px",
-                                                    }}
-                                                    disabled={
-                                                      subService?.servicePackageIDs.includes(
-                                                        subService.packageOneID,
-                                                      ) &&
-                                                      subService
-                                                        ?.servicePackageIDs
-                                                        .length === 1
-                                                    }
-                                                    type="checkbox"
-                                                    checked={subService?.servicePackageIDs.includes(
+                                                        <span className="fa fa-times"></span>
+                                                      ) : !subService?.servicePackageIDs.includes(
+                                                          subService.packageOneID,
+                                                        ) ? (
+                                                        <span className="fa fa-times"></span>
+                                                      ) : (
+                                                        ` ${props.formatValue(
+                                                          subService.packageOneValue,
+                                                          props.currencyID,
+                                                        )}`
+                                                      )}
+                                                    </div>
+                                                  ) : Number(
+                                                      subService.packageOneValue,
+                                                    ) !== null &&
+                                                    subService?.servicePackageIDs.includes(
                                                       subService.packageOneID,
-                                                    )}
-                                                    onChange={(e) =>
-                                                      handleAddAndRemoveAdditionalServices(
-                                                        1,
-                                                        service.serviceCatID,
-                                                        subService.serviceID,
+                                                    ) ? (
+                                                    <span className="fa fa-check"></span>
+                                                  ) : (
+                                                    <span className="fa fa-times"></span>
+                                                  )}
+                                                  {subService?.isAdditionalService !==
+                                                  null ? (
+                                                    <input
+                                                      style={{
+                                                        marginLeft: "5px",
+                                                      }}
+                                                      disabled={
+                                                        subService?.servicePackageIDs.includes(
+                                                          subService.packageOneID,
+                                                        ) &&
+                                                        subService
+                                                          ?.servicePackageIDs
+                                                          .length === 1
+                                                      }
+                                                      type="checkbox"
+                                                      checked={subService?.servicePackageIDs.includes(
                                                         subService.packageOneID,
-                                                        e.target.checked,
-                                                      )
-                                                    }
-                                                  />
-                                                ) : (
-                                                  <div>&nbsp;&nbsp;</div>
-                                                )}
-                                              </div>
-                                            </td>
+                                                      )}
+                                                      onChange={(e) =>
+                                                        handleAddAndRemoveAdditionalServices(
+                                                          1,
+                                                          service.serviceCatID,
+                                                          subService.serviceID,
+                                                          subService.packageOneID,
+                                                          e.target.checked,
+                                                        )
+                                                      }
+                                                    />
+                                                  ) : (
+                                                    <div>&nbsp;&nbsp;</div>
+                                                  )}
+                                                </div>
+                                              </td>
+                                            )}
+
+                                            {props.vatPercentageOneOff !== 0 &&
+                                              props.visibleFieldsCustomTemp
+                                                .vatRate && (
+                                                <td className="text-right">
+                                                  {(subService.packageOneValue ===
+                                                    0 ||
+                                                    subService.packageOneValue ===
+                                                      null) &&
+                                                  !subService.servicePackageIDs.some(
+                                                    (item) =>
+                                                      item ==
+                                                      props.selectedPackagesList[0]
+                                                        .servicePackageID,
+                                                  ) ? (
+                                                    <span className="fa fa-times"></span>
+                                                  ) : !subService?.servicePackageIDs.includes(
+                                                      subService.packageOneID,
+                                                    ) ? (
+                                                    <span className="fa fa-times"></span>
+                                                  ) : (
+                                                    `${subService.service_vat_percentage ?? 0}%`
+                                                  )}
+                                                </td>
+                                              )}
 
                                             {/* VAT */}
 
@@ -16208,6 +16787,47 @@ const ReviewPackagesComponent = (props) => {
                                                 </>
                                               ):""}
 
+                                            {props.vatPercentageOneOff !== 0 &&
+                                              props.visibleFieldsCustomTemp
+                                                .feesIncVat && (
+                                                <td className="text-right">
+                                                  {props.ProposalObject.feeTypeId ===
+                                                  1 ? (
+                                                    (subService.packageOneValue ===
+                                                      0 ||
+                                                      subService.packageOneValue ===
+                                                        null) &&
+                                                    !subService.servicePackageIDs.some(
+                                                      (item) =>
+                                                        item ===
+                                                        props
+                                                          .selectedPackagesList[0]
+                                                          .servicePackageID,
+                                                    ) ? (
+                                                      <span className="fa fa-times"></span>
+                                                    ) : !subService?.servicePackageIDs.includes(
+                                                        subService.packageOneID,
+                                                      ) ? (
+                                                      <span className="fa fa-times"></span>
+                                                    ) : (
+                                                      ` ${props.formatValue(
+                                                        totalOne,
+                                                        props.currencyID,
+                                                      )}`
+                                                    )
+                                                  ) : Number(
+                                                      subService.packageOneValue,
+                                                    ) !== null &&
+                                                    subService?.servicePackageIDs.includes(
+                                                      subService.packageOneID,
+                                                    ) ? (
+                                                    <span className="fa fa-check"></span>
+                                                  ) : (
+                                                    <span className="fa fa-times"></span>
+                                                  )}
+                                                </td>
+                                              )}
+
                                             {/* Service Scope */}
 
                                             {props.visibleFieldsCustomTemp
@@ -16260,77 +16880,105 @@ const ReviewPackagesComponent = (props) => {
                                             {/* Package Two */}
                                             {packageCount >= 2 && (
                                               <>
-                                                <td className="text-right">
-                                                  <div className="flex-end-item">
-                                                    {props.ProposalObject
-                                                      .feeTypeId === 1 ? (
-                                                      <div>
-                                                        {(subService.packageTwoValue ===
-                                                          0 ||
-                                                          subService.packageTwoValue ===
-                                                            null) &&
-                                                        !subService.servicePackageIDs.some(
-                                                          (item) =>
-                                                            item ==
-                                                            props
-                                                              .selectedPackagesList[0]
-                                                              .servicePackageID,
-                                                        ) ? (
-                                                          <span className="fa fa-times"></span>
-                                                        ) : !subService?.servicePackageIDs.includes(
-                                                            subService.packageTwoID,
+                                                {props.visibleFieldsCustomTemp.fees && (
+                                                  <td className="text-right">
+                                                    <div className="flex-end-item">
+                                                      {props.ProposalObject
+                                                        .feeTypeId === 1 ? (
+                                                        <div>
+                                                          {(subService.packageTwoValue ===
+                                                            0 ||
+                                                            subService.packageTwoValue ===
+                                                              null) &&
+                                                          !subService.servicePackageIDs.some(
+                                                            (item) =>
+                                                              item ==
+                                                              props
+                                                                .selectedPackagesList[0]
+                                                                .servicePackageID,
                                                           ) ? (
-                                                          <span className="fa fa-times"></span>
-                                                        ) : (
-                                                          ` ${props.formatValue(
-                                                            subService.packageTwoValue,
-                                                            props.currencyID,
-                                                          )}`
-                                                        )}
-                                                      </div>
-                                                    ) : Number(
-                                                        subService.packageTwoValue,
-                                                      ) !== null &&
-                                                      subService?.servicePackageIDs.includes(
-                                                        subService.packageTwoID,
-                                                      ) ? (
-                                                      <span className="fa fa-check"></span>
-                                                    ) : (
-                                                      <span className="fa fa-times"></span>
-                                                    )}
-                                                    {subService?.isAdditionalService !==
-                                                    null ? (
-                                                      <input
-                                                        style={{
-                                                          marginLeft: "5px",
-                                                        }}
-                                                        disabled={
-                                                          subService?.servicePackageIDs.includes(
-                                                            subService.packageTwoID,
-                                                          ) &&
-                                                          subService
-                                                            ?.servicePackageIDs
-                                                            .length === 1
-                                                        }
-                                                        type="checkbox"
-                                                        checked={subService?.servicePackageIDs.includes(
+                                                            <span className="fa fa-times"></span>
+                                                          ) : !subService?.servicePackageIDs.includes(
+                                                              subService.packageTwoID,
+                                                            ) ? (
+                                                            <span className="fa fa-times"></span>
+                                                          ) : (
+                                                            ` ${props.formatValue(
+                                                              subService.packageTwoValue,
+                                                              props.currencyID,
+                                                            )}`
+                                                          )}
+                                                        </div>
+                                                      ) : Number(
+                                                          subService.packageTwoValue,
+                                                        ) !== null &&
+                                                        subService?.servicePackageIDs.includes(
                                                           subService.packageTwoID,
-                                                        )}
-                                                        onChange={(e) =>
-                                                          handleAddAndRemoveAdditionalServices(
-                                                            1,
-                                                            service.serviceCatID,
-                                                            subService.serviceID,
-                                                            subService.packageOneID,
-                                                            e.target.checked,
-                                                          )
-                                                        }
-                                                      />
-                                                    ) : (
-                                                      <div>&nbsp;&nbsp;</div>
-                                                    )}
-                                                  </div>
-                                                </td>
+                                                        ) ? (
+                                                        <span className="fa fa-check"></span>
+                                                      ) : (
+                                                        <span className="fa fa-times"></span>
+                                                      )}
+                                                      {subService?.isAdditionalService !==
+                                                      null ? (
+                                                        <input
+                                                          style={{
+                                                            marginLeft: "5px",
+                                                          }}
+                                                          disabled={
+                                                            subService?.servicePackageIDs.includes(
+                                                              subService.packageTwoID,
+                                                            ) &&
+                                                            subService
+                                                              ?.servicePackageIDs
+                                                              .length === 1
+                                                          }
+                                                          type="checkbox"
+                                                          checked={subService?.servicePackageIDs.includes(
+                                                            subService.packageTwoID,
+                                                          )}
+                                                          onChange={(e) =>
+                                                            handleAddAndRemoveAdditionalServices(
+                                                              1,
+                                                              service.serviceCatID,
+                                                              subService.serviceID,
+                                                              subService.packageOneID,
+                                                              e.target.checked,
+                                                            )
+                                                          }
+                                                        />
+                                                      ) : (
+                                                        <div>&nbsp;&nbsp;</div>
+                                                      )}
+                                                    </div>
+                                                  </td>
+                                                )}
+
+                                                {props.vatPercentageOneOff !== 0 &&
+                                                  props.visibleFieldsCustomTemp
+                                                    .vatRate && (
+                                                    <td className="text-right">
+                                                      {(subService.packageTwoValue ===
+                                                        0 ||
+                                                        subService.packageTwoValue ===
+                                                          null) &&
+                                                      !subService.servicePackageIDs.some(
+                                                        (item) =>
+                                                          item ==
+                                                          props.selectedPackagesList[0]
+                                                            .servicePackageID,
+                                                      ) ? (
+                                                        <span className="fa fa-times"></span>
+                                                      ) : !subService?.servicePackageIDs.includes(
+                                                          subService.packageTwoID,
+                                                        ) ? (
+                                                        <span className="fa fa-times"></span>
+                                                      ) : (
+                                                        `${subService.service_vat_percentage ?? 0}%`
+                                                      )}
+                                                    </td>
+                                                  )}
+
                                                 {props.vatPercentageOneOff ?
                                                   props.visibleFieldsCustomTemp
                                                     .vat && (
@@ -16405,6 +17053,48 @@ const ReviewPackagesComponent = (props) => {
                                                       </div>
                                                     </td>
                                                   ):""}
+
+                                                {props.vatPercentageOneOff !== 0 &&
+                                                  props.visibleFieldsCustomTemp
+                                                    .feesIncVat && (
+                                                    <td className="text-right">
+                                                      {props.ProposalObject.feeTypeId ===
+                                                      1 ? (
+                                                        (subService.packageTwoValue ===
+                                                          0 ||
+                                                          subService.packageTwoValue ===
+                                                            null) &&
+                                                        !subService.servicePackageIDs.some(
+                                                          (item) =>
+                                                            item ===
+                                                            props
+                                                              .selectedPackagesList[0]
+                                                              .servicePackageID,
+                                                        ) ? (
+                                                          <span className="fa fa-times"></span>
+                                                        ) : !subService?.servicePackageIDs.includes(
+                                                            subService.packageTwoID,
+                                                          ) ? (
+                                                          <span className="fa fa-times"></span>
+                                                        ) : (
+                                                          ` ${props.formatValue(
+                                                            totalTwo,
+                                                            props.currencyID,
+                                                          )}`
+                                                        )
+                                                      ) : Number(
+                                                          subService.packageTwoValue,
+                                                        ) !== null &&
+                                                        subService?.servicePackageIDs.includes(
+                                                          subService.packageTwoID,
+                                                        ) ? (
+                                                        <span className="fa fa-check"></span>
+                                                      ) : (
+                                                        <span className="fa fa-times"></span>
+                                                      )}
+                                                    </td>
+                                                  )}
+
                                                 {props.visibleFieldsCustomTemp
                                                   .serviceScope && (
                                                   <td className="text-right">
@@ -16453,77 +17143,104 @@ const ReviewPackagesComponent = (props) => {
                                             {/* Package Three */}
                                             {packageCount === 3 && (
                                               <>
-                                                <td className="text-right">
-                                                  <div className="flex-end-item">
-                                                    {props.ProposalObject
-                                                      .feeTypeId === 1 ? (
-                                                      <div>
-                                                        {(subService.packageThreeValue ===
-                                                          0 ||
-                                                          subService.packageThreeValue ===
-                                                            null) &&
-                                                        !subService.servicePackageIDs.some(
-                                                          (item) =>
-                                                            item ==
-                                                            props
-                                                              .selectedPackagesList[0]
-                                                              .servicePackageID,
-                                                        ) ? (
-                                                          <span className="fa fa-times"></span>
-                                                        ) : !subService?.servicePackageIDs.includes(
-                                                            subService.packageThreeID,
+                                                {props.visibleFieldsCustomTemp.fees && (
+                                                  <td className="text-right">
+                                                    <div className="flex-end-item">
+                                                      {props.ProposalObject
+                                                        .feeTypeId === 1 ? (
+                                                        <div>
+                                                          {(subService.packageThreeValue ===
+                                                            0 ||
+                                                            subService.packageThreeValue ===
+                                                              null) &&
+                                                          !subService.servicePackageIDs.some(
+                                                            (item) =>
+                                                              item ==
+                                                              props
+                                                                .selectedPackagesList[0]
+                                                                .servicePackageID,
                                                           ) ? (
-                                                          <span className="fa fa-times"></span>
-                                                        ) : (
-                                                          ` ${props.formatValue(
-                                                            subService.packageThreeValue,
-                                                            props.currencyID,
-                                                          )}`
-                                                        )}
-                                                      </div>
-                                                    ) : Number(
-                                                        subService.packageThreeValue,
-                                                      ) !== null &&
-                                                      subService?.servicePackageIDs.includes(
-                                                        subService.packageThreeID,
-                                                      ) ? (
-                                                      <span className="fa fa-check"></span>
-                                                    ) : (
-                                                      <span className="fa fa-times"></span>
-                                                    )}
-                                                    {subService?.isAdditionalService !==
-                                                    null ? (
-                                                      <input
-                                                        style={{
-                                                          marginLeft: "5px",
-                                                        }}
-                                                        disabled={
-                                                          subService?.servicePackageIDs.includes(
-                                                            subService.packageThreeID,
-                                                          ) &&
-                                                          subService
-                                                            ?.servicePackageIDs
-                                                            .length === 1
-                                                        }
-                                                        type="checkbox"
-                                                        checked={subService?.servicePackageIDs.includes(
+                                                            <span className="fa fa-times"></span>
+                                                          ) : !subService?.servicePackageIDs.includes(
+                                                              subService.packageThreeID,
+                                                            ) ? (
+                                                            <span className="fa fa-times"></span>
+                                                          ) : (
+                                                            ` ${props.formatValue(
+                                                              subService.packageThreeValue,
+                                                              props.currencyID,
+                                                            )}`
+                                                          )}
+                                                        </div>
+                                                      ) : Number(
+                                                          subService.packageThreeValue,
+                                                        ) !== null &&
+                                                        subService?.servicePackageIDs.includes(
                                                           subService.packageThreeID,
-                                                        )}
-                                                        onChange={(e) =>
-                                                          handleAddAndRemoveAdditionalServices(
-                                                            1,
-                                                            service.serviceCatID,
-                                                            subService.serviceID,
-                                                            subService.packageOneID,
-                                                            e.target.checked,
-                                                          )
-                                                        }
-                                                      />
-                                                    ) : (
-                                                      <div>&nbsp;&nbsp;</div>
-                                                    )}
-                                                  </div>
-                                                </td>
+                                                        ) ? (
+                                                        <span className="fa fa-check"></span>
+                                                      ) : (
+                                                        <span className="fa fa-times"></span>
+                                                      )}
+                                                      {subService?.isAdditionalService !==
+                                                      null ? (
+                                                        <input
+                                                          style={{
+                                                            marginLeft: "5px",
+                                                          }}
+                                                          disabled={
+                                                            subService?.servicePackageIDs.includes(
+                                                              subService.packageThreeID,
+                                                            ) &&
+                                                            subService
+                                                              ?.servicePackageIDs
+                                                              .length === 1
+                                                          }
+                                                          type="checkbox"
+                                                          checked={subService?.servicePackageIDs.includes(
+                                                            subService.packageThreeID,
+                                                          )}
+                                                          onChange={(e) =>
+                                                            handleAddAndRemoveAdditionalServices(
+                                                              1,
+                                                              service.serviceCatID,
+                                                              subService.serviceID,
+                                                              subService.packageOneID,
+                                                              e.target.checked,
+                                                            )
+                                                          }
+                                                        />
+                                                      ) : (
+                                                        <div>&nbsp;&nbsp;</div>
+                                                      )}
+                                                    </div>
+                                                  </td>
+                                                )}
+
+                                                {props.vatPercentageOneOff !== 0 &&
+                                                  props.visibleFieldsCustomTemp
+                                                    .vatRate && (
+                                                    <td className="text-right">
+                                                      {(subService.packageThreeValue ===
+                                                        0 ||
+                                                        subService.packageThreeValue ===
+                                                          null) &&
+                                                      !subService.servicePackageIDs.some(
+                                                        (item) =>
+                                                          item ==
+                                                          props.selectedPackagesList[0]
+                                                            .servicePackageID,
+                                                      ) ? (
+                                                        <span className="fa fa-times"></span>
+                                                      ) : !subService?.servicePackageIDs.includes(
+                                                          subService.packageThreeID,
+                                                        ) ? (
+                                                        <span className="fa fa-times"></span>
+                                                      ) : (
+                                                        `${subService.service_vat_percentage ?? 0}%`
+                                                      )}
+                                                    </td>
+                                                  )}
 
                                                 {props.vatPercentageOneOff ?
                                                   props.visibleFieldsCustomTemp
@@ -16599,6 +17316,47 @@ const ReviewPackagesComponent = (props) => {
                                                       </div>
                                                     </td>
                                                   ):""}
+
+                                                {props.vatPercentageOneOff !== 0 &&
+                                                  props.visibleFieldsCustomTemp
+                                                    .feesIncVat && (
+                                                    <td className="text-right">
+                                                      {props.ProposalObject.feeTypeId ===
+                                                      1 ? (
+                                                        (subService.packageThreeValue ===
+                                                          0 ||
+                                                          subService.packageThreeValue ===
+                                                            null) &&
+                                                        !subService.servicePackageIDs.some(
+                                                          (item) =>
+                                                            item ===
+                                                            props
+                                                              .selectedPackagesList[0]
+                                                              .servicePackageID,
+                                                        ) ? (
+                                                          <span className="fa fa-times"></span>
+                                                        ) : !subService?.servicePackageIDs.includes(
+                                                            subService.packageThreeID,
+                                                          ) ? (
+                                                          <span className="fa fa-times"></span>
+                                                        ) : (
+                                                          ` ${props.formatValue(
+                                                            totalThree,
+                                                            props.currencyID,
+                                                          )}`
+                                                        )
+                                                      ) : Number(
+                                                          subService.packageThreeValue,
+                                                        ) !== null &&
+                                                        subService?.servicePackageIDs.includes(
+                                                          subService.packageThreeID,
+                                                        ) ? (
+                                                        <span className="fa fa-check"></span>
+                                                      ) : (
+                                                        <span className="fa fa-times"></span>
+                                                      )}
+                                                    </td>
+                                                  )}
 
                                                 {props.visibleFieldsCustomTemp
                                                   .serviceScope && (
@@ -16711,10 +17469,14 @@ const ReviewPackagesComponent = (props) => {
 
                                 {packageCount >= 2 && (
                                   <>
+                                    {props.vatPercentageOneOff !== 0 &&
+                                      props.visibleFieldsCustomTemp.vatRate && <th></th>}
                                     {props.vatPercentageOneOff ?
                                       props.visibleFieldsCustomTemp.vat && (
                                         <th></th>
                                       ):""}
+                                    {props.vatPercentageOneOff !== 0 &&
+                                      props.visibleFieldsCustomTemp.feesIncVat && <th></th>}
                                     {props.visibleFieldsCustomTemp
                                       .serviceScope && <th></th>}
                                     <td
@@ -16765,10 +17527,14 @@ const ReviewPackagesComponent = (props) => {
 
                                 {packageCount === 3 && (
                                   <>
+                                    {props.vatPercentageOneOff !== 0 &&
+                                      props.visibleFieldsCustomTemp.vatRate && <th></th>}
                                     {props.vatPercentageOneOff ?
                                       props.visibleFieldsCustomTemp.vat && (
                                         <th></th>
                                       ):""}
+                                    {props.vatPercentageOneOff !== 0 &&
+                                      props.visibleFieldsCustomTemp.feesIncVat && <th></th>}
                                     {props.visibleFieldsCustomTemp
                                       .serviceScope && <th></th>}
                                     <td
@@ -16845,7 +17611,8 @@ const ReviewPackagesComponent = (props) => {
                                     props.currencyID,
                                   )}
                             </td>
-                            {/* Net VAT */}
+                            {props.vatPercentageOneOff !== 0 &&
+                              props.visibleFieldsCustomTemp.vatRate && <td className="tr-table-class font-14 text-white"></td>}
                             {props.vatPercentageOneOff ?
                               props.visibleFieldsCustomTemp.vat && (
                                 <td className="tr-table-class font-14 text-white text-right">
@@ -16865,33 +17632,46 @@ const ReviewPackagesComponent = (props) => {
                                   )}
                                 </td>
                               ):""}
+                            {props.vatPercentageOneOff !== 0 &&
+                              props.visibleFieldsCustomTemp.feesIncVat && (
+                                <td className="tr-table-class font-14 text-white text-right">
+                                  {props.formatValue(
+                                    (Number.isNaN(Number(props.OneOffPricingInfo.PackageOneStaticVaTPrice)) ? 0 : Number(props.OneOffPricingInfo.PackageOneStaticVaTPrice)) +
+                                    totalOnePackageValueOneOff,
+                                    props.currencyID,
+                                  )}
+                                </td>
+                              )}
                             {props.visibleFieldsCustomTemp.serviceScope && (
                               <td></td>
                             )}
                             {packageCount >= 2 && (
                               <>
-                                <td className="tr-table-class font-14 text-white text-right">
-                                  {" "}
-                                  {totalTwoPackageValueOneOff <
-                                    Number(
-                                      props.OneOffPricingInfo
-                                        .packageTwoDisCountedTotal,
-                                    ) ||
-                                  (Number(
-                                    props.OneOffPricingInfo.packageTwoDisCount,
-                                  ) > 0 &&
-                                    !props.ProposalObject.DiscountLines)
-                                    ? props.formatValue(
+                                {props.visibleFieldsCustomTemp.fees && (
+                                  <td className="tr-table-class font-14 text-white text-right">
+                                    {" "}
+                                    {totalTwoPackageValueOneOff <
+                                      Number(
                                         props.OneOffPricingInfo
                                           .packageTwoDisCountedTotal,
-                                        props.currencyID,
-                                      )
-                                    : props.formatValue(
-                                        totalTwoPackageValueOneOff,
-                                        props.currencyID,
-                                      )}
-                                </td>
-                                {/* Net VAT */}
+                                      ) ||
+                                    (Number(
+                                      props.OneOffPricingInfo.packageTwoDisCount,
+                                    ) > 0 &&
+                                      !props.ProposalObject.DiscountLines)
+                                      ? props.formatValue(
+                                          props.OneOffPricingInfo
+                                            .packageTwoDisCountedTotal,
+                                          props.currencyID,
+                                        )
+                                      : props.formatValue(
+                                          totalTwoPackageValueOneOff,
+                                          props.currencyID,
+                                        )}
+                                  </td>
+                                )}
+                                {props.vatPercentageOneOff !== 0 &&
+                                  props.visibleFieldsCustomTemp.vatRate && <td className="tr-table-class font-14 text-white"></td>}
                                 {props.vatPercentageOneOff ?
                                   props.visibleFieldsCustomTemp.vat && (
                                     <td className="tr-table-class font-14 text-white text-right">
@@ -16910,18 +17690,17 @@ const ReviewPackagesComponent = (props) => {
                                         props.currencyID,
                                       )}
                                     </td>
-
-                                    // <td className="tr-table-class font-14 text-white text-right">
-                                    //   {" "}
-                                    //   {props.formatValue(
-                                    //     Number(
-                                    //       props.OneOffPricingInfo
-                                    //         .PackageTwoStaticVaTPrice,
-                                    //     ),
-                                    //     props.currencyID,
-                                    //   )}
-                                    // </td>
                                   ):""}
+                                {props.vatPercentageOneOff !== 0 &&
+                                  props.visibleFieldsCustomTemp.feesIncVat && (
+                                    <td className="tr-table-class font-14 text-white text-right">
+                                      {props.formatValue(
+                                        (Number.isNaN(Number(props.OneOffPricingInfo.PackageTwoStaticVaTPrice)) ? 0 : Number(props.OneOffPricingInfo.PackageTwoStaticVaTPrice)) +
+                                        totalTwoPackageValueOneOff,
+                                        props.currencyID,
+                                      )}
+                                    </td>
+                                  )}
                                 {props.visibleFieldsCustomTemp.serviceScope && (
                                   <td></td>
                                 )}
@@ -16929,29 +17708,32 @@ const ReviewPackagesComponent = (props) => {
                             )}{" "}
                             {packageCount === 3 && (
                               <>
-                                <td className="tr-table-class font-14 text-white text-right">
-                                  {" "}
-                                  {totalThreePackageValueOneOff <
-                                    Number(
-                                      props.OneOffPricingInfo
-                                        .packageThreeDisCountedTotal,
-                                    ) ||
-                                  (Number(
-                                    props.OneOffPricingInfo
-                                      .packageThreeDisCount,
-                                  ) > 0 &&
-                                    !props.ProposalObject.DiscountLines)
-                                    ? props.formatValue(
+                                {props.visibleFieldsCustomTemp.fees && (
+                                  <td className="tr-table-class font-14 text-white text-right">
+                                    {" "}
+                                    {totalThreePackageValueOneOff <
+                                      Number(
                                         props.OneOffPricingInfo
                                           .packageThreeDisCountedTotal,
-                                        props.currencyID,
-                                      )
-                                    : props.formatValue(
-                                        totalThreePackageValueOneOff,
-                                        props.currencyID,
-                                      )}
-                                </td>
-                                {/* Net VAT */}
+                                      ) ||
+                                    (Number(
+                                      props.OneOffPricingInfo
+                                        .packageThreeDisCount,
+                                    ) > 0 &&
+                                      !props.ProposalObject.DiscountLines)
+                                      ? props.formatValue(
+                                          props.OneOffPricingInfo
+                                            .packageThreeDisCountedTotal,
+                                          props.currencyID,
+                                        )
+                                      : props.formatValue(
+                                          totalThreePackageValueOneOff,
+                                          props.currencyID,
+                                        )}
+                                  </td>
+                                )}
+                                {props.vatPercentageOneOff !== 0 &&
+                                  props.visibleFieldsCustomTemp.vatRate && <td className="tr-table-class font-14 text-white"></td>}
                                 {props.vatPercentageOneOff ?
                                   props.visibleFieldsCustomTemp.vat && (
                                     <td className="tr-table-class font-14 text-white text-right">
@@ -16970,14 +17752,17 @@ const ReviewPackagesComponent = (props) => {
                                         props.currencyID,
                                       )}
                                     </td>
-                                    // <td className="tr-table-class font-14 text-white text-right">
-                                    //   {" "}
-                                    //   {Number(
-                                    //     props.OneOffPricingInfo
-                                    //       .PackageThreeStaticVaTPrice,
-                                    //   )}
-                                    // </td>
                                   ):""}
+                                {props.vatPercentageOneOff !== 0 &&
+                                  props.visibleFieldsCustomTemp.feesIncVat && (
+                                    <td className="tr-table-class font-14 text-white text-right">
+                                      {props.formatValue(
+                                        (Number.isNaN(Number(props.OneOffPricingInfo.PackageThreeStaticVaTPrice)) ? 0 : Number(props.OneOffPricingInfo.PackageThreeStaticVaTPrice)) +
+                                        totalThreePackageValueOneOff,
+                                        props.currencyID,
+                                      )}
+                                    </td>
+                                  )}
                                 {props.visibleFieldsCustomTemp.serviceScope && (
                                   <td></td>
                                 )}
@@ -16998,16 +17783,18 @@ const ReviewPackagesComponent = (props) => {
                                   <td className="tr-table-class font-14 text-white">
                                     Discount
                                   </td>
-                                  <td className="tr-table-class font-14 text-white text-right">
-                                    (-){" "}
-                                    {props.formatValue(
-                                      props.OneOffPricingInfo
-                                        .packageOneDisCount,
-                                      props.currencyID,
-                                    )}
-                                  </td>
-                                  {/* Discounted VAT */}
-
+                                  {props.visibleFieldsCustomTemp.fees && (
+                                    <td className="tr-table-class font-14 text-white text-right">
+                                      (-){" "}
+                                      {props.formatValue(
+                                        props.OneOffPricingInfo
+                                          .packageOneDisCount,
+                                        props.currencyID,
+                                      )}
+                                    </td>
+                                  )}
+                                  {props.vatPercentageOneOff !== 0 &&
+                                    props.visibleFieldsCustomTemp.vatRate && <td className="tr-table-class font-14 text-white"></td>}
                                   {props.vatPercentageOneOff ?
                                     props.visibleFieldsCustomTemp.vat && (
                                       <td className="tr-table-class font-14 text-white text-right">
@@ -17025,21 +17812,25 @@ const ReviewPackagesComponent = (props) => {
                                         )}
                                       </td>
                                     ):""}
+                                  {props.vatPercentageOneOff !== 0 &&
+                                    props.visibleFieldsCustomTemp.feesIncVat && <td className="tr-table-class font-14 text-white"></td>}
                                   {props.visibleFieldsCustomTemp
                                     .serviceScope && <td></td>}
 
-                                  {/* <td className="tr-table-class font-14 text-white text-right"></td> */}
                                   {packageCount >= 2 && (
                                     <>
-                                      <td className="tr-table-class font-14 text-white text-right">
-                                        (-){" "}
-                                        {props.formatValue(
-                                          props.OneOffPricingInfo
-                                            .packageTwoDisCount,
-                                          props.currencyID,
-                                        )}
-                                      </td>
-                                      {/* Discounted VAT */}
+                                      {props.visibleFieldsCustomTemp.fees && (
+                                        <td className="tr-table-class font-14 text-white text-right">
+                                          (-){" "}
+                                          {props.formatValue(
+                                            props.OneOffPricingInfo
+                                              .packageTwoDisCount,
+                                            props.currencyID,
+                                          )}
+                                        </td>
+                                      )}
+                                      {props.vatPercentageOneOff !== 0 &&
+                                        props.visibleFieldsCustomTemp.vatRate && <td className="tr-table-class font-14 text-white"></td>}
                                       {props.vatPercentageOneOff ?
                                         props.visibleFieldsCustomTemp.vat && (
                                           <td className="tr-table-class font-14 text-white text-right">
@@ -17057,21 +17848,26 @@ const ReviewPackagesComponent = (props) => {
                                             )}
                                           </td>
                                         ):""}
+                                      {props.vatPercentageOneOff !== 0 &&
+                                        props.visibleFieldsCustomTemp.feesIncVat && <td className="tr-table-class font-14 text-white"></td>}
                                       {props.visibleFieldsCustomTemp
                                         .serviceScope && <td></td>}
                                     </>
                                   )}
                                   {packageCount === 3 && (
                                     <>
-                                      <td className="tr-table-class font-14 text-white text-right">
-                                        (-){" "}
-                                        {props.formatValue(
-                                          props.OneOffPricingInfo
-                                            .packageThreeDisCount,
-                                          props.currencyID,
-                                        )}
-                                      </td>
-
+                                      {props.visibleFieldsCustomTemp.fees && (
+                                        <td className="tr-table-class font-14 text-white text-right">
+                                          (-){" "}
+                                          {props.formatValue(
+                                            props.OneOffPricingInfo
+                                              .packageThreeDisCount,
+                                            props.currencyID,
+                                          )}
+                                        </td>
+                                      )}
+                                      {props.vatPercentageOneOff !== 0 &&
+                                        props.visibleFieldsCustomTemp.vatRate && <td className="tr-table-class font-14 text-white"></td>}
                                       {props.vatPercentageOneOff ?
                                         props.visibleFieldsCustomTemp.vat && (
                                           <td className="tr-table-class font-14 text-white text-right">
@@ -17089,6 +17885,8 @@ const ReviewPackagesComponent = (props) => {
                                             )}
                                           </td>
                                         ):""}
+                                      {props.vatPercentageOneOff !== 0 &&
+                                        props.visibleFieldsCustomTemp.feesIncVat && <td className="tr-table-class font-14 text-white"></td>}
                                       {props.visibleFieldsCustomTemp
                                         .serviceScope && <td></td>}
                                     </>
@@ -17099,54 +17897,20 @@ const ReviewPackagesComponent = (props) => {
                                   props.vatPercentageOneOff ? (
                                 <tr className="head-row">
                                   <td className="tr-table-class font-14 text-white">
-                                    {/* Fees inc VAT (£) */}
                                     Grand Total
                                   </td>
-                                  <td className="tr-table-class font-14 text-white text-right">
-                                    {" "}
-                                    {props.formatValue(
-                                      props.OneOffPricingInfo
-                                        .PackageOneGrandTotal,
-                                    )}
-                                  </td>
-                                  {/* <td className="tr-table-class font-14 text-white text-right">
-                                    {" "}
-                                    {totalOnePackageValue >
-                                      Number(
-                                        props.OneOffPricingInfo
-                                          .packageOneNetTotal,
-                                      ) ||
-                                    (Number(
-                                      props.OneOffPricingInfo
-                                        .packageOneDisCount,
-                                    ) > 0 &&
-                                      !props.ProposalObject.DiscountLines)
-                                      ? Number(
-                                          props.OneOffPricingInfo
-                                            .packageOneDisCount,
-                                        ) > 0 &&
-                                        !props.ProposalObject.DiscountLines
-                                        ? props.formatValue(
-                                            props.OneOffPricingInfo
-                                              .packageOneDisCountedTotal -
-                                              props.OneOffPricingInfo
-                                                .packageOneDisCount,
-                                            props.currencyID,
-                                          )
-                                        : props.formatValue(
-                                            totalOnePackageValue -
-                                              props.OneOffPricingInfo
-                                                .packageOneDisCount,
-                                            props.currencyID,
-                                          )
-                                      : props.formatValue(
-                                          props.OneOffPricingInfo
-                                            .packageOneNetTotal -
-                                            props.OneOffPricingInfo
-                                              .packageOneDisCount,
-                                          props.currencyID,
-                                        )}
-                                  </td> */}
+                                  {props.visibleFieldsCustomTemp.fees && (
+                                    <td className="tr-table-class font-14 text-white text-right">
+                                      {" "}
+                                      {props.formatValue(
+                                        Number(props.OneOffPricingInfo.PackageOneGrandTotal || 0) -
+                                          Number(props.OneOffPricingInfo.PackageOneVaTPrice || 0),
+                                        props.currencyID,
+                                      )}
+                                    </td>
+                                  )}
+                                  {props.vatPercentageOneOff !== 0 &&
+                                    props.visibleFieldsCustomTemp.vatRate && <td className="tr-table-class font-14 text-white"></td>}
                                   {props.vatPercentageOneOff ?
                                     props.visibleFieldsCustomTemp.vat && (
                                       <td className="tr-table-class font-14 text-white text-right">
@@ -17159,18 +17923,31 @@ const ReviewPackagesComponent = (props) => {
                                         )}
                                       </td>
                                     ):""}
+                                  {props.vatPercentageOneOff !== 0 &&
+                                    props.visibleFieldsCustomTemp.feesIncVat && (
+                                      <td className="tr-table-class font-14 text-white text-right">
+                                        {props.formatValue(
+                                          Number(props.OneOffPricingInfo.PackageOneGrandTotal || 0),
+                                          props.currencyID,
+                                        )}
+                                      </td>
+                                    )}
                                   {props.visibleFieldsCustomTemp
                                     .serviceScope && <td></td>}
                                   {packageCount >= 2 && (
                                     <>
-                                      <td className="tr-table-class font-14 text-white text-right">
-                                        {" "}
-                                        {props.formatValue(
-                                          props.OneOffPricingInfo
-                                            .PackageTwoGrandTotal,
-                                          props.currencyID,
-                                        )}
-                                      </td>
+                                      {props.visibleFieldsCustomTemp.fees && (
+                                        <td className="tr-table-class font-14 text-white text-right">
+                                          {" "}
+                                          {props.formatValue(
+                                            Number(props.OneOffPricingInfo.PackageTwoGrandTotal || 0) -
+                                              Number(props.OneOffPricingInfo.PackageTwoVaTPrice || 0),
+                                            props.currencyID,
+                                          )}
+                                        </td>
+                                      )}
+                                      {props.vatPercentageOneOff !== 0 &&
+                                        props.visibleFieldsCustomTemp.vatRate && <td className="tr-table-class font-14 text-white"></td>}
                                       {props.vatPercentageOneOff ?
                                         props.visibleFieldsCustomTemp.vat && (
                                           <td className="tr-table-class font-14 text-white text-right">
@@ -17183,20 +17960,33 @@ const ReviewPackagesComponent = (props) => {
                                             )}
                                           </td>
                                         ):""}
+                                      {props.vatPercentageOneOff !== 0 &&
+                                        props.visibleFieldsCustomTemp.feesIncVat && (
+                                          <td className="tr-table-class font-14 text-white text-right">
+                                            {props.formatValue(
+                                              Number(props.OneOffPricingInfo.PackageTwoGrandTotal || 0),
+                                              props.currencyID,
+                                            )}
+                                          </td>
+                                        )}
                                       {props.visibleFieldsCustomTemp
                                         .serviceScope && <td></td>}
                                     </>
                                   )}
                                   {packageCount == 3 && (
                                     <>
-                                      <td className="tr-table-class font-14 text-white text-right">
-                                        {" "}
-                                        {props.formatValue(
-                                          props.OneOffPricingInfo
-                                            .PackageThreeGrandTotal,
-                                          props.currencyID,
-                                        )}
-                                      </td>
+                                      {props.visibleFieldsCustomTemp.fees && (
+                                        <td className="tr-table-class font-14 text-white text-right">
+                                          {" "}
+                                          {props.formatValue(
+                                            Number(props.OneOffPricingInfo.PackageThreeGrandTotal || 0) -
+                                              Number(props.OneOffPricingInfo.PackageThreeVaTPrice || 0),
+                                            props.currencyID,
+                                          )}
+                                        </td>
+                                      )}
+                                      {props.vatPercentageOneOff !== 0 &&
+                                        props.visibleFieldsCustomTemp.vatRate && <td className="tr-table-class font-14 text-white"></td>}
                                       {props.vatPercentageOneOff ?
                                         props.visibleFieldsCustomTemp.vat && (
                                           <td className="tr-table-class font-14 text-white text-right">
@@ -17209,6 +17999,15 @@ const ReviewPackagesComponent = (props) => {
                                             )}
                                           </td>
                                         ):""}
+                                      {props.vatPercentageOneOff !== 0 &&
+                                        props.visibleFieldsCustomTemp.feesIncVat && (
+                                          <td className="tr-table-class font-14 text-white text-right">
+                                            {props.formatValue(
+                                              Number(props.OneOffPricingInfo.PackageThreeGrandTotal || 0),
+                                              props.currencyID,
+                                            )}
+                                          </td>
+                                        )}
                                       {props.visibleFieldsCustomTemp
                                         .serviceScope && <td></td>}
                                     </>
@@ -17264,6 +18063,108 @@ const ReviewPackagesComponent = (props) => {
                                
                               </>
                             )}
+
+                          {props.vatPercentageOneOff !== 0 && !(
+                            (Number(props.OneOffPricingInfo.packageThreeDisCount) > 0 ||
+                             Number(props.OneOffPricingInfo.packageOneDisCount) > 0 ||
+                             Number(props.OneOffPricingInfo.packageTwoDisCount) > 0) &&
+                            props.ProposalObject.DiscountLines
+                          ) && (
+                            <tr className="head-row">
+                              <td className="tr-table-class font-14 text-white">
+                                Grand Total
+                              </td>
+                              {props.visibleFieldsCustomTemp.fees && (
+                                <td className="tr-table-class font-14 text-white text-right">
+                                  {props.formatValue(
+                                    totalOnePackageValueOneOff,
+                                    props.currencyID,
+                                  )}
+                                </td>
+                              )}
+                              {props.visibleFieldsCustomTemp.vatRate && <td className="tr-table-class font-14 text-white"></td>}
+                              {props.visibleFieldsCustomTemp.vat && (
+                                <td className="tr-table-class font-14 text-white text-right">
+                                  {props.formatValue(
+                                    Number.isNaN(Number(props.OneOffPricingInfo.PackageOneStaticVaTPrice)) ? 0 : Number(props.OneOffPricingInfo.PackageOneStaticVaTPrice),
+                                    props.currencyID,
+                                  )}
+                                </td>
+                              )}
+                              {props.visibleFieldsCustomTemp.feesIncVat && (
+                                <td className="tr-table-class font-14 text-white text-right">
+                                  {props.formatValue(
+                                    (Number.isNaN(Number(props.OneOffPricingInfo.PackageOneStaticVaTPrice)) ? 0 : Number(props.OneOffPricingInfo.PackageOneStaticVaTPrice)) +
+                                    totalOnePackageValueOneOff,
+                                    props.currencyID,
+                                  )}
+                                </td>
+                              )}
+                              {props.visibleFieldsCustomTemp.serviceScope && <td></td>}
+                              {packageCount >= 2 && (
+                                <>
+                                  {props.visibleFieldsCustomTemp.fees && (
+                                    <td className="tr-table-class font-14 text-white text-right">
+                                      {props.formatValue(
+                                        totalTwoPackageValueOneOff,
+                                        props.currencyID,
+                                      )}
+                                    </td>
+                                  )}
+                                  {props.visibleFieldsCustomTemp.vatRate && <td className="tr-table-class font-14 text-white"></td>}
+                                  {props.visibleFieldsCustomTemp.vat && (
+                                    <td className="tr-table-class font-14 text-white text-right">
+                                      {props.formatValue(
+                                        Number.isNaN(Number(props.OneOffPricingInfo.PackageTwoStaticVaTPrice)) ? 0 : Number(props.OneOffPricingInfo.PackageTwoStaticVaTPrice),
+                                        props.currencyID,
+                                      )}
+                                    </td>
+                                  )}
+                                  {props.visibleFieldsCustomTemp.feesIncVat && (
+                                    <td className="tr-table-class font-14 text-white text-right">
+                                      {props.formatValue(
+                                        (Number.isNaN(Number(props.OneOffPricingInfo.PackageTwoStaticVaTPrice)) ? 0 : Number(props.OneOffPricingInfo.PackageTwoStaticVaTPrice)) +
+                                        totalTwoPackageValueOneOff,
+                                        props.currencyID,
+                                      )}
+                                    </td>
+                                  )}
+                                  {props.visibleFieldsCustomTemp.serviceScope && <td></td>}
+                                </>
+                              )}
+                              {packageCount === 3 && (
+                                <>
+                                  {props.visibleFieldsCustomTemp.fees && (
+                                    <td className="tr-table-class font-14 text-white text-right">
+                                      {props.formatValue(
+                                        totalThreePackageValueOneOff,
+                                        props.currencyID,
+                                      )}
+                                    </td>
+                                  )}
+                                  {props.visibleFieldsCustomTemp.vatRate && <td className="tr-table-class font-14 text-white"></td>}
+                                  {props.visibleFieldsCustomTemp.vat && (
+                                    <td className="tr-table-class font-14 text-white text-right">
+                                      {props.formatValue(
+                                        Number.isNaN(Number(props.OneOffPricingInfo.PackageThreeStaticVaTPrice)) ? 0 : Number(props.OneOffPricingInfo.PackageThreeStaticVaTPrice),
+                                        props.currencyID,
+                                      )}
+                                    </td>
+                                  )}
+                                  {props.visibleFieldsCustomTemp.feesIncVat && (
+                                    <td className="tr-table-class font-14 text-white text-right">
+                                      {props.formatValue(
+                                        (Number.isNaN(Number(props.OneOffPricingInfo.PackageThreeStaticVaTPrice)) ? 0 : Number(props.OneOffPricingInfo.PackageThreeStaticVaTPrice)) +
+                                        totalThreePackageValueOneOff,
+                                        props.currencyID,
+                                      )}
+                                    </td>
+                                  )}
+                                  {props.visibleFieldsCustomTemp.serviceScope && <td></td>}
+                                </>
+                              )}
+                            </tr>
+                          )}
                         </table>
                       </div>
                     ) : (
@@ -22562,6 +23463,7 @@ const Add_Update_Proposal = (props) => {
   const GetProposalEngLetterTemplateLookUpList = async (
     clientID,
     templateID,
+    existingPricingTableColumnIDs,
   ) => {
     setLoader(true);
 
@@ -22651,6 +23553,14 @@ const Add_Update_Proposal = (props) => {
           );
           // Use filteredRecords to construct defaultTemplateObject if available
           if (filteredRecords.length > 0) {
+            const resolvedPricingTableColumnIDs =
+              typeof existingPricingTableColumnIDs === "string" &&
+              existingPricingTableColumnIDs.trim() !== ""
+                ? existingPricingTableColumnIDs
+                : filteredRecords[0]?.pricingTableColumnIDs
+                  ? filteredRecords[0]?.pricingTableColumnIDs
+                  : "";
+
             defaultTemplateObject = {
               selectTemplateTypeId: filteredRecords[0]?.value,
               templateID: filteredRecords[0].templateID,
@@ -22664,17 +23574,13 @@ const Add_Update_Proposal = (props) => {
               showSeparatorLine: filteredRecords[0].showSeparatorLine,
               watermarkImage: filteredRecords[0]?.watermarkImage,
               orientationID: filteredRecords[0]?.orientationID,
-              pricingTableColumnIDs: filteredRecords[0]?.pricingTableColumnIDs
-                ? filteredRecords[0]?.pricingTableColumnIDs
-                : "",
+              pricingTableColumnIDs: resolvedPricingTableColumnIDs,
             };
 
-            if (filteredRecords[0]?.pricingTableColumnIDs !== null) {
+            if (resolvedPricingTableColumnIDs !== null) {
               setSelectedTemplateID(6);
               setSelectedTemplateIDOneOff(6);
-              updateVisibleFieldsFromIds(
-                filteredRecords[0]?.pricingTableColumnIDs,
-              );
+              updateVisibleFieldsFromIds(resolvedPricingTableColumnIDs);
               setServiceDescriptionObj((prev) => ({
                 ...prev,
                 mainHeading: filteredRecords[0]?.mainHeadingSD,
@@ -22743,12 +23649,18 @@ const Add_Update_Proposal = (props) => {
             defaultTemplateOptions = mappedOptions.filter(
               (option) => option.isDefault === true,
             );
-            if (defaultTemplateOptions.pricingTableColumnIDs !== null) {
+            const resolvedPricingTableColumnIDs =
+              typeof existingPricingTableColumnIDs === "string" &&
+              existingPricingTableColumnIDs.trim() !== ""
+                ? existingPricingTableColumnIDs
+                : defaultTemplateOptions?.[0]?.pricingTableColumnIDs
+                  ? defaultTemplateOptions[0].pricingTableColumnIDs
+                  : "";
+
+            if (resolvedPricingTableColumnIDs !== null) {
               setSelectedTemplateID(6);
               setSelectedTemplateIDOneOff(6);
-              updateVisibleFieldsFromIds(
-                defaultTemplateOptions[0].pricingTableColumnIDs,
-              );
+              updateVisibleFieldsFromIds(resolvedPricingTableColumnIDs);
               setServiceDescriptionObj((prev) => ({
                 ...prev,
                 mainHeading: defaultTemplateOptions[0]?.mainHeadingSD,
@@ -22815,9 +23727,7 @@ const Add_Update_Proposal = (props) => {
             setWatermarkImage(defaultTemplateOptions[0]?.watermarkImage);
             setOrientationID(defaultTemplateOptions[0]?.orientationID);
             setPricingTableColumnIDs(
-              defaultTemplateOptions[0]?.pricingTableColumnIDs
-                ? defaultTemplateOptions[0]?.pricingTableColumnIDs
-                : "",
+              resolvedPricingTableColumnIDs ? resolvedPricingTableColumnIDs : "",
             );
           }
         } else {
@@ -23404,9 +24314,24 @@ const Add_Update_Proposal = (props) => {
                 ? true
                 : ModelData?.showDiscountLine,
           }));
+
+          // Restore "Customize your template" selection on draft reopen.
+          // Draft saves persist `pricingTableColumnIDs`; use it to re-hydrate
+          // the custom table state instead of falling back to template defaults.
+          if (
+            typeof ModelData?.pricingTableColumnIDs === "string" &&
+            ModelData.pricingTableColumnIDs.trim() !== ""
+          ) {
+            setPricingTableColumnIDs(ModelData.pricingTableColumnIDs);
+            updateVisibleFieldsFromIds(ModelData.pricingTableColumnIDs);
+          } else {
+            setPricingTableColumnIDs("");
+          }
+
           GetProposalEngLetterTemplateLookUpList(
             ModelData.clientID,
             ModelData.templateID,
+            ModelData.pricingTableColumnIDs,
           );
           setAdditionalInformationList(
             ...additionalInformationList,
@@ -24517,6 +25442,7 @@ const Add_Update_Proposal = (props) => {
     console.log(ApiRequest_ParamsObj, "ApiRequest_ParamsObj");
 
     setLoader(true);
+    console.log("API REQUEST PARAMAS OBJ 123", ApiRequest_ParamsObj)
 
     if (
       ProposalObject.ProposalFormate === 1 &&
@@ -24628,7 +25554,8 @@ const Add_Update_Proposal = (props) => {
       }
     }
 
-    // debugger;
+    debugger;
+    console.log("params ->", params)
 
     try {
       const URL = "/AddUpdateQuote";
