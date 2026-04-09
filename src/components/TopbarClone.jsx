@@ -645,20 +645,29 @@ const TopbarClone = () => {
     setIsSettingDropdownOpen(true);
   };
 
+
   const toggleSettingList = () => {
     const list = document.getElementById("Setting");
 
-    if (list.style.display !== "block") {
+    const isOpen = list.style.display === "block";
+    if (!isOpen) {
       list.style.display = "block";
-      setTimeout(() => {
-        list.scrollIntoView({
-          behavior: "smooth",
-          block: "end",
-        });
-      }, 100);
+      list.scrollIntoView({ behavior: "smooth", block: "start" });
     } else {
       list.style.display = "none";
     }
+
+    // if (list.style.display !== "block") {
+    //   list.style.display = "block";
+    //   setTimeout(() => {
+    //     list.scrollIntoView({
+    //       behavior: "smooth",
+    //       block: "end",
+    //     });
+    //   }, 100);
+    // } else {
+    //   list.style.display = "none";
+    // }
   };
 
   //show  function for setting sub list
@@ -2109,7 +2118,7 @@ const TopbarClone = () => {
                             </span>
                           </a>
                           <div
-                            class="collapse menu-dropdown menu_dropdown Responsive-Config-service-package"
+                            className="menu-dropdown menu_dropdown Responsive-Config-service-package"
                             id="Setting"
                             style={{
                               ...style,
