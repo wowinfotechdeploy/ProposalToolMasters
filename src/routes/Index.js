@@ -34,6 +34,7 @@ import Login from "../Auth/login/Login";
 // import SuperAdminMarketingReminderList from "../pages/Settings/SuperAdminReminder/SuperAdminMarketingReminder/SuperAdminMarketingReminderList";
 // import SuperAdminMarketingReminderAddUpdate from "../pages/Settings/SuperAdminReminder/SuperAdminMarketingReminder/SuperAdminMarketingReminderAddUpdate";
 import { GoogleOAuthProvider } from "@react-oauth/google";
+import ChatWidget from "../components/Ai/ChatWidget";
 
 // ------------------------------------Pages with loader--------------------------------------------
 export const Topbar = Loadable(lazy(() => import("../components/Topbar")));
@@ -1374,6 +1375,7 @@ function Index() {
                         </Routes>
                       </div>
                       <AppContent />
+                      <ChatWidget />
                     </div>
                   </ColorProvider>
                 )}
