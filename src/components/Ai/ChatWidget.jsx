@@ -1,7 +1,16 @@
 import { useState } from "react";
 import ChatWindow from "./ChatWindow";
+import { useSelector } from "react-redux";
+
 const ChatWidget = () => {
     const [open, setOpen] = useState(false);
+    const organisationKeyID = useSelector(
+        (state) => state.Storage.organisationKeyID
+    );
+
+    const token = useSelector(
+        (state) => state.Storage.token
+    );
 
     return (
         <>
@@ -17,7 +26,7 @@ const ChatWidget = () => {
             {open &&
 
                 <div className="ai-root">
-                    <ChatWindow />
+                    <ChatWindow key={organisationKeyID} organisationKeyID={organisationKeyID} token={token} />
                 </div>
             }
         </>

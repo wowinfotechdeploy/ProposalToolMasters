@@ -6,13 +6,6 @@ import remarkGfm from 'remark-gfm';
 import UserInputsUI from "./components/UserInputsUI";
 
 
-const AUTHORIZATION_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImFmNzM1YzlhLWJiMDUtNDgxYS04NjZmLTRiY2MxYTMyNWE0MSIsIk9yZ2FuaXNhdGlvbklEcyI6IjZCODk3QUI1LTM3MzItNDMwOC1BREQ1LTUyOUJFNUJBODg4QywgNjlBRkM2OEMtMEE0Ny00QzRDLTlDRjUtQTg5NzgyRUVEQzYyLCA4QTJFMUQ4Mi01Q0IwLTRFNzctQjExMS1BOEQ3NDg3NjdFQTgsIEM0NjU3NkY4LUVEOTgtNDhGMC04NjRDLTc2QkREQ0QyMkI5RCwgRUZERDQyMEUtMkRDOS00MDU5LTg2NjgtNUQxODk5QjFEMkE3LCA0OUMxRURFQy00OTQ2LTQ3MEEtQThGQS1CNjQ0MERCMzhDMjEsIDA4MTBGNzNGLTEyQkUtNEYyOS05NjQzLTk3REI3NjNBRDJBRiwgRjVFNkNFRDEtMTNERS00Mzk1LUIxQjctQzAyMDI5M0QwODEzLCAwMjE3MzQ1MC0xNTRCLTRCOTYtOTVGNS0zRkY5RTAzNkZFNDEiLCJuYmYiOjE3NzU2MzUzNjYsImV4cCI6MTc3NjI0MDE2NiwiaWF0IjoxNzc1NjM1MzY2fQ.dRNEeoUiG0QssbS4d5AebfoftoslVTx14bq-LXeqLXU';
-const ACTIVE_ORGANISATION_KEY_ID = 'DF60769B-3C20-4ED6-A77B-FC0D6ABA0EAE'
-
-const CHAT_API_URL = `https://aiagent-v2.caelum.ai/api/chat?organisation_key_id=${ACTIVE_ORGANISATION_KEY_ID}`;
-const TRANSCRIBE_API_ENDPOINT = `https://aiagent-v2.caelum.ai/api/transcribe?organisation_key_id=${ACTIVE_ORGANISATION_KEY_ID}`;
-
-
 const TOOL_MESSAGES = {
     searchCompanyDetails: 'Searching Company...',
     getCompanyDetailsAndOfficers: 'Retrieving Company Details...',
@@ -92,7 +85,13 @@ const ShimmerText = memo(({ children }) => (
 
 ShimmerText.displayName = 'ShimmerText';
 
-export default function ChatWindow() {
+export default function ChatWindow({ organisationKeyID, token }) {
+    console.log("organisationKeyID ==>>")
+
+    const CHAT_API_URL = `https://aiagent-v2.caelum.ai/api/chat?organisation_key_id=${organisationKeyID}`;
+    const TRANSCRIBE_API_ENDPOINT = `https://aiagent-v2.caelum.ai/api/transcribe?organisation_key_id=${organisationKeyID}`;
+
+
     const {
         messages,
         sendMessage,
@@ -104,10 +103,11 @@ export default function ChatWindow() {
             api: CHAT_API_URL,
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${AUTHORIZATION_TOKEN}`,
+                'Authorization': `Bearer ${token}`,
             },
         }),
     });
+
 
     const [input, setInput] = useState('');
     const [isProspectSelectionActive, setIsProspectSelectionActive] = useState(false);
@@ -343,7 +343,7 @@ export default function ChatWindow() {
             const response = await fetch(TRANSCRIBE_API_ENDPOINT, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${AUTHORIZATION_TOKEN}`,
+                    'Authorization': `Bearer ${token}`,
                 },
                 body: formData,
             });
