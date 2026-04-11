@@ -20,23 +20,51 @@ export const fetchQuickBookConnectionUrl = createAsyncThunk(
 
 export const fetchContactsLookup = createAsyncThunk(
   "xero/fetchContactsLookup",
-  async (organisationKeyID, thunkAPI) => {
+  async ({ organisationKeyID, activePlatform }, thunkAPI) => {
     try {
-      const res = await apiClient.get(
-        `${XeroBaseUrl}contacts/${organisationKeyID}`,
-        {}
-      );
+      const baseUrl =
+        activePlatform === "QuickBooks"
+          ? `${QuickBookUrl}customers/${organisationKeyID}`
+          : `${XeroBaseUrl}contacts/${organisationKeyID}`;
 
-      // Transform data HERE (not in component)
-      const mappings = res.data?.contacts || [];
+      const res = await apiClient.get(`${baseUrl}`, {});
 
-      const formatted = mappings.map((item) => ({
-        value: item.XeroContactID,
-        label: item.ContactName,
-        ClientKeyID: item.ClientKeyID,
-      }));
+      // // Transform data HERE (not in component)
+      // const mappings = res.data?.contacts || [];
 
-      return formatted; // final usable data
+      // const formatted = mappings.map((item) => ({
+      //   value: item.XeroContactID,
+      //   label: item.ContactName,
+      //   ClientKeyID: item.ClientKeyID,
+      // }));
+
+      // return formatted; // final usable data
+
+      const result = [];
+
+      if (activePlatform === "QuickBooks") {
+        const customers = res.data?.customers || [];
+
+        customers.forEach((item) => {
+          result.push({
+            value: item.QBCustomerID,
+            label: item.DisplayName,
+            ClientKeyID: item.ClientKeyID,
+          });
+        });
+      } else {
+        const contacts = res.data?.contacts || [];
+
+        contacts.forEach((item) => {
+          result.push({
+            value: item.XeroContactID,
+            label: item.ContactName,
+            ClientKeyID: item.ClientKeyID,
+          });
+        });
+      }
+
+      return result;
     } catch (err) {
       return thunkAPI.rejectWithValue(err.response?.data);
     }
@@ -73,12 +101,15 @@ export const GetAllDrivers = createAsyncThunk(
 export const addContactMapping = createAsyncThunk(
   "contact/addContactMapping",
   async (payload, thunkAPI) => {
-    const { organisationKeyId, ...body } = payload;
+    const { organisationKeyId, activePlatform, ...body } = payload;
+
+    const baseUrl =
+      activePlatform === "QuickBooks"
+        ? `${QuickBookUrl}mappings/${organisationKeyId}`
+        : `${XeroBaseUrl}mappings/${organisationKeyId}`;
+
     try {
-      const response = await apiClient.post(
-        `${XeroBaseUrl}mappings/${organisationKeyId}`,
-        body
-      );
+      const response = await apiClient.post(baseUrl, body);
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response?.data || "Error");

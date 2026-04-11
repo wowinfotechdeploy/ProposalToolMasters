@@ -32,16 +32,17 @@ import { addContactMapping, fetchContactsLookup } from "../../redux/reducer/quic
 
 const Prospects = () => {
   const lastClickRef = useRef(0);
+  const navigate = useNavigate();
   const dispatch = useDispatch()
   let getClientsListApiCallCount = 0;
-  //const raw = JSON.parse(localStorage.getItem("persist:Proposal Tool"));
-  // const organisationKeyID = JSON.parse(raw.organisationKeyID);
+  const common = useSelector((state) => state.Storage);
   const organisationKeyID = useSelector((state) => state.Storage)?.organisationKeyID;
-
   const status = useSelector((state) => state.auth.bookkeeping);
+
   const activePlatform = Object.keys(status || {}).find(
     (key) => status[key]
   );
+
   const contactsLookup = useSelector((state) => state.quickBook.contactsLookup);
   const bookkeeping = useSelector((state) => state.auth.bookkeeping);
 
@@ -49,8 +50,6 @@ const Prospects = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [openErrorModal, setOpenErrorModal] = React.useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const navigate = useNavigate();
-  const common = useSelector((state) => state.Storage);
   const [clientList, setClientList] = useState([]);
   const [singleclientList, setSingleClientList] = useState([]);
   const [isAddUpdateActionDone, setIsAddUpdateActionDone] = useState(false);
@@ -111,13 +110,12 @@ const Prospects = () => {
   const [contactsLookupList, setContactsLookupList] = useState([]);
   const [contactDetails, setContactDetails] = useState()
   const [openIntegrationDialog, setOpenIntegrationDialog] = useState(false);
-
-
+  //=====================useEffects==============================
   useEffect(() => {
     setTopbar("block");
     getClientsListData(1, null, null, null);
     getClientsListSingleApiData(1, null, null, null);
-    GetAllClientList();
+    dispatch(fetchContactsLookup({ organisationKeyID, activePlatform }))
 
   }, []);
 
@@ -175,26 +173,7 @@ const Prospects = () => {
 
 
 
-  const GetAllClientList = async () => {
 
-    dispatch(fetchContactsLookup(organisationKeyID))
-    // try {
-    //   const data = await GetAllCachedXeroContacts(organisationKeyID);
-    //   if (data?.status === 200) {
-    //     let ContactLookupListData = data?.data?.mappings;
-    //     ContactLookupListData = ContactLookupListData.map((key) => ({
-    //       value: key.xeroContactId,
-    //       label: key.contactName,
-    //       clientKeyId: key.clientKeyId
-    //     }));
-
-    //     setContactsLookupList(ContactLookupListData);
-    //   }
-
-    // } catch (error) {
-    //   console.log(error);
-    // }
-  };
 
   const handleView = (item) => {
 
@@ -454,14 +433,14 @@ const Prospects = () => {
 
       try {
         setAuthLoadingRow(modelRequestData.clientKeyID);
-        const res = await ProspectConnectionAuthentication(organisationKeyID, modelRequestData.clientKeyID);
+        const res = await ProspectConnectionAuthentication(organisationKeyID, modelRequestData.clientKeyID, activePlatform);
 
         if (res?.status === 200) {
           const url = res.data.connectionUrl;
           window.open(url, "_blank", "noopener,noreferrer");
           setOpenSuccessModal(true);
         } else {
-          debugger
+
           console.log("res", res);
           setOpenErrorModal(true)
           setErrorMessage(res.response.data.message)
@@ -485,11 +464,12 @@ const Prospects = () => {
 
       try {
         setAuthLoadingRow(modelRequestData.clientKeyID);
-        const res = await CreateXeroContactFromOutbooks({ clientKeyId: modelRequestData.clientKeyID }, organisationKeyID,);
+        const res = await CreateXeroContactFromOutbooks({ clientKeyId: modelRequestData.clientKeyID }, organisationKeyID, activePlatform);
 
         if (res?.status === 200) {
           // const url = res.data.connectionUrl;
           // window.open(url, "_blank", "noopener,noreferrer");
+          debugger
           setOpenSuccessModal(true);
         } else {
 
@@ -506,12 +486,21 @@ const Prospects = () => {
       }
 
     } else if (modelRequestData.Action === "Add Contact Mapping") {
-      dispatch(addContactMapping({
+      debugger
+      const payload = activePlatform == 'Xero' ? {
         xeroContactId: contactDetails?.value || null,
         clientId: modelRequestData?.clientID || null,
         // userId: 
-        organisationKeyId: organisationKeyID
-      }))
+        organisationKeyId: organisationKeyID,
+        activePlatform
+      } : {
+        qbCustomerId: contactDetails?.value || null,
+        clientId: modelRequestData?.clientID || null,
+        //userId: 1
+        organisationKeyId: organisationKeyID,
+        activePlatform
+      }
+      dispatch(addContactMapping({ ...payload }))
         .unwrap()
         .then((res) => {
           setOpenSuccessModal(true);
@@ -1678,7 +1667,7 @@ const Prospects = () => {
                                                       >
                                                         <span className="d-flex">
                                                           <i className="ri-links-line me-2"></i>
-                                                          Map  Contact & Client  {/* mappings/{organisationKeyId} */}
+                                                          Map Contact & Client  {/* mappings/{organisationKeyId} */}
                                                         </span>
                                                       </a>
                                                     </li>
