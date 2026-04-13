@@ -1,20 +1,31 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { XeroBaseUrl } from "../../Base-Url/Base_Url";
+import { QuickBookUrl, XeroBaseUrl } from "../../Base-Url/Base_Url";
 import apiClient from "../Services/axiosInterceptor"; //interceptor for handling unauthorised error with logout navigation
+import { getActivePlatform, PLATFORMS } from "../../lib/utils";
 
 export const CreateEngagementInvoice = createAsyncThunk(
   "engagement/createEngagementInvoice",
   async ({ organisationKeyID, contractKeyId }, thunkAPI) => {
     try {
-      //post method with query param and reqest json
-      const res = await apiClient.post(
-        `${XeroBaseUrl}invoices/create-from-contract/${organisationKeyID}`,
-        { contractKeyId }
-      );
+      debugger;
+      const activePlatform = getActivePlatform();
 
+      const baseUrl =
+        activePlatform === PLATFORMS.QUICKBOOKS
+          ? `${QuickBookUrl}invoices/create-from-contract/${organisationKeyID}`
+          : `${XeroBaseUrl}invoices/create-from-contract/${organisationKeyID}`;
+
+      const res = await apiClient.post(baseUrl, { contractKeyId });
       return res.responseData;
+      //post method with query param and reqest json
+      // const res = await apiClient.post(
+      //   `${XeroBaseUrl}invoices/create-from-contract/${organisationKeyID}`,
+      //   { contractKeyId }
+      // );
+
+      // return res.responseData;
     } catch (err) {
-      return thunkAPI.rejectWithValue(err.response?.data?.error);
+      return thunkAPI.rejectWithValue(err.response?.data?.message);
     }
   }
 );
