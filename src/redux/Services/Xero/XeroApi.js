@@ -4,10 +4,15 @@ import {
   postApiWithAuthenticated,
 } from "../../reducer/reduxService";
 
-export const ConnectionAuthentication = async (id, activePlatform) => {
-  debugger;
+export const ConnectionAuthentication = async (
+  id,
+  activePlatform,
+  fallbackPlatform
+) => {
+  let platformToUse = activePlatform || fallbackPlatform;
   let baseUrl;
-  switch (activePlatform) {
+
+  switch (platformToUse) {
     case "QuickBooks":
       baseUrl = QuickBookUrl;
       break;
@@ -17,6 +22,7 @@ export const ConnectionAuthentication = async (id, activePlatform) => {
     default:
       throw new Error("Invalid platform selected");
   }
+
   const res = await getListWithAuthenticated(`${baseUrl}connection-url/${id}`);
   return res;
 };
@@ -25,7 +31,6 @@ export const OrganisationToQuickBookAuthentication = async (
   id,
   activePlatform
 ) => {
-  debugger;
   let baseUrl;
   switch (activePlatform) {
     case "QuickBooks":

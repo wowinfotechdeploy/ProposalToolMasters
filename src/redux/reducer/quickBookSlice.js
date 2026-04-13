@@ -117,6 +117,24 @@ export const addContactMapping = createAsyncThunk(
   }
 );
 
+export const DisconnectIntegration = createAsyncThunk(
+  "integration/disconnect",
+  async ({ organisationKeyID, activePlatform }, thunkAPI) => {
+    try {
+      const baseUrl =
+        activePlatform === "QuickBooks"
+          ? `${QuickBookUrl}disconnect/${organisationKeyID}`
+          : `${XeroBaseUrl}disconnect/${organisationKeyID}`;
+
+      const res = await apiClient.post(baseUrl);
+
+      return res.data;
+    } catch (err) {
+      return thunkAPI.rejectWithValue(err.response?.data?.message);
+    }
+  }
+);
+
 const quickBookSlice = createSlice({
   name: "quickbook",
   initialState: {
@@ -127,12 +145,15 @@ const quickBookSlice = createSlice({
     loading: {
       connectionUrl: false,
       contactsLookup: false,
+      drivers: false,
+      disconnect: false,
     },
 
     error: {
       connectionUrl: null,
       contactsLookup: null,
       drivers: null,
+      disconnect: null,
     },
   },
   reducers: {},
@@ -171,6 +192,17 @@ const quickBookSlice = createSlice({
       .addCase(GetAllDrivers.rejected, (state, action) => {
         state.loading.drivers = false;
         state.error.drivers = action.payload;
+      })
+      .addCase(DisconnectIntegration.pending, (state) => {
+        state.loading.disconnect = true;
+      })
+      .addCase(DisconnectIntegration.fulfilled, (state, action) => {
+        state.loading.disconnect = false;
+        state.message = "Disconnected successfully";
+      })
+      .addCase(DisconnectIntegration.rejected, (state, action) => {
+        state.loading.disconnect = false;
+        state.error.disconnect = action.payload;
       });
 
     // });

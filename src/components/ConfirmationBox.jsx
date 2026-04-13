@@ -10,10 +10,11 @@ function ConfirmModel({
   openSuccessModal,
   modelAction,
 }) {
+
   return (
     <div
-      style={{ display: (openSuccessModal || openErrorModal) && "none" }}
-      class="modal fade zoomIn designed-popup"
+      style={{ display: openSuccessModal || openErrorModal ? "block" : "none" }}
+      className="modal fade zoomIn designed-popup"
       id="ConfirmModel"
       tabIndex="-1"
       aria-hidden="true"
@@ -67,6 +68,16 @@ function ConfirmModel({
                 ></lord-icon>
               )}
               {modelRequestData.Action === "Redirect" && (
+                <lord-icon
+                  src="https://cdn.lordicon.com/gsqxdxog.json"
+                  trigger="loop"
+                  colors="primary:#f7b84b,secondary:#f06548"
+                  style={{ width: "75px", height: "60px" }}
+                ></lord-icon>
+              )}
+
+
+              {modelRequestData.Action === "Disconnected" && (
                 <lord-icon
                   src="https://cdn.lordicon.com/gsqxdxog.json"
                   trigger="loop"
@@ -188,6 +199,11 @@ function ConfirmModel({
                 {modelRequestData.Action === "Redirect" && (
                   <span class="text-muted mb-0">
                     You are about to connect your account securely.
+                  </span>
+                )}
+                {modelRequestData.Action === "Disconnect" && (
+                  <span class="text-muted mb-0">
+                    Are you sure want to unauthorised organisation.
                   </span>
                 )}
                 {modelRequestData.Action === "Add Contact" && (
@@ -474,6 +490,7 @@ function ConfirmModel({
                 modelRequestData.Action === "ReminderStatus" ||
                 modelRequestData.Action === "PaymentStatus" ||
                 modelRequestData.Action === "Delete" ||
+                modelRequestData.Action === "Disconnect" ||
                 modelRequestData.Action === "DeleteContract" ||
                 modelRequestData.Action === "Void" ||
                 modelRequestData.Action == "PracticeWarning" ||
@@ -509,6 +526,10 @@ function ConfirmModel({
 
                     {modelRequestData.Action === "Delete" && (
                       <span>Yes, Delete It!</span>
+                    )}
+
+                    {modelRequestData.Action === "Disconnect" && (
+                      <span>Yes, Please</span>
                     )}
                     {modelRequestData.Action === "Redirect" && (
                       <span>Yes, Please!</span>
