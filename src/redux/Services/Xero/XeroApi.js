@@ -4,15 +4,10 @@ import {
   postApiWithAuthenticated,
 } from "../../reducer/reduxService";
 
-export const ConnectionAuthentication = async (
-  id,
-  activePlatform,
-  fallbackPlatform
-) => {
-  let platformToUse = activePlatform || fallbackPlatform;
+export const ConnectionAuthentication = async (id, activePlatform) => {
   let baseUrl;
 
-  switch (platformToUse) {
+  switch (activePlatform) {
     case "QuickBooks":
       baseUrl = QuickBookUrl;
       break;

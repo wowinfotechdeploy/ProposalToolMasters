@@ -9,6 +9,7 @@ import ErrorModel from "../../../components/ErrorModel";
 import { AuthContextProvider } from "../../../AuthContext/AuthContext";
 import "./Xero.css";
 import { getActivePlatform } from "../../../lib/utils";
+import { quickBooksConnectionStatus, xeroConnectionStatus } from "../../../redux/reducer/authSlice";
 
 function XeroAuthentication() {
     const dispatch = useDispatch();
@@ -32,9 +33,8 @@ function XeroAuthentication() {
         try {
             const raw = JSON.parse(localStorage.getItem("persist:Proposal Tool"));
             const organisationKeyID = JSON.parse(raw.organisationKeyID);
+            const res = await ConnectionAuthentication(organisationKeyID, activePlatform || "Xero",
 
-            const res = await ConnectionAuthentication(organisationKeyID, activePlatform,
-                "Xero"
             );
 
             if (res?.status === 200) {
@@ -68,8 +68,9 @@ function XeroAuthentication() {
                 DisconnectIntegration({ organisationKeyID: auth?.organisationKeyID, activePlatform })
             ).unwrap();
 
-            console.log("Disconnected successfully");
-
+            dispatch(xeroConnectionStatus(auth?.organisationKeyID));
+            dispatch(quickBooksConnectionStatus(auth?.organisationKeyID));
+            window.location.reload();
         } catch (err) {
             console.error(err);
             setOpenErrorModal(true);
@@ -238,7 +239,15 @@ function XeroAuthentication() {
                     Xero Driver Mapping
                 </h4>
 
-                <AuthButton onAuthenticate={handleAuthenticate} onDisconnect={handleDisconnect} activePlatform={activePlatform == 'Xero' ? true : false} />
+                <AuthButton
+                    onAuthenticate={handleAuthenticate}
+                    onDisconnect={handleDisconnect}
+                    activePlatform={activePlatform}
+                    activeBtn={activePlatform == 'Xero' ? true : false}
+                    moduleName="Xero"
+                    tooltipLabel='Namaste India'
+                    key={getActivePlatform()}
+                />
             </div>
 
             {/* MAPPING */}
