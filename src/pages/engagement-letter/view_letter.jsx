@@ -1109,7 +1109,7 @@ const View_Engagement_Latter = () => {
                                                   </tr>
                                                 </thead>
                                                 <tbody>
-                                                  {selectedRecurringServiceList.map(
+                                                  {selectedRecurringServiceList?.map(
                                                     (service, index) => {
                                                       return (
                                                         <>
@@ -1368,7 +1368,7 @@ const View_Engagement_Latter = () => {
                                                 </thead>
 
                                                 <tbody>
-                                                  {selectedRecurringServiceList.map(
+                                                  {selectedRecurringServiceList?.map(
                                                     (service, index) => {
                                                       return (
                                                         <>
@@ -1932,7 +1932,7 @@ const View_Engagement_Latter = () => {
                                                 </tr>
                                               </thead>
                                               <tbody>
-                                                {selectedOneOffServiceList.map(
+                                                {selectedOneOffServiceList?.map(
                                                   (service, index) => {
                                                     return (
                                                       <>

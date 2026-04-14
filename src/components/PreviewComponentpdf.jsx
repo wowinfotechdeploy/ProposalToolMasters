@@ -326,17 +326,17 @@ export default function PreviewComponentPdf(props) {
   if (props.common.enableEL === 1) {
     url = `generate-contract`;
   }
-  const AcceptRecurringUrlButton1 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.Recurring}&Action=Accepted&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
-  const AcceptRecurringUrlButton2 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.Recurring}&Action=Accepted&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
-  const AcceptRecurringUrlButton3 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.Recurring}&Action=Accepted&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
+  const AcceptRecurringUrlButton1 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.Recurring}&Action=Accepted&ServicePackageKeyID=${props.selectedPackagesList[0]?.servicePackageKeyID}&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
+  const AcceptRecurringUrlButton2 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.Recurring}&Action=Accepted&ServicePackageKeyID=${props.selectedPackagesList[1]?.servicePackageKeyID}&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
+  const AcceptRecurringUrlButton3 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.Recurring}&Action=Accepted&ServicePackageKeyID=${props.selectedPackagesList[2]?.servicePackageKeyID}&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
 
   // const AcceptOneOffELOffUrlButton1 = `https://$AppUrl$/accept-decline-proposal?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Accepted&ServicePackageKeyID=${props.selectedPackagesList[0]?.servicePackageKeyID}`;
   // const AcceptOneOffELOffUrlButton2 = `https://$AppUrl$/accept-decline-proposal?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Accepted&ServicePackageKeyID=${props.selectedPackagesList[1]?.servicePackageKeyID}`;
   // const AcceptOneOffELOffUrlButton3 = `https://$AppUrl$/accept-decline-proposal?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Accepted&ServicePackageKeyID=${props.selectedPackagesList[2]?.servicePackageKeyID}`;
 
-  const AcceptOneOffUrlButton1 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Accepted&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
-  const AcceptOneOffUrlButton2 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Accepted&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
-  const AcceptOneOffUrlButton3 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Accepted&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
+  const AcceptOneOffUrlButton1 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Accepted&ServicePackageKeyID=${props.selectedPackagesList[0]?.servicePackageKeyID}&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
+  const AcceptOneOffUrlButton2 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Accepted&ServicePackageKeyID=${props.selectedPackagesList[1]?.servicePackageKeyID}&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
+  const AcceptOneOffUrlButton3 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Accepted&ServicePackageKeyID=${props.selectedPackagesList[2]?.servicePackageKeyID}&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
 
   const getPaymentFrequencyLabel = () => {
     const Payment_Frequency = {
@@ -576,8 +576,10 @@ export default function PreviewComponentPdf(props) {
         {Number(props.RecurringPricingInfo?.Discount) > 0 && props.ProposalObject?.DiscountLines && (
           <React.Fragment>
             <tr style={{ backgroundColor: "#DCDCDC" }}>
-              <td style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px", color: "black" }}>Discount</td>
               {props.visibleFieldsCustomTemp?.serviceCategory && (
+                <td style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px", color: "black" }}>Discount</td>
+              )}
+              {props.visibleFieldsCustomTemp?.serviceName && (
                 <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}></td>
               )}
               {props.visibleFieldsCustomTemp?.serviceScope && (
@@ -618,8 +620,10 @@ export default function PreviewComponentPdf(props) {
         {/* GRAND TOTAL ROW - with VAT */}
         {props.vatPercentage ? (
           <tr style={{ backgroundColor: "#808080" }}>
-            <td style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px", color: "white" }}>Grand Total</td>
             {props.visibleFieldsCustomTemp?.serviceCategory && (
+              <td style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px", color: "white" }}>Grand Total</td>
+            )}
+            {props.visibleFieldsCustomTemp?.serviceName && (
               <td style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px", color: "white" }}></td>
             )}
             {props.visibleFieldsCustomTemp?.serviceScope && (
@@ -658,8 +662,10 @@ export default function PreviewComponentPdf(props) {
         ) : (
           /* No-VAT Grand Total: show "Discounted Total" */
           <tr style={{ backgroundColor: "#808080" }}>
-            <td style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px", color: "white" }}>Discounted Total</td>
             {props.visibleFieldsCustomTemp?.serviceCategory && (
+              <td style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px", color: "white" }}>Discounted Total</td>
+            )}
+            {props.visibleFieldsCustomTemp?.serviceName && (
               <td style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px", color: "white" }}></td>
             )}
             {props.visibleFieldsCustomTemp?.serviceScope && (
@@ -857,8 +863,10 @@ export default function PreviewComponentPdf(props) {
         {Number(props.OneOffPricingInfo?.Discount) > 0 && props.ProposalObject?.DiscountLines && (
           <React.Fragment>
             <tr style={{ backgroundColor: "#DCDCDC" }}>
-              <td style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px", color: "black" }}>Discount</td>
               {props.visibleFieldsCustomTemp?.serviceCategory && (
+                <td style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px", color: "black" }}>Discount</td>
+              )}
+              {props.visibleFieldsCustomTemp?.serviceName && (
                 <td style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px", color: "black" }}></td>
               )}
               {props.visibleFieldsCustomTemp?.serviceScope && (
@@ -899,8 +907,10 @@ export default function PreviewComponentPdf(props) {
         {/* GRAND TOTAL ROW */}
         {props.vatPercentageOneOff ? (
           <tr style={{ backgroundColor: "#808080" }}>
-            <td style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px", color: "white" }}>Grand Total</td>
             {props.visibleFieldsCustomTemp?.serviceCategory && (
+              <td style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px", color: "white" }}>Grand Total</td>
+            )}
+            {props.visibleFieldsCustomTemp?.serviceName && (
               <td style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px", color: "black" }}></td>
             )}
             {props.visibleFieldsCustomTemp?.serviceScope && (
@@ -932,8 +942,10 @@ export default function PreviewComponentPdf(props) {
         ) : (
           /* No-VAT Grand Total */
           <tr style={{ backgroundColor: "#808080" }}>
-            <td style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px", color: "white" }}>Grand Total</td>
             {props.visibleFieldsCustomTemp?.serviceCategory && (
+              <td style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px", color: "white" }}>Grand Total</td>
+            )}
+            {props.visibleFieldsCustomTemp?.serviceName && (
               <td style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px", color: "black" }}></td>
             )}
             {props.visibleFieldsCustomTemp?.serviceScope && (
@@ -1108,8 +1120,21 @@ export default function PreviewComponentPdf(props) {
                           </td>
                         )}
                         {props.visibleFieldsCustomTemp?.serviceScope && (
-                          <td style={{ border: "1px solid #DDDDDD", textAlign: "center", padding: "8px" }}>
-                            {showX || showXNotIncluded ? <span>&#10007;</span> : <span>&#10003;</span>}
+                          <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px" }}>
+                            {showX || showXNotIncluded ? (
+                              <span>-</span>
+                            ) : (
+                              subService.pricingDriverList && subService.pricingDriverList.length > 0
+                                ? subService.pricingDriverList
+                                    .filter((d) => d.driverValue !== null)
+                                    .map((d, i, arr) => (
+                                      <div key={i}>
+                                        {d.driverName} = {d.driverValue}
+                                        {i !== arr.length - 1 ? ", " : ""}
+                                      </div>
+                                    ))
+                                : "-"
+                            )}
                           </td>
                         )}
                       </React.Fragment>
@@ -2345,8 +2370,21 @@ export default function PreviewComponentPdf(props) {
                           </td>
                         )}
                         {props.visibleFieldsCustomTemp?.serviceScope && (
-                          <td style={{ border: "1px solid #DDDDDD", textAlign: "center", padding: "8px" }}>
-                            {showX || showXNotIncluded ? <span>&#10007;</span> : <span>&#10003;</span>}
+                          <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px" }}>
+                            {showX || showXNotIncluded ? (
+                              <span>-</span>
+                            ) : (
+                              subService.pricingDriverList && subService.pricingDriverList.length > 0
+                                ? subService.pricingDriverList
+                                    .filter((d) => d.driverValue !== null)
+                                    .map((d, i, arr) => (
+                                      <div key={i}>
+                                        {d.driverName} = {d.driverValue}
+                                        {i !== arr.length - 1 ? ", " : ""}
+                                      </div>
+                                    ))
+                                : "-"
+                            )}
                           </td>
                         )}
                       </React.Fragment>

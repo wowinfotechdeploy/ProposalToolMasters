@@ -14780,7 +14780,7 @@ const ReviewPackagesComponent = (props) => {
                               </tr>
                             </>
                           )}
-
+                          {/* Net Total */}
                           <tr className="head-row">
                             <td className="tr-table-class font-14 text-white">
                               Net Total
@@ -14989,7 +14989,8 @@ const ReviewPackagesComponent = (props) => {
                               </>
                             )}
                           </tr>
-
+                          
+                          {/* Discount */}
                           {(Number(
                             props.RecurringPricingInfo.packageThreeDisCount,
                           ) > 0 ||
@@ -15005,6 +15006,7 @@ const ReviewPackagesComponent = (props) => {
                                   <td className="tr-table-class font-14 text-white">
                                     Discount
                                   </td>
+                                  {/* Discount - Fees */}
                                   {props.visibleFieldsCustomTemp.fees && (
                                     <td className="tr-table-class font-14 text-white text-right">
                                       (-){" "}
@@ -15015,8 +15017,10 @@ const ReviewPackagesComponent = (props) => {
                                       )}
                                     </td>
                                   )}
+                                  {/* Discount - Vat Rate */}
                                   {props.vatPercentage !== 0 &&
                                     props.visibleFieldsCustomTemp.vatRate && <td className="tr-table-class font-14 text-white"></td>}
+                                  {/* Discount - Vat */}
                                   {props.vatPercentage ?
                                     props.visibleFieldsCustomTemp.vat && (
                                       <td className="tr-table-class font-14 text-white text-right">
@@ -15035,7 +15039,17 @@ const ReviewPackagesComponent = (props) => {
                                       </td>
                                     ):""}
                                   {props.vatPercentage !== 0 &&
-                                    props.visibleFieldsCustomTemp.feesIncVat && <td className="tr-table-class font-14 text-white"></td>}
+                                    props.visibleFieldsCustomTemp.feesIncVat && (
+                                      <td className="tr-table-class font-14 text-white text-right">
+                                        (-){" "}
+                                        {props.formatValue(
+                                          Number(props.RecurringPricingInfo.packageOneDisCount) +
+                                            (Number(props.RecurringPricingInfo.PackageOneStaticVaTPrice) -
+                                              Number(props.RecurringPricingInfo.PackageOneVaTPrice)),
+                                          props.currencyID,
+                                        )}
+                                      </td>
+                                    )}
                                   {props.visibleFieldsCustomTemp
                                     .serviceScope && <td></td>}
 
@@ -15071,7 +15085,17 @@ const ReviewPackagesComponent = (props) => {
                                           </td>
                                         ):""}
                                       {props.vatPercentage !== 0 &&
-                                        props.visibleFieldsCustomTemp.feesIncVat && <td className="tr-table-class font-14 text-white"></td>}
+                                        props.visibleFieldsCustomTemp.feesIncVat && (
+                                          <td className="tr-table-class font-14 text-white text-right">
+                                            (-){" "}
+                                            {props.formatValue(
+                                              Number(props.RecurringPricingInfo.packageTwoDisCount) +
+                                                (Number(props.RecurringPricingInfo.PackageTwoStaticVaTPrice) -
+                                                  Number(props.RecurringPricingInfo.PackageTwoVaTPrice)),
+                                              props.currencyID,
+                                            )}
+                                          </td>
+                                        )}
                                       {props.visibleFieldsCustomTemp
                                         .serviceScope && <td></td>}
                                     </>
@@ -15108,7 +15132,17 @@ const ReviewPackagesComponent = (props) => {
                                           </td>
                                         ):""}
                                       {props.vatPercentage !== 0 &&
-                                        props.visibleFieldsCustomTemp.feesIncVat && <td className="tr-table-class font-14 text-white"></td>}
+                                        props.visibleFieldsCustomTemp.feesIncVat && (
+                                          <td className="tr-table-class font-14 text-white text-right">
+                                            (-){" "}
+                                            {props.formatValue(
+                                              Number(props.RecurringPricingInfo.packageThreeDisCount) +
+                                                (Number(props.RecurringPricingInfo.PackageThreeStaticVaTPrice) -
+                                                  Number(props.RecurringPricingInfo.PackageThreeVaTPrice)),
+                                              props.currencyID,
+                                            )}
+                                          </td>
+                                        )}
                                       {props.visibleFieldsCustomTemp
                                         .serviceScope && <td></td>}
                                     </>
@@ -16111,33 +16145,146 @@ const ReviewPackagesComponent = (props) => {
                                   <td className="tr-table-class font-14 text-white">
                                     Discount
                                   </td>
-                                  <td className="tr-table-class font-14 text-white text-right">
-                                    (-){" "}
-                                    {props.formatValue(
-                                      props.OneOffPricingInfo
-                                        .packageOneDisCount,
-                                      props.currencyID,
-                                    )}
-                                  </td>
-                                  {packageCount >= 2 && (
+                                  {/* Discount - Fees */}
+                                  {props.visibleFieldsCustomTemp.fees && (
                                     <td className="tr-table-class font-14 text-white text-right">
                                       (-){" "}
                                       {props.formatValue(
                                         props.OneOffPricingInfo
-                                          .packageTwoDisCount,
+                                          .packageOneDisCount,
                                         props.currencyID,
                                       )}
                                     </td>
                                   )}
-                                  {packageCount == 3 && (
-                                    <td className="tr-table-class font-14 text-white text-right">
-                                      (-){" "}
-                                      {props.formatValue(
-                                        props.OneOffPricingInfo
-                                          .packageThreeDisCount,
-                                        props.currencyID,
+                                  {/* Discount - Vat Rate */}
+                                  {props.vatPercentageOneOff !== 0 &&
+                                    props.visibleFieldsCustomTemp.vatRate && <td className="tr-table-class font-14 text-white"></td>}
+                                  {/* Discount - Vat */}
+                                  {props.vatPercentageOneOff ?
+                                    props.visibleFieldsCustomTemp.vat && (
+                                      <td className="tr-table-class font-14 text-white text-right">
+                                        (-){" "}
+                                        {props.formatValue(
+                                          Number(
+                                            props.OneOffPricingInfo
+                                              .PackageOneStaticVaTPrice,
+                                          ) -
+                                            Number(
+                                              props.OneOffPricingInfo
+                                                .PackageOneVaTPrice,
+                                            ),
+                                          props.currencyID,
+                                        )}
+                                      </td>
+                                    ):""}
+                                  {props.vatPercentageOneOff !== 0 &&
+                                    props.visibleFieldsCustomTemp.feesIncVat && (
+                                      <td className="tr-table-class font-14 text-white text-right">
+                                        (-){" "}
+                                        {props.formatValue(
+                                          Number(props.OneOffPricingInfo.packageOneDisCount) +
+                                            (Number(props.OneOffPricingInfo.PackageOneStaticVaTPrice) -
+                                              Number(props.OneOffPricingInfo.PackageOneVaTPrice)),
+                                          props.currencyID,
+                                        )}
+                                      </td>
+                                    )}
+                                  {props.visibleFieldsCustomTemp
+                                    .serviceScope && <td></td>}
+
+                                  {packageCount >= 2 && (
+                                    <>
+                                      {props.visibleFieldsCustomTemp.fees && (
+                                        <td className="tr-table-class font-14 text-white text-right">
+                                          (-){" "}
+                                          {props.formatValue(
+                                            props.OneOffPricingInfo
+                                              .packageTwoDisCount,
+                                            props.currencyID,
+                                          )}
+                                        </td>
                                       )}
-                                    </td>
+                                      {props.vatPercentageOneOff !== 0 &&
+                                        props.visibleFieldsCustomTemp.vatRate && <td className="tr-table-class font-14 text-white"></td>}
+                                      {props.vatPercentageOneOff ?
+                                        props.visibleFieldsCustomTemp.vat && (
+                                          <td className="tr-table-class font-14 text-white text-right">
+                                            (-){" "}
+                                            {props.formatValue(
+                                              Number(
+                                                props.OneOffPricingInfo
+                                                  .PackageTwoStaticVaTPrice,
+                                              ) -
+                                                Number(
+                                                  props.OneOffPricingInfo
+                                                    .PackageTwoVaTPrice,
+                                                ),
+                                              props.currencyID,
+                                            )}
+                                          </td>
+                                        ):""}
+                                      {props.vatPercentageOneOff !== 0 &&
+                                        props.visibleFieldsCustomTemp.feesIncVat && (
+                                          <td className="tr-table-class font-14 text-white text-right">
+                                            (-){" "}
+                                            {props.formatValue(
+                                              Number(props.OneOffPricingInfo.packageTwoDisCount) +
+                                                (Number(props.OneOffPricingInfo.PackageTwoStaticVaTPrice) -
+                                                  Number(props.OneOffPricingInfo.PackageTwoVaTPrice)),
+                                              props.currencyID,
+                                            )}
+                                          </td>
+                                        )}
+                                      {props.visibleFieldsCustomTemp
+                                        .serviceScope && <td></td>}
+                                    </>
+                                  )}
+                                  {packageCount === 3 && (
+                                    <>
+                                      {props.visibleFieldsCustomTemp.fees && (
+                                        <td className="tr-table-class font-14 text-white text-right">
+                                          (-){" "}
+                                          {props.formatValue(
+                                            props.OneOffPricingInfo
+                                              .packageThreeDisCount,
+                                            props.currencyID,
+                                          )}
+                                        </td>
+                                      )}
+                                      {props.vatPercentageOneOff !== 0 &&
+                                        props.visibleFieldsCustomTemp.vatRate && <td className="tr-table-class font-14 text-white"></td>}
+                                      {props.vatPercentageOneOff ?
+                                        props.visibleFieldsCustomTemp.vat && (
+                                          <td className="tr-table-class font-14 text-white text-right">
+                                            (-){" "}
+                                              {props.formatValue(
+                                              Number(
+                                                props.OneOffPricingInfo
+                                                  .PackageThreeStaticVaTPrice,
+                                              ) -
+                                                Number(
+                                                  props.OneOffPricingInfo
+                                                    .PackageThreeVaTPrice,
+                                                ),
+                                              props.currencyID,
+                                            )}
+                                          </td>
+                                        ):""}
+                                      {props.vatPercentageOneOff !== 0 &&
+                                        props.visibleFieldsCustomTemp.feesIncVat && (
+                                          <td className="tr-table-class font-14 text-white text-right">
+                                            (-){" "}
+                                            {props.formatValue(
+                                              Number(props.OneOffPricingInfo.packageThreeDisCount) +
+                                                (Number(props.OneOffPricingInfo.PackageThreeStaticVaTPrice) -
+                                                  Number(props.OneOffPricingInfo.PackageThreeVaTPrice)),
+                                              props.currencyID,
+                                            )}
+                                          </td>
+                                        )}
+                                      {props.visibleFieldsCustomTemp
+                                        .serviceScope && <td></td>}
+                                    </>
                                   )}
                                 </tr>
                                 <tr className="head-row">
@@ -17769,7 +17916,7 @@ const ReviewPackagesComponent = (props) => {
                               </>
                             )}
                           </tr>
-
+                            {/* Discount One Off Table - package */}
                           {(Number(
                             props.OneOffPricingInfo.packageThreeDisCount,
                           ) > 0 ||
@@ -17783,6 +17930,7 @@ const ReviewPackagesComponent = (props) => {
                                   <td className="tr-table-class font-14 text-white">
                                     Discount
                                   </td>
+                                  {/* Discount Fees */}
                                   {props.visibleFieldsCustomTemp.fees && (
                                     <td className="tr-table-class font-14 text-white text-right">
                                       (-){" "}
@@ -17793,8 +17941,10 @@ const ReviewPackagesComponent = (props) => {
                                       )}
                                     </td>
                                   )}
+                                  {/* Discount VAT RATE */}
                                   {props.vatPercentageOneOff !== 0 &&
                                     props.visibleFieldsCustomTemp.vatRate && <td className="tr-table-class font-14 text-white"></td>}
+                                  {/* Discount Vat */}
                                   {props.vatPercentageOneOff ?
                                     props.visibleFieldsCustomTemp.vat && (
                                       <td className="tr-table-class font-14 text-white text-right">
@@ -17812,8 +17962,19 @@ const ReviewPackagesComponent = (props) => {
                                         )}
                                       </td>
                                     ):""}
+                                    {/* Discount Fees Inc Vat */}
                                   {props.vatPercentageOneOff !== 0 &&
-                                    props.visibleFieldsCustomTemp.feesIncVat && <td className="tr-table-class font-14 text-white"></td>}
+                                    props.visibleFieldsCustomTemp.feesIncVat && (
+                                      <td className="tr-table-class font-14 text-white text-right">
+                                        (-){" "}
+                                        {props.formatValue(
+                                          Number(props.OneOffPricingInfo.packageOneDisCount) +
+                                            (Number(props.OneOffPricingInfo.PackageOneStaticVaTPrice) -
+                                              Number(props.OneOffPricingInfo.PackageOneVaTPrice)),
+                                          props.currencyID,
+                                        )}
+                                      </td>
+                                    )}
                                   {props.visibleFieldsCustomTemp
                                     .serviceScope && <td></td>}
 
@@ -17849,7 +18010,17 @@ const ReviewPackagesComponent = (props) => {
                                           </td>
                                         ):""}
                                       {props.vatPercentageOneOff !== 0 &&
-                                        props.visibleFieldsCustomTemp.feesIncVat && <td className="tr-table-class font-14 text-white"></td>}
+                                        props.visibleFieldsCustomTemp.feesIncVat && (
+                                          <td className="tr-table-class font-14 text-white text-right">
+                                            (-){" "}
+                                            {props.formatValue(
+                                              Number(props.OneOffPricingInfo.packageTwoDisCount) +
+                                                (Number(props.OneOffPricingInfo.PackageTwoStaticVaTPrice) -
+                                                  Number(props.OneOffPricingInfo.PackageTwoVaTPrice)),
+                                              props.currencyID,
+                                            )}
+                                          </td>
+                                        )}
                                       {props.visibleFieldsCustomTemp
                                         .serviceScope && <td></td>}
                                     </>
@@ -17886,7 +18057,17 @@ const ReviewPackagesComponent = (props) => {
                                           </td>
                                         ):""}
                                       {props.vatPercentageOneOff !== 0 &&
-                                        props.visibleFieldsCustomTemp.feesIncVat && <td className="tr-table-class font-14 text-white"></td>}
+                                        props.visibleFieldsCustomTemp.feesIncVat && (
+                                          <td className="tr-table-class font-14 text-white text-right">
+                                            (-){" "}
+                                            {props.formatValue(
+                                              Number(props.OneOffPricingInfo.packageThreeDisCount) +
+                                                (Number(props.OneOffPricingInfo.PackageThreeStaticVaTPrice) -
+                                                  Number(props.OneOffPricingInfo.PackageThreeVaTPrice)),
+                                              props.currencyID,
+                                            )}
+                                          </td>
+                                        )}
                                       {props.visibleFieldsCustomTemp
                                         .serviceScope && <td></td>}
                                     </>
@@ -25556,6 +25737,7 @@ const Add_Update_Proposal = (props) => {
 
     debugger;
     console.log("params ->", params)
+    // return;
 
     try {
       const URL = "/AddUpdateQuote";

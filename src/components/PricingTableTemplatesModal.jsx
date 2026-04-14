@@ -9639,12 +9639,12 @@ const PricingTableTemplatesModal = ({
                   ProposalObject.DiscountLines && (
                     <>
                       <tr className="head-grey-row">
-                        {visibleFieldsCustomTemp?.serviceName && (
+                        {visibleFieldsCustomTemp?.serviceCategory && (
                           <td className="tr-table-class font-14 text-white">
                             Discount
                           </td>
                         )}
-                        {visibleFieldsCustomTemp.serviceCategory && <td></td>}
+                        {visibleFieldsCustomTemp.serviceName && <td></td>}
                         {visibleFieldsCustomTemp.serviceScope && <td></td>}
                         {visibleFieldsCustomTemp.fees && (
                           <td className="tr-table-class font-14 text-white text-center">
@@ -9687,12 +9687,12 @@ const PricingTableTemplatesModal = ({
 {
   vatPercentage ? (
 <tr className="head-row">
-                        {visibleFieldsCustomTemp?.serviceName && (
+                        {visibleFieldsCustomTemp?.serviceCategory && (
                           <td className="tr-table-class font-14 text-white">
                             Grand Total
                           </td>
                         )}
-                        {visibleFieldsCustomTemp.serviceCategory && <td></td>}
+                        {visibleFieldsCustomTemp.serviceName && <td></td>}
                         {visibleFieldsCustomTemp.serviceScope && <td></td>}
                         {visibleFieldsCustomTemp.fees && (
                           <td className="tr-table-class font-14 text-white text-center">
@@ -9734,12 +9734,12 @@ const PricingTableTemplatesModal = ({
                       </tr>
   ) : (
 <tr className="head-row">
-                        {visibleFieldsCustomTemp?.serviceName && (
+                        {visibleFieldsCustomTemp?.serviceCategory && (
                           <td className="tr-table-class font-14 text-white">
                             Discounted Total
                           </td>
                         )}
-                        {visibleFieldsCustomTemp.serviceCategory && <td></td>}
+                        {visibleFieldsCustomTemp.serviceName && <td></td>}
                         {visibleFieldsCustomTemp.serviceScope && <td></td>}
                         {visibleFieldsCustomTemp.fees && (
                           <td className="tr-table-class font-14 text-white text-center">
@@ -10058,11 +10058,12 @@ const PricingTableTemplatesModal = ({
                   ProposalObject.DiscountLines && (
                     <>
                       <tr class="head-grey-row">
-                        <td className="tr-table-class font-14 text-white">
-                          Discount
-                        </td>
-
-                        {visibleFieldsCustomTemp?.serviceCategory && <td></td>}
+                        {visibleFieldsCustomTemp?.serviceCategory && (
+                          <td className="tr-table-class font-14 text-white">
+                            Discount
+                          </td>
+                        )}
+                        {visibleFieldsCustomTemp.serviceName && <td></td>}
                         {visibleFieldsCustomTemp.serviceScope && <td></td>}
                         {visibleFieldsCustomTemp.fees && (
                           <td className="tr-table-class text-white text-center">
@@ -10109,11 +10110,12 @@ const PricingTableTemplatesModal = ({
                       {
                         vatPercentageOneOff ? (
 <tr className="head-row">
-                        <td className="tr-table-class font-14 text-white">
-                          Grand Total
-                        </td>
-
-                        {visibleFieldsCustomTemp?.serviceCategory && <td></td>}
+                        {visibleFieldsCustomTemp?.serviceCategory && (
+                          <td className="tr-table-class font-14 text-white">
+                            Grand Total
+                          </td>
+                        )}
+                        {visibleFieldsCustomTemp.serviceName && <td></td>}
                         {visibleFieldsCustomTemp.serviceScope && <td></td>}
                         {visibleFieldsCustomTemp.fees && (
                           <td className="tr-table-class text-white text-center">
@@ -10151,11 +10153,12 @@ const PricingTableTemplatesModal = ({
                       </tr>
                         ) : (
                           <tr className="head-row">
-                        <td className="tr-table-class font-14 text-white">
-                          Discounted Total
-                        </td>
-
-                        {visibleFieldsCustomTemp?.serviceCategory && <td></td>}
+                        {visibleFieldsCustomTemp?.serviceCategory && (
+                          <td className="tr-table-class font-14 text-white">
+                            Discounted Total
+                          </td>
+                        )}
+                        {visibleFieldsCustomTemp.serviceName && <td></td>}
                         {visibleFieldsCustomTemp.serviceScope && <td></td>}
                         {visibleFieldsCustomTemp.fees && (
                           <td className="tr-table-class text-white text-center">
@@ -11499,7 +11502,15 @@ const PricingTableTemplatesModal = ({
                           </td>
                         ):""}
                       {vatPercentage !== 0 && visibleFieldsCustomTemp.feesIncVat && (
-                        <td className="tr-table-class font-14 text-white"></td>
+                        <td className="tr-table-class font-14 text-white text-right">
+                          (-){" "}
+                          {formatValue(
+                            Number(RecurringPricingInfo.packageOneDisCount) +
+                              (Number(RecurringPricingInfo.PackageOneStaticVaTPrice) -
+                                Number(RecurringPricingInfo.PackageOneVaTPrice)),
+                            currencyID,
+                          )}
+                        </td>
                       )}
 
                       {visibleFieldsCustomTemp.serviceScope && <td></td>}
@@ -11544,7 +11555,15 @@ const PricingTableTemplatesModal = ({
                               // </td>
                             ):""}
                           {vatPercentage !== 0 && visibleFieldsCustomTemp.feesIncVat && (
-                            <td className="tr-table-class font-14 text-white"></td>
+                            <td className="tr-table-class font-14 text-white text-right">
+                              (-){" "}
+                              {formatValue(
+                                Number(RecurringPricingInfo.packageTwoDisCount) +
+                                  (Number(RecurringPricingInfo.PackageTwoStaticVaTPrice) -
+                                    Number(RecurringPricingInfo.PackageTwoVaTPrice)),
+                                currencyID,
+                              )}
+                            </td>
                           )}
                           {visibleFieldsCustomTemp.serviceScope && <td></td>}
                         </>
@@ -11588,7 +11607,15 @@ const PricingTableTemplatesModal = ({
                               // </td>
                             ):""}
                           {vatPercentage !== 0 && visibleFieldsCustomTemp.feesIncVat && (
-                            <td className="tr-table-class font-14 text-white"></td>
+                            <td className="tr-table-class font-14 text-white text-right">
+                              (-){" "}
+                              {formatValue(
+                                Number(RecurringPricingInfo.packageThreeDisCount) +
+                                  (Number(RecurringPricingInfo.PackageThreeStaticVaTPrice) -
+                                    Number(RecurringPricingInfo.PackageThreeVaTPrice)),
+                                currencyID,
+                              )} ABCD Pacakge Count 3
+                            </td>
                           )}
                           {visibleFieldsCustomTemp.serviceScope && <td></td>}
                         </>
@@ -13122,7 +13149,15 @@ const PricingTableTemplatesModal = ({
                           </td>
                         ):""}
                       {vatPercentageOneOff !== 0 && visibleFieldsCustomTemp.feesIncVat && (
-                        <td className="tr-table-class font-14 text-white"></td>
+                        <td className="tr-table-class font-14 text-white text-right">
+                          (-){" "}
+                          {formatValue(
+                            Number(OneOffPricingInfo.packageOneDisCount) +
+                              (Number(OneOffPricingInfo.PackageOneStaticVaTPrice) -
+                                Number(OneOffPricingInfo.PackageOneVaTPrice)),
+                            currencyID,
+                          )}
+                        </td>
                       )}
                       {visibleFieldsCustomTemp.serviceScope && <td></td>}
 
@@ -13157,7 +13192,15 @@ const PricingTableTemplatesModal = ({
                               </td>
                             ):""}
                           {vatPercentageOneOff !== 0 && visibleFieldsCustomTemp.feesIncVat && (
-                            <td className="tr-table-class font-14 text-white"></td>
+                            <td className="tr-table-class font-14 text-white text-right">
+                              (-){" "}
+                              {formatValue(
+                                Number(OneOffPricingInfo.packageTwoDisCount) +
+                                  (Number(OneOffPricingInfo.PackageTwoStaticVaTPrice) -
+                                    Number(OneOffPricingInfo.PackageTwoVaTPrice)),
+                                currencyID,
+                              )}
+                            </td>
                           )}
                           {visibleFieldsCustomTemp.serviceScope && <td></td>}
                         </>
@@ -13192,7 +13235,15 @@ const PricingTableTemplatesModal = ({
                               </td>
                             ):""}
                           {vatPercentageOneOff !== 0 && visibleFieldsCustomTemp.feesIncVat && (
-                            <td className="tr-table-class font-14 text-white"></td>
+                            <td className="tr-table-class font-14 text-white text-right">
+                              (-){" "}
+                              {formatValue(
+                                Number(OneOffPricingInfo.packageThreeDisCount) +
+                                  (Number(OneOffPricingInfo.PackageThreeStaticVaTPrice) -
+                                    Number(OneOffPricingInfo.PackageThreeVaTPrice)),
+                                currencyID,
+                              )}
+                            </td>
                           )}
                           {visibleFieldsCustomTemp.serviceScope && <td></td>}
                         </>
