@@ -704,8 +704,8 @@ export default function ChatWindow({ organisationKeyID, token }) {
     }, [messages.length, status, scrollToBottom]);
 
     return (
-        <div className="flex flex-col h-screen bg-zinc-950 text-white">
-            <header className="flex items-center justify-between p-4 border-b border-zinc-800 bg-zinc-900/50 backdrop-blur-sm relative z-50">
+        <div className="flex flex-col h-full w-full bg-zinc-950 text-white">
+            <header className="flex flex-wrap items-center justify-between gap-2 p-3 border-b border-zinc-800 bg-zinc-900/50 backdrop-blur-sm">
                 <div className="flex items-center gap-3">
                     <h1 className="text-xl font-bold text-zinc-100">AI Assistant</h1>
                 </div>
@@ -771,7 +771,7 @@ export default function ChatWindow({ organisationKeyID, token }) {
                 </div>
             </header>
 
-            <main className="flex-1 p-4 md:p-6 overflow-y-auto relative">
+            <main className="flex-1 p-3 md:p-4 overflow-y-auto relative">
                 {messages.length === 0 && !isLoading && (
                     <div className="flex flex-col items-center justify-center min-h-[50vh] text-zinc-500">
                         <div className="text-6xl mb-4 animate-bounce">🤖</div>
@@ -818,7 +818,7 @@ export default function ChatWindow({ organisationKeyID, token }) {
                                     {toolCallMessage && (
                                         <div className="flex items-start gap-3 mb-2">
                                             <div className="w-8"></div>
-                                            <div className="max-w-[75%] flex flex-col">
+                                            <div className="max-w-4xl flex flex-col">
                                                 <div className="rounded-2xl px-4 py-2.5 bg-zinc-800/50 text-zinc-300 border border-zinc-700/50 rounded-bl-none">
                                                     <div className="flex items-center gap-2">
                                                         <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
@@ -840,7 +840,7 @@ export default function ChatWindow({ organisationKeyID, token }) {
                                             </div>
                                         )}
 
-                                        <div className={`max-w-[75%] ${isUser ? 'items-end' : 'items-start'} flex flex-col`}>
+                                        <div className={`max-w-[85%] sm:max-w-[75%] ${isUser ? 'items-end' : 'items-start'} flex flex-col`}>
                                             {(content.trim() || imageUrl || prospects) && (
                                                 <div
                                                     className={`rounded-2xl px-4 py-2.5 ${isUser
@@ -968,7 +968,7 @@ export default function ChatWindow({ organisationKeyID, token }) {
                 <div ref={messagesEndRef} />
             </main>
 
-            <footer className="p-4 md:p-6 border-t border-zinc-800 bg-zinc-900/50 backdrop-blur-sm">
+            <footer className="p-3 md:p-3 border-t border-zinc-800 bg-zinc-900/50 backdrop-blur-sm">
                 {error && (
                     <div className="mb-4">
                         <div className="bg-red-900/50 border border-red-700 text-red-200 px-4 py-3 rounded-lg">
@@ -1053,13 +1053,13 @@ export default function ChatWindow({ organisationKeyID, token }) {
                     </div>
                 )}
 
-                <form onSubmit={handleSubmit} className="flex justify-center items-center gap-3">
+                <form onSubmit={handleSubmit} className="flex items-end gap-2 sm:gap-3">
                     <input type="file" ref={fileInputRef} onChange={handleImageSelect} accept="image/*" className="hidden" />
                     <button
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
                         disabled={isInputDisabled}
-                        className="bg-zinc-800 hover:bg-zinc-700 disabled:bg-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed border border-zinc-700 text-white p-3 rounded-xl transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="bg-zinc-800 hover:bg-zinc-700 disabled:bg-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed border border-zinc-700 text-white p-2 rounded-xl transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
                         title="Attach image"
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
@@ -1074,7 +1074,7 @@ export default function ChatWindow({ organisationKeyID, token }) {
                         type="button"
                         onClick={isRecording ? stopRecording : startRecording}
                         disabled={isLoading || isTranscribing}
-                        className={`${isRecording ? 'bg-red-600 hover:bg-red-700 border-red-500' : 'bg-zinc-800 hover:bg-zinc-700 border-zinc-700'} disabled:bg-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed border text-white p-3 rounded-xl transition-all focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                        className={`${isRecording ? 'bg-red-600 hover:bg-red-700 border-red-500' : 'bg-zinc-800 hover:bg-zinc-700 border-zinc-700'} disabled:bg-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed border text-white p-2 rounded-xl transition-all focus:outline-none focus:ring-2 focus:ring-blue-500`}
                         title={isRecording ? 'Stop recording' : 'Record audio'}
                         aria-pressed={isRecording}
                         aria-label={isRecording ? 'Stop recording' : 'Start recording'}
@@ -1095,7 +1095,7 @@ export default function ChatWindow({ organisationKeyID, token }) {
                     </button>
                     <textarea
                         ref={textareaRef}
-                        className="flex-1 bg-zinc-800 border max-w-4xl border-zinc-700 rounded-xl px-4 py-3 text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 resize-none min-h-[48px] max-h-[120px] overflow-hidden dark-scrollbar"
+                        className="flex-1 w-full bg-zinc-800 border border-zinc-700 rounded-xl px-3 py-2 sm:px-4 sm:py-3 text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 resize-none min-h-[44px] max-h-[93px] overflow-hidden"
                         value={input}
                         placeholder={
                             isRecording
@@ -1117,7 +1117,7 @@ export default function ChatWindow({ organisationKeyID, token }) {
                     <button
                         type="submit"
                         disabled={(!input.trim() && !selectedImage && !hasActiveUIInputs) || isInputDisabled}
-                        className={`${hasActiveUIInputs ? 'bg-green-600 hover:bg-green-700' : 'bg-blue-600 hover:bg-blue-700'} disabled:bg-zinc-700 cursor-pointer disabled:cursor-not-allowed text-white px-5 py-3 rounded-xl font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-zinc-950 ${hasActiveUIInputs ? 'focus:ring-green-500' : 'focus:ring-blue-500'}`}
+                        className={`${hasActiveUIInputs ? 'bg-green-600 hover:bg-green-700' : 'bg-blue-600 hover:bg-blue-700'} disabled:bg-zinc-700 cursor-pointer disabled:cursor-not-allowed text-white px-3 py-2 rounded-xl font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-zinc-950 ${hasActiveUIInputs ? 'focus:ring-green-500' : 'focus:ring-blue-500'}`}
                     >
                         {hasActiveUIInputs ? 'Submit' : 'Send'}
                     </button>
