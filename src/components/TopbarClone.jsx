@@ -146,8 +146,10 @@ const TopbarClone = () => {
 
   useEffect(() => {
 
-    dispatch(xeroConnectionStatus(common.organisationKeyID));
-    dispatch(quickBooksConnectionStatus(common.organisationKeyID));
+    if (common.organisationKeyID) {
+      dispatch(xeroConnectionStatus(common.organisationKeyID));
+      dispatch(quickBooksConnectionStatus(common.organisationKeyID));
+    }
 
     if (common.token && topbar === "block") {
       NotificationCountData();
