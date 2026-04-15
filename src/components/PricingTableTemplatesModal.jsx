@@ -9675,10 +9675,9 @@ const PricingTableTemplatesModal = ({
                     )}
                 </tr>
 
-                {/* === DISCOUNT + GRAND TOTAL ROWS === */}
+                {/* === DISCOUNT ROW === */}
                 {Number(RecurringPricingInfo.Discount) > 0 &&
                   ProposalObject.DiscountLines && (
-                    <>
                       <tr className="head-grey-row">
                         {visibleFieldsCustomTemp?.serviceCategory && (
                           <td className="tr-table-class font-14 text-white">
@@ -9725,7 +9724,10 @@ const PricingTableTemplatesModal = ({
                             </td>
                           )}
                       </tr>
-{
+                  )}
+
+                {/* === GRAND TOTAL ROW (always visible) === */}
+                {
   vatPercentage ? (
 <tr className="head-row">
                         {visibleFieldsCustomTemp?.serviceCategory && (
@@ -9822,9 +9824,6 @@ const PricingTableTemplatesModal = ({
                       </tr>
   )
 }
-                      
-                    </>
-                  )}
               </tbody>
             </table>
           </div>
@@ -10097,7 +10096,6 @@ const PricingTableTemplatesModal = ({
 
                 {Number(OneOffPricingInfo.Discount) > 0 &&
                   ProposalObject.DiscountLines && (
-                    <>
                       <tr class="head-grey-row">
                         {visibleFieldsCustomTemp?.serviceCategory && (
                           <td className="tr-table-class font-14 text-white">
@@ -10148,7 +10146,10 @@ const PricingTableTemplatesModal = ({
                             </td>
                           )}
                       </tr>
-                      {
+                  )}
+
+                {/* === GRAND TOTAL ROW (always visible) === */}
+                {
                         vatPercentageOneOff ? (
 <tr className="head-row">
                         {visibleFieldsCustomTemp?.serviceCategory && (
@@ -10237,9 +10238,6 @@ const PricingTableTemplatesModal = ({
                       </tr>
                         )
                       }
-                      
-                    </>
-                  )}
               </tbody>
             </table>
             {/* <div

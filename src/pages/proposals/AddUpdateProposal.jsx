@@ -4992,10 +4992,9 @@ const ReviewServicesComponent = (props) => {
                                 )}
                             </tr>
 
-                            {/* === DISCOUNT + GRAND TOTAL ROWS === */}
+                            {/* === DISCOUNT ROW === */}
                             {Number(props.RecurringPricingInfo.Discount) > 0 &&
                               props.ProposalObject.DiscountLines && (
-                                <>
                                   <tr className="head-grey-row">
                                     {props.visibleFieldsCustomTemp
                                       .serviceCategory && (
@@ -5059,9 +5058,11 @@ const ReviewServicesComponent = (props) => {
                                         </td>
                                       )}
                                   </tr>
+                              )}
 
-                                  {props.vatPercentage ? (
- <tr className="head-row">
+                            {/* === GRAND TOTAL ROW (always visible) === */}
+                            {props.vatPercentage ? (
+                              <tr className="head-row">
                                     {props.visibleFieldsCustomTemp
                                       .serviceCategory && (
                                       <td className="tr-table-class font-14 text-white">
@@ -5303,11 +5304,7 @@ const ReviewServicesComponent = (props) => {
                                           )}
                                         </td>
                                       )}
-                                  </tr>
-                                  )}
-
-                                 
-                                </>
+                              </tr>
                               )}
 
                             {props.vatPercentage !== 0 && (
@@ -6222,7 +6219,6 @@ const ReviewServicesComponent = (props) => {
 
                             {Number(props.OneOffPricingInfo.Discount) > 0 &&
                               props.ProposalObject.DiscountLines && (
-                                <>
                                   <tr class="head-grey-row">
                                     <td className="tr-table-class font-14 text-white">
                                       Discount
@@ -6288,7 +6284,10 @@ const ReviewServicesComponent = (props) => {
                                         </td>
                                       )}
                                   </tr>
-                                  {
+                              )}
+
+                            {/* === GRAND TOTAL ROW (always visible) === */}
+                            {
                                     props.vatPercentageOneOff ? (
                                       <tr className="head-row">
                                     <td className="tr-table-class font-14 text-white">
@@ -6397,8 +6396,6 @@ const ReviewServicesComponent = (props) => {
                                   </tr>
                                     )
                                   }
-                                </>
-                              )}
                           </tbody>
                         </table>
                         {/* <div
