@@ -14,7 +14,7 @@ const PricingTableTemplatesModal = ({
   ProposalObject,
   formatValue,
   vatPercentage,
-  serviceTypeID,
+  serviceTypeID: requestedServiceTypeID,
   setSelectedTemplateIDOneOff,
   selectedTemplateIDOneOff,
   selectedOneOffServiceList,
@@ -71,6 +71,47 @@ const PricingTableTemplatesModal = ({
   // };
 
   if (!show) return null;
+
+  const hasRecurringServices = Array.isArray(selectedRecurringServiceList)
+    ? selectedRecurringServiceList.some(
+        (service) => (service?.servicesList || []).length > 0,
+      )
+    : false;
+  const hasOneOffServices = Array.isArray(selectedOneOffServiceList)
+    ? selectedOneOffServiceList.some(
+        (service) => (service?.servicesList || []).length > 0,
+      )
+    : false;
+
+  const isServiceContext =
+    requestedServiceTypeID === servicePackageTypeID.RecurringServiceTypeID ||
+    requestedServiceTypeID === servicePackageTypeID.OneOffServiceTypeID;
+
+  const recurringPreviewType = isServiceContext
+    ? servicePackageTypeID.RecurringServiceTypeID
+    : servicePackageTypeID.RecurringPackageTypeID;
+  const oneOffPreviewType = isServiceContext
+    ? servicePackageTypeID.OneOffServiceTypeID
+    : servicePackageTypeID.OneOffPackageTypeID;
+
+  const previewServiceTypeID = hasRecurringServices
+    ? recurringPreviewType
+    : hasOneOffServices
+      ? oneOffPreviewType
+      : requestedServiceTypeID || recurringPreviewType;
+
+  const serviceTypeID = previewServiceTypeID;
+  const previewTableLabel =
+    previewServiceTypeID === servicePackageTypeID.RecurringServiceTypeID ||
+    previewServiceTypeID === servicePackageTypeID.RecurringPackageTypeID
+      ? "Recurring Table"
+      : "One-Off Table";
+  const globalSelectedTemplateID =
+    selectedTemplateID === 6 || selectedTemplateIDOneOff === 6 ? 6 : 0;
+  const setGlobalTemplateSelection = (templateID) => {
+    setSelectedTemplateID(templateID);
+    setSelectedTemplateIDOneOff(templateID);
+  };
 
   console.log(
     "Custom Template, line 76, visibleFieldsCustomTemp",
@@ -13710,6 +13751,12 @@ const PricingTableTemplatesModal = ({
             </div>
 
             <div className="modal-body">
+              <div className="mb-3">
+                <small className="text-muted">
+                  Preview: <strong>{previewTableLabel}</strong> (applies to both
+                  recurring and one-off tables)
+                </small>
+              </div>
               <form>
                 <div
                   key={templates[0].id}
@@ -13721,43 +13768,9 @@ const PricingTableTemplatesModal = ({
                     name="pricingTemplate"
                     id={templates[0].id}
                     value={templates[0].id}
-                    checked={
-                      serviceTypeID ===
-                      servicePackageTypeID.RecurringServiceTypeID
-                        ? selectedTemplateID === templates[0].id
-                        : serviceTypeID ===
-                            servicePackageTypeID.OneOffServiceTypeID
-                          ? selectedTemplateIDOneOff === templates[0].id
-                          : serviceTypeID ===
-                              servicePackageTypeID.RecurringPackageTypeID
-                            ? selectedTemplateID === templates[0].id
-                            : serviceTypeID ===
-                                servicePackageTypeID.OneOffPackageTypeID
-                              ? selectedTemplateIDOneOff === templates[0].id
-                              : null
-                    }
+                    checked={globalSelectedTemplateID === templates[0].id}
                     onChange={() => {
-                      if (
-                        serviceTypeID ===
-                        servicePackageTypeID.RecurringServiceTypeID
-                      ) {
-                        setSelectedTemplateID(templates[0].id);
-                      } else if (
-                        serviceTypeID ===
-                        servicePackageTypeID.OneOffServiceTypeID
-                      ) {
-                        setSelectedTemplateIDOneOff(templates[0].id);
-                      } else if (
-                        serviceTypeID ===
-                        servicePackageTypeID.RecurringPackageTypeID
-                      ) {
-                        setSelectedTemplateID(templates[0].id);
-                      } else if (
-                        serviceTypeID ===
-                        servicePackageTypeID.OneOffPackageTypeID
-                      ) {
-                        setSelectedTemplateIDOneOff(templates[0].id);
-                      }
+                      setGlobalTemplateSelection(templates[0].id);
                     }}
                   />
                   <label
@@ -13962,59 +13975,9 @@ const PricingTableTemplatesModal = ({
                     name="pricingTemplate"
                     id={templates[6].id}
                     value={templates[6].id}
-                    checked={
-                      serviceTypeID ===
-                      servicePackageTypeID.RecurringServiceTypeID
-                        ? selectedTemplateID === templates[6].id
-                        : serviceTypeID ===
-                            servicePackageTypeID.OneOffServiceTypeID
-                          ? selectedTemplateIDOneOff === templates[6].id
-                          : serviceTypeID ===
-                              servicePackageTypeID.RecurringPackageTypeID
-                            ? selectedTemplateID === templates[6].id
-                            : serviceTypeID ===
-                                servicePackageTypeID.OneOffPackageTypeID
-                              ? selectedTemplateIDOneOff === templates[6].id
-                              : null
-                    }
+                    checked={globalSelectedTemplateID === templates[6].id}
                     onChange={() => {
-                      if (
-                        serviceTypeID ===
-                        servicePackageTypeID.RecurringServiceTypeID
-                      ) {
-                        console.log(
-                          "Custom Template, line 13809, visibleFieldsCustomTemp",
-                          visibleFieldsCustomTemp,
-                        );
-                        setSelectedTemplateID(templates[6].id);
-                      } else if (
-                        serviceTypeID ===
-                        servicePackageTypeID.OneOffServiceTypeID
-                      ) {
-                        console.log(
-                          "Custom Template, line 13818, visibleFieldsCustomTemp",
-                          visibleFieldsCustomTemp,
-                        );
-                        setSelectedTemplateIDOneOff(templates[6].id);
-                      } else if (
-                        serviceTypeID ===
-                        servicePackageTypeID.RecurringPackageTypeID
-                      ) {
-                        console.log(
-                          "Custom Template, line 13827, visibleFieldsCustomTemp",
-                          visibleFieldsCustomTemp,
-                        );
-                        setSelectedTemplateID(templates[6].id);
-                      } else if (
-                        serviceTypeID ===
-                        servicePackageTypeID.OneOffPackageTypeID
-                      ) {
-                        console.log(
-                          "Custom Template, line 13836, visibleFieldsCustomTemp",
-                          visibleFieldsCustomTemp,
-                        );
-                        setSelectedTemplateIDOneOff(templates[6].id);
-                      }
+                      setGlobalTemplateSelection(templates[6].id);
                     }}
                   />
                   <label

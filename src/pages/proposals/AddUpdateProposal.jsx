@@ -3964,6 +3964,22 @@ const ReviewServicesComponent = (props) => {
     props.selectedRecurringServiceList,
   );
 
+  const hasRecurringServiceRows = (props.selectedRecurringServiceList || []).some(
+    (service) => (service?.servicesList || []).length > 0,
+  );
+  const hasOneOffServiceRows = (props.selectedOneOffServiceList || []).some(
+    (service) => (service?.servicesList || []).length > 0,
+  );
+
+  const openGlobalServiceTemplatePicker = () => {
+    props.setShowSelectTemplateModal(true);
+    props.setServiceTypeID(
+      hasRecurringServiceRows
+        ? servicePackageTypeID.RecurringServiceTypeID
+        : servicePackageTypeID.OneOffServiceTypeID,
+    );
+  };
+
   return (
     <>
       <div className="create-practice-height scrollbar">
@@ -4033,6 +4049,33 @@ const ReviewServicesComponent = (props) => {
               </div>
             </div>
           </div>
+          {(hasRecurringServiceRows || hasOneOffServiceRows) && (
+            <div
+              className="Custom-template"
+              style={{
+                display: "flex",
+                justifyContent: "flex-end",
+                alignItems: "center",
+                gap: "10px",
+                width: "100%",
+                marginBottom: "12px",
+              }}
+            >
+              <small className="text-muted">
+                Applies to recurring and one-off tables
+              </small>
+              <div className="viewTemp">
+                <Tooltip title="Select Template">
+                  <div
+                    onClick={openGlobalServiceTemplatePicker}
+                    style={{ cursor: "pointer" }}
+                  >
+                    <ViewModuleIcon />
+                  </div>
+                </Tooltip>
+              </div>
+            </div>
+          )}
           {props.selectedRecurringServiceList?.length !== 0 && (
             <div className="tab-content">
               <div className="tab-pane p-3 active">
@@ -4314,47 +4357,6 @@ const ReviewServicesComponent = (props) => {
                       </div>
                     </div>
                     <div className="mb-3"></div>
-
-                    <div
-                      className="Custom-template"
-                      style={{
-                        display: "flex",
-                        justifyContent: "flex-end",
-                        alignItems: "center",
-                        gap: "10px", // space between icons
-                        width: "100%", // ensure it fills parent for right alignment
-                      }}
-                    >
-                      <div className="viewTemp">
-                        <Tooltip title="Select Template">
-                          <div
-                            onClick={() => {
-                              props.setShowSelectTemplateModal(true);
-                              props.setServiceTypeID(
-                                servicePackageTypeID.RecurringServiceTypeID,
-                              );
-                            }}
-                            style={{ cursor: "pointer" }}
-                          >
-                            <ViewModuleIcon />
-                          </div>
-                        </Tooltip>
-                      </div>
-
-                      {/* <div className="customizeTemp">
-                        <Tooltip title="Customize your own">
-                          <div
-                            onClick={() => {
-                              props.setShowTemplateCustomizationModal(true);
-                              props.setServiceTypeID(1);
-                            }}
-                            style={{ cursor: "pointer" }}
-                          >
-                            <EditIcon />
-                          </div>
-                        </Tooltip>
-                      </div> */}
-                    </div>
 
                     {props.selectedTemplateID === 0 ? (
                       <div
@@ -4878,9 +4880,11 @@ const ReviewServicesComponent = (props) => {
                                 Net Total
                               </td>
                               {props.visibleFieldsCustomTemp
-                                .serviceCategory && <td></td>}
+                                .serviceCategory && (
+                                  <td className="tr-table-class text-white"></td>
+                                )}
                               {props.visibleFieldsCustomTemp.serviceScope && (
-                                <td></td>
+                                <td className="tr-table-class text-white"></td>
                               )}
                               {props.visibleFieldsCustomTemp.fees && (
                                 <td className="tr-table-class text-white text-center">
@@ -4908,7 +4912,7 @@ const ReviewServicesComponent = (props) => {
                               )}
                               {props.vatPercentage !== 0 &&
                                 props.visibleFieldsCustomTemp.vatRate && (
-                                  <td></td>
+                                  <td className="tr-table-class text-white"></td>
                                 )}
                               {props.vatPercentage !== 0 &&
                                 props.visibleFieldsCustomTemp.vat && (
@@ -5599,46 +5603,6 @@ const ReviewServicesComponent = (props) => {
                       </div>
                     </div>
                     <div className="mb-3"></div>
-                    <div
-                      className="Custom-template"
-                      style={{
-                        display: "flex",
-                        justifyContent: "flex-end",
-                        alignItems: "center",
-                        gap: "10px", // space between icons
-                        width: "100%", // ensure it fills parent for right alignment
-                      }}
-                    >
-                      <div className="viewTemp">
-                        <Tooltip title="Select Template">
-                          <div
-                            onClick={() => {
-                              props.setShowSelectTemplateModal(true);
-                              props.setServiceTypeID(
-                                servicePackageTypeID.OneOffServiceTypeID,
-                              );
-                            }}
-                            style={{ cursor: "pointer" }}
-                          >
-                            <ViewModuleIcon />
-                          </div>
-                        </Tooltip>
-                      </div>
-
-                      {/* <div className="customizeTemp">
-                        <Tooltip title="Customize your own">
-                          <div
-                            onClick={() => {
-                              props.setShowTemplateCustomizationModal(true);
-                              props.setServiceTypeID(2);
-                            }}
-                            style={{ cursor: "pointer" }}
-                          >
-                            <EditIcon />
-                          </div>
-                        </Tooltip>
-                      </div> */}
-                    </div>
 
                     {props.selectedTemplateIDOneOff === 0 ? (
                       <div
@@ -6175,9 +6139,11 @@ const ReviewServicesComponent = (props) => {
                                 Net Total
                               </td>
                               {props.visibleFieldsCustomTemp
-                                .serviceCategory && <td></td>}
+                                .serviceCategory && (
+                                  <td className="tr-table-class text-white"></td>
+                                )}
                               {props.visibleFieldsCustomTemp.serviceScope && (
-                                <td></td>
+                                <td className="tr-table-class text-white"></td>
                               )}
                               {props.visibleFieldsCustomTemp.fees && (
                                 <td className="tr-table-class text-white text-center">
@@ -6202,7 +6168,7 @@ const ReviewServicesComponent = (props) => {
                               )}
                               {props.vatPercentage !== 0 &&
                                 props.visibleFieldsCustomTemp.vatRate && (
-                                  <td></td>
+                                  <td className="tr-table-class text-white"></td>
                                 )}
                               {props.vatPercentage !== 0 &&
                                 props.visibleFieldsCustomTemp.vat && (
@@ -12466,6 +12432,22 @@ const ReviewPackagesComponent = (props) => {
     props.setServiceDescriptionHTML(newContent);
   };
 
+  const hasRecurringPackageRows = (props.selectedRecurringServiceList || []).some(
+    (service) => (service?.servicesList || []).length > 0,
+  );
+  const hasOneOffPackageRows = (props.selectedOneOffServiceList || []).some(
+    (service) => (service?.servicesList || []).length > 0,
+  );
+
+  const openGlobalPackageTemplatePicker = () => {
+    props.setShowSelectTemplateModal(true);
+    props.setServiceTypeID(
+      hasRecurringPackageRows
+        ? servicePackageTypeID.RecurringPackageTypeID
+        : servicePackageTypeID.OneOffPackageTypeID,
+    );
+  };
+
   console.log(
     "vatPercentageOneOff",
     props.vatPercentageOneOff,
@@ -12540,6 +12522,33 @@ const ReviewPackagesComponent = (props) => {
               </div>
             </div>
           </div>
+          {(hasRecurringPackageRows || hasOneOffPackageRows) && (
+            <div
+              className="Custom-template"
+              style={{
+                display: "flex",
+                justifyContent: "flex-end",
+                alignItems: "center",
+                gap: "10px",
+                width: "100%",
+                marginBottom: "12px",
+              }}
+            >
+              <small className="text-muted">
+                Applies to recurring and one-off tables
+              </small>
+              <div className="viewTemp">
+                <Tooltip title="Select Template">
+                  <div
+                    onClick={openGlobalPackageTemplatePicker}
+                    style={{ cursor: "pointer" }}
+                  >
+                    <ViewModuleIcon />
+                  </div>
+                </Tooltip>
+              </div>
+            </div>
+          )}
           {props.selectedRecurringServiceList?.length !== 0 && (
             <div className="tab-content">
               <div className="tab-pane p-3 active">
@@ -12600,47 +12609,6 @@ const ReviewPackagesComponent = (props) => {
                     </div>
                     <div className="row fieldset"></div>
                     <div className="mb-3"></div>
-
-                    <div
-                      className="Custom-template"
-                      style={{
-                        display: "flex",
-                        justifyContent: "flex-end",
-                        alignItems: "center",
-                        gap: "10px", // space between icons
-                        width: "100%", // ensure it fills parent for right alignment
-                      }}
-                    >
-                      <div className="viewTemp">
-                        <Tooltip title="Select Template">
-                          <div
-                            onClick={() => {
-                              props.setShowSelectTemplateModal(true);
-                              props.setServiceTypeID(
-                                servicePackageTypeID.RecurringPackageTypeID,
-                              );
-                            }}
-                            style={{ cursor: "pointer" }}
-                          >
-                            <ViewModuleIcon />
-                          </div>
-                        </Tooltip>
-                      </div>
-
-                      {/* <div className="customizeTemp">
-                        <Tooltip title="Customize your own">
-                          <div
-                            onClick={() => {
-                              props.setShowTemplateCustomizationModal(true);
-                              props.setServiceTypeID(1);
-                            }}
-                            style={{ cursor: "pointer" }}
-                          >
-                            <EditIcon />
-                          </div>
-                        </Tooltip>
-                      </div> */}
-                    </div>
 
                     {props.selectedTemplateID === 0 ? (
                       <div
@@ -13554,6 +13522,7 @@ const ReviewPackagesComponent = (props) => {
                               ))}
                             </tr>
                             <tr className="head-row">
+                              {/* hello 123 */}
                               {props.visibleFieldsCustomTemp.serviceName && (
                                 <td className="tr-table-class font-14 text-white">
                                   Services
@@ -15507,47 +15476,6 @@ const ReviewPackagesComponent = (props) => {
                       </div>
                     </div>
                     <div className="mb-3"></div>
-
-                    <div
-                      className="Custom-template"
-                      style={{
-                        display: "flex",
-                        justifyContent: "flex-end",
-                        alignItems: "center",
-                        gap: "10px", // space between icons
-                        width: "100%", // ensure it fills parent for right alignment
-                      }}
-                    >
-                      <div className="viewTemp">
-                        <Tooltip title="Select Template">
-                          <div
-                            onClick={() => {
-                              props.setShowSelectTemplateModal(true);
-                              props.setServiceTypeID(
-                                servicePackageTypeID.OneOffPackageTypeID,
-                              );
-                            }}
-                            style={{ cursor: "pointer" }}
-                          >
-                            <ViewModuleIcon />
-                          </div>
-                        </Tooltip>
-                      </div>
-
-                      {/* <div className="customizeTemp">
-                        <Tooltip title="Customize your own">
-                          <div
-                            onClick={() => {
-                              props.setShowTemplateCustomizationModal(true);
-                              props.setServiceTypeID(2);
-                            }}
-                            style={{ cursor: "pointer" }}
-                          >
-                            <EditIcon />
-                          </div>
-                        </Tooltip>
-                      </div> */}
-                    </div>
 
                     {props.selectedTemplateIDOneOff === 0 ? (
                       <div
@@ -25539,6 +25467,8 @@ const Add_Update_Proposal = (props) => {
       ProposalObject.customizedEmailContent,
       "CustomizeTemplate",
     );
+    const isGlobalCustomTemplate =
+      selectedTemplateID === 6 || selectedTemplateIDOneOff === 6;
     const ApiRequest_ParamsObj = {
       organisationKeyID: common.organisationKeyID,
       userKeyID: common.userKeyID,
@@ -25595,7 +25525,7 @@ const Add_Update_Proposal = (props) => {
           : null,
       statusID: StatusId || null,
       pricingTableColumnIDs:
-        selectedTemplateID === 0 ? null : getVisibleFieldIds(),
+        isGlobalCustomTemplate ? getVisibleFieldIds() : null,
       TabName: moduleName,
       quotePDFUrl: MergePdfUrl || null,
       documentCode: DocumentCode || null,
@@ -25617,7 +25547,7 @@ const Add_Update_Proposal = (props) => {
         quoteAdditionalServicesInPackages.selectedServicesList,
       ServiceMappingWithPackagesList: ServiceMappingWithPackagesList,
       pricingTableColumnIDs:
-        selectedTemplateID === 0 ? null : getVisibleFieldIds(),
+        isGlobalCustomTemplate ? getVisibleFieldIds() : null,
     };
     setRequireMessage(false);
     console.log(ApiRequest_ParamsObj, "ApiRequest_ParamsObj");
