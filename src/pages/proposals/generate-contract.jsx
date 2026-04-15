@@ -738,7 +738,7 @@ function AcceptInvitation() {
                 ),
               });
 
-              if (recurringServiceCatList.length > 0) {
+              if (recurringServiceCatList?.length > 0) {
                 currentArray.push({
                   table: `
                               <div style="padding-left: 40px; padding-right: 40px; font-family:${fontFamily};page-break-inside: avoid; break-inside: avoid;">
@@ -921,7 +921,7 @@ function AcceptInvitation() {
                 });
               }
 
-              if (oneOffServiceCatList.length > 0) {
+              if (oneOffServiceCatList?.length > 0) {
                 currentArray.push({
                   table: `
                                 <div style="padding-left: 40px; padding-right: 40px; font-family:${fontFamily};page-break-inside: avoid; break-inside: avoid;">
@@ -1103,7 +1103,7 @@ function AcceptInvitation() {
                 });
               }
             } else {
-              if (recurringServiceCatList.length > 0 && quoteTypeID !== 4) {
+              if (recurringServiceCatList?.length > 0 && quoteTypeID !== 4) {
                 currentArray.push({
                   table: ` ${imgTag}
                           <div style="padding: 40px; padding-top:0px; font-family:${fontFamily};page-break-inside: avoid; break-inside: avoid;">
@@ -1226,7 +1226,7 @@ function AcceptInvitation() {
                 });
               }
               // Check if selectedOneOffServiceList has items
-              if (oneOffServiceCatList.length > 0 && quoteTypeID !== 4) {
+              if (oneOffServiceCatList?.length > 0 && quoteTypeID !== 4) {
                 // Append the table for selectedOneOffServiceList
                 currentArray.push({
                   table: `
@@ -2153,7 +2153,7 @@ function AcceptInvitation() {
 
     try {
       const data = await GetContractDetailsForSignEasyList(GetContractKeyID);
-
+      debugger;
       if (data?.data?.statusCode === 200) {
         if (data?.data?.responseData?.data) {
           const ModelData = data?.data?.responseData?.data;
