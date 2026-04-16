@@ -2224,7 +2224,7 @@ const TopbarClone = () => {
                                               NotificationCountData();
                                             }}
                                           >
-                                            Access Key sdas
+                                            Access Key
                                           </NavLink>
                                         </li>
                                         <li class="nav-item">
@@ -2334,6 +2334,15 @@ const TopbarClone = () => {
                                                 className="nav-link"
                                               >
                                                 QuickBooks
+                                              </Link>
+                                            </li>
+                                            <li className="nav-item">
+                                              <Link
+                                                to="/deviation"
+                                                onClick={togglenav}
+                                                className="nav-link"
+                                              >
+                                                Deviation
                                               </Link>
                                             </li>
 

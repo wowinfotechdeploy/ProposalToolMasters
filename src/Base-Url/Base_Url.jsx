@@ -70,3 +70,4 @@ export const AccessKeyBaseUrl =
 
 export const XeroBaseUrl = `https://outbooks-node-staging-api.caelum.ai/api/v1/xero/`
 export const QuickBookUrl = `https://outbooks-node-staging-api.caelum.ai/api/v1/quickbooks/`
+export const DeviationBaseUrl = `https://outbooks-node-staging-api.caelum.ai/api/v1/service-review/`

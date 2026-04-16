@@ -271,6 +271,7 @@ const Payment_Gateway = Loadable(
 
 const Xero = Loadable(lazy(() => import("../pages/Settings/xero")));
 const QuickBook = Loadable(lazy(() => import("../pages/Settings/quick-book")));
+const Deviation = Loadable(lazy(() => import("../pages/Settings/deviation")));
 
 const Activity_Logs = Loadable(
   lazy(() => import("../pages/Settings/Activity-logs/Activity_Logs"))
@@ -1204,6 +1205,7 @@ function Index() {
                           />
                           <Route path="/xero" element={<Xero />} />
                           <Route path="/quickbooks" element={<QuickBook />} />
+                          <Route path="/deviation" element={<Deviation />} />
                           <Route
                             path="/activity-logs"
                             element={<Activity_Logs />}

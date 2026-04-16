@@ -77,7 +77,7 @@ function Filter(props) {
 
   const hasVoidedEL = props?.engagementList?.some((el) => el.statusID === 8);
   const EngagementLetterStatusOptions = Utils.EngagementLetterStatus.filter(el => {
-    if(hasVoidedEL)  {
+    if (hasVoidedEL) {
       return true;
     } else {
       return el.value !== 8;
