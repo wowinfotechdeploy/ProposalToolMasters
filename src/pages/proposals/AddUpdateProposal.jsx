@@ -8173,7 +8173,7 @@ const ReviewPackagesComponent = (props) => {
               </tr>
             </>
           )}
-        {props.vatPercentage && (
+        {props.vatPercentageOneOff && (
           <>
             <tr style={{ backgroundColor: "#DCDCDC" }}>
               <td
@@ -10095,7 +10095,7 @@ const ReviewPackagesComponent = (props) => {
                 </tr>
               </>
             )}
-          {props.vatPercentage && (
+          {props.vatPercentageOneOff && (
             <>
               <tr style={{ backgroundColor: "#DCDCDC" }}>
                 <td
@@ -27942,95 +27942,100 @@ const Add_Update_Proposal = (props) => {
                 />
               )}
               {activeTab === ProposalHeader.Preview && (
-                <Suspense>
-                  <PreviewComponentPdf
-                    isDefaultFirstPage={isDefaultFirstPage}
-                    DocumentCode={DocumentCode}
-                    setIsAddUpdatePricingActionDone={
-                      setIsAddUpdatePricingActionDone
-                    }
-                    isAddUpdatePricingActionDone={isAddUpdatePricingActionDone}
-                    paymentGatewayObj={paymentGatewayObj}
-                    BrandColor={BrandColor}
-                    common={common}
-                    Logo={CompanyLogo}
-                    fontFamily={fontFamily}
-                    fontSize={fontSize}
-                    StatementOfFact={StatementOfFact}
-                    DisableTabOnChange={DisableTabOnChange}
-                    handleSaveAsDraft={handleSaveAsDraft}
-                    HandleTabChange={HandleTabChange}
-                    handleCancelBtn={handleCancelBtn}
-                    DiscountLines={ProposalObject.DiscountLines}
-                    handleSkipEngagementLetter={handleSkipEngagementLetter}
-                    RecurringPackagesTable={RecurringPackagesTable}
-                    setRecurringPackagesTable={setRecurringPackagesTable}
-                    OneOffPackagesTable={OneOffPackagesTable}
-                    selectedPackagesList={selectedPackagesList}
-                    setOneOffPackagesTable={setOneOffPackagesTable}
-                    ProposalObject={ProposalObject}
-                    MergePdfUrl={MergePdfUrl}
-                    additionalInformationList={additionalInformationList}
-                    setMergePdfUrl={setMergePdfUrl}
-                    vatPercentage={vatPercentage}
-                    feeTypeId={ProposalObject.feeTypeId}
-                    selectedRecurringServiceList={selectedRecurringServiceList}
-                    selectedOneOffServiceList={selectedOneOffServiceList}
-                    templateElementList={templateElementList}
-                    organisationData={organisationData}
-                    moduleName={"Quote"}
-                    RecurringPricingInfo={RecurringPricingInfo}
-                    OneOffPricingInfo={OneOffPricingInfo}
-                    selectedPackages={selectedPackagesDetails}
-                    setProposalObject={setProposalObject}
-                    requireMessage={requireMessage}
-                    setRequireMessage={setRequireMessage}
-                    lastPaymentFrequencyAndDiscountedPriceForPreview={
-                      lastPaymentFrequencyAndDiscountedPriceForPreview
-                    }
-                    formatValue={formatValue}
-                    formatValueWithoutCurrencySymbol={
-                      formatValueWithoutCurrencySymbol
-                    }
-                    setLastPaymentFrequencyAndDiscountedPriceForPreview={
-                      setLastPaymentFrequencyAndDiscountedPriceForPreview
-                    }
-                    setLastPaymentFrequencyAndDiscountedPriceForPreviewForoneoff={
-                      setLastPaymentFrequencyAndDiscountedPriceForPreviewForOneOff
-                    }
-                    lastPaymentFrequencyAndDiscountedPriceForPreviewForoneoff={
-                      lastPaymentFrequencyAndDiscountedPriceForPreviewForOneOff
-                    }
-                    proposalName={proposalName}
-                    headerContent={headerContent}
-                    footerContent={footerContent}
-                    headerImage={headerImage}
-                    footerImage={footerImage}
-                    headerHeight={headerHeight}
-                    footerHeight={footerHeight}
-                    showSeparatorLines={showSeparatorLines}
-                    currentPricingTableDesignOneOff={
-                      currentPricingTableDesignOneOff
-                    }
-                    currentPricingTableDesignRecurring={
-                      currentPricingTableDesignRecurring
-                    }
-                    serviceDescriptionHTML={serviceDescriptionHTML}
-                    statementOfFactsHTML={statementOfFactsHTML}
-                    selectedTemplateIDOneOff={selectedTemplateIDOneOff}
-                    selectedTemplateID={selectedTemplateID}
-                    visibleFieldsCustomTemp={visibleFieldsCustomTemp}
-                    currencyID={currencyID}
-                    taxName={taxName}
-                    currencySymbol={currencySymbol}
-                    pricingSettingObj={pricingSettingObj}
-                    vatPercentageOneOff={vatPercentageOneOff}
-                    watermarkImage={watermarkImage}
-                    orientationID={orientationID}
-                    headerFooterFirstPage={headerFooterFirstPage}
-                    headerFooterLastPage={headerFooterLastPage}
-                  />
-                </Suspense>
+                <>
+                {console.log("ProposalObject", ProposalObject)}
+                {console.log("RecurringPricingInfo", ProposalObject)}
+                {console.log("OneOffPricingInfo", OneOffPricingInfo)}
+                  <Suspense>
+                    <PreviewComponentPdf
+                      isDefaultFirstPage={isDefaultFirstPage}
+                      DocumentCode={DocumentCode}
+                      setIsAddUpdatePricingActionDone={
+                        setIsAddUpdatePricingActionDone
+                      }
+                      isAddUpdatePricingActionDone={isAddUpdatePricingActionDone}
+                      paymentGatewayObj={paymentGatewayObj}
+                      BrandColor={BrandColor}
+                      common={common}
+                      Logo={CompanyLogo}
+                      fontFamily={fontFamily}
+                      fontSize={fontSize}
+                      StatementOfFact={StatementOfFact}
+                      DisableTabOnChange={DisableTabOnChange}
+                      handleSaveAsDraft={handleSaveAsDraft}
+                      HandleTabChange={HandleTabChange}
+                      handleCancelBtn={handleCancelBtn}
+                      DiscountLines={ProposalObject.DiscountLines}
+                      handleSkipEngagementLetter={handleSkipEngagementLetter}
+                      RecurringPackagesTable={RecurringPackagesTable}
+                      setRecurringPackagesTable={setRecurringPackagesTable}
+                      OneOffPackagesTable={OneOffPackagesTable}
+                      selectedPackagesList={selectedPackagesList}
+                      setOneOffPackagesTable={setOneOffPackagesTable}
+                      ProposalObject={ProposalObject}
+                      MergePdfUrl={MergePdfUrl}
+                      additionalInformationList={additionalInformationList}
+                      setMergePdfUrl={setMergePdfUrl}
+                      vatPercentage={vatPercentage}
+                      feeTypeId={ProposalObject.feeTypeId}
+                      selectedRecurringServiceList={selectedRecurringServiceList}
+                      selectedOneOffServiceList={selectedOneOffServiceList}
+                      templateElementList={templateElementList}
+                      organisationData={organisationData}
+                      moduleName={"Quote"}
+                      RecurringPricingInfo={RecurringPricingInfo}
+                      OneOffPricingInfo={OneOffPricingInfo}
+                      selectedPackages={selectedPackagesDetails}
+                      setProposalObject={setProposalObject}
+                      requireMessage={requireMessage}
+                      setRequireMessage={setRequireMessage}
+                      lastPaymentFrequencyAndDiscountedPriceForPreview={
+                        lastPaymentFrequencyAndDiscountedPriceForPreview
+                      }
+                      formatValue={formatValue}
+                      formatValueWithoutCurrencySymbol={
+                        formatValueWithoutCurrencySymbol
+                      }
+                      setLastPaymentFrequencyAndDiscountedPriceForPreview={
+                        setLastPaymentFrequencyAndDiscountedPriceForPreview
+                      }
+                      setLastPaymentFrequencyAndDiscountedPriceForPreviewForoneoff={
+                        setLastPaymentFrequencyAndDiscountedPriceForPreviewForOneOff
+                      }
+                      lastPaymentFrequencyAndDiscountedPriceForPreviewForoneoff={
+                        lastPaymentFrequencyAndDiscountedPriceForPreviewForOneOff
+                      }
+                      proposalName={proposalName}
+                      headerContent={headerContent}
+                      footerContent={footerContent}
+                      headerImage={headerImage}
+                      footerImage={footerImage}
+                      headerHeight={headerHeight}
+                      footerHeight={footerHeight}
+                      showSeparatorLines={showSeparatorLines}
+                      currentPricingTableDesignOneOff={
+                        currentPricingTableDesignOneOff
+                      }
+                      currentPricingTableDesignRecurring={
+                        currentPricingTableDesignRecurring
+                      }
+                      serviceDescriptionHTML={serviceDescriptionHTML}
+                      statementOfFactsHTML={statementOfFactsHTML}
+                      selectedTemplateIDOneOff={selectedTemplateIDOneOff}
+                      selectedTemplateID={selectedTemplateID}
+                      visibleFieldsCustomTemp={visibleFieldsCustomTemp}
+                      currencyID={currencyID}
+                      taxName={taxName}
+                      currencySymbol={currencySymbol}
+                      pricingSettingObj={pricingSettingObj}
+                      vatPercentageOneOff={vatPercentageOneOff}
+                      watermarkImage={watermarkImage}
+                      orientationID={orientationID}
+                      headerFooterFirstPage={headerFooterFirstPage}
+                      headerFooterLastPage={headerFooterLastPage}
+                    />
+                  </Suspense>
+                </>
               )}
             </div>
           </div>

@@ -6389,7 +6389,7 @@ ${
                         }
 
        ${
-         props.vatPercentage
+         props.vatPercentageOneOff
            ? `
         <tr style="background-color: #DCDCDC";>
            <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;color: black;">
