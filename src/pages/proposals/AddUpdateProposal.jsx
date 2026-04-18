@@ -1956,7 +1956,8 @@ const ReviewServicesComponent = (props) => {
     props.ProposalObject?.Payment_Frequency,
     props.currencySymbol,
     props.common?.enableEL,
-    props.RecurringPricingInfo
+    props.RecurringPricingInfo,
+    props.OneOffPricingInfo
   ]);
   useEffect(() => {
     const isRecurringDiscounted =
@@ -3114,12 +3115,12 @@ const ReviewServicesComponent = (props) => {
 
     //Calculate : vatPercentage,vatTotalAmount
     if (
-      !isNaN(props.vatPercentage) &&
-      props.vatPercentage !== undefined &&
-      props.vatPercentage !== null
+      !isNaN(props.vatPercentageOneOff) &&
+      props.vatPercentageOneOff !== undefined &&
+      props.vatPercentageOneOff !== null
     ) {
-      if (props.vatPercentage > 0) {
-        vatPercentage = props.vatPercentage;
+      if (props.vatPercentageOneOff > 0) {
+        vatPercentage = props.vatPercentageOneOff;
         vatTotalAmount = (Number(discountedTotalAmount) * vatPercentage) / 100;
         vatTotalAmount =
           props.GetTwoDecimalValueWithoutRoundOff(vatTotalAmount);
@@ -3128,11 +3129,11 @@ const ReviewServicesComponent = (props) => {
 
     //Calculate : grandTotalAmount
     if (
-      !isNaN(props.vatPercentage) &&
-      props.vatPercentage !== undefined &&
-      props.vatPercentage !== null
+      !isNaN(props.vatPercentageOneOff) &&
+      props.vatPercentageOneOff !== undefined &&
+      props.vatPercentageOneOff !== null
     ) {
-      if (props.vatPercentage > 0) {
+      if (props.vatPercentageOneOff > 0) {
         grandTotalAmount = discountedTotalAmount + vatTotalAmount;
         grandTotalAmount = Number(grandTotalAmount)?.toFixed(2);
       }
@@ -8513,7 +8514,8 @@ const ReviewPackagesComponent = (props) => {
     props.selectedPackagesList,
     props.selectedPackagesDetails,
     props.ProposalObject?.Payment_Frequency,
-    props.RecurringPricingInfo
+    props.RecurringPricingInfo,
+    props.OneOffPricingInfo
   ]);
 
   const computeRecurringTotalPackageValues = () => {
@@ -25275,7 +25277,7 @@ const Add_Update_Proposal = (props) => {
             ProposalObject.selectedProposalTypeValue === 4
               ? null
               : OneOffPricingInfo.DiscountedTotal,
-          vatPercentage: vatPercentage ? vatPercentage : null,
+          vatPercentage: vatPercentageOneOff ? vatPercentageOneOff : null,
           // vat: vatPercentage == null ? null : OneOffPricingInfo.VATPrice,
           vat:
             vatPercentage == null
@@ -25284,7 +25286,7 @@ const Add_Update_Proposal = (props) => {
           grandTotal:
             ProposalObject.selectedProposalTypeValue === 4
               ? null
-              : vatPercentage == null
+              : vatPercentageOneOff == null
                 ? null
                 : OneOffPricingInfo.GrandTotal,
         });
