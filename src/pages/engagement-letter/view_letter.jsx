@@ -1308,12 +1308,19 @@ const View_Engagement_Latter = () => {
                                                         <td className="tr-table-class text-white font-14 text-right">
                                                           {" "}
                                                           {formatValue(
-                                                            totalRecServiceVAT,
+                                                            Number(
+                                                              RecurringPricingInfo.Discount
+                                                            ) > 0
+                                                              ? Number(totalRecServiceVAT) *
+                                                                  (Number(
+                                                                    RecurringPricingInfo.DiscountedTotal
+                                                                  ) /
+                                                                    Number(
+                                                                      RecurringPricingInfo.OriginalPrice
+                                                                    ))
+                                                              : Number(totalRecServiceVAT),
                                                             EngagementObj.currencyID
                                                           )}
-                                                          {/* {formatValue(
-                                                            RecurringPricingInfo.VATPrice
-                                                          )} */}
                                                         </td>
                                                       </tr>
                                                       <tr className="head-row">
@@ -1322,9 +1329,6 @@ const View_Engagement_Latter = () => {
                                                         </td>
                                                         <td className="tr-table-class font-14 text-white text-right">
                                                           {" "}
-                                                          {/* {formatValue(
-                                                            RecurringPricingInfo.GrandTotal
-                                                          )} */}
                                                           {formatValue(
                                                             Number(
                                                               RecurringPricingInfo.Discount
@@ -1332,16 +1336,16 @@ const View_Engagement_Latter = () => {
                                                               ? Number(
                                                                   RecurringPricingInfo.DiscountedTotal
                                                                 ) +
-                                                                  Number(
-                                                                    totalRecServiceVAT
-                                                                  )
+                                                                  Number(totalRecServiceVAT) *
+                                                                    (Number(
+                                                                      RecurringPricingInfo.DiscountedTotal
+                                                                    ) /
+                                                                      Number(
+                                                                        RecurringPricingInfo.OriginalPrice
+                                                                      ))
                                                               : Number(
                                                                   RecurringPricingInfo.OriginalPrice
-                                                                ) +
-                                                                  Number(
-                                                                    totalRecServiceVAT
-                                                                  )
-                                                            ,
+                                                                ) + Number(totalRecServiceVAT),
                                                             EngagementObj.currencyID
                                                           )}
                                                         </td>
@@ -2022,7 +2026,17 @@ const View_Engagement_Latter = () => {
                                                         <td className="tr-table-class font-14 text-white text-right">
                                                           {" "}
                                                           {formatValue(
-                                                            totalOneOffServiceVAT,
+                                                            Number(
+                                                              OneOffPricingInfo.Discount
+                                                            ) > 0
+                                                              ? Number(totalOneOffServiceVAT) *
+                                                                  (Number(
+                                                                    OneOffPricingInfo.DiscountedTotal
+                                                                  ) /
+                                                                    Number(
+                                                                      OneOffPricingInfo.OriginalPrice
+                                                                    ))
+                                                              : Number(totalOneOffServiceVAT),
                                                             EngagementObj.currencyID
                                                           )}
                                                         </td>
@@ -2040,16 +2054,16 @@ const View_Engagement_Latter = () => {
                                                               ? Number(
                                                                   OneOffPricingInfo.DiscountedTotal
                                                                 ) +
-                                                                  Number(
-                                                                    totalOneOffServiceVAT
-                                                                  )
+                                                                  Number(totalOneOffServiceVAT) *
+                                                                    (Number(
+                                                                      OneOffPricingInfo.DiscountedTotal
+                                                                    ) /
+                                                                      Number(
+                                                                        OneOffPricingInfo.OriginalPrice
+                                                                      ))
                                                               : Number(
                                                                   OneOffPricingInfo.OriginalPrice
-                                                                ) +
-                                                                  Number(
-                                                                    totalOneOffServiceVAT
-                                                                  )
-                                                            ,
+                                                                ) + Number(totalOneOffServiceVAT),
                                                             EngagementObj.currencyID
                                                           )}
                                                         </td>
