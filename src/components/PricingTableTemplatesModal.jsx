@@ -627,7 +627,7 @@ const PricingTableTemplatesModal = ({
                       </tr>
                     </>
                   )}
-                {vatPercentage ? (
+                {vatPercentageOneOff ? (
                   <>
                     <tr class="head-grey-row">
                       <td className="tr-table-class font-14 text-white">
@@ -635,7 +635,14 @@ const PricingTableTemplatesModal = ({
                       </td>
                       <td className="tr-table-class font-14 text-white text-right">
                         {" "}
-                        {formatValue(OneOffPricingInfo.VATPrice, currencyID)}
+                        {formatValue(
+                          Number(
+                            OneOffPricingInfo.totalServiceWiseVATOneOff ??
+                              OneOffPricingInfo.VATPrice ??
+                              0,
+                          ),
+                          currencyID,
+                        )}
                       </td>
                     </tr>
                     <tr className="head-row">
@@ -644,7 +651,30 @@ const PricingTableTemplatesModal = ({
                       </td>
                       <td className="tr-table-class font-14 text-white text-right">
                         {" "}
-                        {formatValue(OneOffPricingInfo.GrandTotal, currencyID)}
+                        {(() => {
+                          const hasDiscount =
+                            Number(OneOffPricingInfo.Discount) > 0;
+
+                          // Match Review Services logic:
+                          // - If discount lines are shown, Grand Total is DiscountedTotal + VAT
+                          // - Otherwise, use the same net selector used by Net Total row
+                          const baseNet =
+                            hasDiscount && ProposalObject.DiscountLines
+                              ? Number(OneOffPricingInfo.DiscountedTotal)
+                              : Number(OneOffPricingInfo.OriginalPrice) <
+                                    Number(OneOffPricingInfo.DiscountedPrice) ||
+                                  (hasDiscount && !ProposalObject.DiscountLines)
+                                ? Number(OneOffPricingInfo.DiscountedPrice)
+                                : Number(OneOffPricingInfo.OriginalPrice);
+
+                          const vatVal = Number(
+                            OneOffPricingInfo.totalServiceWiseVATOneOff ??
+                              OneOffPricingInfo.VATPrice ??
+                              0,
+                          );
+
+                          return formatValue(baseNet + vatVal, currencyID);
+                        })()}
                       </td>
                     </tr>
                   </>
@@ -9584,7 +9614,7 @@ const PricingTableTemplatesModal = ({
                                                 {ProposalObject
                                                   .feeTypeId === 1 &&
                                                   formatValue(
-                                                    subService.service_vat_amount,
+                                                    vat,
                                                     currencyID,
                                                   )}
                                                 {ProposalObject
@@ -9600,10 +9630,7 @@ const PricingTableTemplatesModal = ({
                                                 {ProposalObject
                                                   .feeTypeId === 1 &&
                                                   formatValue(
-                                                    price +
-                                                      Number(
-                                                        subService.service_vat_amount,
-                                                      ),
+                                                    total,
                                                     currencyID,
                                                   )}
                                                 {ProposalObject

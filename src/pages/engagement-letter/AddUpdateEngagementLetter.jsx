@@ -14997,8 +14997,10 @@ const Add_Update_Engagement_Letter = () => {
               ...RecurringPricingInfo,
               OriginalPrice: recOriginalPrice,
               DiscountedPrice: recDefaultPrice,
-              totalServiceWiseVAT: totalVATAmount,
+              // `staticTotalVAT` is the pre-discount VAT total (used for Net Total row).
+              // `totalServiceWiseVAT` is the post-discount VAT total (used to compute VAT discount).
               staticTotalVAT: totalVATAmount,
+              totalServiceWiseVAT: recVATPrice,
               MinPrice: recMinPrice,
               VATPrice: recVATPrice,
               VATPriceWithoutDiscount: recVATPrice,
@@ -15187,8 +15189,10 @@ const Add_Update_Engagement_Letter = () => {
               DiscountedPrice: oneOffDiscountedPrice,
               MinPrice: oneOffMinPrice,
               VATPrice: oneOffVATPrice,
-              totalServiceWiseVATOneOff: totalVATAmountOneOff,
+              // `staticTotalVATOneOff` is the pre-discount VAT total (used for Net Total row).
+              // `totalServiceWiseVATOneOff` is the post-discount VAT total (used to compute VAT discount).
               staticTotalVATOneOff: totalVATAmountOneOff,
+              totalServiceWiseVATOneOff: oneOffVATPrice,
               VATPriceWithoutDiscount: oneOffVATPrice,
               Discount: oneOffDiscount,
               // DefaultDiscount: Number(oneOffDefaultDiscount).toFixed(2),
@@ -20594,7 +20598,20 @@ const Add_Update_Engagement_Letter = () => {
             paymentGatewayID: ModelData.paymentGatewayID,
             statusID: ModelData.statusID,
           });
-          updateVisibleFieldsFromIds(TemplateValue?.pricingTableColumnIDs);
+          // If contract has saved column IDs, it means user used a custom table template.
+          // Prefer persisted selection over the template's default columns.
+          const resolvedPricingTableColumnIDs =
+            typeof ModelData?.pricingTableColumnIDs === "string" &&
+            ModelData.pricingTableColumnIDs.trim() !== ""
+              ? ModelData.pricingTableColumnIDs
+              : TemplateValue?.pricingTableColumnIDs;
+
+          setPricingTableColumnIDs(
+            typeof resolvedPricingTableColumnIDs === "string"
+              ? resolvedPricingTableColumnIDs
+              : "",
+          );
+          updateVisibleFieldsFromIds(resolvedPricingTableColumnIDs);
           setServiceDescriptionObj((prev) => ({
             ...prev,
             mainHeading: TemplateValue?.mainHeadingSD,
@@ -20860,7 +20877,9 @@ const Add_Update_Engagement_Letter = () => {
                 service.quotationPriceWithAllDecimal,
               ).toFixed(2);
               let service_vat_percentage = Number(service.vatPercentage);
-              let service_vat_amount = Number(service.vatAmount);
+              // For proposal→package flows, API `vatAmount` can be a repeated total.
+              // Always derive VAT from the service price and VAT%.
+              let service_vat_amount = 0;
               let price = Number(service.quotationPrice);
 
               switch (recurringOneOffPrice.paymentFrequencyID) {
@@ -20868,24 +20887,25 @@ const Add_Update_Engagement_Letter = () => {
                   quotationPrice *= 12;
                   quotationPriceWithAllDecimal *= 12;
                   price *= 12;
-                  service_vat_amount *= 12;
                   break;
                 case 3:
                   quotationPrice *= 4;
                   quotationPriceWithAllDecimal *= 4;
                   price *= 4;
-                  service_vat_amount *= 4;
                   break;
                 case 2:
                   quotationPrice *= 2;
                   quotationPriceWithAllDecimal *= 2;
                   price *= 2;
-                  service_vat_amount *= 2;
                   break;
                 case 1:
                 default:
                   break;
               }
+
+              service_vat_amount =
+                (Number(quotationPriceWithAllDecimal) * service_vat_percentage) /
+                100;
 
               return {
                 ...service,
@@ -20909,36 +20929,37 @@ const Add_Update_Engagement_Letter = () => {
                 service.quotationPriceWithAllDecimal,
               ).toFixed(2);
               let service_vat_percentage = Number(service.vatPercentage);
-              let service_vat_amount = Number(service.vatAmount);
+              let service_vat_amount = 0;
               let price = Number(service.quotationPrice);
               switch (engagementObj.Payment_Frequency) {
                 case 1: // Yearly
                   quotationPrice /= 1;
                   quotationPriceWithAllDecimal /= 1;
                   price /= 1;
-                  service_vat_amount /= 1;
                   break;
                 case 2: // Half-Yearly
                   quotationPrice /= 2;
                   quotationPriceWithAllDecimal /= 2;
                   price /= 2;
-                  service_vat_amount /= 2;
                   break;
                 case 3: // Quarterly
                   quotationPrice /= 4;
                   quotationPriceWithAllDecimal /= 4;
                   price /= 4;
-                  service_vat_amount /= 4;
                   break;
                 case 4: // Monthly
                   quotationPrice /= 12;
                   quotationPriceWithAllDecimal /= 12;
                   price /= 12;
-                  service_vat_amount /= 12;
                   break;
                 default:
                   break;
               }
+
+              service_vat_amount =
+                (Number(quotationPriceWithAllDecimal) * service_vat_percentage) /
+                100;
+
               return {
                 ...service,
                 quotationPrice,
@@ -21020,7 +21041,9 @@ const Add_Update_Engagement_Letter = () => {
                 service.quotationPriceWithAllDecimal,
               );
               let service_vat_percentage = Number(service.vatPercentage);
-              let service_vat_amount = Number(service.vatAmount);
+              let service_vat_amount =
+                (Number(quotationPriceWithAllDecimal) * service_vat_percentage) /
+                100;
               let price = Number(service.quotationPrice);
               return {
                 ...service,
@@ -21056,7 +21079,8 @@ const Add_Update_Engagement_Letter = () => {
               service.quotationPriceWithAllDecimal,
             ).toFixed(2);
             let service_vat_percentage = Number(service.vatPercentage);
-            let service_vat_amount = Number(service.vatAmount);
+            let service_vat_amount =
+              (Number(quotationPriceWithAllDecimal) * service_vat_percentage) / 100;
             let price = Number(service.quotationPrice);
             return {
               ...service,
@@ -21088,7 +21112,9 @@ const Add_Update_Engagement_Letter = () => {
                 service.quotationPriceWithAllDecimal,
               ).toFixed(2);
               let service_vat_percentage = Number(service.vatPercentage);
-              let service_vat_amount = Number(service.vatAmount);
+              let service_vat_amount =
+                (Number(quotationPriceWithAllDecimal) * service_vat_percentage) /
+                100;
               let price = Number(service.quotationPrice);
               return {
                 ...service,
@@ -21142,7 +21168,7 @@ const Add_Update_Engagement_Letter = () => {
               let quotationPriceWithAllDecimal =
                 service.quotationPriceWithAllDecimal;
               let service_vat_percentage = Number(service.vatPercentage);
-              let service_vat_amount = Number(service.vatAmount);
+              let service_vat_amount = 0;
               let price = Number(service.quotationPrice);
 
               switch (recurringOneOffPrice.paymentFrequencyID) {
@@ -21150,24 +21176,25 @@ const Add_Update_Engagement_Letter = () => {
                   quotationPrice *= 12;
                   quotationPriceWithAllDecimal *= 12;
                   price *= 12;
-                  service_vat_amount *= 12;
                   break;
                 case 3:
                   quotationPrice *= 4;
                   quotationPriceWithAllDecimal *= 4;
                   price *= 4;
-                  service_vat_amount *= 4;
                   break;
                 case 2:
                   quotationPrice *= 2;
                   quotationPriceWithAllDecimal *= 2;
                   price *= 2;
-                  service_vat_amount *= 2;
                   break;
                 case 1:
                 default:
                   break;
               }
+
+              service_vat_amount =
+                (Number(quotationPriceWithAllDecimal) * service_vat_percentage) /
+                100;
 
               return {
                 ...service,
@@ -21230,10 +21257,13 @@ const Add_Update_Engagement_Letter = () => {
             return catSum + serviceSum;
           }, 0);
 
-          const ServiceWiseVAT =
-            (Number(totalVATAmount) / Number(RecTotal)) * 100;
-
-          setVATPercentage(ServiceWiseVAT);
+          const ServiceWiseVAT = (Number(totalVATAmount) / Number(RecTotal)) * 100;
+          // Prefer explicit VAT% from the proposal totals; fall back to derived %.
+          if (finalQuotationAmount?.vatPercentage !== null && finalQuotationAmount?.vatPercentage !== undefined) {
+            setVATPercentage(finalQuotationAmount.vatPercentage);
+          } else {
+            setVATPercentage(ServiceWiseVAT);
+          }
 
           setRecurringPricingInfo((prev) => ({
             ...prev,
@@ -21248,7 +21278,7 @@ const Add_Update_Engagement_Letter = () => {
             VATPrice: Number(finalQuotationAmount.vat),
             totalServiceWiseVAT: Number(finalQuotationAmount.vat),
             Discount: Number(finalQuotationAmount.discounted),
-            staticTotalVAT: finalQuotationAmount.vat,
+            staticTotalVAT: (Number(finalQuotationAmount.netTotal) * (finalQuotationAmount.vatPercentage / 100)).toFixed(2),
             DiscountedTotal: Number(finalQuotationAmount.discountedTotal),
             GrandTotal: Number(finalQuotationAmount.grandTotal),
           }));
@@ -21310,7 +21340,11 @@ const Add_Update_Engagement_Letter = () => {
                 service.quotationPriceWithAllDecimal,
               );
               let service_vat_percentage = Number(service.vatPercentage);
-              let service_vat_amount = Number(service.vatAmount);
+              // API `vatAmount` can be a repeated total in some proposal→package cases.
+              // Always derive VAT from price and VAT%.
+              let service_vat_amount =
+                (Number(quotationPriceWithAllDecimal) * service_vat_percentage) /
+                100;
               let price = Number(service.quotationPrice);
               return {
                 ...service,
@@ -21375,7 +21409,7 @@ const Add_Update_Engagement_Letter = () => {
               ),
               VATPrice: Number(finalQuotationAmount.vat),
               totalServiceWiseVATOneOff: finalQuotationAmount.vat,
-              staticTotalVATOneOff: finalQuotationAmount.vat,
+              staticTotalVATOneOff: (Number(finalQuotationAmount.netTotal) * (finalQuotationAmount.vatPercentage / 100)).toFixed(2),
               Discount: Number(finalQuotationAmount.discounted),
               DiscountedTotal: Number(finalQuotationAmount.discountedTotal),
               GrandTotal: Number(finalQuotationAmount.grandTotal),
@@ -21392,7 +21426,7 @@ const Add_Update_Engagement_Letter = () => {
               NetTotal: Number(finalQuotationAmount.netTotal)?.toFixed(2),
               VATPrice: Number(finalQuotationAmount.vat),
               totalServiceWiseVATOneOff: finalQuotationAmount.vat,
-              staticTotalVATOneOff: finalQuotationAmount.vat,
+              staticTotalVATOneOff: (Number(finalQuotationAmount.netTotal) * (finalQuotationAmount.vatPercentage / 100)).toFixed(2),
               Discount: Number(finalQuotationAmount.discounted),
               DiscountedTotal: Number(finalQuotationAmount.discountedTotal),
               GrandTotal: Number(finalQuotationAmount.grandTotal),
