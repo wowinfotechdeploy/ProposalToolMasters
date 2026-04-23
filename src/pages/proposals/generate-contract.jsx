@@ -294,15 +294,14 @@ function AcceptInvitation() {
       )
       .filter((r) => r.serviceName);
 
+    // Column order (match Engagement Letter / email):
+    // Service Category, Services, Fees, VAT Rate, VAT, Fees inc VAT, Service Scope
     const headerCells = [
       visibleFieldsCustomTemp.serviceCategory
         ? `<th style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white; font-size: 18px;">Service Category</th>`
         : "",
       visibleFieldsCustomTemp.serviceName
         ? `<th style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white; font-size: 18px;">Services</th>`
-        : "",
-      visibleFieldsCustomTemp.serviceScope
-        ? `<th style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white; font-size: 18px;">Service Scope</th>`
         : "",
       visibleFieldsCustomTemp.fees
         ? `<th style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; font-size: 18px;">Fees (${currencySymbol})</th>`
@@ -315,6 +314,9 @@ function AcceptInvitation() {
         : "",
       isVatPresent && visibleFieldsCustomTemp.feesIncVat
         ? `<th style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; font-size: 18px;">Fees inc ${taxName} (${currencySymbol})</th>`
+        : "",
+      visibleFieldsCustomTemp.serviceScope
+        ? `<th style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white; font-size: 18px;">Service Scope</th>`
         : "",
     ].join("");
 
@@ -338,13 +340,6 @@ function AcceptInvitation() {
             ${
               visibleFieldsCustomTemp.serviceName
                 ? `<td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">${r.serviceName}</td>`
-                : ""
-            }
-            ${
-              visibleFieldsCustomTemp.serviceScope
-                ? `<td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">${buildServiceScopeText(
-                    gpdList,
-                  )}</td>`
                 : ""
             }
             ${
@@ -383,6 +378,13 @@ function AcceptInvitation() {
                   }</td>`
                 : ""
             }
+            ${
+              visibleFieldsCustomTemp.serviceScope
+                ? `<td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">${buildServiceScopeText(
+                    gpdList,
+                  )}</td>`
+                : ""
+            }
           </tr>`;
       })
       .join("");
@@ -390,11 +392,11 @@ function AcceptInvitation() {
     const orderedCols = [
       { key: "serviceCategory", enabled: !!visibleFieldsCustomTemp.serviceCategory },
       { key: "serviceName", enabled: !!visibleFieldsCustomTemp.serviceName },
-      { key: "serviceScope", enabled: !!visibleFieldsCustomTemp.serviceScope },
       { key: "fees", enabled: !!visibleFieldsCustomTemp.fees },
       { key: "vatRate", enabled: isVatPresent && !!visibleFieldsCustomTemp.vatRate },
       { key: "vat", enabled: isVatPresent && !!visibleFieldsCustomTemp.vat },
       { key: "feesIncVat", enabled: isVatPresent && !!visibleFieldsCustomTemp.feesIncVat },
+      { key: "serviceScope", enabled: !!visibleFieldsCustomTemp.serviceScope },
     ].filter((c) => c.enabled);
 
     const renderFooterRow = (label, rowBg, values) => {
@@ -503,13 +505,13 @@ function AcceptInvitation() {
     const leftCols = [
       { key: "serviceCategory", enabled: !!visibleFieldsCustomTemp.serviceCategory },
       { key: "serviceName", enabled: !!visibleFieldsCustomTemp.serviceName },
-      { key: "serviceScope", enabled: !!visibleFieldsCustomTemp.serviceScope },
     ].filter((c) => c.enabled);
     const rightCols = [
       { key: "fees", enabled: !!visibleFieldsCustomTemp.fees },
       { key: "vatRate", enabled: isVatPresent && !!visibleFieldsCustomTemp.vatRate },
       { key: "vat", enabled: isVatPresent && !!visibleFieldsCustomTemp.vat },
       { key: "feesIncVat", enabled: isVatPresent && !!visibleFieldsCustomTemp.feesIncVat },
+      { key: "serviceScope", enabled: !!visibleFieldsCustomTemp.serviceScope },
     ].filter((c) => c.enabled);
 
     const packageNameHeaderRow =
