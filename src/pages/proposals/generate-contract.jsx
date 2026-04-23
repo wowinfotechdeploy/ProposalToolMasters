@@ -6,7 +6,7 @@ import {
   GetTemplateListLookupList,
   GetTemplateModelData,
 } from "../../redux/Services/Config/TemplateApi";
-import { ElementType } from "../../Middleware/enums";
+import { ElementType, fieldToIdMap } from "../../Middleware/enums";
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 import {
@@ -18,6 +18,8 @@ import GeneratePdfLoaderPage from "../../components/GeneratePdfloaderpage";
 import { generatePdfUrl, mergePdfApiUrl } from "../../Base-Url/Base_Url";
 import Utils from "../../Middleware/Utils";
 function AcceptInvitation() {
+  const STOP_AFTER_PDF_GENERATION = false;
+
   const {
     setTopbar,
     setLoader,
@@ -102,6 +104,10 @@ function AcceptInvitation() {
   const [organisationData, setOrganisationData] = useState([]);
 
   const [contractKeyID, setContractKeyID] = useState();
+  const [pricingTableColumnIDs, setPricingTableColumnIDs] = useState("");
+  const [visibleFieldsCustomTemp, setVisibleFieldsCustomTemp] = useState(() =>
+    Object.fromEntries(Object.keys(fieldToIdMap).map((k) => [k, true])),
+  );
   const urlParams = new URLSearchParams(location.search);
   const quoteKeyID = urlParams.get("quoteKeyID");
   const ServiceChargeTypeID = urlParams.get("ServiceChargeTypeID");
@@ -226,6 +232,326 @@ function AcceptInvitation() {
 
     return doc.body.innerHTML;
   }
+
+  const updateVisibleFieldsFromIds = (ids) => {
+    if (typeof ids !== "string" || ids.trim() === "") {
+      setVisibleFieldsCustomTemp(
+        Object.fromEntries(Object.keys(fieldToIdMap).map((k) => [k, true])),
+      );
+      return;
+    }
+
+    const idList = ids
+      .split(",")
+      .map((x) => Number(x.trim()))
+      .filter((x) => !Number.isNaN(x));
+
+    setVisibleFieldsCustomTemp(
+      Object.fromEntries(
+        Object.entries(fieldToIdMap).map(([key, id]) => [key, idList.includes(id)]),
+      ),
+    );
+  };
+
+  const buildServiceScopeText = (gpdList) => {
+    if (!Array.isArray(gpdList) || gpdList.length === 0) return "-";
+    const parts = gpdList
+      .map((d) => {
+        const name = d?.driverName;
+        const value =
+          d?.variationName ??
+          (d?.driverValue !== null && d?.driverValue !== undefined
+            ? String(d.driverValue)
+            : null);
+        if (!name || value === null || value === "") return null;
+        return `${name} = ${value}`;
+      })
+      .filter(Boolean);
+    return parts.length ? parts.join("; ") : "-";
+  };
+
+  const buildCustomServicePricingTableHtml = ({
+    heading,
+    serviceCatList,
+    packageLabel,
+    totals,
+  }) => {
+    const currencyID = organisationData?.otherInformation?.[0]?.currencyID;
+    const currencySymbol = currencyID === 1 ? "£" : "";
+    const taxName = "VAT";
+    const isVatPresent = (Number(totals?.vatPercentage) || 0) > 0;
+
+    const rows = (serviceCatList || [])
+      .flatMap((cat) =>
+        (cat?.servicesList || []).map((svc) => ({
+          catID: cat?.serviceCatID,
+          catName: cat?.serviceCatName || "",
+          serviceID: svc?.serviceID,
+          serviceName: svc?.serviceName || "",
+          price: Number(svc?.quotationPrice) || 0,
+          vatPct: Number(svc?.vatPercentage) || 0,
+        })),
+      )
+      .filter((r) => r.serviceName);
+
+    const headerCells = [
+      visibleFieldsCustomTemp.serviceCategory
+        ? `<th style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white; font-size: 18px;">Service Category</th>`
+        : "",
+      visibleFieldsCustomTemp.serviceName
+        ? `<th style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white; font-size: 18px;">Services</th>`
+        : "",
+      visibleFieldsCustomTemp.serviceScope
+        ? `<th style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white; font-size: 18px;">Service Scope</th>`
+        : "",
+      visibleFieldsCustomTemp.fees
+        ? `<th style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; font-size: 18px;">Fees (${currencySymbol})</th>`
+        : "",
+      isVatPresent && visibleFieldsCustomTemp.vatRate
+        ? `<th style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; font-size: 18px;">${taxName} Rate</th>`
+        : "",
+      isVatPresent && visibleFieldsCustomTemp.vat
+        ? `<th style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; font-size: 18px;">${taxName} (${currencySymbol})</th>`
+        : "",
+      isVatPresent && visibleFieldsCustomTemp.feesIncVat
+        ? `<th style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; font-size: 18px;">Fees inc ${taxName} (${currencySymbol})</th>`
+        : "",
+    ].join("");
+
+    const bodyRows = rows
+      .map((r) => {
+        const vatAmount = (r.price * r.vatPct) / 100;
+        const feesIncVat = r.price + vatAmount;
+        const gpdList =
+          (serviceDescriptionList || [])
+            .find((d) => d?.serviceCatID === r.catID)
+            ?.servicesList?.find((s) => s?.serviceID === r.serviceID)?.gpdList || [];
+
+        const canShowVat = (Number(r.vatPct) || 0) > 0;
+        return `
+          <tr>
+            ${
+              visibleFieldsCustomTemp.serviceCategory
+                ? `<td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">${r.catName}</td>`
+                : ""
+            }
+            ${
+              visibleFieldsCustomTemp.serviceName
+                ? `<td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">${r.serviceName}</td>`
+                : ""
+            }
+            ${
+              visibleFieldsCustomTemp.serviceScope
+                ? `<td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">${buildServiceScopeText(
+                    gpdList,
+                  )}</td>`
+                : ""
+            }
+            ${
+              visibleFieldsCustomTemp.fees
+                ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px;">${
+                    feeTypeId == 1 ? formatValue(r.price, currencyID) : "&#10003;"
+                  }</td>`
+                : ""
+            }
+            ${
+              isVatPresent && visibleFieldsCustomTemp.vatRate
+                ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px;">${
+                    canShowVat ? `${r.vatPct}%` : ""
+                  }</td>`
+                : ""
+            }
+            ${
+              isVatPresent && visibleFieldsCustomTemp.vat
+                ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px;">${
+                    canShowVat
+                      ? feeTypeId == 1
+                        ? formatValue(vatAmount, currencyID)
+                        : "&#10003;"
+                      : ""
+                  }</td>`
+                : ""
+            }
+            ${
+              isVatPresent && visibleFieldsCustomTemp.feesIncVat
+                ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px;">${
+                    canShowVat
+                      ? feeTypeId == 1
+                        ? formatValue(feesIncVat, currencyID)
+                        : "&#10003;"
+                      : ""
+                  }</td>`
+                : ""
+            }
+          </tr>`;
+      })
+      .join("");
+
+    const orderedCols = [
+      { key: "serviceCategory", enabled: !!visibleFieldsCustomTemp.serviceCategory },
+      { key: "serviceName", enabled: !!visibleFieldsCustomTemp.serviceName },
+      { key: "serviceScope", enabled: !!visibleFieldsCustomTemp.serviceScope },
+      { key: "fees", enabled: !!visibleFieldsCustomTemp.fees },
+      { key: "vatRate", enabled: isVatPresent && !!visibleFieldsCustomTemp.vatRate },
+      { key: "vat", enabled: isVatPresent && !!visibleFieldsCustomTemp.vat },
+      { key: "feesIncVat", enabled: isVatPresent && !!visibleFieldsCustomTemp.feesIncVat },
+    ].filter((c) => c.enabled);
+
+    const renderFooterRow = (label, rowBg, values) => {
+      let isFirst = true;
+      const cells = orderedCols
+        .map((c) => {
+          if (isFirst) {
+            isFirst = false;
+            return `<td style="border: 1px solid #DDDDDD; text-align: left; padding: 8px; color: ${
+              rowBg === "#808080" ? "white" : "black"
+            };">${label}</td>`;
+          }
+          if (c.key === "fees") {
+            return `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px; color: ${
+              rowBg === "#808080" ? "white" : "black"
+            };">${values.fees ?? ""}</td>`;
+          }
+          if (c.key === "vatRate") {
+            return `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px; color: ${
+              rowBg === "#808080" ? "white" : "black"
+            };"></td>`;
+          }
+          if (c.key === "vat") {
+            return `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px; color: ${
+              rowBg === "#808080" ? "white" : "black"
+            };">${values.vat ?? ""}</td>`;
+          }
+          if (c.key === "feesIncVat") {
+            return `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px; color: ${
+              rowBg === "#808080" ? "white" : "black"
+            };">${values.feesIncVat ?? ""}</td>`;
+          }
+          return `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px; color: ${
+            rowBg === "#808080" ? "white" : "black"
+          };"></td>`;
+        })
+        .join("");
+
+      return `<tr style="background-color: ${rowBg};">${cells}</tr>`;
+    };
+
+    const netTotal = Number(totals?.netTotal) || 0;
+    const discounted = Number(totals?.discounted) || 0;
+    const discountedTotal = Number(totals?.discountedTotal) || 0;
+    const vatDiscounted = Number(totals?.vat) || 0; // API returns discount-adjusted VAT
+    const grandTotal = Number(totals?.grandTotal) || 0;
+
+    const discountApplies = discounted > 0;
+    const showDiscountLines = !!ShowDiscountLine;
+
+    // Derive pre-discount VAT (static VAT) from discount % when available.
+    // This matches how template-6 email tables show Net Total VAT as pre-discount VAT,
+    // and Discount VAT as the difference.
+    const discPct = Number(totals?.discountPercentageWithAllDecimal) || 0;
+    const discountFactor = 1 - discPct / 100;
+    const vatStatic =
+      discountApplies && discPct > 0 && discountFactor > 0
+        ? vatDiscounted / discountFactor
+        : vatDiscounted;
+    const vatDiscount = vatStatic - vatDiscounted;
+
+    // Net Total row: if we hide discount lines, show discounted totals directly (same behavior as email tables).
+    const netFeesToShow = discountApplies && !showDiscountLines ? discountedTotal : netTotal;
+    const netVatToShow = discountApplies && !showDiscountLines ? vatDiscounted : vatStatic;
+    const netFeesIncVatToShow = netFeesToShow + (isVatPresent ? netVatToShow : 0);
+
+    const footerRows = [
+      // Net Total (always)
+      renderFooterRow("Net Total", "#808080", {
+        fees: formatValue(netFeesToShow, currencyID),
+        vat: isVatPresent ? formatValue(netVatToShow, currencyID) : "",
+        feesIncVat: isVatPresent ? formatValue(netFeesIncVatToShow, currencyID) : "",
+      }),
+
+      // Discount row (only when discount applies and we show discount lines)
+      discountApplies && showDiscountLines
+        ? renderFooterRow("Discount", "#DCDCDC", {
+            fees: `(-) ${formatValue(discounted, currencyID)}`,
+            vat: isVatPresent ? `(-) ${formatValue(vatDiscount, currencyID)}` : "",
+            feesIncVat: isVatPresent
+              ? `(-) ${formatValue(discounted + vatDiscount, currencyID)}`
+              : "",
+          })
+        : "",
+
+      // Final row after discount lines:
+      // - VAT org: Grand Total
+      // - Non-VAT org: Discounted Total
+      discountApplies && showDiscountLines
+        ? isVatPresent
+          ? renderFooterRow("Grand Total", "#808080", {
+              fees: formatValue(discountedTotal, currencyID),
+              vat: formatValue(vatDiscounted, currencyID),
+              feesIncVat: formatValue(grandTotal, currencyID),
+            })
+          : renderFooterRow("Discounted Total", "#808080", {
+              fees: formatValue(discountedTotal, currencyID),
+              vat: "",
+              feesIncVat: "",
+            })
+        : "",
+    ].join("");
+
+    // Match Engagement Letter behavior: the package name sits inside the grid
+    // (in the first "right side" column, usually Fees), with empty cells for the rest.
+    const leftCols = [
+      { key: "serviceCategory", enabled: !!visibleFieldsCustomTemp.serviceCategory },
+      { key: "serviceName", enabled: !!visibleFieldsCustomTemp.serviceName },
+      { key: "serviceScope", enabled: !!visibleFieldsCustomTemp.serviceScope },
+    ].filter((c) => c.enabled);
+    const rightCols = [
+      { key: "fees", enabled: !!visibleFieldsCustomTemp.fees },
+      { key: "vatRate", enabled: isVatPresent && !!visibleFieldsCustomTemp.vatRate },
+      { key: "vat", enabled: isVatPresent && !!visibleFieldsCustomTemp.vat },
+      { key: "feesIncVat", enabled: isVatPresent && !!visibleFieldsCustomTemp.feesIncVat },
+    ].filter((c) => c.enabled);
+
+    const packageNameHeaderRow =
+      packageLabel && rightCols.length > 0
+        ? (() => {
+            // Put the package name in the first available right-side column cell.
+            // This avoids it drifting to the far-right when multiple right columns are visible.
+            const nameIdx = 0;
+            const leftTds = leftCols
+              .map(
+                () =>
+                  `<td style="border: 1px solid #dddddd; padding: 8px;"></td>`,
+              )
+              .join("");
+            const rightTds = rightCols
+              .map((_, idx) => {
+                if (idx === nameIdx) {
+                  return `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; font-size: 18px;">${String(
+                    packageLabel,
+                  )}</td>`;
+                }
+                return `<td style="border: 1px solid #dddddd; padding: 8px;"></td>`;
+              })
+              .join("");
+            return `<tr style="background-color: ${BrandColor};">${leftTds}${rightTds}</tr>`;
+          })()
+        : "";
+
+    return `
+      <div style="padding-left: 40px; padding-right: 40px; font-family:${fontFamily};page-break-inside: avoid; break-inside: avoid;">
+        <p style="font-family:${fontFamily}; color: ${BrandColor}; font-size: 20px; margin-top: 15px;">${heading}</p>
+        <table style="font-family:${fontFamily}; border-collapse: collapse; width: 100%; margin-top: -15px;">
+          ${packageNameHeaderRow}
+          <tr style="background-color: ${BrandColor};">
+            ${headerCells}
+          </tr>
+          ${bodyRows}
+          ${footerRows}
+        </table>
+      </div>
+    `;
+  };
 
   function getFontNameById(id) {
     const font = Utils.FontFamily.find((f) => f.value === id);
@@ -729,6 +1055,55 @@ function AcceptInvitation() {
             ) {
               pdfDataArray.push(currentArray);
               currentArray = [];
+            }
+            if (
+              typeof pricingTableColumnIDs === "string" &&
+              pricingTableColumnIDs.trim() !== ""
+            ) {
+              const selectedPackageName =
+                packageList?.[0]?.servicePackageName || "";
+
+              if (recurringServiceCatList?.length > 0) {
+                const recurringTotals =
+                  finalQuotationAmountList?.find(
+                    (x) =>
+                      Number(x?.serviceChargeTypeID) === 1 &&
+                      (packageList?.[0]?.servicePackageID
+                        ? Number(x?.servicePackageID) ===
+                          Number(packageList?.[0]?.servicePackageID)
+                        : true),
+                  ) || null;
+                currentArray.push({
+                  table: buildCustomServicePricingTableHtml({
+                    heading: `Recurring Fees (${getPaymentFrequencyLabel()})`,
+                    serviceCatList: recurringServiceCatList,
+                    packageLabel: selectedPackageName,
+                    totals: recurringTotals,
+                  }),
+                });
+              }
+
+              if (oneOffServiceCatList?.length > 0) {
+                const oneOffTotals =
+                  finalQuotationAmountList?.find(
+                    (x) =>
+                      Number(x?.serviceChargeTypeID) === 2 &&
+                      (packageList?.[0]?.servicePackageID
+                        ? Number(x?.servicePackageID) ===
+                          Number(packageList?.[0]?.servicePackageID)
+                        : true),
+                  ) || null;
+                currentArray.push({
+                  table: buildCustomServicePricingTableHtml({
+                    heading: "One-Off Fees",
+                    serviceCatList: oneOffServiceCatList,
+                    packageLabel: selectedPackageName,
+                    totals: oneOffTotals,
+                  }),
+                });
+              }
+
+              break;
             }
             if (packageList.length > 0) {
               currentArray.push({
@@ -1733,6 +2108,9 @@ function AcceptInvitation() {
           const pdfUrl = data.s3Url;
           setMergePdfUrl(pdfUrl);
 
+          console.log("[Generate Contract] Merged PDF URL:", pdfUrl);
+          if (STOP_AFTER_PDF_GENERATION) return;
+
           const ApiRequest_ParamsObj = {
             moduleName: "Quotation",
             contractKeyID: contractKeyID,
@@ -2120,6 +2498,12 @@ function AcceptInvitation() {
           setContractKeyID(GetContractKeyID);
 
           if (Number(SignedFileID) > 0) {
+            console.log(
+              "[Generate Contract] SignedFileID exists; skipping SignEasy redirect. SignedFileID:",
+              SignedFileID,
+            );
+            if (STOP_AFTER_PDF_GENERATION) return;
+
             const ApiRequest_ParamsObj = {
               moduleName: "Quotation",
               contractKeyID: GetContractKeyID,
@@ -2174,6 +2558,8 @@ function AcceptInvitation() {
           setTnCPdf(ModelData.tnCTemplatePdfUrl);
 
           setFeeTypeId(ModelData.feesInQuoteID);
+          setPricingTableColumnIDs(ModelData.pricingTableColumnIDs || "");
+          updateVisibleFieldsFromIds(ModelData.pricingTableColumnIDs || "");
           setRecurringServiceCatList(ModelData.recurringServiceCatList);
           setOneOffServiceCatList(ModelData.oneOffServiceCatList);
           const RecurringData = finalQuotationAmountList.filter(
