@@ -696,7 +696,7 @@ const ReviewServicesComponent = (props) => {
             </>
           )}
 
-        {props.vatPercentage && (
+        {Number(props.vatPercentage) > 0 && (
           <>
             <tr style={{ backgroundColor: "#DCDCDC" }}>
               <td
@@ -1056,7 +1056,7 @@ const ReviewServicesComponent = (props) => {
               </tr>
             </>
           )}
-        {props.vatPercentage && (
+        {Number(props.vatPercentage) > 0 && (
           <>
             <tr style={{ backgroundColor: "#DCDCDC" }}>
               <td
@@ -1418,7 +1418,7 @@ const ReviewServicesComponent = (props) => {
                 </tr>
               </>
             )}
-          {props.vatPercentage && (
+          {Number(props.vatPercentage) > 0 && (
             <>
               <tr style={{ backgroundColor: "#DCDCDC" }}>
                 <td
@@ -5062,8 +5062,10 @@ const ReviewServicesComponent = (props) => {
                                   </tr>
                               )}
 
-                            {/* === GRAND TOTAL ROW (always visible) === */}
-                            {props.vatPercentage ? (
+                            {/* === GRAND TOTAL / DISCOUNTED TOTAL (template 6) — only when discount applies */}
+                            {(Number(props.vatPercentage) || 0) > 0 &&
+                            Number(props.RecurringPricingInfo.Discount) > 0 &&
+                            props.ProposalObject.DiscountLines ? (
                               <tr className="head-row">
                                     {props.visibleFieldsCustomTemp
                                       .serviceCategory && (
@@ -5185,7 +5187,9 @@ const ReviewServicesComponent = (props) => {
                                         </td>
                                       )}
                                   </tr>
-                                  ) : (
+                                  ) : Number(
+                                      props.RecurringPricingInfo.Discount,
+                                    ) > 0 && props.ProposalObject.DiscountLines ? (
  <tr className="head-row">
                                     {props.visibleFieldsCustomTemp
                                       .serviceCategory && (
@@ -5307,7 +5311,7 @@ const ReviewServicesComponent = (props) => {
                                         </td>
                                       )}
                               </tr>
-                              )}
+                              ) : null}
 
                             {props.vatPercentage !== 0 && (
                               <>
@@ -6165,11 +6169,11 @@ const ReviewServicesComponent = (props) => {
                                       )}
                                 </td>
                               )}
-                              {props.vatPercentage !== 0 &&
+                              {props.vatPercentageOneOff !== 0 &&
                                 props.visibleFieldsCustomTemp.vatRate && (
                                   <td className="tr-table-class text-white"></td>
                                 )}
-                              {props.vatPercentage !== 0 &&
+                              {props.vatPercentageOneOff !== 0 &&
                                 props.visibleFieldsCustomTemp.vat && (
                                   <td className="tr-table-class text-white text-center">
                                     {props.formatValue(
@@ -6181,7 +6185,7 @@ const ReviewServicesComponent = (props) => {
                                     )}
                                   </td>
                                 )}
-                              {props.vatPercentage !== 0 &&
+                              {props.vatPercentageOneOff !== 0 &&
                                 props.visibleFieldsCustomTemp.feesIncVat && (
                                   <td className="tr-table-class text-white text-center">
                                     {Number(
@@ -6243,11 +6247,11 @@ const ReviewServicesComponent = (props) => {
                                           : "-"}
                                       </td>
                                     )}
-                                    {props.vatPercentage !== 0 &&
+                                    {props.vatPercentageOneOff !== 0 &&
                                       props.visibleFieldsCustomTemp.vatRate && (
                                         <td></td>
                                       )}
-                                    {props.vatPercentage !== 0 &&
+                                    {props.vatPercentageOneOff !== 0 &&
                                       props.visibleFieldsCustomTemp.vat && (
                                         <td className="tr-table-class text-white text-center">
                                           (-){"  "}
@@ -6264,7 +6268,7 @@ const ReviewServicesComponent = (props) => {
                                           )}
                                         </td>
                                       )}
-                                    {props.vatPercentage !== 0 &&
+                                    {props.vatPercentageOneOff !== 0 &&
                                       props.visibleFieldsCustomTemp
                                         .feesIncVat && (
                                         <td className="tr-table-class text-white text-center">
@@ -6288,9 +6292,11 @@ const ReviewServicesComponent = (props) => {
                                   </tr>
                               )}
 
-                            {/* === GRAND TOTAL ROW (always visible) === */}
+                            {/* === GRAND TOTAL / DISCOUNTED TOTAL (template 6) — only when discount applies */}
                             {
-                                    props.vatPercentageOneOff ? (
+                                    (Number(props.vatPercentageOneOff) || 0) > 0 &&
+                                    Number(props.OneOffPricingInfo.Discount) > 0 &&
+                                    props.ProposalObject.DiscountLines ? (
                                       <tr className="head-row">
                                     <td className="tr-table-class font-14 text-white">
                                       Grand Total
@@ -6309,11 +6315,11 @@ const ReviewServicesComponent = (props) => {
                                         )}
                                       </td>
                                     )}
-                                    {props.vatPercentage !== 0 &&
+                                    {props.vatPercentageOneOff !== 0 &&
                                       props.visibleFieldsCustomTemp.vatRate && (
                                         <td></td>
                                       )}
-                                    {props.vatPercentage !== 0 &&
+                                    {props.vatPercentageOneOff !== 0 &&
                                       props.visibleFieldsCustomTemp.vat && (
                                         <td className="tr-table-class text-white text-center">
                                           {props.formatValue(
@@ -6325,7 +6331,7 @@ const ReviewServicesComponent = (props) => {
                                           )}
                                         </td>
                                       )}
-                                    {props.vatPercentage !== 0 &&
+                                    {props.vatPercentageOneOff !== 0 &&
                                       props.visibleFieldsCustomTemp
                                         .feesIncVat && (
                                         <td className="tr-table-class text-white text-center">
@@ -6343,7 +6349,9 @@ const ReviewServicesComponent = (props) => {
                                         </td>
                                       )}
                                   </tr>
-                                    ) : (
+                                    ) : Number(
+                                      props.OneOffPricingInfo.Discount,
+                                    ) > 0 && props.ProposalObject.DiscountLines ? (
                                       <tr className="head-row">
                                     <td className="tr-table-class font-14 text-white">
                                       Discounted Total
@@ -6362,11 +6370,11 @@ const ReviewServicesComponent = (props) => {
                                         )}
                                       </td>
                                     )}
-                                    {props.vatPercentage !== 0 &&
+                                    {props.vatPercentageOneOff !== 0 &&
                                       props.visibleFieldsCustomTemp.vatRate && (
                                         <td></td>
                                       )}
-                                    {props.vatPercentage !== 0 &&
+                                    {props.vatPercentageOneOff !== 0 &&
                                       props.visibleFieldsCustomTemp.vat && (
                                         <td className="tr-table-class text-white text-center">
                                           {props.formatValue(
@@ -6378,7 +6386,7 @@ const ReviewServicesComponent = (props) => {
                                           )}
                                         </td>
                                       )}
-                                    {props.vatPercentage !== 0 &&
+                                    {props.vatPercentageOneOff !== 0 &&
                                       props.visibleFieldsCustomTemp
                                         .feesIncVat && (
                                         <td className="tr-table-class text-white text-center">
@@ -6396,7 +6404,7 @@ const ReviewServicesComponent = (props) => {
                                         </td>
                                       )}
                                   </tr>
-                                    )
+                                    ) : null
                                   }
                           </tbody>
                         </table>
@@ -7335,7 +7343,7 @@ const ReviewPackagesComponent = (props) => {
               </tr>
             </>
           )}
-        {props.vatPercentage && (
+        {Number(props.vatPercentage) > 0 && (
           <>
             <tr style={{ backgroundColor: "#DCDCDC" }}>
               <td
@@ -8174,7 +8182,7 @@ const ReviewPackagesComponent = (props) => {
               </tr>
             </>
           )}
-        {props.vatPercentageOneOff && (
+        {(Number(props.vatPercentageOneOff) || 0) > 0 && (
           <>
             <tr style={{ backgroundColor: "#DCDCDC" }}>
               <td
@@ -9187,7 +9195,7 @@ const ReviewPackagesComponent = (props) => {
                 </tr>
               </>
             )}
-          {props.vatPercentage && (
+          {Number(props.vatPercentage) > 0 && (
             <>
               <tr style={{ backgroundColor: "#DCDCDC" }}>
                 <td
@@ -10097,7 +10105,7 @@ const ReviewPackagesComponent = (props) => {
                 </tr>
               </>
             )}
-          {props.vatPercentageOneOff && (
+          {(Number(props.vatPercentageOneOff) || 0) > 0 && (
             <>
               <tr style={{ backgroundColor: "#DCDCDC" }}>
                 <td
@@ -13504,7 +13512,6 @@ const ReviewPackagesComponent = (props) => {
                                       pkg.servicePackageName
                                     )}
                                   </td>
-                                  {props.visibleFieldsCustomTemp.fees && <td></td>}
                                   {props.vatPercentage !== 0 &&
                                     props.visibleFieldsCustomTemp.vatRate && (
                                       <td></td>
@@ -15286,12 +15293,11 @@ const ReviewPackagesComponent = (props) => {
                               </>
                             )}
 
-                          {props.vatPercentage !== 0 && !(
-                            (Number(props.RecurringPricingInfo.packageThreeDisCount) > 0 ||
-                             Number(props.RecurringPricingInfo.packageOneDisCount) > 0 ||
-                             Number(props.RecurringPricingInfo.packageTwoDisCount) > 0) &&
-                            props.ProposalObject.DiscountLines
-                          ) && (
+                          {(Number(props.vatPercentage) || 0) > 0 &&
+                            (Number(props.RecurringPricingInfo.packageOneDisCount) > 0 ||
+                              Number(props.RecurringPricingInfo.packageTwoDisCount) > 0 ||
+                              Number(props.RecurringPricingInfo.packageThreeDisCount) > 0) &&
+                            !props.ProposalObject.DiscountLines && (
                             <tr className="head-row">
                               <td className="tr-table-class font-14 text-white">
                                 Grand Total
@@ -16389,7 +16395,6 @@ const ReviewPackagesComponent = (props) => {
                                       pkg.servicePackageName
                                     )}
                                   </td>
-                                  {props.visibleFieldsCustomTemp.fees && <td></td>}
                                   {props.vatPercentageOneOff !== 0 &&
                                     props.visibleFieldsCustomTemp.vatRate && (
                                       <td></td>
@@ -18053,12 +18058,11 @@ const ReviewPackagesComponent = (props) => {
                               </>
                             )}
 
-                          {props.vatPercentageOneOff !== 0 && !(
-                            (Number(props.OneOffPricingInfo.packageThreeDisCount) > 0 ||
-                             Number(props.OneOffPricingInfo.packageOneDisCount) > 0 ||
-                             Number(props.OneOffPricingInfo.packageTwoDisCount) > 0) &&
-                            props.ProposalObject.DiscountLines
-                          ) && (
+                          {(Number(props.vatPercentageOneOff) || 0) > 0 &&
+                            (Number(props.OneOffPricingInfo.packageOneDisCount) > 0 ||
+                              Number(props.OneOffPricingInfo.packageTwoDisCount) > 0 ||
+                              Number(props.OneOffPricingInfo.packageThreeDisCount) > 0) &&
+                            !props.ProposalObject.DiscountLines && (
                             <tr className="head-row">
                               <td className="tr-table-class font-14 text-white">
                                 Grand Total
@@ -18665,6 +18669,9 @@ const Add_Update_Proposal = (props) => {
     feesIncVat: vatPercentage === 0 ? false : true,
   });
 
+  const isVatEnabledForOrg =
+    (Number(vatPercentage) || 0) > 0 || (Number(vatPercentageOneOff) || 0) > 0;
+
   // useEffect(() => {
 
   //   updateVisibleFieldsFromIds(pricingTableColumnIDs);
@@ -18676,11 +18683,11 @@ const Add_Update_Proposal = (props) => {
       typeof pricingTableColumnIDs !== "string" ||
       pricingTableColumnIDs.trim() === ""
     ) {
-      // If no ids provided, set all fields to false (optional)
-      const allFalse = Object.fromEntries(
+      // No custom selection persisted; fall back to default template state.
+      const defaultVisibleFields = Object.fromEntries(
         Object.keys(fieldToIdMap).map((key) => [key, true]),
       );
-      setVisibleFieldsCustomTemp(allFalse);
+      setVisibleFieldsCustomTemp(defaultVisibleFields);
       setSelectedTemplateID(0);
       setSelectedTemplateIDOneOff(0);
       return;
@@ -18698,7 +18705,16 @@ const Add_Update_Proposal = (props) => {
       ]),
     );
 
-    setVisibleFieldsCustomTemp(updatedFields);
+    const vatSafeFields = isVatEnabledForOrg
+      ? updatedFields
+      : {
+          ...updatedFields,
+          vatRate: false,
+          vat: false,
+          feesIncVat: false,
+        };
+
+    setVisibleFieldsCustomTemp(vatSafeFields);
     setSelectedTemplateID(6);
     setSelectedTemplateIDOneOff(6);
   };
@@ -18706,10 +18722,25 @@ const Add_Update_Proposal = (props) => {
   const getVisibleFieldIds = () => {
     const selectedIds = Object.entries(visibleFieldsCustomTemp)
       .filter(([_, value]) => value === true)
+      .filter(([key]) => {
+        if (isVatEnabledForOrg) return true;
+        return key !== "vatRate" && key !== "vat" && key !== "feesIncVat";
+      })
       .map(([key]) => fieldToIdMap[key]);
 
     return selectedIds.join(","); // e.g. "1,2,3,4,5,6,7"
   };
+
+  useEffect(() => {
+    // If org has VAT disabled, never allow VAT columns to remain checked.
+    if (isVatEnabledForOrg) return;
+    setVisibleFieldsCustomTemp((prev) => ({
+      ...prev,
+      vatRate: false,
+      vat: false,
+      feesIncVat: false,
+    }));
+  }, [isVatEnabledForOrg]);
 
   useEffect(() => {
     setTopbar("none");

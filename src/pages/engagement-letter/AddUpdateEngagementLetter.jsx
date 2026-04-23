@@ -8,6 +8,7 @@ import SuccessModal from "../../components/SuccessModal";
 import { AuthContextProvider } from "../../AuthContext/AuthContext";
 import { useNavigate } from "react-router";
 import Utils from "../../Middleware/Utils";
+import { getServiceScopeDriverList } from "../../utils/serviceScopeDrivers";
 import { useLocation } from "react-router-dom";
 import EditableCell from "../../components/EditableCell";
 import "./Engagement_Letter.css";
@@ -3009,7 +3010,7 @@ const ReviewServicesComponent = (props) => {
                                             100;
                                           const total = price + vat;
                                           const driverList =
-                                            subService.pricingDriverList || [];
+                                            getServiceScopeDriverList(subService);
 
                                           return (
                                             <tr
@@ -4040,7 +4041,7 @@ const ReviewServicesComponent = (props) => {
                                           100;
                                         const total = price + vat;
                                         const driverList =
-                                          subService.pricingDriverList || [];
+                                          getServiceScopeDriverList(subService);
 
                                         return (
                                           <tr key={`sub-${index}-${subIndex}`}>
@@ -7283,7 +7284,6 @@ const ReviewPackagesComponent = (props) => {
                                       pkg.servicePackageName
                                     )}
                                   </td>
-                                  {props.visibleFieldsCustomTemp.fees && <td></td>}
                                   {props.vatPercentage !== 0 &&
                                     props.visibleFieldsCustomTemp.vatRate && <td></td>}
                                   {props.vatPercentage !== 0 &&
@@ -7508,7 +7508,7 @@ const ReviewPackagesComponent = (props) => {
                                         const totalThree =
                                           packageThreePrice + vatThree;
                                         const driverList =
-                                          subService.pricingDriverList || [];
+                                          getServiceScopeDriverList(subService);
                                         return (
                                           <tr
                                             key={subIndex}
@@ -10111,7 +10111,6 @@ const ReviewPackagesComponent = (props) => {
                                       pkg.servicePackageName
                                     )}
                                   </td>
-                                  {props.visibleFieldsCustomTemp.fees && <td></td>}
                                   {props.vatPercentageOneOff !== 0 &&
                                     props.visibleFieldsCustomTemp.vatRate && (
                                       <td></td>
@@ -10251,7 +10250,7 @@ const ReviewPackagesComponent = (props) => {
                                     {service.servicesList.map(
                                       (subService, subIndex) => {
                                         const driverList =
-                                          subService.pricingDriverList || [];
+                                          getServiceScopeDriverList(subService);
                                         const packageOnePrice = Number(String(subService.packageOneValue).replace(/,/g, '')) || 0;
                                         const packageTwoPrice = Number(String(subService.packageTwoValue).replace(/,/g, '')) || 0;
                                         const packageThreePrice = Number(String(subService.packageThreeValue).replace(/,/g, '')) || 0;
@@ -12354,6 +12353,9 @@ const Add_Update_Engagement_Letter = () => {
     feesIncVat: vatPercentage === null ? false : true,
   });
 
+  const isVatEnabledForOrg =
+    (Number(vatPercentage) || 0) > 0 || (Number(vatPercentageOneOff) || 0) > 0;
+
   const [recurringObj, setRecurringObj] = useState([]);
   const [recurringError, setRecurringError] = useState(false);
   const [oneOffObj, setOneOffObj] = useState([]);
@@ -12713,11 +12715,10 @@ const Add_Update_Engagement_Letter = () => {
       typeof pricingTableColumnIDs !== "string" ||
       pricingTableColumnIDs.trim() === ""
     ) {
-      // If no ids provided, set all fields to false (optional)
-      const allFalse = Object.fromEntries(
+      const defaultVisibleFields = Object.fromEntries(
         Object.keys(fieldToIdMap).map((key) => [key, true]),
       );
-      setVisibleFieldsCustomTemp(allFalse);
+      setVisibleFieldsCustomTemp(defaultVisibleFields);
       setSelectedTemplateID(0);
       setSelectedTemplateIDOneOff(0);
       return;
@@ -12735,7 +12736,15 @@ const Add_Update_Engagement_Letter = () => {
       ]),
     );
 
-    setVisibleFieldsCustomTemp(updatedFields);
+    const vatSafeFields = isVatEnabledForOrg
+      ? updatedFields
+      : {
+          ...updatedFields,
+          vatRate: false,
+          vat: false,
+          feesIncVat: false,
+        };
+    setVisibleFieldsCustomTemp(vatSafeFields);
     setSelectedTemplateID(6);
     setSelectedTemplateIDOneOff(6);
   };
@@ -13561,10 +13570,24 @@ const Add_Update_Engagement_Letter = () => {
   const getVisibleFieldIds = () => {
     const selectedIds = Object.entries(visibleFieldsCustomTemp)
       .filter(([_, value]) => value === true)
+      .filter(([key]) => {
+        if (isVatEnabledForOrg) return true;
+        return key !== "vatRate" && key !== "vat" && key !== "feesIncVat";
+      })
       .map(([key]) => fieldToIdMap[key]);
 
     return selectedIds.join(","); // e.g. "1,2,3,4,5,6,7"
   };
+
+  useEffect(() => {
+    if (isVatEnabledForOrg) return;
+    setVisibleFieldsCustomTemp((prev) => ({
+      ...prev,
+      vatRate: false,
+      vat: false,
+      feesIncVat: false,
+    }));
+  }, [isVatEnabledForOrg]);
 
   const GetTemplateLookupListData = async (ClientId, QuoteId) => {
     // debugger;
