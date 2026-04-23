@@ -32,6 +32,7 @@ import {
   GetTemplatePdfList,
 } from "../redux/Services/Config/TemplateApi";
 import { Landscape } from "@mui/icons-material";
+import { getServiceScopeDriverList } from "../utils/serviceScopeDrivers";
 export default function PreviewComponentPdf(props) {
   const moduleNameForSaveAsDraft = "Preview";
   const statusIDForSaveAsDraft = 1;
@@ -422,9 +423,9 @@ export default function PreviewComponentPdf(props) {
     if (!props.visibleFieldsCustomTemp) return 1;
     let cols = 0;
     if (props.visibleFieldsCustomTemp.fees) cols++;
-    if (props.vatPercentage && props.visibleFieldsCustomTemp.vatRate) cols++;
-    if (props.vatPercentage && props.visibleFieldsCustomTemp.vat) cols++;
-    if (props.vatPercentage && props.visibleFieldsCustomTemp.feesIncVat) cols++;
+    if ((Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate) cols++;
+    if ((Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vat) cols++;
+    if ((Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat) cols++;
     if (props.visibleFieldsCustomTemp.serviceScope) cols++;
     return cols || 1;
   };
@@ -437,9 +438,9 @@ export default function PreviewComponentPdf(props) {
     if (props.visibleFieldsCustomTemp?.serviceName) cols++;
     if (props.visibleFieldsCustomTemp?.serviceScope) cols++;
     if (props.visibleFieldsCustomTemp?.fees) cols++;
-    if (vatPct && props.visibleFieldsCustomTemp?.vatRate) cols++;
-    if (vatPct && props.visibleFieldsCustomTemp?.vat) cols++;
-    if (vatPct && props.visibleFieldsCustomTemp?.feesIncVat) cols++;
+    if ((Number(vatPct) || 0) > 0 && props.visibleFieldsCustomTemp?.vatRate) cols++;
+    if ((Number(vatPct) || 0) > 0 && props.visibleFieldsCustomTemp?.vat) cols++;
+    if ((Number(vatPct) || 0) > 0 && props.visibleFieldsCustomTemp?.feesIncVat) cols++;
     return cols || 1;
   };
 
@@ -464,13 +465,13 @@ export default function PreviewComponentPdf(props) {
           {props.visibleFieldsCustomTemp?.fees && (
             <th style={{ border: "1px solid #DDDDDD", textAlign: "center", padding: "8px", color: "white", fontSize: "16px" }}>Fees ({props.currencySymbol})</th>
           )}
-          {props.vatPercentage && props.visibleFieldsCustomTemp?.vatRate && (
+          {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.vatRate && (
             <th style={{ border: "1px solid #DDDDDD", textAlign: "center", padding: "8px", color: "white", fontSize: "16px" }}>{props.taxName || "VAT"} Rate</th>
           )}
-          {props.vatPercentage && props.visibleFieldsCustomTemp?.vat && (
+          {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.vat && (
             <th style={{ border: "1px solid #DDDDDD", textAlign: "center", padding: "8px", color: "white", fontSize: "16px" }}>{props.taxName || "VAT"} ({props.currencySymbol})</th>
           )}
-          {props.vatPercentage && props.visibleFieldsCustomTemp?.feesIncVat && (
+          {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.feesIncVat && (
             <th style={{ border: "1px solid #DDDDDD", textAlign: "center", padding: "8px", color: "white", fontSize: "16px" }}>Fees inc {props.taxName || "VAT"} ({props.currencySymbol})</th>
           )}
         </tr>
@@ -482,7 +483,7 @@ export default function PreviewComponentPdf(props) {
               const vatPct = subService.service_vat_percentage ?? 0;
               const vatAmount = (price * vatPct) / 100;
               const feesIncVat = price + (toFiniteNumber(subService.service_vat_amount) || vatAmount);
-              const driverList = subService.pricingDriverList || [];
+              const driverList = getServiceScopeDriverList(subService);
               
               const driverDisplay = driverList.length > 0
                 ? driverList.map((d, i) => {
@@ -512,15 +513,15 @@ export default function PreviewComponentPdf(props) {
                       {props.ProposalObject?.feeTypeId === 1 ? props.formatValue(price, props.currencyID) : <span>&#10003;</span>}
                     </td>
                   )}
-                  {props.vatPercentage && props.visibleFieldsCustomTemp?.vatRate && (
+                  {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.vatRate && (
                     <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px" }}>{vatPct}%</td>
                   )}
-                  {props.vatPercentage && props.visibleFieldsCustomTemp?.vat && (
+                  {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.vat && (
                     <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px" }}>
                       {props.ProposalObject?.feeTypeId === 1 ? props.formatValue(vatAmount, props.currencyID) : <span>&#10003;</span>}
                     </td>
                   )}
-                  {props.vatPercentage && props.visibleFieldsCustomTemp?.feesIncVat && (
+                  {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.feesIncVat && (
                     <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px" }}>
                       {props.ProposalObject?.feeTypeId === 1 ? props.formatValue(feesIncVat, props.currencyID) : <span>&#10003;</span>}
                     </td>
@@ -547,15 +548,15 @@ export default function PreviewComponentPdf(props) {
                 : props.formatValue(toFiniteNumber(props.RecurringPricingInfo?.OriginalPrice), props.currencyID)}
             </td>
           )}
-          {props.vatPercentage && props.visibleFieldsCustomTemp?.vatRate && (
+          {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.vatRate && (
             <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}></td>
           )}
-          {props.vatPercentage && props.visibleFieldsCustomTemp?.vat && (
+          {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.vat && (
             <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}>
               {props.formatValue(toFiniteNumber(props.RecurringPricingInfo?.staticTotalVAT), props.currencyID)}
             </td>
           )}
-          {props.vatPercentage && props.visibleFieldsCustomTemp?.feesIncVat && (
+          {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.feesIncVat && (
             <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}>
               {(toFiniteNumber(props.RecurringPricingInfo?.OriginalPrice) < toFiniteNumber(props.RecurringPricingInfo?.DiscountedPrice) ||
                 (toFiniteNumber(props.RecurringPricingInfo?.Discount) > 0 && !props.ProposalObject?.DiscountLines))
@@ -590,10 +591,10 @@ export default function PreviewComponentPdf(props) {
                   (-) {props.formatValue(props.RecurringPricingInfo?.Discount, props.currencyID)}
                 </td>
               )}
-              {props.vatPercentage && props.visibleFieldsCustomTemp?.vatRate && (
+              {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.vatRate && (
                 <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}></td>
               )}
-              {props.vatPercentage && props.visibleFieldsCustomTemp?.vat && (
+              {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.vat && (
                 <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "black" }}>
                   (-){" "}
                   {props.formatValue(
@@ -603,7 +604,7 @@ export default function PreviewComponentPdf(props) {
                   )}
                 </td>
               )}
-              {props.vatPercentage && props.visibleFieldsCustomTemp?.feesIncVat && (
+              {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.feesIncVat && (
                 <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "black" }}>
                   (-){" "}
                   {props.formatValue(
@@ -617,8 +618,10 @@ export default function PreviewComponentPdf(props) {
             </tr>
           </React.Fragment>
         )}
-        {/* GRAND TOTAL ROW - with VAT */}
-        {props.vatPercentage ? (
+        {/* GRAND TOTAL ROW - with VAT (only when discount applies and discount lines shown) */}
+        {(Number(props.vatPercentage) || 0) > 0 &&
+        Number(props.RecurringPricingInfo?.Discount) > 0 &&
+        props.ProposalObject?.DiscountLines ? (
           <tr style={{ backgroundColor: "#808080" }}>
             {props.visibleFieldsCustomTemp?.serviceCategory && (
               <td style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px", color: "white" }}>Grand Total</td>
@@ -645,22 +648,23 @@ export default function PreviewComponentPdf(props) {
                     )}
               </td>
             )}
-            {props.vatPercentage && props.visibleFieldsCustomTemp?.vatRate && (
+            {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.vatRate && (
               <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}></td>
             )}
-            {props.vatPercentage && props.visibleFieldsCustomTemp?.vat && (
+            {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.vat && (
               <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}>
                 {props.formatValue(toFiniteNumber(props.RecurringPricingInfo?.totalServiceWiseVAT), props.currencyID)}
               </td>
             )}
-            {props.vatPercentage && props.visibleFieldsCustomTemp?.feesIncVat && (
+            {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.feesIncVat && (
               <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}>
                 {props.formatValue(props.RecurringPricingInfo?.GrandTotal, props.currencyID)}
               </td>
             )}
           </tr>
-        ) : (
-          /* No-VAT Grand Total: show "Discounted Total" */
+        ) : Number(props.RecurringPricingInfo?.Discount) > 0 &&
+          props.ProposalObject?.DiscountLines ? (
+          /* Non-VAT org: final row after discount lines */
           <tr style={{ backgroundColor: "#808080" }}>
             {props.visibleFieldsCustomTemp?.serviceCategory && (
               <td style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px", color: "white" }}>Discounted Total</td>
@@ -687,21 +691,21 @@ export default function PreviewComponentPdf(props) {
                     )}
               </td>
             )}
-            {props.visibleFieldsCustomTemp?.vatRate && (
+            {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.vatRate && (
               <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}></td>
             )}
-            {props.visibleFieldsCustomTemp?.vat && (
+            {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.vat && (
               <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}>
                 {props.formatValue(toFiniteNumber(props.RecurringPricingInfo?.totalServiceWiseVAT), props.currencyID)}
               </td>
             )}
-            {props.visibleFieldsCustomTemp?.feesIncVat && (
+            {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.feesIncVat && (
               <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}>
                 {props.formatValue(props.RecurringPricingInfo?.GrandTotal, props.currencyID)}
               </td>
             )}
           </tr>
-        )}
+        ) : null}
         {/* Accept Button Row */}
         <tr style={{ backgroundColor: "#DCDCDC" }}>
           <td colSpan={getServiceBasedColCount() - 1} style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px" }}>
@@ -751,13 +755,13 @@ export default function PreviewComponentPdf(props) {
           {props.visibleFieldsCustomTemp?.fees && (
             <th style={{ border: "1px solid #DDDDDD", textAlign: "center", padding: "8px", color: "white", fontSize: "16px" }}>Fees ({props.currencySymbol})</th>
           )}
-          {props.vatPercentageOneOff && props.visibleFieldsCustomTemp?.vatRate && (
+          {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.vatRate && (
             <th style={{ border: "1px solid #DDDDDD", textAlign: "center", padding: "8px", color: "white", fontSize: "16px" }}>{props.taxName || "VAT"} Rate</th>
           )}
-          {props.vatPercentageOneOff && props.visibleFieldsCustomTemp?.vat && (
+          {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.vat && (
             <th style={{ border: "1px solid #DDDDDD", textAlign: "center", padding: "8px", color: "white", fontSize: "16px" }}>{props.taxName || "VAT"} ({props.currencySymbol})</th>
           )}
-          {props.vatPercentageOneOff && props.visibleFieldsCustomTemp?.feesIncVat && (
+          {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.feesIncVat && (
             <th style={{ border: "1px solid #DDDDDD", textAlign: "center", padding: "8px", color: "white", fontSize: "16px" }}>Fees inc {props.taxName || "VAT"} ({props.currencySymbol})</th>
           )}
         </tr>
@@ -769,7 +773,7 @@ export default function PreviewComponentPdf(props) {
               const vatPct = subService.service_vat_percentage ?? 0;
               const vatAmount = (price * vatPct) / 100;
               const feesIncVat = price + (toFiniteNumber(subService.service_vat_amount) || vatAmount);
-              const driverList = subService.pricingDriverList || [];
+              const driverList = getServiceScopeDriverList(subService);
               
               const driverDisplay = driverList.length > 0
                 ? driverList.map((d, i) => {
@@ -799,15 +803,15 @@ export default function PreviewComponentPdf(props) {
                       {props.ProposalObject?.feeTypeId === 1 ? props.formatValue(price, props.currencyID) : <span>&#10003;</span>}
                     </td>
                   )}
-                  {props.vatPercentageOneOff && props.visibleFieldsCustomTemp?.vatRate && (
+                  {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.vatRate && (
                     <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px" }}>{vatPct}%</td>
                   )}
-                  {props.vatPercentageOneOff && props.visibleFieldsCustomTemp?.vat && (
+                  {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.vat && (
                     <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px" }}>
                       {props.ProposalObject?.feeTypeId === 1 ? props.formatValue(vatAmount, props.currencyID) : <span>&#10003;</span>}
                     </td>
                   )}
-                  {props.vatPercentageOneOff && props.visibleFieldsCustomTemp?.feesIncVat && (
+                  {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.feesIncVat && (
                     <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px" }}>
                       {props.ProposalObject?.feeTypeId === 1 ? props.formatValue(feesIncVat, props.currencyID) : <span>&#10003;</span>}
                     </td>
@@ -834,15 +838,15 @@ export default function PreviewComponentPdf(props) {
                 : props.formatValue(toFiniteNumber(props.OneOffPricingInfo?.OriginalPrice), props.currencyID)}
             </td>
           )}
-          {props.vatPercentageOneOff && props.visibleFieldsCustomTemp?.vatRate && (
+          {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.vatRate && (
             <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}></td>
           )}
-          {props.vatPercentageOneOff && props.visibleFieldsCustomTemp?.vat && (
+          {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.vat && (
             <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}>
               {props.formatValue(toFiniteNumber(props.OneOffPricingInfo?.staticTotalVATOneOff), props.currencyID)}
             </td>
           )}
-          {props.vatPercentageOneOff && props.visibleFieldsCustomTemp?.feesIncVat && (
+          {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.feesIncVat && (
             <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}>
               {(toFiniteNumber(props.OneOffPricingInfo?.OriginalPrice) < toFiniteNumber(props.OneOffPricingInfo?.DiscountedPrice) ||
                 (toFiniteNumber(props.OneOffPricingInfo?.Discount) > 0 && !props.ProposalObject?.DiscountLines))
@@ -877,10 +881,10 @@ export default function PreviewComponentPdf(props) {
                   (-) {props.formatValue(props.OneOffPricingInfo?.Discount, props.currencyID)}
                 </td>
               )}
-              {props.vatPercentageOneOff && props.visibleFieldsCustomTemp?.vatRate && (
+              {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.vatRate && (
                 <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "black" }}></td>
               )}
-              {props.vatPercentageOneOff && props.visibleFieldsCustomTemp?.vat && (
+              {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.vat && (
                 <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "black" }}>
                   (-){" "}
                   {props.formatValue(
@@ -890,7 +894,7 @@ export default function PreviewComponentPdf(props) {
                   )}
                 </td>
               )}
-              {props.vatPercentageOneOff && props.visibleFieldsCustomTemp?.feesIncVat && (
+              {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.feesIncVat && (
                 <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "black" }}>
                   (-){" "}
                   {props.formatValue(
@@ -904,8 +908,10 @@ export default function PreviewComponentPdf(props) {
             </tr>
           </React.Fragment>
         )}
-        {/* GRAND TOTAL ROW */}
-        {props.vatPercentageOneOff ? (
+        {/* GRAND TOTAL ROW (only when discount applies and discount lines shown) */}
+        {(Number(props.vatPercentageOneOff) || 0) > 0 &&
+        Number(props.OneOffPricingInfo?.Discount) > 0 &&
+        props.ProposalObject?.DiscountLines ? (
           <tr style={{ backgroundColor: "#808080" }}>
             {props.visibleFieldsCustomTemp?.serviceCategory && (
               <td style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px", color: "white" }}>Grand Total</td>
@@ -921,15 +927,15 @@ export default function PreviewComponentPdf(props) {
                 {props.formatValue(props.OneOffPricingInfo?.DiscountedPrice, props.currencyID)}
               </td>
             )}
-            {props.vatPercentageOneOff && props.visibleFieldsCustomTemp?.vatRate && (
+            {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.vatRate && (
               <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}></td>
             )}
-            {props.vatPercentageOneOff && props.visibleFieldsCustomTemp?.vat && (
+            {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.vat && (
               <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}>
                 {props.formatValue(toFiniteNumber(props.OneOffPricingInfo?.totalServiceWiseVATOneOff), props.currencyID)}
               </td>
             )}
-            {props.vatPercentageOneOff && props.visibleFieldsCustomTemp?.feesIncVat && (
+            {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.feesIncVat && (
               <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}>
                 {props.formatValue(
                   toFiniteNumber(props.OneOffPricingInfo?.DiscountedPrice) +
@@ -939,11 +945,11 @@ export default function PreviewComponentPdf(props) {
               </td>
             )}
           </tr>
-        ) : (
-          /* No-VAT Grand Total */
+        ) : Number(props.OneOffPricingInfo?.Discount) > 0 &&
+          props.ProposalObject?.DiscountLines ? (
           <tr style={{ backgroundColor: "#808080" }}>
             {props.visibleFieldsCustomTemp?.serviceCategory && (
-              <td style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px", color: "white" }}>Grand Total</td>
+              <td style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px", color: "white" }}>Discounted Total</td>
             )}
             {props.visibleFieldsCustomTemp?.serviceName && (
               <td style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px", color: "black" }}></td>
@@ -956,15 +962,15 @@ export default function PreviewComponentPdf(props) {
                 {props.formatValue(props.OneOffPricingInfo?.DiscountedPrice, props.currencyID)}
               </td>
             )}
-            {props.visibleFieldsCustomTemp?.vatRate && (
+            {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.vatRate && (
               <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}></td>
             )}
-            {props.visibleFieldsCustomTemp?.vat && (
+            {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.vat && (
               <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}>
                 {props.formatValue(toFiniteNumber(props.OneOffPricingInfo?.totalServiceWiseVATOneOff), props.currencyID)}
               </td>
             )}
-            {props.visibleFieldsCustomTemp?.feesIncVat && (
+            {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.feesIncVat && (
               <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}>
                 {props.formatValue(
                   toFiniteNumber(props.OneOffPricingInfo?.DiscountedPrice) +
@@ -974,7 +980,7 @@ export default function PreviewComponentPdf(props) {
               </td>
             )}
           </tr>
-        )}
+        ) : null}
         {/* Accept Button Row */}
         <tr style={{ backgroundColor: "#DCDCDC" }}>
           <td colSpan={getServiceBasedColCount(true) - 1} style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px" }}>
@@ -1018,9 +1024,9 @@ export default function PreviewComponentPdf(props) {
               <td style={{ border: "1px solid #DDDDDD", textAlign: "center", padding: "8px", color: "white", fontSize: "18px" }}>
                 {pkg.servicePackageName}
               </td>
-              {props.vatPercentage && props.visibleFieldsCustomTemp?.vatRate && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
-              {props.vatPercentage && props.visibleFieldsCustomTemp?.vat && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
-              {props.vatPercentage && props.visibleFieldsCustomTemp?.feesIncVat && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
+              {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.vatRate && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
+              {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.vat && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
+              {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.feesIncVat && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
               {props.visibleFieldsCustomTemp?.serviceScope && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
             </React.Fragment>
           ))}
@@ -1035,13 +1041,13 @@ export default function PreviewComponentPdf(props) {
               {props.visibleFieldsCustomTemp?.fees && (
                 <th style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white", fontSize: "14px" }}>Fees</th>
               )}
-              {props.vatPercentage && props.visibleFieldsCustomTemp?.vatRate && (
+              {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.vatRate && (
                 <th style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white", fontSize: "14px" }}>{props.taxName || "VAT"} Rate</th>
               )}
-              {props.vatPercentage && props.visibleFieldsCustomTemp?.vat && (
+              {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.vat && (
                 <th style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white", fontSize: "14px" }}>{props.taxName || "VAT"}</th>
               )}
-              {props.vatPercentage && props.visibleFieldsCustomTemp?.feesIncVat && (
+              {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.feesIncVat && (
                 <th style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white", fontSize: "14px" }}>Fees inc {props.taxName || "VAT"}</th>
               )}
               {props.visibleFieldsCustomTemp?.serviceScope && (
@@ -1063,9 +1069,9 @@ export default function PreviewComponentPdf(props) {
               {props?.selectedPackagesList?.map((pkg, pkgIdx) => (
                 <React.Fragment key={`cat-spacer-${pkgIdx}`}>
                   {props.visibleFieldsCustomTemp?.fees && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
-                  {props.vatPercentage && props.visibleFieldsCustomTemp?.vatRate && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
-                  {props.vatPercentage && props.visibleFieldsCustomTemp?.vat && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
-                  {props.vatPercentage && props.visibleFieldsCustomTemp?.feesIncVat && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
+                  {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.vatRate && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
+                  {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.vat && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
+                  {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.feesIncVat && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
                   {props.visibleFieldsCustomTemp?.serviceScope && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
                 </React.Fragment>
               ))}
@@ -1104,17 +1110,17 @@ export default function PreviewComponentPdf(props) {
                               props.ProposalObject?.feeTypeId === 1 ? props.formatValue(packageValues[pkgIdx]?.value, props.currencyID) : <span>&#10003;</span>}
                           </td>
                         )}
-                        {props.vatPercentage && props.visibleFieldsCustomTemp?.vatRate && (
+                        {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.vatRate && (
                           <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px" }}>
                             {showX || showXNotIncluded ? <span>&#10007;</span> : `${vatPct}%`}
                           </td>
                         )}
-                        {props.vatPercentage && props.visibleFieldsCustomTemp?.vat && (
+                        {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.vat && (
                           <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px" }}>
                             {showX || showXNotIncluded ? <span>&#10007;</span> : props.formatValue(vatAmount, props.currencyID)}
                           </td>
                         )}
-                        {props.vatPercentage && props.visibleFieldsCustomTemp?.feesIncVat && (
+                        {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.feesIncVat && (
                           <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px" }}>
                             {showX || showXNotIncluded ? <span>&#10007;</span> : props.formatValue(feesIncVat, props.currencyID)}
                           </td>
@@ -1124,8 +1130,8 @@ export default function PreviewComponentPdf(props) {
                             {showX || showXNotIncluded ? (
                               <span>-</span>
                             ) : (
-                              subService.pricingDriverList && subService.pricingDriverList.length > 0
-                                ? subService.pricingDriverList
+                              getServiceScopeDriverList(subService).length > 0
+                                ? getServiceScopeDriverList(subService)
                                     .filter((d) => d.driverValue !== null)
                                     .map((d, i, arr) => (
                                       <div key={i}>
@@ -1165,13 +1171,13 @@ export default function PreviewComponentPdf(props) {
                     {props.formatValue(netFees, props.currencyID)}
                   </td>
                 )}
-                {props.vatPercentage && props.visibleFieldsCustomTemp?.vatRate && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
-                {props.vatPercentage && props.visibleFieldsCustomTemp?.vat && (
+                {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.vatRate && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
+                {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.vat && (
                   <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}>
                     {props.formatValue(staticVat, props.currencyID)}
                   </td>
                 )}
-                {props.vatPercentage && props.visibleFieldsCustomTemp?.feesIncVat && (
+                {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.feesIncVat && (
                   <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}>
                     {props.formatValue(netFeesIncVat, props.currencyID)}
                   </td>
@@ -1201,13 +1207,13 @@ export default function PreviewComponentPdf(props) {
                       (-) {props.formatValue(disCount, props.currencyID)}
                     </td>
                   )}
-                  {props.vatPercentage && props.visibleFieldsCustomTemp?.vatRate && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
-                  {props.vatPercentage && props.visibleFieldsCustomTemp?.vat && (
+                  {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.vatRate && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
+                  {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.vat && (
                     <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "black" }}>
                       (-) {props.formatValue(vatDiscount, props.currencyID)}
                     </td>
                   )}
-                  {props.vatPercentage && props.visibleFieldsCustomTemp?.feesIncVat && (
+                  {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.feesIncVat && (
                     <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "black" }}>
                       (-) {props.formatValue(disCount + vatDiscount, props.currencyID)}
                     </td>
@@ -1218,8 +1224,47 @@ export default function PreviewComponentPdf(props) {
             })}
           </tr>
         )}
-        {/* Grand Total Row */}
-        {props.vatPercentage && (
+        {/* Non-VAT: Discounted Total (after discount row) */}
+        {(Number(props.vatPercentage) || 0) === 0 &&
+          (Number(props.RecurringPricingInfo?.packageOneDisCount) > 0 ||
+            Number(props.RecurringPricingInfo?.packageTwoDisCount) > 0 ||
+            Number(props.RecurringPricingInfo?.packageThreeDisCount) > 0) &&
+          props.ProposalObject?.DiscountLines && (
+          <tr style={{ backgroundColor: "#808080" }}>
+            <td style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px", color: "white", fontWeight: "bold" }}>Discounted Total</td>
+            {props?.selectedPackagesList?.map((pkg, pkgIdx) => {
+              const pkgName = pkgIdx === 0 ? "One" : pkgIdx === 1 ? "Two" : "Three";
+              const discounted = props.RecurringPricingInfo?.[`package${pkgName}DisCountedTotal`];
+              return (
+                <React.Fragment key={`rec-discounted-${pkgIdx}`}>
+                  {props.visibleFieldsCustomTemp?.fees && (
+                    <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}>
+                      {props.formatValue(discounted, props.currencyID)}
+                    </td>
+                  )}
+                  {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.vatRate && (
+                    <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>
+                  )}
+                  {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.vat && (
+                    <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>
+                  )}
+                  {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.feesIncVat && (
+                    <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>
+                  )}
+                  {props.visibleFieldsCustomTemp?.serviceScope && (
+                    <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>
+                  )}
+                </React.Fragment>
+              );
+            })}
+          </tr>
+        )}
+        {/* Grand Total Row — template 6: only when a package discount applies (same as discount row) */}
+        {(Number(props.vatPercentage) || 0) > 0 &&
+          (Number(props.RecurringPricingInfo?.packageOneDisCount) > 0 ||
+            Number(props.RecurringPricingInfo?.packageTwoDisCount) > 0 ||
+            Number(props.RecurringPricingInfo?.packageThreeDisCount) > 0) &&
+          props.ProposalObject?.DiscountLines && (
           <tr style={{ backgroundColor: "#808080" }}>
             <td style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px", color: "white", fontWeight: "bold" }}>Grand Total</td>
             {props?.selectedPackagesList?.map((pkg, pkgIdx) => {
@@ -1233,13 +1278,13 @@ export default function PreviewComponentPdf(props) {
                       {props.formatValue(grandTotal - vatPrice, props.currencyID)}
                     </td>
                   )}
-                  {props.vatPercentage && props.visibleFieldsCustomTemp?.vatRate && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
-                  {props.vatPercentage && props.visibleFieldsCustomTemp?.vat && (
+                  {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.vatRate && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
+                  {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.vat && (
                     <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}>
                       {props.formatValue(vatPrice, props.currencyID)}
                     </td>
                   )}
-                  {props.vatPercentage && props.visibleFieldsCustomTemp?.feesIncVat && (
+                  {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.feesIncVat && (
                     <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}>
                       {props.formatValue(grandTotal, props.currencyID)}
                     </td>
@@ -2269,9 +2314,9 @@ export default function PreviewComponentPdf(props) {
               <td style={{ border: "1px solid #DDDDDD", textAlign: "center", padding: "8px", color: "white", fontSize: "18px" }}>
                 {pkg.servicePackageName}
               </td>
-              {props.vatPercentageOneOff && props.visibleFieldsCustomTemp?.vatRate && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
-              {props.vatPercentageOneOff && props.visibleFieldsCustomTemp?.vat && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
-              {props.vatPercentageOneOff && props.visibleFieldsCustomTemp?.feesIncVat && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
+              {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.vatRate && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
+              {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.vat && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
+              {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.feesIncVat && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
               {props.visibleFieldsCustomTemp?.serviceScope && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
             </React.Fragment>
           ))}
@@ -2286,13 +2331,13 @@ export default function PreviewComponentPdf(props) {
               {props.visibleFieldsCustomTemp?.fees && (
                 <th style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white", fontSize: "14px" }}>Fees</th>
               )}
-              {props.vatPercentageOneOff && props.visibleFieldsCustomTemp?.vatRate && (
+              {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.vatRate && (
                 <th style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white", fontSize: "14px" }}>{props.taxName || "VAT"} Rate</th>
               )}
-              {props.vatPercentageOneOff && props.visibleFieldsCustomTemp?.vat && (
+              {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.vat && (
                 <th style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white", fontSize: "14px" }}>{props.taxName || "VAT"}</th>
               )}
-              {props.vatPercentageOneOff && props.visibleFieldsCustomTemp?.feesIncVat && (
+              {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.feesIncVat && (
                 <th style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white", fontSize: "14px" }}>Fees inc {props.taxName || "VAT"}</th>
               )}
               {props.visibleFieldsCustomTemp?.serviceScope && (
@@ -2314,9 +2359,9 @@ export default function PreviewComponentPdf(props) {
               {props?.selectedPackagesList?.map((pkg, pkgIdx) => (
                 <React.Fragment key={`oneoff-cat-spacer-${pkgIdx}`}>
                   {props.visibleFieldsCustomTemp?.fees && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
-                  {props.vatPercentageOneOff && props.visibleFieldsCustomTemp?.vatRate && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
-                  {props.vatPercentageOneOff && props.visibleFieldsCustomTemp?.vat && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
-                  {props.vatPercentageOneOff && props.visibleFieldsCustomTemp?.feesIncVat && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
+                  {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.vatRate && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
+                  {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.vat && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
+                  {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.feesIncVat && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
                   {props.visibleFieldsCustomTemp?.serviceScope && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
                 </React.Fragment>
               ))}
@@ -2354,17 +2399,17 @@ export default function PreviewComponentPdf(props) {
                               props.ProposalObject?.feeTypeId === 1 ? props.formatValue(packageValues[pkgIdx]?.value, props.currencyID) : <span>&#10003;</span>}
                           </td>
                         )}
-                        {props.vatPercentageOneOff && props.visibleFieldsCustomTemp?.vatRate && (
+                        {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.vatRate && (
                           <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px" }}>
                             {showX || showXNotIncluded ? <span>&#10007;</span> : `${vatPct}%`}
                           </td>
                         )}
-                        {props.vatPercentageOneOff && props.visibleFieldsCustomTemp?.vat && (
+                        {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.vat && (
                           <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px" }}>
                             {showX || showXNotIncluded ? <span>&#10007;</span> : props.formatValue(vatAmount, props.currencyID)}
                           </td>
                         )}
-                        {props.vatPercentageOneOff && props.visibleFieldsCustomTemp?.feesIncVat && (
+                        {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.feesIncVat && (
                           <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px" }}>
                             {showX || showXNotIncluded ? <span>&#10007;</span> : props.formatValue(feesIncVat, props.currencyID)}
                           </td>
@@ -2374,8 +2419,8 @@ export default function PreviewComponentPdf(props) {
                             {showX || showXNotIncluded ? (
                               <span>-</span>
                             ) : (
-                              subService.pricingDriverList && subService.pricingDriverList.length > 0
-                                ? subService.pricingDriverList
+                              getServiceScopeDriverList(subService).length > 0
+                                ? getServiceScopeDriverList(subService)
                                     .filter((d) => d.driverValue !== null)
                                     .map((d, i, arr) => (
                                       <div key={i}>
@@ -2413,13 +2458,13 @@ export default function PreviewComponentPdf(props) {
                     {props.formatValue(netFees, props.currencyID)}
                   </td>
                 )}
-                {props.vatPercentageOneOff && props.visibleFieldsCustomTemp?.vatRate && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
-                {props.vatPercentageOneOff && props.visibleFieldsCustomTemp?.vat && (
+                {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.vatRate && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
+                {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.vat && (
                   <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}>
                     {props.formatValue(staticVat, props.currencyID)}
                   </td>
                 )}
-                {props.vatPercentageOneOff && props.visibleFieldsCustomTemp?.feesIncVat && (
+                {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.feesIncVat && (
                   <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}>
                     {props.formatValue(netFeesIncVat, props.currencyID)}
                   </td>
@@ -2449,13 +2494,13 @@ export default function PreviewComponentPdf(props) {
                       (-) {props.formatValue(disCount, props.currencyID)}
                     </td>
                   )}
-                  {props.vatPercentageOneOff && props.visibleFieldsCustomTemp?.vatRate && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
-                  {props.vatPercentageOneOff && props.visibleFieldsCustomTemp?.vat && (
+                  {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.vatRate && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
+                  {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.vat && (
                     <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "black" }}>
                       (-) {props.formatValue(vatDiscount, props.currencyID)}
                     </td>
                   )}
-                  {props.vatPercentageOneOff && props.visibleFieldsCustomTemp?.feesIncVat && (
+                  {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.feesIncVat && (
                     <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "black" }}>
                       (-) {props.formatValue(disCount + vatDiscount, props.currencyID)}
                     </td>
@@ -2466,8 +2511,46 @@ export default function PreviewComponentPdf(props) {
             })}
           </tr>
         )}
-        {/* Grand Total Row */}
-        {props.vatPercentageOneOff && (
+        {(Number(props.vatPercentageOneOff) || 0) === 0 &&
+          (Number(props.OneOffPricingInfo?.packageOneDisCount) > 0 ||
+            Number(props.OneOffPricingInfo?.packageTwoDisCount) > 0 ||
+            Number(props.OneOffPricingInfo?.packageThreeDisCount) > 0) &&
+          props.ProposalObject?.DiscountLines && (
+          <tr style={{ backgroundColor: "#808080" }}>
+            <td style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px", color: "white", fontWeight: "bold" }}>Discounted Total</td>
+            {props?.selectedPackagesList?.map((pkg, pkgIdx) => {
+              const pkgName = pkgIdx === 0 ? "One" : pkgIdx === 1 ? "Two" : "Three";
+              const discounted = props.OneOffPricingInfo?.[`package${pkgName}DisCountedTotal`];
+              return (
+                <React.Fragment key={`oneoff-discounted-${pkgIdx}`}>
+                  {props.visibleFieldsCustomTemp?.fees && (
+                    <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}>
+                      {props.formatValue(discounted, props.currencyID)}
+                    </td>
+                  )}
+                  {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.vatRate && (
+                    <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>
+                  )}
+                  {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.vat && (
+                    <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>
+                  )}
+                  {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.feesIncVat && (
+                    <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>
+                  )}
+                  {props.visibleFieldsCustomTemp?.serviceScope && (
+                    <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>
+                  )}
+                </React.Fragment>
+              );
+            })}
+          </tr>
+        )}
+        {/* Grand Total Row — template 6: only when a package discount applies (same as discount row) */}
+        {(Number(props.vatPercentageOneOff) || 0) > 0 &&
+          (Number(props.OneOffPricingInfo?.packageOneDisCount) > 0 ||
+            Number(props.OneOffPricingInfo?.packageTwoDisCount) > 0 ||
+            Number(props.OneOffPricingInfo?.packageThreeDisCount) > 0) &&
+          props.ProposalObject?.DiscountLines && (
           <tr style={{ backgroundColor: "#808080" }}>
             <td style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px", color: "white", fontWeight: "bold" }}>Grand Total</td>
             {props?.selectedPackagesList?.map((pkg, pkgIdx) => {
@@ -2481,13 +2564,13 @@ export default function PreviewComponentPdf(props) {
                       {props.formatValue(grandTotal - vatPrice, props.currencyID)}
                     </td>
                   )}
-                  {props.vatPercentageOneOff && props.visibleFieldsCustomTemp?.vatRate && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
-                  {props.vatPercentageOneOff && props.visibleFieldsCustomTemp?.vat && (
+                  {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.vatRate && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
+                  {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.vat && (
                     <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}>
                       {props.formatValue(vatPrice, props.currencyID)}
                     </td>
                   )}
-                  {props.vatPercentageOneOff && props.visibleFieldsCustomTemp?.feesIncVat && (
+                  {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.feesIncVat && (
                     <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}>
                       {props.formatValue(grandTotal, props.currencyID)}
                     </td>
@@ -2543,6 +2626,10 @@ export default function PreviewComponentPdf(props) {
     RecurringPackagesTable,
   );
 
+  // Sync customized (template 6) pricing tables into email fields. `RecurringPackagesTable` /
+  // `OneOffPackagesTable` pick service vs package Template6 JSX above; `renderToString` runs each
+  // render — this effect must re-run when pricing, discount, VAT, or column visibility changes so
+  // `recurringHtmlContent` / `oneOffHtmlContent` are not left stale.
   useEffect(() => {
     // Original condition for Master Agreement (type 4) OR template 6 for any proposal type
     const isTemplate6 = props.selectedTemplateID === 6 || props.selectedTemplateIDOneOff === 6;
@@ -2567,6 +2654,22 @@ export default function PreviewComponentPdf(props) {
     props.selectedTemplateID,
     props.selectedTemplateIDOneOff,
     props?.ProposalObject?.selectedProposalTypeValue,
+    props?.ProposalObject?.DiscountLines,
+    props?.ProposalObject?.feeTypeId,
+    props?.RecurringPricingInfo,
+    props?.OneOffPricingInfo,
+    props?.visibleFieldsCustomTemp,
+    props?.vatPercentage,
+    props?.vatPercentageOneOff,
+    props?.selectedPackagesList,
+    props?.feeTypeId,
+    props?.currencyID,
+    props?.currencySymbol,
+    props?.taxName,
+    props?.common,
+    props.moduleName,
+    RecurringTableString,
+    oneOffTableString,
   ]);
 
   useEffect(() => {
@@ -4813,7 +4916,7 @@ export default function PreviewComponentPdf(props) {
                         }
 
        ${
-         props.vatPercentage
+         (Number(props.vatPercentage) || 0) > 0
            ? `
         <tr style="background-color: #DCDCDC";>
            <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;color: black;">
@@ -4942,11 +5045,11 @@ export default function PreviewComponentPdf(props) {
               : pkg.servicePackageName
           }
         </td>
-        ${props.vatPercentage && props.visibleFieldsCustomTemp.vatRate
+        ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
           ? `<td style="border:1px solid #dddddd; padding:8px;"></td>` : ""}
-        ${props.vatPercentage && props.visibleFieldsCustomTemp.vat
+        ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vat
           ? `<td style="border:1px solid #dddddd; padding:8px;"></td>` : ""}
-        ${props.vatPercentage && props.visibleFieldsCustomTemp.feesIncVat
+        ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
           ? `<td style="border:1px solid #dddddd; padding:8px;"></td>` : ""}
         ${props.visibleFieldsCustomTemp.serviceScope
           ? `<td style="border:1px solid #dddddd; padding:8px;"></td>` : ""}
@@ -4966,13 +5069,13 @@ export default function PreviewComponentPdf(props) {
         ${props.visibleFieldsCustomTemp.fees
           ? `<th style="border:1px solid #dddddd; text-align:left; padding:8px; color:white; font-size:18px; width:16.66%;">Fees (${props.currencySymbol})</th>`
           : ""}
-        ${props.vatPercentage && props.visibleFieldsCustomTemp.vatRate
+        ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
           ? `<th style="border:1px solid #dddddd; text-align:left; padding:8px; color:white; font-size:18px; width:16.66%;">${props.taxName} Rate</th>`
           : ""}
-        ${props.vatPercentage && props.visibleFieldsCustomTemp.vat
+        ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vat
           ? `<th style="border:1px solid #dddddd; text-align:left; padding:8px; color:white; font-size:18px; width:16.66%;">${props.taxName} (${props.currencySymbol})</th>`
           : ""}
-        ${props.vatPercentage && props.visibleFieldsCustomTemp.feesIncVat
+        ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
           ? `<th style="border:1px solid #dddddd; text-align:left; padding:8px; color:white; font-size:18px; width:16.66%;">Fees inc ${props.taxName} (${props.currencySymbol})</th>`
           : ""}
         ${props.visibleFieldsCustomTemp.serviceScope
@@ -4994,11 +5097,11 @@ export default function PreviewComponentPdf(props) {
           }
           ${props.visibleFieldsCustomTemp.fees
               ? `<th style="border:1px solid #dddddd; padding:8px;"></th>` : ""}
-          ${props.vatPercentage && props.visibleFieldsCustomTemp.vatRate
+          ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
               ? `<th style="border:1px solid #dddddd; padding:8px;"></th>` : ""}
-          ${props.vatPercentage && props.visibleFieldsCustomTemp.vat
+          ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vat
               ? `<th style="border:1px solid #dddddd; padding:8px;"></th>` : ""}
-          ${props.vatPercentage && props.visibleFieldsCustomTemp.feesIncVat
+          ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
               ? `<th style="border:1px solid #dddddd; padding:8px;"></th>` : ""}
           ${props.visibleFieldsCustomTemp.serviceScope
               ? `<th style="border:1px solid #dddddd; padding:8px;"></th>` : ""}
@@ -5006,11 +5109,11 @@ export default function PreviewComponentPdf(props) {
             packageCount >= 2
               ? `${props.visibleFieldsCustomTemp.fees
                     ? `<th style="border:1px solid #dddddd; padding:8px;"></th>` : ""}
-                ${props.vatPercentage && props.visibleFieldsCustomTemp.vatRate
+                ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
                     ? `<th style="border:1px solid #dddddd; padding:8px;"></th>` : ""}
-                ${props.vatPercentage && props.visibleFieldsCustomTemp.vat
+                ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vat
                     ? `<th style="border:1px solid #dddddd; padding:8px;"></th>` : ""}
-                ${props.vatPercentage && props.visibleFieldsCustomTemp.feesIncVat
+                ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
                     ? `<th style="border:1px solid #dddddd; padding:8px;"></th>` : ""}
                 ${props.visibleFieldsCustomTemp.serviceScope
                     ? `<th style="border:1px solid #dddddd; padding:8px;"></th>` : ""}`
@@ -5020,11 +5123,11 @@ export default function PreviewComponentPdf(props) {
             packageCount === 3
               ? `${props.visibleFieldsCustomTemp.fees
                     ? `<th style="border:1px solid #dddddd; padding:8px;"></th>` : ""}
-                ${props.vatPercentage && props.visibleFieldsCustomTemp.vatRate
+                ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
                     ? `<th style="border:1px solid #dddddd; padding:8px;"></th>` : ""}
-                ${props.vatPercentage && props.visibleFieldsCustomTemp.vat
+                ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vat
                     ? `<th style="border:1px solid #dddddd; padding:8px;"></th>` : ""}
-                ${props.vatPercentage && props.visibleFieldsCustomTemp.feesIncVat
+                ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
                     ? `<th style="border:1px solid #dddddd; padding:8px;"></th>` : ""}
                 ${props.visibleFieldsCustomTemp.serviceScope
                     ? `<th style="border:1px solid #dddddd; padding:8px;"></th>` : ""}`
@@ -5083,7 +5186,7 @@ export default function PreviewComponentPdf(props) {
                 }
           </td>` : ""}
 
-          ${props.vatPercentage && props.visibleFieldsCustomTemp.vatRate
+          ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
             ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;">
                 ${(subService.packageOneValue === 0 || subService.packageOneValue === null) &&
                   !subService.servicePackageIDs.some((item) => item == props.selectedPackagesList[0]?.servicePackageID)
@@ -5093,7 +5196,7 @@ export default function PreviewComponentPdf(props) {
                     : `${subService.service_vat_percentage ?? 0}%`}
               </td>` : ""}
 
-          ${props.vatPercentage && props.visibleFieldsCustomTemp.vat
+          ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vat
             ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;">
                       ${
                         props.ProposalObject.feeTypeId === 1
@@ -5122,7 +5225,7 @@ export default function PreviewComponentPdf(props) {
                       }
                     </td>` : ""}
 
-          ${props.vatPercentage && props.visibleFieldsCustomTemp.feesIncVat
+          ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
             ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;">
                       ${
                         props.ProposalObject.feeTypeId === 1
@@ -5155,9 +5258,8 @@ export default function PreviewComponentPdf(props) {
                 props.visibleFieldsCustomTemp.serviceScope
                   ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;">
                       ${
-                        subService.pricingDriverList &&
-                        subService.pricingDriverList.length > 0
-                          ? subService.pricingDriverList
+                        getServiceScopeDriverList(subService).length > 0
+                          ? getServiceScopeDriverList(subService)
                               .filter((d) => d.driverValue !== null)
                               .map(
                                 (d, i, arr) => `
@@ -5248,7 +5350,7 @@ export default function PreviewComponentPdf(props) {
                     }
             </td>` : ""}
 
-                  ${props.vatPercentage && props.visibleFieldsCustomTemp.vatRate
+                  ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
                     ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;">
                         ${(subService.packageTwoValue === 0 || subService.packageTwoValue === null) &&
                           !subService.servicePackageIDs.some((item) => item == props.selectedPackagesList[0]?.servicePackageID)
@@ -5258,7 +5360,7 @@ export default function PreviewComponentPdf(props) {
                             : `${subService.service_vat_percentage ?? 0}%`}
                       </td>` : ""}
 
-                  ${props.vatPercentage && props.visibleFieldsCustomTemp.vat
+                  ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vat
                     ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;">
           ${
             props.ProposalObject.feeTypeId === 1
@@ -5286,7 +5388,7 @@ export default function PreviewComponentPdf(props) {
           }
                     </td>` : ""}
 
-                  ${props.vatPercentage && props.visibleFieldsCustomTemp.feesIncVat
+                  ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
                     ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;">
           ${
             props.ProposalObject.feeTypeId === 1
@@ -5318,9 +5420,8 @@ export default function PreviewComponentPdf(props) {
                 props.visibleFieldsCustomTemp.serviceScope
                   ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;">
                       ${
-                        subService.pricingDriverList &&
-                        subService.pricingDriverList.length > 0
-                          ? subService.pricingDriverList
+                        getServiceScopeDriverList(subService).length > 0
+                          ? getServiceScopeDriverList(subService)
                               .filter((d) => d.driverValue !== null)
                               .map(
                                 (d, i, arr) => `
@@ -5413,7 +5514,7 @@ export default function PreviewComponentPdf(props) {
                     }
             </td>` : ""}
 
-                  ${props.vatPercentage && props.visibleFieldsCustomTemp.vatRate
+                  ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
                     ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;">
                         ${(subService.packageThreeValue === 0 || subService.packageThreeValue === null) &&
                           !subService.servicePackageIDs.some((item) => item == props.selectedPackagesList[0]?.servicePackageID)
@@ -5423,7 +5524,7 @@ export default function PreviewComponentPdf(props) {
                             : `${subService.service_vat_percentage ?? 0}%`}
                       </td>` : ""}
 
-                  ${props.vatPercentage && props.visibleFieldsCustomTemp.vat
+                  ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vat
                     ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;">
                       ${
                         props.ProposalObject.feeTypeId === 1
@@ -5452,7 +5553,7 @@ export default function PreviewComponentPdf(props) {
                       }
                     </td>` : ""}
 
-                  ${props.vatPercentage && props.visibleFieldsCustomTemp.feesIncVat
+                  ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
                     ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;">
                       ${
                         props.ProposalObject.feeTypeId === 1
@@ -5485,9 +5586,8 @@ export default function PreviewComponentPdf(props) {
                 props.visibleFieldsCustomTemp.serviceScope
                   ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;">
                       ${
-                        subService.pricingDriverList &&
-                        subService.pricingDriverList.length > 0
-                          ? subService.pricingDriverList
+                        getServiceScopeDriverList(subService).length > 0
+                          ? getServiceScopeDriverList(subService)
                               .filter((d) => d.driverValue !== null)
                               .map(
                                 (d, i, arr) => `
@@ -5552,16 +5652,16 @@ export default function PreviewComponentPdf(props) {
           )
     }
   </td>` : ""}
-  ${props.vatPercentage && props.visibleFieldsCustomTemp.vatRate
+  ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
     ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;"></td>` : ""}
-  ${props.vatPercentage && props.visibleFieldsCustomTemp.vat
+  ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vat
     ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
           ${props.formatValue(
             props.RecurringPricingInfo.PackageOneStaticVaTPrice,
             props.currencyID,
           )}
         </td>` : ""}
-  ${props.vatPercentage && props.visibleFieldsCustomTemp.feesIncVat
+  ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
     ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
           ${props.formatValue(
             (totalOnePackageValue >
@@ -5602,16 +5702,16 @@ export default function PreviewComponentPdf(props) {
                 )
           }
         </td>` : ""}
-        ${props.vatPercentage && props.visibleFieldsCustomTemp.vatRate
+        ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
           ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;"></td>` : ""}
-        ${props.vatPercentage && props.visibleFieldsCustomTemp.vat
+        ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vat
           ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
                 ${props.formatValue(
                   props.RecurringPricingInfo.PackageTwoStaticVaTPrice,
                   props.currencyID,
                 )}
               </td>` : ""}
-        ${props.vatPercentage && props.visibleFieldsCustomTemp.feesIncVat
+        ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
           ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
                 ${props.formatValue(
                   (totalTwoPackageValue >
@@ -5654,16 +5754,16 @@ export default function PreviewComponentPdf(props) {
                 )
           }
         </td>` : ""}
-        ${props.vatPercentage && props.visibleFieldsCustomTemp.vatRate
+        ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
           ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;"></td>` : ""}
-        ${props.vatPercentage && props.visibleFieldsCustomTemp.vat
+        ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vat
           ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
                 ${props.formatValue(
                   props.RecurringPricingInfo.PackageThreeStaticVaTPrice,
                   props.currencyID,
                 )}
               </td>` : ""}
-        ${props.vatPercentage && props.visibleFieldsCustomTemp.feesIncVat
+        ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
           ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
                 ${props.formatValue(
                   (totalThreePackageValue >
@@ -5702,9 +5802,9 @@ ${
             props.currencyID,
           )}
         </td>` : ""}
-        ${props.vatPercentage && props.visibleFieldsCustomTemp.vatRate
+        ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
           ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;"></td>` : ""}
-        ${props.vatPercentage && props.visibleFieldsCustomTemp.vat
+        ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vat
           ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:black;">
                 (-) ${props.formatValue(
                   Number(props.RecurringPricingInfo.PackageOneStaticVaTPrice) -
@@ -5712,7 +5812,7 @@ ${
                   props.currencyID,
                 )}
               </td>` : ""}
-        ${props.vatPercentage && props.visibleFieldsCustomTemp.feesIncVat
+        ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
           ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:black;">
                 (-) ${props.formatValue(
                   Number(props.RecurringPricingInfo.packageOneDisCount) +
@@ -5734,9 +5834,9 @@ ${
                   props.currencyID,
                 )}
               </td>` : ""}
-              ${props.vatPercentage && props.visibleFieldsCustomTemp.vatRate
+              ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
                 ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;"></td>` : ""}
-              ${props.vatPercentage && props.visibleFieldsCustomTemp.vat
+              ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vat
                 ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:black;">
                       (-) ${props.formatValue(
                         Number(props.RecurringPricingInfo.PackageTwoStaticVaTPrice) -
@@ -5744,7 +5844,7 @@ ${
                         props.currencyID,
                       )}
                     </td>` : ""}
-              ${props.vatPercentage && props.visibleFieldsCustomTemp.feesIncVat
+              ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
                 ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:black;">
                       (-) ${props.formatValue(
                         Number(props.RecurringPricingInfo.packageTwoDisCount) +
@@ -5769,9 +5869,9 @@ ${
                   props.currencyID,
                 )}
               </td>` : ""}
-              ${props.vatPercentage && props.visibleFieldsCustomTemp.vatRate
+              ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
                 ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;"></td>` : ""}
-              ${props.vatPercentage && props.visibleFieldsCustomTemp.vat
+              ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vat
                 ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:black;">
                       (-) ${props.formatValue(
                         Number(props.RecurringPricingInfo.PackageThreeStaticVaTPrice) -
@@ -5779,7 +5879,7 @@ ${
                         props.currencyID,
                       )}
                     </td>` : ""}
-              ${props.vatPercentage && props.visibleFieldsCustomTemp.feesIncVat
+              ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
                 ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:black;">
                       (-) ${props.formatValue(
                         Number(props.RecurringPricingInfo.packageThreeDisCount) +
@@ -5796,7 +5896,7 @@ ${
       </tr>
 
       ${
-  props.vatPercentage
+  (Number(props.vatPercentage) || 0) > 0
     ? `
 <tr style="background-color:#808080;">
   <td style="border:1px solid #dddddd; text-align:left; padding:8px; color:white;">
@@ -6389,7 +6489,7 @@ ${
                         }
 
        ${
-         props.vatPercentageOneOff
+         (Number(props.vatPercentageOneOff) || 0) > 0
            ? `
         <tr style="background-color: #DCDCDC";>
            <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;color: black;">
@@ -6515,11 +6615,11 @@ ${
               : pkg.servicePackageName
           }
         </td>
-        ${props.vatPercentageOneOff && props.visibleFieldsCustomTemp.vatRate
+        ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
           ? `<td style="border:1px solid #dddddd; padding:8px;"></td>` : ""}
-        ${props.vatPercentageOneOff && props.visibleFieldsCustomTemp.vat
+        ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vat
           ? `<td style="border:1px solid #dddddd; padding:8px;"></td>` : ""}
-        ${props.vatPercentageOneOff && props.visibleFieldsCustomTemp.feesIncVat
+        ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
           ? `<td style="border:1px solid #dddddd; padding:8px;"></td>` : ""}
         ${props.visibleFieldsCustomTemp.serviceScope
           ? `<td style="border:1px solid #dddddd; padding:8px;"></td>` : ""}
@@ -6539,13 +6639,13 @@ ${
         ${props.visibleFieldsCustomTemp.fees
           ? `<th style="border:1px solid #dddddd; text-align:left; padding:8px; color:white; font-size:18px; width:16.66%;">Fees (${props.currencySymbol})</th>`
           : ""}
-        ${props.vatPercentageOneOff && props.visibleFieldsCustomTemp.vatRate
+        ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
           ? `<th style="border:1px solid #dddddd; text-align:left; padding:8px; color:white; font-size:18px; width:16.66%;">${props.taxName} Rate</th>`
           : ""}
-        ${props.vatPercentageOneOff && props.visibleFieldsCustomTemp.vat
+        ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vat
           ? `<th style="border:1px solid #dddddd; text-align:left; padding:8px; color:white; font-size:18px; width:16.66%;">${props.taxName} (${props.currencySymbol})</th>`
           : ""}
-        ${props.vatPercentageOneOff && props.visibleFieldsCustomTemp.feesIncVat
+        ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
           ? `<th style="border:1px solid #dddddd; text-align:left; padding:8px; color:white; font-size:18px; width:16.66%;">Fees inc ${props.taxName} (${props.currencySymbol})</th>`
           : ""}
         ${props.visibleFieldsCustomTemp.serviceScope
@@ -6565,11 +6665,11 @@ ${
             : ""}
           ${props.visibleFieldsCustomTemp.fees
               ? `<th style="border:1px solid #dddddd; padding:8px;"></th>` : ""}
-          ${props.vatPercentageOneOff && props.visibleFieldsCustomTemp.vatRate
+          ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
               ? `<th style="border:1px solid #dddddd; padding:8px;"></th>` : ""}
-          ${props.vatPercentageOneOff && props.visibleFieldsCustomTemp.vat
+          ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vat
               ? `<th style="border:1px solid #dddddd; padding:8px;"></th>` : ""}
-          ${props.vatPercentageOneOff && props.visibleFieldsCustomTemp.feesIncVat
+          ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
               ? `<th style="border:1px solid #dddddd; padding:8px;"></th>` : ""}
           ${props.visibleFieldsCustomTemp.serviceScope
               ? `<th style="border:1px solid #dddddd; padding:8px;"></th>` : ""}
@@ -6577,11 +6677,11 @@ ${
             packageCount >= 2
               ? `${props.visibleFieldsCustomTemp.fees
                     ? `<th style="border:1px solid #dddddd; padding:8px;"></th>` : ""}
-                ${props.vatPercentageOneOff && props.visibleFieldsCustomTemp.vatRate
+                ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
                     ? `<th style="border:1px solid #dddddd; padding:8px;"></th>` : ""}
-                ${props.vatPercentageOneOff && props.visibleFieldsCustomTemp.vat
+                ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vat
                     ? `<th style="border:1px solid #dddddd; padding:8px;"></th>` : ""}
-                ${props.vatPercentageOneOff && props.visibleFieldsCustomTemp.feesIncVat
+                ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
                     ? `<th style="border:1px solid #dddddd; padding:8px;"></th>` : ""}
                 ${props.visibleFieldsCustomTemp.serviceScope
                     ? `<th style="border:1px solid #dddddd; padding:8px;"></th>` : ""}`
@@ -6591,11 +6691,11 @@ ${
             packageCount === 3
               ? `${props.visibleFieldsCustomTemp.fees
                     ? `<th style="border:1px solid #dddddd; padding:8px;"></th>` : ""}
-                ${props.vatPercentageOneOff && props.visibleFieldsCustomTemp.vatRate
+                ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
                     ? `<th style="border:1px solid #dddddd; padding:8px;"></th>` : ""}
-                ${props.vatPercentageOneOff && props.visibleFieldsCustomTemp.vat
+                ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vat
                     ? `<th style="border:1px solid #dddddd; padding:8px;"></th>` : ""}
-                ${props.vatPercentageOneOff && props.visibleFieldsCustomTemp.feesIncVat
+                ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
                     ? `<th style="border:1px solid #dddddd; padding:8px;"></th>` : ""}
                 ${props.visibleFieldsCustomTemp.serviceScope
                     ? `<th style="border:1px solid #dddddd; padding:8px;"></th>` : ""}`
@@ -6654,7 +6754,7 @@ ${
                 }
               </td>` : ""}
 
-              ${props.vatPercentageOneOff && props.visibleFieldsCustomTemp.vatRate
+              ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
                 ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;">
                     ${(subService.packageOneValue === 0 || subService.packageOneValue === null) &&
                       !subService.servicePackageIDs.some((item) => item == props.selectedPackagesList[0]?.servicePackageID)
@@ -6664,7 +6764,7 @@ ${
                         : `${subService.service_vat_percentage ?? 0}%`}
                   </td>` : ""}
 
-              ${props.vatPercentageOneOff && props.visibleFieldsCustomTemp.vat
+              ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vat
                 ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;">
                       ${
                         props.ProposalObject.feeTypeId === 1
@@ -6693,7 +6793,7 @@ ${
                       }
                     </td>` : ""}
 
-              ${props.vatPercentageOneOff && props.visibleFieldsCustomTemp.feesIncVat
+              ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
                 ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;">
                       ${
                         props.ProposalObject.feeTypeId === 1
@@ -6726,9 +6826,8 @@ ${
                 props.visibleFieldsCustomTemp.serviceScope
                   ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;">
                       ${
-                        subService.pricingDriverList &&
-                        subService.pricingDriverList.length > 0
-                          ? subService.pricingDriverList
+                        getServiceScopeDriverList(subService).length > 0
+                          ? getServiceScopeDriverList(subService)
                               .filter((d) => d.driverValue !== null)
                               .map(
                                 (d, i, arr) => `
@@ -6819,7 +6918,7 @@ ${
                     }
                   </td>` : ""}
 
-                  ${props.vatPercentageOneOff && props.visibleFieldsCustomTemp.vatRate
+                  ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
                     ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;">
                         ${(subService.packageTwoValue === 0 || subService.packageTwoValue === null) &&
                           !subService.servicePackageIDs.some((item) => item == props.selectedPackagesList[0]?.servicePackageID)
@@ -6829,7 +6928,7 @@ ${
                             : `${subService.service_vat_percentage ?? 0}%`}
                       </td>` : ""}
 
-                  ${props.vatPercentageOneOff && props.visibleFieldsCustomTemp.vat
+                  ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vat
                     ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;">
                       ${
                         props.ProposalObject.feeTypeId === 1
@@ -6858,7 +6957,7 @@ ${
                       }
                     </td>` : ""}
 
-                  ${props.vatPercentageOneOff && props.visibleFieldsCustomTemp.feesIncVat
+                  ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
                     ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;">
                       ${
                         props.ProposalObject.feeTypeId === 1
@@ -6891,9 +6990,8 @@ ${
                 props.visibleFieldsCustomTemp.serviceScope
                   ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;">
                       ${
-                        subService.pricingDriverList &&
-                        subService.pricingDriverList.length > 0
-                          ? subService.pricingDriverList
+                        getServiceScopeDriverList(subService).length > 0
+                          ? getServiceScopeDriverList(subService)
                               .filter((d) => d.driverValue !== null)
                               .map(
                                 (d, i, arr) => `
@@ -6986,7 +7084,7 @@ ${
                     }
                   </td>` : ""}
 
-                  ${props.vatPercentageOneOff && props.visibleFieldsCustomTemp.vatRate
+                  ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
                     ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;">
                         ${(subService.packageThreeValue === 0 || subService.packageThreeValue === null) &&
                           !subService.servicePackageIDs.some((item) => item == props.selectedPackagesList[0]?.servicePackageID)
@@ -6996,7 +7094,7 @@ ${
                             : `${subService.service_vat_percentage ?? 0}%`}
                       </td>` : ""}
 
-                  ${props.vatPercentageOneOff && props.visibleFieldsCustomTemp.vat
+                  ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vat
                     ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;">
                       ${
                         props.ProposalObject.feeTypeId === 1
@@ -7025,7 +7123,7 @@ ${
                       }
                     </td>` : ""}
 
-                  ${props.vatPercentageOneOff && props.visibleFieldsCustomTemp.feesIncVat
+                  ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
                     ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;">
                       ${
                         props.ProposalObject.feeTypeId === 1
@@ -7058,9 +7156,8 @@ ${
                 props.visibleFieldsCustomTemp.serviceScope
                   ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;">
                       ${
-                        subService.pricingDriverList &&
-                        subService.pricingDriverList.length > 0
-                          ? subService.pricingDriverList
+                        getServiceScopeDriverList(subService).length > 0
+                          ? getServiceScopeDriverList(subService)
                               .filter((d) => d.driverValue !== null)
                               .map(
                                 (d, i, arr) => `
@@ -7125,16 +7222,16 @@ ${
           )
     }
   </td>` : ""}
-  ${props.vatPercentageOneOff && props.visibleFieldsCustomTemp.vatRate
+  ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
     ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;"></td>` : ""}
-  ${props.vatPercentageOneOff && props.visibleFieldsCustomTemp.vat
+  ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vat
     ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
           ${props.formatValue(
             props.OneOffPricingInfo.PackageOneStaticVaTPrice,
             props.currencyID,
           )}
         </td>` : ""}
-  ${props.vatPercentageOneOff && props.visibleFieldsCustomTemp.feesIncVat
+  ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
     ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
           ${props.formatValue(
             (totalOnePackageValue >
@@ -7175,16 +7272,16 @@ ${
                 )
           }
         </td>` : ""}
-        ${props.vatPercentageOneOff && props.visibleFieldsCustomTemp.vatRate
+        ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
           ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;"></td>` : ""}
-        ${props.vatPercentageOneOff && props.visibleFieldsCustomTemp.vat
+        ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vat
           ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
                 ${props.formatValue(
                   props.OneOffPricingInfo.PackageTwoStaticVaTPrice,
                   props.currencyID,
                 )}
               </td>` : ""}
-        ${props.vatPercentageOneOff && props.visibleFieldsCustomTemp.feesIncVat
+        ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
           ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
                 ${props.formatValue(
                   (totalTwoPackageValue >
@@ -7227,16 +7324,16 @@ ${
                 )
           }
         </td>` : ""}
-        ${props.vatPercentageOneOff && props.visibleFieldsCustomTemp.vatRate
+        ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
           ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;"></td>` : ""}
-        ${props.vatPercentageOneOff && props.visibleFieldsCustomTemp.vat
+        ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vat
           ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
                 ${props.formatValue(
                   props.OneOffPricingInfo.PackageThreeStaticVaTPrice,
                   props.currencyID,
                 )}
               </td>` : ""}
-        ${props.vatPercentageOneOff && props.visibleFieldsCustomTemp.feesIncVat
+        ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
           ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
                 ${props.formatValue(
                   (totalThreePackageValue >
@@ -7272,9 +7369,9 @@ ${
         <td style="border:1px solid #dddddd; text-align:right; padding:8px; color:black;">
           (-) ${props.formatValue(props.OneOffPricingInfo.packageOneDisCount, props.currencyID)}
         </td>` : ""}
-        ${props.vatPercentageOneOff && props.visibleFieldsCustomTemp.vatRate
+        ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
           ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;"></td>` : ""}
-        ${props.vatPercentageOneOff && props.visibleFieldsCustomTemp.vat
+        ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vat
           ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:black;">
                 (-) ${props.formatValue(
                   Number(props.OneOffPricingInfo.PackageOneStaticVaTPrice) -
@@ -7282,7 +7379,7 @@ ${
                   props.currencyID,
                 )}
               </td>` : ""}
-        ${props.vatPercentageOneOff && props.visibleFieldsCustomTemp.feesIncVat
+        ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
           ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:black;">
                 (-) ${props.formatValue(
                   Number(props.OneOffPricingInfo.packageOneDisCount) +
@@ -7304,9 +7401,9 @@ ${
                   props.currencyID,
                 )}
               </td>` : ""}
-              ${props.vatPercentageOneOff && props.visibleFieldsCustomTemp.vatRate
+              ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
                 ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;"></td>` : ""}
-              ${props.vatPercentageOneOff && props.visibleFieldsCustomTemp.vat
+              ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vat
                 ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:black;">
                       (-) ${props.formatValue(
                         Number(props.OneOffPricingInfo.PackageTwoStaticVaTPrice) -
@@ -7314,7 +7411,7 @@ ${
                         props.currencyID,
                       )}
                     </td>` : ""}
-              ${props.vatPercentageOneOff && props.visibleFieldsCustomTemp.feesIncVat
+              ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
                 ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:black;">
                       (-) ${props.formatValue(
                         Number(props.OneOffPricingInfo.packageTwoDisCount) +
@@ -7339,9 +7436,9 @@ ${
                   props.currencyID,
                 )}
               </td>` : ""}
-              ${props.vatPercentageOneOff && props.visibleFieldsCustomTemp.vatRate
+              ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
                 ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;"></td>` : ""}
-              ${props.vatPercentageOneOff && props.visibleFieldsCustomTemp.vat
+              ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vat
                 ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:black;">
                       (-) ${props.formatValue(
                         Number(props.OneOffPricingInfo.PackageThreeStaticVaTPrice) -
@@ -7349,7 +7446,7 @@ ${
                         props.currencyID,
                       )}
                     </td>` : ""}
-              ${props.vatPercentageOneOff && props.visibleFieldsCustomTemp.feesIncVat
+              ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
                 ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:black;">
                       (-) ${props.formatValue(
                         Number(props.OneOffPricingInfo.packageThreeDisCount) +
@@ -7366,7 +7463,7 @@ ${
       </tr>
 
       ${
-  props.vatPercentageOneOff
+  (Number(props.vatPercentageOneOff) || 0) > 0
     ? `
 <tr style="background-color:#808080;">
   <td style="border:1px solid #dddddd; text-align:left; padding:8px; color:white;">
@@ -7665,7 +7762,7 @@ ${
                    }
      
       ${
-        props.vatPercentage
+        (Number(props.vatPercentage) || 0) > 0
           ? `      
           <tr style="background-color: #DCDCDC";>
            <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;color: black;">
@@ -7746,17 +7843,17 @@ ${
           : ""
       }
       ${
-        props.vatPercentage && props.visibleFieldsCustomTemp.vatRate
+        (Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
           ? `<th style="border: 1px solid #dddddd; text-align: center; padding: 8px; color: white; font-size: 18px;">${props.taxName} Rate</th>`
           : ""
       }
       ${
-        props.vatPercentage && props.visibleFieldsCustomTemp.vat
+        (Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vat
           ? `<th style="border: 1px solid #dddddd; text-align: center; padding: 8px; color: white; font-size: 18px;">${props.taxName} (${props.currencySymbol})</th>`
           : ""
       }
       ${
-        props.vatPercentage && props.visibleFieldsCustomTemp.feesIncVat
+        (Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
           ? `<th style="border: 1px solid #dddddd; text-align: center; padding: 8px; color: white; font-size: 18px;">Fees inc ${props.taxName} (${props.currencySymbol})</th>`
           : ""
       }
@@ -7772,7 +7869,7 @@ ${
             const price = Number(subService.price) || 0;
             const vat = (price * subService.service_vat_percentage) / 100;
             const total = price + vat;
-            const driverList = subService.pricingDriverList || [];
+            const driverList = getServiceScopeDriverList(subService);
 
             return `
               <tr>
@@ -7829,12 +7926,12 @@ ${
       : ""
   }
   ${
-    props.vatPercentage && props.visibleFieldsCustomTemp.vatRate
+    (Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
       ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word;">${subService.service_vat_percentage}%</td>`
       : ""
   }
   ${
-    props.vatPercentage && props.visibleFieldsCustomTemp.vat
+    (Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vat
       ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word;">
           ${
             props.ProposalObject.feeTypeId === 1
@@ -7845,7 +7942,7 @@ ${
       : ""
   }
   ${
-    props.vatPercentage && props.visibleFieldsCustomTemp.feesIncVat
+    (Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
       ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word;">
           ${
             props.ProposalObject.feeTypeId === 1
@@ -7902,12 +7999,12 @@ ${
       : ""
   }
   ${
-    props.vatPercentage && props.visibleFieldsCustomTemp.vatRate
+    (Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
       ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;"></td>`
       : ""
   }
   ${
-    props.vatPercentage && props.visibleFieldsCustomTemp.vat
+    (Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vat
       ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; word-break: break-word; white-space: normal; overflow-wrap: break-word;">
           ${props.formatValue(
             Number(props.RecurringPricingInfo.staticTotalVAT),
@@ -7917,7 +8014,7 @@ ${
       : ""
   }
   ${
-    props.vatPercentage && props.visibleFieldsCustomTemp.feesIncVat
+    (Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
       ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; word-break: break-word; white-space: normal; overflow-wrap: break-word;">
           ${
             Number(props.RecurringPricingInfo.OriginalPrice) <
@@ -7965,12 +8062,12 @@ ${
       : ""
   }
   ${
-    props.vatPercentage && props.visibleFieldsCustomTemp.vatRate
+    (Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
       ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;"></td>`
       : ""
   }
   ${
-    props.vatPercentage && props.visibleFieldsCustomTemp.vat
+    (Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vat
       ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: black; word-break: break-word; white-space: normal; overflow-wrap: break-word;">(-) ${props.formatValue(
           Number(props.RecurringPricingInfo.staticTotalVAT) -
             Number(props.RecurringPricingInfo.totalServiceWiseVAT),
@@ -7979,7 +8076,7 @@ ${
       : ""
   }
   ${
-    props.vatPercentage && props.visibleFieldsCustomTemp.feesIncVat
+    (Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
       ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: black; word-break: break-word; white-space: normal; overflow-wrap: break-word;">(-) ${props.formatValue(
           Number(props.RecurringPricingInfo.Discount) +
             (Number(props.RecurringPricingInfo.staticTotalVAT) -
@@ -7991,8 +8088,10 @@ ${
 </tr>
 
 ${
-  props.vatPercentage ? (
-    `<tr style="background-color:#808080;">
+  (Number(props.vatPercentage) || 0) > 0 &&
+  Number(props.RecurringPricingInfo.Discount) > 0 &&
+  props.ProposalObject.DiscountLines
+    ? `<tr style="background-color:#808080;">
   <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word;">Grand Total</td>
   ${
     props.visibleFieldsCustomTemp.serviceCategory
@@ -8025,12 +8124,12 @@ ${
       : ""
   }
   ${
-    props.vatPercentage && props.visibleFieldsCustomTemp.vatRate
+    (Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
       ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word;"></td>`
       : ""
   }
   ${
-    props.vatPercentage && props.visibleFieldsCustomTemp.vat
+    (Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vat
       ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word;">${props.formatValue(
           Number(props.RecurringPricingInfo.totalServiceWiseVAT),
           props.currencyID,
@@ -8038,7 +8137,7 @@ ${
       : ""
   }
   ${
-    props.vatPercentage && props.visibleFieldsCustomTemp.feesIncVat
+    (Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
       ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word;">${props.formatValue(
           props.RecurringPricingInfo.GrandTotal,
           props.currencyID,
@@ -8046,8 +8145,9 @@ ${
       : ""
   }
 </tr>`
-  ) : (
-    `<tr style="background-color:#808080;">
+    : Number(props.RecurringPricingInfo.Discount) > 0 &&
+        props.ProposalObject.DiscountLines
+      ? `<tr style="background-color:#808080;">
   <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word;">Discounted Total</td>
   ${
     props.visibleFieldsCustomTemp.serviceCategory
@@ -8080,12 +8180,12 @@ ${
       : ""
   }
   ${
-    props.vatPercentage && props.visibleFieldsCustomTemp.vatRate
+    (Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
       ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word;"></td>`
       : ""
   }
   ${
-    props.vatPercentage && props.visibleFieldsCustomTemp.vat
+    (Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vat
       ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word;">${props.formatValue(
           Number(props.RecurringPricingInfo.totalServiceWiseVAT),
           props.currencyID,
@@ -8093,7 +8193,7 @@ ${
       : ""
   }
   ${
-    props.vatPercentage && props.visibleFieldsCustomTemp.feesIncVat
+    (Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
       ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word;">${props.formatValue(
           props.RecurringPricingInfo.GrandTotal,
           props.currencyID,
@@ -8101,7 +8201,7 @@ ${
       : ""
   }
 </tr>`
-  )
+      : ""
 }
 
       `
@@ -8235,7 +8335,7 @@ ${
                           : ``
                       }
       ${
-        props.vatPercentageOneOff
+        (Number(props.vatPercentageOneOff) || 0) > 0
           ? `
        
           <tr style="background-color: #DCDCDC";>
@@ -8326,17 +8426,17 @@ ${
           : ""
       }
       ${
-        props.vatPercentageOneOff && props.visibleFieldsCustomTemp.vatRate
+        (Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
           ? `<th style="border: 1px solid #dddddd; text-align: center; padding: 8px; color: white; font-size: 18px;">${props.taxName} Rate</th>`
           : ""
       }
       ${
-        props.vatPercentageOneOff && props.visibleFieldsCustomTemp.vat
+        (Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vat
           ? `<th style="border: 1px solid #dddddd; text-align: center; padding: 8px; color: white; font-size: 18px;">${props.taxName} (${props.currencySymbol})</th>`
           : ""
       }
       ${
-        props.vatPercentageOneOff && props.visibleFieldsCustomTemp.feesIncVat
+        (Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
           ? `<th style="border: 1px solid #dddddd; text-align: center; padding: 8px; color: white; font-size: 18px;">Fees inc ${props.taxName} (${props.currencySymbol})</th>`
           : ""
       }
@@ -8351,7 +8451,7 @@ ${
             const price = subService.price || 0;
             const vat = (price * subService.service_vat_percentage) / 100;
             const total = price + vat;
-            const driverList = subService.pricingDriverList || [];
+            const driverList = getServiceScopeDriverList(subService);
 
             return `
               <tr>
@@ -8409,13 +8509,13 @@ ${
                     : ""
                 }
                 ${
-                  props.vatPercentageOneOff &&
+                  (Number(props.vatPercentageOneOff) || 0) > 0 &&
                   props.visibleFieldsCustomTemp.vatRate
                     ? `<td style="border: 1px solid #dddddd; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word; text-align: right; padding: 8px;">${subService.service_vat_percentage}%</td>`
                     : ""
                 }
                 ${
-                  props.vatPercentageOneOff && props.visibleFieldsCustomTemp.vat
+                  (Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vat
                     ? `<td style="border: 1px solid #dddddd; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word; text-align: right; padding: 8px;">
                         ${
                           props.ProposalObject.feeTypeId === 1
@@ -8426,7 +8526,7 @@ ${
                     : ""
                 }
                 ${
-                  props.vatPercentageOneOff &&
+                  (Number(props.vatPercentageOneOff) || 0) > 0 &&
                   props.visibleFieldsCustomTemp.feesIncVat
                     ? `<td style="border: 1px solid #dddddd; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word; text-align: right; padding: 8px;">
                         ${
@@ -8479,12 +8579,12 @@ ${
       : ""
   }
   ${
-    props.vatPercentageOneOff && props.visibleFieldsCustomTemp.vatRate
+    (Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
       ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;"></td>`
       : ""
   }
   ${
-    props.vatPercentageOneOff && props.visibleFieldsCustomTemp.vat
+    (Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vat
       ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; word-break: break-word; white-space: normal; overflow-wrap: break-word;">
           ${props.formatValue(
             Number(props.OneOffPricingInfo.staticTotalVATOneOff),
@@ -8494,7 +8594,7 @@ ${
       : ""
   }
   ${
-    props.vatPercentageOneOff && props.visibleFieldsCustomTemp.feesIncVat
+    (Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
       ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; word-break: break-word; white-space: normal; overflow-wrap: break-word;">
           ${
             Number(props.OneOffPricingInfo.OriginalPrice) <
@@ -8542,12 +8642,12 @@ ${
       : ""
   }
   ${
-    props.vatPercentageOneOff && props.visibleFieldsCustomTemp.vatRate
+    (Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
       ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: black;"></td>`
       : ""
   }
   ${
-    props.vatPercentageOneOff && props.visibleFieldsCustomTemp.vat
+    (Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vat
       ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: black; word-break: break-word; white-space: normal; overflow-wrap: break-word;">(-) ${props.formatValue(
           Number(props.OneOffPricingInfo.staticTotalVATOneOff) -
             Number(props.OneOffPricingInfo.totalServiceWiseVATOneOff),
@@ -8556,7 +8656,7 @@ ${
       : ""
   }
   ${
-    props.vatPercentageOneOff && props.visibleFieldsCustomTemp.feesIncVat
+    (Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
       ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: black; word-break: break-word; white-space: normal; overflow-wrap: break-word;">(-) ${props.formatValue(
           Number(props.OneOffPricingInfo.Discount) +
             (Number(props.OneOffPricingInfo.staticTotalVATOneOff) -
@@ -8571,8 +8671,10 @@ ${
     }
 
 ${
-  props.vatPercentageOneOff ? (
-    `<tr style="background-color:#808080;">
+  (Number(props.vatPercentageOneOff) || 0) > 0 &&
+  Number(props.OneOffPricingInfo.Discount) > 0 &&
+  props.ProposalObject.DiscountLines
+    ? `<tr style="background-color:#808080;">
   <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white;">Grand Total</td>
   ${
     props.visibleFieldsCustomTemp.serviceCategory
@@ -8593,12 +8695,12 @@ ${
       : ""
   }
   ${
-    props.vatPercentageOneOff && props.visibleFieldsCustomTemp.vatRate
+    (Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
       ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;"></td>`
       : ""
   }
   ${
-    props.vatPercentageOneOff && props.visibleFieldsCustomTemp.vat
+    (Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vat
       ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; word-break: break-word; white-space: normal; overflow-wrap: break-word;">${props.formatValue(
           Number(props.OneOffPricingInfo.totalServiceWiseVATOneOff),
           props.currencyID,
@@ -8606,7 +8708,7 @@ ${
       : ""
   }
   ${
-    props.vatPercentageOneOff && props.visibleFieldsCustomTemp.feesIncVat
+    (Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
       ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; word-break: break-word; white-space: normal; overflow-wrap: break-word;">${props.formatValue(
           Number(props.OneOffPricingInfo.DiscountedPrice) +
             Number(props.OneOffPricingInfo.totalServiceWiseVATOneOff),
@@ -8615,9 +8717,10 @@ ${
       : ""
   }
 </tr>`
-  ) : (
-    `<tr style="background-color:#808080;">
-  <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white;">Grand Total</td>
+    : Number(props.OneOffPricingInfo.Discount) > 0 &&
+        props.ProposalObject.DiscountLines
+      ? `<tr style="background-color:#808080;">
+  <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white;">Discounted Total</td>
   ${
     props.visibleFieldsCustomTemp.serviceCategory
       ? `<td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: black;"></td>`
@@ -8637,12 +8740,12 @@ ${
       : ""
   }
   ${
-    props.vatPercentageOneOff && props.visibleFieldsCustomTemp.vatRate
+    (Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
       ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;"></td>`
       : ""
   }
   ${
-    props.vatPercentageOneOff && props.visibleFieldsCustomTemp.vat
+    (Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vat
       ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; word-break: break-word; white-space: normal; overflow-wrap: break-word;">${props.formatValue(
           Number(props.OneOffPricingInfo.totalServiceWiseVATOneOff),
           props.currencyID,
@@ -8650,7 +8753,7 @@ ${
       : ""
   }
   ${
-    props.vatPercentageOneOff && props.visibleFieldsCustomTemp.feesIncVat
+    (Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
       ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; word-break: break-word; white-space: normal; overflow-wrap: break-word;">${props.formatValue(
           Number(props.OneOffPricingInfo.DiscountedPrice) +
             Number(props.OneOffPricingInfo.totalServiceWiseVATOneOff),
@@ -8659,7 +8762,7 @@ ${
       : ""
   }
 </tr>`
-  )
+      : ""
 }
 
                         </table>
