@@ -91,6 +91,44 @@ const toFiniteNumber = (val) => {
   return Number.isFinite(n) ? n : 0;
 };
 
+const shouldUseAdjustedServiceTotal = (pricingInfo, proposalObject) =>
+  toFiniteNumber(pricingInfo?.OriginalPrice) <
+    toFiniteNumber(pricingInfo?.DiscountedPrice) ||
+  (toFiniteNumber(pricingInfo?.Discount) > 0 &&
+    !proposalObject?.DiscountLines);
+
+const getServiceNetTotal = (pricingInfo, proposalObject) =>
+  shouldUseAdjustedServiceTotal(pricingInfo, proposalObject)
+    ? toFiniteNumber(pricingInfo?.DiscountedPrice)
+    : toFiniteNumber(pricingInfo?.OriginalPrice);
+
+const getServiceVatTotal = (
+  pricingInfo,
+  proposalObject,
+  adjustedVatKey,
+  staticVatKey,
+  vatPercentage,
+) => {
+  const staticVat = toFiniteNumber(pricingInfo?.[staticVatKey]);
+  if (!shouldUseAdjustedServiceTotal(pricingInfo, proposalObject)) {
+    return staticVat;
+  }
+
+  const originalPrice = toFiniteNumber(pricingInfo?.OriginalPrice);
+  const discountedPrice = toFiniteNumber(pricingInfo?.DiscountedPrice);
+  const vatPrice = toFiniteNumber(pricingInfo?.VATPrice);
+
+  if (discountedPrice > originalPrice) {
+    return discountedPrice * ((toFiniteNumber(vatPercentage) || 0) / 100);
+  }
+
+  const adjustedVat = toFiniteNumber(pricingInfo?.[adjustedVatKey]);
+  if (adjustedVat !== 0) return adjustedVat;
+  if (vatPrice !== 0) return vatPrice;
+
+  return discountedPrice * ((toFiniteNumber(vatPercentage) || 0) / 100);
+};
+
 const BasicInformationComponent = (props) => {
   const navigate = useNavigate();
   const isEnabledMasterProposalType = props?.isEnabledMasterProposal;
@@ -4890,26 +4928,13 @@ const ReviewServicesComponent = (props) => {
                               )}
                               {props.visibleFieldsCustomTemp.fees && (
                                 <td className="tr-table-class text-white text-center">
-                                  {Number(
-                                    props.RecurringPricingInfo.OriginalPrice,
-                                  ) <
-                                    Number(
-                                      props.RecurringPricingInfo
-                                        .DiscountedPrice,
-                                    ) ||
-                                  (Number(props.RecurringPricingInfo.Discount) >
-                                    0 &&
-                                    !props.ProposalObject.DiscountLines)
-                                    ? props.formatValue(
-                                        props.RecurringPricingInfo
-                                          .DiscountedPrice,
-                                        props.currencyID,
-                                      )
-                                    : props.formatValue(
-                                        props.RecurringPricingInfo
-                                          .OriginalPrice,
-                                        props.currencyID,
-                                      )}
+                                    {props.formatValue(
+                                      getServiceNetTotal(
+                                        props.RecurringPricingInfo,
+                                        props.ProposalObject,
+                                      ),
+                                      props.currencyID,
+                                    )}
                                 </td>
                               )}
                               {props.vatPercentage !== 0 &&
@@ -4948,48 +4973,35 @@ const ReviewServicesComponent = (props) => {
                                   //       )}
                                   // </td>
                                   <td className="tr-table-class text-white text-center">
-                                    {props.formatValue(
-                                      props.RecurringPricingInfo.staticTotalVAT,
-                                      props.currencyID,
-                                    )}
+                                      {props.formatValue(
+                                        getServiceVatTotal(
+                                          props.RecurringPricingInfo,
+                                          props.ProposalObject,
+                                          "totalServiceWiseVAT",
+                                          "staticTotalVAT",
+                                          props.vatPercentage,
+                                        ),
+                                        props.currencyID,
+                                      )}
                                   </td>
                                 )}
                               {props.vatPercentage !== 0 &&
                                 props.visibleFieldsCustomTemp.feesIncVat && (
                                   <td className="tr-table-class text-white text-center">
-                                    {Number(
-                                      props.RecurringPricingInfo.OriginalPrice,
-                                    ) <
-                                      Number(
-                                        props.RecurringPricingInfo
-                                          .DiscountedPrice,
-                                      ) ||
-                                    (Number(
-                                      props.RecurringPricingInfo.Discount,
-                                    ) > 0 &&
-                                      !props.ProposalObject.DiscountLines)
-                                      ? props.formatValue(
-                                          Number(
-                                            props.RecurringPricingInfo
-                                              .DiscountedPrice,
-                                          ) +
-                                            Number(
-                                              props.RecurringPricingInfo
-                                                .staticTotalVAT,
-                                            ),
-                                          props.currencyID,
-                                        )
-                                      : props.formatValue(
-                                          Number(
-                                            props.RecurringPricingInfo
-                                              .OriginalPrice,
-                                          ) +
-                                            Number(
-                                              props.RecurringPricingInfo
-                                                .staticTotalVAT,
-                                            ),
-                                          props.currencyID,
-                                        )}
+                                      {props.formatValue(
+                                        getServiceNetTotal(
+                                          props.RecurringPricingInfo,
+                                          props.ProposalObject,
+                                        ) +
+                                          getServiceVatTotal(
+                                            props.RecurringPricingInfo,
+                                            props.ProposalObject,
+                                            "totalServiceWiseVAT",
+                                            "staticTotalVAT",
+                                            props.vatPercentage,
+                                          ),
+                                        props.currencyID,
+                                      )}
                                   </td>
                                 )}
                             </tr>
@@ -5171,21 +5183,23 @@ const ReviewServicesComponent = (props) => {
                                           )}
                                         </td>
                                       )}
-                                    {props.vatPercentage !== 0 &&
-                                      props.visibleFieldsCustomTemp
-                                        .feesIncVat && (
-                                        <td className="tr-table-class font-14 text-white text-center">
-                                          {props.formatValue(
-                                            Math.round(
+                                      {props.vatPercentage !== 0 &&
+                                        props.visibleFieldsCustomTemp
+                                          .feesIncVat && (
+                                          <td className="tr-table-class font-14 text-white text-center">
+                                            {props.formatValue(
                                               Number(
                                                 props.RecurringPricingInfo
-                                                  .GrandTotal,
-                                              ),
-                                            ),
-                                            props.currencyID,
-                                          )}
-                                        </td>
-                                      )}
+                                                  .DiscountedPrice,
+                                              ) +
+                                                Number(
+                                                  props.RecurringPricingInfo
+                                                    .totalServiceWiseVAT,
+                                                ),
+                                              props.currencyID,
+                                            )}
+                                          </td>
+                                        )}
                                   </tr>
                                   ) : Number(
                                       props.RecurringPricingInfo.Discount,
@@ -6150,23 +6164,13 @@ const ReviewServicesComponent = (props) => {
                               )}
                               {props.visibleFieldsCustomTemp.fees && (
                                 <td className="tr-table-class text-white text-center">
-                                  {Number(
-                                    props.OneOffPricingInfo.OriginalPrice,
-                                  ) <
-                                    Number(
-                                      props.OneOffPricingInfo.DiscountedPrice,
-                                    ) ||
-                                  (Number(props.OneOffPricingInfo.Discount) >
-                                    0 &&
-                                    !props.ProposalObject.DiscountLines)
-                                    ? props.formatValue(
-                                        props.OneOffPricingInfo.DiscountedPrice,
-                                        props.currencyID,
-                                      )
-                                    : props.formatValue(
-                                        props.OneOffPricingInfo.OriginalPrice,
-                                        props.currencyID,
-                                      )}
+                                    {props.formatValue(
+                                      getServiceNetTotal(
+                                        props.OneOffPricingInfo,
+                                        props.ProposalObject,
+                                      ),
+                                      props.currencyID,
+                                    )}
                                 </td>
                               )}
                               {props.vatPercentageOneOff !== 0 &&
@@ -6176,49 +6180,35 @@ const ReviewServicesComponent = (props) => {
                               {props.vatPercentageOneOff !== 0 &&
                                 props.visibleFieldsCustomTemp.vat && (
                                   <td className="tr-table-class text-white text-center">
-                                    {props.formatValue(
-                                      Number(
-                                        props.OneOffPricingInfo
-                                          .staticTotalVATOneOff,
-                                      ),
-                                      props.currencyID,
-                                    )}
+                                      {props.formatValue(
+                                        getServiceVatTotal(
+                                          props.OneOffPricingInfo,
+                                          props.ProposalObject,
+                                          "totalServiceWiseVATOneOff",
+                                          "staticTotalVATOneOff",
+                                          props.vatPercentageOneOff,
+                                        ),
+                                        props.currencyID,
+                                      )}
                                   </td>
                                 )}
                               {props.vatPercentageOneOff !== 0 &&
                                 props.visibleFieldsCustomTemp.feesIncVat && (
                                   <td className="tr-table-class text-white text-center">
-                                    {Number(
-                                      props.OneOffPricingInfo.OriginalPrice,
-                                    ) <
-                                      Number(
-                                        props.OneOffPricingInfo.DiscountedPrice,
-                                      ) ||
-                                    (Number(props.OneOffPricingInfo.Discount) >
-                                      0 &&
-                                      !props.ProposalObject.DiscountLines)
-                                      ? props.formatValue(
-                                          Number(
-                                            props.OneOffPricingInfo
-                                              .DiscountedPrice,
-                                          ) +
-                                            Number(
-                                              props.OneOffPricingInfo
-                                                .staticTotalVATOneOff,
-                                            ),
-                                          props.currencyID,
-                                        )
-                                      : props.formatValue(
-                                          Number(
-                                            props.OneOffPricingInfo
-                                              .OriginalPrice,
-                                          ) +
-                                            Number(
-                                              props.OneOffPricingInfo
-                                                .staticTotalVATOneOff,
-                                            ),
-                                          props.currencyID,
-                                        )}
+                                      {props.formatValue(
+                                        getServiceNetTotal(
+                                          props.OneOffPricingInfo,
+                                          props.ProposalObject,
+                                        ) +
+                                          getServiceVatTotal(
+                                            props.OneOffPricingInfo,
+                                            props.ProposalObject,
+                                            "totalServiceWiseVATOneOff",
+                                            "staticTotalVATOneOff",
+                                            props.vatPercentageOneOff,
+                                          ),
+                                        props.currencyID,
+                                      )}
                                   </td>
                                 )}
                             </tr>
@@ -14811,11 +14801,11 @@ const ReviewPackagesComponent = (props) => {
                                     (totalOnePackageValue >
                                       Number(props.RecurringPricingInfo.packageOneNetTotal) ||
                                     (Number(props.RecurringPricingInfo.packageOneDisCount) > 0 &&
-                                      !props.ProposalObject.DiscountLines)
+                                          !props.ProposalObject.DiscountLines)
                                       ? Number(props.RecurringPricingInfo.packageOneDisCount) > 0 && !props.ProposalObject.DiscountLines
-                                        ? Number(props.RecurringPricingInfo.packageOneDisCountedTotal)
+                                          ? Number(props.RecurringPricingInfo.packageOneDisCountedTotal)
                                         : totalOnePackageValue
-                                      : Number(props.RecurringPricingInfo.packageOneNetTotal)),
+                                          : Number(props.RecurringPricingInfo.packageOneNetTotal)),
                                     props.currencyID,
                                   )}
                                 </td>
@@ -14880,11 +14870,11 @@ const ReviewPackagesComponent = (props) => {
                                         (totalTwoPackageValue >
                                           Number(props.RecurringPricingInfo.packageTwoNetTotal) ||
                                         (Number(props.RecurringPricingInfo.packageTwoDisCount) > 0 &&
-                                          !props.ProposalObject.DiscountLines)
+                                              !props.ProposalObject.DiscountLines)
                                           ? Number(props.RecurringPricingInfo.packageTwoDisCount) > 0 && !props.ProposalObject.DiscountLines
-                                            ? Number(props.RecurringPricingInfo.packageTwoDisCountedTotal)
+                                              ? Number(props.RecurringPricingInfo.packageTwoDisCountedTotal)
                                             : totalTwoPackageValue
-                                          : Number(props.RecurringPricingInfo.packageTwoNetTotal)),
+                                              : Number(props.RecurringPricingInfo.packageTwoNetTotal)),
                                         props.currencyID,
                                       )}
                                     </td>
@@ -14951,11 +14941,11 @@ const ReviewPackagesComponent = (props) => {
                                         (totalThreePackageValue >
                                           Number(props.RecurringPricingInfo.packageThreeNetTotal) ||
                                         (Number(props.RecurringPricingInfo.packageThreeDisCount) > 0 &&
-                                          !props.ProposalObject.DiscountLines)
+                                              !props.ProposalObject.DiscountLines)
                                           ? Number(props.RecurringPricingInfo.packageThreeDisCount) > 0 && !props.ProposalObject.DiscountLines
-                                            ? Number(props.RecurringPricingInfo.packageThreeDisCountedTotal)
+                                              ? Number(props.RecurringPricingInfo.packageThreeDisCountedTotal)
                                             : totalThreePackageValue
-                                          : Number(props.RecurringPricingInfo.packageThreeNetTotal)),
+                                              : Number(props.RecurringPricingInfo.packageThreeNetTotal)),
                                         props.currencyID,
                                       )}
                                     </td>
@@ -17578,15 +17568,15 @@ const ReviewPackagesComponent = (props) => {
                                 <td className="tr-table-class font-14 text-white text-right">
                                   {props.formatValue(
                                     Number.isNaN(
-                                      Number(
-                                        props.OneOffPricingInfo
-                                          .PackageOneStaticVaTPrice,
-                                      ),
-                                    )
-                                      ? 0
-                                      : Number(
-                                          props.OneOffPricingInfo
-                                            .PackageOneStaticVaTPrice,
+                                          Number(
+                                            props.OneOffPricingInfo
+                                              .PackageOneStaticVaTPrice,
+                                          ),
+                                        )
+                                          ? 0
+                                          : Number(
+                                              props.OneOffPricingInfo
+                                                .PackageOneStaticVaTPrice,
                                         ),
                                     props.currencyID,
                                   )}
@@ -17597,7 +17587,7 @@ const ReviewPackagesComponent = (props) => {
                                 <td className="tr-table-class font-14 text-white text-right">
                                   {props.formatValue(
                                     (Number.isNaN(Number(props.OneOffPricingInfo.PackageOneStaticVaTPrice)) ? 0 : Number(props.OneOffPricingInfo.PackageOneStaticVaTPrice)) +
-                                    totalOnePackageValueOneOff,
+                                        totalOnePackageValueOneOff,
                                     props.currencyID,
                                   )}
                                 </td>
@@ -17637,15 +17627,15 @@ const ReviewPackagesComponent = (props) => {
                                     <td className="tr-table-class font-14 text-white text-right">
                                       {props.formatValue(
                                         Number.isNaN(
-                                          Number(
-                                            props.OneOffPricingInfo
-                                              .PackageTwoStaticVaTPrice,
-                                          ),
-                                        )
-                                          ? 0
-                                          : Number(
-                                              props.OneOffPricingInfo
-                                                .PackageTwoStaticVaTPrice,
+                                              Number(
+                                                props.OneOffPricingInfo
+                                                  .PackageTwoStaticVaTPrice,
+                                              ),
+                                            )
+                                              ? 0
+                                              : Number(
+                                                  props.OneOffPricingInfo
+                                                    .PackageTwoStaticVaTPrice,
                                             ),
                                         props.currencyID,
                                       )}
@@ -17656,7 +17646,7 @@ const ReviewPackagesComponent = (props) => {
                                     <td className="tr-table-class font-14 text-white text-right">
                                       {props.formatValue(
                                         (Number.isNaN(Number(props.OneOffPricingInfo.PackageTwoStaticVaTPrice)) ? 0 : Number(props.OneOffPricingInfo.PackageTwoStaticVaTPrice)) +
-                                        totalTwoPackageValueOneOff,
+                                            totalTwoPackageValueOneOff,
                                         props.currencyID,
                                       )}
                                     </td>
@@ -17699,15 +17689,15 @@ const ReviewPackagesComponent = (props) => {
                                     <td className="tr-table-class font-14 text-white text-right">
                                       {props.formatValue(
                                         Number.isNaN(
-                                          Number(
-                                            props.OneOffPricingInfo
-                                              .PackageThreeStaticVaTPrice,
-                                          ),
-                                        )
-                                          ? 0
-                                          : Number(
-                                              props.OneOffPricingInfo
-                                                .PackageThreeStaticVaTPrice,
+                                              Number(
+                                                props.OneOffPricingInfo
+                                                  .PackageThreeStaticVaTPrice,
+                                              ),
+                                            )
+                                              ? 0
+                                              : Number(
+                                                  props.OneOffPricingInfo
+                                                    .PackageThreeStaticVaTPrice,
                                             ),
                                         props.currencyID,
                                       )}
@@ -17718,7 +17708,7 @@ const ReviewPackagesComponent = (props) => {
                                     <td className="tr-table-class font-14 text-white text-right">
                                       {props.formatValue(
                                         (Number.isNaN(Number(props.OneOffPricingInfo.PackageThreeStaticVaTPrice)) ? 0 : Number(props.OneOffPricingInfo.PackageThreeStaticVaTPrice)) +
-                                        totalThreePackageValueOneOff,
+                                            totalThreePackageValueOneOff,
                                         props.currencyID,
                                       )}
                                     </td>

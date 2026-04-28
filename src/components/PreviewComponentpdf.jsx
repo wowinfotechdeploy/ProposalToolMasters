@@ -392,6 +392,41 @@ export default function PreviewComponentPdf(props) {
     return Number.isFinite(n) ? n : 0;
   };
 
+  const shouldUseAdjustedServiceTotal = (pricingInfo) =>
+    toFiniteNumber(pricingInfo?.OriginalPrice) <
+      toFiniteNumber(pricingInfo?.DiscountedPrice) ||
+    (toFiniteNumber(pricingInfo?.Discount) > 0 &&
+      !props.ProposalObject?.DiscountLines);
+
+  const getServiceNetTotal = (pricingInfo) =>
+    shouldUseAdjustedServiceTotal(pricingInfo)
+      ? toFiniteNumber(pricingInfo?.DiscountedPrice)
+      : toFiniteNumber(pricingInfo?.OriginalPrice);
+
+  const getServiceVatTotal = (
+    pricingInfo,
+    adjustedVatKey,
+    staticVatKey,
+    vatPercentage,
+  ) => {
+    const staticVat = toFiniteNumber(pricingInfo?.[staticVatKey]);
+    if (!shouldUseAdjustedServiceTotal(pricingInfo)) return staticVat;
+
+    const originalPrice = toFiniteNumber(pricingInfo?.OriginalPrice);
+    const discountedPrice = toFiniteNumber(pricingInfo?.DiscountedPrice);
+    const vatPrice = toFiniteNumber(pricingInfo?.VATPrice);
+
+    if (discountedPrice > originalPrice) {
+      return discountedPrice * ((toFiniteNumber(vatPercentage) || 0) / 100);
+    }
+
+    const adjustedVat = toFiniteNumber(pricingInfo?.[adjustedVatKey]);
+    if (adjustedVat !== 0) return adjustedVat;
+    if (vatPrice !== 0) return vatPrice;
+
+    return discountedPrice * ((toFiniteNumber(vatPercentage) || 0) / 100);
+  };
+
   // Helper to normalize package values (strip commas, convert to number)
   const normalizePackageValue = (val) => toFiniteNumber(val);
 
@@ -542,10 +577,10 @@ export default function PreviewComponentPdf(props) {
           )}
           {props.visibleFieldsCustomTemp?.fees && (
             <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}>
-              {(toFiniteNumber(props.RecurringPricingInfo?.OriginalPrice) < toFiniteNumber(props.RecurringPricingInfo?.DiscountedPrice) ||
-                (toFiniteNumber(props.RecurringPricingInfo?.Discount) > 0 && !props.ProposalObject?.DiscountLines))
-                ? props.formatValue(toFiniteNumber(props.RecurringPricingInfo?.DiscountedPrice), props.currencyID)
-                : props.formatValue(toFiniteNumber(props.RecurringPricingInfo?.OriginalPrice), props.currencyID)}
+                {props.formatValue(
+                  getServiceNetTotal(props.RecurringPricingInfo),
+                  props.currencyID,
+                )}
             </td>
           )}
           {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.vatRate && (
@@ -553,23 +588,29 @@ export default function PreviewComponentPdf(props) {
           )}
           {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.vat && (
             <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}>
-              {props.formatValue(toFiniteNumber(props.RecurringPricingInfo?.staticTotalVAT), props.currencyID)}
+                {props.formatValue(
+                  getServiceVatTotal(
+                    props.RecurringPricingInfo,
+                    "totalServiceWiseVAT",
+                    "staticTotalVAT",
+                    props.vatPercentage,
+                  ),
+                  props.currencyID,
+                )}
             </td>
           )}
           {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.feesIncVat && (
             <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}>
-              {(toFiniteNumber(props.RecurringPricingInfo?.OriginalPrice) < toFiniteNumber(props.RecurringPricingInfo?.DiscountedPrice) ||
-                (toFiniteNumber(props.RecurringPricingInfo?.Discount) > 0 && !props.ProposalObject?.DiscountLines))
-                ? props.formatValue(
-                    toFiniteNumber(props.RecurringPricingInfo?.DiscountedPrice) +
-                      toFiniteNumber(props.RecurringPricingInfo?.staticTotalVAT),
-                    props.currencyID,
-                  )
-                : props.formatValue(
-                    toFiniteNumber(props.RecurringPricingInfo?.OriginalPrice) +
-                      toFiniteNumber(props.RecurringPricingInfo?.staticTotalVAT),
-                    props.currencyID,
-                  )}
+                {props.formatValue(
+                  getServiceNetTotal(props.RecurringPricingInfo) +
+                    getServiceVatTotal(
+                      props.RecurringPricingInfo,
+                      "totalServiceWiseVAT",
+                      "staticTotalVAT",
+                      props.vatPercentage,
+                    ),
+                  props.currencyID,
+                )}
             </td>
           )}
         </tr>
@@ -832,10 +873,10 @@ export default function PreviewComponentPdf(props) {
           )}
           {props.visibleFieldsCustomTemp?.fees && (
             <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}>
-              {(toFiniteNumber(props.OneOffPricingInfo?.OriginalPrice) < toFiniteNumber(props.OneOffPricingInfo?.DiscountedPrice) ||
-                (toFiniteNumber(props.OneOffPricingInfo?.Discount) > 0 && !props.ProposalObject?.DiscountLines))
-                ? props.formatValue(toFiniteNumber(props.OneOffPricingInfo?.DiscountedPrice), props.currencyID)
-                : props.formatValue(toFiniteNumber(props.OneOffPricingInfo?.OriginalPrice), props.currencyID)}
+                {props.formatValue(
+                  getServiceNetTotal(props.OneOffPricingInfo),
+                  props.currencyID,
+                )}
             </td>
           )}
           {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.vatRate && (
@@ -843,23 +884,29 @@ export default function PreviewComponentPdf(props) {
           )}
           {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.vat && (
             <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}>
-              {props.formatValue(toFiniteNumber(props.OneOffPricingInfo?.staticTotalVATOneOff), props.currencyID)}
+                {props.formatValue(
+                  getServiceVatTotal(
+                    props.OneOffPricingInfo,
+                    "totalServiceWiseVATOneOff",
+                    "staticTotalVATOneOff",
+                    props.vatPercentageOneOff,
+                  ),
+                  props.currencyID,
+                )}
             </td>
           )}
           {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.feesIncVat && (
             <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}>
-              {(toFiniteNumber(props.OneOffPricingInfo?.OriginalPrice) < toFiniteNumber(props.OneOffPricingInfo?.DiscountedPrice) ||
-                (toFiniteNumber(props.OneOffPricingInfo?.Discount) > 0 && !props.ProposalObject?.DiscountLines))
-                ? props.formatValue(
-                    toFiniteNumber(props.OneOffPricingInfo?.DiscountedPrice) +
-                      toFiniteNumber(props.OneOffPricingInfo?.staticTotalVATOneOff),
-                    props.currencyID,
-                  )
-                : props.formatValue(
-                    toFiniteNumber(props.OneOffPricingInfo?.OriginalPrice) +
-                      toFiniteNumber(props.OneOffPricingInfo?.staticTotalVATOneOff),
-                    props.currencyID,
-                  )}
+                {props.formatValue(
+                  getServiceNetTotal(props.OneOffPricingInfo) +
+                    getServiceVatTotal(
+                      props.OneOffPricingInfo,
+                      "totalServiceWiseVATOneOff",
+                      "staticTotalVATOneOff",
+                      props.vatPercentageOneOff,
+                    ),
+                  props.currencyID,
+                )}
             </td>
           )}
         </tr>
@@ -5667,13 +5714,13 @@ export default function PreviewComponentPdf(props) {
             (totalOnePackageValue >
               Number(props.RecurringPricingInfo.packageOneNetTotal) ||
             (Number(props.RecurringPricingInfo.packageOneDisCount) > 0 &&
-              !props.ProposalObject.DiscountLines)
+                  !props.ProposalObject.DiscountLines)
               ? Number(props.RecurringPricingInfo.packageOneDisCount) > 0 &&
                 !props.ProposalObject.DiscountLines
-                ? Number(props.RecurringPricingInfo.packageOneDisCountedTotal)
+                  ? Number(props.RecurringPricingInfo.packageOneDisCountedTotal)
                 : totalOnePackageValue
-              : Number(props.RecurringPricingInfo.packageOneNetTotal))
-            + Number(props.RecurringPricingInfo.PackageOneStaticVaTPrice),
+                  : Number(props.RecurringPricingInfo.packageOneNetTotal))
+                + Number(props.RecurringPricingInfo.PackageOneStaticVaTPrice),
             props.currencyID,
           )}
         </td>` : ""}
@@ -5717,13 +5764,13 @@ export default function PreviewComponentPdf(props) {
                   (totalTwoPackageValue >
                     Number(props.RecurringPricingInfo.packageTwoNetTotal) ||
                   (Number(props.RecurringPricingInfo.packageTwoDisCount) > 0 &&
-                    !props.ProposalObject.DiscountLines)
+                        !props.ProposalObject.DiscountLines)
                     ? Number(props.RecurringPricingInfo.packageTwoDisCount) > 0 &&
                       !props.ProposalObject.DiscountLines
-                      ? Number(props.RecurringPricingInfo.packageTwoDisCountedTotal)
+                        ? Number(props.RecurringPricingInfo.packageTwoDisCountedTotal)
                       : totalTwoPackageValue
-                    : Number(props.RecurringPricingInfo.packageTwoNetTotal))
-                  + Number(props.RecurringPricingInfo.PackageTwoStaticVaTPrice),
+                        : Number(props.RecurringPricingInfo.packageTwoNetTotal))
+                      + Number(props.RecurringPricingInfo.PackageTwoStaticVaTPrice),
                   props.currencyID,
                 )}
               </td>` : ""}
@@ -5769,13 +5816,13 @@ export default function PreviewComponentPdf(props) {
                   (totalThreePackageValue >
                     Number(props.RecurringPricingInfo.packageThreeNetTotal) ||
                   (Number(props.RecurringPricingInfo.packageThreeDisCount) > 0 &&
-                    !props.ProposalObject.DiscountLines)
+                        !props.ProposalObject.DiscountLines)
                     ? Number(props.RecurringPricingInfo.packageThreeDisCount) > 0 &&
                       !props.ProposalObject.DiscountLines
-                      ? Number(props.RecurringPricingInfo.packageThreeDisCountedTotal)
+                        ? Number(props.RecurringPricingInfo.packageThreeDisCountedTotal)
                       : totalThreePackageValue
-                    : Number(props.RecurringPricingInfo.packageThreeNetTotal))
-                  + Number(props.RecurringPricingInfo.PackageThreeStaticVaTPrice),
+                        : Number(props.RecurringPricingInfo.packageThreeNetTotal))
+                      + Number(props.RecurringPricingInfo.PackageThreeStaticVaTPrice),
                   props.currencyID,
                 )}
               </td>` : ""}
@@ -7237,13 +7284,13 @@ ${
             (totalOnePackageValue >
               Number(props.OneOffPricingInfo.packageOneNetTotal) ||
             (Number(props.OneOffPricingInfo.packageOneDisCount) > 0 &&
-              !props.ProposalObject.DiscountLines)
+                  !props.ProposalObject.DiscountLines)
               ? Number(props.OneOffPricingInfo.packageOneDisCount) > 0 &&
                 !props.ProposalObject.DiscountLines
-                ? Number(props.OneOffPricingInfo.packageOneDisCountedTotal)
+                  ? Number(props.OneOffPricingInfo.packageOneDisCountedTotal)
                 : totalOnePackageValue
-              : Number(props.OneOffPricingInfo.packageOneNetTotal))
-            + Number(props.OneOffPricingInfo.PackageOneStaticVaTPrice),
+                  : Number(props.OneOffPricingInfo.packageOneNetTotal))
+                + Number(props.OneOffPricingInfo.PackageOneStaticVaTPrice),
             props.currencyID,
           )}
         </td>` : ""}
@@ -7287,13 +7334,13 @@ ${
                   (totalTwoPackageValue >
                     Number(props.OneOffPricingInfo.packageTwoNetTotal) ||
                   (Number(props.OneOffPricingInfo.packageTwoDisCount) > 0 &&
-                    !props.ProposalObject.DiscountLines)
+                        !props.ProposalObject.DiscountLines)
                     ? Number(props.OneOffPricingInfo.packageTwoDisCount) > 0 &&
                       !props.ProposalObject.DiscountLines
-                      ? Number(props.OneOffPricingInfo.packageTwoDisCountedTotal)
+                        ? Number(props.OneOffPricingInfo.packageTwoDisCountedTotal)
                       : totalTwoPackageValue
-                    : Number(props.OneOffPricingInfo.packageTwoNetTotal))
-                  + Number(props.OneOffPricingInfo.PackageTwoStaticVaTPrice),
+                        : Number(props.OneOffPricingInfo.packageTwoNetTotal))
+                      + Number(props.OneOffPricingInfo.PackageTwoStaticVaTPrice),
                   props.currencyID,
                 )}
               </td>` : ""}
@@ -7339,13 +7386,13 @@ ${
                   (totalThreePackageValue >
                     Number(props.OneOffPricingInfo.packageThreeNetTotal) ||
                   (Number(props.OneOffPricingInfo.packageThreeDisCount) > 0 &&
-                    !props.ProposalObject.DiscountLines)
+                        !props.ProposalObject.DiscountLines)
                     ? Number(props.OneOffPricingInfo.packageThreeDisCount) > 0 &&
                       !props.ProposalObject.DiscountLines
-                      ? Number(props.OneOffPricingInfo.packageThreeDisCountedTotal)
+                        ? Number(props.OneOffPricingInfo.packageThreeDisCountedTotal)
                       : totalThreePackageValue
-                    : Number(props.OneOffPricingInfo.packageThreeNetTotal))
-                  + Number(props.OneOffPricingInfo.PackageThreeStaticVaTPrice),
+                        : Number(props.OneOffPricingInfo.packageThreeNetTotal))
+                      + Number(props.OneOffPricingInfo.PackageThreeStaticVaTPrice),
                   props.currencyID,
                 )}
               </td>` : ""}
@@ -7981,20 +8028,10 @@ ${
   ${
     props.visibleFieldsCustomTemp.fees
       ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; word-break: break-word; white-space: normal; overflow-wrap: break-word;">
-          ${
-            Number(props.RecurringPricingInfo.OriginalPrice) <
-              Number(props.RecurringPricingInfo.DiscountedPrice) ||
-            (Number(props.RecurringPricingInfo.Discount) > 0 &&
-              !props.ProposalObject.DiscountLines)
-              ? props.formatValue(
-                  props.RecurringPricingInfo.DiscountedPrice,
-                  props.currencyID,
-                )
-              : props.formatValue(
-                  props.RecurringPricingInfo.OriginalPrice,
-                  props.currencyID,
-                )
-          }
+            ${props.formatValue(
+              getServiceNetTotal(props.RecurringPricingInfo),
+              props.currencyID,
+            )}
         </td>`
       : ""
   }
@@ -8006,32 +8043,31 @@ ${
   ${
     (Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vat
       ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; word-break: break-word; white-space: normal; overflow-wrap: break-word;">
-          ${props.formatValue(
-            Number(props.RecurringPricingInfo.staticTotalVAT),
-            props.currencyID,
-          )}
+            ${props.formatValue(
+              getServiceVatTotal(
+                props.RecurringPricingInfo,
+                "totalServiceWiseVAT",
+                "staticTotalVAT",
+                props.vatPercentage,
+              ),
+              props.currencyID,
+            )}
         </td>`
       : ""
   }
   ${
     (Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
       ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; word-break: break-word; white-space: normal; overflow-wrap: break-word;">
-          ${
-            Number(props.RecurringPricingInfo.OriginalPrice) <
-              Number(props.RecurringPricingInfo.DiscountedPrice) ||
-            (Number(props.RecurringPricingInfo.Discount) > 0 &&
-              !props.ProposalObject.DiscountLines)
-              ? props.formatValue(
-                  Number(props.RecurringPricingInfo.DiscountedPrice) +
-                    Number(props.RecurringPricingInfo.staticTotalVAT),
-                  props.currencyID,
-                )
-              : props.formatValue(
-                  Number(props.RecurringPricingInfo.OriginalPrice) +
-                    Number(props.RecurringPricingInfo.staticTotalVAT),
-                  props.currencyID,
-                )
-          }
+            ${props.formatValue(
+              getServiceNetTotal(props.RecurringPricingInfo) +
+                getServiceVatTotal(
+                  props.RecurringPricingInfo,
+                  "totalServiceWiseVAT",
+                  "staticTotalVAT",
+                  props.vatPercentage,
+                ),
+              props.currencyID,
+            )}
         </td>`
       : ""
   }
@@ -8561,20 +8597,10 @@ ${
   ${
     props.visibleFieldsCustomTemp.fees
       ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; word-break: break-word; white-space: normal; overflow-wrap: break-word;">
-          ${
-            Number(props.OneOffPricingInfo.OriginalPrice) <
-              Number(props.OneOffPricingInfo.DiscountedPrice) ||
-            (Number(props.OneOffPricingInfo.Discount) > 0 &&
-              !props.ProposalObject.DiscountLines)
-              ? props.formatValue(
-                  props.OneOffPricingInfo.DiscountedPrice,
-                  props.currencyID,
-                )
-              : props.formatValue(
-                  props.OneOffPricingInfo.OriginalPrice,
-                  props.currencyID,
-                )
-          }
+            ${props.formatValue(
+              getServiceNetTotal(props.OneOffPricingInfo),
+              props.currencyID,
+            )}
         </td>`
       : ""
   }
@@ -8586,32 +8612,31 @@ ${
   ${
     (Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vat
       ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; word-break: break-word; white-space: normal; overflow-wrap: break-word;">
-          ${props.formatValue(
-            Number(props.OneOffPricingInfo.staticTotalVATOneOff),
-            props.currencyID,
-          )}
+            ${props.formatValue(
+              getServiceVatTotal(
+                props.OneOffPricingInfo,
+                "totalServiceWiseVATOneOff",
+                "staticTotalVATOneOff",
+                props.vatPercentageOneOff,
+              ),
+              props.currencyID,
+            )}
         </td>`
       : ""
   }
   ${
     (Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
       ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; word-break: break-word; white-space: normal; overflow-wrap: break-word;">
-          ${
-            Number(props.OneOffPricingInfo.OriginalPrice) <
-              Number(props.OneOffPricingInfo.DiscountedPrice) ||
-            (Number(props.OneOffPricingInfo.Discount) > 0 &&
-              !props.ProposalObject.DiscountLines)
-              ? props.formatValue(
-                  Number(props.OneOffPricingInfo.DiscountedPrice) +
-                    Number(props.OneOffPricingInfo.staticTotalVATOneOff),
-                  props.currencyID,
-                )
-              : props.formatValue(
-                  Number(props.OneOffPricingInfo.OriginalPrice) +
-                    Number(props.OneOffPricingInfo.staticTotalVATOneOff),
-                  props.currencyID,
-                )
-          }
+            ${props.formatValue(
+              getServiceNetTotal(props.OneOffPricingInfo) +
+                getServiceVatTotal(
+                  props.OneOffPricingInfo,
+                  "totalServiceWiseVATOneOff",
+                  "staticTotalVATOneOff",
+                  props.vatPercentageOneOff,
+                ),
+              props.currencyID,
+            )}
         </td>`
       : ""
   }

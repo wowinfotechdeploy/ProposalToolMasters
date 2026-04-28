@@ -60,6 +60,48 @@ const PricingTableTemplatesModal = ({
   const isVatColumn = (field) =>
     field === "vatRate" || field === "vat" || field === "feesIncVat";
 
+  const toFiniteNumber = (val) => {
+    if (val === null || val === undefined || val === "") return 0;
+    const n =
+      typeof val === "number" ? val : Number(String(val).replace(/,/g, ""));
+    return Number.isFinite(n) ? n : 0;
+  };
+
+  const shouldUseAdjustedServiceTotal = (pricingInfo) =>
+    toFiniteNumber(pricingInfo?.OriginalPrice) <
+      toFiniteNumber(pricingInfo?.DiscountedPrice) ||
+    (toFiniteNumber(pricingInfo?.Discount) > 0 &&
+      !ProposalObject?.DiscountLines);
+
+  const getServiceNetTotal = (pricingInfo) =>
+    shouldUseAdjustedServiceTotal(pricingInfo)
+      ? toFiniteNumber(pricingInfo?.DiscountedPrice)
+      : toFiniteNumber(pricingInfo?.OriginalPrice);
+
+  const getServiceVatTotal = (
+    pricingInfo,
+    adjustedVatKey,
+    staticVatKey,
+    serviceVatPercentage,
+  ) => {
+    const staticVat = toFiniteNumber(pricingInfo?.[staticVatKey]);
+    if (!shouldUseAdjustedServiceTotal(pricingInfo)) return staticVat;
+
+    const originalPrice = toFiniteNumber(pricingInfo?.OriginalPrice);
+    const discountedPrice = toFiniteNumber(pricingInfo?.DiscountedPrice);
+    const vatPrice = toFiniteNumber(pricingInfo?.VATPrice);
+
+    if (discountedPrice > originalPrice) {
+      return discountedPrice * ((toFiniteNumber(serviceVatPercentage) || 0) / 100);
+    }
+
+    const adjustedVat = toFiniteNumber(pricingInfo?.[adjustedVatKey]);
+    if (adjustedVat !== 0) return adjustedVat;
+    if (vatPrice !== 0) return vatPrice;
+
+    return discountedPrice * ((toFiniteNumber(serviceVatPercentage) || 0) / 100);
+  };
+
   const handleCheckboxChange = (field) => {
     // Never allow VAT columns to be toggled on for VAT-disabled orgs.
     if (!isVatEnabledForOrg && isVatColumn(field)) return;
@@ -9685,28 +9727,30 @@ const PricingTableTemplatesModal = ({
                   )}
                   {vatPercentage !== 0 && visibleFieldsCustomTemp.vat && (
                     <td className="tr-table-class text-white text-center">
-                      {formatValue(
-                        Number(RecurringPricingInfo.staticTotalVAT, currencyID),
-                      )}
+                        {formatValue(
+                          getServiceVatTotal(
+                            RecurringPricingInfo,
+                            "totalServiceWiseVAT",
+                            "staticTotalVAT",
+                            vatPercentage,
+                          ),
+                          currencyID,
+                        )}
                     </td>
                   )}
                   {vatPercentage !== 0 &&
                     visibleFieldsCustomTemp.feesIncVat && (
                       <td className="tr-table-class text-white text-center">
-                        {Number(RecurringPricingInfo.OriginalPrice) <
-                          Number(RecurringPricingInfo.DiscountedPrice) ||
-                        (Number(RecurringPricingInfo.Discount) > 0 &&
-                          !ProposalObject.DiscountLines)
-                          ? formatValue(
-                              Number(RecurringPricingInfo.DiscountedPrice) +
-                                Number(RecurringPricingInfo.staticTotalVAT),
-                              currencyID,
-                            )
-                          : formatValue(
-                              Number(RecurringPricingInfo.OriginalPrice) +
-                                Number(RecurringPricingInfo.staticTotalVAT),
-                              currencyID,
-                            )}
+                          {formatValue(
+                            getServiceNetTotal(RecurringPricingInfo) +
+                              getServiceVatTotal(
+                                RecurringPricingInfo,
+                                "totalServiceWiseVAT",
+                                "staticTotalVAT",
+                                vatPercentage,
+                              ),
+                            currencyID,
+                          )}
                       </td>
                     )}
                 </tr>
@@ -10088,47 +10132,40 @@ const PricingTableTemplatesModal = ({
                   {visibleFieldsCustomTemp.serviceScope && <td></td>}
                   {visibleFieldsCustomTemp.fees && (
                     <td className="tr-table-class text-white text-center">
-                      {Number(OneOffPricingInfo.OriginalPrice) <
-                        Number(OneOffPricingInfo.DiscountedPrice) ||
-                      (Number(OneOffPricingInfo.Discount) > 0 &&
-                        !ProposalObject.DiscountLines)
-                        ? formatValue(
-                            OneOffPricingInfo.DiscountedPrice,
-                            currencyID,
-                          )
-                        : formatValue(
-                            OneOffPricingInfo.OriginalPrice,
-                            currencyID,
-                          )}
+                        {formatValue(
+                          getServiceNetTotal(OneOffPricingInfo),
+                          currencyID,
+                        )}
                     </td>
                   )}
                   {vatPercentageOneOff !== 0 &&
                     visibleFieldsCustomTemp.vatRate && <td></td>}
                   {vatPercentageOneOff !== 0 && visibleFieldsCustomTemp.vat && (
                     <td className="tr-table-class text-white text-center">
-                      {formatValue(
-                        Number(OneOffPricingInfo.staticTotalVATOneOff),
-                        currencyID,
-                      )}
+                        {formatValue(
+                          getServiceVatTotal(
+                            OneOffPricingInfo,
+                            "totalServiceWiseVATOneOff",
+                            "staticTotalVATOneOff",
+                            vatPercentageOneOff,
+                          ),
+                          currencyID,
+                        )}
                     </td>
                   )}
                   {vatPercentageOneOff !== 0 &&
                     visibleFieldsCustomTemp.feesIncVat && (
                       <td className="tr-table-class text-white text-center">
-                        {Number(OneOffPricingInfo.OriginalPrice) <
-                          Number(OneOffPricingInfo.DiscountedPrice) ||
-                        (Number(OneOffPricingInfo.Discount) > 0 &&
-                          !ProposalObject.DiscountLines)
-                          ? formatValue(
-                              Number(OneOffPricingInfo.DiscountedPrice) +
-                                Number(OneOffPricingInfo.staticTotalVATOneOff),
-                              currencyID,
-                            )
-                          : formatValue(
-                              Number(OneOffPricingInfo.OriginalPrice) +
-                                Number(OneOffPricingInfo.staticTotalVATOneOff),
-                              currencyID,
-                            )}
+                          {formatValue(
+                            getServiceNetTotal(OneOffPricingInfo) +
+                              getServiceVatTotal(
+                                OneOffPricingInfo,
+                                "totalServiceWiseVATOneOff",
+                                "staticTotalVATOneOff",
+                                vatPercentageOneOff,
+                              ),
+                            currencyID,
+                          )}
                       </td>
                     )}
                 </tr>
@@ -11414,7 +11451,7 @@ const PricingTableTemplatesModal = ({
                         RecurringPricingInfo.PackageOneStaticVaTPrice ??
                           RecurringPricingInfo.PackageOneStaticVaTPrice ??
                           0,
-                      ) || 0,
+                          ) || 0,
                       currencyID,
                     )}
                   </td>
@@ -11423,11 +11460,11 @@ const PricingTableTemplatesModal = ({
                   <td className="tr-table-class font-14 text-white text-right">
                     {formatValue(
                       Number(
-                        RecurringPricingInfo.packageOneNetTotal ?? 0,
-                      ) +
-                      Number(
-                        RecurringPricingInfo.PackageOneStaticVaTPrice ?? 0,
-                      ),
+                            RecurringPricingInfo.packageOneNetTotal ?? 0,
+                          ) +
+                          Number(
+                            RecurringPricingInfo.PackageOneStaticVaTPrice ?? 0,
+                          ),
                       currencyID,
                     )}
                   </td>
@@ -11471,11 +11508,11 @@ const PricingTableTemplatesModal = ({
                       <td className="tr-table-class font-14 text-white text-right">
                         {formatValue(
                           Number(
-                            RecurringPricingInfo.packageTwoNetTotal ?? 0,
-                          ) +
-                          Number(
-                            RecurringPricingInfo.PackageTwoStaticVaTPrice ?? 0,
-                          ),
+                                RecurringPricingInfo.packageTwoNetTotal ?? 0,
+                              ) +
+                              Number(
+                                RecurringPricingInfo.PackageTwoStaticVaTPrice ?? 0,
+                              ),
                           currencyID,
                         )}
                       </td>
@@ -11521,11 +11558,11 @@ const PricingTableTemplatesModal = ({
                       <td className="tr-table-class font-14 text-white text-right">
                         {formatValue(
                           Number(
-                            RecurringPricingInfo.packageThreeNetTotal ?? 0,
-                          ) +
-                          Number(
-                            RecurringPricingInfo.PackageThreeStaticVaTPrice ?? 0,
-                          ),
+                                RecurringPricingInfo.packageThreeNetTotal ?? 0,
+                              ) +
+                              Number(
+                                RecurringPricingInfo.PackageThreeStaticVaTPrice ?? 0,
+                              ),
                           currencyID,
                         )}
                       </td>
@@ -13099,13 +13136,13 @@ const PricingTableTemplatesModal = ({
                       (totalOnePackageValue >
                         Number(OneOffPricingInfo.packageOneNetTotal) ||
                       (Number(OneOffPricingInfo.packageOneDisCount) > 0 &&
-                        !ProposalObject.DiscountLines)
+                            !ProposalObject.DiscountLines)
                         ? Number(OneOffPricingInfo.packageOneDisCount) > 0 &&
                           !ProposalObject.DiscountLines
-                          ? Number(OneOffPricingInfo.packageOneDisCountedTotal)
+                            ? Number(OneOffPricingInfo.packageOneDisCountedTotal)
                           : totalOnePackageValue
-                        : Number(OneOffPricingInfo.packageOneNetTotal)) +
-                      Number(OneOffPricingInfo.PackageOneStaticVaTPrice),
+                            : Number(OneOffPricingInfo.packageOneNetTotal)) +
+                          Number(OneOffPricingInfo.PackageOneStaticVaTPrice),
                       currencyID,
                     )}
                   </td>
@@ -13153,13 +13190,13 @@ const PricingTableTemplatesModal = ({
                           (totalTwoPackageValue >
                             Number(OneOffPricingInfo.packageTwoNetTotal) ||
                           (Number(OneOffPricingInfo.packageTwoDisCount) > 0 &&
-                            !ProposalObject.DiscountLines)
+                                !ProposalObject.DiscountLines)
                             ? Number(OneOffPricingInfo.packageTwoDisCount) > 0 &&
                               !ProposalObject.DiscountLines
-                              ? Number(OneOffPricingInfo.packageTwoDisCountedTotal)
+                                ? Number(OneOffPricingInfo.packageTwoDisCountedTotal)
                               : totalTwoPackageValue
-                            : Number(OneOffPricingInfo.packageTwoNetTotal)) +
-                          Number(OneOffPricingInfo.PackageTwoStaticVaTPrice),
+                                : Number(OneOffPricingInfo.packageTwoNetTotal)) +
+                              Number(OneOffPricingInfo.PackageTwoStaticVaTPrice),
                           currencyID,
                         )}
                       </td>
@@ -13209,13 +13246,13 @@ const PricingTableTemplatesModal = ({
                           (totalThreePackageValue >
                             Number(OneOffPricingInfo.packageThreeNetTotal) ||
                           (Number(OneOffPricingInfo.packageThreeDisCount) > 0 &&
-                            !ProposalObject.DiscountLines)
+                                !ProposalObject.DiscountLines)
                             ? Number(OneOffPricingInfo.packageThreeDisCount) > 0 &&
                               !ProposalObject.DiscountLines
-                              ? Number(OneOffPricingInfo.packageThreeDisCountedTotal)
+                                ? Number(OneOffPricingInfo.packageThreeDisCountedTotal)
                               : totalThreePackageValue
-                            : Number(OneOffPricingInfo.packageThreeNetTotal)) +
-                          Number(OneOffPricingInfo.PackageThreeStaticVaTPrice),
+                                : Number(OneOffPricingInfo.packageThreeNetTotal)) +
+                              Number(OneOffPricingInfo.PackageThreeStaticVaTPrice),
                           currencyID,
                         )}
                       </td>
