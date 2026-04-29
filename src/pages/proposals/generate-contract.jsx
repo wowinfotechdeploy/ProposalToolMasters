@@ -18,7 +18,7 @@ import GeneratePdfLoaderPage from "../../components/GeneratePdfloaderpage";
 import { generatePdfUrl, mergePdfApiUrl } from "../../Base-Url/Base_Url";
 import Utils from "../../Middleware/Utils";
 function AcceptInvitation() {
-  const STOP_AFTER_PDF_GENERATION = false;
+  const STOP_AFTER_PDF_GENERATION = true;
 
   const {
     setTopbar,
@@ -441,16 +441,20 @@ function AcceptInvitation() {
     const netTotal = Number(totals?.netTotal) || 0;
     const discounted = Number(totals?.discounted) || 0;
     const discountedTotal = Number(totals?.discountedTotal) || 0;
-    const vatDiscounted = Number(totals?.vat) || 0; // API returns discount-adjusted VAT
+    const vatDiscounted = Number(totals?.vat) || 0; // API returns final VAT
     const grandTotal = Number(totals?.grandTotal) || 0;
 
+    const discPct = Number(totals?.discountPercentageWithAllDecimal) || 0;
+    const isNegativeDiscount = discPct < 0;
+
+    // Positive/standard discounts are represented by a non-zero `discounted`
+    // amount (currency discount). Negative discounts are handled separately via
+    // `isNegativeDiscount` because `discounted` can be 0 while totals still change.
     const discountApplies = discounted > 0;
+
     const showDiscountLines = !!ShowDiscountLine;
 
-    // Derive pre-discount VAT (static VAT) from discount % when available.
-    // This matches how template-6 email tables show Net Total VAT as pre-discount VAT,
-    // and Discount VAT as the difference.
-    const discPct = Number(totals?.discountPercentageWithAllDecimal) || 0;
+    // Derive pre-discount VAT (static VAT) from discount % when available (positive discounts only).
     const discountFactor = 1 - discPct / 100;
     const vatStatic =
       discountApplies && discPct > 0 && discountFactor > 0
@@ -458,47 +462,66 @@ function AcceptInvitation() {
         : vatDiscounted;
     const vatDiscount = vatStatic - vatDiscounted;
 
-    // Net Total row: if we hide discount lines, show discounted totals directly (same behavior as email tables).
-    const netFeesToShow = discountApplies && !showDiscountLines ? discountedTotal : netTotal;
-    const netVatToShow = discountApplies && !showDiscountLines ? vatDiscounted : vatStatic;
-    const netFeesIncVatToShow = netFeesToShow + (isVatPresent ? netVatToShow : 0);
+    let footerRows = "";
 
-    const footerRows = [
-      // Net Total (always)
-      renderFooterRow("Net Total", "#808080", {
-        fees: formatValue(netFeesToShow, currencyID),
-        vat: isVatPresent ? formatValue(netVatToShow, currencyID) : "",
-        feesIncVat: isVatPresent ? formatValue(netFeesIncVatToShow, currencyID) : "",
-      }),
+    if (isNegativeDiscount) {
+      // Negative discount rule (template 6 custom tables):
+      // show only one row (Net Total) with final values from the API.
+      footerRows = [
+        renderFooterRow("Net Total", "#808080", {
+          fees: formatValue(discountedTotal, currencyID),
+          vat: isVatPresent ? formatValue(vatDiscounted, currencyID) : "",
+          feesIncVat: isVatPresent ? formatValue(grandTotal, currencyID) : "",
+        }),
+      ].join("");
+    } else {
+      // Net Total row: if we hide discount lines, show discounted totals directly.
+      const netFeesToShow =
+        discountApplies && !showDiscountLines ? discountedTotal : netTotal;
+      const netVatToShow =
+        discountApplies && !showDiscountLines ? vatDiscounted : vatStatic;
+      const netFeesIncVatToShow =
+        netFeesToShow + (isVatPresent ? netVatToShow : 0);
 
-      // Discount row (only when discount applies and we show discount lines)
-      discountApplies && showDiscountLines
-        ? renderFooterRow("Discount", "#DCDCDC", {
-            fees: `(-) ${formatValue(discounted, currencyID)}`,
-            vat: isVatPresent ? `(-) ${formatValue(vatDiscount, currencyID)}` : "",
-            feesIncVat: isVatPresent
-              ? `(-) ${formatValue(discounted + vatDiscount, currencyID)}`
-              : "",
-          })
-        : "",
+      footerRows = [
+        // Net Total (always)
+        renderFooterRow("Net Total", "#808080", {
+          fees: formatValue(netFeesToShow, currencyID),
+          vat: isVatPresent ? formatValue(netVatToShow, currencyID) : "",
+          feesIncVat: isVatPresent
+            ? formatValue(netFeesIncVatToShow, currencyID)
+            : "",
+        }),
 
-      // Final row after discount lines:
-      // - VAT org: Grand Total
-      // - Non-VAT org: Discounted Total
-      discountApplies && showDiscountLines
-        ? isVatPresent
-          ? renderFooterRow("Grand Total", "#808080", {
-              fees: formatValue(discountedTotal, currencyID),
-              vat: formatValue(vatDiscounted, currencyID),
-              feesIncVat: formatValue(grandTotal, currencyID),
+        // Discount row (only when discount applies and we show discount lines)
+        discountApplies && showDiscountLines
+          ? renderFooterRow("Discount", "#DCDCDC", {
+              fees: `(-) ${formatValue(discounted, currencyID)}`,
+              vat: isVatPresent ? `(-) ${formatValue(vatDiscount, currencyID)}` : "",
+              feesIncVat: isVatPresent
+                ? `(-) ${formatValue(discounted + vatDiscount, currencyID)}`
+                : "",
             })
-          : renderFooterRow("Discounted Total", "#808080", {
-              fees: formatValue(discountedTotal, currencyID),
-              vat: "",
-              feesIncVat: "",
-            })
-        : "",
-    ].join("");
+          : "",
+
+        // Final row after discount lines:
+        // - VAT org: Grand Total
+        // - Non-VAT org: Discounted Total
+        discountApplies && showDiscountLines
+          ? isVatPresent
+            ? renderFooterRow("Grand Total", "#808080", {
+                fees: formatValue(discountedTotal, currencyID),
+                vat: formatValue(vatDiscounted, currencyID),
+                feesIncVat: formatValue(grandTotal, currencyID),
+              })
+            : renderFooterRow("Discounted Total", "#808080", {
+                fees: formatValue(discountedTotal, currencyID),
+                vat: "",
+                feesIncVat: "",
+              })
+          : "",
+      ].join("");
+    }
 
     // Match Engagement Letter behavior: the package name sits inside the grid
     // (in the first "right side" column, usually Fees), with empty cells for the rest.
