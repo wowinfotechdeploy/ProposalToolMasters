@@ -427,6 +427,32 @@ export default function PreviewComponentPdf(props) {
     return discountedPrice * ((toFiniteNumber(vatPercentage) || 0) / 100);
   };
 
+  // ---------------------------------------------------------------------------
+  // Package helpers (template 6 / package-based tables)
+  // Keep consistent with Review Packages custom table behaviour.
+  // ---------------------------------------------------------------------------
+
+  const getFinalPackageNet = (netTotal, discountedTotal, discountAmount) =>
+    toFiniteNumber(discountAmount) > 0
+      ? toFiniteNumber(discountedTotal)
+      : toFiniteNumber(netTotal);
+
+  const getFinalPackageVat = (vatAmount) => toFiniteNumber(vatAmount);
+
+  // Template 6 package rule: if any package discount percentage is negative,
+  // we show only a single footer row (Net Total) and suppress the other footer rows.
+  const hasAnyNegativePackageDiscountRecurringTemplate6 = [
+    toFiniteNumber(props.RecurringPricingInfo?.DiscountPercentagePackageOne),
+    toFiniteNumber(props.RecurringPricingInfo?.DiscountPercentagePackageTwo),
+    toFiniteNumber(props.RecurringPricingInfo?.DiscountPercentagePackageThree),
+  ].some((n) => n < 0);
+
+  const hasAnyNegativePackageDiscountOneOffTemplate6 = [
+    toFiniteNumber(props.OneOffPricingInfo?.DiscountPercentagePackageOne),
+    toFiniteNumber(props.OneOffPricingInfo?.DiscountPercentagePackageTwo),
+    toFiniteNumber(props.OneOffPricingInfo?.DiscountPercentagePackageThree),
+  ].some((n) => n < 0);
+
   // Helper to normalize package values (strip commas, convert to number)
   const normalizePackageValue = (val) => toFiniteNumber(val);
 
@@ -1198,7 +1224,84 @@ export default function PreviewComponentPdf(props) {
             })}
           </React.Fragment>
         ))}
+        {hasAnyNegativePackageDiscountRecurringTemplate6 && (
+          <tr style={{ backgroundColor: "#808080" }}>
+            <td
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "left",
+                padding: "8px",
+                color: "white",
+                fontWeight: "bold",
+              }}
+            >
+              Net Total
+            </td>
+            {props?.selectedPackagesList?.map((pkg, pkgIdx) => {
+              const pkgName = pkgIdx === 0 ? "One" : pkgIdx === 1 ? "Two" : "Three";
+              const net = getFinalPackageNet(
+                props.RecurringPricingInfo?.[`package${pkgName}NetTotal`],
+                props.RecurringPricingInfo?.[`package${pkgName}DisCountedTotal`],
+                props.RecurringPricingInfo?.[`package${pkgName}DisCount`],
+              );
+              const vat = getFinalPackageVat(
+                props.RecurringPricingInfo?.[`Package${pkgName}VaTPrice`],
+              );
+              return (
+                <React.Fragment key={`neg-net-${pkgIdx}`}>
+                  {props.visibleFieldsCustomTemp?.fees && (
+                    <td
+                      style={{
+                        border: "1px solid #DDDDDD",
+                        textAlign: "right",
+                        padding: "8px",
+                        color: "white",
+                      }}
+                    >
+                      {props.formatValue(net, props.currencyID)}
+                    </td>
+                  )}
+                  {(Number(props.vatPercentage) || 0) > 0 &&
+                    props.visibleFieldsCustomTemp?.vatRate && (
+                      <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>
+                    )}
+                  {(Number(props.vatPercentage) || 0) > 0 &&
+                    props.visibleFieldsCustomTemp?.vat && (
+                      <td
+                        style={{
+                          border: "1px solid #DDDDDD",
+                          textAlign: "right",
+                          padding: "8px",
+                          color: "white",
+                        }}
+                      >
+                        {props.formatValue(vat, props.currencyID)}
+                      </td>
+                    )}
+                  {(Number(props.vatPercentage) || 0) > 0 &&
+                    props.visibleFieldsCustomTemp?.feesIncVat && (
+                      <td
+                        style={{
+                          border: "1px solid #DDDDDD",
+                          textAlign: "right",
+                          padding: "8px",
+                          color: "white",
+                        }}
+                      >
+                        {props.formatValue(net + vat, props.currencyID)}
+                      </td>
+                    )}
+                  {props.visibleFieldsCustomTemp?.serviceScope && (
+                    <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>
+                  )}
+                </React.Fragment>
+              );
+            })}
+          </tr>
+        )}
+
         {/* Net Total Row - matches PDF logic: uses StaticVaTPrice for VAT, handles discount conditions */}
+        {!hasAnyNegativePackageDiscountRecurringTemplate6 && (
         <tr style={{ backgroundColor: "#808080" }}>
           <td style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px", color: "white", fontWeight: "bold" }}>Net Total</td>
           {props?.selectedPackagesList?.map((pkg, pkgIdx) => {
@@ -1234,8 +1337,10 @@ export default function PreviewComponentPdf(props) {
             );
           })}
         </tr>
+        )}
         {/* Discount Row - only shown when any package has discount > 0 and DiscountLines is true */}
-        {(Number(props.RecurringPricingInfo?.packageOneDisCount) > 0 ||
+        {!hasAnyNegativePackageDiscountRecurringTemplate6 &&
+        (Number(props.RecurringPricingInfo?.packageOneDisCount) > 0 ||
           Number(props.RecurringPricingInfo?.packageTwoDisCount) > 0 ||
           Number(props.RecurringPricingInfo?.packageThreeDisCount) > 0) &&
           props.ProposalObject?.DiscountLines && (
@@ -1272,7 +1377,8 @@ export default function PreviewComponentPdf(props) {
           </tr>
         )}
         {/* Non-VAT: Discounted Total (after discount row) */}
-        {(Number(props.vatPercentage) || 0) === 0 &&
+        {!hasAnyNegativePackageDiscountRecurringTemplate6 &&
+        (Number(props.vatPercentage) || 0) === 0 &&
           (Number(props.RecurringPricingInfo?.packageOneDisCount) > 0 ||
             Number(props.RecurringPricingInfo?.packageTwoDisCount) > 0 ||
             Number(props.RecurringPricingInfo?.packageThreeDisCount) > 0) &&
@@ -1307,7 +1413,8 @@ export default function PreviewComponentPdf(props) {
           </tr>
         )}
         {/* Grand Total Row — template 6: only when a package discount applies (same as discount row) */}
-        {(Number(props.vatPercentage) || 0) > 0 &&
+        {!hasAnyNegativePackageDiscountRecurringTemplate6 &&
+        (Number(props.vatPercentage) || 0) > 0 &&
           (Number(props.RecurringPricingInfo?.packageOneDisCount) > 0 ||
             Number(props.RecurringPricingInfo?.packageTwoDisCount) > 0 ||
             Number(props.RecurringPricingInfo?.packageThreeDisCount) > 0) &&
@@ -2487,7 +2594,84 @@ export default function PreviewComponentPdf(props) {
             })}
           </React.Fragment>
         ))}
+        {hasAnyNegativePackageDiscountOneOffTemplate6 && (
+          <tr style={{ backgroundColor: "#808080" }}>
+            <td
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "left",
+                padding: "8px",
+                color: "white",
+                fontWeight: "bold",
+              }}
+            >
+              Net Total
+            </td>
+            {props?.selectedPackagesList?.map((pkg, pkgIdx) => {
+              const pkgName = pkgIdx === 0 ? "One" : pkgIdx === 1 ? "Two" : "Three";
+              const net = getFinalPackageNet(
+                props.OneOffPricingInfo?.[`package${pkgName}NetTotal`],
+                props.OneOffPricingInfo?.[`package${pkgName}DisCountedTotal`],
+                props.OneOffPricingInfo?.[`package${pkgName}DisCount`],
+              );
+              const vat = getFinalPackageVat(
+                props.OneOffPricingInfo?.[`Package${pkgName}VaTPrice`],
+              );
+              return (
+                <React.Fragment key={`oneoff-neg-net-${pkgIdx}`}>
+                  {props.visibleFieldsCustomTemp?.fees && (
+                    <td
+                      style={{
+                        border: "1px solid #DDDDDD",
+                        textAlign: "right",
+                        padding: "8px",
+                        color: "white",
+                      }}
+                    >
+                      {props.formatValue(net, props.currencyID)}
+                    </td>
+                  )}
+                  {(Number(props.vatPercentageOneOff) || 0) > 0 &&
+                    props.visibleFieldsCustomTemp?.vatRate && (
+                      <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>
+                    )}
+                  {(Number(props.vatPercentageOneOff) || 0) > 0 &&
+                    props.visibleFieldsCustomTemp?.vat && (
+                      <td
+                        style={{
+                          border: "1px solid #DDDDDD",
+                          textAlign: "right",
+                          padding: "8px",
+                          color: "white",
+                        }}
+                      >
+                        {props.formatValue(vat, props.currencyID)}
+                      </td>
+                    )}
+                  {(Number(props.vatPercentageOneOff) || 0) > 0 &&
+                    props.visibleFieldsCustomTemp?.feesIncVat && (
+                      <td
+                        style={{
+                          border: "1px solid #DDDDDD",
+                          textAlign: "right",
+                          padding: "8px",
+                          color: "white",
+                        }}
+                      >
+                        {props.formatValue(net + vat, props.currencyID)}
+                      </td>
+                    )}
+                  {props.visibleFieldsCustomTemp?.serviceScope && (
+                    <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>
+                  )}
+                </React.Fragment>
+              );
+            })}
+          </tr>
+        )}
+
         {/* Net Total Row - matches PDF logic: uses StaticVaTPrice for VAT, handles discount conditions */}
+        {!hasAnyNegativePackageDiscountOneOffTemplate6 && (
         <tr style={{ backgroundColor: "#808080" }}>
           <td style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px", color: "white", fontWeight: "bold" }}>Net Total</td>
           {props?.selectedPackagesList?.map((pkg, pkgIdx) => {
@@ -2521,8 +2705,10 @@ export default function PreviewComponentPdf(props) {
             );
           })}
         </tr>
+        )}
         {/* Discount Row - only shown when any package has discount > 0 and DiscountLines is true */}
-        {(Number(props.OneOffPricingInfo?.packageOneDisCount) > 0 ||
+        {!hasAnyNegativePackageDiscountOneOffTemplate6 &&
+        (Number(props.OneOffPricingInfo?.packageOneDisCount) > 0 ||
           Number(props.OneOffPricingInfo?.packageTwoDisCount) > 0 ||
           Number(props.OneOffPricingInfo?.packageThreeDisCount) > 0) &&
           props.ProposalObject?.DiscountLines && (
@@ -2558,7 +2744,8 @@ export default function PreviewComponentPdf(props) {
             })}
           </tr>
         )}
-        {(Number(props.vatPercentageOneOff) || 0) === 0 &&
+        {!hasAnyNegativePackageDiscountOneOffTemplate6 &&
+        (Number(props.vatPercentageOneOff) || 0) === 0 &&
           (Number(props.OneOffPricingInfo?.packageOneDisCount) > 0 ||
             Number(props.OneOffPricingInfo?.packageTwoDisCount) > 0 ||
             Number(props.OneOffPricingInfo?.packageThreeDisCount) > 0) &&
@@ -2593,7 +2780,8 @@ export default function PreviewComponentPdf(props) {
           </tr>
         )}
         {/* Grand Total Row — template 6: only when a package discount applies (same as discount row) */}
-        {(Number(props.vatPercentageOneOff) || 0) > 0 &&
+        {!hasAnyNegativePackageDiscountOneOffTemplate6 &&
+        (Number(props.vatPercentageOneOff) || 0) > 0 &&
           (Number(props.OneOffPricingInfo?.packageOneDisCount) > 0 ||
             Number(props.OneOffPricingInfo?.packageTwoDisCount) > 0 ||
             Number(props.OneOffPricingInfo?.packageThreeDisCount) > 0) &&
@@ -5675,164 +5863,287 @@ export default function PreviewComponentPdf(props) {
       )
       .join("")}
   </tbody>
-  <tr style="background-color:#808080;">
-  <td style="border:1px solid #dddddd; text-align:left; padding:8px; color:white;">
-    Net Total
-  </td>
-  ${props.visibleFieldsCustomTemp.fees ? `
-  <td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
-    ${
-      totalOnePackageValue >
-        Number(props.RecurringPricingInfo.packageOneNetTotal) ||
-      (Number(props.RecurringPricingInfo.packageOneDisCount) > 0 &&
-        !props.ProposalObject.DiscountLines)
-        ? Number(props.RecurringPricingInfo.packageOneDisCount) > 0 &&
-          !props.ProposalObject.DiscountLines
-          ? props.formatValue(
-              props.RecurringPricingInfo.packageOneDisCountedTotal,
-              props.currencyID,
-            )
-          : props.formatValue(totalOnePackageValue, props.currencyID)
-        : props.formatValue(
-            props.RecurringPricingInfo.packageOneNetTotal,
-            props.currencyID,
-          )
-    }
-  </td>` : ""}
-  ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
-    ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;"></td>` : ""}
-  ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vat
-    ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
-          ${props.formatValue(
-            props.RecurringPricingInfo.PackageOneStaticVaTPrice,
-            props.currencyID,
-          )}
-        </td>` : ""}
-  ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
-    ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
-          ${props.formatValue(
-            (totalOnePackageValue >
-              Number(props.RecurringPricingInfo.packageOneNetTotal) ||
-            (Number(props.RecurringPricingInfo.packageOneDisCount) > 0 &&
-                  !props.ProposalObject.DiscountLines)
-              ? Number(props.RecurringPricingInfo.packageOneDisCount) > 0 &&
-                !props.ProposalObject.DiscountLines
-                  ? Number(props.RecurringPricingInfo.packageOneDisCountedTotal)
-                : totalOnePackageValue
-                  : Number(props.RecurringPricingInfo.packageOneNetTotal))
-                + Number(props.RecurringPricingInfo.PackageOneStaticVaTPrice),
-            props.currencyID,
-          )}
-        </td>` : ""}
-  ${props.visibleFieldsCustomTemp.serviceScope
-    ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;"></td>` : ""}
   ${
-    packageCount >= 2
+    hasAnyNegativePackageDiscountRecurringTemplate6
       ? `
-        ${props.visibleFieldsCustomTemp.fees ? `
-        <td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
+        <tr style="background-color:#808080;">
+          <td style="border:1px solid #dddddd; text-align:left; padding:8px; color:white;">
+            Net Total
+          </td>
+          ${props.visibleFieldsCustomTemp.fees ? `
+            <td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
+              ${props.formatValue(
+                getFinalPackageNet(
+                  props.RecurringPricingInfo?.packageOneNetTotal,
+                  props.RecurringPricingInfo?.packageOneDisCountedTotal,
+                  props.RecurringPricingInfo?.packageOneDisCount,
+                ),
+                props.currencyID,
+              )}
+            </td>` : ""}
+          ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
+            ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;"></td>` : ""}
+          ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vat
+            ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
+                ${props.formatValue(
+                  getFinalPackageVat(props.RecurringPricingInfo?.PackageOneVaTPrice),
+                  props.currencyID,
+                )}
+              </td>` : ""}
+          ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
+            ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
+                ${props.formatValue(
+                  getFinalPackageNet(
+                    props.RecurringPricingInfo?.packageOneNetTotal,
+                    props.RecurringPricingInfo?.packageOneDisCountedTotal,
+                    props.RecurringPricingInfo?.packageOneDisCount,
+                  ) + getFinalPackageVat(props.RecurringPricingInfo?.PackageOneVaTPrice),
+                  props.currencyID,
+                )}
+              </td>` : ""}
+          ${props.visibleFieldsCustomTemp.serviceScope
+            ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;"></td>` : ""}
+
           ${
-            totalTwoPackageValue >
-              Number(props.RecurringPricingInfo.packageTwoNetTotal) ||
-            (Number(props.RecurringPricingInfo.packageTwoDisCount) > 0 &&
-              !props.ProposalObject.DiscountLines)
-              ? Number(props.RecurringPricingInfo.packageTwoDisCount) > 0 &&
-                !props.ProposalObject.DiscountLines
-                ? props.formatValue(
-                    props.RecurringPricingInfo.packageTwoDisCountedTotal,
-                    props.currencyID,
-                  )
-                : props.formatValue(totalTwoPackageValue, props.currencyID)
-              : props.formatValue(
-                  props.RecurringPricingInfo.packageTwoNetTotal,
-                  props.currencyID,
-                )
+            packageCount >= 2
+              ? `
+                ${props.visibleFieldsCustomTemp.fees ? `
+                  <td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
+                    ${props.formatValue(
+                      getFinalPackageNet(
+                        props.RecurringPricingInfo?.packageTwoNetTotal,
+                        props.RecurringPricingInfo?.packageTwoDisCountedTotal,
+                        props.RecurringPricingInfo?.packageTwoDisCount,
+                      ),
+                      props.currencyID,
+                    )}
+                  </td>` : ""}
+                ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
+                  ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;"></td>` : ""}
+                ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vat
+                  ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
+                      ${props.formatValue(
+                        getFinalPackageVat(props.RecurringPricingInfo?.PackageTwoVaTPrice),
+                        props.currencyID,
+                      )}
+                    </td>` : ""}
+                ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
+                  ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
+                      ${props.formatValue(
+                        getFinalPackageNet(
+                          props.RecurringPricingInfo?.packageTwoNetTotal,
+                          props.RecurringPricingInfo?.packageTwoDisCountedTotal,
+                          props.RecurringPricingInfo?.packageTwoDisCount,
+                        ) + getFinalPackageVat(props.RecurringPricingInfo?.PackageTwoVaTPrice),
+                        props.currencyID,
+                      )}
+                    </td>` : ""}
+                ${props.visibleFieldsCustomTemp.serviceScope ? `<td></td>` : ""}
+              `
+              : ""
           }
-        </td>` : ""}
-        ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
-          ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;"></td>` : ""}
-        ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vat
-          ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
-                ${props.formatValue(
-                  props.RecurringPricingInfo.PackageTwoStaticVaTPrice,
-                  props.currencyID,
-                )}
-              </td>` : ""}
-        ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
-          ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
-                ${props.formatValue(
-                  (totalTwoPackageValue >
-                    Number(props.RecurringPricingInfo.packageTwoNetTotal) ||
-                  (Number(props.RecurringPricingInfo.packageTwoDisCount) > 0 &&
-                        !props.ProposalObject.DiscountLines)
-                    ? Number(props.RecurringPricingInfo.packageTwoDisCount) > 0 &&
-                      !props.ProposalObject.DiscountLines
-                        ? Number(props.RecurringPricingInfo.packageTwoDisCountedTotal)
-                      : totalTwoPackageValue
-                        : Number(props.RecurringPricingInfo.packageTwoNetTotal))
-                      + Number(props.RecurringPricingInfo.PackageTwoStaticVaTPrice),
-                  props.currencyID,
-                )}
-              </td>` : ""}
-        ${props.visibleFieldsCustomTemp.serviceScope ? `<td></td>` : ""}
-      `
-      : ""
-  }
-  ${
-    packageCount === 3
-      ? `
-        ${props.visibleFieldsCustomTemp.fees ? `
-        <td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
           ${
-            totalThreePackageValue >
-              Number(props.RecurringPricingInfo.packageThreeNetTotal) ||
-            (Number(props.RecurringPricingInfo.packageThreeDisCount) > 0 &&
-              !props.ProposalObject.DiscountLines)
-              ? Number(props.RecurringPricingInfo.packageThreeDisCount) > 0 &&
-                !props.ProposalObject.DiscountLines
-                ? props.formatValue(
-                    props.RecurringPricingInfo.packageThreeDisCountedTotal,
-                    props.currencyID,
-                  )
-                : props.formatValue(totalThreePackageValue, props.currencyID)
-              : props.formatValue(
-                  props.RecurringPricingInfo.packageThreeNetTotal,
-                  props.currencyID,
-                )
+            packageCount === 3
+              ? `
+                ${props.visibleFieldsCustomTemp.fees ? `
+                  <td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
+                    ${props.formatValue(
+                      getFinalPackageNet(
+                        props.RecurringPricingInfo?.packageThreeNetTotal,
+                        props.RecurringPricingInfo?.packageThreeDisCountedTotal,
+                        props.RecurringPricingInfo?.packageThreeDisCount,
+                      ),
+                      props.currencyID,
+                    )}
+                  </td>` : ""}
+                ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
+                  ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;"></td>` : ""}
+                ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vat
+                  ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
+                      ${props.formatValue(
+                        getFinalPackageVat(props.RecurringPricingInfo?.PackageThreeVaTPrice),
+                        props.currencyID,
+                      )}
+                    </td>` : ""}
+                ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
+                  ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
+                      ${props.formatValue(
+                        getFinalPackageNet(
+                          props.RecurringPricingInfo?.packageThreeNetTotal,
+                          props.RecurringPricingInfo?.packageThreeDisCountedTotal,
+                          props.RecurringPricingInfo?.packageThreeDisCount,
+                        ) + getFinalPackageVat(props.RecurringPricingInfo?.PackageThreeVaTPrice),
+                        props.currencyID,
+                      )}
+                    </td>` : ""}
+                ${props.visibleFieldsCustomTemp.serviceScope ? `<td></td>` : ""}
+              `
+              : ""
           }
-        </td>` : ""}
-        ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
-          ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;"></td>` : ""}
-        ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vat
-          ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
-                ${props.formatValue(
-                  props.RecurringPricingInfo.PackageThreeStaticVaTPrice,
-                  props.currencyID,
-                )}
-              </td>` : ""}
-        ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
-          ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
-                ${props.formatValue(
-                  (totalThreePackageValue >
-                    Number(props.RecurringPricingInfo.packageThreeNetTotal) ||
-                  (Number(props.RecurringPricingInfo.packageThreeDisCount) > 0 &&
-                        !props.ProposalObject.DiscountLines)
-                    ? Number(props.RecurringPricingInfo.packageThreeDisCount) > 0 &&
-                      !props.ProposalObject.DiscountLines
-                        ? Number(props.RecurringPricingInfo.packageThreeDisCountedTotal)
-                      : totalThreePackageValue
-                        : Number(props.RecurringPricingInfo.packageThreeNetTotal))
-                      + Number(props.RecurringPricingInfo.PackageThreeStaticVaTPrice),
-                  props.currencyID,
-                )}
-              </td>` : ""}
-        ${props.visibleFieldsCustomTemp.serviceScope ? `<td></td>` : ""}
-      `
-      : ""
-  }
         </tr>
+      `
+      : `
+        <tr style="background-color:#808080;">
+          <td style="border:1px solid #dddddd; text-align:left; padding:8px; color:white;">
+            Net Total
+          </td>
+          ${props.visibleFieldsCustomTemp.fees ? `
+          <td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
+            ${
+              totalOnePackageValue >
+                Number(props.RecurringPricingInfo.packageOneNetTotal) ||
+              (Number(props.RecurringPricingInfo.packageOneDisCount) > 0 &&
+                !props.ProposalObject.DiscountLines)
+                ? Number(props.RecurringPricingInfo.packageOneDisCount) > 0 &&
+                  !props.ProposalObject.DiscountLines
+                  ? props.formatValue(
+                      props.RecurringPricingInfo.packageOneDisCountedTotal,
+                      props.currencyID,
+                    )
+                  : props.formatValue(totalOnePackageValue, props.currencyID)
+                : props.formatValue(
+                    props.RecurringPricingInfo.packageOneNetTotal,
+                    props.currencyID,
+                  )
+            }
+          </td>` : ""}
+          ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
+            ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;"></td>` : ""}
+          ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vat
+            ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
+                  ${props.formatValue(
+                    props.RecurringPricingInfo.PackageOneStaticVaTPrice,
+                    props.currencyID,
+                  )}
+                </td>` : ""}
+          ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
+            ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
+                  ${props.formatValue(
+                    (totalOnePackageValue >
+                      Number(props.RecurringPricingInfo.packageOneNetTotal) ||
+                    (Number(props.RecurringPricingInfo.packageOneDisCount) > 0 &&
+                          !props.ProposalObject.DiscountLines)
+                      ? Number(props.RecurringPricingInfo.packageOneDisCount) > 0 &&
+                        !props.ProposalObject.DiscountLines
+                          ? Number(props.RecurringPricingInfo.packageOneDisCountedTotal)
+                        : totalOnePackageValue
+                          : Number(props.RecurringPricingInfo.packageOneNetTotal))
+                        + Number(props.RecurringPricingInfo.PackageOneStaticVaTPrice),
+                    props.currencyID,
+                  )}
+                </td>` : ""}
+          ${props.visibleFieldsCustomTemp.serviceScope
+            ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;"></td>` : ""}
+          ${
+            packageCount >= 2
+              ? `
+                ${props.visibleFieldsCustomTemp.fees ? `
+                <td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
+                  ${
+                    totalTwoPackageValue >
+                      Number(props.RecurringPricingInfo.packageTwoNetTotal) ||
+                    (Number(props.RecurringPricingInfo.packageTwoDisCount) > 0 &&
+                      !props.ProposalObject.DiscountLines)
+                      ? Number(props.RecurringPricingInfo.packageTwoDisCount) > 0 &&
+                        !props.ProposalObject.DiscountLines
+                        ? props.formatValue(
+                            props.RecurringPricingInfo.packageTwoDisCountedTotal,
+                            props.currencyID,
+                          )
+                        : props.formatValue(totalTwoPackageValue, props.currencyID)
+                      : props.formatValue(
+                          props.RecurringPricingInfo.packageTwoNetTotal,
+                          props.currencyID,
+                        )
+                  }
+                </td>` : ""}
+                ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
+                  ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;"></td>` : ""}
+                ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vat
+                  ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
+                        ${props.formatValue(
+                          props.RecurringPricingInfo.PackageTwoStaticVaTPrice,
+                          props.currencyID,
+                        )}
+                      </td>` : ""}
+                ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
+                  ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
+                        ${props.formatValue(
+                          (totalTwoPackageValue >
+                            Number(props.RecurringPricingInfo.packageTwoNetTotal) ||
+                          (Number(props.RecurringPricingInfo.packageTwoDisCount) > 0 &&
+                                !props.ProposalObject.DiscountLines)
+                            ? Number(props.RecurringPricingInfo.packageTwoDisCount) > 0 &&
+                              !props.ProposalObject.DiscountLines
+                                ? Number(props.RecurringPricingInfo.packageTwoDisCountedTotal)
+                              : totalTwoPackageValue
+                                : Number(props.RecurringPricingInfo.packageTwoNetTotal))
+                              + Number(props.RecurringPricingInfo.PackageTwoStaticVaTPrice),
+                          props.currencyID,
+                        )}
+                      </td>` : ""}
+                ${props.visibleFieldsCustomTemp.serviceScope ? `<td></td>` : ""}
+              `
+              : ""
+          }
+          ${
+            packageCount === 3
+              ? `
+                ${props.visibleFieldsCustomTemp.fees ? `
+                <td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
+                  ${
+                    totalThreePackageValue >
+                      Number(props.RecurringPricingInfo.packageThreeNetTotal) ||
+                    (Number(props.RecurringPricingInfo.packageThreeDisCount) > 0 &&
+                      !props.ProposalObject.DiscountLines)
+                      ? Number(props.RecurringPricingInfo.packageThreeDisCount) > 0 &&
+                        !props.ProposalObject.DiscountLines
+                        ? props.formatValue(
+                            props.RecurringPricingInfo.packageThreeDisCountedTotal,
+                            props.currencyID,
+                          )
+                        : props.formatValue(totalThreePackageValue, props.currencyID)
+                      : props.formatValue(
+                          props.RecurringPricingInfo.packageThreeNetTotal,
+                          props.currencyID,
+                        )
+                  }
+                </td>` : ""}
+                ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
+                  ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;"></td>` : ""}
+                ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vat
+                  ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
+                        ${props.formatValue(
+                          props.RecurringPricingInfo.PackageThreeStaticVaTPrice,
+                          props.currencyID,
+                        )}
+                      </td>` : ""}
+                ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
+                  ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
+                        ${props.formatValue(
+                          (totalThreePackageValue >
+                            Number(props.RecurringPricingInfo.packageThreeNetTotal) ||
+                          (Number(props.RecurringPricingInfo.packageThreeDisCount) > 0 &&
+                                !props.ProposalObject.DiscountLines)
+                            ? Number(props.RecurringPricingInfo.packageThreeDisCount) > 0 &&
+                              !props.ProposalObject.DiscountLines
+                                ? Number(props.RecurringPricingInfo.packageThreeDisCountedTotal)
+                              : totalThreePackageValue
+                                : Number(props.RecurringPricingInfo.packageThreeNetTotal))
+                              + Number(props.RecurringPricingInfo.PackageThreeStaticVaTPrice),
+                          props.currencyID,
+                        )}
+                      </td>` : ""}
+                ${props.visibleFieldsCustomTemp.serviceScope ? `<td></td>` : ""}
+              `
+              : ""
+          }
+        </tr>
+      `
+  }
       
 ${
+  !hasAnyNegativePackageDiscountRecurringTemplate6 &&
   (Number(props.RecurringPricingInfo.packageThreeDisCount) > 0 ||
     Number(props.RecurringPricingInfo.packageOneDisCount) > 0 ||
     Number(props.RecurringPricingInfo.packageTwoDisCount) > 0) &&
@@ -5943,6 +6254,7 @@ ${
       </tr>
 
       ${
+  !hasAnyNegativePackageDiscountRecurringTemplate6 &&
   (Number(props.vatPercentage) || 0) > 0
     ? `
 <tr style="background-color:#808080;">
@@ -7403,6 +7715,7 @@ ${
 </tr>
 
 ${
+  !hasAnyNegativePackageDiscountOneOffTemplate6 &&
   (Number(props.OneOffPricingInfo.packageThreeDisCount) > 0 ||
     Number(props.OneOffPricingInfo.packageOneDisCount) > 0 ||
     Number(props.OneOffPricingInfo.packageTwoDisCount) > 0) &&

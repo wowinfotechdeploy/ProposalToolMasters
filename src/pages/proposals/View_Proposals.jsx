@@ -41,6 +41,7 @@ const View_Proposals = () => {
     useState(0);
   const [totalThreePackageValueOneOff, setTotalThreePackageValueOneOff] =
     useState(0);
+
   const location = useLocation();
   const [vatPercentage, setVATPercentage] = useState(null);
   const [packageList, setPackageList] = useState([]);
@@ -208,6 +209,21 @@ const View_Proposals = () => {
     PackageTwoGrandTotal: null,
     PackageThreeGrandTotal: null,
   });
+
+  // View Proposal (GetQuoteDetailsModel) can return surcharge/negative discounts as
+  // `discountPercentageWithAllDecimal < 0` in `finalQuotationAmountList`.
+  // In that case the correct per-package "final" values are already provided by API:
+  // - `discountedTotal` (final net)
+  // - `vat` (final VAT)
+  // - `grandTotal` (final gross)
+  // We must prefer those and render only a single summary row.
+  const hasAnyNegativeRecurringPackageDiscountView = [
+    Number(RecurringPricingInfo?.DiscountPercentagePackageOne),
+    Number(RecurringPricingInfo?.DiscountPercentagePackageTwo),
+    Number(RecurringPricingInfo?.DiscountPercentagePackageThree),
+  ]
+    .filter((n) => Number.isFinite(n))
+    .some((n) => n < 0);
   const [OneOffPricingInfo, setOneOffPricingInfo] = useState({
     OriginalPrice: 0,
     DefaultDiscount: null,
@@ -835,73 +851,16 @@ const View_Proposals = () => {
             });
           }
 
-          let staticVATChangeFreq = 0;
-
-          if (ModelData.paymentFrequencyID === 4) {
-            RecurringService.forEach((category) => {
-              category.servicesList.forEach((service) => {
-                // Half the VAT amount
-                if (
-                  service.vatAmount !== undefined &&
-                  service.vatAmount !== null
-                ) {
-                  const selectedFreqVAT = Number(service.vatAmount / 12);
-                  service.vatAmount = selectedFreqVAT.toFixed(2);
-
-                  // total VAT
-                  staticVATChangeFreq += selectedFreqVAT;
-                }
-              });
-            });
-          } else if (ModelData.paymentFrequencyID === 3) {
-            RecurringService.forEach((category) => {
-              category.servicesList.forEach((service) => {
-                // Half the VAT amount
-                if (
-                  service.vatAmount !== undefined &&
-                  service.vatAmount !== null
-                ) {
-                  const selectedFreqVAT = Number(service.vatAmount / 4);
-                  service.vatAmount = selectedFreqVAT.toFixed(2);
-
-                  // total VAT
-                  staticVATChangeFreq += selectedFreqVAT;
-                }
-              });
-            });
-          } else if (ModelData.paymentFrequencyID === 2) {
-            RecurringService.forEach((category) => {
-              category.servicesList.forEach((service) => {
-                // Half the VAT amount
-                if (
-                  service.vatAmount !== undefined &&
-                  service.vatAmount !== null
-                ) {
-                  const selectedFreqVAT = Number(service.vatAmount / 2);
-                  service.vatAmount = selectedFreqVAT.toFixed(2);
-
-                  // total VAT
-                  staticVATChangeFreq += selectedFreqVAT;
-                }
-              });
-            });
-          } else if (ModelData.paymentFrequencyID === 1) {
-            RecurringService.forEach((category) => {
-              category.servicesList.forEach((service) => {
-                // Half the VAT amount
-                if (
-                  service.vatAmount !== undefined &&
-                  service.vatAmount !== null
-                ) {
-                  const selectedFreqVAT = Number(service.vatAmount);
-                  service.vatAmount = selectedFreqVAT.toFixed(2);
-
-                  // total VAT
-                  staticVATChangeFreq += selectedFreqVAT;
-                }
-              });
-            });
-          }
+          // IMPORTANT:
+          // `GetQuoteDetailsModel` already returns `quotationPrice` and `vatAmount`
+          // at the quote's selected payment frequency (e.g. Monthly).
+          //
+          // This older block used to "convert" VAT by dividing (Monthly→/12,
+          // Quarterly→/4, Half-yearly→/2). That results in double-scaling and
+          // incorrect totals (e.g. 51.45/12 ≈ 4.29), which is exactly the bug
+          // observed on `/view-proposal`.
+          //
+          // So we do NOT rescale `service.vatAmount` here.
 
           // Service Scope (column 6) is rendered from `subService.pricingDriverList`.
           // GetQuoteDetailsModel doesn't include structured pricingDriverList, but the
@@ -4169,30 +4128,35 @@ const View_Proposals = () => {
                                                     </td>
                                                     <td className="tr-table-class font-14 text-white text-right">
                                                       {" "}
-                                                      {totalOnePackageValue >
-                                                        Number(
-                                                          RecurringPricingInfo.packageOneNetTotal,
-                                                        ) ||
-                                                      (Number(
-                                                        RecurringPricingInfo.packageOneDisCount,
-                                                      ) > 0 &&
-                                                        !ProposalObject.DiscountLines)
-                                                        ? Number(
+                                                      {hasAnyNegativeRecurringPackageDiscountView
+                                                        ? formatValue(
+                                                            RecurringPricingInfo.packageOneDisCountedTotal,
+                                                            currencyID,
+                                                          )
+                                                        : totalOnePackageValue >
+                                                            Number(
+                                                              RecurringPricingInfo.packageOneNetTotal,
+                                                            ) ||
+                                                          (Number(
                                                             RecurringPricingInfo.packageOneDisCount,
                                                           ) > 0 &&
-                                                          !ProposalObject.DiscountLines
-                                                          ? formatValue(
-                                                              RecurringPricingInfo.packageOneDisCountedTotal,
-                                                              currencyID,
-                                                            )
+                                                            !ProposalObject.DiscountLines)
+                                                          ? Number(
+                                                              RecurringPricingInfo.packageOneDisCount,
+                                                            ) > 0 &&
+                                                            !ProposalObject.DiscountLines
+                                                            ? formatValue(
+                                                                RecurringPricingInfo.packageOneDisCountedTotal,
+                                                                currencyID,
+                                                              )
+                                                            : formatValue(
+                                                                totalOnePackageValue,
+                                                                currencyID,
+                                                              )
                                                           : formatValue(
-                                                              totalOnePackageValue,
+                                                              RecurringPricingInfo.packageOneNetTotal,
                                                               currencyID,
-                                                            )
-                                                        : formatValue(
-                                                            RecurringPricingInfo.packageOneNetTotal,
-                                                            currencyID,
-                                                          )}
+                                                            )}
                                                     </td>
                                                     {vatPercentage &&
                                                       visibleFieldsCustomTemp.vatRate && (
@@ -4202,7 +4166,9 @@ const View_Proposals = () => {
                                                       visibleFieldsCustomTemp.vat && (
                                                         <td className="tr-table-class font-14 text-white text-right">
                                                           {formatValue(
-                                                            RecurringPricingInfo.PackageOneStaticVaTPrice,
+                                                            hasAnyNegativeRecurringPackageDiscountView
+                                                              ? RecurringPricingInfo.PackageOneVaTPrice
+                                                              : RecurringPricingInfo.PackageOneStaticVaTPrice,
                                                             currencyID,
                                                           )}
                                                         </td>
@@ -4211,15 +4177,20 @@ const View_Proposals = () => {
                                                       visibleFieldsCustomTemp.feesIncVat && (
                                                         <td className="tr-table-class font-14 text-white text-right">
                                                           {formatValue(
-                                                            Number(RecurringPricingInfo.PackageOneStaticVaTPrice || 0) +
-                                                            (totalOnePackageValue >
-                                                              Number(RecurringPricingInfo.packageOneNetTotal) ||
-                                                            (Number(RecurringPricingInfo.packageOneDisCount) > 0 &&
-                                                              !ProposalObject.DiscountLines)
-                                                              ? Number(RecurringPricingInfo.packageOneDisCount) > 0 && !ProposalObject.DiscountLines
-                                                                ? Number(RecurringPricingInfo.packageOneDisCountedTotal)
-                                                                : totalOnePackageValue
-                                                              : Number(RecurringPricingInfo.packageOneNetTotal)),
+                                                            hasAnyNegativeRecurringPackageDiscountView
+                                                              ? Number(
+                                                                  RecurringPricingInfo.PackageOneGrandTotal ||
+                                                                    0,
+                                                                )
+                                                              : Number(RecurringPricingInfo.PackageOneStaticVaTPrice || 0) +
+                                                                (totalOnePackageValue >
+                                                                  Number(RecurringPricingInfo.packageOneNetTotal) ||
+                                                                (Number(RecurringPricingInfo.packageOneDisCount) > 0 &&
+                                                                  !ProposalObject.DiscountLines)
+                                                                  ? Number(RecurringPricingInfo.packageOneDisCount) > 0 && !ProposalObject.DiscountLines
+                                                                    ? Number(RecurringPricingInfo.packageOneDisCountedTotal)
+                                                                    : totalOnePackageValue
+                                                                  : Number(RecurringPricingInfo.packageOneNetTotal)),
                                                             currencyID,
                                                           )}
                                                         </td>
@@ -4231,30 +4202,35 @@ const View_Proposals = () => {
                                                       <>
                                                         <td className="tr-table-class font-14 text-white text-right">
                                                           {" "}
-                                                          {totalTwoPackageValue >
-                                                            Number(
-                                                              RecurringPricingInfo.packageTwoNetTotal,
-                                                            ) ||
-                                                          (Number(
-                                                            RecurringPricingInfo.packageTwoDisCount,
-                                                          ) > 0 &&
-                                                            !ProposalObject.DiscountLines)
-                                                            ? Number(
+                                                          {hasAnyNegativeRecurringPackageDiscountView
+                                                            ? formatValue(
+                                                                RecurringPricingInfo.packageTwoDisCountedTotal,
+                                                                currencyID,
+                                                              )
+                                                            : totalTwoPackageValue >
+                                                                Number(
+                                                                  RecurringPricingInfo.packageTwoNetTotal,
+                                                                ) ||
+                                                              (Number(
                                                                 RecurringPricingInfo.packageTwoDisCount,
                                                               ) > 0 &&
-                                                              !ProposalObject.DiscountLines
-                                                              ? formatValue(
-                                                                  RecurringPricingInfo.packageTwoDisCountedTotal,
-                                                                  currencyID,
-                                                                )
+                                                                !ProposalObject.DiscountLines)
+                                                              ? Number(
+                                                                  RecurringPricingInfo.packageTwoDisCount,
+                                                                ) > 0 &&
+                                                                !ProposalObject.DiscountLines
+                                                                ? formatValue(
+                                                                    RecurringPricingInfo.packageTwoDisCountedTotal,
+                                                                    currencyID,
+                                                                  )
+                                                                : formatValue(
+                                                                    totalTwoPackageValue,
+                                                                    currencyID,
+                                                                  )
                                                               : formatValue(
-                                                                  totalTwoPackageValue,
+                                                                  RecurringPricingInfo.packageTwoNetTotal,
                                                                   currencyID,
-                                                                )
-                                                            : formatValue(
-                                                                RecurringPricingInfo.packageTwoNetTotal,
-                                                                currencyID,
-                                                              )}
+                                                                )}
                                                         </td>
                                                         {vatPercentage &&
                                                           visibleFieldsCustomTemp.vatRate && (
@@ -4265,7 +4241,9 @@ const View_Proposals = () => {
                                                             <td className="tr-table-class font-14 text-white text-right">
                                                               {" "}
                                                               {formatValue(
-                                                                RecurringPricingInfo.PackageTwoStaticVaTPrice,
+                                                                hasAnyNegativeRecurringPackageDiscountView
+                                                                  ? RecurringPricingInfo.PackageTwoVaTPrice
+                                                                  : RecurringPricingInfo.PackageTwoStaticVaTPrice,
                                                                 currencyID,
                                                               )}
                                                             </td>
@@ -4274,15 +4252,20 @@ const View_Proposals = () => {
                                                           visibleFieldsCustomTemp.feesIncVat && (
                                                             <td className="tr-table-class font-14 text-white text-right">
                                                               {formatValue(
-                                                                Number(RecurringPricingInfo.PackageTwoStaticVaTPrice || 0) +
-                                                                (totalTwoPackageValue >
-                                                                  Number(RecurringPricingInfo.packageTwoNetTotal) ||
-                                                                (Number(RecurringPricingInfo.packageTwoDisCount) > 0 &&
-                                                                  !ProposalObject.DiscountLines)
-                                                                  ? Number(RecurringPricingInfo.packageTwoDisCount) > 0 && !ProposalObject.DiscountLines
-                                                                    ? Number(RecurringPricingInfo.packageTwoDisCountedTotal)
-                                                                    : totalTwoPackageValue
-                                                                  : Number(RecurringPricingInfo.packageTwoNetTotal)),
+                                                                hasAnyNegativeRecurringPackageDiscountView
+                                                                  ? Number(
+                                                                      RecurringPricingInfo.PackageTwoGrandTotal ||
+                                                                        0,
+                                                                    )
+                                                                  : Number(RecurringPricingInfo.PackageTwoStaticVaTPrice || 0) +
+                                                                    (totalTwoPackageValue >
+                                                                      Number(RecurringPricingInfo.packageTwoNetTotal) ||
+                                                                    (Number(RecurringPricingInfo.packageTwoDisCount) > 0 &&
+                                                                      !ProposalObject.DiscountLines)
+                                                                      ? Number(RecurringPricingInfo.packageTwoDisCount) > 0 && !ProposalObject.DiscountLines
+                                                                        ? Number(RecurringPricingInfo.packageTwoDisCountedTotal)
+                                                                        : totalTwoPackageValue
+                                                                      : Number(RecurringPricingInfo.packageTwoNetTotal)),
                                                                 currencyID,
                                                               )}
                                                             </td>
@@ -4330,7 +4313,9 @@ const View_Proposals = () => {
                                                             <td className="tr-table-class font-14 text-white text-right">
                                                               {" "}
                                                               {formatValue(
-                                                                RecurringPricingInfo.PackageThreeStaticVaTPrice,
+                                                                hasAnyNegativeRecurringPackageDiscountView
+                                                                  ? RecurringPricingInfo.PackageThreeVaTPrice
+                                                                  : RecurringPricingInfo.PackageThreeStaticVaTPrice,
                                                                 currencyID,
                                                               )}
                                                             </td>
@@ -4339,15 +4324,20 @@ const View_Proposals = () => {
                                                           visibleFieldsCustomTemp.feesIncVat && (
                                                             <td className="tr-table-class font-14 text-white text-right">
                                                               {formatValue(
-                                                                Number(RecurringPricingInfo.PackageThreeStaticVaTPrice || 0) +
-                                                                (totalThreePackageValue >
-                                                                  Number(RecurringPricingInfo.packageThreeNetTotal) ||
-                                                                (Number(RecurringPricingInfo.packageThreeDisCount) > 0 &&
-                                                                  !ProposalObject.DiscountLines)
-                                                                  ? Number(RecurringPricingInfo.packageThreeDisCount) > 0 && !ProposalObject.DiscountLines
-                                                                    ? Number(RecurringPricingInfo.packageThreeDisCountedTotal)
-                                                                    : totalThreePackageValue
-                                                                  : Number(RecurringPricingInfo.packageThreeNetTotal)),
+                                                                hasAnyNegativeRecurringPackageDiscountView
+                                                                  ? Number(
+                                                                      RecurringPricingInfo.PackageThreeGrandTotal ||
+                                                                        0,
+                                                                    )
+                                                                  : Number(RecurringPricingInfo.PackageThreeStaticVaTPrice || 0) +
+                                                                    (totalThreePackageValue >
+                                                                      Number(RecurringPricingInfo.packageThreeNetTotal) ||
+                                                                    (Number(RecurringPricingInfo.packageThreeDisCount) > 0 &&
+                                                                      !ProposalObject.DiscountLines)
+                                                                      ? Number(RecurringPricingInfo.packageThreeDisCount) > 0 && !ProposalObject.DiscountLines
+                                                                        ? Number(RecurringPricingInfo.packageThreeDisCountedTotal)
+                                                                        : totalThreePackageValue
+                                                                      : Number(RecurringPricingInfo.packageThreeNetTotal)),
                                                                 currencyID,
                                                               )}
                                                             </td>
@@ -4359,15 +4349,16 @@ const View_Proposals = () => {
                                                     )}
                                                   </tr>
 
-                                                  {(Number(
-                                                    RecurringPricingInfo.packageThreeDisCount,
-                                                  ) > 0 ||
-                                                    Number(
-                                                      RecurringPricingInfo.packageOneDisCount,
+                                                  {!hasAnyNegativeRecurringPackageDiscountView &&
+                                                    (Number(
+                                                      RecurringPricingInfo.packageThreeDisCount,
                                                     ) > 0 ||
-                                                    Number(
-                                                      RecurringPricingInfo.packageTwoDisCount,
-                                                    ) > 0) &&
+                                                      Number(
+                                                        RecurringPricingInfo.packageOneDisCount,
+                                                      ) > 0 ||
+                                                      Number(
+                                                        RecurringPricingInfo.packageTwoDisCount,
+                                                      ) > 0) &&
                                                     ProposalObject.DiscountLines && (
                                                       <>
                                                         <tr className="head-grey-row">

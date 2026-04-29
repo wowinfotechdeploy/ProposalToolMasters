@@ -102,6 +102,39 @@ const PricingTableTemplatesModal = ({
     return discountedPrice * ((toFiniteNumber(serviceVatPercentage) || 0) / 100);
   };
 
+  // ---------------------------------------------------------------------------
+  // Package helpers (template 6 / package-based tables)
+  // Mirror the Review Packages (AddUpdateProposal.jsx) rules so modal preview
+  // matches the real table behavior.
+  // ---------------------------------------------------------------------------
+
+  const getFinalPackageNet = (netTotal, discountedTotal, discountAmount) =>
+    toFiniteNumber(discountAmount) > 0
+      ? toFiniteNumber(discountedTotal)
+      : toFiniteNumber(netTotal);
+
+  const getFinalPackageVat = (vatAmount) => toFiniteNumber(vatAmount);
+
+  // NOTE (modal-only): Unlike ReviewPackagesComponent, the modal's
+  // `totalOne/Two/ThreePackageValue` state is not guaranteed to be populated for
+  // package previews (the setters are unused in this component). That makes the
+  // "netTotal > originalTotal" surcharge heuristic unreliable here (it can
+  // falsely flag surcharge when original totals are stuck at 0).
+  //
+  // So for the modal we use the stable source of truth: the user-entered
+  // discount percentages.
+  const hasAnyNegativePackageDiscountRecurringCustomModal = [
+    toFiniteNumber(RecurringPricingInfo?.DiscountPercentagePackageOne),
+    toFiniteNumber(RecurringPricingInfo?.DiscountPercentagePackageTwo),
+    toFiniteNumber(RecurringPricingInfo?.DiscountPercentagePackageThree),
+  ].some((n) => n < 0);
+
+  const hasAnyNegativePackageDiscountOneOffCustomModal = [
+    toFiniteNumber(OneOffPricingInfo?.DiscountPercentagePackageOne),
+    toFiniteNumber(OneOffPricingInfo?.DiscountPercentagePackageTwo),
+    toFiniteNumber(OneOffPricingInfo?.DiscountPercentagePackageThree),
+  ].some((n) => n < 0);
+
   const handleCheckboxChange = (field) => {
     // Never allow VAT columns to be toggled on for VAT-disabled orgs.
     if (!isVatEnabledForOrg && isVatColumn(field)) return;
@@ -1781,9 +1814,10 @@ const PricingTableTemplatesModal = ({
                 )}
               </tr>
 
-              {(Number(OneOffPricingInfo.packageThreeDisCount) > 0 ||
-                Number(OneOffPricingInfo.packageOneDisCount) > 0 ||
-                Number(OneOffPricingInfo.packageTwoDisCount) > 0) &&
+              {!hasAnyNegativePackageDiscountOneOffCustomModal &&
+                (Number(OneOffPricingInfo.packageThreeDisCount) > 0 ||
+                  Number(OneOffPricingInfo.packageOneDisCount) > 0 ||
+                  Number(OneOffPricingInfo.packageTwoDisCount) > 0) &&
                 ProposalObject.DiscountLines && (
                   <>
                     <tr className="head-grey-row">
@@ -11418,7 +11452,150 @@ const PricingTableTemplatesModal = ({
                   </tr>
                 </>
               )}
+              {hasAnyNegativePackageDiscountRecurringCustomModal && (
+                <tr className="head-row">
+                  <td className="tr-table-class font-14 text-white">Net Total</td>
+                  {visibleFieldsCustomTemp.fees && (
+                    <td className="tr-table-class font-14 text-white text-right">
+                      {formatValue(
+                        getFinalPackageNet(
+                          RecurringPricingInfo?.packageOneNetTotal,
+                          RecurringPricingInfo?.packageOneDisCountedTotal,
+                          RecurringPricingInfo?.packageOneDisCount,
+                        ),
+                        currencyID,
+                      )}
+                    </td>
+                  )}
+                  {vatPercentage !== 0 && visibleFieldsCustomTemp.vatRate && (
+                    <td className="tr-table-class font-14 text-white"></td>
+                  )}
+                  {vatPercentage
+                    ? visibleFieldsCustomTemp.vat && (
+                        <td className="tr-table-class font-14 text-white text-right">
+                          {formatValue(
+                            getFinalPackageVat(
+                              RecurringPricingInfo?.PackageOneVaTPrice,
+                            ),
+                            currencyID,
+                          )}
+                        </td>
+                      )
+                    : ""}
+                  {vatPercentage !== 0 && visibleFieldsCustomTemp.feesIncVat && (
+                    <td className="tr-table-class font-14 text-white text-right">
+                      {formatValue(
+                        getFinalPackageNet(
+                          RecurringPricingInfo?.packageOneNetTotal,
+                          RecurringPricingInfo?.packageOneDisCountedTotal,
+                          RecurringPricingInfo?.packageOneDisCount,
+                        ) +
+                          getFinalPackageVat(
+                            RecurringPricingInfo?.PackageOneVaTPrice,
+                          ),
+                        currencyID,
+                      )}
+                    </td>
+                  )}
+                  {visibleFieldsCustomTemp.serviceScope && <td></td>}
+                  {packageCount >= 2 && (
+                    <>
+                      {visibleFieldsCustomTemp.fees && (
+                        <td className="tr-table-class font-14 text-white text-right">
+                          {formatValue(
+                            getFinalPackageNet(
+                              RecurringPricingInfo?.packageTwoNetTotal,
+                              RecurringPricingInfo?.packageTwoDisCountedTotal,
+                              RecurringPricingInfo?.packageTwoDisCount,
+                            ),
+                            currencyID,
+                          )}
+                        </td>
+                      )}
+                      {vatPercentage !== 0 && visibleFieldsCustomTemp.vatRate && (
+                        <td className="tr-table-class font-14 text-white"></td>
+                      )}
+                      {vatPercentage
+                        ? visibleFieldsCustomTemp.vat && (
+                            <td className="tr-table-class font-14 text-white text-right">
+                              {formatValue(
+                                getFinalPackageVat(
+                                  RecurringPricingInfo?.PackageTwoVaTPrice,
+                                ),
+                                currencyID,
+                              )}
+                            </td>
+                          )
+                        : ""}
+                      {vatPercentage !== 0 && visibleFieldsCustomTemp.feesIncVat && (
+                        <td className="tr-table-class font-14 text-white text-right">
+                          {formatValue(
+                            getFinalPackageNet(
+                              RecurringPricingInfo?.packageTwoNetTotal,
+                              RecurringPricingInfo?.packageTwoDisCountedTotal,
+                              RecurringPricingInfo?.packageTwoDisCount,
+                            ) +
+                              getFinalPackageVat(
+                                RecurringPricingInfo?.PackageTwoVaTPrice,
+                              ),
+                            currencyID,
+                          )}
+                        </td>
+                      )}
+                      {visibleFieldsCustomTemp.serviceScope && <td></td>}
+                    </>
+                  )}
+                  {packageCount === 3 && (
+                    <>
+                      {visibleFieldsCustomTemp.fees && (
+                        <td className="tr-table-class font-14 text-white text-right">
+                          {formatValue(
+                            getFinalPackageNet(
+                              RecurringPricingInfo?.packageThreeNetTotal,
+                              RecurringPricingInfo?.packageThreeDisCountedTotal,
+                              RecurringPricingInfo?.packageThreeDisCount,
+                            ),
+                            currencyID,
+                          )}
+                        </td>
+                      )}
+                      {vatPercentage !== 0 && visibleFieldsCustomTemp.vatRate && (
+                        <td className="tr-table-class font-14 text-white"></td>
+                      )}
+                      {vatPercentage
+                        ? visibleFieldsCustomTemp.vat && (
+                            <td className="tr-table-class font-14 text-white text-right">
+                              {formatValue(
+                                getFinalPackageVat(
+                                  RecurringPricingInfo?.PackageThreeVaTPrice,
+                                ),
+                                currencyID,
+                              )}
+                            </td>
+                          )
+                        : ""}
+                      {vatPercentage !== 0 && visibleFieldsCustomTemp.feesIncVat && (
+                        <td className="tr-table-class font-14 text-white text-right">
+                          {formatValue(
+                            getFinalPackageNet(
+                              RecurringPricingInfo?.packageThreeNetTotal,
+                              RecurringPricingInfo?.packageThreeDisCountedTotal,
+                              RecurringPricingInfo?.packageThreeDisCount,
+                            ) +
+                              getFinalPackageVat(
+                                RecurringPricingInfo?.PackageThreeVaTPrice,
+                              ),
+                            currencyID,
+                          )}
+                        </td>
+                      )}
+                      {visibleFieldsCustomTemp.serviceScope && <td></td>}
+                    </>
+                  )}
+                </tr>
+              )}
 
+              {!hasAnyNegativePackageDiscountRecurringCustomModal && (
               <tr className="head-row">
                 <td className="tr-table-class font-14 text-white">Net Total</td>
                 {visibleFieldsCustomTemp.fees && (
@@ -11571,10 +11748,12 @@ const PricingTableTemplatesModal = ({
                   </>
                 )}
               </tr>
+              )}
 
-              {(Number(RecurringPricingInfo.packageThreeDisCount) > 0 ||
-                Number(RecurringPricingInfo.packageOneDisCount) > 0 ||
-                Number(RecurringPricingInfo.packageTwoDisCount) > 0) &&
+              {!hasAnyNegativePackageDiscountRecurringCustomModal &&
+                (Number(RecurringPricingInfo.packageThreeDisCount) > 0 ||
+                  Number(RecurringPricingInfo.packageOneDisCount) > 0 ||
+                  Number(RecurringPricingInfo.packageTwoDisCount) > 0) &&
                 ProposalObject.DiscountLines && (
                   <>
                     <tr className="head-grey-row">
@@ -11916,7 +12095,8 @@ const PricingTableTemplatesModal = ({
                   </>
                 )}
 
-              {(Number(vatPercentage) || 0) > 0 &&
+              {!hasAnyNegativePackageDiscountRecurringCustomModal &&
+              (Number(vatPercentage) || 0) > 0 &&
                 (Number(RecurringPricingInfo.packageOneDisCount) > 0 ||
                   Number(RecurringPricingInfo.packageTwoDisCount) > 0 ||
                   Number(RecurringPricingInfo.packageThreeDisCount) > 0) &&
@@ -13093,7 +13273,150 @@ const PricingTableTemplatesModal = ({
                   </tr>
                 </>
               )}
+              {hasAnyNegativePackageDiscountOneOffCustomModal && (
+                <tr className="head-row">
+                  <td className="tr-table-class font-14 text-white">Net Total</td>
+                  {visibleFieldsCustomTemp.fees && (
+                    <td className="tr-table-class font-14 text-white text-right">
+                      {formatValue(
+                        getFinalPackageNet(
+                          OneOffPricingInfo?.packageOneNetTotal,
+                          OneOffPricingInfo?.packageOneDisCountedTotal,
+                          OneOffPricingInfo?.packageOneDisCount,
+                        ),
+                        currencyID,
+                      )}
+                    </td>
+                  )}
+                  {vatPercentageOneOff !== 0 && visibleFieldsCustomTemp.vatRate && (
+                    <td className="tr-table-class font-14 text-white"></td>
+                  )}
+                  {vatPercentageOneOff !== 0
+                    ? visibleFieldsCustomTemp.vat && (
+                        <td className="tr-table-class font-14 text-white text-right">
+                          {formatValue(
+                            getFinalPackageVat(
+                              OneOffPricingInfo?.PackageOneVaTPrice,
+                            ),
+                            currencyID,
+                          )}
+                        </td>
+                      )
+                    : ""}
+                  {vatPercentageOneOff !== 0 && visibleFieldsCustomTemp.feesIncVat && (
+                    <td className="tr-table-class font-14 text-white text-right">
+                      {formatValue(
+                        getFinalPackageNet(
+                          OneOffPricingInfo?.packageOneNetTotal,
+                          OneOffPricingInfo?.packageOneDisCountedTotal,
+                          OneOffPricingInfo?.packageOneDisCount,
+                        ) +
+                          getFinalPackageVat(
+                            OneOffPricingInfo?.PackageOneVaTPrice,
+                          ),
+                        currencyID,
+                      )}
+                    </td>
+                  )}
+                  {visibleFieldsCustomTemp.serviceScope && <td></td>}
+                  {packageCount >= 2 && (
+                    <>
+                      {visibleFieldsCustomTemp.fees && (
+                        <td className="tr-table-class font-14 text-white text-right">
+                          {formatValue(
+                            getFinalPackageNet(
+                              OneOffPricingInfo?.packageTwoNetTotal,
+                              OneOffPricingInfo?.packageTwoDisCountedTotal,
+                              OneOffPricingInfo?.packageTwoDisCount,
+                            ),
+                            currencyID,
+                          )}
+                        </td>
+                      )}
+                      {vatPercentageOneOff !== 0 && visibleFieldsCustomTemp.vatRate && (
+                        <td className="tr-table-class font-14 text-white"></td>
+                      )}
+                      {vatPercentageOneOff !== 0
+                        ? visibleFieldsCustomTemp.vat && (
+                            <td className="tr-table-class font-14 text-white text-right">
+                              {formatValue(
+                                getFinalPackageVat(
+                                  OneOffPricingInfo?.PackageTwoVaTPrice,
+                                ),
+                                currencyID,
+                              )}
+                            </td>
+                          )
+                        : ""}
+                      {vatPercentageOneOff !== 0 && visibleFieldsCustomTemp.feesIncVat && (
+                        <td className="tr-table-class font-14 text-white text-right">
+                          {formatValue(
+                            getFinalPackageNet(
+                              OneOffPricingInfo?.packageTwoNetTotal,
+                              OneOffPricingInfo?.packageTwoDisCountedTotal,
+                              OneOffPricingInfo?.packageTwoDisCount,
+                            ) +
+                              getFinalPackageVat(
+                                OneOffPricingInfo?.PackageTwoVaTPrice,
+                              ),
+                            currencyID,
+                          )}
+                        </td>
+                      )}
+                      {visibleFieldsCustomTemp.serviceScope && <td></td>}
+                    </>
+                  )}
+                  {packageCount === 3 && (
+                    <>
+                      {visibleFieldsCustomTemp.fees && (
+                        <td className="tr-table-class font-14 text-white text-right">
+                          {formatValue(
+                            getFinalPackageNet(
+                              OneOffPricingInfo?.packageThreeNetTotal,
+                              OneOffPricingInfo?.packageThreeDisCountedTotal,
+                              OneOffPricingInfo?.packageThreeDisCount,
+                            ),
+                            currencyID,
+                          )}
+                        </td>
+                      )}
+                      {vatPercentageOneOff !== 0 && visibleFieldsCustomTemp.vatRate && (
+                        <td className="tr-table-class font-14 text-white"></td>
+                      )}
+                      {vatPercentageOneOff !== 0
+                        ? visibleFieldsCustomTemp.vat && (
+                            <td className="tr-table-class font-14 text-white text-right">
+                              {formatValue(
+                                getFinalPackageVat(
+                                  OneOffPricingInfo?.PackageThreeVaTPrice,
+                                ),
+                                currencyID,
+                              )}
+                            </td>
+                          )
+                        : ""}
+                      {vatPercentageOneOff !== 0 && visibleFieldsCustomTemp.feesIncVat && (
+                        <td className="tr-table-class font-14 text-white text-right">
+                          {formatValue(
+                            getFinalPackageNet(
+                              OneOffPricingInfo?.packageThreeNetTotal,
+                              OneOffPricingInfo?.packageThreeDisCountedTotal,
+                              OneOffPricingInfo?.packageThreeDisCount,
+                            ) +
+                              getFinalPackageVat(
+                                OneOffPricingInfo?.PackageThreeVaTPrice,
+                              ),
+                            currencyID,
+                          )}
+                        </td>
+                      )}
+                      {visibleFieldsCustomTemp.serviceScope && <td></td>}
+                    </>
+                  )}
+                </tr>
+              )}
 
+              {!hasAnyNegativePackageDiscountOneOffCustomModal && (
               <tr className="head-row">
                 <td className="tr-table-class font-14 text-white">Net Total</td>
                 {visibleFieldsCustomTemp.fees && (
@@ -13261,6 +13584,7 @@ const PricingTableTemplatesModal = ({
                   </>
                 )}
               </tr>
+              )}
 
               {(Number(OneOffPricingInfo.packageThreeDisCount) > 0 ||
                 Number(OneOffPricingInfo.packageOneDisCount) > 0 ||
@@ -13561,7 +13885,8 @@ const PricingTableTemplatesModal = ({
                   </>
                 )}
 
-              {(Number(vatPercentageOneOff) || 0) > 0 &&
+              {!hasAnyNegativePackageDiscountOneOffCustomModal &&
+              (Number(vatPercentageOneOff) || 0) > 0 &&
                 (Number(OneOffPricingInfo.packageOneDisCount) > 0 ||
                   Number(OneOffPricingInfo.packageTwoDisCount) > 0 ||
                   Number(OneOffPricingInfo.packageThreeDisCount) > 0) &&

@@ -6627,6 +6627,29 @@ const ReviewPackagesComponent = (props) => {
     useState(0);
   const [totalThreePackageValueOneOff, setTotalThreePackageValueOneOff] =
     useState(0);
+  const hasAnyNegativePackageDiscountRecurringCustom =
+    [
+      Number(props.RecurringPricingInfo?.DiscountPercentagePackageOne),
+      Number(props.RecurringPricingInfo?.DiscountPercentagePackageTwo),
+      Number(props.RecurringPricingInfo?.DiscountPercentagePackageThree),
+    ]
+      .filter((n) => Number.isFinite(n))
+      .some((n) => n < 0) ||
+    [
+      Number(props.RecurringPricingInfo?.packageOneNetTotal) >
+        Number(totalOnePackageValue),
+      Number(props.RecurringPricingInfo?.packageTwoNetTotal) >
+        Number(totalTwoPackageValue),
+      Number(props.RecurringPricingInfo?.packageThreeNetTotal) >
+        Number(totalThreePackageValue),
+    ].some(Boolean);
+
+  const getFinalPackageNet = (netTotal, discountedTotal, discountAmount) =>
+    Number(discountAmount) > 0
+      ? Number(discountedTotal) || 0
+      : Number(netTotal) || 0;
+
+  const getFinalPackageVat = (vatAmount) => Number(vatAmount) || 0;
   const [
     lastPaymentFrequencyAndDiscountedPrice,
     setLastPaymentFrequencyAndDiscountedPrice,
@@ -6704,34 +6727,98 @@ const ReviewPackagesComponent = (props) => {
     props.vatPercentageOneOff,
   ]);
 
+  // ---------------------------------------------------------------------------
+  // Auto-toggle "Fees in the proposal" mode + discount line visibility.
+  //
+  // User request: keep the old code visible (commented) and annotate changes.
+  //
+  // BEFORE (old behavior, simplified):
+  //
+  // useEffect(() => {
+  //   if (hasMounted.current) {
+  //     // Old signal was `DefaultDiscount < 0`, which can get stale when user
+  //     // navigates back / changes packages without touching the input again.
+  //     const isRecurringDiscounted = Number(props.RecurringPricingInfo.DefaultDiscount) < 0;
+  //     const isOneOffDiscounted = Number(props.OneOffPricingInfo.DefaultDiscount) < 0;
+  //
+  //     if (isRecurringDiscounted || isOneOffDiscounted) {
+  //       props.setDisableCondition(true);
+  //       props.setProposalObject({ ...props.ProposalObject, feeTypeId: 2, DiscountLines: false });
+  //     } else {
+  //       props.setDisableCondition(false);
+  //       props.setProposalObject({ ...props.ProposalObject, feeTypeId: 1, DiscountLines: true });
+  //     }
+  //   } else {
+  //     // CRITICAL BUG: first render of a new component instance skips the correction.
+  //     // If we land here with DiscountLines=false but no negative discounts, it stays
+  //     // wrong until a user edits an input (your repro).
+  //     hasMounted.current = true;
+  //   }
+  // }, [props.RecurringPricingInfo.DefaultDiscount, props.OneOffPricingInfo.DefaultDiscount]);
+  //
+  // NOW (new behavior):
+  // - The "negative discount" signal is derived from the *actual* per-package % inputs.
+  // - The effect runs on first mount too (no mount-skip behavior).
+  // - Setters are only called when values differ, to avoid render loops.
+  // ---------------------------------------------------------------------------
   useEffect(() => {
-    if (hasMounted.current) {
-      const isRecurringDiscounted =
-        Number(props.RecurringPricingInfo.DefaultDiscount) < 0;
-      const isOneOffDiscounted =
-        Number(props.OneOffPricingInfo.DefaultDiscount) < 0;
+    // CHANGE: Replace stale `DefaultDiscount < 0` with "any package discount % < 0".
+    // This matches the values the user actually edits and is stable across navigation.
+    const isRecurringDiscounted = [
+      Number(props.RecurringPricingInfo?.DiscountPercentagePackageOne), // pkg1 %
+      Number(props.RecurringPricingInfo?.DiscountPercentagePackageTwo), // pkg2 %
+      Number(props.RecurringPricingInfo?.DiscountPercentagePackageThree), // pkg3 %
+    ]
+      .filter((n) => Number.isFinite(n)) // ignore null/undefined/NaN
+      .some((n) => n < 0); // negative => surcharge mode
 
-      if (isRecurringDiscounted || isOneOffDiscounted) {
-        props.setDisableCondition(true);
-        props.setProposalObject({
-          ...props.ProposalObject,
-          feeTypeId: 2,
-          DiscountLines: false,
-        });
-      } else {
-        props.setDisableCondition(false);
-        props.setProposalObject({
-          ...props.ProposalObject,
-          feeTypeId: 1,
-          DiscountLines: true,
-        });
-      }
-    } else {
+    // CHANGE: For one-off, read from `OneOffPricingInfoCopy` (same object used by the onChange handler).
+    const isOneOffDiscounted = [
+      Number(props.OneOffPricingInfoCopy?.DiscountPercentagePackageOne),
+      Number(props.OneOffPricingInfoCopy?.DiscountPercentagePackageTwo),
+      Number(props.OneOffPricingInfoCopy?.DiscountPercentagePackageThree),
+    ]
+      .filter((n) => Number.isFinite(n))
+      .some((n) => n < 0);
+
+    // CHANGE: unify both tables into one boolean that controls the page-level mode.
+    const shouldDisable = isRecurringDiscounted || isOneOffDiscounted;
+
+    // CHANGE: derive desired UI state from `shouldDisable`:
+    // - surcharge (negative) => feeTypeId=2 and DiscountLines=false
+    // - normal => feeTypeId=1 and DiscountLines=true
+    const desiredFeeTypeId = shouldDisable ? 2 : 1;
+    const desiredDiscountLines = !shouldDisable;
+
+    // CHANGE: run on first render too, but only update if current value differs.
+    if (props.disableCondition !== shouldDisable) {
+      props.setDisableCondition(shouldDisable);
+    }
+
+    // CHANGE: only update ProposalObject when its relevant fields are inconsistent.
+    // This avoids unnecessary state writes and reduces the risk of loops.
+    if (
+      props.ProposalObject?.feeTypeId !== desiredFeeTypeId ||
+      props.ProposalObject?.DiscountLines !== desiredDiscountLines
+    ) {
+      props.setProposalObject({
+        ...props.ProposalObject,
+        feeTypeId: desiredFeeTypeId,
+        DiscountLines: desiredDiscountLines,
+      });
+    }
+
+    // NOTE: We keep the ref updated (legacy pattern) but we no longer skip work.
+    if (!hasMounted.current) {
       hasMounted.current = true;
     }
   }, [
-    props.RecurringPricingInfo.DefaultDiscount,
-    props.OneOffPricingInfo.DefaultDiscount,
+    props.RecurringPricingInfo?.DiscountPercentagePackageOne,
+    props.RecurringPricingInfo?.DiscountPercentagePackageTwo,
+    props.RecurringPricingInfo?.DiscountPercentagePackageThree,
+    props.OneOffPricingInfoCopy?.DiscountPercentagePackageOne,
+    props.OneOffPricingInfoCopy?.DiscountPercentagePackageTwo,
+    props.OneOffPricingInfoCopy?.DiscountPercentagePackageThree,
   ]);
   // const AcceptRecurringELOffUrlButton1 = `https://$AppUrl$/accept-decline-proposal?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.Recurring}&Action=Accepted&ServicePackageKeyID=${props.selectedPackagesList[0]?.servicePackageKeyID}`;
   // const AcceptRecurringELOffUrlButton2 = `https://$AppUrl$/accept-decline-proposal?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.Recurring}&Action=Accepted&ServicePackageKeyID=${props.selectedPackagesList[1]?.servicePackageKeyID}`;
@@ -11428,6 +11515,13 @@ const ReviewPackagesComponent = (props) => {
   };
 
   const handleOneOffPackageOneDiscountPercentage = (e) => {
+    console.log("[pkg][oneoff][discountInput] pkg1 onChange", {
+      raw: e?.target?.value,
+      selectedTemplateID: props.selectedTemplateID,
+      selectedTemplateIDOneOff: props.selectedTemplateIDOneOff,
+      DiscountLines: props.ProposalObject?.DiscountLines,
+      existing: props.OneOffPricingInfoCopy?.DiscountPercentagePackageOne,
+    });
     let InputValue = checkAllPackageDiscountPercentageValidation(
       e.target.value,
       props.OneOffPricingInfoCopy.DiscountPercentagePackageOne,
@@ -11509,6 +11603,13 @@ const ReviewPackagesComponent = (props) => {
   };
 
   const handlePackageOneDiscountPercentage = (e) => {
+    console.log("[pkg][recurring][discountInput] pkg1 onChange", {
+      raw: e?.target?.value,
+      selectedTemplateID: props.selectedTemplateID,
+      selectedTemplateIDOneOff: props.selectedTemplateIDOneOff,
+      DiscountLines: props.ProposalObject?.DiscountLines,
+      existing: props.RecurringPricingInfo?.DiscountPercentagePackageOne,
+    });
     let InputValue = checkAllPackageDiscountPercentageValidation(
       e.target.value,
       props.RecurringPricingInfo.DiscountPercentagePackageOne,
@@ -13108,6 +13209,121 @@ const ReviewPackagesComponent = (props) => {
                               </tr>
                             </>
                           )}
+                          {(() => {
+                            // Debug: package surcharge / negative discount signals (template 6 only)
+                            console.log("[pkg][recurring][tpl6] pkg1 values", {
+                              totalOnePackageValue,
+                              packageOneNetTotal:
+                                props.RecurringPricingInfo?.packageOneNetTotal,
+                              packageOneDisCountedTotal:
+                                props.RecurringPricingInfo
+                                  ?.packageOneDisCountedTotal,
+                              PackageOneVaTPrice:
+                                props.RecurringPricingInfo?.PackageOneVaTPrice,
+                              PackageOneStaticVaTPrice:
+                                props.RecurringPricingInfo
+                                  ?.PackageOneStaticVaTPrice,
+                              packageOneDisCount:
+                                props.RecurringPricingInfo?.packageOneDisCount,
+                              discountPercentagePackageOne:
+                                props.RecurringPricingInfo
+                                  ?.DiscountPercentagePackageOne,
+                              DiscountLines: props.ProposalObject?.DiscountLines,
+                              pkg1_isSurcharge_netGtOriginal:
+                                Number(
+                                  props.RecurringPricingInfo?.packageOneNetTotal,
+                                ) > Number(totalOnePackageValue),
+                              pkg1_isSurcharge_originalGtNet:
+                                Number(totalOnePackageValue) >
+                                Number(
+                                  props.RecurringPricingInfo?.packageOneNetTotal,
+                                ),
+                            });
+
+                            console.log("[pkg][recurring][tpl6] pkg2/3 values", {
+                              packageCount,
+                              totalTwoPackageValue,
+                              packageTwoNetTotal:
+                                props.RecurringPricingInfo?.packageTwoNetTotal,
+                              packageTwoDisCountedTotal:
+                                props.RecurringPricingInfo
+                                  ?.packageTwoDisCountedTotal,
+                              PackageTwoVaTPrice:
+                                props.RecurringPricingInfo?.PackageTwoVaTPrice,
+                              PackageTwoStaticVaTPrice:
+                                props.RecurringPricingInfo
+                                  ?.PackageTwoStaticVaTPrice,
+                              packageTwoDisCount:
+                                props.RecurringPricingInfo?.packageTwoDisCount,
+                              discountPercentagePackageTwo:
+                                props.RecurringPricingInfo
+                                  ?.DiscountPercentagePackageTwo,
+                              pkg2_isSurcharge_netGtOriginal:
+                                Number(
+                                  props.RecurringPricingInfo?.packageTwoNetTotal,
+                                ) > Number(totalTwoPackageValue),
+                              totalThreePackageValue,
+                              packageThreeNetTotal:
+                                props.RecurringPricingInfo
+                                  ?.packageThreeNetTotal,
+                              packageThreeDisCountedTotal:
+                                props.RecurringPricingInfo
+                                  ?.packageThreeDisCountedTotal,
+                              PackageThreeVaTPrice:
+                                props.RecurringPricingInfo
+                                  ?.PackageThreeVaTPrice,
+                              PackageThreeStaticVaTPrice:
+                                props.RecurringPricingInfo
+                                  ?.PackageThreeStaticVaTPrice,
+                              packageThreeDisCount:
+                                props.RecurringPricingInfo
+                                  ?.packageThreeDisCount,
+                              discountPercentagePackageThree:
+                                props.RecurringPricingInfo
+                                  ?.DiscountPercentagePackageThree,
+                              pkg3_isSurcharge_netGtOriginal:
+                                Number(
+                                  props.RecurringPricingInfo
+                                    ?.packageThreeNetTotal,
+                                ) > Number(totalThreePackageValue),
+                            });
+
+                            console.log(
+                              "[pkg][recurring][tpl6] derived flags",
+                              {
+                                anyNegativeDiscountPercentage: [
+                                  Number(
+                                    props.RecurringPricingInfo
+                                      ?.DiscountPercentagePackageOne,
+                                  ),
+                                  Number(
+                                    props.RecurringPricingInfo
+                                      ?.DiscountPercentagePackageTwo,
+                                  ),
+                                  Number(
+                                    props.RecurringPricingInfo
+                                      ?.DiscountPercentagePackageThree,
+                                  ),
+                                ]
+                                  .filter((n) => Number.isFinite(n))
+                                  .some((n) => n < 0),
+                                anySurchargeByNetGtOriginal: [
+                                  Number(
+                                    props.RecurringPricingInfo?.packageOneNetTotal,
+                                  ) > Number(totalOnePackageValue),
+                                  Number(
+                                    props.RecurringPricingInfo?.packageTwoNetTotal,
+                                  ) > Number(totalTwoPackageValue),
+                                  Number(
+                                    props.RecurringPricingInfo
+                                      ?.packageThreeNetTotal,
+                                  ) > Number(totalThreePackageValue),
+                                ].some(Boolean),
+                              },
+                            );
+
+                            return null;
+                          })()}
                           <tr className="head-row">
                             <td className="tr-table-class font-14 text-white">
                               Net Total
@@ -14748,6 +14964,302 @@ const ReviewPackagesComponent = (props) => {
                             </>
                           )}
                           {/* Net Total */}
+                          {hasAnyNegativePackageDiscountRecurringCustom && (
+                            <tr className="head-row">
+                              <td className="tr-table-class font-14 text-white">
+                                Net Total
+                              </td>
+
+                              {/* Package 1 */}
+                              {props.visibleFieldsCustomTemp.fees && (
+                                <td className="tr-table-class font-14 text-white text-right">
+                                  {props.formatValue(
+                                    getFinalPackageNet(
+                                      props.RecurringPricingInfo
+                                        ?.packageOneNetTotal,
+                                      props.RecurringPricingInfo
+                                        ?.packageOneDisCountedTotal,
+                                      props.RecurringPricingInfo?.packageOneDisCount,
+                                    ),
+                                    props.currencyID,
+                                  )}
+                                </td>
+                              )}
+                              {props.vatPercentage !== 0 &&
+                                props.visibleFieldsCustomTemp.vatRate && (
+                                  <td className="tr-table-class font-14 text-white"></td>
+                                )}
+                              {props.vatPercentage
+                                ? props.visibleFieldsCustomTemp.vat && (
+                                    <td className="tr-table-class font-14 text-white text-right">
+                                      {props.formatValue(
+                                        getFinalPackageVat(
+                                          props.RecurringPricingInfo
+                                            ?.PackageOneVaTPrice,
+                                        ),
+                                        props.currencyID,
+                                      )}
+                                    </td>
+                                  )
+                                : ""}
+                              {props.vatPercentage !== 0 &&
+                                props.visibleFieldsCustomTemp.feesIncVat && (
+                                  <td className="tr-table-class font-14 text-white text-right">
+                                    {props.formatValue(
+                                      getFinalPackageNet(
+                                        props.RecurringPricingInfo
+                                          ?.packageOneNetTotal,
+                                        props.RecurringPricingInfo
+                                          ?.packageOneDisCountedTotal,
+                                        props.RecurringPricingInfo
+                                          ?.packageOneDisCount,
+                                      ) +
+                                        getFinalPackageVat(
+                                          props.RecurringPricingInfo
+                                            ?.PackageOneVaTPrice,
+                                        ),
+                                      props.currencyID,
+                                    )}
+                                  </td>
+                                )}
+                              {props.visibleFieldsCustomTemp.serviceScope && (
+                                <td></td>
+                              )}
+
+                              {/* Package 2 */}
+                              {packageCount >= 2 && (
+                                <>
+                                  {props.visibleFieldsCustomTemp.fees && (
+                                    <td className="tr-table-class font-14 text-white text-right">
+                                      {props.formatValue(
+                                        getFinalPackageNet(
+                                          props.RecurringPricingInfo
+                                            ?.packageTwoNetTotal,
+                                          props.RecurringPricingInfo
+                                            ?.packageTwoDisCountedTotal,
+                                          props.RecurringPricingInfo
+                                            ?.packageTwoDisCount,
+                                        ),
+                                        props.currencyID,
+                                      )}
+                                    </td>
+                                  )}
+                                  {props.vatPercentage !== 0 &&
+                                    props.visibleFieldsCustomTemp.vatRate && (
+                                      <td className="tr-table-class font-14 text-white"></td>
+                                    )}
+                                  {props.vatPercentage
+                                    ? props.visibleFieldsCustomTemp.vat && (
+                                        <td className="tr-table-class font-14 text-white text-right">
+                                          {props.formatValue(
+                                            getFinalPackageVat(
+                                              props.RecurringPricingInfo
+                                                ?.PackageTwoVaTPrice,
+                                            ),
+                                            props.currencyID,
+                                          )}
+                                        </td>
+                                      )
+                                    : ""}
+                                  {props.vatPercentage !== 0 &&
+                                    props.visibleFieldsCustomTemp.feesIncVat && (
+                                      <td className="tr-table-class font-14 text-white text-right">
+                                        {props.formatValue(
+                                          getFinalPackageNet(
+                                            props.RecurringPricingInfo
+                                              ?.packageTwoNetTotal,
+                                            props.RecurringPricingInfo
+                                              ?.packageTwoDisCountedTotal,
+                                            props.RecurringPricingInfo
+                                              ?.packageTwoDisCount,
+                                          ) +
+                                            getFinalPackageVat(
+                                              props.RecurringPricingInfo
+                                                ?.PackageTwoVaTPrice,
+                                            ),
+                                          props.currencyID,
+                                        )}
+                                      </td>
+                                    )}
+                                  {props.visibleFieldsCustomTemp.serviceScope && (
+                                    <td></td>
+                                  )}
+                                </>
+                              )}
+
+                              {/* Package 3 */}
+                              {packageCount === 3 && (
+                                <>
+                                  {props.visibleFieldsCustomTemp.fees && (
+                                    <td className="tr-table-class font-14 text-white text-right">
+                                      {props.formatValue(
+                                        getFinalPackageNet(
+                                          props.RecurringPricingInfo
+                                            ?.packageThreeNetTotal,
+                                          props.RecurringPricingInfo
+                                            ?.packageThreeDisCountedTotal,
+                                          props.RecurringPricingInfo
+                                            ?.packageThreeDisCount,
+                                        ),
+                                        props.currencyID,
+                                      )}
+                                    </td>
+                                  )}
+                                  {props.vatPercentage !== 0 &&
+                                    props.visibleFieldsCustomTemp.vatRate && (
+                                      <td className="tr-table-class font-14 text-white"></td>
+                                    )}
+                                  {props.vatPercentage
+                                    ? props.visibleFieldsCustomTemp.vat && (
+                                        <td className="tr-table-class font-14 text-white text-right">
+                                          {props.formatValue(
+                                            getFinalPackageVat(
+                                              props.RecurringPricingInfo
+                                                ?.PackageThreeVaTPrice,
+                                            ),
+                                            props.currencyID,
+                                          )}
+                                        </td>
+                                      )
+                                    : ""}
+                                  {props.vatPercentage !== 0 &&
+                                    props.visibleFieldsCustomTemp.feesIncVat && (
+                                      <td className="tr-table-class font-14 text-white text-right">
+                                        {props.formatValue(
+                                          getFinalPackageNet(
+                                            props.RecurringPricingInfo
+                                              ?.packageThreeNetTotal,
+                                            props.RecurringPricingInfo
+                                              ?.packageThreeDisCountedTotal,
+                                            props.RecurringPricingInfo
+                                              ?.packageThreeDisCount,
+                                          ) +
+                                            getFinalPackageVat(
+                                              props.RecurringPricingInfo
+                                                ?.PackageThreeVaTPrice,
+                                            ),
+                                          props.currencyID,
+                                        )}
+                                      </td>
+                                    )}
+                                  {props.visibleFieldsCustomTemp.serviceScope && (
+                                    <td></td>
+                                  )}
+                                </>
+                              )}
+                            </tr>
+                          )}
+                          {(() => {
+                            // Debug: package surcharge / negative discount signals (custom recurring table: template 6)
+                            console.log("[pkg][recurring][tpl6-custom] pkg1 values", {
+                              totalOnePackageValue,
+                              packageOneNetTotal:
+                                props.RecurringPricingInfo?.packageOneNetTotal,
+                              packageOneDisCountedTotal:
+                                props.RecurringPricingInfo
+                                  ?.packageOneDisCountedTotal,
+                              PackageOneVaTPrice:
+                                props.RecurringPricingInfo?.PackageOneVaTPrice,
+                              PackageOneStaticVaTPrice:
+                                props.RecurringPricingInfo
+                                  ?.PackageOneStaticVaTPrice,
+                              packageOneDisCount:
+                                props.RecurringPricingInfo?.packageOneDisCount,
+                              discountPercentagePackageOne:
+                                props.RecurringPricingInfo
+                                  ?.DiscountPercentagePackageOne,
+                              DiscountLines: props.ProposalObject?.DiscountLines,
+                              pkg1_isSurcharge_netGtOriginal:
+                                Number(
+                                  props.RecurringPricingInfo?.packageOneNetTotal,
+                                ) > Number(totalOnePackageValue),
+                            });
+
+                            console.log("[pkg][recurring][tpl6-custom] pkg2/3 values", {
+                              packageCount,
+                              totalTwoPackageValue,
+                              packageTwoNetTotal:
+                                props.RecurringPricingInfo?.packageTwoNetTotal,
+                              packageTwoDisCountedTotal:
+                                props.RecurringPricingInfo
+                                  ?.packageTwoDisCountedTotal,
+                              PackageTwoVaTPrice:
+                                props.RecurringPricingInfo?.PackageTwoVaTPrice,
+                              PackageTwoStaticVaTPrice:
+                                props.RecurringPricingInfo
+                                  ?.PackageTwoStaticVaTPrice,
+                              packageTwoDisCount:
+                                props.RecurringPricingInfo?.packageTwoDisCount,
+                              discountPercentagePackageTwo:
+                                props.RecurringPricingInfo
+                                  ?.DiscountPercentagePackageTwo,
+                              pkg2_isSurcharge_netGtOriginal:
+                                Number(
+                                  props.RecurringPricingInfo?.packageTwoNetTotal,
+                                ) > Number(totalTwoPackageValue),
+                              totalThreePackageValue,
+                              packageThreeNetTotal:
+                                props.RecurringPricingInfo
+                                  ?.packageThreeNetTotal,
+                              packageThreeDisCountedTotal:
+                                props.RecurringPricingInfo
+                                  ?.packageThreeDisCountedTotal,
+                              PackageThreeVaTPrice:
+                                props.RecurringPricingInfo
+                                  ?.PackageThreeVaTPrice,
+                              PackageThreeStaticVaTPrice:
+                                props.RecurringPricingInfo
+                                  ?.PackageThreeStaticVaTPrice,
+                              packageThreeDisCount:
+                                props.RecurringPricingInfo
+                                  ?.packageThreeDisCount,
+                              discountPercentagePackageThree:
+                                props.RecurringPricingInfo
+                                  ?.DiscountPercentagePackageThree,
+                              pkg3_isSurcharge_netGtOriginal:
+                                Number(
+                                  props.RecurringPricingInfo
+                                    ?.packageThreeNetTotal,
+                                ) > Number(totalThreePackageValue),
+                            });
+
+                            console.log(
+                              "[pkg][recurring][tpl6-custom] derived flags",
+                              {
+                                anyNegativeDiscountPercentage: [
+                                  Number(
+                                    props.RecurringPricingInfo
+                                      ?.DiscountPercentagePackageOne,
+                                  ),
+                                  Number(
+                                    props.RecurringPricingInfo
+                                      ?.DiscountPercentagePackageTwo,
+                                  ),
+                                  Number(
+                                    props.RecurringPricingInfo
+                                      ?.DiscountPercentagePackageThree,
+                                  ),
+                                ]
+                                  .filter((n) => Number.isFinite(n))
+                                  .some((n) => n < 0),
+                                anySurchargeByNetGtOriginal: [
+                                  Number(
+                                    props.RecurringPricingInfo?.packageOneNetTotal,
+                                  ) > Number(totalOnePackageValue),
+                                  Number(
+                                    props.RecurringPricingInfo?.packageTwoNetTotal,
+                                  ) > Number(totalTwoPackageValue),
+                                  Number(
+                                    props.RecurringPricingInfo
+                                      ?.packageThreeNetTotal,
+                                  ) > Number(totalThreePackageValue),
+                                ].some(Boolean),
+                              },
+                            );
+
+                            return null;
+                          })()}
+                          {!hasAnyNegativePackageDiscountRecurringCustom && (
                           <tr className="head-row">
                             <td className="tr-table-class font-14 text-white">
                               Net Total
@@ -14956,19 +15468,21 @@ const ReviewPackagesComponent = (props) => {
                               </>
                             )}
                           </tr>
+                          )}
                           
                           {/* Discount */}
-                          {(Number(
-                            props.RecurringPricingInfo.packageThreeDisCount,
-                          ) > 0 ||
-                            Number(
-                              props.RecurringPricingInfo.packageOneDisCount,
+                          {!hasAnyNegativePackageDiscountRecurringCustom &&
+                            (Number(
+                              props.RecurringPricingInfo.packageThreeDisCount,
                             ) > 0 ||
-                            Number(
-                              props.RecurringPricingInfo.packageTwoDisCount,
-                            ) > 0) &&
+                              Number(
+                                props.RecurringPricingInfo.packageOneDisCount,
+                              ) > 0 ||
+                              Number(
+                                props.RecurringPricingInfo.packageTwoDisCount,
+                              ) > 0) &&
                             props.ProposalObject.DiscountLines && (
-                              <>
+                            <>
                                 <tr className="head-grey-row">
                                   <td className="tr-table-class font-14 text-white">
                                     Discount
@@ -15280,10 +15794,11 @@ const ReviewPackagesComponent = (props) => {
                                   )
                                 }
                                
-                              </>
-                            )}
+                            </>
+                          )}
 
-                          {(Number(props.vatPercentage) || 0) > 0 &&
+                          {!hasAnyNegativePackageDiscountRecurringCustom &&
+                          (Number(props.vatPercentage) || 0) > 0 &&
                             (Number(props.RecurringPricingInfo.packageOneDisCount) > 0 ||
                               Number(props.RecurringPricingInfo.packageTwoDisCount) > 0 ||
                               Number(props.RecurringPricingInfo.packageThreeDisCount) > 0) &&
@@ -17536,6 +18051,99 @@ const ReviewPackagesComponent = (props) => {
                             </>
                           )}
 
+                          {(() => {
+                            // Debug: package surcharge / negative discount signals (template 6 only)
+                            console.log("[pkg][oneoff][tpl6] pkg1 values", {
+                              totalOnePackageValueOneOff,
+                              packageOneNetTotal:
+                                props.OneOffPricingInfo?.packageOneNetTotal,
+                              packageOneDisCountedTotal:
+                                props.OneOffPricingInfo?.packageOneDisCountedTotal,
+                              PackageOneVaTPrice:
+                                props.OneOffPricingInfo?.PackageOneVaTPrice,
+                              PackageOneStaticVaTPrice:
+                                props.OneOffPricingInfo?.PackageOneStaticVaTPrice,
+                              packageOneDisCount:
+                                props.OneOffPricingInfo?.packageOneDisCount,
+                              discountPercentagePackageOne:
+                                props.OneOffPricingInfo?.DiscountPercentagePackageOne,
+                              DiscountLines: props.ProposalObject?.DiscountLines,
+                              pkg1_isSurcharge_netGtOriginal:
+                                Number(props.OneOffPricingInfo?.packageOneNetTotal) >
+                                Number(totalOnePackageValueOneOff),
+                              pkg1_isSurcharge_discountedGtOriginal:
+                                Number(
+                                  props.OneOffPricingInfo?.packageOneDisCountedTotal,
+                                ) > Number(totalOnePackageValueOneOff),
+                            });
+
+                            console.log("[pkg][oneoff][tpl6] pkg2/3 values", {
+                              packageCount,
+                              totalTwoPackageValueOneOff,
+                              packageTwoNetTotal:
+                                props.OneOffPricingInfo?.packageTwoNetTotal,
+                              packageTwoDisCountedTotal:
+                                props.OneOffPricingInfo?.packageTwoDisCountedTotal,
+                              PackageTwoVaTPrice:
+                                props.OneOffPricingInfo?.PackageTwoVaTPrice,
+                              PackageTwoStaticVaTPrice:
+                                props.OneOffPricingInfo?.PackageTwoStaticVaTPrice,
+                              packageTwoDisCount:
+                                props.OneOffPricingInfo?.packageTwoDisCount,
+                              discountPercentagePackageTwo:
+                                props.OneOffPricingInfo?.DiscountPercentagePackageTwo,
+                              pkg2_isSurcharge_discountedGtOriginal:
+                                Number(
+                                  props.OneOffPricingInfo?.packageTwoDisCountedTotal,
+                                ) > Number(totalTwoPackageValueOneOff),
+                              totalThreePackageValueOneOff,
+                              packageThreeNetTotal:
+                                props.OneOffPricingInfo?.packageThreeNetTotal,
+                              packageThreeDisCountedTotal:
+                                props.OneOffPricingInfo?.packageThreeDisCountedTotal,
+                              PackageThreeVaTPrice:
+                                props.OneOffPricingInfo?.PackageThreeVaTPrice,
+                              PackageThreeStaticVaTPrice:
+                                props.OneOffPricingInfo?.PackageThreeStaticVaTPrice,
+                              packageThreeDisCount:
+                                props.OneOffPricingInfo?.packageThreeDisCount,
+                              discountPercentagePackageThree:
+                                props.OneOffPricingInfo?.DiscountPercentagePackageThree,
+                              pkg3_isSurcharge_discountedGtOriginal:
+                                Number(
+                                  props.OneOffPricingInfo?.packageThreeDisCountedTotal,
+                                ) > Number(totalThreePackageValueOneOff),
+                            });
+
+                            console.log("[pkg][oneoff][tpl6] derived flags", {
+                              anyNegativeDiscountPercentage: [
+                                Number(
+                                  props.OneOffPricingInfo?.DiscountPercentagePackageOne,
+                                ),
+                                Number(
+                                  props.OneOffPricingInfo?.DiscountPercentagePackageTwo,
+                                ),
+                                Number(
+                                  props.OneOffPricingInfo?.DiscountPercentagePackageThree,
+                                ),
+                              ]
+                                .filter((n) => Number.isFinite(n))
+                                .some((n) => n < 0),
+                              anySurchargeByDiscountedGtOriginal: [
+                                Number(
+                                  props.OneOffPricingInfo?.packageOneDisCountedTotal,
+                                ) > Number(totalOnePackageValueOneOff),
+                                Number(
+                                  props.OneOffPricingInfo?.packageTwoDisCountedTotal,
+                                ) > Number(totalTwoPackageValueOneOff),
+                                Number(
+                                  props.OneOffPricingInfo?.packageThreeDisCountedTotal,
+                                ) > Number(totalThreePackageValueOneOff),
+                              ].some(Boolean),
+                            });
+
+                            return null;
+                          })()}
                           <tr className="head-row">
                             <td className="tr-table-class font-14 text-white">
                               Net Total
