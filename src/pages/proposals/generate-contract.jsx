@@ -18,7 +18,7 @@ import GeneratePdfLoaderPage from "../../components/GeneratePdfloaderpage";
 import { generatePdfUrl, mergePdfApiUrl } from "../../Base-Url/Base_Url";
 import Utils from "../../Middleware/Utils";
 function AcceptInvitation() {
-  const STOP_AFTER_PDF_GENERATION = true;
+  const STOP_AFTER_PDF_GENERATION = false;
 
   const {
     setTopbar,
