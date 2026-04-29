@@ -430,6 +430,11 @@ const BasicInformationComponent = (props) => {
   );
 };
 
+const toFiniteNumber = (value) => {
+  const num = Number(String(value ?? "").replace(/,/g, ""));
+  return Number.isFinite(num) ? num : 0;
+};
+
 const ReviewServicesComponent = (props) => {
   console.log(props.serviceDescriptionObj);
   const isInitialMount = useRef(true);
@@ -438,6 +443,52 @@ const ReviewServicesComponent = (props) => {
       ? { ...option, isDisabled: true }
       : option,
   );
+
+
+  const shouldUseAdjustedServiceTotal = (pricingInfo) => {
+    const originalPrice = toFiniteNumber(pricingInfo?.OriginalPrice);
+    const discountedPrice = toFiniteNumber(pricingInfo?.DiscountedPrice);
+    const discount = toFiniteNumber(pricingInfo?.Discount);
+    return (
+      discountedPrice > originalPrice ||
+      (discount > 0 && !props.engagementObj?.DiscountLines)
+    );
+  };
+
+  const getServiceNetTotal = (pricingInfo) =>
+    shouldUseAdjustedServiceTotal(pricingInfo)
+      ? toFiniteNumber(pricingInfo?.DiscountedPrice)
+      : toFiniteNumber(pricingInfo?.OriginalPrice);
+
+  const getServiceVatTotal = (
+    pricingInfo,
+    adjustedVatKey,
+    staticVatKey,
+    vatPercentage,
+  ) => {
+    if (!((Number(vatPercentage) || 0) > 0)) return 0;
+
+    const originalPrice = toFiniteNumber(pricingInfo?.OriginalPrice);
+    const discountedPrice = toFiniteNumber(pricingInfo?.DiscountedPrice);
+    const discount = toFiniteNumber(pricingInfo?.Discount);
+    const staticVat = toFiniteNumber(pricingInfo?.[staticVatKey]);
+    const adjustedVat = toFiniteNumber(pricingInfo?.[adjustedVatKey]);
+    const vatPrice = toFiniteNumber(pricingInfo?.VATPrice);
+    const vatPct = toFiniteNumber(vatPercentage);
+
+    // Negative discount (surcharge): VAT must track the adjusted net.
+    if (discountedPrice > originalPrice) {
+      return (discountedPrice * vatPct) / 100;
+    }
+
+    // Positive discount with hidden discount lines: prefer adjusted VAT fields.
+    if (discount > 0 && !props.engagementObj?.DiscountLines) {
+      return adjustedVat || vatPrice || (discountedPrice * vatPct) / 100;
+    }
+
+    // Default/custom-table "Net Total" VAT remains static (pre-discount) when not adjusted.
+    return staticVat;
+  };
 
   const modifiedPaymentGatewayType = Utils.payment_gateway.map((option) => {
     const isGoCardlessTokenInvalid =
@@ -3186,9 +3237,11 @@ const ReviewServicesComponent = (props) => {
                                   props.visibleFieldsCustomTemp.vat && (
                                     <td className="tr-table-class text-white text-center">
                                       {props.formatValue(
-                                        Number(
-                                          props.RecurringPricingInfo
-                                            .staticTotalVAT,
+                                        getServiceVatTotal(
+                                          props.RecurringPricingInfo,
+                                          "totalServiceWiseVAT",
+                                          "staticTotalVAT",
+                                          props.vatPercentage,
                                         ),
                                         props.currencyID,
                                       )}
@@ -3197,40 +3250,18 @@ const ReviewServicesComponent = (props) => {
                                 {props.vatPercentage !== 0 &&
                                   props.visibleFieldsCustomTemp.feesIncVat && (
                                     <td className="tr-table-class text-white text-center">
-                                      {Number(
-                                        props.RecurringPricingInfo
-                                          .OriginalPrice,
-                                      ) <
-                                        Number(
-                                          props.RecurringPricingInfo
-                                            .DiscountedPrice,
-                                        ) ||
-                                      (Number(
-                                        props.RecurringPricingInfo.Discount,
-                                      ) > 0 &&
-                                        !props.engagementObj.DiscountLines)
-                                        ? props.formatValue(
-                                            Number(
-                                              props.RecurringPricingInfo
-                                                .DiscountedPrice,
-                                            ) +
-                                              Number(
-                                                props.RecurringPricingInfo
-                                                  .staticTotalVAT,
-                                              ),
-                                            props.currencyID,
-                                          )
-                                        : props.formatValue(
-                                            Number(
-                                              props.RecurringPricingInfo
-                                                .OriginalPrice,
-                                            ) +
-                                              Number(
-                                                props.RecurringPricingInfo
-                                                  .staticTotalVAT,
-                                              ),
-                                            props.currencyID,
-                                          )}
+                                      {props.formatValue(
+                                        getServiceNetTotal(
+                                          props.RecurringPricingInfo,
+                                        ) +
+                                          getServiceVatTotal(
+                                            props.RecurringPricingInfo,
+                                            "totalServiceWiseVAT",
+                                            "staticTotalVAT",
+                                            props.vatPercentage,
+                                          ),
+                                        props.currencyID,
+                                      )}
                                     </td>
                                   )}
                                 {props.visibleFieldsCustomTemp.serviceScope && (
@@ -4227,9 +4258,11 @@ const ReviewServicesComponent = (props) => {
                                   props.visibleFieldsCustomTemp.vat && (
                                     <td className="tr-table-class text-white text-center">
                                       {props.formatValue(
-                                        Number(
-                                          props.OneOffPricingInfo
-                                            .staticTotalVATOneOff,
+                                        getServiceVatTotal(
+                                          props.OneOffPricingInfo,
+                                          "totalServiceWiseVATOneOff",
+                                          "staticTotalVATOneOff",
+                                          props.vatPercentageOneOff,
                                         ),
                                         props.currencyID,
                                       )}
@@ -4238,39 +4271,18 @@ const ReviewServicesComponent = (props) => {
                                 {props.vatPercentageOneOff !== 0 &&
                                   props.visibleFieldsCustomTemp.feesIncVat && (
                                     <td className="tr-table-class text-white text-center">
-                                      {Number(
-                                        props.OneOffPricingInfo.OriginalPrice,
-                                      ) <
-                                        Number(
-                                          props.OneOffPricingInfo
-                                            .DiscountedPrice,
-                                        ) ||
-                                      (Number(
-                                        props.OneOffPricingInfo.Discount,
-                                      ) > 0 &&
-                                        !props.engagementObj.DiscountLines)
-                                        ? props.formatValue(
-                                            Number(
-                                              props.OneOffPricingInfo
-                                                .DiscountedPrice,
-                                            ) +
-                                              Number(
-                                                props.OneOffPricingInfo
-                                                  .staticTotalVATOneOff,
-                                              ),
-                                            props.currencyID,
-                                          )
-                                        : props.formatValue(
-                                            Number(
-                                              props.OneOffPricingInfo
-                                                .OriginalPrice,
-                                            ) +
-                                              Number(
-                                                props.OneOffPricingInfo
-                                                  .staticTotalVATOneOff,
-                                              ),
-                                            props.currencyID,
-                                          )}
+                                      {props.formatValue(
+                                        getServiceNetTotal(
+                                          props.OneOffPricingInfo,
+                                        ) +
+                                          getServiceVatTotal(
+                                            props.OneOffPricingInfo,
+                                            "totalServiceWiseVATOneOff",
+                                            "staticTotalVATOneOff",
+                                            props.vatPercentageOneOff,
+                                          ),
+                                        props.currencyID,
+                                      )}
                                     </td>
                                   )}
                                 {props.visibleFieldsCustomTemp.serviceScope && (

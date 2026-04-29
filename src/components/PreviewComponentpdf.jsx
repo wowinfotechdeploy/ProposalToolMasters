@@ -543,7 +543,9 @@ export default function PreviewComponentPdf(props) {
               const price = toFiniteNumber(subService.price);
               const vatPct = subService.service_vat_percentage ?? 0;
               const vatAmount = (price * vatPct) / 100;
-              const feesIncVat = price + (toFiniteNumber(subService.service_vat_amount) || vatAmount);
+              // Always compute Fees inc VAT from price + computed VAT.
+              // `service_vat_amount` can be unreliable (sometimes repeated totals).
+              const feesIncVat = price + vatAmount;
               const driverList = getServiceScopeDriverList(subService);
               
               const driverDisplay = driverList.length > 0
@@ -839,7 +841,9 @@ export default function PreviewComponentPdf(props) {
               const price = toFiniteNumber(subService.price);
               const vatPct = subService.service_vat_percentage ?? 0;
               const vatAmount = (price * vatPct) / 100;
-              const feesIncVat = price + (toFiniteNumber(subService.service_vat_amount) || vatAmount);
+              // Always compute Fees inc VAT from price + computed VAT.
+              // `service_vat_amount` can be unreliable (sometimes repeated totals).
+              const feesIncVat = price + vatAmount;
               const driverList = getServiceScopeDriverList(subService);
               
               const driverDisplay = driverList.length > 0
@@ -8306,10 +8310,7 @@ ${
       ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word;">
           ${
             props.ProposalObject.feeTypeId === 1
-              ? props.formatValue(
-                  price + Number(subService.service_vat_amount),
-                  props.currencyID,
-                )
+              ? props.formatValue(total, props.currencyID)
               : "&#10003;"
           }
         </td>`
